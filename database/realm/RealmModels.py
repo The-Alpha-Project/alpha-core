@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, Float, ForeignKey, String, TIMESTAMP, Text, text, Index, Table
+from sqlalchemy import Column, Float, ForeignKey, String, TIMESTAMP, Text, text, Index, Table, LargeBinary
 from sqlalchemy.dialects.mysql import BIGINT, INTEGER, LONGTEXT, MEDIUMINT, SMALLINT, TINYINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -226,6 +226,31 @@ class CharacterSpellButton(Base):
     spell = Column(INTEGER(11), nullable=False, primary_key=True, server_default=text("'1'"))
 
     character = relationship('Character')
+
+
+class CharacterPet(Base):
+    __tablename__ = 'character_pets'
+
+    pet_id = Column(INTEGER(11), autoincrement=True, nullable=False, primary_key=True, server_default=text("'0'"))
+    owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'"))
+    creature_id = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    created_by_spell = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    level = Column(INTEGER(11), nullable=False, server_default=text("'1'"))
+    xp = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    react_state = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
+    command_state = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
+
+    loyalty = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    loyalty_points = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    training_points = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+
+    name = Column(String(255), nullable=False, server_default=text("''"))
+    renamed = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
+
+    health = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    mana = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    happiness = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    action_bar = Column(LargeBinary(40), nullable=False, server_default=text("''"))
 
 
 class Guild(Base):

@@ -8550,8 +8550,8 @@ begin not atomic
         insert into applied_updates values ('070820223');
 
     end if;
-
-   -- 08/08/2022 1
+    
+    -- 08/08/2022 1
     if (select count(*) from applied_updates where id='080820221') = 0 then
 
         -- SCALE FIX FOR TELDRASSIL/ASHENVALE/BARRENS
@@ -8700,7 +8700,7 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=1347
         WHERE `entry`=3273;
-        
+
         -- Thistlefur Shaman
         UPDATE `creature_template`
         SET `display_id1`=2001
@@ -8752,7 +8752,27 @@ begin not atomic
         WHERE `entry`=3461;
 
         insert into applied_updates values ('080820221');
-        
+
+    end if;
+
+    -- 08/08/2022 2
+    if (select count(*) from applied_updates where id='080820222') = 0 then
+
+        -- FIX #390
+
+        -- Serpentbloom, Plant Bundle, Violet Tragan, Beached Sea Creature, Gloom Weed, Incendia Agave, Skeletal Sea Turtle, Doom Weed, Shadowmoon Tuber
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '13891');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '17282');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '141853');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175207');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175566');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175928');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '176189');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '176753');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '184691');
+
+        insert into applied_updates values ('080820222');
+
     end if;
 end $
 delimiter ;

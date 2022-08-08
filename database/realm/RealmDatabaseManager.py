@@ -544,6 +544,30 @@ class RealmDatabaseManager(object):
         realm_db_session.flush()
         realm_db_session.close()
 
+    # Pets
+
+    @staticmethod
+    def character_get_pets(character_guid):
+        realm_db_session = SessionHolder()
+        pets = realm_db_session.query(CharacterPet).filter_by(owner=character_guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        realm_db_session.close()
+        return pets
+
+    @staticmethod
+    def character_update_pet(pet):
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(pet)
+        realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def character_add_pet(character_pet):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(character_pet)
+        realm_db_session.flush()
+        realm_db_session.refresh(character_pet)
+        realm_db_session.close()
+
     # Ticket stuff
 
     @staticmethod

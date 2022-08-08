@@ -672,67 +672,69 @@ class CreatureManager(UnitManager):
     # TODO: All the evade calls should be probably handled by aggro manager, it should be able to decide if unit can
     #  switch to another target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
-        if self.combat_target and not self.is_casting() and not self.is_evading:
-            if not self.combat_target.is_alive and len(self.attackers) == 0 or \
-                    (self.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER and not self.combat_target.online):
+        # Avoid moving while casting, no combat target, evading or target already dead.
+        if self.is_casting() or not self.combat_target or self.is_evading or not self.combat_target.is_alive:
+            return
+
+        # Check if target is player and is online.
+        target_is_player = self.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        if target_is_player and not self.combat_target.online:
+            self.leave_combat(True)
+            return
+
+        target_distance = self.location.distance(self.combat_target.location)
+        combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
+
+        if not self.is_pet():
+            # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
+            # From 0.5.4 patch notes:
+            #     "Creature pursuit is now timer based rather than distance based."
+            if self.location.distance(self.spawn_position) > Distances.CREATURE_EVADE_DISTANCE \
+                    or target_distance > Distances.CREATURE_EVADE_DISTANCE:
                 self.leave_combat(True)
                 return
 
-            target_distance = self.location.distance(self.combat_target.location)
-            combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
-
-            if not self.is_pet():
-                # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
-                # From 0.5.4 patch notes:
-                #     "Creature pursuit is now timer based rather than distance based."
-                if self.location.distance(self.spawn_position) > Distances.CREATURE_EVADE_DISTANCE \
-                        or target_distance > Distances.CREATURE_EVADE_DISTANCE:
+            # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
+            #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
+            #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
+            #  couldn't swim before patch 1.3.0:
+            #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
+            #   - Most humanoids NPCs have gained the ability to swim.
+            if self.is_on_water():
+                if not self.can_swim():
+                    self.leave_combat(True)
+                    return
+            else:
+                if not self.can_exit_water():
                     self.leave_combat(True)
                     return
 
-                # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
-                #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
-                #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
-                #  couldn't swim before patch 1.3.0:
-                #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
-                #   - Most humanoids NPCs have gained the ability to swim.
-                if self.is_on_water():
-                    if not self.can_swim():
-                        self.leave_combat(True)
-                        return
-                else:
-                    if not self.can_exit_water():
-                        self.leave_combat(True)
-                        return
+        # If this creature is not facing the attacker, update its orientation (server-side).
+        if not self.location.has_in_arc(self.combat_target.location, math.pi):
+            self.location.face_point(self.combat_target.location)
 
-            # If this creature is not facing the attacker, update its orientation (server-side).
-            if not self.location.has_in_arc(self.combat_target.location, math.pi):
-                self.location.face_point(self.combat_target.location)
-
-            combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
+        combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
                                                                                vector=self.location)
-            if not combat_location:
-                return
+        if not combat_location:
+            return
 
-            # If target is within combat distance or already in combat location, don't move.
-            if target_distance <= combat_position_distance and self.location == combat_location:
-                return
+        # If target is within combat distance or already in combat location, don't move.
+        if target_distance <= combat_position_distance and self.location == combat_location:
+            return
 
-            # If already going to the correct spot, don't do anything.
-            if len(self.movement_manager.pending_waypoints) > 0 \
-                    and self.movement_manager.pending_waypoints[0].location == combat_location:
-                return
+        # If already going to the correct spot, don't do anything.
+        if len(self.movement_manager.pending_waypoints) > 0 \
+                and self.movement_manager.pending_waypoints[0].location == combat_location:
+            return
 
-            if self.is_on_water():
-                # Force destination Z to target Z.
-                combat_location.z = self.combat_target.location.z
-                # TODO: Find how to actually trigger swim animation and which spline flag to use.
-                #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
-                self.movement_manager.send_move_normal([combat_location],
-                                                       self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
-            else:
-                self.movement_manager.send_move_normal([combat_location],
-                                                       self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+        if self.is_on_water():
+            # Force destination Z to target Z.
+            combat_location.z = self.combat_target.location.z
+            # TODO: Find how to actually trigger swim animation and which spline flag to use.
+            #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
+            self.movement_manager.send_move_normal([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
+        else:
+            self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
     def update(self, now):
@@ -762,7 +764,7 @@ class CreatureManager(UnitManager):
                 if self.object_ai:
                     self.object_ai.update_ai(elapsed)
                 # Attack Update.
-                if self.combat_target and self.is_within_interactable_distance(self.combat_target):
+                if self.combat_target:
                     self.attack_update(elapsed)
                 # Not in combat, check if threat manager can resolve a target or if unit should switch target.
                 elif self.threat_manager:
