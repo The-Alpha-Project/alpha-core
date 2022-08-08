@@ -298,8 +298,6 @@ class PetManager:
 
         self.add_pet_from_world(creature, spell_id, pet_level=pet_level, pet_index=pet_index)
 
-        creature.respawn()
-
     def remove_pet(self, pet_index):
         if self._get_pet_info(pet_index):
             self.pets.pop(pet_index)
@@ -409,9 +407,11 @@ class PetManager:
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETEXPERIENCE, active_pet_info.get_experience())
 
         # TODO Creature leveling should be handled by CreatureManager.
+        # TODO Client doesn't always see this levelup
         pet_creature.level = level
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, pet_creature.level)
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, active_pet_info.next_level_xp)
+        Logger.info(f"Pet {active_pet_info.name} leveled to {pet_creature.level}.")
 
         # Update spells in case new ones were unlocked. TODO pet spells should be trained instead.
         self._send_pet_spell_info()
