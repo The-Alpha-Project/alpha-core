@@ -55,7 +55,6 @@ class PetData:
         health = -1 if not creature_instance else creature_instance.health
         mana = -1 if not creature_instance else creature_instance.power_1
 
-
         character_pet = self._as_character_pet(health=health, mana=mana)
 
         if self.pet_id == -1:
