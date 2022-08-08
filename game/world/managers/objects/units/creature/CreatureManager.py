@@ -764,7 +764,7 @@ class CreatureManager(UnitManager):
                 if self.object_ai:
                     self.object_ai.update_ai(elapsed)
                 # Attack Update.
-                if self.combat_target and self.is_within_interactable_distance(self.combat_target):
+                if self.combat_target:
                     self.attack_update(elapsed)
                 # Not in combat, check if threat manager can resolve a target or if unit should switch target.
                 elif self.threat_manager:
