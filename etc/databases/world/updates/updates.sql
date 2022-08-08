@@ -8551,5 +8551,17 @@ begin not atomic
 
     end if;
 
+    -- 08/08/2022 2
+    if (select count(*) from applied_updates where id='080820222') = 0 then
+
+        -- FIX #390
+
+        UPDATE `gameobject_template`
+        SET `data0`=57
+        WHERE `type`=3;
+
+        insert into applied_updates values ('080820222');
+        
+    end if;
 end $
 delimiter ;
