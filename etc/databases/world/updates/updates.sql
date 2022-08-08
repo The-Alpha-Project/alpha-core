@@ -8327,6 +8327,95 @@ begin not atomic
 
         insert into applied_updates values ('070820222');
     end if;
+    
+    -- 07/08/2022 1
+    if (select count(*) from applied_updates where id='070820221') = 0 then
+
+        -- DARKSHORE
+
+        -- Moonstalker
+        UPDATE `creature_template`
+        SET `display_id1`=1043
+        WHERE `entry`=2069;
+
+        -- Moonstalker runt
+        UPDATE `creature_template`
+        SET `display_id1`=1008
+        WHERE `entry`=2070;
+
+        -- Moonstalker sire
+        UPDATE `creature_template`
+        SET `display_id1`=1055
+        WHERE `entry`=2237;
+
+        -- Blackwood totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1011
+        WHERE `entry`=2169;
+
+        -- Blackwood ursa
+        UPDATE `creature_template`
+        SET `display_id1`=1011
+        WHERE `entry`=2170;
+
+        -- Blackwood shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1011
+        WHERE `entry`=2171;
+
+        -- Blackwood windtalker
+        UPDATE `creature_template`
+        SET `display_id1`=1011
+        WHERE `entry`=2324;
+
+        -- Carnivous the breaker, named blackwood
+        UPDATE `creature_template`
+        SET `display_id1`=1012
+        WHERE `entry`=2186;
+
+        -- Stormscale Sorceress
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2182;
+
+        -- Stormscale Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2183;
+
+        -- Encrusted Tide Crawler
+        UPDATE `creature_template`
+        SET `display_id1`=999
+        WHERE `entry`=2233;
+
+        -- Rabid Thistle bear
+        UPDATE `creature_template`
+        SET `display_id1`=1006
+        WHERE `entry`=2164;
+
+        -- Licillin, named imp
+        UPDATE `creature_template`
+        SET `display_id1`=1017
+        WHERE `entry`=2191;
+
+        -- Cracked Golem
+        UPDATE `creature_template`
+        SET `display_id1`=975
+        WHERE `entry`=2156;
+
+        -- Writhing Highborne
+        UPDATE `creature_template`
+        SET `display_id1`=146
+        WHERE `entry`=2177;
+
+        -- Wailing Highborne
+        UPDATE `creature_template`
+        SET `display_id1`=984
+        WHERE `entry`=2178;
+
+        insert into applied_updates values ('070820221');
+
+    end if;
 
     -- 07/08/2022 3
     if (select count(*) from applied_updates where id='070820223') = 0 then
