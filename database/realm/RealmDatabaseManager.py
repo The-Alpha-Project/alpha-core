@@ -549,7 +549,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_get_pets(character_guid):
         realm_db_session = SessionHolder()
-        pets = realm_db_session.query(CharacterPet).filter_by(owne0_guid=character_guid & ~HighGuid.HIGHGUID_PLAYER).all()
+        pets = realm_db_session.query(CharacterPet).filter_by(owner_guid=character_guid & ~HighGuid.HIGHGUID_PLAYER).all()
         realm_db_session.close()
         return pets
 
