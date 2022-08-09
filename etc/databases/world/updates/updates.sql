@@ -8818,6 +8818,11 @@ begin not atomic
         SET `display_id1`=275
         WHERE `entry`=2372;
 
+        -- Melisara
+        UPDATE `creature_template`
+        SET `display_id1`=915
+        WHERE `entry`=2278;
+
         insert into applied_updates values ('100820221');
     end if;
 end $
