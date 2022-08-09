@@ -8782,6 +8782,27 @@ begin not atomic
 
         insert into applied_updates values ('080820223');
     end if;
+
+    -- 08/08/2022 4
+    if (select count(*) from applied_updates where id='080820224') = 0 then
+        -- Tirisfal Glades improvements
+        -- Remove Summoning circle at brill graveyard #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id`IN (339549, 339554, 339557, 339565, 339567, 339569, 339550, 339555, 339556, 339561, 339563, 339564, 339552, 339553, 339559, 399560, 339551, 399558, 399562, 399568);
+
+        -- Remove door interaction object at brill graveyard #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` = 44816;
+
+        -- despawn Quest: 'Marla's last Wish' #392
+        UPDATE `quest_template` SET `ignored`='1' WHERE  `entry` = 6395;
+        
+        -- Delete Samuals Remains item #392
+        DELETE FROM `item_template` WHERE  `entry` = 16333;
+        
+        -- Despawn Marla's grave Gameobject #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` = 45015;
+
+        insert into applied_updates values ('080820224');
+    end if;
 end $
 delimiter ;
 
