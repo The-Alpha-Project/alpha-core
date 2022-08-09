@@ -10,28 +10,34 @@ class QuestGiverQueryQuestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
+        player_mgr = world_session.player_mgr
+        # No player linked to session requester.
+        if not player_mgr:
+            Logger.warning('QuestGiverQueryQuestHandler received with null player_mgr.')
+            return 0
+
         if len(reader.data) >= 8:  # Avoid handling empty quest giver query quest packet.
             guid, quest_entry = unpack('<QL', reader.data[:12])
             high_guid = ObjectManager.extract_high_guid(guid)
 
             # NPC
             if high_guid == HighGuid.HIGHGUID_UNIT:
-                quest_giver = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+                quest_giver = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
                 if not quest_giver:
                     return 0
 
-                quest_giver_is_related = world_session.player_mgr.quest_manager.check_quest_giver_npc_is_related(
+                quest_giver_is_related = player_mgr.quest_manager.check_quest_giver_npc_is_related(
                     quest_giver, quest_entry)
                 if not quest_giver_is_related:
                     return 0
             # Gameobject
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                quest_giver = MapManager.get_surrounding_gameobject_by_guid(world_session, guid)
+                quest_giver = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
                 if not quest_giver:
                     return 0
             # Item
             elif high_guid == HighGuid.HIGHGUID_ITEM:
-                item_info = world_session.player_mgr.inventory.get_item_info_by_guid(guid)
+                item_info = player_mgr.inventory.get_item_info_by_guid(guid)
                 if not item_info[3]:
                     return 0
 
@@ -48,7 +54,7 @@ class QuestGiverQueryQuestHandler(object):
                 Logger.error(f'Error in CMSG_QUESTGIVER_QUERY_QUEST, could not find quest with an entry of: {quest_entry}')
                 return 0
  
-            world_session.player_mgr.quest_manager.send_quest_giver_quest_details(quest, guid, True)
+            player_mgr.quest_manager.send_quest_giver_quest_details(quest, guid, True)
 
         return 0
 
