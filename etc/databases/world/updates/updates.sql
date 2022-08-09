@@ -8828,6 +8828,21 @@ begin not atomic
         SET `display_id1`=863
         WHERE `entry`=1954;
 
+        -- Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=783
+        WHERE `entry`=1765;
+
+        -- Mottled Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=802
+        WHERE `entry`=1766;
+
+        -- Bloodsnut Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=782
+        WHERE `entry`=1923;
+
         insert into applied_updates values ('090820221');
     end if;
 end $
