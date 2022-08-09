@@ -117,5 +117,14 @@ begin not atomic
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         insert into applied_updates values ('070820221');
     end if;
+
+    -- 09/08/2022 1
+	if (select count(*) from applied_updates where id='090820221') = 0 then
+        ALTER TABLE `character_pets` CHANGE `owner` `owner_guid` int(11) unsigned NOT NULL DEFAULT 0;
+        ALTER TABLE `character_pets` ADD KEY `fk_character_pets_characters1_idx` (`owner_guid`);
+        ALTER TABLE `character_pets` ADD CONSTRAINT `fk_character_pets_characters1` FOREIGN KEY (`owner_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+		insert into applied_updates values ('090820221');
+    end if;
 end $
 delimiter ;

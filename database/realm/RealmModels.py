@@ -232,7 +232,7 @@ class CharacterPet(Base):
     __tablename__ = 'character_pets'
 
     pet_id = Column(INTEGER(11), autoincrement=True, nullable=False, primary_key=True, server_default=text("'0'"))
-    owner = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'"))
+    owner_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'"))
     creature_id = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     created_by_spell = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     level = Column(INTEGER(11), nullable=False, server_default=text("'1'"))
@@ -251,6 +251,8 @@ class CharacterPet(Base):
     mana = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     happiness = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     action_bar = Column(LargeBinary(40), nullable=False, server_default=text("''"))
+
+    owner = relationship('Character', lazy='joined')
 
 
 class Guild(Base):
