@@ -8783,8 +8783,8 @@ begin not atomic
         insert into applied_updates values ('080820223');
     end if;
 
-        -- 10/08/2022 1
-    if (select count(*) from applied_updates where id='100820221') = 0 then
+        -- 10/08/2022 2
+    if (select count(*) from applied_updates where id='100820222') = 0 then
     
         -- WETLANDS
 
@@ -8863,7 +8863,7 @@ begin not atomic
         SET `display_id1`=682
         WHERE `entry`=1033;
 
-        insert into applied_updates values ('100820221');
+        insert into applied_updates values ('100820222');
     end if;
 end $
 delimiter ;
