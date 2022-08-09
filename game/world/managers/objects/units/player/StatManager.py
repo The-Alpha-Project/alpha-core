@@ -380,6 +380,11 @@ class StatManager(object):
                         self.unit_mgr.is_in_feral_form():
                     continue
 
+                # Main hand damage when disarmed.
+                if item.current_slot == InventorySlots.SLOT_MAINHAND and \
+                        self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                    continue
+
                 if item.current_slot != InventorySlots.SLOT_MAINHAND and \
                     item.current_slot != InventorySlots.SLOT_OFFHAND and \
                         item.current_slot != InventorySlots.SLOT_RANGED:

@@ -16,8 +16,8 @@ MAX_ENCHANTMENTS = 5
 class EnchantmentManager(object):
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
-        # enchantment id: (is_weapon, spell id, proc chance).
-        self._applied_proc_enchants: Dict[int, Tuple[bool, int, int]] = {}
+        # enchantment id: (item_slot, spell id, proc chance).
+        self._applied_proc_enchants: Dict[int, Tuple[int, int, int]] = {}
 
     # Load and apply enchantments from item_instance.
     def load_enchantments_for_item(self, item):
@@ -76,10 +76,11 @@ class EnchantmentManager(object):
 
     def handle_melee_attack_procs(self, damage_info):
         for proc_enchant in self._applied_proc_enchants.values():
-            is_weapon, proc_spell_id, proc_chance = proc_enchant
+            item_slot, proc_spell_id, proc_chance = proc_enchant
 
             # Skip weapon procs if disarmed.
-            if is_weapon and self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+            is_main_hand = item_slot == InventorySlots.SLOT_MAINHAND
+            if is_main_hand and self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
                 continue
 
             if not self.unit_mgr.stat_manager.roll_proc_chance(proc_chance):
@@ -128,8 +129,7 @@ class EnchantmentManager(object):
             if not effect_spell_value or not proc_chance:
                 continue
 
-            is_weapon = item.is_melee_weapon() or item.is_ranged_weapon()
-            self._applied_proc_enchants[enchantment.entry] = (is_weapon, effect_spell_value, proc_chance)
+            self._applied_proc_enchants[enchantment.entry] = (item.current_slot, effect_spell_value, proc_chance)
 
     @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):
