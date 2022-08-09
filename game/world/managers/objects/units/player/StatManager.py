@@ -326,6 +326,11 @@ class StatManager(object):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             self.weapon_reach = self.unit_mgr.weapon_reach
             min_damage, max_damage = unpack('<2H', pack('<I', self.unit_mgr.damage))
+
+            # TODO, how to calculate unit damage when disarmed.
+            if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                max_damage = min_damage
+                
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = min_damage
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = max_damage
             self.item_stats[UnitStats.MAIN_HAND_DELAY] = self.unit_mgr.base_attack_time
