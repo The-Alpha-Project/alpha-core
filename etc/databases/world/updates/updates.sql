@@ -8813,11 +8813,6 @@ begin not atomic
         SET `display_id1`=858
         WHERE `entry`=1943;
 
-        -- Thule Ravenclaw
-        UPDATE `creature_template`
-        SET `display_id1`=859
-        WHERE `entry`=1947;
-
         -- Lake Skulker
         UPDATE `creature_template`
         SET `display_id1`=862
