@@ -8787,7 +8787,7 @@ begin not atomic
     if (select count(*) from applied_updates where id='080820224') = 0 then
         -- Tirisfal Glades improvements
         -- Remove Summoning circle at brill graveyard #392
-        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id`IN (339549, 339554, 339557, 339565, 339567, 339569, 339550, 339555, 339556, 339561, 339563, 339564, 339552, 339553, 339559, 399560, 339551, 399558, 399562, 399568);
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry` = 37097;
 
         -- Remove door interaction object at brill graveyard #392
         UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` = 44816;
