@@ -106,13 +106,15 @@ class ItemManager(ObjectManager):
 
     def is_melee_weapon(self):
         return self.item_template.inventory_type == InventoryTypes.WEAPON or \
+               self.item_template.inventory_type == InventoryTypes.WEAPONMAINHAND or \
                self.item_template.inventory_type == InventoryTypes.WEAPONOFFHAND or \
                self.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
 
     def is_ranged_weapon(self):
         return self.item_template.inventory_type == InventoryTypes.RANGED or \
-               self.item_template.inventory_type == InventoryTypes.RANGEDRIGHT
-
+               self.item_template.inventory_type == InventoryTypes.RANGEDRIGHT or \ 
+               self.item_template.inventory_type == InventoryTypes.THROWN
+               
     def is_equipped(self):
         return self.current_slot < InventorySlots.SLOT_BAG1 and \
             self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value
