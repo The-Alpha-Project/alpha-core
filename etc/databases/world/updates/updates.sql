@@ -8830,12 +8830,12 @@ begin not atomic
 
         -- Wolf
         UPDATE `creature_template`
-        SET `display_id1`=783
+        SET `display_id1`=781
         WHERE `entry`=1765;
 
         -- Mottled Wolf
         UPDATE `creature_template`
-        SET `display_id1`=802
+        SET `display_id1`=783
         WHERE `entry`=1766;
 
         -- Bloodsnut Wolf
