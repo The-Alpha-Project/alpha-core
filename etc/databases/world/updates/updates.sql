@@ -8796,22 +8796,22 @@ begin not atomic
         -- Daggerspine Siren
         UPDATE `creature_template`
         SET `display_id1`=4036
-        WHERE `entry`=2271;
+        WHERE `entry`=2371;
 
         -- Daggerspine Shorehunter
         UPDATE `creature_template`
         SET `display_id1`=4036
-        WHERE `entry`=2269;
+        WHERE `entry`=2369;
 
         -- Daggerspine Screamer
         UPDATE `creature_template`
         SET `display_id1`=4036
-        WHERE `entry`=2270;
+        WHERE `entry`=2370;
 
         -- Daggerspine Shorestalker
         UPDATE `creature_template`
         SET `display_id1`=4036
-        WHERE `entry`=2268;
+        WHERE `entry`=2368;
 
         -- Mudsnout Gnoll
         UPDATE `creature_template`
