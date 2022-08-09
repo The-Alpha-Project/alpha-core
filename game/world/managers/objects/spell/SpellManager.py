@@ -749,7 +749,6 @@ class SpellManager:
 
         data = pack('<IQ', spell_id, self.caster.guid)
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_EVENT, data))
-        return
 
     def check_spell_cooldowns(self):
         for cooldown_entry in list(self.cooldowns):
