@@ -8788,11 +8788,6 @@ begin not atomic
 
         -- SILVERPINE
 
-        -- Worg
-        UPDATE `creature_template`
-        SET `display_id1`=246
-        WHERE `entry`=1765;
-
         -- Moonrage Whitescalp
         UPDATE `creature_template`
         SET `display_id1`=729
