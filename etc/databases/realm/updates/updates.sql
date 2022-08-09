@@ -124,7 +124,7 @@ begin not atomic
         ALTER TABLE `character_pets` ADD KEY `fk_character_pets_characters1_idx` (`owner_guid`);
         ALTER TABLE `character_pets` ADD CONSTRAINT `fk_character_pets_characters1` FOREIGN KEY (`owner_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-		insert into applied_updates values ('090820221');
+        insert into applied_updates values ('090820221');
     end if;
 end $
 delimiter ;
