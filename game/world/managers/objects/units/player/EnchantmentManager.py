@@ -6,6 +6,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import ItemFields
 
 
@@ -15,7 +16,8 @@ MAX_ENCHANTMENTS = 5
 class EnchantmentManager(object):
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
-        self._applied_proc_enchants: Dict[int, Tuple[int, int]] = {}  # enchantment id: (spell id, proc chance).
+        # enchantment id: (is_weapon, spell id, proc chance).
+        self._applied_proc_enchants: Dict[int, Tuple[bool, int, int]] = {}
 
     # Load and apply enchantments from item_instance.
     def load_enchantments_for_item(self, item):
@@ -74,7 +76,12 @@ class EnchantmentManager(object):
 
     def handle_melee_attack_procs(self, damage_info):
         for proc_enchant in self._applied_proc_enchants.values():
-            proc_spell_id, proc_chance = proc_enchant
+            is_weapon, proc_spell_id, proc_chance = proc_enchant
+
+            # Skip weapon procs if disarmed.
+            if is_weapon and self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                continue
+
             if not self.unit_mgr.stat_manager.roll_proc_chance(proc_chance):
                 continue
 
@@ -120,7 +127,9 @@ class EnchantmentManager(object):
             proc_chance = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
             if not effect_spell_value or not proc_chance:
                 continue
-            self._applied_proc_enchants[enchantment.entry] = (effect_spell_value, proc_chance)
+
+            is_weapon = item.is_melee_weapon() or item.is_ranged_weapon()
+            self._applied_proc_enchants[enchantment.entry] = (is_weapon, effect_spell_value, proc_chance)
 
     @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):
