@@ -76,7 +76,7 @@ class DuelManager(object):
         self.duel_state = DuelState.DUEL_STATE_STARTED
         for entry in self.players.values():
             entry.duel_status = DuelStatus.DUEL_STATUS_INBOUNDS
-            self.build_update(entry.player, set_hostile=True)
+            self.build_update(entry.player)
 
     def force_duel_end(self, player_mgr, retreat=True):
         if player_mgr.guid in self.players:
@@ -178,7 +178,7 @@ class DuelManager(object):
             self.boundary_check()
             self.elapsed = 0
 
-    def build_update(self, player_mgr, set_hostile=False):
+    def build_update(self, player_mgr):
         arbiter_guid = self.arbiter.guid if self.duel_state == DuelState.DUEL_STATE_STARTED else 0
         team_id = self.team_ids[player_mgr.guid] if self.duel_state != DuelState.DUEL_STATE_FINISHED else 0
         player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, arbiter_guid)
