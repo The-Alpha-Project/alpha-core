@@ -75,7 +75,7 @@ class PetData:
 
         character_pet = CharacterPet(
             pet_id=self.pet_id if self.pet_id != -1 else None,
-            owner=self.owner_guid,
+            owner_guid=self.owner_guid,
             creature_id=self.creature_template.entry,
             created_by_spell=self.summon_spell_id,
             level=self._level,
