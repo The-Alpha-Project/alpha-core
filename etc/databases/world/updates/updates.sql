@@ -9006,5 +9006,84 @@ begin not atomic
         insert into applied_updates values ('110820221');
     end if;
 
+    -- 10/08/2022 3
+    if (select count(*) from applied_updates where id='100820223') = 0 then
+    
+        -- Gnomeran transport. 'Vator2' (Elevator2)
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '14139');
+        
+        insert into applied_updates values ('100820223');
+    end if;
+
+    -- 11/08/2022 2
+    if (select count(*) from applied_updates where id='110820222') = 0 then
+        -- Highland Strider
+        UPDATE `creature_template`
+        SET `display_id1`=961
+        WHERE `entry`=2559;
+
+        -- Young Mesa buzard
+        UPDATE `creature_template`
+        SET `display_id1`=388
+        WHERE `entry`=2578;
+
+        -- Shake O'breen
+        UPDATE `creature_template`
+        SET `display_id1`=797
+        WHERE `entry`=2610;
+
+        -- Blackwater Deckhand
+        UPDATE `creature_template`
+        SET `display_id1`=793
+        WHERE `entry`=2636;
+        
+        -- Daggerspine Raider
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2595;
+
+        -- Daggerspine Sorceress
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2596;
+
+        -- Prince Nazjak
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2779;
+
+        -- Boulderfist Magus
+        UPDATE `creature_template`
+        SET `display_id1`=3190
+        WHERE `entry`=2567;
+        
+        -- Kor gresh Coldrage
+        UPDATE `creature_template`
+        SET `display_id1`=3191
+        WHERE `entry`=2793;
+
+        -- Cresting Exile
+        UPDATE `creature_template`
+        SET `display_id1`=110
+        WHERE `entry`=2761;
+
+        -- Rumbling Exile
+        UPDATE `creature_template`
+        SET `display_id1`=69
+        WHERE `entry`=2592;
+
+        -- Ruul Onestone
+        UPDATE `creature_template`
+        SET `display_id1`=1046
+        WHERE `entry`=2602;
+
+        -- Foulbelly
+        UPDATE `creature_template`
+        SET `display_id1`=3192
+        WHERE `entry`=2601;
+
+        insert into applied_updates values ('110820222');
+    end if;
+
 end $
 delimiter ;
