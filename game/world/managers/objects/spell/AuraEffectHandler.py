@@ -185,6 +185,16 @@ class AuraEffectHandler:
             effect_target.mirror_timers_manager.set_water_breathing(False)
 
     @staticmethod
+    def handle_mod_disarm(aura, effect_target, remove):
+        if not remove:
+            effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISARMED
+        else:
+            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_DISARMED
+
+        effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
+        effect_target.stat_manager.apply_bonuses()
+
+    @staticmethod
     def handle_mod_stalked(aura, effect_target, remove):
         dyn_flags = effect_target.get_uint32(UnitFields.UNIT_DYNAMIC_FLAGS)
         if not remove:
@@ -253,7 +263,7 @@ class AuraEffectHandler:
             return
 
         if effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            aura.caster.pet_manager.add_pet_from_world(effect_target, lifetime_sec=aura.get_duration())
+            aura.caster.pet_manager.add_pet_from_world(effect_target, aura.spell_id, lifetime_sec=aura.get_duration())
         elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
             pass  # TODO: Implement behavior for charmed players.
 
@@ -525,6 +535,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_CHARM: AuraEffectHandler.handle_mod_charm,
     AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
+    AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
 
     # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,

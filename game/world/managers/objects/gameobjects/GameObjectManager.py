@@ -248,26 +248,32 @@ class GameObjectManager(ObjectManager):
 
         player.send_loot(self.loot_manager)
 
-    def _handle_use_ritual(self, player):
+    def _handle_use_ritual(self, player_mgr):
+        # Ritual should have a summoner.
+        if not self.summoner:
+            Logger.warning(f'Player {player_mgr.player.name} tried to use Ritual with no summoner set.')
+            player_mgr.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return
+
         # Group check.
-        if not self.summoner.group_manager or not self.summoner.group_manager.is_party_member(player.guid):
-            player.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
+        if not self.summoner.group_manager or not self.summoner.group_manager.is_party_member(player_mgr.guid):
+            player_mgr.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
             return
 
         ritual_channel_spell_id = self.gobject_template.data2
-        if player is self.summoner or player in self.ritual_participants:
+        if player_mgr is self.summoner or player_mgr in self.ritual_participants:
             return  # No action needed for this player.
 
         # Make the player channel for summoning.
         channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT,
-                                                          validate=False)
+        spell = player_mgr.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT,
+                                                              validate=False)
 
         # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
-        player.spell_manager.remove_colliding_casts(spell)
-        player.spell_manager.casting_spells.append(spell)
-        player.spell_manager.handle_channel_start(spell)
-        self.ritual_participants.append(player)
+        player_mgr.spell_manager.remove_colliding_casts(spell)
+        player_mgr.spell_manager.casting_spells.append(spell)
+        player_mgr.spell_manager.handle_channel_start(spell)
+        self.ritual_participants.append(player_mgr)
 
         # Check if the ritual can be completed with the current participants.
         required_participants = self.gobject_template.data0 - 1  # -1 to include caster.

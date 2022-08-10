@@ -18,7 +18,7 @@ from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
-    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid, Emotes
+    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:

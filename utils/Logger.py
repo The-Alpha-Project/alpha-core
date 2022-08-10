@@ -17,13 +17,13 @@ class DebugColorLevel(Enum):
 
 
 class DebugLevel(IntEnum):
-    NONE = 0
-    SUCCESS = 1
-    INFO = 2
-    ANTICHEAT = 3
-    WARNING = 4
-    ERROR = 5
-    DEBUG = 6
+    NONE = 0x00
+    SUCCESS = 0x01
+    INFO = 0x02
+    ANTICHEAT = 0x04
+    WARNING = 0x08
+    ERROR = 0x10
+    DEBUG = 0x20
 
 
 class Logger:
@@ -32,8 +32,7 @@ class Logger:
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
-        debug_level = config.Server.Settings.debug_level
-        return debug_level > 0 and debug_level >= log_type
+        return config.Server.Settings.logging_mask & log_type
 
     @staticmethod
     def _colorize_message(label, color, msg):

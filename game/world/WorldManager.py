@@ -1,6 +1,7 @@
 import _queue
 import socket
 import threading
+import traceback
 from time import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -78,30 +79,40 @@ class WorldServerSessionHandler:
         while self.keep_alive:
             try:
                 data = self.outgoing_pending.get(block=True, timeout=None)
-                if data:  # Can be None if we shutdown the thread.
+                # We've been blocking, by now keep_alive might be false.
+                # data can be None if we shutdown the thread.
+                if data and self.keep_alive:
                     self.request.sendall(data)
             except OSError:
                 self.disconnect()
 
+    # noinspection PyBroadException
     def process_incoming(self):
-        while self.keep_alive:
-            reader = self.incoming_pending.get(block=True, timeout=None)
-            if reader:  # Can be None if we shutdown the thread.
-                if reader.opcode:
-                    handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
-                    if handler:
-                        res = handler(self, self.request, reader)
-                        if res == 0:
-                            Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
-                        elif res == 1:
-                            Logger.debug(f'[{self.client_address[0]}] Ignoring {OpCode(reader.opcode).name}')
-                        elif res < 0:
-                            self.disconnect()
-                            break
-                    elif not found:
-                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
-            else:
-                self.disconnect()
+        try:
+            while self.keep_alive:
+                reader = self.incoming_pending.get(block=True, timeout=None)
+                # We've been blocking, by now keep_alive might be false.
+                if reader and self.keep_alive:  # Can be None if we shutdown the thread.
+                    if reader.opcode:
+                        handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
+                        if handler:
+                            res = handler(self, self.request, reader)
+                            if res == 0:
+                                Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
+                            elif res == 1:
+                                Logger.debug(f'[{self.client_address[0]}] Ignoring {OpCode(reader.opcode).name}')
+                            elif res < 0:
+                                break
+                        elif not found:
+                            Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
+                else:
+                    break
+        except:
+            # Can be multiple since it includes handlers execution.
+            Logger.error(traceback.format_exc())
+
+        # End this session.
+        self.disconnect()
 
     def disconnect(self):
         # Avoid multiple calls.
@@ -110,7 +121,7 @@ class WorldServerSessionHandler:
         self.keep_alive = False
 
         try:
-            if self.player_mgr:
+            if self.player_mgr and self.player_mgr.online:
                 self.player_mgr.logout()
         except AttributeError:
             pass
