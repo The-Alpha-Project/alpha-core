@@ -8999,5 +8999,12 @@ begin not atomic
         insert into applied_updates values ('100820223');
     end if;
 
+    -- 11/08/2022 1
+    if (select count(*) from applied_updates where id='110820221') = 0 then
+        ALTER TABLE `item_template` ADD COLUMN `ignored` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0;
+
+        insert into applied_updates values ('110820221');
+    end if;
+
 end $
 delimiter ;

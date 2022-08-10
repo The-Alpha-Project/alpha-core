@@ -422,6 +422,7 @@ class ItemTemplate(Base):
     min_money_loot = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     max_money_loot = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     extra_flags = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
+    ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
 
 class AppliedItemUpdates(Base):
