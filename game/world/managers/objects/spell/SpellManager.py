@@ -925,8 +925,9 @@ class SpellManager:
 
         # Creature type check.
         if casting_spell.initial_target_is_unit_or_player():
-            req_creature_type = casting_spell.spell_entry.TargetCreatureType
-            if req_creature_type and validation_target.creature_type != req_creature_type:
+            req_creature_type_mask = casting_spell.spell_entry.TargetCreatureType
+            target_creature_type_mask = 1 << (validation_target.creature_type - 1)
+            if req_creature_type_mask and not req_creature_type_mask & target_creature_type_mask:
                 error = SpellCheckCastResult.SPELL_FAILED_TARGET_IS_PLAYER if \
                     validation_target.get_type_id() == ObjectTypeIds.ID_PLAYER \
                     else SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS
