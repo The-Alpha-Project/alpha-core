@@ -108,7 +108,7 @@ class QuestManager(object):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
 
-        if self.player_mgr.is_enemy_to(quest_giver):
+        if self.player_mgr.is_hostile_to(quest_giver):
             return dialog_status
 
         # Relation bounds, the quest giver; Involved relations bounds, the quest completer.

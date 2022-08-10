@@ -228,6 +228,10 @@ class UnitManager(ObjectManager):
         if self.get_type_id() == ObjectTypeIds.ID_PLAYER and self.mount_display_id > 0:
             return False
 
+        # Invalid target.
+        if not self.can_attack_target(victim):
+            return False
+
         # In fight already
         if self.combat_target:
             if self.combat_target == victim:

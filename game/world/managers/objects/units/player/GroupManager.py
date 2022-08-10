@@ -435,7 +435,7 @@ class GroupManager(object):
 
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):
-        if player_mgr.is_enemy_to(target_player_mgr):
+        if player_mgr.is_hostile_to(target_player_mgr):
             GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PLAYER_WRONG_FACTION)
             return
 

@@ -9,7 +9,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import SplineFlags, UnitReaction
+from utils.constants.UnitCodes import SplineFlags, UnitReaction, UnitFlags
 from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
 
@@ -353,6 +353,10 @@ class ObjectManager:
         if target is self:
             return False
 
+        if self.unit_flags & UnitFlags.PLAYER_CONTROLLED and \
+                target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
+            return False
+
         # Player only checks.
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # If player is on a flying path.
@@ -370,7 +374,7 @@ class ObjectManager:
             if not target.is_alive:
                 return False
 
-        return self.is_enemy_to(target)
+        return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
 
     def _allegiance_status_checker(self, target) -> UnitReaction:
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
@@ -412,7 +416,7 @@ class ObjectManager:
     def is_friendly_to(self, target):
         return self._allegiance_status_checker(target) >= UnitReaction.UNIT_REACTION_NEUTRAL
 
-    def is_enemy_to(self, target):
+    def is_hostile_to(self, target):
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_NEUTRAL
 
     def get_destroy_packet(self):
