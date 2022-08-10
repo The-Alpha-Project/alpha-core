@@ -8865,7 +8865,7 @@ begin not atomic
 
         -- Bart Tidewater
         UPDATE `creature_template`
-        SET `display_id1`=127
+        SET `display_id1`=797
         WHERE `entry`=1481;
 
         insert into applied_updates values ('100820222');
