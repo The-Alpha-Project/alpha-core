@@ -924,7 +924,7 @@ class SpellManager:
                 return False
 
         # Creature type check.
-        if casting_spell.initial_target_is_unit_or_player():
+        if casting_spell.initial_target_is_unit_or_player() and validation_target is not self.caster:
             req_creature_type_mask = casting_spell.spell_entry.TargetCreatureType
             target_creature_type_mask = 1 << (validation_target.creature_type - 1)
             if req_creature_type_mask and not req_creature_type_mask & target_creature_type_mask:
