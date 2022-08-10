@@ -10,11 +10,6 @@ class QuestGiverStatusHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         player_mgr = world_session.player_mgr
-        # No player linked to session requester.
-        if not player_mgr:
-            Logger.warning('QuestGiverHelloHandler received with null player_mgr.')
-            return 0
-
         if len(reader.data) >= 8:  # Avoid handling empty quest giver status packet.
             guid = unpack('<Q', reader.data[:8])[0]
             high_guid = ObjectManager.extract_high_guid(guid)

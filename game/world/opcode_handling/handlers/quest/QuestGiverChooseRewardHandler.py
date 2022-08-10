@@ -10,11 +10,6 @@ class QuestGiverChooseRewardHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         player_mgr = world_session.player_mgr
-        # No player linked to session requester.
-        if not player_mgr:
-            Logger.warning('QuestGiverChooseRewardHandler received with null player_mgr.')
-            return 0
-
         if len(reader.data) >= 16:  # Avoid handling empty quest giver choose reward packet.
             guid, quest_id, item_choice = unpack('<Q2I', reader.data[:16])
             high_guid = ObjectManager.extract_high_guid(guid)

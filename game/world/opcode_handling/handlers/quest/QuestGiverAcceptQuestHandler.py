@@ -11,11 +11,6 @@ class QuestGiverAcceptQuestHandler(object):
     @staticmethod
     def handle(world_session, socket, reader):
         player_mgr = world_session.player_mgr
-        # No player linked to session requester.
-        if not player_mgr:
-            Logger.warning('QuestGiverAcceptQuestHandler received with null player_mgr.')
-            return 0
-
         if len(reader.data) >= 12:  # Avoid handling empty quest giver accept quest packet.
             guid, quest_id = unpack('<QI', reader.data[:12])
             high_guid = ObjectManager.extract_high_guid(guid)

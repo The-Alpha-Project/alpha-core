@@ -1,6 +1,7 @@
 import _queue
 import socket
 import threading
+import traceback
 from time import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -20,6 +21,17 @@ STARTUP_TIME = time()
 WORLD_ON = True
 
 MAX_PACKET_BYTES = 4096
+
+OPCODE_DOES_NOT_REQUIRE_PLAYER = \
+    {
+        OpCode.CMSG_AUTH_SESSION,
+        OpCode.CMSG_CHAR_ENUM,
+        OpCode.CMSG_CHAR_CREATE,
+        OpCode.CMSG_CHAR_DELETE,
+        OpCode.CMSG_PLAYER_LOGIN,
+        OpCode.CMSG_CANCEL_TRADE,
+        OpCode.CMSG_PING
+    }
 
 
 def get_seconds_since_startup():
@@ -83,25 +95,36 @@ class WorldServerSessionHandler:
             except OSError:
                 self.disconnect()
 
+    # noinspection PyBroadException
     def process_incoming(self):
-        while self.keep_alive:
-            reader = self.incoming_pending.get(block=True, timeout=None)
-            if reader:  # Can be None if we shutdown the thread.
-                if reader.opcode:
-                    handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
-                    if handler:
-                        res = handler(self, self.request, reader)
-                        if res == 0:
-                            Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
-                        elif res == 1:
-                            Logger.debug(f'[{self.client_address[0]}] Ignoring {OpCode(reader.opcode).name}')
-                        elif res < 0:
-                            self.disconnect()
+        try:
+            while self.keep_alive:
+                reader = self.incoming_pending.get(block=True, timeout=None)
+                if reader:  # Can be None if we shutdown the thread.
+                    if reader.opcode:
+                        if WorldServerSessionHandler.opcode_requires_player(reader.opcode) and not self.player_mgr:
+                            Logger.error(f'Received opcode {OpCode(reader.opcode).name} with None PlayerMgr on session')
                             break
-                    elif not found:
-                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
-            else:
-                self.disconnect()
+                        handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
+                        if handler:
+                            res = handler(self, self.request, reader)
+                            if res == 0:
+                                Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
+                            elif res == 1:
+                                Logger.debug(f'[{self.client_address[0]}] Ignoring {OpCode(reader.opcode).name}')
+                            elif res < 0:
+                                break
+                        elif not found:
+                            Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
+                else:
+                    break
+        except:
+            self.disconnect()
+            Logger.error(traceback.format_exc())
+
+    @staticmethod
+    def opcode_requires_player(opcode):
+        return opcode not in OPCODE_DOES_NOT_REQUIRE_PLAYER
 
     def disconnect(self):
         # Avoid multiple calls.
