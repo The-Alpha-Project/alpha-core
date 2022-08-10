@@ -8551,6 +8551,77 @@ begin not atomic
 
     end if;
     
+    -- 06/08/2022 4
+    if (select count(*) from applied_updates where id='060820224') = 0 then
+        DELETE FROM `npc_vendor` WHERE `item` > '6441';
+
+        DELETE FROM `item_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `gameobject_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `skinning_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `pickpocketing_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `fishing_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `creature_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `reference_loot_template` WHERE `item` > '6441';
+
+        UPDATE `item_template` SET `ignored` = '1' WHERE `entry` > '6441';
+
+        DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` NOT IN (SELECT `entry` FROM `gameobject_template`);
+
+        UPDATE `quest_template` SET `SrcItemId` = '0' WHERE `SrcItemId` > '6441';
+
+        UPDATE `quest_template` SET `ReqItemCount1` = '0' WHERE `ReqItemId1` > '6441';
+        UPDATE `quest_template` SET `ReqItemCount2` = '0' WHERE `ReqItemId2` > '6441';
+        UPDATE `quest_template` SET `ReqItemCount3` = '0' WHERE `ReqItemId3` > '6441';
+        UPDATE `quest_template` SET `ReqItemCount4` = '0' WHERE `ReqItemId4` > '6441';
+
+        UPDATE `quest_template` SET `ReqItemId1` = '0' WHERE `ReqItemId1` > '6441';
+        UPDATE `quest_template` SET `ReqItemId2` = '0' WHERE `ReqItemId2` > '6441';
+        UPDATE `quest_template` SET `ReqItemId3` = '0' WHERE `ReqItemId3` > '6441';
+        UPDATE `quest_template` SET `ReqItemId4` = '0' WHERE `ReqItemId4` > '6441';
+
+        UPDATE `quest_template` SET `ReqSourceCount1` = '0' WHERE `ReqSourceId1` > '6441';
+        UPDATE `quest_template` SET `ReqSourceCount2` = '0' WHERE `ReqSourceId2` > '6441';
+        UPDATE `quest_template` SET `ReqSourceCount3` = '0' WHERE `ReqSourceId3` > '6441';
+        UPDATE `quest_template` SET `ReqSourceCount4` = '0' WHERE `ReqSourceId4` > '6441';
+
+        UPDATE `quest_template` SET `ReqSourceId1` = '0' WHERE `ReqSourceId1` > '6441';
+        UPDATE `quest_template` SET `ReqSourceId2` = '0' WHERE `ReqSourceId2` > '6441';
+        UPDATE `quest_template` SET `ReqSourceId3` = '0' WHERE `ReqSourceId3` > '6441';
+        UPDATE `quest_template` SET `ReqSourceID4` = '0' WHERE `ReqSourceId4` > '6441';
+
+        UPDATE `quest_template` SET `RewChoiceItemCount1` = '0' WHERE `RewChoiceItemId1` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount2` = '0' WHERE `RewChoiceItemId2` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount3` = '0' WHERE `RewChoiceItemId3` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount4` = '0' WHERE `RewChoiceItemId4` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount5` = '0' WHERE `RewChoiceItemId5` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount6` = '0' WHERE `RewChoiceItemId6` > '6441';
+
+        UPDATE `quest_template` SET `RewChoiceItemId1` = '0' WHERE `RewChoiceItemId1` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemId2` = '0' WHERE `RewChoiceItemId2` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemId3` = '0' WHERE `RewChoiceItemId3` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemId4` = '0' WHERE `RewChoiceItemId4` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemId5` = '0' WHERE `RewChoiceItemId5` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemId6` = '0' WHERE `RewChoiceItemId6` > '6441';
+
+        UPDATE `quest_template` SET `RewItemCount1` = '0' WHERE `RewItemId1` > '6441';
+        UPDATE `quest_template` SET `RewItemCount2` = '0' WHERE `RewItemId2` > '6441';
+        UPDATE `quest_template` SET `RewItemCount3` = '0' WHERE `RewItemId3` > '6441';
+        UPDATE `quest_template` SET `RewItemCount4` = '0' WHERE `RewItemId4` > '6441';
+
+        UPDATE `quest_template` SET `RewItemId1` = '0' WHERE `RewItemId1` > '6441';
+        UPDATE `quest_template` SET `RewItemId2` = '0' WHERE `RewItemId2` > '6441';
+        UPDATE `quest_template` SET `RewItemId3` = '0' WHERE `RewItemId3` > '6441';
+        UPDATE `quest_template` SET `RewItemId4` = '0' WHERE `RewItemId4` > '6441';
+
+        insert into applied_updates values ('060820224');
+    end if;
+    
     -- 08/08/2022 1
     if (select count(*) from applied_updates where id='080820221') = 0 then
 
