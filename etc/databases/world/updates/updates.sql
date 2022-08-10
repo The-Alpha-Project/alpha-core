@@ -8863,6 +8863,11 @@ begin not atomic
         SET `display_id1`=682
         WHERE `entry`=1033;
 
+        -- Bart Tidewater
+        UPDATE `creature_template`
+        SET `display_id1`=127
+        WHERE `entry`=1481;
+
         insert into applied_updates values ('100820222');
     end if;
 end $
