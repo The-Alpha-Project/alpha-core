@@ -8858,5 +8858,48 @@ begin not atomic
 
         insert into applied_updates values ('090820221');
     end if;
+
+    -- 10/08/2022 1
+    if (select count(*) from applied_updates where id='100820221') = 0 then
+
+        -- HILLSBRAD
+
+        -- Hilsbrad sentry
+        UPDATE `creature_template`
+        SET `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=2270;
+
+        -- Daggerspine Siren
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2371;
+
+        -- Daggerspine Shorehunter
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2369;
+
+        -- Daggerspine Screamer
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2370;
+
+        -- Daggerspine Shorestalker
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2368;
+
+        -- Mudsnout Gnoll
+        UPDATE `creature_template`
+        SET `display_id1`=275
+        WHERE `entry`=2372;
+
+        -- Melisara
+        UPDATE `creature_template`
+        SET `display_id1`=915
+        WHERE `entry`=2278;
+
+        insert into applied_updates values ('100820221');
+    end if;
 end $
 delimiter ;
