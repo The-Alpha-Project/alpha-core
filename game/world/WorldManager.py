@@ -119,8 +119,10 @@ class WorldServerSessionHandler:
                 else:
                     break
         except:
-            self.disconnect()
             Logger.error(traceback.format_exc())
+
+        # End this session.
+        self.disconnect()
 
     @staticmethod
     def opcode_requires_player(opcode):
