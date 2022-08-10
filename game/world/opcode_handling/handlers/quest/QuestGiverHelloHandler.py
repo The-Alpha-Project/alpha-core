@@ -26,7 +26,7 @@ class QuestGiverHelloHandler(object):
             if not quest_giver:
                 Logger.error(f'Error in CMSG_QUESTGIVER_HELLO, could not find quest giver with guid of: {guid}')
                 return 0
-            if not is_item and world_session.player_mgr.is_enemy_to(quest_giver):
+            if not is_item and world_session.player_mgr.is_hostile_to(quest_giver):
                 return 0
 
             # TODO: Stop the npc if it's moving

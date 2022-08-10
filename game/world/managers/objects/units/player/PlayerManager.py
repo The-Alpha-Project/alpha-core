@@ -150,6 +150,8 @@ class PlayerManager(UnitManager):
             self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
             self.update_packet_factory.init_values(self.guid, PlayerFields)
 
+            self.unit_flags |= UnitFlags.PLAYER_CONTROLLED
+
             self.enchantment_manager = EnchantmentManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)

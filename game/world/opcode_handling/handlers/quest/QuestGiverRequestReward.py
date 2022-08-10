@@ -27,7 +27,7 @@ class QuestGiverRequestReward(object):
                 Logger.error(f'Error in CMSG_QUESTGIVER_REQUEST_REWARD, could not find quest giver with guid: {guid}')
                 return 0
 
-            if not is_item and world_session.player_mgr.is_enemy_to(quest_giver):
+            if not is_item and world_session.player_mgr.is_hostile_to(quest_giver):
                 return 0
 
             world_session.player_mgr.quest_manager.handle_request_reward(guid, quest_id)

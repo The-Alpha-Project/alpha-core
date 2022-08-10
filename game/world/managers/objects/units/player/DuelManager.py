@@ -184,8 +184,4 @@ class DuelManager(object):
         player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, arbiter_guid)
         player_mgr.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, team_id)
 
-        if set_hostile:
-            player_mgr.unit_flags |= UnitFlags.UNIT_FLAG_DUELING
-        else:
-            player_mgr.unit_flags &= ~UnitFlags.UNIT_FLAG_DUELING
         player_mgr.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player_mgr.unit_flags)

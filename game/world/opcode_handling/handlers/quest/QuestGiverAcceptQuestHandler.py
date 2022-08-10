@@ -27,7 +27,7 @@ class QuestGiverAcceptQuestHandler(object):
             if not quest_giver:
                 Logger.error(f'Error in CMSG_QUESTGIVER_ACCEPT_QUEST, could not find quest giver with guid of: {guid}')
                 return 0
-            elif not is_item and world_session.player_mgr.is_enemy_to(quest_giver):
+            elif not is_item and world_session.player_mgr.is_hostile_to(quest_giver):
                 return 0
             elif world_session.player_mgr.quest_manager.is_quest_log_full():
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTLOG_FULL))
