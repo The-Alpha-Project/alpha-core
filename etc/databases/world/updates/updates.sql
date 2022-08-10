@@ -8994,7 +8994,7 @@ begin not atomic
     if (select count(*) from applied_updates where id='100820223') = 0 then
     
         -- Gnomeran transport. 'Vator2' (Elevator2)
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '14139');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '14139');
         
         insert into applied_updates values ('100820223');
     end if;
