@@ -79,7 +79,9 @@ class WorldServerSessionHandler:
         while self.keep_alive:
             try:
                 data = self.outgoing_pending.get(block=True, timeout=None)
-                if data:  # Can be None if we shutdown the thread.
+                # We've been blocking, by now keep_alive might be false.
+                # data can be None if we shutdown the thread.
+                if data and self.keep_alive:
                     self.request.sendall(data)
             except OSError:
                 self.disconnect()
@@ -88,7 +90,8 @@ class WorldServerSessionHandler:
         try:
             while self.keep_alive:
                 reader = self.incoming_pending.get(block=True, timeout=None)
-                if reader:  # Can be None if we shutdown the thread.
+                # We've been blocking, by now keep_alive might be false.
+                if reader and self.keep_alive:  # Can be None if we shutdown the thread.
                     if reader.opcode:
                         handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
                         if handler:
