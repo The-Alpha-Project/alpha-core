@@ -8901,5 +8901,93 @@ begin not atomic
 
         insert into applied_updates values ('100820221');
     end if;
+
+    -- 10/08/2022 2
+    if (select count(*) from applied_updates where id='100820222') = 0 then
+
+        -- WETLANDS
+
+        -- Captain Stoutfist
+        UPDATE `creature_template`
+        SET `display_id1`=1764
+        WHERE `entry`=2104;
+
+        -- Dragonmaw raider
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1034;
+
+        -- Dragonmaw swamprunner
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1035;
+
+        -- Dragonmaw bonewarder
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1057;
+
+        -- Dragonmaw shadowwarder
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1038;
+
+        -- Dragonmaw centurion
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1036;
+
+        -- Draonmaw Battlemaster
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1037;
+
+        -- Red Whelp
+        UPDATE `creature_template`
+        SET `display_id1`=956
+        WHERE `entry`=1042;
+
+        -- Flamesnorting Whelp
+        UPDATE `creature_template`
+        SET `display_id1`=956
+        WHERE `entry`=1044;
+
+        -- Red Wyrmkin
+        UPDATE `creature_template`
+        SET `display_id1`=363
+        WHERE `entry`=1046;
+
+        -- Red Scaleban
+        UPDATE `creature_template`
+        SET `display_id1`=686
+        WHERE `entry`=1047;
+
+        -- Wyrmkin firebrand
+        UPDATE `creature_template`
+        SET `display_id1`=687
+        WHERE `entry`=1049;
+
+        -- Scaleban royal guard
+        UPDATE `creature_template`
+        SET `display_id1`=687
+        WHERE `entry`=1050;
+
+        -- Crimson ooze
+        UPDATE `creature_template`
+        SET `display_id1`=681
+        WHERE `entry`=1031;
+
+        -- Monstrous ooze
+        UPDATE `creature_template`
+        SET `display_id1`=682
+        WHERE `entry`=1033;
+
+        -- Bart Tidewater
+        UPDATE `creature_template`
+        SET `display_id1`=797
+        WHERE `entry`=1481;
+
+        insert into applied_updates values ('100820222');
+    end if;
 end $
 delimiter ;
