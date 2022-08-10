@@ -838,7 +838,6 @@ class SpellManager:
                                       SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS, spell_focus_type)
                 return False
 
-
         # Target validation.
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring a unit target but being cast on self,
