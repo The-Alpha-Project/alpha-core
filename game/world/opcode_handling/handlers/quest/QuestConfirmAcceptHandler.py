@@ -1,4 +1,6 @@
 from struct import unpack
+
+from game.world.opcode_handling.handlers.HandlerValidator import HandlerValidator
 from network.packet.PacketWriter import PacketWriter, OpCode
 
 
@@ -6,7 +8,11 @@ class QuestConfirmAcceptHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        player_mgr = world_session.player_mgr
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
+        if not player_mgr:
+            return res
+
         if len(reader.data) >= 4:  # Avoid handling empty quest confirm accept packet.
             quest_id = unpack('<I', reader.data[:4])[0]
             if player_mgr.quest_manager.is_quest_log_full():

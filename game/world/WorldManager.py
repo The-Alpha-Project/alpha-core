@@ -22,17 +22,6 @@ WORLD_ON = True
 
 MAX_PACKET_BYTES = 4096
 
-OPCODE_DOES_NOT_REQUIRE_PLAYER = \
-    {
-        OpCode.CMSG_AUTH_SESSION,
-        OpCode.CMSG_CHAR_ENUM,
-        OpCode.CMSG_CHAR_CREATE,
-        OpCode.CMSG_CHAR_DELETE,
-        OpCode.CMSG_PLAYER_LOGIN,
-        OpCode.CMSG_CANCEL_TRADE,
-        OpCode.CMSG_PING
-    }
-
 
 def get_seconds_since_startup():
     return time() - STARTUP_TIME
@@ -95,16 +84,12 @@ class WorldServerSessionHandler:
             except OSError:
                 self.disconnect()
 
-    # noinspection PyBroadException
     def process_incoming(self):
         try:
             while self.keep_alive:
                 reader = self.incoming_pending.get(block=True, timeout=None)
                 if reader:  # Can be None if we shutdown the thread.
                     if reader.opcode:
-                        if WorldServerSessionHandler.opcode_requires_player(reader.opcode) and not self.player_mgr:
-                            Logger.error(f'Received opcode {OpCode(reader.opcode).name} with None PlayerMgr on session')
-                            break
                         handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
                         if handler:
                             res = handler(self, self.request, reader)
@@ -119,14 +104,11 @@ class WorldServerSessionHandler:
                 else:
                     break
         except:
+            # Can be multiple since it includes handlers execution.
             Logger.error(traceback.format_exc())
 
         # End this session.
         self.disconnect()
-
-    @staticmethod
-    def opcode_requires_player(opcode):
-        return opcode not in OPCODE_DOES_NOT_REQUIRE_PLAYER
 
     def disconnect(self):
         # Avoid multiple calls.

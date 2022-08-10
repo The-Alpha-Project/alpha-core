@@ -1,6 +1,7 @@
 from struct import unpack
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.opcode_handling.handlers.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
 
@@ -9,7 +10,11 @@ class QuestGiverCompleteQuestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        player_mgr = world_session.player_mgr
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
+        if not player_mgr:
+            return res
+
         if len(reader.data) >= 12:  # Avoid handling empty quest giver complete quest packet.
             guid, quest_id = unpack('<QI', reader.data[:12])
             high_guid = ObjectManager.extract_high_guid(guid)
