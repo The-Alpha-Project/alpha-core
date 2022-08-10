@@ -14,6 +14,7 @@ class AppliedAura:
         self.interrupt_flags = casting_spell.spell_entry.AuraInterruptFlags
 
         self.proc_charges = casting_spell.spell_entry.ProcCharges if casting_spell.spell_entry.ProcCharges != 0 else -1
+        self.proc_flags = casting_spell.spell_entry.ProcFlags
 
         self.applied_stacks = 1
         self.can_stack = ExtendedSpellData.AuraDoseInfo.aura_can_stack(self.spell_id)

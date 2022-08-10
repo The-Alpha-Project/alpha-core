@@ -6,7 +6,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes
+from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields, PlayerFields
@@ -266,6 +266,21 @@ class AuraEffectHandler:
             aura.caster.pet_manager.add_pet_from_world(effect_target, aura.spell_id, lifetime_sec=aura.get_duration())
         elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
             pass  # TODO: Implement behavior for charmed players.
+
+    @staticmethod
+    def handle_damage_shield(aura, effect_target, remove):
+        if remove:
+            return
+
+        # Damage shields don't have proc flags assigned to them,
+        # possibly because proc flags are not effect-specific in spell data.
+        # Add proc flag for this aura when it's applied.
+        if effect_target is aura.target:
+            aura.proc_flags |= ProcFlags.TAKE_COMBAT_DMG
+            return
+
+        damage = aura.get_effect_points()
+        aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
 
     # Stat modifiers
 
@@ -536,6 +551,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
+    AuraTypes.SPELL_AURA_DAMAGE_SHIELD: AuraEffectHandler.handle_damage_shield,
 
     # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
