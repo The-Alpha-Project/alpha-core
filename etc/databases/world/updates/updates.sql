@@ -8999,5 +8999,41 @@ begin not atomic
         insert into applied_updates values ('100820223');
     end if;
 
+      -- 10/08/2022 4
+    if (select count(*) from applied_updates where id='100820224') = 0 then
+        -- Hunter reagents
+        -- Kimberly Hiett
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('789', '5024', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('789', '5026', '0', '0', '0');
+
+        -- Keldric Boucher
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1257', '5024', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1257', '5026', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1257', '5105', '0', '0', '0');
+
+        -- Kyra Boucher
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1275', '5024', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1275', '5026', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1275', '5105', '0', '0', '0');
+
+        -- Frederick Stover 
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1298', '5024', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1298', '5026', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1298', '5105', '0', '0', '0');
+
+        -- Edwina Monzor
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1462', '5024', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1462', '5026', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('1462', '5105', '0', '0', '0');
+
+        -- Falkhaan Isenstrider
+        -- Creature is ignored for this build
+        UPDATE `creature_template` SET `npc_flags` = '3' WHERE  `entry` = 6774;
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('6774', '5024', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('6774', '5026', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('6774', '5105', '0', '0', '0');
+
+        insert into applied_updates values ('100820224');
+    end if;
 end $
-delimiter ;
+delimiter 
