@@ -353,7 +353,7 @@ class ObjectManager:
         if target is self:
             return False
 
-        if self.unit_flags & UnitFlags.PLAYER_CONTROLLED and \
+        if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
                 target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
             return False
 
