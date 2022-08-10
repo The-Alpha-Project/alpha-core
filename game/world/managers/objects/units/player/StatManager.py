@@ -401,23 +401,22 @@ class StatManager(object):
 
                 weapon_min_damage += weapon_enchant_bonus
                 weapon_max_damage += weapon_enchant_bonus
-
-                if not self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
-                    if item.current_slot == InventorySlots.SLOT_MAINHAND:
-                        self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
-                        self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
-                        self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
-                        # Assuming only main hand affects weapon reach.
-                        self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
-                    elif item.current_slot == InventorySlots.SLOT_OFFHAND:
-                        dual_wield_penalty = 0.5
-                        self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = int(weapon_min_damage * dual_wield_penalty)
-                        self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = int(weapon_max_damage * dual_wield_penalty)
-                        self.item_stats[UnitStats.OFF_HAND_DELAY] = weapon_delay
-                    elif item.current_slot == InventorySlots.SLOT_RANGED:
-                        self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
-                        self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
-                        self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
+                
+                if item.current_slot == InventorySlots.SLOT_MAINHAND:
+                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
+                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
+                    self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
+                    # Assuming only main hand affects weapon reach.
+                    self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
+                elif item.current_slot == InventorySlots.SLOT_OFFHAND:
+                    dual_wield_penalty = 0.5
+                    self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = int(weapon_min_damage * dual_wield_penalty)
+                    self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = int(weapon_max_damage * dual_wield_penalty)
+                    self.item_stats[UnitStats.OFF_HAND_DELAY] = weapon_delay
+                elif item.current_slot == InventorySlots.SLOT_RANGED:
+                    self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
+                    self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
+                    self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
 
     def update_max_health(self):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
