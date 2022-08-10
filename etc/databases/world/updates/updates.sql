@@ -8789,8 +8789,8 @@ begin not atomic
         -- Remove Summoning circle at brill graveyard #392
         UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry` = 37097;
 
-        -- Remove door interaction object at brill graveyard #392
-        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` = 44816;
+        -- Remove door interaction objects at brill graveyard #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` IN (44766, 44816);
 
         -- despawn Quest: 'Marla's last Wish' #392
         UPDATE `quest_template` SET `ignored`='1' WHERE  `entry` = 6395;
