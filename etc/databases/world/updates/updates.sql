@@ -8795,9 +8795,6 @@ begin not atomic
         -- despawn Quest: 'Marla's last Wish' #392
         UPDATE `quest_template` SET `ignored`='1' WHERE  `entry` = 6395;
         
-        -- Delete Samuals Remains item #392
-        DELETE FROM `item_template` WHERE  `entry` = 16333;
-        
         -- Despawn Marla's grave Gameobject #392
         UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` = 45015;
 
