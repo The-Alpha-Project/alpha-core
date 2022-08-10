@@ -10,7 +10,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
-from utils.constants.UnitCodes import PowerTypes, Classes, Races
+from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags
 
 
 # Stats that are modified by aura effects and items.
@@ -326,6 +326,11 @@ class StatManager(object):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             self.weapon_reach = self.unit_mgr.weapon_reach
             min_damage, max_damage = unpack('<2H', pack('<I', self.unit_mgr.damage))
+
+            # TODO, how to calculate unit damage when disarmed.
+            if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                max_damage = min_damage
+                
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = min_damage
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = max_damage
             self.item_stats[UnitStats.MAIN_HAND_DELAY] = self.unit_mgr.base_attack_time
@@ -375,6 +380,11 @@ class StatManager(object):
                         self.unit_mgr.is_in_feral_form():
                     continue
 
+                # Main hand damage when disarmed.
+                if item.current_slot == InventorySlots.SLOT_MAINHAND and \
+                        self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                    continue
+
                 if item.current_slot != InventorySlots.SLOT_MAINHAND and \
                     item.current_slot != InventorySlots.SLOT_OFFHAND and \
                         item.current_slot != InventorySlots.SLOT_RANGED:
@@ -391,7 +401,7 @@ class StatManager(object):
 
                 weapon_min_damage += weapon_enchant_bonus
                 weapon_max_damage += weapon_enchant_bonus
-
+                
                 if item.current_slot == InventorySlots.SLOT_MAINHAND:
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
                     self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage

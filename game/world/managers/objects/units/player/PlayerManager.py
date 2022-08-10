@@ -1659,9 +1659,14 @@ class PlayerManager(UnitManager):
         return low_guid | HighGuid.HIGHGUID_PLAYER
 
     # override
-    def get_current_weapon_for_attack_type(self, attack_type: AttackTypes)  -> Optional[ItemManager]:
+    def get_current_weapon_for_attack_type(self, attack_type: AttackTypes) -> Optional[ItemManager]:
+        # Feral form attacks don't use a weapon.
         if self.is_in_feral_form():
-            return None  # Feral form attacks don't use a weapon.
+            return None
+
+        # Handle disarmed main hand.
+        if attack_type == AttackTypes.BASE_ATTACK & self.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+            return None
 
         if attack_type == AttackTypes.BASE_ATTACK:
             return self.inventory.get_main_hand()
