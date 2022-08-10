@@ -38,13 +38,13 @@ class BasicCreatureAI(CreatureAI):
             aggro_players = self.creature.known_players
             for guid, victim in list(aggro_players.items()):
                 distance = victim.location.distance(self.creature.location)
-                if self.creature.can_attack_target(victim) and distance <= max_distance:
+                if distance <= max_distance and self.creature.is_hostile_to(victim):
                     if self._start_proximity_aggro_attack(victim, target_is_player=True):
                         break
 
     # override
     def move_in_line_of_sight(self, unit):
-        if self._is_ready_for_new_attack() and self.creature.can_attack_target(unit):
+        if self._is_ready_for_new_attack() and self.creature.is_hostile_to(unit):
             target_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
             on_same_map = self.creature.map_ == unit.map_
             target_distance = self.creature.location.distance(unit.location)

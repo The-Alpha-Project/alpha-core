@@ -248,26 +248,32 @@ class GameObjectManager(ObjectManager):
 
         player.send_loot(self.loot_manager)
 
-    def _handle_use_ritual(self, player):
+    def _handle_use_ritual(self, player_mgr):
+        # Ritual should have a summoner.
+        if not self.summoner:
+            Logger.warning(f'Player {player_mgr.player.name} tried to use Ritual with no summoner set.')
+            player_mgr.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return
+
         # Group check.
-        if not self.summoner.group_manager or not self.summoner.group_manager.is_party_member(player.guid):
-            player.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
+        if not self.summoner.group_manager or not self.summoner.group_manager.is_party_member(player_mgr.guid):
+            player_mgr.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
             return
 
         ritual_channel_spell_id = self.gobject_template.data2
-        if player is self.summoner or player in self.ritual_participants:
+        if player_mgr is self.summoner or player_mgr in self.ritual_participants:
             return  # No action needed for this player.
 
         # Make the player channel for summoning.
         channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-        spell = player.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT,
-                                                          validate=False)
+        spell = player_mgr.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT,
+                                                              validate=False)
 
         # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
-        player.spell_manager.remove_colliding_casts(spell)
-        player.spell_manager.casting_spells.append(spell)
-        player.spell_manager.handle_channel_start(spell)
-        self.ritual_participants.append(player)
+        player_mgr.spell_manager.remove_colliding_casts(spell)
+        player_mgr.spell_manager.casting_spells.append(spell)
+        player_mgr.spell_manager.handle_channel_start(spell)
+        self.ritual_participants.append(player_mgr)
 
         # Check if the ritual can be completed with the current participants.
         required_participants = self.gobject_template.data0 - 1  # -1 to include caster.
@@ -312,6 +318,13 @@ class GameObjectManager(ObjectManager):
         target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
 
+    # TODO: Move goober to its own class.
+    def goober_has_custom_animation(self):
+        return self.gobject_template and self.gobject_template.data4
+
+    def goober_is_consumable(self):
+        return self.gobject_template and self.gobject_template.data5
+
     def _handle_use_goober(self, player):
         # Deadmines IronClad door (After triggering cannon)
         # TODO: This should be moved somewhere else to avoid hardcoding entries in the core GameObject manager.
@@ -322,9 +335,12 @@ class GameObjectManager(ObjectManager):
             if len(iron_clad_doors) > 0:
                 self.send_custom_animation(0)
                 iron_clad_doors[0].set_active()
-        # QuestID.
-        elif self.gobject_template.data1:
-            player.quest_manager.handle_goober_use(self, self.gobject_template.data1)
+        # Check if player quests need this goober interaction.
+        if player.quest_manager.handle_goober_use(self, self.gobject_template.data1):
+            if self.goober_has_custom_animation():
+                self.send_custom_animation(0)
+            if self.goober_is_consumable():
+                self.despawn()
         else:
             Logger.warning(f'Unimplemented gameobject use for type Goober entry {self.entry} name {self.gobject_template.name}')
 
@@ -419,11 +435,10 @@ class GameObjectManager(ObjectManager):
         packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_CUSTOM_ANIM, data)
         MapManager.send_surrounding(packet, self, include_self=False)
 
+    # TODO: Handle more dynamic cases if needed.
     def generate_dynamic_field_value(self, requester):
-        # TODO: Handle more dynamic cases.
-        # QUESTGIVERS and CHESTS (This includes other interactive game objects).
-        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
-                self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
+        go_handled_types = {GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER, GameObjectTypes.TYPE_CHEST}
+        if self.gobject_template.type in go_handled_types:
             if requester.quest_manager.should_interact_with_go(self):
                 return 1
         return 0

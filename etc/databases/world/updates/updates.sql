@@ -8250,11 +8250,309 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = 9938.881, `position_y` = 2640.370, `position_z` = 1318.052, `orientation` = 4.787 WHERE (`spawn_id` = 49938);
 
         insert into applied_updates values ('060820221');
+        
+    end if;
+    
+    -- 06/08/2022 2
+    if (select count(*) from applied_updates where id='060820222') = 0 then
+        -- Fix Attack Plan: Valley of Trials interaction.
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3189');
+        -- Fix Attack Plan: Sen'jin Village interaction.
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3190');
+        -- Fix Attack Plan: Orgrimmar interaction.
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '3192');
+        -- Fix Guarded Thunderbrew ale barrel interaction. (Kharanos)
+        UPDATE `gameobject_template` SET `flags` = '4' WHERE (`entry` = '269');
 
+        insert into applied_updates values ('060820222');
+        
     end if;
 
     -- 06/08/2022 3
-    if (select count(*) from applied_updates where id='060820223') = 0 then
+     if (select count(*) from applied_updates where id='060820223') = 0 then
+        -- Gilbin fix, #341
+        UPDATE `creature_template` SET `npc_flags` = 1 WHERE `entry` = 5105;
+        UPDATE `creature_template` SET `faction` = 57 WHERE `entry` = 5105;
+        UPDATE `creature_template` SET `level_min` = 30, `level_max` = 30, `health_max` = 1003, `health_min` = 1003,
+        `armor` = 1200, `dmg_min` = 47, `dmg_max` = 63, `ranged_dmg_min` = 33, `ranged_dmg_max` = 49, `attack_power`=122,
+        `base_attack_time` = 2000, `ranged_attack_time` = 2000 WHERE `entry` = 5105;
+        
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '837', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '838', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '839', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '840', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '843', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '844', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '845', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '846', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '1843', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '1844', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '3428', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '3589', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5105', '3590', '0', '0', '0');
+
+        -- Laene Thundershot fix, #341
+        UPDATE `creature_template` SET `npc_flags` = 1 WHERE `entry` = 5104;
+        UPDATE `creature_template` SET `faction` = 57 WHERE `entry` = 5104;
+        UPDATE `creature_template` SET `level_min` = 40, `level_max` = 40, `health_max` = 1753, `health_min` = 1753,
+        `armor` = 1964, `dmg_min` = 63, `dmg_max` = 85, `ranged_dmg_min` = 46, `ranged_dmg_max` = 68, `attack_power`=122,
+        `base_attack_time` = 2000, `ranged_attack_time` = 2000 WHERE `entry` = 5104;
+
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '2509', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '2511', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '2516', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '2519', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '3023', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '3024', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '3025', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '3033', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) VALUES ('5104', '5441', '0', '0', '0');
+
+        -- Caledra Dawnbreeze display fix, #362 
+        UPDATE `creature_template` SET `display_id1` = 1643 WHERE  `entry`= 1752;
+
+        insert into applied_updates values ('060820223');
+    end if;
+
+    -- 07/08/2022 2
+    if (select count(*) from applied_updates where id='070820222') = 0 then
+        -- despawn warlock quests
+        UPDATE `quest_template` SET `ignored` = '1' WHERE `RequiredClasses` = 256 AND `entry` != 397;
+
+        -- despawn Paladin quests 
+        UPDATE `quest_template` SET `ignored` = '1' WHERE `RequiredClasses` = 2;
+
+        -- despawn warrior quests 
+        UPDATE `quest_template` SET `ignored` = '1' WHERE `RequiredClasses` = 1;
+
+        insert into applied_updates values ('070820222');
+    end if;
+    
+    -- 07/08/2022 1
+    if (select count(*) from applied_updates where id='070820221') = 0 then
+
+        -- DARKSHORE
+
+        -- Moonstalker
+        UPDATE `creature_template`
+        SET `display_id1`=1043
+        WHERE `entry`=2069;
+
+        -- Moonstalker runt
+        UPDATE `creature_template`
+        SET `display_id1`=1008
+        WHERE `entry`=2070;
+
+        -- Moonstalker sire
+        UPDATE `creature_template`
+        SET `display_id1`=1055
+        WHERE `entry`=2237;
+
+        -- Blackwood totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1011
+        WHERE `entry`=2169;
+
+        -- Blackwood ursa
+        UPDATE `creature_template`
+        SET `display_id1`=1011
+        WHERE `entry`=2170;
+
+        -- Blackwood shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1011
+        WHERE `entry`=2171;
+
+        -- Blackwood windtalker
+        UPDATE `creature_template`
+        SET `display_id1`=1011
+        WHERE `entry`=2324;
+
+        -- Carnivous the breaker, named blackwood
+        UPDATE `creature_template`
+        SET `display_id1`=1012
+        WHERE `entry`=2186;
+
+        -- Stormscale Sorceress
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2182;
+
+        -- Stormscale Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2183;
+
+        -- Encrusted Tide Crawler
+        UPDATE `creature_template`
+        SET `display_id1`=999
+        WHERE `entry`=2233;
+
+        -- Rabid Thistle bear
+        UPDATE `creature_template`
+        SET `display_id1`=1006
+        WHERE `entry`=2164;
+
+        -- Licillin, named imp
+        UPDATE `creature_template`
+        SET `display_id1`=1017
+        WHERE `entry`=2191;
+
+        -- Cracked Golem
+        UPDATE `creature_template`
+        SET `display_id1`=975
+        WHERE `entry`=2156;
+
+        -- Writhing Highborne
+        UPDATE `creature_template`
+        SET `display_id1`=146
+        WHERE `entry`=2177;
+
+        -- Wailing Highborne
+        UPDATE `creature_template`
+        SET `display_id1`=984
+        WHERE `entry`=2178;
+
+        insert into applied_updates values ('070820221');
+
+    end if;
+
+    -- 07/08/2022 3
+    if (select count(*) from applied_updates where id='070820223') = 0 then
+
+        -- THOUSAND NEEDLES
+
+        -- Pesterhide Snarler
+        UPDATE `creature_template`
+        SET `display_id1`=1534
+        WHERE `entry`=4249;
+
+        -- Venomous Cloud Serpent
+        UPDATE `creature_template`
+        SET `display_id1`=2700
+        WHERE `entry`=4118;
+
+        -- Thundering Boulderkin
+        UPDATE `creature_template`
+        SET `display_id1`=2302
+        WHERE `entry`=4120;
+
+        -- Rok'Alim the pounder
+        UPDATE `creature_template`
+        SET `display_id1`=2302
+        WHERE `entry`=4499;
+
+        -- Sparkleshell Tortoise
+        UPDATE `creature_template`
+        SET `display_id1`=2307
+        WHERE `entry`=4142;
+
+        -- Saltstone Crystalhide
+        UPDATE `creature_template`
+        SET `display_id1`=2310
+        WHERE `entry`=4151;
+
+        -- Saltstone Basilik
+        UPDATE `creature_template`
+        SET `display_id1`=2309
+        WHERE `entry`=4147;
+
+        -- Saltstone Gazer
+        UPDATE `creature_template`
+        SET `display_id1`=2235
+        WHERE `entry`=4150;
+
+        -- Salt Flats Vulture
+        UPDATE `creature_template`
+        SET `display_id1`=2305
+        WHERE `entry`=4158;
+
+        -- Silithid Hive Drone
+        UPDATE `creature_template`
+        SET `display_id1`=2303
+        WHERE `entry`=4133;
+        
+        -- Silithid searcher
+        UPDATE `creature_template`
+        SET `display_id1`=2304
+        WHERE `entry`=4130;
+
+        -- Silithid invader
+        UPDATE `creature_template`
+        SET `display_id1`=2304
+        WHERE `entry`=4131;
+
+        -- Highperch Patriarch
+        UPDATE `creature_template`
+        SET `display_id1`=2298
+        WHERE `entry`=4110;
+
+        -- Galak centaur : Mauler, Marauder
+        UPDATE `creature_template`
+        SET `display_id1`=2290
+        WHERE `entry` IN ( 4095, 4099 );
+
+        -- Galak centaur : Stormer, Wrangler (caster)
+        UPDATE `creature_template`
+        SET `display_id1`=2290
+        WHERE `entry` IN ( 4097, 4093);
+
+        -- Galak Windchaser
+        UPDATE `creature_template`
+        SET `display_id1`=2291
+        WHERE `entry`=4096;
+
+        -- Galak Scout
+        UPDATE `creature_template`
+        SET `display_id1`=2292
+        WHERE `entry`=4094;
+
+        -- Gnome NPC placeholder
+        UPDATE `creature_template`
+        SET `display_id1`=2456, `display_id2`=0, `display_id3`=0
+        WHERE `entry` IN ( 4720, 4454, 4453, 4430, 4452, 4495 );   
+
+        -- Screeching Windcaller
+        UPDATE `creature_template`
+        SET `display_id1`=1351
+        WHERE `entry`=4104;
+
+        -- Globin Racer -> Goblin Car
+        UPDATE `creature_template`
+        SET `display_id1`=2280, `name`='Goblin Car',  `subname`='Placeholder for Rocket Car'
+        WHERE `entry`=4251;
+
+        -- Globin Drag Car
+        UPDATE `creature_template`
+        SET `display_id1`=2280,  `subname`='Placeholder for Rocket Car'
+        WHERE `entry`=4945;
+
+        -- Zuzubee
+        UPDATE `creature_template`
+        SET `display_id1`=458
+        WHERE `entry`=4707;
+
+        -- Forbee
+        UPDATE `creature_template`
+        SET `display_id1`=458
+        WHERE `entry`=4620;
+
+        -- Gnome Racer -> Gnome Car
+        UPDATE `creature_template`
+        SET `display_id1`=378, `scale`=4, `name`='Gnome Car',  `subname`='Placeholder for Rocket Car'
+        WHERE `entry`=4252;
+
+        -- Gnome Drag Car
+        UPDATE `creature_template`
+        SET `display_id1`=378, `scale`=4, `subname`='Placeholder for Rocket Car'
+        WHERE `entry`=4946;
+
+        insert into applied_updates values ('070820223');
+
+    end if;
+    
+    -- 06/08/2022 4
+    if (select count(*) from applied_updates where id='060820224') = 0 then
         DELETE FROM `npc_vendor` WHERE `item` > '6441';
 
         DELETE FROM `item_loot_template` WHERE `item` > '6441';
@@ -8271,21 +8569,38 @@ begin not atomic
 
         DELETE FROM `reference_loot_template` WHERE `item` > '6441';
 
-        DELETE FROM `item_template`  WHERE `entry` > '6441';
+        UPDATE `item_template` SET `ignored` = '1' WHERE `entry` > '6441';
 
         DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` NOT IN (SELECT `entry` FROM `gameobject_template`);
 
         UPDATE `quest_template` SET `SrcItemId` = '0' WHERE `SrcItemId` > '6441';
+
+        UPDATE `quest_template` SET `ReqItemCount1` = '0' WHERE `ReqItemId1` > '6441';
+        UPDATE `quest_template` SET `ReqItemCount2` = '0' WHERE `ReqItemId2` > '6441';
+        UPDATE `quest_template` SET `ReqItemCount3` = '0' WHERE `ReqItemId3` > '6441';
+        UPDATE `quest_template` SET `ReqItemCount4` = '0' WHERE `ReqItemId4` > '6441';
 
         UPDATE `quest_template` SET `ReqItemId1` = '0' WHERE `ReqItemId1` > '6441';
         UPDATE `quest_template` SET `ReqItemId2` = '0' WHERE `ReqItemId2` > '6441';
         UPDATE `quest_template` SET `ReqItemId3` = '0' WHERE `ReqItemId3` > '6441';
         UPDATE `quest_template` SET `ReqItemId4` = '0' WHERE `ReqItemId4` > '6441';
 
+        UPDATE `quest_template` SET `ReqSourceCount1` = '0' WHERE `ReqSourceId1` > '6441';
+        UPDATE `quest_template` SET `ReqSourceCount2` = '0' WHERE `ReqSourceId2` > '6441';
+        UPDATE `quest_template` SET `ReqSourceCount3` = '0' WHERE `ReqSourceId3` > '6441';
+        UPDATE `quest_template` SET `ReqSourceCount4` = '0' WHERE `ReqSourceId4` > '6441';
+
         UPDATE `quest_template` SET `ReqSourceId1` = '0' WHERE `ReqSourceId1` > '6441';
         UPDATE `quest_template` SET `ReqSourceId2` = '0' WHERE `ReqSourceId2` > '6441';
         UPDATE `quest_template` SET `ReqSourceId3` = '0' WHERE `ReqSourceId3` > '6441';
         UPDATE `quest_template` SET `ReqSourceID4` = '0' WHERE `ReqSourceId4` > '6441';
+
+        UPDATE `quest_template` SET `RewChoiceItemCount1` = '0' WHERE `RewChoiceItemId1` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount2` = '0' WHERE `RewChoiceItemId2` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount3` = '0' WHERE `RewChoiceItemId3` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount4` = '0' WHERE `RewChoiceItemId4` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount5` = '0' WHERE `RewChoiceItemId5` > '6441';
+        UPDATE `quest_template` SET `RewChoiceItemCount6` = '0' WHERE `RewChoiceItemId6` > '6441';
 
         UPDATE `quest_template` SET `RewChoiceItemId1` = '0' WHERE `RewChoiceItemId1` > '6441';
         UPDATE `quest_template` SET `RewChoiceItemId2` = '0' WHERE `RewChoiceItemId2` > '6441';
@@ -8294,12 +8609,473 @@ begin not atomic
         UPDATE `quest_template` SET `RewChoiceItemId5` = '0' WHERE `RewChoiceItemId5` > '6441';
         UPDATE `quest_template` SET `RewChoiceItemId6` = '0' WHERE `RewChoiceItemId6` > '6441';
 
+        UPDATE `quest_template` SET `RewItemCount1` = '0' WHERE `RewItemId1` > '6441';
+        UPDATE `quest_template` SET `RewItemCount2` = '0' WHERE `RewItemId2` > '6441';
+        UPDATE `quest_template` SET `RewItemCount3` = '0' WHERE `RewItemId3` > '6441';
+        UPDATE `quest_template` SET `RewItemCount4` = '0' WHERE `RewItemId4` > '6441';
+
         UPDATE `quest_template` SET `RewItemId1` = '0' WHERE `RewItemId1` > '6441';
         UPDATE `quest_template` SET `RewItemId2` = '0' WHERE `RewItemId2` > '6441';
         UPDATE `quest_template` SET `RewItemId3` = '0' WHERE `RewItemId3` > '6441';
         UPDATE `quest_template` SET `RewItemId4` = '0' WHERE `RewItemId4` > '6441';
 
-        insert into applied_updates values ('060820223');
+        insert into applied_updates values ('060820224');
     end if;
+    
+    -- 08/08/2022 1
+    if (select count(*) from applied_updates where id='080820221') = 0 then
+
+        -- SCALE FIX FOR TELDRASSIL/ASHENVALE/BARRENS
+
+        -- Gnarlpine Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2008;
+
+        -- Gnarlpine Pathfinder
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2012;
+
+        -- Gnarlpine Defender
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2010;
+
+        -- Gnarlpine Ursa
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2006;
+
+        -- Gnarlpine Gardener
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2007;
+
+        -- Gnarlpine Avenger
+        UPDATE `creature_template`
+        SET `display_id1`=3024
+        WHERE `entry`=2013;
+
+        -- Ursal The mauler, named gnarlpine
+        UPDATE `creature_template`
+        SET `display_id1`=3028
+        WHERE `entry`=2039;
+
+        -- Mangy Nightsaber
+        UPDATE `creature_template`
+        SET `display_id1`=3030
+        WHERE `entry`=2032;
+
+        -- Nightsaber
+        UPDATE `creature_template`
+        SET `display_id1`=3031
+        WHERE `entry`=2042;
+
+        -- Razormane Dustrunner, durotar
+        UPDATE `creature_template`
+        SET `display_id1`=1254
+        WHERE `entry`=3113;
+
+        -- Razormane Nak (a named with no display id)
+        UPDATE `creature_template`
+        SET `display_id1`=1342
+        WHERE `entry`=3434;
+
+        -- Razormane warfury
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3459;
+
+        -- Razormane seer
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3458;
+
+        -- Razormane hunter, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1346
+        WHERE `entry`=3265;
+
+        -- Razormane mystic
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3271;
+
+        -- Razormane geomancer, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3269;
+
+        -- Razormane thornweaver, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1346
+        WHERE `entry`=3268;
+
+        -- Razormane water seeker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1346
+        WHERE `entry`=3267;
+
+        -- Razormane defender, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3266;
+
+        -- Razormane stalker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1341
+        WHERE `entry`=3457;
+
+        -- Bristleback thornweaver, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3261;
+
+        -- Bristleback geomancer
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3263;
+
+        -- Bristleback hunter, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3258;
+
+        -- Bristleback water seeker, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3260;
+
+        -- Bristleback defender, this one already got a display_id, but screenshot show another
+        UPDATE `creature_template`
+        SET `display_id1`=1343
+        WHERE `entry`=3259;
+
+        -- Kolkar pack runner
+        UPDATE `creature_template`
+        SET `display_id1`=1348
+        WHERE `entry`=3274;
+
+        -- Kolkar marauder, screenshot
+        UPDATE `creature_template`
+        SET `display_id1`=1349
+        WHERE `entry`=3275;
+
+        -- Kolkar bloodcharger
+        UPDATE `creature_template`
+        SET `display_id1`=1348
+        WHERE `entry`=3397;
+
+        -- Kolkar stormer
+        UPDATE `creature_template`
+        SET `display_id1`=1347
+        WHERE `entry`=3273;
+
+        -- Thistlefur Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=2001
+        WHERE `entry`=3924;
+
+        -- Thistlefur Avenger
+        UPDATE `creature_template`
+        SET `display_id1`=2000
+        WHERE `entry`=3925;
+
+        -- Thistlefur Pathfinder
+        UPDATE `creature_template`
+        SET `display_id1`=2003
+        WHERE `entry`=3926;
+
+        -- Thistlefur Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1999
+        WHERE `entry`=3922;
+
+         -- Foulweald Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=1996
+        WHERE `entry`=3743;
+
+        -- Foulweald Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1996
+        WHERE `entry`=3750;
+
+        -- Foulweald Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1997
+        WHERE `entry`=3748;
+
+        -- Foulweald Den Watcher
+        UPDATE `creature_template`
+        SET `display_id1`=1997
+        WHERE `entry`=3746;
+
+        -- Ornery Plainstrider
+        UPDATE `creature_template`
+        SET `display_id1`=1283
+        WHERE `entry`=3245;
+
+        -- Oasis Snapjaw
+        UPDATE `creature_template`
+        SET `display_id1`=1244
+        WHERE `entry`=3461;
+
+        insert into applied_updates values ('080820221');
+
+    end if;
+
+    -- 08/08/2022 2
+    if (select count(*) from applied_updates where id='080820222') = 0 then
+
+        -- FIX #390
+
+        -- Serpentbloom, Plant Bundle, Violet Tragan, Beached Sea Creature, Gloom Weed, Incendia Agave, Skeletal Sea Turtle, Doom Weed, Shadowmoon Tuber
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '13891');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '17282');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '141853');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175207');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175566');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '175928');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '176189');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '176753');
+        UPDATE `gameobject_template` SET `data0` = '57' WHERE (`entry` = '184691');
+
+        insert into applied_updates values ('080820222');
+
+    end if;
+
+    -- 08/08/2022 3
+    if (select count(*) from applied_updates where id='080820223') = 0 then
+        -- despawn game objects associated with warlock class quests #405
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id`IN (12194, 12595, 12699, 17898, 26767, 29205, 42881, 45008, 45288, 3996170);
+
+        insert into applied_updates values ('080820223');
+    end if;
+
+    -- 08/08/2022 4
+    if (select count(*) from applied_updates where id='080820224') = 0 then
+        -- Tirisfal Glades improvements
+        -- Remove Summoning circle at brill graveyard #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry` = 37097;
+
+        -- Remove door interaction objects at brill graveyard #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` IN (44766, 44816);
+
+        -- despawn Quest: 'Marla's last Wish' #392
+        UPDATE `quest_template` SET `ignored`='1' WHERE  `entry` = 6395;
+        
+        -- Despawn Marla's grave Gameobject #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` = 45015;
+
+        insert into applied_updates values ('080820224');
+    end if;
+
+    -- 09/08/2022 1
+    if (select count(*) from applied_updates where id='090820221') = 0 then
+
+        -- SILVERPINE
+
+        -- Moonrage Whitescalp
+        UPDATE `creature_template`
+        SET `display_id1`=729
+        WHERE `entry`=1769;
+
+        -- Rot Hide Plague Weaver
+        UPDATE `creature_template`
+        SET `display_id1`=858
+        WHERE `entry`=1940;
+
+        -- Rot Hide Brute
+        UPDATE `creature_template`
+        SET `display_id1`=858
+        WHERE `entry`=1939;
+
+        -- Rot Hide Mystic
+        UPDATE `creature_template`
+        SET `display_id1`=847
+        WHERE `entry`=1773;
+
+        -- Raging Rot Hide
+        UPDATE `creature_template`
+        SET `display_id1`=858
+        WHERE `entry`=1943;
+
+        -- Lake Skulker
+        UPDATE `creature_template`
+        SET `display_id1`=862
+        WHERE `entry`=1953;
+
+        -- Elder Lake Skulker
+        UPDATE `creature_template`
+        SET `display_id1`=863
+        WHERE `entry`=1954;
+
+        -- Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=781
+        WHERE `entry`=1765;
+
+        -- Mottled Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=783
+        WHERE `entry`=1766;
+
+        -- Bloodsnut Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=782
+        WHERE `entry`=1923;
+
+        insert into applied_updates values ('090820221');
+    end if;
+
+    -- 10/08/2022 1
+    if (select count(*) from applied_updates where id='100820221') = 0 then
+
+        -- HILLSBRAD
+
+        -- Hilsbrad sentry
+        UPDATE `creature_template`
+        SET `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=2270;
+
+        -- Daggerspine Siren
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2371;
+
+        -- Daggerspine Shorehunter
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2369;
+
+        -- Daggerspine Screamer
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2370;
+
+        -- Daggerspine Shorestalker
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2368;
+
+        -- Mudsnout Gnoll
+        UPDATE `creature_template`
+        SET `display_id1`=275
+        WHERE `entry`=2372;
+
+        -- Melisara
+        UPDATE `creature_template`
+        SET `display_id1`=915
+        WHERE `entry`=2278;
+
+        insert into applied_updates values ('100820221');
+    end if;
+
+    -- 10/08/2022 2
+    if (select count(*) from applied_updates where id='100820222') = 0 then
+
+        -- WETLANDS
+
+        -- Captain Stoutfist
+        UPDATE `creature_template`
+        SET `display_id1`=1764
+        WHERE `entry`=2104;
+
+        -- Dragonmaw raider
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1034;
+
+        -- Dragonmaw swamprunner
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1035;
+
+        -- Dragonmaw bonewarder
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1057;
+
+        -- Dragonmaw shadowwarder
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1038;
+
+        -- Dragonmaw centurion
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1036;
+
+        -- Draonmaw Battlemaster
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1037;
+
+        -- Red Whelp
+        UPDATE `creature_template`
+        SET `display_id1`=956
+        WHERE `entry`=1042;
+
+        -- Flamesnorting Whelp
+        UPDATE `creature_template`
+        SET `display_id1`=956
+        WHERE `entry`=1044;
+
+        -- Red Wyrmkin
+        UPDATE `creature_template`
+        SET `display_id1`=363
+        WHERE `entry`=1046;
+
+        -- Red Scaleban
+        UPDATE `creature_template`
+        SET `display_id1`=686
+        WHERE `entry`=1047;
+
+        -- Wyrmkin firebrand
+        UPDATE `creature_template`
+        SET `display_id1`=687
+        WHERE `entry`=1049;
+
+        -- Scaleban royal guard
+        UPDATE `creature_template`
+        SET `display_id1`=687
+        WHERE `entry`=1050;
+
+        -- Crimson ooze
+        UPDATE `creature_template`
+        SET `display_id1`=681
+        WHERE `entry`=1031;
+
+        -- Monstrous ooze
+        UPDATE `creature_template`
+        SET `display_id1`=682
+        WHERE `entry`=1033;
+
+        -- Bart Tidewater
+        UPDATE `creature_template`
+        SET `display_id1`=797
+        WHERE `entry`=1481;
+
+        insert into applied_updates values ('100820222');
+    end if;
+    
+    -- 10/08/2022 3
+    if (select count(*) from applied_updates where id='100820223') = 0 then
+    
+        -- Gnomeran transport. 'Vator2' (Elevator2)
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '14139');
+        
+        insert into applied_updates values ('100820223');
+    end if;
+
+    -- 11/08/2022 1
+    if (select count(*) from applied_updates where id='110820221') = 0 then
+        ALTER TABLE `item_template` ADD COLUMN `ignored` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0;
+
+        insert into applied_updates values ('110820221');
+    end if;
+
 end $
 delimiter ;

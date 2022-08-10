@@ -2,6 +2,7 @@ from database.world.WorldModels import NpcGossip, NpcText, QuestGreeting
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
@@ -17,7 +18,7 @@ from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
-    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid, Emotes
+    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -55,9 +56,6 @@ class QuestManager(object):
     def is_quest_log_full(self):
         return len(self.active_quests) >= MAX_QUEST_LOG
 
-    # TODO: Cache the return value by GO guid, flush this cache on any QuestManager state change.
-    #  Need to further investigate some gameobjects that remain usable even with the proper dynamic flag set.
-    #  Client checks 'if ( (m_flags & 1) == 0 && ((m_flags & 4) == 0 || (m_gameObj->m_dynamicFlags & 1) != 0) )'
     def should_interact_with_go(self, game_object):
         if game_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             if game_object.gobject_template.data1 != 0:
@@ -70,7 +68,6 @@ class QuestManager(object):
                 for active_quest in list(self.active_quests.values()):
                     if active_quest.need_item_from_go(game_object.guid, loot_template):
                         return True
-
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
             # Grab starters/finishers.
             relations_list = QuestManager.get_quest_giver_relations(game_object)
@@ -100,6 +97,10 @@ class QuestManager(object):
                     if quest_template and self.check_quest_requirements(quest_template):
                         # This go offers a quest we don't have, and we match the requirements for it.
                         return True
+        elif game_object.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
+            for quest_id, active_quest in self.active_quests.items():
+                if active_quest.requires_creature_or_go(game_object):
+                    return True
 
         return False
 
@@ -107,7 +108,7 @@ class QuestManager(object):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
 
-        if self.player_mgr.is_enemy_to(quest_giver):
+        if self.player_mgr.is_hostile_to(quest_giver):
             return dialog_status
 
         # Relation bounds, the quest giver; Involved relations bounds, the quest completer.
@@ -772,22 +773,23 @@ class QuestManager(object):
         data = pack(f'<I{len(title_bytes)}sQ', active_quest.quest.entry, title_bytes, self.player_mgr.guid)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUEST_CONFIRM_ACCEPT, data)
 
-        surrounding_party_players = self.player_mgr.group_manager.get_surrounding_member_players(self.player_mgr)
-        for player_mgr in surrounding_party_players:
-            if player_mgr.guid == self.player_mgr.guid:
-                continue
+        for guid in [*self.player_mgr.group_manager.members]:
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
+            if self.player_mgr.group_manager.is_close_member(self.player_mgr, player_mgr):
+                if player_mgr.guid == self.player_mgr.guid:
+                    continue
 
-            # Check which party member fulfills all requirements
-            if not player_mgr.quest_manager.check_quest_requirements(active_quest.quest):
-                continue
-            if not player_mgr.quest_manager.check_quest_level(active_quest.quest, False):
-                continue
-            if active_quest.quest.entry in player_mgr.quest_manager.active_quests:
-                continue
-            if active_quest.quest.entry in player_mgr.quest_manager.completed_quests:
-                continue
+                # Check which party member fulfills all requirements
+                if not player_mgr.quest_manager.check_quest_requirements(active_quest.quest):
+                    continue
+                if not player_mgr.quest_manager.check_quest_level(active_quest.quest, False):
+                    continue
+                if active_quest.quest.entry in player_mgr.quest_manager.active_quests:
+                    continue
+                if active_quest.quest.entry in player_mgr.quest_manager.completed_quests:
+                    continue
 
-            player_mgr.enqueue_packet(packet)
+                player_mgr.enqueue_packet(packet)
 
     def handle_remove_quest(self, slot):
         quest_entry = self.player_mgr.get_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6))
@@ -1016,9 +1018,8 @@ class QuestManager(object):
                 return True
         return False
 
-    def handle_goober_use(self, gameobject, quest_id):
-        if quest_id in self.active_quests:
-            self.reward_creature_or_go(gameobject, quest_id)
+    def handle_goober_use(self, gameobject, quest_id=0):
+        return self.reward_creature_or_go(gameobject, quest_id)
 
     def reward_creature_or_go(self, world_object, to_quest_id=0):
         for quest_id, active_quest in self.active_quests.items():
@@ -1056,7 +1057,7 @@ class QuestManager(object):
         if update_surrounding:
             self.update_surrounding_quest_status()
 
-    def item_is_still_needed_by_any_quest(self, item_entry):
+    def item_needed_by_quests(self, item_entry):
         for active_quest in list(self.active_quests.values()):
             if active_quest.still_needs_item(item_entry):
                 return True

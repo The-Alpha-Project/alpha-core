@@ -1,8 +1,10 @@
 from struct import pack
+from typing import List
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterInventory, CharacterGifts
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import ItemTemplate
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.EnchantmentHolder import EnchantmentHolder
@@ -477,3 +479,38 @@ class ItemManager(ObjectManager):
     # override
     def generate_object_guid(self, low_guid):
         return low_guid | HighGuid.HIGHGUID_ITEM
+
+    @staticmethod
+    def get_item_query_packets(item_templates: List[ItemTemplate]) -> List[bytes]:
+        packets = []
+
+        # The client expects a response containing all requested items (with duplicates).
+        # Attempting to optimize packet size by sending only unique items
+        # leads to some items not having an icon (in bank only? Only case noticed when testing).
+
+        query_data = b''
+        written_items = 0
+        while item_templates:
+            item = item_templates.pop()
+            item_bytes = ItemManager.generate_query_details_data(item)
+
+            # Normal packet header + uint32 (written_items) + length of the total query + length of the current query.
+            exceeds_max_length = PacketWriter.HEADER_SIZE + 4 + len(query_data) + len(item_bytes) > PacketWriter.MAX_PACKET_SIZE
+            if exceeds_max_length or not item_templates:
+                if exceeds_max_length:
+                    item_templates.append(item)
+                else:
+                    # Last item to send.
+                    query_data += item_bytes
+                    written_items += 1
+
+                packet = pack(f'<I{len(query_data)}s', written_items, query_data)
+                packets.append(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, packet))
+                query_data = b''
+                written_items = 0
+                continue
+
+            query_data += item_bytes
+            written_items += 1
+
+        return packets

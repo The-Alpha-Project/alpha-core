@@ -150,6 +150,8 @@ class PlayerManager(UnitManager):
             self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
             self.update_packet_factory.init_values(self.guid, PlayerFields)
 
+            self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+
             self.enchantment_manager = EnchantmentManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
@@ -802,8 +804,9 @@ class PlayerManager(UnitManager):
 
         # Loot item data.
         item_data = b''
-        # Initialize item detail queries data.
-        item_query = b''
+        # Items for query data.
+        item_templates = []
+
         item_count = 0
 
         # Do not send loot if player has no permission.
@@ -821,8 +824,7 @@ class PlayerManager(UnitManager):
                         slot += 1
                         continue
 
-                    # Add this item to item_query data.
-                    item_query += ItemManager.generate_query_details_data(loot.item.item_template)
+                    item_templates.append(loot.item.item_template)
                     item_count += 1
 
                     item_data += pack(
@@ -849,9 +851,7 @@ class PlayerManager(UnitManager):
         # Append item data and send all the packed item detail queries for current loot, if any.
         if item_count:
             data += item_data
-            # Item queries.
-            item_query_data = pack(f'<I{len(item_query)}s', item_count, item_query)
-            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, item_query_data))
+            self.enqueue_packets(ItemManager.get_item_query_packets(item_templates))
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)
         self.enqueue_packet(packet)
@@ -867,7 +867,7 @@ class PlayerManager(UnitManager):
 
     def give_xp(self, amounts, victim=None, notify=True):
         if self.level >= config.Unit.Player.Defaults.max_level or not self.is_alive:
-            return
+            return 0
 
         """
         0.5.3 supports multiple amounts of XP and then combines them all
@@ -899,23 +899,26 @@ class PlayerManager(UnitManager):
 
         # Reward kill experience to pet.
         if victim:
-            self.pet_manager.add_pet_experience(total_amount)
+            self.pet_manager.add_active_pet_experience(total_amount)
 
         if self.xp + total_amount >= self.next_level_xp:  # Level up!
             xp_to_level = self.next_level_xp - self.xp
             level_amount = 0
+            remaining_amount = total_amount
             # Do the actual XP conversion into level(s).
-            while total_amount >= xp_to_level:
+            while remaining_amount >= xp_to_level:
                 level_amount += 1
-                total_amount -= xp_to_level
+                remaining_amount -= xp_to_level
                 xp_to_level = Formulas.PlayerFormulas.xp_to_level(self.level + level_amount)
 
-            self.xp = total_amount  # Set the remaining amount XP as current.
+            self.xp = remaining_amount  # Set the remaining amount XP as current.
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
             self.mod_level(self.level + level_amount)
         else:
             self.xp = self.xp + total_amount
             self.set_uint32(PlayerFields.PLAYER_XP, self.xp)
+
+        return total_amount
 
     def mod_level(self, level):
         if level != self.level:
@@ -975,11 +978,11 @@ class PlayerManager(UnitManager):
 
     def player_or_group_require_quest_item(self, item_entry, only_self=False):
         if not self.group_manager or only_self:
-            return self.quest_manager.item_is_still_needed_by_any_quest(item_entry)
+            return self.quest_manager.item_needed_by_quests(item_entry)
         else:
             for member in self.group_manager.members.values():
                 player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
-                if player_mgr and player_mgr.quest_manager.item_is_still_needed_by_any_quest(item_entry):
+                if player_mgr and player_mgr.quest_manager.item_needed_by_quests(item_entry):
                     return True
         return False
 
@@ -1658,9 +1661,14 @@ class PlayerManager(UnitManager):
         return low_guid | HighGuid.HIGHGUID_PLAYER
 
     # override
-    def get_current_weapon_for_attack_type(self, attack_type: AttackTypes)  -> Optional[ItemManager]:
+    def get_current_weapon_for_attack_type(self, attack_type: AttackTypes) -> Optional[ItemManager]:
+        # Feral form attacks don't use a weapon.
         if self.is_in_feral_form():
-            return None  # Feral form attacks don't use a weapon.
+            return None
+
+        # Handle disarmed main hand.
+        if attack_type == AttackTypes.BASE_ATTACK and self.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+            return None
 
         if attack_type == AttackTypes.BASE_ATTACK:
             return self.inventory.get_main_hand()

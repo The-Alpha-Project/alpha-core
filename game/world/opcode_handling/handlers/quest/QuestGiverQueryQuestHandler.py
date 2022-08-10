@@ -2,6 +2,7 @@ from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
 
@@ -10,28 +11,33 @@ class QuestGiverQueryQuestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
+        if not player_mgr:
+            return res
+
         if len(reader.data) >= 8:  # Avoid handling empty quest giver query quest packet.
             guid, quest_entry = unpack('<QL', reader.data[:12])
             high_guid = ObjectManager.extract_high_guid(guid)
 
             # NPC
             if high_guid == HighGuid.HIGHGUID_UNIT:
-                quest_giver = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+                quest_giver = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
                 if not quest_giver:
                     return 0
 
-                quest_giver_is_related = world_session.player_mgr.quest_manager.check_quest_giver_npc_is_related(
+                quest_giver_is_related = player_mgr.quest_manager.check_quest_giver_npc_is_related(
                     quest_giver, quest_entry)
                 if not quest_giver_is_related:
                     return 0
             # Gameobject
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                quest_giver = MapManager.get_surrounding_gameobject_by_guid(world_session, guid)
+                quest_giver = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
                 if not quest_giver:
                     return 0
             # Item
             elif high_guid == HighGuid.HIGHGUID_ITEM:
-                item_info = world_session.player_mgr.inventory.get_item_info_by_guid(guid)
+                item_info = player_mgr.inventory.get_item_info_by_guid(guid)
                 if not item_info[3]:
                     return 0
 
@@ -48,7 +54,7 @@ class QuestGiverQueryQuestHandler(object):
                 Logger.error(f'Error in CMSG_QUESTGIVER_QUERY_QUEST, could not find quest with an entry of: {quest_entry}')
                 return 0
  
-            world_session.player_mgr.quest_manager.send_quest_giver_quest_details(quest, guid, True)
+            player_mgr.quest_manager.send_quest_giver_quest_details(quest, guid, True)
 
         return 0
 

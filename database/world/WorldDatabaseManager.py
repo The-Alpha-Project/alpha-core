@@ -186,7 +186,7 @@ class WorldDatabaseManager(object):
     @staticmethod
     def item_template_get_all() -> list[ItemTemplate]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(ItemTemplate).filter_by().all()
+        res = world_db_session.query(ItemTemplate).filter_by(ignored=0).all()
         world_db_session.close()
         return res
 
@@ -195,7 +195,8 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         best_matching_item = None
         best_matching_ratio = 0
-        items = world_db_session.query(ItemTemplate).filter(ItemTemplate.name.like('%' + name + '%')).all()
+        items = world_db_session.query(ItemTemplate).filter(ItemTemplate.name.like('%' + name + '%'),
+                                                            ItemTemplate.ignored == 0).all()
         world_db_session.close()
 
         if return_all:

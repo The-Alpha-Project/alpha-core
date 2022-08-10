@@ -253,7 +253,13 @@ class MapManager:
             Logger.warning(f'Wrong map, {map_id} not found.')
             return False
 
-        tile = MAPS[map_id].tiles[map_tile_x][map_tile_y]
+        try:
+            tile = MAPS[map_id].tiles[map_tile_x][map_tile_y]
+        except IndexError:
+            Logger.error(f'Error retrieving tile information for the following position: '
+                         f'Map ID: {map_id}, X: {location_x}, Y: {location_y}, '
+                         f'Tile X: {map_tile_x}, Tile Y: {map_tile_y}.')
+            return False
 
         # Tile exists and has been initialized, return if it's already valid (finished loading) or not.
         if tile is not None and tile.initialized:
@@ -266,7 +272,7 @@ class MapManager:
         # Grab the tile again.
         tile = MAPS[map_id].tiles[map_tile_x][map_tile_y]
 
-        # Tile exist, its initialized and has loaded its internal data.
+        # Tile exist, it's initialized and has loaded its internal data.
         return tile is not None and tile.initialized and tile.is_valid
 
     @staticmethod

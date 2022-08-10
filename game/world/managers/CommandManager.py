@@ -40,7 +40,7 @@ class CommandManager(object):
         if command_func:
             code, res = command_func(world_session, args)
             if code != 0:
-                ChatManager.send_system_message(world_session, f'Wrong arguments for <{command}> command: {res}')
+                ChatManager.send_system_message(world_session, f'Error with <{command}> command: {res}')
             elif res:
                 ChatManager.send_system_message(world_session, res)
 
@@ -606,6 +606,19 @@ class CommandManager(object):
         return 0, f'Enabled {taxi_nodes_count} taxi nodes.'
 
     @staticmethod
+    def qadd(world_session, args):
+        try:
+            quest_id = int(args)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
+            if player_mgr.quest_manager.is_quest_log_full():
+                return -1, 'quest log is full.'
+            player_mgr.quest_manager.handle_accept_quest(quest_id, 0)
+
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid quest entry.'
+
+    @staticmethod
     def die(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         world_session.player_mgr.deal_damage(unit, unit.health)
@@ -717,5 +730,6 @@ GM_COMMAND_DEFINITIONS = {
     'kick': [CommandManager.kick, 'kick your target from the server'],
     'worldoff': [CommandManager.worldoff, 'stop the world server'],
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
-    'alltaxis': [CommandManager.alltaxis, 'discover all flightpaths']
+    'alltaxis': [CommandManager.alltaxis, 'discover all flightpaths'],
+    'qadd': [CommandManager.qadd, 'adds a quest to your log']
 }

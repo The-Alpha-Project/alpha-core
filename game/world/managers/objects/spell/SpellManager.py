@@ -100,7 +100,7 @@ class SpellManager:
 
             # Shapeshift passives are only applied on shapeshift change.
             if spell_template.ShapeshiftMask:
-                return
+                continue
 
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 self.apply_passive_spell_effects(spell_template)
@@ -125,7 +125,7 @@ class SpellManager:
         for spell_id in self.spells.keys():
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             req_form = spell_template.ShapeshiftMask
-            if not req_form:
+            if not req_form or not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 continue
 
             if self.caster.form_matches_mask(req_form):
@@ -718,32 +718,37 @@ class SpellManager:
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.caster,
                                     include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
-    def set_on_cooldown(self, casting_spell, start_locked_cooldown=False):
+    def set_on_cooldown(self, casting_spell):
         spell = casting_spell.spell_entry
 
         if spell.RecoveryTime == 0 and spell.CategoryRecoveryTime == 0:
             return
 
         timestamp = time.time()
+        unlocks_on_trigger = casting_spell.unlock_cooldown_on_trigger()
 
-        if start_locked_cooldown:
-            data = pack('<IQ', spell.ID, self.caster.guid)
-            self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_EVENT, data))
-            for cooldown in self.cooldowns:
-                if cooldown.spell_id == spell.ID:
-                    cooldown.unlock(timestamp)
-                    return
-            Logger.warning(f'[SpellManager]: Attempted to unlock cooldown for spell {spell.ID}, '
-                           f'but the cooldown didn\'t exist.')
-
-        cooldown_entry = CooldownEntry(spell, timestamp, casting_spell.trigger_cooldown_on_aura_remove())
+        cooldown_entry = CooldownEntry(spell, timestamp, unlocks_on_trigger)
         self.cooldowns.append(cooldown_entry)
 
-        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER or unlocks_on_trigger:
             return
 
         data = pack('<IQI', spell.ID, self.caster.guid, cooldown_entry.cooldown_length)
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+
+    def unlock_spell_cooldown(self, spell_id):
+        timestamp = time.time()
+        cooldown = next((cooldown for cooldown in self.cooldowns
+                         if cooldown.spell_id == spell_id), None)
+        if not cooldown:
+            return
+
+        cooldown.unlock(timestamp)
+        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        data = pack('<IQ', spell_id, self.caster.guid)
+        self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_EVENT, data))
 
     def check_spell_cooldowns(self):
         for cooldown_entry in list(self.cooldowns):
@@ -832,7 +837,6 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID,
                                       SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS, spell_focus_type)
                 return False
-
 
         # Target validation.
         validation_target = casting_spell.initial_target
@@ -955,13 +959,12 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, error)
                 return False
 
-            # Taming level restriction.
+            # Taming restrictions.
             tame_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_TAME_CREATURE)
             if tame_effect:
-                max_tame_level = tame_effect.get_effect_points()
-                if validation_target.level > max_tame_level:
-                    self.send_cast_result(casting_spell.spell_entry.ID,
-                                          SpellCheckCastResult.SPELL_FAILED_LEVEL_REQUIREMENT)
+                tame_result = self.caster.pet_manager.handle_tame_result(tame_effect, validation_target)
+                if tame_result != SpellCheckCastResult.SPELL_NO_ERROR:
+                    self.send_cast_result(casting_spell.spell_entry.ID, tame_result)
                     return False
 
         # Pickpocketing target validity check.

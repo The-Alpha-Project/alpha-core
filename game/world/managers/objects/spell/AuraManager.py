@@ -309,8 +309,8 @@ class AuraManager:
         self.unit_mgr.spell_manager.remove_cast(aura.source_spell, interrupted=canceled)
 
         # Some spells start cooldown on aura remove, handle that case here.
-        if aura.source_spell.trigger_cooldown_on_aura_remove():
-            self.unit_mgr.spell_manager.set_on_cooldown(aura.source_spell, start_locked_cooldown=True)
+        if aura.source_spell.unlock_cooldown_on_trigger():
+            self.unit_mgr.spell_manager.unlock_spell_cooldown(aura.spell_id)
 
         self.write_aura_to_unit(aura, clear=True)
 

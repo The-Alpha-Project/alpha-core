@@ -91,5 +91,40 @@ begin not atomic
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         insert into applied_updates values ('040620221');
     end if;
+
+    -- 07/08/2022 1
+    if (select count(*) from applied_updates where id='070820221') = 0 then
+        DROP TABLE IF EXISTS `character_pets`;
+        CREATE TABLE `character_pets` (
+        `pet_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+        `owner` int(11) unsigned NOT NULL DEFAULT 0,
+        `creature_id` int(11) unsigned NOT NULL DEFAULT 0,
+        `created_by_spell` int(11) unsigned NOT NULL DEFAULT 0,
+        `level` int(11) unsigned NOT NULL DEFAULT 0,
+        `xp` int(11) unsigned NOT NULL DEFAULT 0,
+        `react_state` tinyint(1) unsigned NOT NULL DEFAULT 0,
+        `command_state` tinyint(1) unsigned NOT NULL DEFAULT 0,
+        `loyalty` int(11) unsigned NOT NULL DEFAULT 0,
+        `loyalty_points` int(11) unsigned NOT NULL DEFAULT 0,
+        `training_points` int(11) unsigned NOT NULL DEFAULT 0,
+        `name` varchar(255) NOT NULL DEFAULT '',
+        `renamed` tinyint(1) unsigned NOT NULL DEFAULT 0,
+        `health` int(11) unsigned NOT NULL DEFAULT 0,
+        `mana` int(11) unsigned NOT NULL DEFAULT 0,
+        `happiness` int(11) unsigned NOT NULL DEFAULT 0,
+        `action_bar` blob(40) NOT NULL DEFAULT 0,
+        PRIMARY KEY (`pet_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        insert into applied_updates values ('070820221');
+    end if;
+
+    -- 09/08/2022 1
+	if (select count(*) from applied_updates where id='090820221') = 0 then
+        ALTER TABLE `character_pets` CHANGE `owner` `owner_guid` int(11) unsigned NOT NULL DEFAULT 0;
+        ALTER TABLE `character_pets` ADD KEY `fk_character_pets_characters1_idx` (`owner_guid`);
+        ALTER TABLE `character_pets` ADD CONSTRAINT `fk_character_pets_characters1` FOREIGN KEY (`owner_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+        insert into applied_updates values ('090820221');
+    end if;
 end $
 delimiter ;
