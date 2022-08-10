@@ -8783,9 +8783,85 @@ begin not atomic
         insert into applied_updates values ('080820223');
     end if;
 
+    -- 08/08/2022 4
+    if (select count(*) from applied_updates where id='080820224') = 0 then
+        -- Tirisfal Glades improvements
+        -- Remove Summoning circle at brill graveyard #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry` = 37097;
+
+        -- Remove door interaction objects at brill graveyard #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` IN (44766, 44816);
+
+        -- despawn Quest: 'Marla's last Wish' #392
+        UPDATE `quest_template` SET `ignored`='1' WHERE  `entry` = 6395;
+        
+        -- Despawn Marla's grave Gameobject #392
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_id` = 45015;
+
+        insert into applied_updates values ('080820224');
+    end if;
+
+    -- 09/08/2022 1
+    if (select count(*) from applied_updates where id='090820221') = 0 then
+
+        -- SILVERPINE
+
+        -- Moonrage Whitescalp
+        UPDATE `creature_template`
+        SET `display_id1`=729
+        WHERE `entry`=1769;
+
+        -- Rot Hide Plague Weaver
+        UPDATE `creature_template`
+        SET `display_id1`=858
+        WHERE `entry`=1940;
+
+        -- Rot Hide Brute
+        UPDATE `creature_template`
+        SET `display_id1`=858
+        WHERE `entry`=1939;
+
+        -- Rot Hide Mystic
+        UPDATE `creature_template`
+        SET `display_id1`=847
+        WHERE `entry`=1773;
+
+        -- Raging Rot Hide
+        UPDATE `creature_template`
+        SET `display_id1`=858
+        WHERE `entry`=1943;
+
+        -- Lake Skulker
+        UPDATE `creature_template`
+        SET `display_id1`=862
+        WHERE `entry`=1953;
+
+        -- Elder Lake Skulker
+        UPDATE `creature_template`
+        SET `display_id1`=863
+        WHERE `entry`=1954;
+
+        -- Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=781
+        WHERE `entry`=1765;
+
+        -- Mottled Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=783
+        WHERE `entry`=1766;
+
+        -- Bloodsnut Wolf
+        UPDATE `creature_template`
+        SET `display_id1`=782
+        WHERE `entry`=1923;
+
+        insert into applied_updates values ('090820221');
+    end if;
+
     -- 10/08/2022 1
     if (select count(*) from applied_updates where id='100820221') = 0 then
-    
+
         -- HILLSBRAD
 
         -- Hilsbrad sentry
@@ -8827,5 +8903,3 @@ begin not atomic
     end if;
 end $
 delimiter ;
-
-
