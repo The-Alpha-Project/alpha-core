@@ -117,7 +117,7 @@ class WorldServerSessionHandler:
         self.keep_alive = False
 
         try:
-            if self.player_mgr:
+            if self.player_mgr and self.player_mgr.online:
                 self.player_mgr.logout()
         except AttributeError:
             pass
