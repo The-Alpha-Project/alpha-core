@@ -1,6 +1,6 @@
 from struct import unpack
 
-from game.world.opcode_handling.handlers.HandlerValidator import HandlerValidator
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketWriter import PacketWriter, OpCode
 
 

@@ -1,6 +1,6 @@
 from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.opcode_handling.handlers.HandlerValidator import HandlerValidator
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
 class QuestQueryHandler(object):

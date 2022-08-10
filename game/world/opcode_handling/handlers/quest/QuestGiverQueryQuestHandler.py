@@ -2,7 +2,7 @@ from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.opcode_handling.handlers.HandlerValidator import HandlerValidator
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
 

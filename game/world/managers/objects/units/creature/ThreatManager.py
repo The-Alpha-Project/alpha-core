@@ -73,7 +73,7 @@ class ThreatManager:
                 elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOM:
                     return random.choice(relevant_holders).unit
                 elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP:
-                    # Only TOP available, return None.
+                    # Only top available, return None.
                     if len(relevant_holders) == 1:
                         return None
                     # Random, not top.

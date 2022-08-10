@@ -1665,7 +1665,7 @@ class PlayerManager(UnitManager):
             return None
 
         # Handle disarmed main hand.
-        if attack_type == AttackTypes.BASE_ATTACK & self.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+        if attack_type == AttackTypes.BASE_ATTACK and self.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
             return None
 
         if attack_type == AttackTypes.BASE_ATTACK:

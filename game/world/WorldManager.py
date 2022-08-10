@@ -86,6 +86,7 @@ class WorldServerSessionHandler:
             except OSError:
                 self.disconnect()
 
+    # noinspection PyBroadException
     def process_incoming(self):
         try:
             while self.keep_alive:

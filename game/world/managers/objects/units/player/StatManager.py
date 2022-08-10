@@ -327,7 +327,7 @@ class StatManager(object):
             self.weapon_reach = self.unit_mgr.weapon_reach
             min_damage, max_damage = unpack('<2H', pack('<I', self.unit_mgr.damage))
 
-            # TODO, how to calculate unit damage when disarmed.
+            # TODO: properly calculate creature damage when disarmed.
             if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
                 max_damage = min_damage
                 
