@@ -8569,8 +8569,6 @@ begin not atomic
 
         DELETE FROM `reference_loot_template` WHERE `item` > '6441';
 
-        UPDATE `item_template` SET `ignored` = '1' WHERE `entry` > '6441';
-
         DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` NOT IN (SELECT `entry` FROM `gameobject_template`);
 
         UPDATE `quest_template` SET `SrcItemCount` = '0' WHERE `SrcItemId` > '6441' AND `entry` < '1339';
@@ -9075,6 +9073,7 @@ begin not atomic
     -- 11/08/2022 1
     if (select count(*) from applied_updates where id='110820221') = 0 then
         ALTER TABLE `item_template` ADD COLUMN `ignored` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0;
+        UPDATE `item_template` SET `ignored` = '1' WHERE `entry` > '6441';
 
         insert into applied_updates values ('110820221');
     end if;
