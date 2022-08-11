@@ -534,6 +534,13 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def quest_get_by_name(title):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestTemplate).filter(QuestTemplate.Title.like(title)).all()
+        world_db_session.close()
+        return res
+        
     class QuestRelationHolder:
         QUEST_CREATURE_STARTERS: [int, list[t_creature_quest_starter]] = {}
         QUEST_CREATURE_FINISHERS = {}
