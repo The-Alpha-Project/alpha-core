@@ -17,7 +17,7 @@ class PlayerDuelInformation(object):
         self.is_target = is_target  # Player which accepted the duel.
 
 
-# TODO: Missing checks before requesting a duel, is the map allow duel, etc.
+# TODO: Missing checks before requesting a duel, does the map allow duel, etc.
 class DuelManager(object):
     BOUNDARY_RADIUS = 50
 
