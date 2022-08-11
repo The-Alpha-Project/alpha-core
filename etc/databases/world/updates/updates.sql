@@ -9092,6 +9092,31 @@ begin not atomic
 
         insert into applied_updates values ('110820223');
     end if;
+    
+    -- 12/08/2022 1
+    if (select count(*) from applied_updates where id='120820221') = 0 then
+
+        -- LOCH MODAN Binder & Gryphon fix
+
+        -- Guffren Boulderbeard, old binder, we delelete it,  he is hand spawned
+        DELETE FROM `spawns_creatures`
+        WHERE `spawn_id`=400018;
+
+        -- Dolthar Stonefoot, new binder
+        INSERT INTO `spawns_creatures` VALUES (NULL, 2298, 0, 0, 0, 0, 0, 0, -5347.08544921875, -2883.7880859375, 343.3161315917969, 2.5038504600524902, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Gryphon master loch modan
+        UPDATE `creature_template`
+        SET `display_id1`=1764
+        WHERE `entry`=1572;
+
+        -- DOLANAAR
+
+        -- Myielia, new binder
+        INSERT INTO `spawns_creatures` VALUES (NULL, 3778, 0, 0, 0, 1, 0, 0, 9868.9599609375, 929.1273803710938, 1309.1700439453125, 0.3094463348388672, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        insert into applied_updates values ('120820221');
+    end if;
 
 end $
 delimiter ;
