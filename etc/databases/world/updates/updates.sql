@@ -9339,7 +9339,7 @@ begin not atomic
 
         -- Singed basilic
         UPDATE `creature_template`
-        SET `display_id1`=2175
+        SET `display_id1`=2174
         WHERE `entry`=4042;
 
         -- Vengefull Ancient
