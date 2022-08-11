@@ -8551,6 +8551,77 @@ begin not atomic
 
     end if;
     
+    -- 06/08/2022 4
+    if (select count(*) from applied_updates where id='060820224') = 0 then
+        DELETE FROM `npc_vendor` WHERE `item` > '6441';
+
+        DELETE FROM `item_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `gameobject_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `skinning_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `pickpocketing_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `fishing_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `creature_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `reference_loot_template` WHERE `item` > '6441';
+
+        DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` NOT IN (SELECT `entry` FROM `gameobject_template`);
+
+        UPDATE `quest_template` SET `SrcItemCount` = '0' WHERE `SrcItemId` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `SrcItemId` = '0' WHERE `SrcItemId` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `ReqItemCount1` = '0' WHERE `ReqItemId1` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqItemCount2` = '0' WHERE `ReqItemId2` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqItemCount3` = '0' WHERE `ReqItemId3` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqItemCount4` = '0' WHERE `ReqItemId4` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `ReqItemId1` = '0' WHERE `ReqItemId1` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqItemId2` = '0' WHERE `ReqItemId2` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqItemId3` = '0' WHERE `ReqItemId3` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqItemId4` = '0' WHERE `ReqItemId4` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `ReqSourceCount1` = '0' WHERE `ReqSourceId1` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqSourceCount2` = '0' WHERE `ReqSourceId2` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqSourceCount3` = '0' WHERE `ReqSourceId3` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqSourceCount4` = '0' WHERE `ReqSourceId4` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `ReqSourceId1` = '0' WHERE `ReqSourceId1` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqSourceId2` = '0' WHERE `ReqSourceId2` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqSourceId3` = '0' WHERE `ReqSourceId3` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `ReqSourceID4` = '0' WHERE `ReqSourceId4` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `RewChoiceItemCount1` = '0' WHERE `RewChoiceItemId1` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemCount2` = '0' WHERE `RewChoiceItemId2` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemCount3` = '0' WHERE `RewChoiceItemId3` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemCount4` = '0' WHERE `RewChoiceItemId4` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemCount5` = '0' WHERE `RewChoiceItemId5` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemCount6` = '0' WHERE `RewChoiceItemId6` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `RewChoiceItemId1` = '0' WHERE `RewChoiceItemId1` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemId2` = '0' WHERE `RewChoiceItemId2` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemId3` = '0' WHERE `RewChoiceItemId3` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemId4` = '0' WHERE `RewChoiceItemId4` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemId5` = '0' WHERE `RewChoiceItemId5` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewChoiceItemId6` = '0' WHERE `RewChoiceItemId6` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `RewItemCount1` = '0' WHERE `RewItemId1` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewItemCount2` = '0' WHERE `RewItemId2` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewItemCount3` = '0' WHERE `RewItemId3` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewItemCount4` = '0' WHERE `RewItemId4` > '6441' AND `entry` < '1339';
+
+        UPDATE `quest_template` SET `RewItemId1` = '0' WHERE `RewItemId1` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewItemId2` = '0' WHERE `RewItemId2` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewItemId3` = '0' WHERE `RewItemId3` > '6441' AND `entry` < '1339';
+        UPDATE `quest_template` SET `RewItemId4` = '0' WHERE `RewItemId4` > '6441' AND `entry` < '1339';
+
+        insert into applied_updates values ('060820224');
+    end if;
+    
     -- 08/08/2022 1
     if (select count(*) from applied_updates where id='080820221') = 0 then
 
@@ -9002,12 +9073,132 @@ begin not atomic
     -- 11/08/2022 1
     if (select count(*) from applied_updates where id='110820221') = 0 then
         ALTER TABLE `item_template` ADD COLUMN `ignored` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0;
+        UPDATE `item_template` SET `ignored` = '1' WHERE `entry` > '6441';
 
         insert into applied_updates values ('110820221');
     end if;
 
     -- 11/08/2022 2
     if (select count(*) from applied_updates where id='110820222') = 0 then
+        UPDATE `quest_template` SET `ignored` = 1 WHERE `entry` > 1339;
+
+        insert into applied_updates values ('110820222');
+    end if;
+
+    -- 11/08/2022 3
+    if (select count(*) from applied_updates where id='110820223') = 0 then
+        -- Fix Summon Imp spell used by trainers.
+        UPDATE `trainer_template` SET `spell` = 1366 WHERE `spell` = 7763;
+
+        insert into applied_updates values ('110820223');
+    end if;
+
+    -- 11/08/2022 4
+    if (select count(*) from applied_updates where id='110820224') = 0 then
+        -- Reagent Vendor Fixes
+        -- Clear Reagent Vendors
+        DELETE FROM `npc_vendor` WHERE `entry` IN (1275,1308,1351,1463,1673,3323,3335,3351,3500,3562,3700,4220,4562,5110,5151);
+        
+        -- Add items back to Reagent Vendors
+        INSERT INTO `npc_vendor` 
+        (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) 
+        VALUES 
+        ('1275', '5024', '0', '0', '0'),
+        ('1275', '5026', '0', '0', '0'),
+        ('1275', '5105', '0', '0', '0'),
+        ('1275', '5517', '0', '0', '0'),
+        ('1275', '5518', '0', '0', '0'),
+        ('1308', '5024', '0', '0', '0'),
+        ('1308', '5026', '0', '0', '0'),
+        ('1308', '5105', '0', '0', '0'),
+        ('1308', '5517', '0', '0', '0'),
+        ('1308', '5518', '0', '0', '0'),
+        ('1351', '5024', '0', '0', '0'),
+        ('1351', '5026', '0', '0', '0'),
+        ('1351', '5105', '0', '0', '0'),
+        ('1351', '5517', '0', '0', '0'),
+        ('1351', '5518', '0', '0', '0'),
+        ('1463', '5024', '0', '0', '0'),
+        ('1463', '5026', '0', '0', '0'),
+        ('1463', '5105', '0', '0', '0'),
+        ('1463', '5517', '0', '0', '0'),
+        ('1463', '5518', '0', '0', '0'),
+        ('1673', '5024', '0', '0', '0'),
+        ('1673', '5026', '0', '0', '0'),
+        ('1673', '5105', '0', '0', '0'),
+        ('1673', '5517', '0', '0', '0'),
+        ('1673', '5518', '0', '0', '0'),
+        ('3323', '5024', '0', '0', '0'),
+        ('3323', '5026', '0', '0', '0'),
+        ('3323', '5105', '0', '0', '0'),
+        ('3323', '5517', '0', '0', '0'),
+        ('3323', '5518', '0', '0', '0'),
+        ('3335', '5024', '0', '0', '0'),
+        ('3335', '5026', '0', '0', '0'),
+        ('3335', '5105', '0', '0', '0'),
+        ('3335', '5517', '0', '0', '0'),
+        ('3335', '5518', '0', '0', '0'),
+        ('3351', '5024', '0', '0', '0'),
+        ('3351', '5026', '0', '0', '0'),
+        ('3351', '5105', '0', '0', '0'),
+        ('3351', '5517', '0', '0', '0'),
+        ('3351', '5518', '0', '0', '0'),
+        ('3500', '5024', '0', '0', '0'),
+        ('3500', '5026', '0', '0', '0'),
+        ('3500', '5105', '0', '0', '0'),
+        ('3500', '5517', '0', '0', '0'),
+        ('3500', '5518', '0', '0', '0'),
+        ('3562', '5024', '0', '0', '0'),
+        ('3562', '5026', '0', '0', '0'),
+        ('3562', '5105', '0', '0', '0'),
+        ('3562', '5517', '0', '0', '0'),
+        ('3562', '5518', '0', '0', '0'),
+        ('3700', '5024', '0', '0', '0'),
+        ('3700', '5026', '0', '0', '0'),
+        ('3700', '5105', '0', '0', '0'),
+        ('3700', '5517', '0', '0', '0'),
+        ('3700', '5518', '0', '0', '0'),
+        ('4220', '5024', '0', '0', '0'),
+        ('4220', '5026', '0', '0', '0'),
+        ('4220', '5105', '0', '0', '0'),
+        ('4220', '5517', '0', '0', '0'),
+        ('4220', '5518', '0', '0', '0'),
+        ('4562', '5024', '0', '0', '0'),
+        ('4562', '5026', '0', '0', '0'),
+        ('4562', '5105', '0', '0', '0'),
+        ('4562', '5517', '0', '0', '0'),
+        ('4562', '5518', '0', '0', '0'),
+        ('5110', '5024', '0', '0', '0'),
+        ('5110', '5026', '0', '0', '0'),
+        ('5110', '5105', '0', '0', '0'),
+        ('5110', '5517', '0', '0', '0'),
+        ('5110', '5518', '0', '0', '0');
+        
+        -- Add Hunter Reagents to special cases
+         INSERT INTO `npc_vendor` 
+        (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`) 
+        VALUES 
+        ('789', '5024', '0', '0', '0'),
+        ('789', '5026', '0', '0', '0'),
+        ('789', '5105', '0', '0', '0'),
+        ('1257', '5024', '0', '0', '0'),
+        ('1257', '5026', '0', '0', '0'),
+        ('1257', '5105', '0', '0', '0'),
+        ('1298', '5024', '0', '0', '0'),
+        ('1298', '5026', '0', '0', '0'),
+        ('1298', '5105', '0', '0', '0'),
+        ('1462', '5024', '0', '0', '0'),
+        ('1462', '5026', '0', '0', '0'),
+        ('1462', '5105', '0', '0', '0');
+
+        -- Fire Tar was not a Quest Item in 0.5.3.
+        UPDATE `item_template` SET `bonding` = 0 WHERE `entry` = 5026;
+        
+        insert into applied_updates values ('110820224');
+    end if;
+
+    -- 11/08/2022 5
+    if (select count(*) from applied_updates where id='110820225') = 0 then
         -- Highland Strider
         UPDATE `creature_template`
         SET `display_id1`=961
@@ -9027,7 +9218,7 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=793
         WHERE `entry`=2636;
-        
+
         -- Daggerspine Raider
         UPDATE `creature_template`
         SET `display_id1`=4036
@@ -9047,7 +9238,7 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=3190
         WHERE `entry`=2567;
-        
+
         -- Kor gresh Coldrage
         UPDATE `creature_template`
         SET `display_id1`=3191
@@ -9078,7 +9269,7 @@ begin not atomic
         SET `display_id1`=1054
         WHERE `entry`=2601;
 
-        insert into applied_updates values ('110820222');
+        insert into applied_updates values ('110820225');
     end if;
 end $
 delimiter ;
