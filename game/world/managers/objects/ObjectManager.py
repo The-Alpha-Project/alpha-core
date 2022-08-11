@@ -381,11 +381,11 @@ class ObjectManager:
         target_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
 
         if not own_faction:
-            Logger.error(f'Invalid faction template: {self.faction}.')
+            Logger.warning(f'Invalid faction template: {self.faction}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 
         if not target_faction:
-            Logger.error(f'Invalid faction template: {target.faction}.')
+            Logger.warning(f'Invalid faction template: {target.faction}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 
         # TODO: Reputation standing checks first.
