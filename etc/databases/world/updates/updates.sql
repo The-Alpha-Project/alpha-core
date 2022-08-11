@@ -9085,5 +9085,13 @@ begin not atomic
         insert into applied_updates values ('110820222');
     end if;
 
+    -- 11/08/2022 3
+    if (select count(*) from applied_updates where id='110820223') = 0 then
+        -- Fix Summon Imp spell used by trainers.
+        UPDATE `trainer_template` SET `spell` = 1366 WHERE `spell` = 7763;
+
+        insert into applied_updates values ('110820223');
+    end if;
+
 end $
 delimiter ;
