@@ -9058,6 +9058,11 @@ begin not atomic
         SET `display_id1`=110
         WHERE `entry`=2761;
 
+        -- Air Exile
+        UPDATE `creature_template`
+        SET `display_id1`=69
+        WHERE `entry`=2762;
+
         -- Rumbling Exile
         UPDATE `creature_template`
         SET `display_id1`=69
