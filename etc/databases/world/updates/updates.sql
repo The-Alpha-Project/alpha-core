@@ -9296,5 +9296,58 @@ begin not atomic
 
         insert into applied_updates values ('120820221');
     end if;
+
+    -- 12/08/2022 2
+    if (select count(*) from applied_updates where id='120820222') = 0 then
+
+        -- STONETALON
+
+        -- Red flame spirit
+        UPDATE `creature_template`
+        SET `display_id1`=2171
+        WHERE `entry`=4036;
+
+        -- Bloodfury Harpy
+        UPDATE `creature_template`
+        SET `display_id1`=2162
+        WHERE `entry`=4022;
+
+        -- Bloodfury Roguefeather
+        UPDATE `creature_template`
+        SET `display_id1`=2163
+        WHERE `entry`=4023;
+
+        -- Bloodfury Slayer
+        UPDATE `creature_template`
+        SET `display_id1`=2164
+        WHERE `entry`=4024;
+
+        -- Bloodfury Ambusher
+        UPDATE `creature_template`
+        SET `display_id1`=2165
+        WHERE `entry`=4025;
+
+        -- Bloodfury Windcaller
+        UPDATE `creature_template`
+        SET `display_id1`=2166
+        WHERE `entry`=4026;
+
+        -- Bloodfury Storm witch
+        UPDATE `creature_template`
+        SET `display_id1`=2167
+        WHERE `entry`=4027;
+
+        -- Singed basilic
+        UPDATE `creature_template`
+        SET `display_id1`=2175
+        WHERE `entry`=4042;
+
+        -- Vengefull Ancient
+        UPDATE `creature_template`
+        SET `display_id1`=2168
+        WHERE `entry`=4030;
+
+        insert into applied_updates values ('120820222');
+    end if;
 end $
 delimiter ;
