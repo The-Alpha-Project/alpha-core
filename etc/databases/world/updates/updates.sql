@@ -9070,11 +9070,10 @@ begin not atomic
 
         -- Foulbelly
         UPDATE `creature_template`
-        SET `display_id1`=3192
+        SET `display_id1`=1054
         WHERE `entry`=2601;
 
         insert into applied_updates values ('110820222');
     end if;
-
 end $
 delimiter ;
