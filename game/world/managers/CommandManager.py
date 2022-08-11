@@ -744,6 +744,6 @@ GM_COMMAND_DEFINITIONS = {
     'worldoff': [CommandManager.worldoff, 'stop the world server'],
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
     'alltaxis': [CommandManager.alltaxis, 'discover all flightpaths'],
-    'qsearch' : [CommandManager.qsearch, 'Search quests'],
+    'qsearch' : [CommandManager.qsearch, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log']
 }
