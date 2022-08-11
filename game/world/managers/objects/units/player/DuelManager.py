@@ -55,7 +55,6 @@ class DuelManager(object):
 
             for entry in duel_manager.players.values():
                 entry.player.duel_manager = duel_manager
-                duel_manager.build_update(entry.player)
 
             return
         else:
@@ -183,5 +182,3 @@ class DuelManager(object):
         team_id = self.team_ids[player_mgr.guid] if self.duel_state != DuelState.DUEL_STATE_FINISHED else 0
         player_mgr.set_uint64(PlayerFields.PLAYER_DUEL_ARBITER, arbiter_guid)
         player_mgr.set_uint32(PlayerFields.PLAYER_DUEL_TEAM, team_id)
-
-        player_mgr.set_uint32(UnitFields.UNIT_FIELD_FLAGS, player_mgr.unit_flags)
