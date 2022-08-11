@@ -9006,15 +9006,6 @@ begin not atomic
         insert into applied_updates values ('110820221');
     end if;
 
-    -- 10/08/2022 3
-    if (select count(*) from applied_updates where id='100820223') = 0 then
-    
-        -- Gnomeran transport. 'Vator2' (Elevator2)
-        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '14139');
-        
-        insert into applied_updates values ('100820223');
-    end if;
-
     -- 11/08/2022 2
     if (select count(*) from applied_updates where id='110820222') = 0 then
         -- Highland Strider
