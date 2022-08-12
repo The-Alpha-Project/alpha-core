@@ -8553,7 +8553,7 @@ begin not atomic
     
     -- 06/08/2022 4
     if (select count(*) from applied_updates where id='060820224') = 0 then
-        DELETE FROM `npc_vendor` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
+        DELETE FROM `npc_vendor` WHERE `item` > '6441';
 
         DELETE FROM `item_loot_template` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
