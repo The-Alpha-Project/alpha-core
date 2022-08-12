@@ -548,6 +548,7 @@ class GameObjectManager(ObjectManager):
                 if self.respawn_timer >= self.respawn_time:
                     if self.summoner:
                         self.despawn(destroy=True)
+                        return
                     else:
                         self.respawn()
 

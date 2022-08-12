@@ -786,6 +786,7 @@ class CreatureManager(UnitManager):
                 elif self.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
                     if self.summoner:
                         self.despawn(destroy=True)
+                        return
                     else:
                         self.despawn()
 
