@@ -9391,5 +9391,12 @@ begin not atomic
 
         insert into applied_updates values ('120820223');
     end if;
+
+    -- 12/08/2022 4
+    if (select count(*) from applied_updates where id='120820224') = 0 then
+        UPDATE `item_template` SET `item_level` = `required_level` + 5 WHERE `entry` IN (1220, 1819, 1824, 1827, 1828, 1991, 2066, 2227, 2260, 2265, 3779);
+
+        insert into applied_updates values ('120820224');
+    end if;
 end $
 delimiter ;
