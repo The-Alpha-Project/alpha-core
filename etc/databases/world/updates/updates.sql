@@ -9355,6 +9355,16 @@ begin not atomic
         -- Ignore unused GO
         UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (34150, 47582, 47584, 34163, 34164, 40718, 40716, 34162, 40715, 34161, 47580);
 
+        -- Young chimaera
+        UPDATE `creature_template`
+        SET `display_id1`=2157
+        WHERE `entry`=4032;
+
+        --  Fledgling chimaera
+        UPDATE `creature_template`
+        SET `display_id1`=2157
+        WHERE `entry`=4032;
+
         insert into applied_updates values ('120820222');
     end if;
 end $
