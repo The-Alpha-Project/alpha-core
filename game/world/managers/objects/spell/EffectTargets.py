@@ -162,11 +162,35 @@ class EffectTargets:
     def resolve_chain_damage(casting_spell, target_effect):
         target_is_friendly = casting_spell.initial_target_is_unit_or_player() and not \
             casting_spell.spell_caster.can_attack_target(casting_spell.initial_target)
-        if not target_is_friendly:
-            return [casting_spell.initial_target]
 
-        target_on_cast = casting_spell.targeted_unit_on_cast_start
-        return [target_on_cast] if target_on_cast and casting_spell.spell_caster.can_attack_target(target_on_cast) else []
+        first_target = casting_spell.initial_target
+
+        if target_is_friendly:
+            targeted_on_cast = casting_spell.targeted_unit_on_cast_start
+            if not casting_spell.spell_caster.can_attack_target(targeted_on_cast):
+                return []
+            first_target = targeted_on_cast
+
+        if not target_effect.chain_targets:
+            return first_target
+
+        # TODO not sure what distance to use here; these spells don't provide radius info.
+        # Should distance be higher for ranged spells?
+        chain_distance = 5
+        target_result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
+        final_targets = []
+
+        units = list(target_result[0].values()) + list(target_result[1].values())
+        units = EffectTargets.get_enemies_from_unit_list(units, casting_spell.spell_caster)
+        for unit in units:
+            distance = first_target.location.distance(unit.location)
+            if distance > chain_distance:
+                continue
+            final_targets.append(unit)
+            if len(final_targets) == target_effect.chain_targets:
+                break
+
+        return final_targets
 
     @staticmethod
     def resolve_unit_near_caster(casting_spell, target_effect):
