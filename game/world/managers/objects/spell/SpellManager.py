@@ -1149,12 +1149,13 @@ class SpellManager:
         # Player only checks
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Check if player has required combo points.
-            if casting_spell.requires_combo_points() and \
-                    (casting_spell.initial_target.guid != self.caster.combo_target or
-                     # Doesn't have required combo points.
-                     self.caster.combo_points == 0):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
-                return False
+            if casting_spell.requires_combo_points():
+                combo_target = casting_spell.initial_target if \
+                    casting_spell.initial_target is not self.caster else casting_spell.targeted_unit_on_cast_start
+
+                if not combo_target or combo_target.guid != self.caster.combo_target or not self.caster.combo_points:
+                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
+                    return False
 
             # Check if player has required reagents.
             for reagent_info, count in casting_spell.get_reagents():
