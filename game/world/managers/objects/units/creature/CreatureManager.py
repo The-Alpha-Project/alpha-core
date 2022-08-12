@@ -57,7 +57,7 @@ class CreatureManager(UnitManager):
         self.spell_list_id = 0
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
-        self.time_to_live_timer = -1
+        self.time_to_live_timer = 0
         self.respawn_timer = 0
         self.last_random_movement = 0
         self.random_movement_wait_time = randint(1, 12)
@@ -167,7 +167,7 @@ class CreatureManager(UnitManager):
         self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
         self.power_1 = int((self.creature_instance.mana_percent / 100) * self.max_power_1)
 
-        self.time_to_live_timer = -1
+        self.time_to_live_timer = 0
         self.respawn_timer = 0
         self.last_random_movement = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
@@ -785,7 +785,7 @@ class CreatureManager(UnitManager):
                         self.despawn()
 
             # Time to live expired, destroy.
-            if self.time_to_live_timer < -1:
+            if self.time_to_live_timer < 0:
                 self.despawn(destroy=True)
             # Check if this creature object should be updated yet or not.
             elif self.has_pending_updates():

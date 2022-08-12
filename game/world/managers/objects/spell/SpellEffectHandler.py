@@ -113,7 +113,7 @@ class SpellEffectHandler:
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
         arbiter = GameObjectManager.spawn(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
-                                          summoner=caster, despawn_time=3600, spell_id=casting_spell.spell_entry.ID,
+                                          summoner=caster, ttl=3600, spell_id=casting_spell.spell_entry.ID,
                                           override_faction=caster.faction)
 
         DuelManager.request_duel(caster, target, arbiter)
@@ -297,8 +297,12 @@ class SpellEffectHandler:
             Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
             return
 
+        duration = effect.get_duration()
+        # If no duration, default to 2 minutes.
+        duration = 120 if duration == 0 else (duration / 1000)
         GameObjectManager.spawn(object_entry, target, caster.map_, summoner=caster,
-                                spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction)
+                                spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
+                                ttl=duration)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):
