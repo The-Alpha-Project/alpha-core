@@ -398,7 +398,7 @@ class CastingSpell:
 
     def get_duration(self):
         if not self.duration_entry:
-            return
+            return 0
         base_duration = self.duration_entry.Duration
         if base_duration == -1:
             return -1  # Permanent.
