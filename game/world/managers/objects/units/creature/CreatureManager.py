@@ -180,7 +180,7 @@ class CreatureManager(UnitManager):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, summoner=None, override_faction=0, despawn_time=1, spell_id=0, ttl=-1):
+    def spawn(entry, location, map_id, summoner=None, override_faction=0, despawn_time=1, spell_id=0, ttl=0):
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
 
         if not creature_template:

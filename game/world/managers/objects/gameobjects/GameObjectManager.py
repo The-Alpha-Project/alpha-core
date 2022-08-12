@@ -123,7 +123,7 @@ class GameObjectManager(ObjectManager):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1, ttl=-1):
+    def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1, ttl=0):
         go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry)
 
         if not go_template:
