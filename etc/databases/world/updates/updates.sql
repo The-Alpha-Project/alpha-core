@@ -9352,6 +9352,9 @@ begin not atomic
         SET `position_x`=2098.675048828125, `position_y`=1009.1544189453125, `position_z`=229.40744018554688, `orientation`=6.1795125007629395
         WHERE `spawn_id`=29251;
 
+        -- Ignore unused GO
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (34150, 47582, 47584, 34163, 34164, 40718, 40716);
+
         insert into applied_updates values ('120820222');
     end if;
 end $
