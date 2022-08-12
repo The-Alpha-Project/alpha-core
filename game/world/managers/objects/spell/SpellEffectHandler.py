@@ -463,9 +463,9 @@ class SpellEffectHandler:
         for count in range(amount):
             if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
                 if count == 0:
-                    px = location.x
-                    py = location.y
-                    pz = location.z
+                    px = target.x
+                    py = target.y
+                    pz = target.z
                 else:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_)
                     px = location.x
