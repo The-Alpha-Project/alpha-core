@@ -140,4 +140,6 @@ class PetAI(CreatureAI):
 
     def _get_command_state(self):
         pet_info = self.creature.summoner.pet_manager.get_active_pet_info()
+        if not pet_info:
+            return 1
         return pet_info.command_state

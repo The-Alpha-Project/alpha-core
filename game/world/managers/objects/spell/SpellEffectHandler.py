@@ -490,6 +490,10 @@ class SpellEffectHandler:
             unit = CreatureManager.spawn(creature_entry, Vector(px, py, pz), caster.map_, summoner=caster,
                                          spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
                                          ttl=duration)
+            if not unit:
+                Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
+                return
+
             unit.respawn()
 
     # TODO: Currently, you can endlessly pickpocket the same unit.
