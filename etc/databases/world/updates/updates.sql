@@ -9363,7 +9363,7 @@ begin not atomic
         --  Fledgling chimaera
         UPDATE `creature_template`
         SET `display_id1`=2157
-        WHERE `entry`=4032;
+        WHERE `entry`=4031;
 
         insert into applied_updates values ('120820222');
     end if;
