@@ -279,7 +279,6 @@ class SpellManager:
 
         for effect in casting_spell.get_effects():
             if not update:
-                effect.duration_multiplier = max(1, casting_spell.spent_combo_points)
                 effect.start_aura_duration()
 
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
