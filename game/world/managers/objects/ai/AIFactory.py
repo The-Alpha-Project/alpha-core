@@ -24,7 +24,7 @@ class AIFactory:
             'CritterAI': CritterAI(None),
             'GuardAI': GuardAI(None),
             'PetAI': PetAI(None),
-            'TotemAI': GuardAI(None)
+            'TotemAI': TotemAI(None)
             # 'EventAI': EventAI(None),
             # 'PetEventAI': PetEventAI(None),
             # 'GuardEventAI': GuardEventAI(None)
@@ -46,15 +46,10 @@ class AIFactory:
         #      if selected_ai:
         #          return selected_ai
 
-        # TODO, Explicit check for isControlled() and owner type to allow guardian, mini-pets and pets controlled
-        #  by NPCs to be scripted by EventAI
-        if creature.summoner:
-            selected_ai = PetAI(creature)  # TODO use full workflow below.
-        #  if creature.is_pet() and creature.is_controlled() and \
-        #          creature.owner.get_type_id() == ObjectTypeIds.ID_PLAYER or creature.is_charmed():
-        #      selected_ai = PetAI(creature)
-        #  elif creature.is_totem():
-        #      selected_ai = TotemAI(creature)
+        if creature.is_pet():
+            selected_ai = PetAI(creature)
+        elif creature.is_totem():
+            selected_ai = TotemAI(creature)
 
         # TODO, EventAI assigned but creature is Pet.
         #  if not selected_ai and ai_name and creature.is_pet() and ai_name == 'EventAI':
