@@ -1,5 +1,7 @@
 from random import uniform, randint, shuffle
 
+from database.world.WorldDatabaseManager import WorldDatabaseManager
+
 
 class LootManager(object):
     def __init__(self, world_object):
@@ -29,12 +31,12 @@ class LootManager(object):
         return loot_groups
 
     def _fill_loot_items(self, loot_template) -> list:
-        from game.world.managers.objects.loot.LootMapper import LootMapper
         loot_items = []
         for loot_item in loot_template:
             # Handle referenced loot template.
             if loot_item.mincountOrRef < 0:
-                ref_loot_template = LootMapper.find_loot_by_loot_id(-loot_item.mincountOrRef)
+                ref_loot_template = WorldDatabaseManager.ReferenceLootTemplateHolder\
+                    .reference_loot_template_get_by_entry(-loot_item.mincountOrRef)
                 if ref_loot_template:
                     loot_items += self._fill_loot_items(ref_loot_template)
             # Handle normal loot items.
