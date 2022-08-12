@@ -9349,7 +9349,7 @@ begin not atomic
 
         -- Braelyn Firehand spawn
         UPDATE `spawns_creatures`
-        SET `position_x`=2098.675048828125, `position_y`=1009.1544189453125, `position_z`=229.40744018554688, `orientation`=6.1795125007629395
+        SET `position_x`=2098.675048828125, `position_y`=1009.1544189453125, `position_z`=230.5, `orientation`=6.1795125007629395, `ignored`=0
         WHERE `spawn_id`=29251;
 
         -- Ignore unused GO
