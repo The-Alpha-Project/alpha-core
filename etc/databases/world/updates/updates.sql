@@ -9296,6 +9296,77 @@ begin not atomic
 
         insert into applied_updates values ('120820221');
     end if;
+    
+    -- 12/08/2022 2
+    if (select count(*) from applied_updates where id='120820222') = 0 then
+
+        -- STONETALON
+
+        -- Red flame spirit
+        UPDATE `creature_template`
+        SET `display_id1`=2171
+        WHERE `entry`=4036;
+
+        -- Bloodfury Harpy
+        UPDATE `creature_template`
+        SET `display_id1`=2162
+        WHERE `entry`=4022;
+
+        -- Bloodfury Roguefeather
+        UPDATE `creature_template`
+        SET `display_id1`=2163
+        WHERE `entry`=4023;
+
+        -- Bloodfury Slayer
+        UPDATE `creature_template`
+        SET `display_id1`=2164
+        WHERE `entry`=4024;
+
+        -- Bloodfury Ambusher
+        UPDATE `creature_template`
+        SET `display_id1`=2165
+        WHERE `entry`=4025;
+
+        -- Bloodfury Windcaller
+        UPDATE `creature_template`
+        SET `display_id1`=2166
+        WHERE `entry`=4026;
+
+        -- Bloodfury Storm witch
+        UPDATE `creature_template`
+        SET `display_id1`=2167
+        WHERE `entry`=4027;
+
+        -- Singed basilic
+        UPDATE `creature_template`
+        SET `display_id1`=2174
+        WHERE `entry`=4042;
+
+        -- Vengefull Ancient
+        UPDATE `creature_template`
+        SET `display_id1`=2168
+        WHERE `entry`=4030;
+
+        -- Braelyn Firehand spawn
+        UPDATE `spawns_creatures`
+        SET `position_x`=2098.675048828125, `position_y`=1009.1544189453125, `position_z`=230.5, `orientation`=6.1795125007629395, `ignored`=0
+        WHERE `spawn_id`=29251;
+
+        -- Ignore unused GO
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (34150, 47582, 47584, 34163, 34164, 40718, 40716, 34162, 40715, 34161, 47580);
+
+        -- Young chimaera
+        UPDATE `creature_template`
+        SET `display_id1`=2157
+        WHERE `entry`=4032;
+
+        --  Fledgling chimaera
+        UPDATE `creature_template`
+        SET `display_id1`=2157
+        WHERE `entry`=4031;
+
+        insert into applied_updates values ('120820222');
+    end if;
 
     -- 12/08/2022 3
     if (select count(*) from applied_updates where id='120820223') = 0 then
