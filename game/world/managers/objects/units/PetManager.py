@@ -15,7 +15,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
-from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult
+from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
@@ -36,8 +36,8 @@ class PetData:
         self._experience = experience
         self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
 
-        self.react_state = 1
-        self.command_state = 1
+        self.react_state = PetReactState.REACT_DEFENSIVE
+        self.command_state = PetCommandState.COMMAND_FOLLOW
 
         self.spells = self._get_available_spells()
 
