@@ -299,7 +299,8 @@ class InventoryManager(object):
         if (source_container.is_backpack and
                 (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot))) or \
            (dest_container.is_backpack and
-                (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(dest_slot))):  # Added equipment or bag
+                (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(dest_slot))):
+            # Added/removed equipment or bag.
             self.handle_equipment_change(source_item, dest_item)
 
         # Finally, update items and client
