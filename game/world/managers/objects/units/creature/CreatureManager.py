@@ -744,6 +744,7 @@ class CreatureManager(UnitManager):
             # Time to live expired, destroy.
             if self.time_to_live_timer < 0:
                 self.despawn(destroy=True)
+                return
 
             if self.is_alive and self.is_spawned and self.initialized:
                 # Time to live.
