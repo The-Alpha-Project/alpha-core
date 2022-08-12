@@ -237,7 +237,9 @@ class CastingSpell:
         if not self.initial_target_is_unit_or_player():
             return False
 
-        # TODO IMMUNITY_DISPEL
+        # TODO SpellDispelType.dbc is in 0.5.3, but DispelType in Spell.dbc was later (present in 0.5.5)
+        #   Is there another way to determine the dispel type for a spell?
+        # 0.5.5: "Holy Word: Shield can now be dispelled. It is considered a Magic effect."
         return self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
 
     def is_target_immune_to_aura(self):

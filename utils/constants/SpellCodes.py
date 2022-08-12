@@ -588,7 +588,6 @@ class SpellImmunity(IntEnum):
     IMMUNITY_AURA = 1  # Aura type immunity
     IMMUNITY_SCHOOL = 2
     IMMUNITY_DAMAGE = 3
-    # TODO Resolve dispel type and mechanic immunities.
     IMMUNITY_DISPEL_TYPE = 4  # Immunity to effects by their dispel type (poison, disease etc.)
     IMMUNITY_MECHANIC = 5  # Immunity to effect mechanic
 
