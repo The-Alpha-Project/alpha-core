@@ -9353,7 +9353,7 @@ begin not atomic
         WHERE `spawn_id`=29251;
 
         -- Ignore unused GO
-        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (34150, 47582, 47584, 34163, 34164, 40718, 40716);
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (34150, 47582, 47584, 34163, 34164, 40718, 40716, 34162, 40715, 34161, 47580);
 
         insert into applied_updates values ('120820222');
     end if;
