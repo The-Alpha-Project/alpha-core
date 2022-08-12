@@ -27,7 +27,7 @@ from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
-from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes
+from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates
 
 
 class SpellManager:
@@ -785,6 +785,11 @@ class SpellManager:
     def validate_cast(self, casting_spell) -> bool:
         if self.is_on_cooldown(casting_spell.spell_entry):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
+            return False
+
+        # Stunned, spell source is not item and cast is not triggered.
+        if self.caster.unit_state & UnitStates.STUNNED and not casting_spell.source_item and not casting_spell.triggered:
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_STUNNED)
             return False
 
         # Rough target type check for the client-provided target to avoid crashes.
