@@ -808,16 +808,16 @@ class SpellManager:
 
         # Caster unit-only state checks.
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            # Stunned, spell source is not item and cast is not triggered.
-            if self.caster.unit_state & UnitStates.STUNNED and not casting_spell.source_item and \
-                    not casting_spell.triggered:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_STUNNED)
-                return False
-
             # Dead.
             if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD and \
                     not self.caster.is_alive:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
+                return False
+
+            # Stunned, spell source is not item and cast is not triggered.
+            if self.caster.unit_state & UnitStates.STUNNED and not casting_spell.source_item and \
+                    not casting_spell.triggered:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_STUNNED)
                 return False
 
             # Sitting.
