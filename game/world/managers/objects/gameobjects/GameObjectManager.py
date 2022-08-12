@@ -523,6 +523,11 @@ class GameObjectManager(ObjectManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
+            # Time to live expired, destroy.
+            if self.time_to_live_timer < 0:
+                self.despawn(destroy=True)
+                return
+
             if self.is_spawned and self.initialized:
                 # Time to live.
                 if self.time_to_live_timer > 0:
@@ -537,11 +542,6 @@ class GameObjectManager(ObjectManager):
                 # SpellManager update.
                 self.spell_manager.update(now)
 
-                # Check if this game object should be updated yet or not.
-                if self.has_pending_updates():
-                    MapManager.update_object(self, has_changes=True)
-                    self.reset_fields_older_than(now)
-
             # Not spawned but initialized.
             elif self.initialized:
                 self.respawn_timer += elapsed
@@ -551,9 +551,10 @@ class GameObjectManager(ObjectManager):
                     else:
                         self.respawn()
 
-            # Time to live expired, destroy.
-            if self.time_to_live_timer < 0:
-                self.despawn(destroy=True)
+            # Check if this game object should be updated yet or not.
+            if self.has_pending_updates():
+                MapManager.update_object(self, has_changes=True)
+                self.reset_fields_older_than(now)
 
         self.last_tick = now
 

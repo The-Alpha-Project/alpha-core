@@ -741,6 +741,10 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
+            # Time to live expired, destroy.
+            if self.time_to_live_timer < 0:
+                self.despawn(destroy=True)
+
             if self.is_alive and self.is_spawned and self.initialized:
                 # Time to live.
                 if self.time_to_live_timer > 0:
@@ -784,11 +788,8 @@ class CreatureManager(UnitManager):
                     else:
                         self.despawn()
 
-            # Time to live expired, destroy.
-            if self.time_to_live_timer < 0:
-                self.despawn(destroy=True)
             # Check if this creature object should be updated yet or not.
-            elif self.has_pending_updates():
+            if self.has_pending_updates():
                 MapManager.update_object(self, has_changes=True)
                 self.reset_fields_older_than(now)
 
