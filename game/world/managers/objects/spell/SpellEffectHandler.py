@@ -456,14 +456,16 @@ class SpellEffectHandler:
 
         radius = effect.get_radius()
         duration = effect.get_duration()
+        # If no duration, default to 2 minutes.
+        duration = 120 if duration == 0 else (duration / 1000)
         amount = effect.get_effect_simple_points()
 
         for count in range(amount):
             if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
                 if count == 0:
-                    px = target.location.x
-                    py = target.location.y
-                    pz = target.location.z
+                    px = location.x
+                    py = location.y
+                    pz = location.z
                 else:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_)
                     px = location.x
