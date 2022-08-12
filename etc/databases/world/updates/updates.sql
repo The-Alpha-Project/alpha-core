@@ -9347,6 +9347,11 @@ begin not atomic
         SET `display_id1`=2168
         WHERE `entry`=4030;
 
+        -- Braelyn Firehand spawn
+        UPDATE `spawns_creatures`
+        SET `position_x`=2098.675048828125, `position_y`=1009.1544189453125, `position_z`=229.40744018554688, `orientation`=6.1795125007629395
+        WHERE `spawn_id`=29251;
+
         insert into applied_updates values ('120820222');
     end if;
 end $
