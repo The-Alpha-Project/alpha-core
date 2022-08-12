@@ -792,9 +792,7 @@ class SpellManager:
         if casting_spell.spell_entry.Targets == SpellTargetMask.ITEM and \
                 not casting_spell.initial_target_is_item() or \
                 (casting_spell.spell_entry.Targets == SpellTargetMask.UNIT_SELF and
-                 not casting_spell.initial_target_is_unit_or_player()) or \
-                (casting_spell.spell_entry.Targets == SpellTargetMask.DEST_LOCATION and
-                 not casting_spell.initial_target_is_terrain()):
+                 not casting_spell.initial_target_is_unit_or_player()):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
 
