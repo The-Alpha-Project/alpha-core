@@ -71,6 +71,7 @@ class GameObjectManager(ObjectManager):
         self.update_packet_factory.init_values(self.guid, GameObjectFields)
 
         self.respawn_timer = 0
+        self.time_to_live_timer = 0
         self.loot_manager = None  # Optional.
         self.trap_manager = None  # Optional.
         self.fishing_node_manager = None  # Optional.
@@ -122,7 +123,7 @@ class GameObjectManager(ObjectManager):
         MapManager.update_object(self)
 
     @staticmethod
-    def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1):
+    def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1, ttl=0):
         go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry)
 
         if not go_template:
@@ -151,6 +152,9 @@ class GameObjectManager(ObjectManager):
             gobject_instance=instance,
             summoner=summoner
         )
+
+        if ttl > 0:
+            gameobject.time_to_live_timer = ttl
 
         if spell_id:
             gameobject.spell_id = spell_id
@@ -519,7 +523,15 @@ class GameObjectManager(ObjectManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
+            # Time to live expired, destroy.
+            if self.time_to_live_timer < 0:
+                self.despawn(destroy=True)
+                return
+
             if self.is_spawned and self.initialized:
+                # Time to live.
+                if self.time_to_live_timer > 0:
+                    self.time_to_live_timer -= elapsed
                 # Logic for Trap GameObjects (type 6).
                 if self.has_observers() and self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     self.trap_manager.update(elapsed)
@@ -530,18 +542,20 @@ class GameObjectManager(ObjectManager):
                 # SpellManager update.
                 self.spell_manager.update(now)
 
-                # Check if this game object should be updated yet or not.
-                if self.has_pending_updates():
-                    MapManager.update_object(self, has_changes=True)
-                    self.reset_fields_older_than(now)
             # Not spawned but initialized.
             elif self.initialized:
                 self.respawn_timer += elapsed
                 if self.respawn_timer >= self.respawn_time:
                     if self.summoner:
                         self.despawn(destroy=True)
+                        return
                     else:
                         self.respawn()
+
+            # Check if this game object should be updated yet or not.
+            if self.has_pending_updates():
+                MapManager.update_object(self, has_changes=True)
+                self.reset_fields_older_than(now)
 
         self.last_tick = now
 

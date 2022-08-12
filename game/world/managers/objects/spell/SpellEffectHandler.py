@@ -92,7 +92,7 @@ class SpellEffectHandler:
         # Overpower also uses combo points, but shouldn't scale.
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and not casting_spell.is_overpower() and \
                 casting_spell.requires_combo_points():
-            damage_bonus *= caster.combo_points
+            damage_bonus *= casting_spell.spent_combo_points
 
         caster.apply_spell_damage(target, weapon_damage + damage_bonus, casting_spell)
 
@@ -113,7 +113,7 @@ class SpellEffectHandler:
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
         arbiter = GameObjectManager.spawn(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
-                                          summoner=caster, despawn_time=3600, spell_id=casting_spell.spell_entry.ID,
+                                          summoner=caster, ttl=3600, spell_id=casting_spell.spell_entry.ID,
                                           override_faction=caster.faction)
 
         DuelManager.request_duel(caster, target, arbiter)
@@ -256,10 +256,13 @@ class SpellEffectHandler:
     @staticmethod
     def handle_summon_totem(casting_spell, effect, caster, target):
         totem_entry = effect.misc_value
+        duration = effect.get_duration()
+        # If no duration, default to 5 minutes.
+        duration = 300 if duration == 0 else (duration / 1000)
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoner=caster,
-                                                 override_faction=caster.faction)
+                                                 override_faction=caster.faction, ttl=duration)
 
         if not creature_manager:
             return
@@ -297,8 +300,12 @@ class SpellEffectHandler:
             Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
             return
 
+        duration = effect.get_duration()
+        # If no duration, default to 2 minutes.
+        duration = 120 if duration == 0 else (duration / 1000)
         GameObjectManager.spawn(object_entry, target, caster.map_, summoner=caster,
-                                spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction)
+                                spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
+                                ttl=duration)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):
@@ -452,14 +459,16 @@ class SpellEffectHandler:
 
         radius = effect.get_radius()
         duration = effect.get_duration()
+        # If no duration, default to 2 minutes.
+        duration = 120 if duration == 0 else (duration / 1000)
         amount = effect.get_effect_simple_points()
 
         for count in range(amount):
             if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
                 if count == 0:
-                    px = target.location.x
-                    py = target.location.y
-                    pz = target.location.z
+                    px = target.x
+                    py = target.y
+                    pz = target.z
                 else:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_)
                     px = location.x

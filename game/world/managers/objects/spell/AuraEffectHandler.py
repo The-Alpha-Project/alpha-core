@@ -6,7 +6,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes
+from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields, PlayerFields
@@ -267,6 +267,21 @@ class AuraEffectHandler:
         elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
             pass  # TODO: Implement behavior for charmed players.
 
+    @staticmethod
+    def handle_damage_shield(aura, effect_target, remove):
+        if remove:
+            return
+
+        # Damage shields don't have proc flags assigned to them,
+        # possibly because proc flags are not effect-specific in spell data.
+        # Add proc flag for this aura when it's applied.
+        if effect_target is aura.target:
+            aura.proc_flags |= ProcFlags.TAKE_COMBAT_DMG
+            return
+
+        damage = aura.get_effect_points()
+        aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
+
     # Stat modifiers
 
     @staticmethod
@@ -480,6 +495,16 @@ class AuraEffectHandler:
                                                          percentual=False, misc_value=misc_value)
 
     @staticmethod
+    def handle_mod_attack_speed(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
+            return
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index,
+                                                         UnitStats.MAIN_HAND_DELAY | UnitStats.OFF_HAND_DELAY,
+                                                         amount, percentual=True)
+
+    @staticmethod
     def handle_mod_parry_chance(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
@@ -536,6 +561,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
+    AuraTypes.SPELL_AURA_DAMAGE_SHIELD: AuraEffectHandler.handle_damage_shield,
 
     # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
@@ -553,6 +579,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed,
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
+    AuraTypes.SPELL_AURA_MOD_ATTACKSPEED: AuraEffectHandler.handle_mod_attack_speed,
+
 
     AuraTypes.SPELL_AURA_MOD_PARRY_PERCENT: AuraEffectHandler.handle_mod_parry_chance,
     AuraTypes.SPELL_AURA_MOD_DODGE_PERCENT: AuraEffectHandler.handle_mod_dodge_chance,
