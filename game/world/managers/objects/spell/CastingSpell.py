@@ -9,6 +9,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.Stats import SpellStat
+from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
@@ -239,23 +240,24 @@ class CastingSpell:
         # TODO IMMUNITY_DISPEL
         return self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
 
-    def is_target_immune_to_all_effects(self):
-        if not self.initial_target_is_unit_or_player():
-            return False
-
-        effect_types = [effect.effect_type for effect in self.get_effects()]
-        return all(self.initial_target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, effect_type)
-                   for effect_type in effect_types)
-
     def is_target_immune_to_aura(self):
         if not self.initial_target_is_unit_or_player():
             return False
 
-        aura_types = [effect.aura_type for effect in self.get_effects() if effect.aura_type]
+        # TODO Is this logic correct? If the target is immune to one effect of the aura, none are applied.
+        for effect in self.get_effects():
+            if not effect.aura_type:
+                continue
 
-        # TODO is this even correct
-        return any(self.initial_target.has_immunity(SpellImmunity.IMMUNITY_AURA, aura_type)
-                   for aura_type in aura_types)
+            if self.initial_target.has_immunity(SpellImmunity.IMMUNITY_AURA, effect.aura_type):
+                return True
+
+            mechanic = ExtendedSpellData.SpellEffectMechanics.get_mechanic_for_aura_effect(effect.aura_type,
+                                                                                           self.spell_entry.ID)
+            if mechanic and self.initial_target.has_immunity(SpellImmunity.IMMUNITY_MECHANIC, mechanic):
+                return True
+
+        return False
 
     def cast_breaks_stealth(self):
         return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NOT_BREAK_STEALTH

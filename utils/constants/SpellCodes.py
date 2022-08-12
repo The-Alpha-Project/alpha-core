@@ -591,3 +591,11 @@ class SpellImmunity(IntEnum):
     # TODO Resolve dispel type and mechanic immunities.
     IMMUNITY_DISPEL_TYPE = 4  # Immunity to effects by their dispel type (poison, disease etc.)
     IMMUNITY_MECHANIC = 5  # Immunity to effect mechanic
+
+
+# Based on values set for SPELL_AURA_MECHANIC_IMMUNITY. SpellMechanic.dbc is not present in 0.5.3
+class SpellMechanic(IntEnum):
+    MECHANIC_CHARM = 1
+    MECHANIC_DISARM = 3
+    MECHANIC_FEAR = 5
+    MECHANIC_SLEEP = 10

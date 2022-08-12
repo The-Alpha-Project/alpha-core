@@ -31,7 +31,7 @@ class SpellEffectHandler:
             return
 
         # Spell immunity.
-        if casting_spell.is_target_immune() or casting_spell.is_target_immune_to_all_effects():
+        if casting_spell.is_target_immune():
             caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
             return
 
