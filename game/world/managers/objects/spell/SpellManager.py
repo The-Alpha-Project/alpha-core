@@ -239,6 +239,10 @@ class SpellManager:
         self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
         self.send_spell_go(casting_spell)
 
+        if casting_spell.requires_combo_points():
+            # Combo points will be reset by consume_resources_for_cast.
+            casting_spell.spent_combo_points = self.caster.combo_points
+
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and \
                 not casting_spell.triggered:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
             self.caster.aura_manager.check_aura_interrupts(cast_spell=casting_spell)
@@ -266,15 +270,16 @@ class SpellManager:
                 self.remove_cast(casting_spell)
 
         self.set_on_cooldown(casting_spell)
-        self.consume_resources_for_cast(casting_spell)  # Remove resources - order matters for combo points
+        self.consume_resources_for_cast(casting_spell)  # Remove resources.
 
     def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False,
-                            partial_targets: Optional[list[int]]=None):
+                            partial_targets: Optional[list[int]] = None):
         if not update:
             self.handle_procs_for_cast(casting_spell)
 
         for effect in casting_spell.get_effects():
             if not update:
+                effect.duration_multiplier = max(1, casting_spell.spent_combo_points)
                 effect.start_aura_duration()
 
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
@@ -578,10 +583,11 @@ class SpellManager:
         self.handle_visual_pre_cast_animation_kit(casting_spell)
 
     def handle_channel_start(self, casting_spell):
-        if not casting_spell.is_channeled() or casting_spell.duration_entry.Duration == -1:
-            return
+        if not casting_spell.is_channeled() or casting_spell.get_duration() == -1:
+            return  # TODO Permanent channel on -1?
+
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
-        channel_end_timestamp = casting_spell.duration_entry.Duration/1000 + time.time()
+        channel_end_timestamp = casting_spell.get_duration() / 1000 + time.time()
         casting_spell.cast_start_timestamp = time.time()
         casting_spell.cast_end_timestamp = channel_end_timestamp  # Set the new timestamp for cast finish.
 
@@ -594,8 +600,7 @@ class SpellManager:
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        data = pack('<2I', casting_spell.spell_entry.ID,
-                    casting_spell.duration_entry.Duration)  # No channeled spells with duration per level.
+        data = pack('<2I', casting_spell.spell_entry.ID, casting_spell.get_duration())
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
     def handle_spell_effect_update(self, casting_spell, timestamp):

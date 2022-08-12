@@ -2,7 +2,7 @@ import random
 import time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import SpellRadius, SpellDuration
+from database.dbc.DbcModels import SpellRadius
 from game.world.managers.objects.spell.AuraEffectHandler import PERIODIC_AURA_EFFECTS
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from utils.constants.SpellCodes import SpellEffects
@@ -30,7 +30,6 @@ class SpellEffect:
     effect_index: int
     targets: EffectTargets
     radius_entry: SpellRadius
-    duration_entry: SpellDuration
 
     # Duration and periodic timing info for auras applied by this effect
     applied_aura_duration = -1
@@ -48,7 +47,8 @@ class SpellEffect:
         self.caster_effective_level = casting_spell.caster_effective_level
         self.targets = EffectTargets(casting_spell, self)
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
-        self.duration_entry = casting_spell.duration_entry
+
+        self.casting_spell = casting_spell
 
         is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS
         # Descriptions of periodic effects with a period of 0 either imply regeneration every 5s or say "per tick".
@@ -70,7 +70,7 @@ class SpellEffect:
         return len(self.periodic_effect_ticks) > 0 and self.periodic_effect_ticks[-1] >= self.applied_aura_duration
 
     def generate_periodic_effect_ticks(self) -> list[int]:
-        duration = self.duration_entry.Duration
+        duration = self.casting_spell.get_duration()
         if self.aura_period == 0:
             return []
         period = self.aura_period
@@ -82,9 +82,9 @@ class SpellEffect:
         return ticks
 
     def start_aura_duration(self, overwrite=False):
-        if not self.duration_entry or (len(self.periodic_effect_ticks) > 0 and not overwrite):
+        if not self.casting_spell.duration_entry or (len(self.periodic_effect_ticks) > 0 and not overwrite):
             return
-        self.applied_aura_duration = self.duration_entry.Duration
+        self.applied_aura_duration = self.casting_spell.get_duration()
         self.last_update_timestamp = time.time()
         if self.is_periodic():
             self.periodic_effect_ticks = self.generate_periodic_effect_ticks()
@@ -103,11 +103,6 @@ class SpellEffect:
         if not self.radius_entry:
             return 0
         return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel * self.caster_effective_level)
-
-    def get_duration(self):
-        if not self.duration_entry:
-            return 0
-        return self.duration_entry.Duration
 
     def load_first(self, spell):
         self.effect_type = spell.Effect_1
