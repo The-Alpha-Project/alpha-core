@@ -296,8 +296,10 @@ class InventoryManager(object):
             dest_item.item_instance.slot = source_slot
 
         # Equipment-specific behaviour: binding, offhand unequip, equipment update packet etc.
-        if (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot)) or \
-           (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
+        if (source_container.is_backpack and
+                (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot))) or \
+           (dest_container.is_backpack and
+                (self.is_equipment_pos(dest_bag, dest_slot) or self.is_bag_pos(dest_slot))):  # Added equipment or bag
             self.handle_equipment_change(source_item, dest_item)
 
         # Finally, update items and client
@@ -652,24 +654,30 @@ class InventoryManager(object):
 
     def handle_equipment_change(self, source_item, dest_item=None):
         # Binding
-        if source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED:
+        if source_item.current_slot < InventorySlots.SLOT_INBACKPACK and \
+                source_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED:
             source_item.set_binding(True)
 
-        # Offhand removal on 2H equip
-        current_oh = self.get_offhand()
-        source_is_2h = source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
-        dest_is_2h = dest_item and dest_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
-        # Case where OH is equipped and 2h is equipped, and it's possible to unequip OH.
-        if current_oh and (source_is_2h or dest_is_2h):
-            error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
-            if error != InventoryError.BAG_OK:
-                return
+        if dest_item and dest_item.current_slot < InventorySlots.SLOT_INBACKPACK and \
+                dest_item.item_template.bonding == ItemBondingTypes.BIND_WHEN_EQUIPPED:
+            dest_item.set_binding(True)
 
-            # Remove the offhand item from OH and add it to inventory.
-            # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid.
-            self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
-                          send_message=False, show_item_get=False)
-            self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
+        # Offhand removal on 2H equip
+        if source_item.is_equipped():
+            current_oh = self.get_offhand()
+            source_is_2h = source_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
+            dest_is_2h = dest_item and dest_item.item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON
+            # Case where OH is equipped and 2h is equipped, and it's possible to unequip OH.
+            if current_oh and (source_is_2h or dest_is_2h):
+                error = self.can_store_item(current_oh.item_template, current_oh.item_instance.stackcount)
+                if error != InventoryError.BAG_OK:
+                    return
+
+                # Remove the offhand item from OH and add it to inventory.
+                # This is necessary in case of a stacking offhand (3675) - otherwise swap_item to free slot would be valid.
+                self.add_item(item_template=current_oh.item_template, count=current_oh.item_instance.stackcount,
+                              send_message=False, show_item_get=False)
+                self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
 
         # Handle enchantments auras removal.
         self.owner.enchantment_manager.handle_equipment_change(source_item)
