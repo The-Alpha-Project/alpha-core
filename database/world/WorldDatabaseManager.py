@@ -20,6 +20,7 @@ world_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HO
 SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autocommit=True, autoflush=True))
 
 
+# noinspection PyUnresolvedReferences
 class WorldDatabaseManager(object):
     # Player stuff.
 
@@ -111,7 +112,7 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         best_matching_location = None
         best_matching_ratio = 0
-        locations = world_db_session.query(Worldports).filter(Worldports.name.like('%' + name + '%')).all()
+        locations = world_db_session.query(Worldports).filter(Worldports.name.like(f'%{name}%')).all()
         world_db_session.close()
 
         if return_all:
@@ -195,7 +196,7 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         best_matching_item = None
         best_matching_ratio = 0
-        items = world_db_session.query(ItemTemplate).filter(ItemTemplate.name.like('%' + name + '%'),
+        items = world_db_session.query(ItemTemplate).filter(ItemTemplate.name.like(f'%{name}%'),
                                                             ItemTemplate.ignored == 0).all()
         world_db_session.close()
 
@@ -535,9 +536,10 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def quest_get_by_name(title):
+    def quest_get_by_title(title):
         world_db_session = SessionHolder()
-        res = world_db_session.query(QuestTemplate).filter(QuestTemplate.Title.like(title)).all()
+        res = world_db_session.query(QuestTemplate).filter(QuestTemplate.Title.like(f'%{title}%'),
+                                                           QuestTemplate.ignored == 0).all()
         world_db_session.close()
         return res
         

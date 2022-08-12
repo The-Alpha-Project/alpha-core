@@ -19,6 +19,7 @@ dbc_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST
 SessionHolder = scoped_session(sessionmaker(bind=dbc_db_engine, autocommit=True, autoflush=True))
 
 
+# noinspection PyUnresolvedReferences
 class DbcDatabaseManager:
     # ChrRaces
 
@@ -151,7 +152,7 @@ class DbcDatabaseManager:
     @staticmethod
     def spell_get_by_name(spell_name):
         dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(Spell).filter(Spell.Name_enUS.like('%' + spell_name + '%')).all()
+        res = dbc_db_session.query(Spell).filter(Spell.Name_enUS.like(f'%{spell_name}%')).all()
         dbc_db_session.close()
         return res
 
@@ -228,7 +229,7 @@ class DbcDatabaseManager:
     @staticmethod
     def skill_get_by_name(skill_type):
         dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(SkillLine).filter(SkillLine.DisplayName_enUS.like('%' + skill_type + '%')).all()
+        res = dbc_db_session.query(SkillLine).filter(SkillLine.DisplayName_enUS.like(f'%{skill_type}%')).all()
         dbc_db_session.close()
         return res
 

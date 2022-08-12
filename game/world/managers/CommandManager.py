@@ -606,15 +606,15 @@ class CommandManager(object):
         return 0, f'Enabled {taxi_nodes_count} taxi nodes.'
     
     @staticmethod
-    def qsearch(world_session, args):
-        quest_name = args.strip()
-        if not quest_name:
-            return -1, 'please specifiy a quest name to start searching.'
-        quests = WorldDatabaseManager.quest_get_by_name(quest_name)
+    def squest(world_session, args):
+        quest_title = args.strip()
+        if not quest_title:
+            return -1, 'please specifiy a quest title to start searching.'
+        quests = WorldDatabaseManager.quest_get_by_title(quest_title)
         
         for quest in quests:
-            quest_name = quest.Title
-            quest_text = f'{quest.entry} - |cFF00FFFF[{quest_name}]|r'
+            quest_title = quest.Title
+            quest_text = f'{quest.entry} - |cFF00FFFF[{quest_title}]|r'
             ChatManager.send_system_message(world_session, quest_text)
         return 0, f'{len(quests)} quests found.'
 
@@ -744,6 +744,6 @@ GM_COMMAND_DEFINITIONS = {
     'worldoff': [CommandManager.worldoff, 'stop the world server'],
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
     'alltaxis': [CommandManager.alltaxis, 'discover all flightpaths'],
-    'qsearch' : [CommandManager.qsearch, 'search quests'],
+    'squest': [CommandManager.squest, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log']
 }
