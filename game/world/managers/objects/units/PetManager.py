@@ -468,8 +468,8 @@ class PetManager:
         creature.creature_instance.movement_type = MovementTypes.IDLE
 
         self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
-        creature.object_ai = AIFactory.build_ai(creature)
         creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_PET
+        creature.object_ai = AIFactory.build_ai(creature)
 
     def _send_pet_spell_info(self):
         if not self.active_pet:
