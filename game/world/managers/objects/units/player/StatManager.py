@@ -281,9 +281,9 @@ class StatManager(object):
 
     def remove_aura_stat_bonus(self, index: int, percentual=False):
         if percentual:
-            self.aura_stats_percentual.pop(index)
+            self.aura_stats_percentual.pop(index, None)
         else:
-            self.aura_stats_flat.pop(index)
+            self.aura_stats_flat.pop(index, None)
 
         self.apply_bonuses()
 

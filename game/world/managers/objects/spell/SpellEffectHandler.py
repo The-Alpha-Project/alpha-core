@@ -92,7 +92,7 @@ class SpellEffectHandler:
         # Overpower also uses combo points, but shouldn't scale.
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER and not casting_spell.is_overpower() and \
                 casting_spell.requires_combo_points():
-            damage_bonus *= caster.combo_points
+            damage_bonus *= casting_spell.spent_combo_points
 
         caster.apply_spell_damage(target, weapon_damage + damage_bonus, casting_spell)
 

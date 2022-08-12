@@ -42,6 +42,7 @@ class CastingSpell:
     cast_end_timestamp: float
     spell_impact_timestamps: dict[int, float]
     caster_effective_level: int
+    spent_combo_points: int
 
     spell_attack_type: int
     used_ranged_attack_item: ItemManager  # Ammo or thrown.
@@ -64,6 +65,8 @@ class CastingSpell:
             self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
         else:
             self.caster_effective_level = 0
+
+        self.spent_combo_points = 0
 
         # Resolve the weapon required for the spell.
         self.spell_attack_type = -1
@@ -393,6 +396,17 @@ class CastingSpell:
 
         return mana_cost + power_cost_mod
 
+    def get_duration(self):
+        if not self.duration_entry:
+            return
+        base_duration = self.duration_entry.Duration
+        if base_duration == -1:
+            return -1  # Permanent.
+
+        gain_per_level = self.duration_entry.DurationPerLevel * self.caster_effective_level
+        combo_gain = max(0, self.spent_combo_points - 1) * base_duration
+        return min(base_duration + gain_per_level, self.duration_entry.MaxDuration) + combo_gain
+
     def get_cast_damage_info(self, attacker, victim, damage, absorb):
         damage_info = DamageInfoHolder()
 
@@ -459,7 +473,7 @@ class CastingSpell:
         remaining_cast_before_pushback = self.cast_end_timestamp - curr_time
 
         if self.is_channeled() and self.cast_state == SpellState.SPELL_STATE_ACTIVE:
-            channel_length = self.duration_entry.Duration/1000  # /1000 for seconds.
+            channel_length = self.get_duration() / 1000  # /1000 for seconds.
             final_opcode = OpCode.MSG_CHANNEL_UPDATE
             pushback_length_sec = min(remaining_cast_before_pushback, channel_length * 0.25)
             for effect in self.get_effects():

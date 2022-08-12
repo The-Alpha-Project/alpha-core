@@ -169,7 +169,7 @@ class AuraManager:
             ProcFlags.SPELL_HIT: is_receiver and involved_cast,
         }
         for aura in list(self.active_auras.values()):
-            flags = aura.source_spell.spell_entry.ProcFlags
+            flags = aura.proc_flags
             if not flags:
                 continue
 
