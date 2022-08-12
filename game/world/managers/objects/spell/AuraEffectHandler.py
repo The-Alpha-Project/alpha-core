@@ -7,7 +7,7 @@ from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
-from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask
+from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields, PlayerFields
 
@@ -281,6 +281,38 @@ class AuraEffectHandler:
 
         damage = aura.get_effect_points()
         aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
+
+    # Immunity effects
+
+    @staticmethod
+    def handle_effect_immunity(aura, effect_target, remove):
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_EFFECT, aura.index,
+                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+
+    @staticmethod
+    def handle_state_immunity(aura, effect_target, remove):
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_AURA, aura.index,
+                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+
+    @staticmethod
+    def handle_school_immunity(aura, effect_target, remove):
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, aura.index,
+                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+
+    @staticmethod
+    def handle_damage_immunity(aura, effect_target, remove):
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_DAMAGE, aura.index,
+                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+
+    @staticmethod
+    def handle_dispel_immunity(aura, effect_target, remove):
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, aura.index,
+                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+
+    @staticmethod
+    def handle_mechanic_immunity(aura, effect_target, remove):
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_MECHANIC, aura.index,
+                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
 
     # Stat modifiers
 
@@ -562,6 +594,14 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
     AuraTypes.SPELL_AURA_DAMAGE_SHIELD: AuraEffectHandler.handle_damage_shield,
+
+    # Immunity modifiers.
+    AuraTypes.SPELL_AURA_EFFECT_IMMUNITY: AuraEffectHandler.handle_effect_immunity,
+    AuraTypes.SPELL_AURA_STATE_IMMUNITY: AuraEffectHandler.handle_state_immunity,
+    AuraTypes.SPELL_AURA_SCHOOL_IMMUNITY: AuraEffectHandler.handle_school_immunity,
+    AuraTypes.SPELL_AURA_DAMAGE_IMMUNITY: AuraEffectHandler.handle_damage_immunity,
+    AuraTypes.SPELL_AURA_DISPEL_IMMUNITY: AuraEffectHandler.handle_dispel_immunity,
+    AuraTypes.SPELL_AURA_MECHANIC_IMMUNITY: AuraEffectHandler.handle_mechanic_immunity,
 
     # Stat modifiers.
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,

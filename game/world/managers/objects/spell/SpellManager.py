@@ -26,7 +26,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes,
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates
 
 
@@ -1319,3 +1319,11 @@ class SpellManager:
                    pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
 
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+
+    def send_cast_immune_result(self, target, spell_id):
+        # TODO This should be a part of the usual combat log workflow.
+        combat_log_data = pack('<i2Q2i', SpellHitFlags.HIT_FLAG_NO_DAMAGE, self.caster.guid, target.guid, spell_id, SpellMissReason.MISS_REASON_IMMUNE)
+
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS,
+                                                            combat_log_data), self.caster,
+                                    include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)

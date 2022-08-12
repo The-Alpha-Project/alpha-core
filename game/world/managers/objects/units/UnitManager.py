@@ -21,7 +21,7 @@ from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
-from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms
+from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -190,6 +190,9 @@ class UnitManager(ObjectManager):
         self.has_block_passive = False
         self.has_parry_passive = False
         self.has_dodge_passive = False
+
+        # Immunity
+        self._immunities = {}
 
         self.has_moved = False
 
@@ -633,6 +636,12 @@ class UnitManager(ObjectManager):
         target.receive_damage(damage, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
+        school = SpellSchools.SPELL_SCHOOL_NORMAL if not casting_spell else casting_spell.spell_entry.School
+        spell_id = 0 if not casting_spell else casting_spell.spell_id
+        # School damage immunity. TODO Combat log is already sent at this point; change workflow.
+        if self.handle_immunity(source, spell_id, SpellImmunity.IMMUNITY_DAMAGE, school):
+            return
+
         if source is not self and not is_periodic and amount > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             self.spell_manager.check_spell_interrupts(received_damage=True)
@@ -973,6 +982,32 @@ class UnitManager(ObjectManager):
             self.set_focus(max_power)
         elif self.power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(max_power)
+
+    def set_immunity(self, immunity_type: SpellImmunity, source_id, immunity_arg: int = -1, immune=True):
+        # Note: source ID can be an aura slot or -1 for an innate immunity.
+        immunities = self._immunities.get(immunity_type, {})
+        if immune:
+            immunities[source_id] = immunity_arg
+        elif source_id in immunities:
+            immunities.pop(source_id)
+        self._immunities[immunity_type] = immunities
+
+    def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False):
+        type_immunities = self._immunities.get(immunity_type, {})
+        # TODO DBC also has negative values (6356 for ex.) - these should be more broad but are ignored for now.
+
+        return immunity_arg in type_immunities.values() or \
+            (is_mask and any(immunity_arg & mask for mask in type_immunities.values()))
+
+    def handle_immunity(self, target, spell_id, immunity_type: SpellImmunity,
+                        immunity_arg, is_mask=False) -> bool:
+        if self.has_immunity(immunity_type, immunity_arg, is_mask=is_mask) or \
+            (immunity_type == SpellImmunity.IMMUNITY_DAMAGE and
+                self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, immunity_arg)):
+            self.spell_manager.send_cast_immune_result(target, spell_id)
+            return True
+
+        return False
 
     def set_health(self, health):
         if health < 0:

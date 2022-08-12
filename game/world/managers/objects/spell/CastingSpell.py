@@ -18,7 +18,7 @@ from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets
+    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity
 
 
 class CastingSpell:
@@ -231,6 +231,31 @@ class CastingSpell:
     # TODO, Check 'IsImmuneToDamage' - VMaNGOS
     def is_target_immune_to_damage(self):
         return False
+
+    def is_target_immune(self):
+        if not self.initial_target_is_unit_or_player():
+            return False
+
+        # TODO IMMUNITY_DISPEL
+        return self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
+
+    def is_target_immune_to_all_effects(self):
+        if not self.initial_target_is_unit_or_player():
+            return False
+
+        effect_types = [effect.effect_type for effect in self.get_effects()]
+        return all(self.initial_target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, effect_type)
+                   for effect_type in effect_types)
+
+    def is_target_immune_to_aura(self):
+        if not self.initial_target_is_unit_or_player():
+            return False
+
+        aura_types = [effect.aura_type for effect in self.get_effects() if effect.aura_type]
+
+        # TODO is this even correct
+        return any(self.initial_target.has_immunity(SpellImmunity.IMMUNITY_AURA, aura_type)
+                   for aura_type in aura_types)
 
     def cast_breaks_stealth(self):
         return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NOT_BREAK_STEALTH
