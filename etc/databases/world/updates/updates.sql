@@ -8553,21 +8553,21 @@ begin not atomic
     
     -- 06/08/2022 4
     if (select count(*) from applied_updates where id='060820224') = 0 then
-        DELETE FROM `npc_vendor` WHERE `item` > '6441';
+        DELETE FROM `npc_vendor` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
-        DELETE FROM `item_loot_template` WHERE `item` > '6441';
+        DELETE FROM `item_loot_template` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
-        DELETE FROM `gameobject_loot_template` WHERE `item` > '6441';
+        DELETE FROM `gameobject_loot_template` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
-        DELETE FROM `skinning_loot_template` WHERE `item` > '6441';
+        DELETE FROM `skinning_loot_template` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
-        DELETE FROM `pickpocketing_loot_template` WHERE `item` > '6441';
+        DELETE FROM `pickpocketing_loot_template` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
-        DELETE FROM `fishing_loot_template` WHERE `item` > '6441';
+        DELETE FROM `fishing_loot_template` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
-        DELETE FROM `creature_loot_template` WHERE `item` > '6441';
+        DELETE FROM `creature_loot_template` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
-        DELETE FROM `reference_loot_template` WHERE `item` > '6441';
+        DELETE FROM `reference_loot_template` WHERE `item` > '6441' AND `mincountOrRef` >= '0';
 
         DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` NOT IN (SELECT `entry` FROM `gameobject_template`);
 
