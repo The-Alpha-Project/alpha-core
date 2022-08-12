@@ -787,11 +787,6 @@ class SpellManager:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
-        # Stunned, spell source is not item and cast is not triggered.
-        if self.caster.unit_state & UnitStates.STUNNED and not casting_spell.source_item and not casting_spell.triggered:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_STUNNED)
-            return False
-
         # Rough target type check for the client-provided target to avoid crashes.
         # If the client is behaving as expected, this will always be valid.
         if casting_spell.spell_entry.Targets == SpellTargetMask.ITEM and \
@@ -813,16 +808,25 @@ class SpellManager:
 
         # Caster unit-only state checks.
         if self.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+            # Stunned, spell source is not item and cast is not triggered.
+            if self.caster.unit_state & UnitStates.STUNNED and not casting_spell.source_item and \
+                    not casting_spell.triggered:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_STUNNED)
+                return False
+
+            # Dead.
             if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD and \
                     not self.caster.is_alive:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
                 return False
 
+            # Sitting.
             if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING and \
                     self.caster.stand_state != StandState.UNIT_STANDING:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
                 return False
 
+            # Not stealthed but the spell requires it.
             if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
                     not self.caster.is_stealthed():
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
