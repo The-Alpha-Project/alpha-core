@@ -573,7 +573,8 @@ class StatManager(object):
                                                            accept_negative=True, misc_value_is_mask=True)
 
         # Last, account for armor mitigation if applicable.
-        # TODO Should bleed spells ignore armor? Effect mechanic fields aren't present in 0.5.3.
+        # TODO Should bleed spells ignore armor?
+        #  Effect mechanic fields aren't present in 0.5.3, but are referenced by SPELL_AURA_MECHANIC_IMMUNITY
         if attack_school == SpellSchools.SPELL_SCHOOL_NORMAL:
             total_armor = victim.stat_manager.get_total_stat(UnitStats.RESISTANCE_PHYSICAL)
 
