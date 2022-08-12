@@ -256,10 +256,13 @@ class SpellEffectHandler:
     @staticmethod
     def handle_summon_totem(casting_spell, effect, caster, target):
         totem_entry = effect.misc_value
+        duration = effect.get_duration()
+        # If no duration, default to 5 minutes.
+        duration = 300 if duration == 0 else (duration / 1000)
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoner=caster,
-                                                 override_faction=caster.faction)
+                                                 override_faction=caster.faction, ttl=duration)
 
         if not creature_manager:
             return
