@@ -1321,8 +1321,9 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
 
     def send_cast_immune_result(self, target, spell_id):
-        # TODO This should be a part of the usual combat log workflow.
-        combat_log_data = pack('<i2Q2i', SpellHitFlags.HIT_FLAG_NO_DAMAGE, self.caster.guid, target.guid, spell_id, SpellMissReason.MISS_REASON_IMMUNE)
+        # TODO This doesn't display anything to the client at the moment.
+        combat_log_data = pack('<i2Q2i', SpellHitFlags.HIT_FLAG_NO_DAMAGE, self.caster.guid,
+                               target.guid, spell_id, SpellMissReason.MISS_REASON_IMMUNE)
 
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS,
                                                             combat_log_data), self.caster,

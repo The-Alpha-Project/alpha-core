@@ -215,7 +215,7 @@ class SpellEffectMechanics:
         AuraTypes.SPELL_AURA_MOD_FEAR: SpellMechanic.MECHANIC_FEAR
     }
 
-    # Sleep counts as a stun; use IDs instead.
+    # Sleep uses stun but is a distinct mechanic; use IDs instead.
     _SLEEP_MECHANIC_SPELLS = (700, 1090, 2937)
 
     @staticmethod
