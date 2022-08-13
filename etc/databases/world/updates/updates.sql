@@ -9690,12 +9690,22 @@ begin not atomic
         SET `display_id1`=1139
         WHERE `entry`=1381;
 
+        -- Nerist
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1148;
+
+        -- Nerist spawn fix (he is off village)
+        UPDATE `spawns_creatures`
+        SET `position_x`=-12409.4599609375, `position_y`=160.59080505371094, `position_z`=3.423726797103882, `orientation`=6.048337459564209
+        WHERE `spawn_id`=360;
+
         -- Zudd
         UPDATE `creature_template`
         SET `display_id1`=1139
         WHERE `entry`=3624;
 
-        -- Zudd spawn fix (she is off village)
+        -- Zudd spawn fix (he is off village)
         UPDATE `spawns_creatures`
         SET `position_x`=-12401.384765625, `position_y`=222.0936737060547, `position_z`=1.9255071878433228, `orientation`=5.456151962280273
         WHERE `spawn_id`=667;
@@ -9715,7 +9725,7 @@ begin not atomic
         SET `display_id1`=1139
         WHERE `entry`=1404;
 
-        -- Kragg spawn fix (she is off village)
+        -- Kragg spawn fix (he is off village)
         UPDATE `spawns_creatures`
         SET `position_x`=-12393.9638671875, `position_y`=215.6564483642578, `position_z`=2.40732479095459, `orientation`=5.3226399421691895
         WHERE `spawn_id`=364;
