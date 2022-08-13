@@ -370,7 +370,7 @@ class Cell:
             if world_object:
                 player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
             else:
-                player.update_known_world_objects()
+                player.pending_update_world_objects = True
 
     def remove(self, world_object):
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:

@@ -138,7 +138,7 @@ class ThreatManager:
         relevant_holders = []
         for holder in list(self.holders.values()):
             # No reason to keep targets we cannot longer attack.
-            if not self.owner.can_attack_target(holder.unit):
+            if not self.can_attack_target(holder.unit):
                 self.current_holder = None if self.current_holder == holder else self.current_holder
                 self.holders.pop(holder.unit.guid)
             else:
@@ -150,7 +150,7 @@ class ThreatManager:
 
     # TODO Checking pet relation until friendliness can be evaluated properly.
     def can_attack_target(self, unit: UnitManager):
-        return unit.is_hostile_to(self.owner) and unit != self.owner.summoner
+        return unit.is_alive and unit.is_hostile_to(self.owner) and unit != self.owner.summoner
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):

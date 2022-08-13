@@ -810,8 +810,8 @@ class CreatureManager(UnitManager):
         if target and self.combat_target != target:
             self.attack(target)
         # No target at all, leave combat, reset aggro.
-        elif not target:
-            self.leave_combat()
+        elif not target and self.combat_target:
+            self.leave_combat(force=True)
             return
 
         super().attack_update(elapsed)
