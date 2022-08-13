@@ -9841,5 +9841,12 @@ begin not atomic
 
         insert into applied_updates values ('130820221');
     end if;
+    
+    -- 13/08/2022 2
+    if (select count(*) from applied_updates where id='130820222') = 0 then
+        update spawns_creatures set position_z = 408.804 where spawn_id = 265;
+
+        insert into applied_updates values ('130820222');
+    end if;
 end $
 delimiter ;
