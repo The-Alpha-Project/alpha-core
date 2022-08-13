@@ -9585,6 +9585,11 @@ begin not atomic
         SET `display_id1`=593
         WHERE `entry`=1059;
 
+        -- Skullsplitter Mogh the undiying
+        UPDATE `creature_template`
+        SET `display_id1`=593
+        WHERE `entry`=1060;
+
         -- Bloodscalp scout
         UPDATE `creature_template`
         SET `display_id1`=1113
