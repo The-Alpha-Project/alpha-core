@@ -9675,10 +9675,30 @@ begin not atomic
         SET `display_id1`=1139
         WHERE `entry`=1382;
 
+        -- Hragran 
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1147;
+
+        -- Hram spawn fix (she is off village)
+        UPDATE `spawns_creatures`
+        SET `position_x`=-12398.7314453125, `position_y`=213.96031188964844, `position_z`=2.310176372528076, `orientation`=5.71769380569458
+        WHERE `spawn_id`=691;
+
         -- Krakk
         UPDATE `creature_template`
         SET `display_id1`=1139
         WHERE `entry`=1381;
+
+        -- Zudd
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=3624;
+
+        -- Zudd spawn fix (she is off village)
+        UPDATE `spawns_creatures`
+        SET `position_x`=-12401.384765625, `position_y`=222.0936737060547, `position_z`=1.9255071878433228, `orientation`=5.456151962280273
+        WHERE `spawn_id`=667;
 
         -- Vharr
         UPDATE `creature_template`
@@ -9739,6 +9759,9 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=680
         WHERE `entry`=4461;
+
+        -- ignore 2 grom gol braziers off village
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (10722, 10723, 10076, 10069);
 
         insert into applied_updates values ('130820221');
     end if;
