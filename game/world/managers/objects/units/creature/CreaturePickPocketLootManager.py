@@ -7,6 +7,8 @@ class CreaturePickPocketLootManager(LootManager):
     def __init__(self, creature_mgr):
         super(CreaturePickPocketLootManager, self).__init__(creature_mgr)
 
+        self.already_pickpocketed = False
+
     # override
     def generate_loot(self, requester):
         super().clear()
@@ -14,6 +16,7 @@ class CreaturePickPocketLootManager(LootManager):
         loot_collection = self.generate_loot_groups(self.loot_template)
         for loot_item in self.process_loot_groups(loot_collection, requester):
             self.add_loot(loot_item, requester)
+        self.already_pickpocketed = True
 
     # override
     def populate_loot_template(self):

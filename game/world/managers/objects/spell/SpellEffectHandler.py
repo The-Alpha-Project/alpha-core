@@ -502,7 +502,7 @@ class SpellEffectHandler:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        if not target.pickpocket_loot_manager.has_loot():
+        if not target.pickpocket_loot_manager.has_loot() and not target.pickpocket_loot_manager.already_pickpocketed:
             target.pickpocket_loot_manager.generate_loot(caster)
 
         caster.send_loot(target.pickpocket_loot_manager)

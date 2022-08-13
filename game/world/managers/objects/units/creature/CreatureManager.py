@@ -84,6 +84,10 @@ class CreatureManager(UnitManager):
         self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
         self.known_players = {}
 
+        # Managers, will be load upon lazy loading trigger.
+        self.loot_manager = None
+        self.pickpocket_loot_manager = None
+
         self.initialize_creature(self.generate_creature_template() if not creature_template else creature_template)
 
         # All creatures can block, parry and dodge by default.
@@ -91,10 +95,6 @@ class CreatureManager(UnitManager):
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
-
-        # Managers, will be load upon lazy loading trigger.
-        self.loot_manager = None
-        self.pickpocket_loot_manager = None
 
     @dataclass
     class VirtualItemInfoHolder:
@@ -172,8 +172,11 @@ class CreatureManager(UnitManager):
         self.last_random_movement = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
         self.location = self.spawn_position.copy()
-
         self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
+
+        # Reset pickpocket state.
+        if self.pickpocket_loot_manager:
+            self.pickpocket_loot_manager.already_pickpocketed = False
 
         # Creature AI.
         self.object_ai = AIFactory.build_ai(self)
