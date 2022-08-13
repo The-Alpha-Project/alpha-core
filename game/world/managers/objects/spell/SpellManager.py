@@ -26,8 +26,8 @@ from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes,
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags
-from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools
+from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
 class SpellManager:
@@ -822,6 +822,13 @@ class SpellManager:
             if self.caster.unit_state & UnitStates.STUNNED and not casting_spell.source_item and \
                     not casting_spell.triggered:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_STUNNED)
+                return False
+
+            # Pacified.
+            if self.caster.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED and \
+                    casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY and \
+                    casting_spell.spell_entry.School == SpellSchools.SPELL_SCHOOL_NORMAL:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_PACIFIED)
                 return False
 
             # Sitting.

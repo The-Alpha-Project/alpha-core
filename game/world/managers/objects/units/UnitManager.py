@@ -323,6 +323,9 @@ class UnitManager(ObjectManager):
         # Dead target.
         elif not self.combat_target.is_alive:
             swing_error = AttackSwingError.DEADTARGET
+        # Pacified.
+        elif self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+            swing_error = AttackSwingError.CANTATTACK
         else:
             # Main hand attack.
             if self.is_attack_ready(AttackTypes.BASE_ATTACK):

@@ -234,6 +234,15 @@ class AuraEffectHandler:
         effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
 
     @staticmethod
+    def handle_mod_pacify(aura, effect_target, remove):
+        if remove:
+            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_PACIFIED
+        else:
+            effect_target.unit_flags |= UnitFlags.UNIT_FLAG_PACIFIED
+
+        effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
+
+    @staticmethod
     def handle_transform(aura, effect_target, remove):
         if not remove:
             creature_entry = aura.spell_effect.misc_value
@@ -609,6 +618,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
     AuraTypes.SPELL_AURA_DAMAGE_SHIELD: AuraEffectHandler.handle_damage_shield,
+    AuraTypes.SPELL_AURA_MOD_PACIFY: AuraEffectHandler.handle_mod_pacify,
 
     # Immunity modifiers.
     AuraTypes.SPELL_AURA_EFFECT_IMMUNITY: AuraEffectHandler.handle_effect_immunity,
