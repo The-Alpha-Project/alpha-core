@@ -9469,5 +9469,248 @@ begin not atomic
 
         insert into applied_updates values ('120820224');
     end if;
+        
+    -- 13/08/2022 1
+    if (select count(*) from applied_updates where id='130820221') = 0 then
+
+        -- STRONGLETHORN
+
+        -- Jungle stalker
+        UPDATE `creature_template`
+        SET `display_id1`=615
+        WHERE `entry`=687;
+
+        -- Thethis (named raptor)
+        UPDATE `creature_template`
+        SET `display_id1`=615
+        WHERE `entry`=730;
+
+        -- Cold Eye Basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=601
+        WHERE `entry`=690;
+
+        -- Trashtrail basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=601
+        WHERE `entry`=1550;
+
+        -- Lord Sakrasis
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2541;
+
+        -- Zanzil naga
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=1491;
+
+        -- Naga explorer
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=1907;
+
+        -- Gorlash
+        UPDATE `creature_template`
+        SET `display_id1`=791
+        WHERE `entry`=1492;
+
+        -- Skullsplitter warrior
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=667;
+
+        -- Skullsplitter hunter
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=669;
+
+        -- Skullsplitter witch doctor
+        UPDATE `creature_template`
+        SET `display_id1`=692
+        WHERE `entry`=670;
+
+        -- Skullsplitter spiritchaser
+        UPDATE `creature_template`
+        SET `display_id1`=692
+        WHERE `entry`=672;
+
+        -- Skullsplitter Axe thrower
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=696;
+
+        -- Skullsplitter Mystic
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=780;
+
+        -- Skullsplitter Scout
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=782;
+
+        -- Skullsplitter Headhunter
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=781;
+
+        -- Skullsplitter Berserker
+        UPDATE `creature_template`
+        SET `display_id1`=692
+        WHERE `entry`=783;
+
+        -- Skullsplitter Beastmaster
+        UPDATE `creature_template`
+        SET `display_id1`=692
+        WHERE `entry`=784;
+
+        -- Skullsplitter Anathek Spiritchaser
+        UPDATE `creature_template`
+        SET `display_id1`=593
+        WHERE `entry`=1059;
+
+        -- Bloodscalp scout
+        UPDATE `creature_template`
+        SET `display_id1`=1113
+        WHERE `entry`=588;
+
+        -- Bloodscalp hunter
+        UPDATE `creature_template`
+        SET `display_id1`=1113
+        WHERE `entry`=595;
+
+        -- Bloodscalp berserker
+        UPDATE `creature_template`
+        SET `display_id1`=1152
+        WHERE `entry`=597;
+
+        -- Bloodscalp headhunter
+        UPDATE `creature_template`
+        SET `display_id1`=1152
+        WHERE `entry`=671;
+
+        -- Bloodscalp Witch doctor
+        UPDATE `creature_template`
+        SET `display_id1`=1115
+        WHERE `entry`=660;
+
+        -- Bloodscalp Axe thrower
+        UPDATE `creature_template`
+        SET `display_id1`=1112
+        WHERE `entry`=694;
+
+        -- Bloodscalp Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1112
+        WHERE `entry`=697;
+
+        -- Bloodscalp Beastmaster
+        UPDATE `creature_template`
+        SET `display_id1`=590
+        WHERE `entry`=699;
+
+        -- Bloodscalp Mystic
+        UPDATE `creature_template`
+        SET `display_id1`=1114
+        WHERE `entry`=701;
+
+        -- Bloodscalp Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=1112
+        WHERE `entry`=587;
+
+        -- Bloodscalp Scavenger
+        UPDATE `creature_template`
+        SET `display_id1`=1112
+        WHERE `entry`=702;
+
+        -- Nezzliok, named bloodscalp
+        UPDATE `creature_template`
+        SET `display_id1`=591
+        WHERE `entry`=1062;
+
+        -- Gan Zulah, named chief bloodscalp
+        UPDATE `creature_template`
+        SET `display_id1`=693
+        WHERE `entry`=1061;
+
+        -- Lesser Water elemental
+        UPDATE `creature_template`
+        SET `display_id1`=101
+        WHERE `entry`=691;
+
+        -- Southern Sand crawler
+        UPDATE `creature_template`
+        SET `display_id1`=1000
+        WHERE `entry`=2544;        
+
+        -- Bloodsail warlock
+        UPDATE `creature_template`
+        SET `display_id1`=795, `display_id2`=0
+        WHERE `entry`=1564;
+
+        -- Gyll (flymaster)
+        UPDATE `creature_template`
+        SET `display_id1`=1140
+        WHERE `entry`=2859;
+
+        -- Grom-gol grunt
+        UPDATE `creature_template`
+        SET `display_id1`=1139, `display_id2`=0
+        WHERE `entry`=1064;
+
+        -- Krakk
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1381;
+
+        -- Vharr
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1146;
+
+        -- Uthok
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1149;
+        
+        -- Kragg
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1404;
+
+        -- Brawn
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1385;
+
+        -- Kragg
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=2465;
+
+        -- Kim weelay
+        UPDATE `creature_template`
+        SET `display_id1`=1478
+        WHERE `entry`=2519;
+
+        -- Nimboya
+        UPDATE `creature_template`
+        SET `display_id1`=1478
+        WHERE `entry`=2497;
+
+        -- Nimboya
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=2465;
+
+        -- Corporal Kaleb
+        UPDATE `creature_template`
+        SET `display_id1`=459
+        WHERE `entry`=770;
+
+        insert into applied_updates values ('130820221');
+    end if;
 end $
 delimiter ;
