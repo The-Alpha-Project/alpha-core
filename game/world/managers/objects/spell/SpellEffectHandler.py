@@ -30,20 +30,19 @@ class SpellEffectHandler:
                          f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
             return
 
-        # Spell immunity.
-        if casting_spell.is_target_immune():
-            caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
-            return
+        # Immunities.
+        if target:
+            # Spell school/effect aura.
+            if casting_spell.is_target_immune() or \
+                    effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and \
+                    casting_spell.is_target_immune_to_aura():
+                caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
+                return
 
-        # Effect type immunity.
-        if target and target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT,
-                                             effect.effect_type, spell_id=casting_spell.spell_entry.ID):
-            return
-
-        # Aura immunity
-        if effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and \
-                casting_spell.is_target_immune_to_aura():
-            return
+            # Effect type.
+            if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT,
+                                      effect.effect_type, spell_id=casting_spell.spell_entry.ID):
+                return
 
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 

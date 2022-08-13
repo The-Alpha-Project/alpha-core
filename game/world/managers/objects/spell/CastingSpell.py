@@ -242,6 +242,18 @@ class CastingSpell:
         # 0.5.5: "Holy Word: Shield can now be dispelled. It is considered a Magic effect."
         return self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
 
+    def is_target_immune_to_effects(self):
+        if self.is_target_immune():
+            return True
+
+        effect_types = [effect.effect_type for effect in self.get_effects()]
+        is_immune_to_aura = self.is_target_immune_to_aura()
+        return all(
+            self.initial_target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, effect_type) or
+            effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and is_immune_to_aura
+            for effect_type in effect_types
+        )
+
     def is_target_immune_to_aura(self):
         if not self.initial_target_is_unit_or_player():
             return False

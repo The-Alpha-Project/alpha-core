@@ -261,8 +261,10 @@ class SpellManager:
             return
 
         casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
-        if casting_spell.is_channeled():
-            self.handle_channel_start(casting_spell)  # Channeled spells require more setup before effect application.
+        if casting_spell.is_channeled() and not casting_spell.is_target_immune_to_effects():
+            # Channeled spells require more setup before effect application.
+            # If the target is immune, no channel needs to be started and the spell can be resolved normally.
+            self.handle_channel_start(casting_spell)
         else:
             self.apply_spell_effects(casting_spell)  # Apply effects
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
