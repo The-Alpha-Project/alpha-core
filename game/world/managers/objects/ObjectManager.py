@@ -350,7 +350,7 @@ class ObjectManager:
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
     def can_attack_target(self, target):
-        if not target or target is self:
+        if target is self:
             return False
 
         if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
