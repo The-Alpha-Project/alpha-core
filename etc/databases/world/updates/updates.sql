@@ -9712,7 +9712,7 @@ begin not atomic
 
         -- Murkgill Lord
         UPDATE `creature_template`
-        SET `display_id1`=680
+        SET `display_id1`=664
         WHERE `entry`=4460;
 
         -- Murkgill Oracle
@@ -9722,7 +9722,7 @@ begin not atomic
 
         -- Murkgill Warrior
         UPDATE `creature_template`
-        SET `display_id1`=664
+        SET `display_id1`=680
         WHERE `entry`=4461;
 
         insert into applied_updates values ('130820221');
