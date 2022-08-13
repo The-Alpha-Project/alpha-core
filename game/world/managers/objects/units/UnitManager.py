@@ -417,21 +417,21 @@ class UnitManager(ObjectManager):
                                                                       0.19 if self.has_offhand_weapon() else 0)  # Dual wield penalty.
 
         damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
-        damage_info.clean_damage = damage_info.total_damage = damage_info.damage
         damage_info.hit_info = hit_info
         damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack.
 
         if hit_info == HitInfo.CRITICAL_HIT:
-            damage_info.total_damage *= 2
+            damage_info.damage *= 2
             damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
 
         elif hit_info != HitInfo.SUCCESS:
             damage_info.hit_info = HitInfo.MISS
-            damage_info.total_damage = 0
+            damage_info.damage = 0
             # Check evade, there is no HitInfo flag for this.
             if victim.is_evading:
                 damage_info.target_state = VictimStates.VS_EVADE
-                damage_info.proc_victim |= ProcFlags.NONE
+            elif hit_info == HitInfo.ABSORBED:
+                damage_info.target_state = VictimStates.VS_IMMUNE
             elif hit_info == HitInfo.DODGE:
                 damage_info.target_state = VictimStates.VS_DODGE
                 damage_info.proc_victim |= ProcFlags.DODGE
@@ -443,6 +443,8 @@ class UnitManager(ObjectManager):
                 # Completely mitigate damage on block.
                 damage_info.target_state = VictimStates.VS_BLOCK
                 damage_info.proc_victim |= ProcFlags.BLOCK
+
+        damage_info.clean_damage = damage_info.total_damage = damage_info.damage
 
         # Generate rage (if needed).
         self.generate_rage(damage_info, is_attacking=True)
@@ -636,12 +638,6 @@ class UnitManager(ObjectManager):
         target.receive_damage(damage, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
-        school = SpellSchools.SPELL_SCHOOL_NORMAL if not casting_spell else casting_spell.spell_entry.School
-        spell_id = 0 if not casting_spell else casting_spell.spell_id
-        # School damage immunity. TODO Combat log is already sent at this point; change workflow.
-        if self.handle_immunity(source, spell_id, SpellImmunity.IMMUNITY_DAMAGE, school):
-            return
-
         if source is not self and not is_periodic and amount > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             self.spell_manager.check_spell_interrupts(received_damage=True)
@@ -687,13 +683,18 @@ class UnitManager(ObjectManager):
         if target.is_evading:
             miss_reason = SpellMissReason.MISS_REASON_EVADED
 
+        # Overwrite on immune. TODO This and evade should be written in spell target results instead.
+        if target.handle_immunity(self, SpellImmunity.IMMUNITY_DAMAGE, casting_spell.spell_entry.School,
+                                  spell_id=casting_spell.spell_entry.ID):
+            miss_reason = SpellMissReason.MISS_REASON_IMMUNE
+
         damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
                                              casting_spell.spell_attack_type)
 
         # TODO Handle misses, absorbs etc. for spells.
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
 
-        if miss_reason == SpellMissReason.MISS_REASON_EVADED:
+        if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.total_damage = 0
             damage_info.hit_info = HitInfo.MISS
             damage_info.proc_victim |= ProcFlags.NONE
@@ -994,17 +995,21 @@ class UnitManager(ObjectManager):
 
     def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False):
         type_immunities = self._immunities.get(immunity_type, {})
-        # TODO DBC also has negative values (6356 for ex.) - these should be more broad but are ignored for now.
+
+        if not is_mask and immunity_type in {SpellImmunity.IMMUNITY_DAMAGE, SpellImmunity.IMMUNITY_SCHOOL}:
+            immunity_arg = 1 << immunity_arg
+            is_mask = True
 
         return immunity_arg in type_immunities.values() or \
             (is_mask and any(immunity_arg & mask for mask in type_immunities.values()))
 
-    def handle_immunity(self, target, spell_id, immunity_type: SpellImmunity,
-                        immunity_arg, is_mask=False) -> bool:
+    def handle_immunity(self, source, immunity_type: SpellImmunity,
+                        immunity_arg, spell_id=0, is_mask=False) -> bool:
+        # Also check school immunity on damage immunity.
         if self.has_immunity(immunity_type, immunity_arg, is_mask=is_mask) or \
             (immunity_type == SpellImmunity.IMMUNITY_DAMAGE and
-                self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, immunity_arg)):
-            self.spell_manager.send_cast_immune_result(target, spell_id)
+                self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, immunity_arg, is_mask=is_mask)):
+            self.spell_manager.send_cast_immune_result(source, spell_id)
             return True
 
         return False

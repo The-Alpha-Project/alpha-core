@@ -36,9 +36,8 @@ class SpellEffectHandler:
             return
 
         # Effect type immunity.
-        if target and target.handle_immunity(caster, casting_spell.spell_entry.ID,
-                                             SpellImmunity.IMMUNITY_EFFECT,
-                                             effect.effect_type):
+        if target and target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT,
+                                             effect.effect_type, spell_id=casting_spell.spell_entry.ID):
             return
 
         # Aura immunity

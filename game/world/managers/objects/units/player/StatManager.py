@@ -9,7 +9,7 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
-from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms
+from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms, SpellImmunity
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags
 
 
@@ -608,6 +608,10 @@ class StatManager(object):
         # Evading, return miss and handle on calling method.
         if self.unit_mgr.is_evading:
             return HitInfo.MISS
+
+        # Immunity.
+        if self.unit_mgr.handle_immunity(attacker, SpellImmunity.IMMUNITY_DAMAGE, SpellSchools.SPELL_SCHOOL_NORMAL):
+            return HitInfo.ABSORBED
 
         # Note: Bear and cat form attacks don't use a weapon, and instead have max attack rating.
         if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and not attacker.is_in_feral_form():

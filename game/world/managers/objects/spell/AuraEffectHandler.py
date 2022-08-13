@@ -296,13 +296,28 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_school_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, aura.index,
-                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+        school = aura.spell_effect.misc_value
+        if school == -1:
+            school = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
+        elif school == -2:
+            school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        else:
+            school = 1 << school
+
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_SCHOOL, aura.index, immunity_arg=school, immune=not remove)
 
     @staticmethod
     def handle_damage_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_DAMAGE, aura.index,
-                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+        school = aura.spell_effect.misc_value
+        if school == -1:
+            school = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
+        elif school == -2:
+            # Not used in the database, but kept for consistency.
+            school = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        else:
+            school = 1 << school
+
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_DAMAGE, aura.index, immunity_arg=school, immune=not remove)
 
     @staticmethod
     def handle_dispel_immunity(aura, effect_target, remove):
