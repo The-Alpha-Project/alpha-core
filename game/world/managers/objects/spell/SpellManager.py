@@ -26,8 +26,8 @@ from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes,
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects
-from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools
+from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
 class SpellManager:
@@ -261,8 +261,10 @@ class SpellManager:
             return
 
         casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
-        if casting_spell.is_channeled():
-            self.handle_channel_start(casting_spell)  # Channeled spells require more setup before effect application.
+        if casting_spell.is_channeled() and not casting_spell.is_target_immune_to_effects():
+            # Channeled spells require more setup before effect application.
+            # If the target is immune, no channel needs to be started and the spell can be resolved normally.
+            self.handle_channel_start(casting_spell)
         else:
             self.apply_spell_effects(casting_spell)  # Apply effects
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
@@ -822,6 +824,13 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_STUNNED)
                 return False
 
+            # Pacified.
+            if self.caster.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED and \
+                    casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY and \
+                    casting_spell.spell_entry.School == SpellSchools.SPELL_SCHOOL_NORMAL:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_PACIFIED)
+                return False
+
             # Sitting.
             if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING and \
                     self.caster.stand_state != StandState.UNIT_STANDING:
@@ -1319,3 +1328,12 @@ class SpellManager:
                    pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
 
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+
+    def send_cast_immune_result(self, target, spell_id):
+        # TODO This doesn't display anything to the client at the moment.
+        combat_log_data = pack('<i2Q2i', SpellHitFlags.HIT_FLAG_NO_DAMAGE, self.caster.guid,
+                               target.guid, spell_id, SpellMissReason.MISS_REASON_IMMUNE)
+
+        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS,
+                                                            combat_log_data), self.caster,
+                                    include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)

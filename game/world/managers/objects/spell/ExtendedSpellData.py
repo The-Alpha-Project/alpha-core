@@ -1,6 +1,7 @@
 import math
+from typing import Optional
 
-from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots
+from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots, SpellMechanic, AuraTypes
 from utils.constants.UnitCodes import Teams, PowerTypes
 
 
@@ -205,3 +206,25 @@ class ProfessionInfo:
             if spell_id in prof_spells:
                 return profession_spell_id
         return 0
+
+
+class SpellEffectMechanics:
+    _MECHANIC_AURAS = {
+        AuraTypes.SPELL_AURA_MOD_CHARM: SpellMechanic.MECHANIC_CHARM,
+        AuraTypes.SPELL_AURA_MOD_DISARM: SpellMechanic.MECHANIC_DISARM,
+        AuraTypes.SPELL_AURA_MOD_FEAR: SpellMechanic.MECHANIC_FEAR
+    }
+
+    # Sleep uses stun but is a distinct mechanic; use IDs instead.
+    _SLEEP_MECHANIC_SPELLS = (700, 1090, 2937)
+
+    @staticmethod
+    def get_mechanic_for_aura_effect(aura_type, spell_id) -> Optional[SpellMechanic]:
+        if not aura_type:
+            return None
+
+        if aura_type in SpellEffectMechanics._MECHANIC_AURAS:
+            return SpellEffectMechanics._MECHANIC_AURAS[aura_type]
+
+        return SpellMechanic.MECHANIC_SLEEP if \
+            spell_id in SpellEffectMechanics._SLEEP_MECHANIC_SPELLS else None

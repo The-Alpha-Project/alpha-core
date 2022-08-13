@@ -9469,13 +9469,384 @@ begin not atomic
 
         insert into applied_updates values ('120820224');
     end if;
-
+        
     -- 13/08/2022 1
     if (select count(*) from applied_updates where id='130820221') = 0 then
-        update spawns_creatures set position_z = 408.804 where spawn_id = 265;
+
+        -- STRONGLETHORN
+
+        -- Jungle stalker
+        UPDATE `creature_template`
+        SET `display_id1`=322
+        WHERE `entry`=687;
+
+        -- Young Jungle stalker
+        UPDATE `creature_template`
+        SET `display_id1`=648
+        WHERE `entry`=854;
+
+        -- Thethis (named raptor)
+        UPDATE `creature_template`
+        SET `display_id1`=615
+        WHERE `entry`=730;
+
+        -- Cold Eye Basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=601
+        WHERE `entry`=690;
+
+        -- Trashtrail basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=601
+        WHERE `entry`=1550;
+
+        -- Stone maw basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=601
+        WHERE `entry`=688;
+
+        -- Lord Sakrasis
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=2541;
+
+        -- Zanzil naga
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=1491;
+
+        -- Naga explorer
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=1907;
+
+        -- Gorlash
+        UPDATE `creature_template`
+        SET `display_id1`=791
+        WHERE `entry`=1492;
+
+        -- Mok rash
+        UPDATE `creature_template`
+        SET `display_id1`=791
+        WHERE `entry`=1493;
+
+        -- Skullsplitter warrior
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=667;
+
+        -- Skullsplitter hunter
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=669;
+
+        -- Skullsplitter witch doctor
+        UPDATE `creature_template`
+        SET `display_id1`=692
+        WHERE `entry`=670;
+
+        -- Skullsplitter spiritchaser
+        UPDATE `creature_template`
+        SET `display_id1`=692
+        WHERE `entry`=672;
+
+        -- Skullsplitter Axe thrower
+        UPDATE `creature_template`
+        SET `display_id1`=317
+        WHERE `entry`=696;
+
+        -- Skullsplitter Mystic
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=780;
+
+        -- Skullsplitter Scout
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=782;
+
+        -- Skullsplitter Headhunter
+        UPDATE `creature_template`
+        SET `display_id1`=337
+        WHERE `entry`=781;
+
+        -- Skullsplitter Berserker
+        UPDATE `creature_template`
+        SET `display_id1`=692
+        WHERE `entry`=783;
+
+        -- Skullsplitter Beastmaster
+        UPDATE `creature_template`
+        SET `display_id1`=692
+        WHERE `entry`=784;
+
+        -- Skullsplitter Anathek Spiritchaser
+        UPDATE `creature_template`
+        SET `display_id1`=593
+        WHERE `entry`=1059;
+
+        -- Skullsplitter Mogh the undiying
+        UPDATE `creature_template`
+        SET `display_id1`=593
+        WHERE `entry`=1060;
+
+        -- Bloodscalp scout
+        UPDATE `creature_template`
+        SET `display_id1`=1113
+        WHERE `entry`=588;
+
+        -- Bloodscalp hunter
+        UPDATE `creature_template`
+        SET `display_id1`=1113
+        WHERE `entry`=595;
+
+        -- Bloodscalp berserker
+        UPDATE `creature_template`
+        SET `display_id1`=1152
+        WHERE `entry`=597;
+
+        -- Bloodscalp headhunter
+        UPDATE `creature_template`
+        SET `display_id1`=1152
+        WHERE `entry`=671;
+
+        -- Bloodscalp Witch doctor
+        UPDATE `creature_template`
+        SET `display_id1`=1115
+        WHERE `entry`=660;
+
+        -- Bloodscalp Axe thrower
+        UPDATE `creature_template`
+        SET `display_id1`=590
+        WHERE `entry`=694;
+
+        -- Bloodscalp Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1112
+        WHERE `entry`=697;
+
+        -- Bloodscalp Beastmaster
+        UPDATE `creature_template`
+        SET `display_id1`=590
+        WHERE `entry`=699;
+
+        -- Bloodscalp Mystic
+        UPDATE `creature_template`
+        SET `display_id1`=1114
+        WHERE `entry`=701;
+
+        -- Bloodscalp Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=1112
+        WHERE `entry`=587;
+
+        -- Bloodscalp Scavenger
+        UPDATE `creature_template`
+        SET `display_id1`=1112
+        WHERE `entry`=702;
+
+        -- Nezzliok, named bloodscalp
+        UPDATE `creature_template`
+        SET `display_id1`=591
+        WHERE `entry`=1062;
+
+        -- Gan Zulah, named chief bloodscalp
+        UPDATE `creature_template`
+        SET `display_id1`=693
+        WHERE `entry`=1061;
+
+        -- Lesser Water elemental
+        UPDATE `creature_template`
+        SET `display_id1`=110
+        WHERE `entry`=691;
+
+        -- Southern Sand crawler
+        UPDATE `creature_template`
+        SET `display_id1`=1000
+        WHERE `entry`=2544;        
+
+        -- Bloodsail warlock
+        UPDATE `creature_template`
+        SET `display_id1`=795, `display_id2`=0
+        WHERE `entry`=1564;
+
+        -- Gyll (flymaster)
+        UPDATE `creature_template`
+        SET `display_id1`=1140
+        WHERE `entry`=2859;
+
+        -- Grom-gol grunt
+        UPDATE `creature_template`
+        SET `display_id1`=1139, `display_id2`=0
+        WHERE `entry`=1064;
+
+        -- Mudduk
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1382;
+
+        -- Hragran 
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1147;
+
+        -- Hram spawn fix (she is off village)
+        UPDATE `spawns_creatures`
+        SET `position_x`=-12404.002, `position_y`=205.076, `position_z`=2.410176372528076, `orientation`=0.117
+        WHERE `spawn_id`=691;
+
+        -- Krakk
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1381;
+
+        -- Nerist
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1148;
+
+        -- Nerist spawn fix (he is off village)
+        UPDATE `spawns_creatures`
+        SET `position_x`=-12409.4599609375, `position_y`=160.59080505371094, `position_z`=3.423726797103882, `orientation`=6.048337459564209
+        WHERE `spawn_id`=360;
+
+        -- Zudd
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=3624;
+
+        -- Zudd spawn fix (he is off village)
+        UPDATE `spawns_creatures`
+        SET `position_x`=-12401.384765625, `position_y`=222.0936737060547, `position_z`=1.9255071878433228, `orientation`=5.456151962280273
+        WHERE `spawn_id`=667;
+
+        -- Vharr
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1146;
+
+        -- Uthok
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1149;
+        
+        -- Kragg
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1404;
+
+        -- Kragg spawn fix (he is off village)
+        UPDATE `spawns_creatures`
+        SET `position_x`=-12393.9638671875, `position_y`=215.6564483642578, `position_z`=2.40732479095459, `orientation`=5.3226399421691895
+        WHERE `spawn_id`=364;
+
+        -- Brawn
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1385;
+
+        -- Kragg
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=2465;
+
+        -- Kim weelay
+        UPDATE `creature_template`
+        SET `display_id1`=1478
+        WHERE `entry`=2519;
+
+        -- Nimboya
+        UPDATE `creature_template`
+        SET `display_id1`=1478
+        WHERE `entry`=2497;
+
+        -- Nimboya
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=2465;
+
+        -- Corporal Kaleb
+        UPDATE `creature_template`
+        SET `display_id1`=459
+        WHERE `entry`=770;
+
+        -- Murkgill Lord
+        UPDATE `creature_template`
+        SET `display_id1`=664
+        WHERE `entry`=4460;
+
+        -- Murkgill Oracle
+        UPDATE `creature_template`
+        SET `display_id1`=679
+        WHERE `entry`=4459;
+
+        -- Murkgill Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=680
+        WHERE `entry`=4461;
+
+        -- ignore 2 grom gol braziers off village
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (10722, 10723, 10076, 10069);
+        
+
+        -- Kurzen Commando
+        UPDATE `creature_template`
+        SET `display_id1`=638
+        WHERE `entry`=938;
+
+        -- Kurzen Jungle Fighter
+        UPDATE `creature_template`
+        SET `display_id1`=638
+        WHERE `entry`=937;
+
+        -- Kurzen Elite
+        UPDATE `creature_template`
+        SET `display_id1`=637
+        WHERE `entry`=939;
+
+        -- Kurzen Medicine Man
+        UPDATE `creature_template`
+        SET `display_id1`=658
+        WHERE `entry`=940;
+
+        -- Kurzen Headshrinker
+        UPDATE `creature_template`
+        SET `display_id1`=658
+        WHERE `entry`=941;
+
+        -- Kurzen Witch Doctor
+        UPDATE `creature_template`
+        SET `display_id1`=658
+        WHERE `entry`=942;
+
+        -- Kurzen Wrangler
+        UPDATE `creature_template`
+        SET `display_id1`=638
+        WHERE `entry`=943;
+
+        -- Kurzen Subchief
+        UPDATE `creature_template`
+        SET `display_id1`=637
+        WHERE `entry`=978;
+
+        -- Kurzen Shadow Hunter
+        UPDATE `creature_template`
+        SET `display_id1`=638
+        WHERE `entry`=979;
+
+        -- Sergeant Malthus
+        UPDATE `creature_template`
+        SET `display_id1`=637
+        WHERE `entry`=814;
 
         insert into applied_updates values ('130820221');
     end if;
+    
+    -- 13/08/2022 2
+    if (select count(*) from applied_updates where id='130820222') = 0 then
+        update spawns_creatures set position_z = 408.804 where spawn_id = 265;
 
+        insert into applied_updates values ('130820222');
+    end if;
 end $
 delimiter ;

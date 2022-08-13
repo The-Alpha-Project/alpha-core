@@ -9,6 +9,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.Stats import SpellStat
+from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.StatManager import UnitStats
@@ -18,7 +19,7 @@ from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets
+    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity
 
 
 class CastingSpell:
@@ -230,6 +231,45 @@ class CastingSpell:
 
     # TODO, Check 'IsImmuneToDamage' - VMaNGOS
     def is_target_immune_to_damage(self):
+        return False
+
+    def is_target_immune(self):
+        if not self.initial_target_is_unit_or_player():
+            return False
+
+        # TODO SpellDispelType.dbc is in 0.5.3, but DispelType in Spell.dbc was added later (present in 0.5.5)
+        #   Is there another way to determine the dispel type for a spell?
+        # 0.5.5: "Holy Word: Shield can now be dispelled. It is considered a Magic effect."
+        return self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
+
+    def is_target_immune_to_effects(self):
+        if self.is_target_immune():
+            return True
+
+        effect_types = [effect.effect_type for effect in self.get_effects()]
+        is_immune_to_aura = self.is_target_immune_to_aura()
+        return all(
+            self.initial_target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, effect_type) or
+            effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and is_immune_to_aura
+            for effect_type in effect_types
+        )
+
+    def is_target_immune_to_aura(self):
+        if not self.initial_target_is_unit_or_player():
+            return False
+
+        for effect in self.get_effects():
+            if not effect.aura_type:
+                continue
+
+            if self.initial_target.has_immunity(SpellImmunity.IMMUNITY_AURA, effect.aura_type):
+                return True
+
+            mechanic = ExtendedSpellData.SpellEffectMechanics.get_mechanic_for_aura_effect(effect.aura_type,
+                                                                                           self.spell_entry.ID)
+            if mechanic and self.initial_target.has_immunity(SpellImmunity.IMMUNITY_MECHANIC, mechanic):
+                return True
+
         return False
 
     def cast_breaks_stealth(self):
