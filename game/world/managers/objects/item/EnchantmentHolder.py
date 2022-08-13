@@ -27,6 +27,12 @@ class EnchantmentHolder(object):
             self.effect_spell = self.spell_item_enchantment_entry.EffectArg_1
             self.aura_id = self.spell_item_enchantment_entry.ItemVisual
 
+    def flush(self):
+        self.effect = 0
+        self.effect_points = 0
+        self.effect_spell = 0
+        self.aura_id = 0
+
     def has_enchantment_effect(self, enchantment_type: [ItemEnchantmentType]):
         return enchantment_type == self.effect
 

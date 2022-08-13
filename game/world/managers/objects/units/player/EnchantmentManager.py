@@ -16,6 +16,7 @@ MAX_ENCHANTMENTS = 5
 class EnchantmentManager(object):
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
+        self.duration_timer_seconds = 0
         # enchantment id: (item_slot, spell id, proc chance).
         self._applied_proc_enchants: Dict[int, Tuple[int, int, int]] = {}
 
@@ -29,6 +30,22 @@ class EnchantmentManager(object):
                 duration = int(values[slot * 3 + 1])
                 charges = int(values[slot * 3 + 2])
                 self.set_item_enchantment(item, slot, entry, duration, charges)
+
+    # TODO: Need to optimize item lookup or even move Enchantment updates to a new global thread.
+    #  Handle charges.
+    def update(self, elapsed):
+        self.duration_timer_seconds += elapsed
+        if self.duration_timer_seconds >= 10:
+            for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
+                for slot, enchantment in enumerate(item.enchantments):
+                    if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry:  # Temporary enchantments.
+                        new_duration = int(enchantment.duration - self.duration_timer_seconds)
+                        enchantment.duration = 0 if new_duration <= 0 else new_duration
+                        if not enchantment.duration:
+                            # Remove.
+                            self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
+                            item.save()
+            self.duration_timer_seconds = 0
 
     def apply_enchantments(self, load=False):
         for container_slot, container in list(self.unit_mgr.inventory.containers.items()):
@@ -45,7 +62,9 @@ class EnchantmentManager(object):
                         self.set_item_enchantment(item, enchantment_slot, enchantment.entry, enchantment.duration,
                                                   enchantment.charges)
 
-    def set_item_enchantment(self, item, slot, value, duration, charges):
+    def set_item_enchantment(self, item, slot, value, duration, charges, expired=False):
+        remove = not item.is_equipped() or expired
+
         item.enchantments[slot].update(value, duration, charges)
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
@@ -55,9 +74,10 @@ class EnchantmentManager(object):
         if slot != EnchantmentSlots.PERMANENT_SLOT:
             self.send_enchantments_durations(slot)
 
-        self._handle_equip_buffs(item, remove=not item.is_equipped())
+        self._handle_equip_buffs(item, remove=remove)
 
     # Notify the client with the enchantment duration.
+    # Client keeps track of the time, there is no need for constant updates.
     def send_enchantments_durations(self, update_slot=-1):
         for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
             for slot, enchantment in enumerate(item.enchantments):
@@ -68,10 +88,10 @@ class EnchantmentManager(object):
                     data = pack('<Q2IQ', item.guid, slot, duration, self.unit_mgr.guid)
                     self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_ENCHANT_TIME_UPDATE, data))
 
-    def handle_equipment_change(self, item):
+    def handle_equipment_change(self, item, expired=False):
         if not item:
             return
-        was_removed = item.current_slot > InventorySlots.SLOT_TABARD or \
+        was_removed = expired or item.current_slot > InventorySlots.SLOT_TABARD or \
             item.item_instance.bag != InventorySlots.SLOT_INBACKPACK
         self._handle_equip_buffs(item, remove=was_removed)
 
@@ -111,6 +131,7 @@ class EnchantmentManager(object):
 
             if remove:
                 self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
+                enchantment.flush()
                 continue
 
             # Check if player already has the triggered aura active.
@@ -123,6 +144,7 @@ class EnchantmentManager(object):
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
             if remove:
                 self._applied_proc_enchants.pop(enchantment.entry, None)
+                enchantment.flush()
                 continue
 
             effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
@@ -131,6 +153,14 @@ class EnchantmentManager(object):
                 continue
 
             self._applied_proc_enchants[enchantment.entry] = (item.current_slot, effect_spell_value, proc_chance)
+
+        enchantment_type = ItemEnchantmentType.DAMAGE
+        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
+            if remove:
+                enchantment.flush()
+
+        # Update stats upon add or removal.
+        self.unit_mgr.stat_manager.apply_bonuses()
 
     @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):

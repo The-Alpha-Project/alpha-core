@@ -1,4 +1,5 @@
 import math
+
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -66,6 +67,7 @@ class PlayerManager(UnitManager):
         self.session = session
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
+        self.pending_update_world_objects = False
         self.update_lock = False
         self.known_objects = dict()
         self.known_items = dict()
@@ -300,11 +302,7 @@ class PlayerManager(UnitManager):
 
         # Destroy all known objects to self.
         for guid, known_object in list(self.known_objects.items()):
-            # Remove self from creature/go known players if needed.
-            if known_object.get_type_id() != ObjectTypeIds.ID_PLAYER:
-                if self.guid in known_object.known_players:
-                    del known_object.known_players[self.guid]
-            self.destroy_near_object(guid, skip_check=True)
+            self.destroy_near_object(guid)
 
         # Flush known items/objects cache.
         self.known_items.clear()
@@ -430,23 +428,22 @@ class PlayerManager(UnitManager):
         # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):
             if guid not in active_objects:
-                self.destroy_near_object(guid, skip_check=True)
+                self.destroy_near_object(guid)
 
         # Cleanup.
         active_objects.clear()
 
-    def destroy_near_object(self, guid, skip_check=False):
-        if skip_check or guid in self.known_objects:
-            if self.known_objects[guid] is not None:
-                known_object = self.known_objects[guid]
-                # Remove self from creature/go known players if needed.
-                if known_object.get_type_id() != ObjectTypeIds.ID_PLAYER:
-                    if self.guid in known_object.known_players:
-                        del known_object.known_players[self.guid]
-                # Destroy world object from self.
-                self.enqueue_packet(self.known_objects[guid].get_destroy_packet())
-                del self.known_objects[guid]
-                return True
+    def destroy_near_object(self, guid):
+        known_object = self.known_objects.get(guid)
+        if known_object:
+            self.known_objects.pop(guid, 'None')
+            # Remove self from creature/go known players if needed.
+            if known_object.get_type_id() != ObjectTypeIds.ID_PLAYER:
+                if self.guid in known_object.known_players:
+                    del known_object.known_players[self.guid]
+            # Destroy world object from self.
+            self.enqueue_packet(known_object.get_destroy_packet())
+            return True
         return False
 
     def synchronize_db_player(self):
@@ -1444,12 +1441,17 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self, now):
-        if now > self.last_tick > 0:
+        if now > self.last_tick > 0 and self.online:
             elapsed = now - self.last_tick
 
             # Update played time.
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
+
+            # Update surrounding world objects visibility if needed.
+            if self.pending_update_world_objects:
+                self.pending_update_world_objects = False
+                self.update_known_world_objects()
 
             # Regeneration.
             self.regenerate(elapsed)
@@ -1473,6 +1475,9 @@ class PlayerManager(UnitManager):
             # Duel tick.
             if self.duel_manager:
                 self.duel_manager.update(self, elapsed)
+
+            # Enchantment manager.
+            self.enchantment_manager.update(elapsed)
 
             # Release spirit timer.
             if not self.is_alive:
