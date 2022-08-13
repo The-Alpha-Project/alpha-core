@@ -9500,6 +9500,11 @@ begin not atomic
         SET `display_id1`=601
         WHERE `entry`=1550;
 
+        -- Stone maw basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=601
+        WHERE `entry`=688;
+
         -- Lord Sakrasis
         UPDATE `creature_template`
         SET `display_id1`=4036
