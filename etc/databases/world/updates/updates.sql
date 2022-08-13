@@ -9670,6 +9670,11 @@ begin not atomic
         SET `display_id1`=1139, `display_id2`=0
         WHERE `entry`=1064;
 
+        -- Mudduk
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1382;
+
         -- Krakk
         UPDATE `creature_template`
         SET `display_id1`=1139
