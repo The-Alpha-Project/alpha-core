@@ -9597,7 +9597,7 @@ begin not atomic
 
         -- Bloodscalp Axe thrower
         UPDATE `creature_template`
-        SET `display_id1`=1112
+        SET `display_id1`=692
         WHERE `entry`=694;
 
         -- Bloodscalp Shaman
