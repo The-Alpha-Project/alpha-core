@@ -9547,7 +9547,7 @@ begin not atomic
 
         -- Skullsplitter Axe thrower
         UPDATE `creature_template`
-        SET `display_id1`=337
+        SET `display_id1`=317
         WHERE `entry`=696;
 
         -- Skullsplitter Mystic
@@ -9607,7 +9607,7 @@ begin not atomic
 
         -- Bloodscalp Axe thrower
         UPDATE `creature_template`
-        SET `display_id1`=692
+        SET `display_id1`=590
         WHERE `entry`=694;
 
         -- Bloodscalp Shaman
