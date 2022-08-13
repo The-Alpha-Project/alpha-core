@@ -9710,6 +9710,21 @@ begin not atomic
         SET `display_id1`=459
         WHERE `entry`=770;
 
+        -- Murkgill Lord
+        UPDATE `creature_template`
+        SET `display_id1`=680
+        WHERE `entry`=4460;
+
+        -- Murkgill Oracle
+        UPDATE `creature_template`
+        SET `display_id1`=679
+        WHERE `entry`=4459;
+
+        -- Murkgill Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=664
+        WHERE `entry`=4461;
+
         insert into applied_updates values ('130820221');
     end if;
 end $
