@@ -34,8 +34,8 @@ class SpellEffectHandler:
         if target:
             # Spell school/effect aura.
             if casting_spell.is_target_immune() or \
-                    effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and \
-                    casting_spell.is_target_immune_to_aura():
+                    (effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
+                     casting_spell.is_target_immune_to_aura()):
                 caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
                 return
 
