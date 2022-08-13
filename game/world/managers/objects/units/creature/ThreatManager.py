@@ -150,7 +150,7 @@ class ThreatManager:
 
     # TODO Checking pet relation until friendliness can be evaluated properly.
     def can_attack_target(self, unit: UnitManager):
-        return unit.is_alive and unit.is_hostile_to(self.owner) and unit != self.owner.summoner
+        return unit and unit.is_alive and unit.is_hostile_to(self.owner) and unit != self.owner.summoner
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):
