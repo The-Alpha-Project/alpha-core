@@ -9525,6 +9525,11 @@ begin not atomic
         SET `display_id1`=791
         WHERE `entry`=1492;
 
+        -- Mok rash
+        UPDATE `creature_template`
+        SET `display_id1`=791
+        WHERE `entry`=1493;
+
         -- Skullsplitter warrior
         UPDATE `creature_template`
         SET `display_id1`=337
