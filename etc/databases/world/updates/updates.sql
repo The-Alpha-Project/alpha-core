@@ -9647,7 +9647,7 @@ begin not atomic
 
         -- Lesser Water elemental
         UPDATE `creature_template`
-        SET `display_id1`=101
+        SET `display_id1`=110
         WHERE `entry`=691;
 
         -- Southern Sand crawler
