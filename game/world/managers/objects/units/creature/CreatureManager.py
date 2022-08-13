@@ -173,6 +173,8 @@ class CreatureManager(UnitManager):
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
         self.location = self.spawn_position.copy()
 
+        self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
+
         # Creature AI.
         self.object_ai = AIFactory.build_ai(self)
 
@@ -337,7 +339,6 @@ class CreatureManager(UnitManager):
             # Load pickpocket loot manager if required.
             if self.creature_template.pickpocket_loot_id:
                 self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
-            self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
 
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(self.current_display_id)
             if creature_model_info:
