@@ -9682,7 +9682,7 @@ begin not atomic
 
         -- Hram spawn fix (she is off village)
         UPDATE `spawns_creatures`
-        SET `position_x`=-12398.7314453125, `position_y`=213.96031188964844, `position_z`=2.310176372528076, `orientation`=5.71769380569458
+        SET `position_x`=-12404.002, `position_y`=205.076, `position_z`=2.410176372528076, `orientation`=0.117
         WHERE `spawn_id`=691;
 
         -- Krakk
@@ -9714,6 +9714,11 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=1139
         WHERE `entry`=1404;
+
+        -- Kragg spawn fix (she is off village)
+        UPDATE `spawns_creatures`
+        SET `position_x`=-12393.9638671875, `position_y`=215.6564483642578, `position_z`=2.40732479095459, `orientation`=5.3226399421691895
+        WHERE `spawn_id`=364;
 
         -- Brawn
         UPDATE `creature_template`
