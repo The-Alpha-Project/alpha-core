@@ -20,54 +20,84 @@ class LootManager(object):
         self.current_money = money
 
     # Generates a complete dictionary { group_id : items }, includes referenced loot items.
+    # noinspection PyMethodMayBeStatic
     def generate_loot_groups(self, loot_template):
         loot_groups = {}
-        loot_items = self._fill_loot_items(loot_template)
-        for loot_item in loot_items:
+        for loot_item in loot_template:
             if loot_item.groupid not in loot_groups:
                 loot_groups[loot_item.groupid] = []
             loot_groups[loot_item.groupid].append(loot_item)
 
         return loot_groups
 
-    def _fill_loot_items(self, loot_template) -> list:
-        loot_items = []
-        for loot_item in loot_template:
-            # Handle referenced loot template.
-            if loot_item.mincountOrRef < 0:
-                ref_loot_template = WorldDatabaseManager.ReferenceLootTemplateHolder\
-                    .reference_loot_template_get_by_entry(-loot_item.mincountOrRef)
-                if ref_loot_template:
-                    loot_items += self._fill_loot_items(ref_loot_template)
-            # Handle normal loot items.
-            else:
-                loot_items.append(loot_item)
-        return loot_items
-
     # Returns the final list of items available for looting.
     def process_loot_groups(self, loot_groups, requester) -> list:
         loot_item_result = []
-        for group, loot_group_items in loot_groups.items():
-            loot_item_result += self.process_loot_group(group, loot_group_items, requester)
+        for group_id, loot_group_items in loot_groups.items():
+            loot_item_result += self.process_loot_group(group_id, loot_group_items, requester)
 
         return loot_item_result
 
     def process_loot_group(self, group_id, group_loot_items: list, requester):
-        loot_item_result = []
+        # A group may consists of explicitly-chanced (having non-zero chance) and equal-chanced (chance = 0) entries.
+        # Every equal-chanced entry of a group is considered having such a chance that all equal-chanced entries have
+        # the same chance (sum of chances of all entries is 100%).
+        #
+        # A group may consist of:
+        #   · Only explicitly-chanced entries.
+        #   · Only equal-chanced entries.
+        #   · Entries of both type.
+        #
+        # Loot generation explanation (might not be 100% accurate to original servers):
+        #   · A random number R is rolled in range 0 to 100 (floating point value).
+        #   · If R is less than absolute value of chance of the entry then the entry 'wins': the Item is included in
+        #     the loot. Group processing stops, the rest of group entries are just skipped. Non-groups can continue
+        #     the checks with a new roll.
+        #   · Otherwise the entry 'looses': the Item misses its chance to get into the loot. If we are processing a
+        #     group, R is decreased by the absolute value of chance and next entry is checked.
+        #
+        # Notes:
+        #   · A group is defined when group_id is greater than 0. A group can only generate a maximum of 1 item.
+        #   · Non-groups (group_id = 0) dont't have a limit in the number of items they can generate.
         shuffle(group_loot_items)
+        loot_item_result = []
 
+        # For groups we need to do loop group items twice, as first we need to determine the number of equal-chances
+        # entries it contains.
+        # TODO: Find another way?
+        split_group_chance = 0
+        if group_id > 0:
+            equal_chance_entries_length = 0
+            for loot_item in group_loot_items:
+                if loot_item.ChanceOrQuestChance == 0:
+                    equal_chance_entries_length += 1
+            if equal_chance_entries_length > 0:
+                split_group_chance = 100 / equal_chance_entries_length
+
+        current_roll = uniform(0.0, 100)
         for loot_item in group_loot_items:
             if self.skip_quest_item(loot_item, requester):
                 continue
 
-            if self.roll_item(loot_item):
-                if loot_item.ChanceOrQuestChance < 0:
-                    loot_item_result.append(loot_item)
-                elif len(loot_item_result) > 0 and group_id:
-                    continue
-                # No group. (GroupID 0)
+            item_chance = abs(loot_item.ChanceOrQuestChance)
+            chance = item_chance if item_chance > 0 else split_group_chance
+            if current_roll < item_chance:
+                if loot_item.mincountOrRef < 0:
+                    reference_loot_template = WorldDatabaseManager.ReferenceLootTemplateHolder\
+                        .reference_loot_template_get_by_entry(-loot_item.mincountOrRef)
+                    loot_groups = self.generate_loot_groups(reference_loot_template)
+                    loot_item_result += self.process_loot_groups(loot_groups, requester)
                 else:
                     loot_item_result.append(loot_item)
+
+                # If a group is defined, don't generate more than one item.
+                if group_id > 0:
+                    return loot_item_result
+                # Roll again for non-groups after a successful win.
+                else:
+                    current_roll = uniform(0.0, 100)
+            elif group_id > 0:
+                current_roll -= chance
 
         return loot_item_result
 
@@ -81,19 +111,12 @@ class LootManager(object):
 
     # noinspection PyMethodMayBeStatic
     def roll_item(self, loot_item):
-        # TODO, this might not be random enough.
-        roll = uniform(0.0, 1.0)
+        roll = uniform(0.0, 100)
+        chance = 0
         item_chance = loot_item.ChanceOrQuestChance
 
-        # Normal item.
-        if item_chance > 0.0:
-            chance = item_chance / 100
-        # Quest item.
-        elif item_chance < 0.0:
-            chance = (item_chance * -1) / 100
-        # Group item.
-        else:
-            chance = uniform(0.10, 0.15)
+        if item_chance != 0:
+            chance = abs(item_chance)
 
         return roll <= chance
 
