@@ -1,5 +1,6 @@
 from struct import unpack
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from utils.constants.ItemCodes import InventoryError, InventorySlots, ItemDynFlags
@@ -34,14 +35,18 @@ class OpenItemHandler(object):
             if world_session.player_mgr.spell_manager.is_casting():
                 world_session.player_mgr.spell_manager.remove_all_casts()
 
-            # TODO: Missing checks.
-            if not item.has_flag(ItemDynFlags.ITEM_DYNFLAG_UNLOCKED):
-                unlock = LockManager.can_open_lock(world_session.player_mgr, LockType.LOCKTYPE_OPEN, item.lock)
-                if unlock.result != SpellCheckCastResult.SPELL_NO_ERROR:
+            # Validate lock.
+            if not item.has_flag(ItemDynFlags.ITEM_DYNFLAG_UNLOCKED) and item.lock:
+                # Check if lock id points to a valid lock.
+                lock_info = DbcDatabaseManager.LocksHolder.get_lock_by_id(item.lock)
+                if not lock_info:
                     world_session.player_mgr.inventory.send_equip_error(InventoryError.BAG_ITEM_LOCKED, item_1=item)
                     return 0
-                else:
-                    item.set_unlocked()
+
+                # Requires pick lock.
+                if lock_info.skills[0] or lock_info.skills[1]:
+                    world_session.player_mgr.inventory.send_equip_error(InventoryError.BAG_ITEM_LOCKED, item_1=item)
+                    return 0
 
             # Wrapped item.
             if item.has_flag(ItemDynFlags.ITEM_DYNFLAG_WRAPPED):
