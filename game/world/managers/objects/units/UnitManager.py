@@ -695,7 +695,7 @@ class UnitManager(ObjectManager):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
 
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
-            damage_info.total_damage = 0
+            damage_info.damage = damage_info.total_damage = 0
             damage_info.hit_info = HitInfo.MISS
             damage_info.proc_victim |= ProcFlags.NONE
 
@@ -705,7 +705,7 @@ class UnitManager(ObjectManager):
             target.handle_combat_skill_gain(damage_info)
 
         self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell, is_periodic=is_periodic)
-        self.deal_damage(target, damage, is_periodic=is_periodic, casting_spell=casting_spell)
+        self.deal_damage(target, damage_info.damage, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
