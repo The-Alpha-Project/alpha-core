@@ -109,17 +109,6 @@ class LootManager(object):
                 return False
         return loot_item.ChanceOrQuestChance < 0
 
-    # noinspection PyMethodMayBeStatic
-    def roll_item(self, loot_item):
-        roll = uniform(0.0, 100)
-        chance = 0
-        item_chance = loot_item.ChanceOrQuestChance
-
-        if item_chance != 0:
-            chance = abs(item_chance)
-
-        return roll <= chance
-
     def add_loot(self, loot_item, requester):
         from game.world.managers.objects.loot.LootHolder import LootHolder
         from game.world.managers.objects.item.ItemManager import ItemManager
