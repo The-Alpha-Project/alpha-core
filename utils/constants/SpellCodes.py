@@ -581,3 +581,20 @@ class TotemSlots(IntEnum):
     TOTEM_SLOT_WATER = 2
     TOTEM_SLOT_AIR = 3
     MAX_TOTEM_SLOT = 4
+
+
+class SpellImmunity(IntEnum):
+    IMMUNITY_EFFECT = 0  # Spell effect
+    IMMUNITY_AURA = 1  # Aura type immunity
+    IMMUNITY_SCHOOL = 2
+    IMMUNITY_DAMAGE = 3
+    IMMUNITY_DISPEL_TYPE = 4  # Immunity to effects by their dispel type (poison, disease etc.)
+    IMMUNITY_MECHANIC = 5  # Immunity to effect mechanic
+
+
+# Based on values set for SPELL_AURA_MECHANIC_IMMUNITY. SpellMechanic.dbc is not present in 0.5.3
+class SpellMechanic(IntEnum):
+    MECHANIC_CHARM = 1
+    MECHANIC_DISARM = 3
+    MECHANIC_FEAR = 5
+    MECHANIC_SLEEP = 10

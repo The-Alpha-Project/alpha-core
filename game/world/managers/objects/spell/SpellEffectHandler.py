@@ -17,8 +17,8 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags, InventoryError
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
-from utils.constants.MiscFlags import GameObjectFlags
-from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask
+from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
+    SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, Classes
 
 
@@ -29,6 +29,21 @@ class SpellEffectHandler:
             Logger.debug(f'Unimplemented spell effect called ({SpellEffects(effect.effect_type).name}: '
                          f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
             return
+
+        # Immunities.
+        if target:
+            # Spell school/effect aura.
+            if casting_spell.is_target_immune() or \
+                    (effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
+                     casting_spell.is_target_immune_to_aura()):
+                caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
+                return
+
+            # Effect type.
+            if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT,
+                                      effect.effect_type, spell_id=casting_spell.spell_entry.ID):
+                return
+
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 
     @staticmethod
