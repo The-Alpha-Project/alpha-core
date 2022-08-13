@@ -9787,6 +9787,57 @@ begin not atomic
 
         -- ignore 2 grom gol braziers off village
         UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_id` IN (10722, 10723, 10076, 10069);
+        
+
+        -- Kurzen Commando
+        UPDATE `creature_template`
+        SET `display_id1`=638
+        WHERE `entry`=938;
+
+        -- Kurzen Jungle Fighter
+        UPDATE `creature_template`
+        SET `display_id1`=638
+        WHERE `entry`=937;
+
+        -- Kurzen Elite
+        UPDATE `creature_template`
+        SET `display_id1`=637
+        WHERE `entry`=939;
+
+        -- Kurzen Medicine Man
+        UPDATE `creature_template`
+        SET `display_id1`=658
+        WHERE `entry`=940;
+
+        -- Kurzen Headshrinker
+        UPDATE `creature_template`
+        SET `display_id1`=658
+        WHERE `entry`=941;
+
+        -- Kurzen Witch Doctor
+        UPDATE `creature_template`
+        SET `display_id1`=658
+        WHERE `entry`=942;
+
+        -- Kurzen Wrangler
+        UPDATE `creature_template`
+        SET `display_id1`=638
+        WHERE `entry`=943;
+
+        -- Kurzen Subchief
+        UPDATE `creature_template`
+        SET `display_id1`=637
+        WHERE `entry`=978;
+
+        -- Kurzen Shadow Hunter
+        UPDATE `creature_template`
+        SET `display_id1`=638
+        WHERE `entry`=979;
+
+        -- Sergeant Malthus
+        UPDATE `creature_template`
+        SET `display_id1`=637
+        WHERE `entry`=814;
 
         insert into applied_updates values ('130820221');
     end if;
