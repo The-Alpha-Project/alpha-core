@@ -9477,8 +9477,13 @@ begin not atomic
 
         -- Jungle stalker
         UPDATE `creature_template`
-        SET `display_id1`=615
+        SET `display_id1`=322
         WHERE `entry`=687;
+
+        -- Young Jungle stalker
+        UPDATE `creature_template`
+        SET `display_id1`=648
+        WHERE `entry`=854;
 
         -- Thethis (named raptor)
         UPDATE `creature_template`
