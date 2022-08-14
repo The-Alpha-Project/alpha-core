@@ -31,7 +31,8 @@ class SpellEffectHandler:
             return
 
         # Immunities.
-        if target:
+        if target and isinstance(target, ObjectManager) and \
+                target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             # Spell school/effect aura.
             if casting_spell.is_target_immune() or \
                     (effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
