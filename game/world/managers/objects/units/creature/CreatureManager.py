@@ -167,7 +167,6 @@ class CreatureManager(UnitManager):
         self.health = int((self.creature_instance.health_percent / 100) * self.max_health)
         self.power_1 = int((self.creature_instance.mana_percent / 100) * self.max_power_1)
 
-        self.time_to_live_timer = 0
         self.respawn_timer = 0
         self.last_random_movement = 0
         self.respawn_time = randint(self.creature_instance.spawntimesecsmin, self.creature_instance.spawntimesecsmax)
