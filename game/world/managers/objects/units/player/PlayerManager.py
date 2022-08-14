@@ -1589,8 +1589,8 @@ class PlayerManager(UnitManager):
         #  resurrected by another player, assuming it was always applied for now.
         self.spell_manager.handle_cast_attempt(2146, self, SpellTargetMask.SELF, validate=False)
 
-    def resurrect(self):
-        if self.resurrect_data:
+    def resurrect(self, release_spirit=False):
+        if self.resurrect_data and not release_spirit:
             self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location)
             recovery_percentage = self.resurrect_data.recovery_percentage
         else:
@@ -1604,45 +1604,45 @@ class PlayerManager(UnitManager):
 
     def get_player_bytes(self):
         return ByteUtils.bytes_to_int(
-            self.player.haircolour,  # hair colour
-            self.player.hairstyle,  # hair style
-            self.player.face,  # player face
-            self.player.skin  # player skin
+            self.player.haircolour,  # Hair colour.
+            self.player.hairstyle,  # Hair style.
+            self.player.face,  # Player face.
+            self.player.skin  # Player skin.
         )
 
     def get_player_bytes_2(self):
         return ByteUtils.bytes_to_int(
-            0,  # values from Exhaustion.dbc in later versions, unknown here
-            self.player.bankslots,  # bank slots
-            self.player.facialhair,  # facial hair
-            self.player.extra_flags  # extra flags
+            0,  # Values from Exhaustion.dbc in later versions, unknown here.
+            self.player.bankslots,  # Bank slots.
+            self.player.facialhair,  # Facial hair.
+            self.player.extra_flags  # Extra flags.
         )
 
     # override
     def get_bytes_0(self):
         return ByteUtils.bytes_to_int(
-            self.power_type,  # power type
-            self.gender,  # gender
-            self.class_,  # player class
-            self.race  # player race
+            self.power_type,  # Power type.
+            self.gender,  # Gender.
+            self.class_,  # Player class.
+            self.race  # Player race.
         )
 
     # override
     def get_bytes_1(self):
         return ByteUtils.bytes_to_int(
-            self.sheath_state,  # sheath state
-            self.shapeshift_form,  # shapeshift form
-            0,  # npc flags (0 for players)
-            self.stand_state  # stand state
+            self.sheath_state,  # Sheath state.
+            self.shapeshift_form,  # Shapeshift form.
+            0,  # NPC flags (0 for players).
+            self.stand_state  # Stand state.
         )
 
     # override
     def get_bytes_2(self):
         return ByteUtils.bytes_to_int(
-            0,  # unknown
-            0,  # pet flags (0 for players)
-            0,  # misc flags (0 for players?)
-            self.combo_points  # combo points
+            0,  # Unknown.
+            0,  # Pet flags (0 for players).
+            0,  # Misc flags (0 for players?).
+            self.combo_points  # Combo points.
         )
 
     # override
