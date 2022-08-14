@@ -321,6 +321,8 @@ class ObjectManager:
 
     # override
     def despawn(self, destroy=False):
+        # is_spawned should be set to False in both cases.
+        self.is_spawned = False
         if destroy:
             MapManager.remove_object(self)
         else:

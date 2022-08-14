@@ -5,7 +5,7 @@ from typing import Optional
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates
 
@@ -150,7 +150,15 @@ class ThreatManager:
 
     # TODO Checking pet relation until friendliness can be evaluated properly.
     def can_attack_target(self, unit: UnitManager):
-        return unit and unit.is_alive and unit.is_hostile_to(self.owner) and unit != self.owner.summoner
+        if not unit:
+            return False
+            
+        # Creature only checks.
+        if unit.get_type_id() == ObjectTypeIds.ID_UNIT:
+            if not unit.is_spawned:
+                return False
+
+        return unit.is_alive and unit.is_hostile_to(self.owner) and unit != self.owner.summoner
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):
