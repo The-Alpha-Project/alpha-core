@@ -368,12 +368,12 @@ class ObjectManager:
         # Creature only checks.
         elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
             # If the unit is evading.
-            if target.is_evading:
+            if target.is_evading or not target.is_spawned:
                 return False
 
         # Checks for both players and creatures (all units).
         if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            if not target.is_alive or not target.is_spawned:
+            if not target.is_alive:
                 return False
 
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
