@@ -841,7 +841,7 @@ class SpellManager:
             if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
                     not self.caster.is_stealthed():
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
-                return True
+                return False
 
         # Required nearby spell focus GO.
         spell_focus_type = casting_spell.spell_entry.RequiresSpellFocus
@@ -1140,24 +1140,31 @@ class SpellManager:
         has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
         power_cost = casting_spell.get_resource_cost()
         has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
+        current_power = self.caster.health if has_health_cost else self.caster.get_power_type_value()
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         # Items like scrolls or creatures need to be able to cast spells even if they lack the required power type.
         ignore_wrong_power = not is_player or casting_spell.source_item or casting_spell.triggered
 
-        if not has_health_cost and power_cost and not has_correct_power and not ignore_wrong_power:
-            # Doesn't have the correct power type.
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
-            return False
+        if has_health_cost:
+            # Prevent dying from consuming health as resource.
+            if power_cost == current_power:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_FIZZLE)
+                return False
 
-        current_power = self.caster.health if has_health_cost else self.caster.get_power_type_value()
-        if power_cost > current_power and has_correct_power:
-            # Doesn't have enough power. Check for correct power to properly ignore wrong power if necessary.
-            if not has_health_cost:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
-            else:
-                # Health cost fail displays on client before server response.
+            # Health cost fail displays on client before server response, send empty error.
+            elif power_cost > current_power:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
-            return False
+                return False
+        else:
+            # Doesn't have the correct power type.
+            if power_cost and not has_correct_power and not ignore_wrong_power:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
+                return False
+
+            # Doesn't have enough power. Check for correct power to properly ignore wrong power if necessary.
+            if power_cost > current_power and has_correct_power:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
+                return False
 
         # Player only checks
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:

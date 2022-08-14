@@ -80,8 +80,8 @@ class PetData:
             created_by_spell=self.summon_spell_id,
             level=self._level,
             xp=self._experience,
-            react_state=self.react_state.value,
-            command_state=self.command_state.value,
+            react_state=int(self.react_state),
+            command_state=int(self.command_state),
             loyalty=0,  # TODO Loyalty/training
             loyalty_points=0,
             training_points=0,
