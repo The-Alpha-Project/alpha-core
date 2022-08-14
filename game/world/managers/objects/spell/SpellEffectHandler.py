@@ -514,7 +514,6 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):
-        # TODO: Is there any that allows the resurrection of pets?
         if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
