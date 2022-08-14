@@ -373,7 +373,7 @@ class ObjectManager:
 
         # Checks for both players and creatures (all units).
         if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            if not target.is_alive:
+            if not target.is_alive or not target.is_spawned:
                 return False
 
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
