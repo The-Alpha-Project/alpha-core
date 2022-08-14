@@ -1494,7 +1494,7 @@ class PlayerManager(UnitManager):
                 if self.spirit_release_timer < 300:  # 5 min.
                     self.spirit_release_timer += elapsed
                 else:
-                    self.on_release_spirit()
+                    self.resurrect()
 
             # Update timers (Breath, Fatigue, Feign Death).
             if self.is_alive:
@@ -1601,13 +1601,6 @@ class PlayerManager(UnitManager):
         self.respawn(recovery_percentage)
         self.spirit_release_timer = 0
         self.resurrect_data = None
-
-    def on_release_spirit(self):
-        self.resurrect_data = None
-        self.resurrect()
-
-    def on_resurrection_accept(self):
-        self.resurrect()
 
     def get_player_bytes(self):
         return ByteUtils.bytes_to_int(
