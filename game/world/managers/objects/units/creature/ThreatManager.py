@@ -5,7 +5,7 @@ from typing import Optional
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import HighGuid, ObjectTypeFlags
+from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates
 
@@ -153,11 +153,11 @@ class ThreatManager:
         if not unit:
             return False
 
-        if unit.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if unit.get_type_id() == ObjectTypeIds.ID_UNIT:
             if not unit.is_spawned:
                 return False
 
-        return unit and unit.is_alive and unit.is_hostile_to(self.owner) and unit != self.owner.summoner
+        return unit.is_alive and unit.is_hostile_to(self.owner) and unit != self.owner.summoner
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):
