@@ -17,7 +17,7 @@ from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
-from utils.constants.UnitCodes import MovementTypes
+from utils.constants.UnitCodes import MovementTypes, UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -328,7 +328,11 @@ class PetManager:
 
         creature.set_summoned_by(None)
         creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, 0)
+
+        creature.unit_flags &= ~UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
         creature.faction = creature.creature_template.faction
+
+        creature.set_uint32(UnitFields.UNIT_FIELD_FLAGS, creature.unit_flags)
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
         creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, 0)
         creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 0)
@@ -456,10 +460,13 @@ class PetManager:
 
     def _tame_creature(self, creature: CreatureManager, summon_spell_id: int):
         creature.set_summoned_by(self.owner)
-        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.owner.guid)
         creature.faction = self.owner.faction
+        creature.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+
+        creature.set_uint32(UnitFields.UNIT_FIELD_FLAGS, creature.unit_flags)
         creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
         creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, summon_spell_id)
+        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.owner.guid)
 
         # TODO pet naming/pet number?
         creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))
