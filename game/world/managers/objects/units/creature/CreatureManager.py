@@ -827,20 +827,21 @@ class CreatureManager(UnitManager):
         if self.is_alive:
             # If creature's being attacked by another unit, automatically set combat target.
             not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
-            if not self.combat_target and not_attacked_by_gameobject:
-                # Make sure to first stop any movement right away.
-                self.stop_movement()
+            if not_attacked_by_gameobject:
+                if not self.combat_target:
+                    # Make sure to first stop any movement right away.
+                    self.stop_movement()
 
-            threat = amount
-            # TODO: Threat calculation.
-            # No threat but source spell generates threat on miss.
-            if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
-                threat = 10
-            # Physical miss, block, etc.
-            elif not casting_spell and threat == 0:
-                threat = 10
+                threat = amount
+                # TODO: Threat calculation.
+                # No threat but source spell generates threat on miss.
+                if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
+                    threat = 10
+                # Physical miss, block, etc.
+                elif not casting_spell and threat == 0:
+                    threat = 10
 
-            self.threat_manager.add_threat(source, threat)
+                self.threat_manager.add_threat(source, threat)
 
     # override
     def respawn(self):
