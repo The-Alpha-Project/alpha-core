@@ -152,7 +152,8 @@ class ThreatManager:
     def can_attack_target(self, unit: UnitManager):
         if not unit:
             return False
-
+            
+        # Creature only checks.
         if unit.get_type_id() == ObjectTypeIds.ID_UNIT:
             if not unit.is_spawned:
                 return False
