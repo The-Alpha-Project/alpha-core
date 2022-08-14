@@ -841,7 +841,7 @@ class SpellManager:
             if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
                     not self.caster.is_stealthed():
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
-                return True
+                return False
 
         # Required nearby spell focus GO.
         spell_focus_type = casting_spell.spell_entry.RequiresSpellFocus
