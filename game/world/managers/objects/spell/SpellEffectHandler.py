@@ -272,7 +272,7 @@ class SpellEffectHandler:
     @staticmethod
     def handle_summon_totem(casting_spell, effect, caster, target):
         totem_entry = effect.misc_value
-        duration = effect.get_duration()
+        duration = casting_spell.get_duration()
         # If no duration, default to 5 minutes.
         duration = 300 if duration == 0 else (duration / 1000)
         # TODO Refactor to avoid circular import?
@@ -316,7 +316,7 @@ class SpellEffectHandler:
             Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
             return
 
-        duration = effect.get_duration()
+        duration = casting_spell.get_duration()
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
         GameObjectManager.spawn(object_entry, target, caster.map_, summoner=caster,
@@ -474,7 +474,7 @@ class SpellEffectHandler:
             return
 
         radius = effect.get_radius()
-        duration = effect.get_duration()
+        duration = casting_spell.get_duration()
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
         amount = effect.get_effect_simple_points()
@@ -514,7 +514,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):
-        # TODO: Add support for pets too?
+        # TODO: Is there any that allows the resurrection of pets?
         if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 

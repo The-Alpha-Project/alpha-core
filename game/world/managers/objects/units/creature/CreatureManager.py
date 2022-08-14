@@ -850,7 +850,8 @@ class CreatureManager(UnitManager):
                                  else self.creature_template)
 
         super().respawn()
-        self.loot_manager.clear()
+        if self.loot_manager:
+            self.loot_manager.clear()
         self.set_lootable(False)
 
         if self.killed_by and self.killed_by.group_manager:
