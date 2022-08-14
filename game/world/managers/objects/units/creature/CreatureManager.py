@@ -131,7 +131,7 @@ class CreatureManager(UnitManager):
             self.sheath_state = WeaponMode.NORMALMODE
 
             if 0 < self.creature_template.rank < 4:
-                self.unit_flags = self.unit_flags | UnitFlags.UNIT_FLAG_PLUS_MOB
+                self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
 
             # TODO, creatures are still resolving to aggressive.
             if self.is_totem() or self.is_critter() or not self.can_have_target():
@@ -892,6 +892,7 @@ class CreatureManager(UnitManager):
         if self.loot_manager.has_loot():
             self.set_lootable(True)
 
+        self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
         return super().die(killer)
 
     def reward_kill_xp(self, player):

@@ -1559,6 +1559,7 @@ class PlayerManager(UnitManager):
         self.mirror_timers_manager.stop_all()
         self.update_swimming_state(False)
 
+        self.unit_flags = UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
         return super().die(killer)
 
     # override
