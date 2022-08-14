@@ -512,7 +512,21 @@ class SpellEffectHandler:
 
             unit.respawn()
 
-    # TODO: Currently, you can endlessly pickpocket the same unit.
+    @staticmethod
+    def handle_resurrect(casting_spell, effect, caster, target):
+        # TODO: Add support for pets too?
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        # Skip if target is not dead.
+        if target.is_alive:
+            return
+
+        target.respawn(recovery_percentage=effect.get_effect_points() / 100)
+        target.spirit_release_timer = 0
+        target.teleport(caster.map_, caster.location)
+
+    # TODO: Currently you always succeed.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -657,6 +671,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
     SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
+    SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

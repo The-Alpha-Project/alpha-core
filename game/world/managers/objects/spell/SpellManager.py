@@ -795,9 +795,9 @@ class SpellManager:
 
         # Rough target type check for the client-provided target to avoid crashes.
         # If the client is behaving as expected, this will always be valid.
-        if casting_spell.spell_entry.Targets == SpellTargetMask.ITEM and \
+        if casting_spell.spell_entry.Targets & SpellTargetMask.ITEM and \
                 not casting_spell.initial_target_is_item() or \
-                (casting_spell.spell_entry.Targets == SpellTargetMask.UNIT_SELF and
+                (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_SELF and
                  not casting_spell.initial_target_is_unit_or_player()):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
@@ -877,7 +877,8 @@ class SpellManager:
             self.send_cast_result(casting_spell.spell_entry.ID, result)
             return False
 
-        if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive:  # TODO dead targets (resurrect)
+        if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive and not \
+                (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_DEAD):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
