@@ -522,9 +522,9 @@ class SpellEffectHandler:
         if target.is_alive:
             return
 
-        target.respawn(recovery_percentage=effect.get_effect_points() / 100)
-        target.spirit_release_timer = 0
-        target.teleport(caster.map_, caster.location)
+        # Send resurrection request.
+        data = pack('<Q', caster.guid)
+        target.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_RESURRECT_REQUEST, data))
 
     # TODO: Currently you always succeed.
     @staticmethod
