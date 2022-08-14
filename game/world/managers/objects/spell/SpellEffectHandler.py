@@ -6,7 +6,6 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell.AuraManager import AppliedAura
 from game.world.managers.objects.units.player.DuelManager import DuelManager
@@ -15,9 +14,9 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
-from utils.constants.ItemCodes import EnchantmentSlots, ItemDynFlags, InventoryError
+from utils.constants.ItemCodes import EnchantmentSlots, InventoryError
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
-from utils.constants.SpellCodes import SpellCheckCastResult, AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
+from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
     SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, Classes
 
@@ -520,6 +519,12 @@ class SpellEffectHandler:
         # Skip if target is not dead.
         if target.is_alive:
             return
+
+        # Store resurrection data for target.
+        from game.world.managers.objects.units.player import PlayerManager
+        target.resurrect_data = PlayerManager.ResurrectionRequestDataHolder(
+            caster.guid, effect.get_effect_points() / 100, caster.location.copy(), caster.map_
+        )
 
         # Send resurrection request.
         data = pack('<Q', caster.guid)

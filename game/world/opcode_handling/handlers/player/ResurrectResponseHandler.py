@@ -14,23 +14,19 @@ class ResurrectResponseHandler(object):
 
         if len(reader.data) >= 9:  # Avoid handling empty resurrect response packet.
             guid, status = unpack('<QB', reader.data[:9])
+
             # Resurrection request declined.
             if status == 0:
                 return 0
 
-            caster = None
-            high_guid: HighGuid = ObjectManager.extract_high_guid(guid)
-            if high_guid == HighGuid.HIGHGUID_PLAYER:
-                caster = WorldSessionStateHandler.find_player_by_guid(guid)
-            elif high_guid == HighGuid.HIGHGUID_UNIT:
-                caster = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
-            elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                caster = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, guid)
+            # Resurrection request data not available.
+            if not world_session.player_mgr.resurrect_data:
+                return 0
 
-            # TODO: Use real spell effect data in order to apply the correct health/power percentage.
-            world_session.player_mgr.respawn(recovery_percentage=0.5)
-            world_session.player_mgr.spirit_release_timer = 0
-            if caster:
-                world_session.player_mgr.teleport(caster.map_, caster.location)
+            # Original resuscitator doesn't match with the received one.
+            if world_session.player_mgr.resurrect_data.resuscitator_guid != guid:
+                return 0
+
+            world_session.player_mgr.resurrect()
 
         return 0

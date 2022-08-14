@@ -1,4 +1,5 @@
 import math
+from dataclasses import dataclass
 
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
@@ -41,6 +42,14 @@ from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
 MAX_EXPLORED_AREAS = 488
+
+
+@dataclass
+class ResurrectionRequestDataHolder:
+    resuscitator_guid: int
+    recovery_percentage: float
+    resurrect_location: Vector
+    resurrect_map: int
 
 
 class PlayerManager(UnitManager):
@@ -91,6 +100,7 @@ class PlayerManager(UnitManager):
         self.race_mask = 0
         self.class_mask = 0
         self.deathbind = deathbind
+        self.resurrect_data = None
         self.team = Teams.TEAM_NONE  # Set at set_player_variables().
         self.trade_data = None
         self.last_swimming_check = 0
@@ -1484,7 +1494,7 @@ class PlayerManager(UnitManager):
                 if self.spirit_release_timer < 300:  # 5 min.
                     self.spirit_release_timer += elapsed
                 else:
-                    self.repop()
+                    self.on_release_spirit()
 
             # Update timers (Breath, Fatigue, Feign Death).
             if self.is_alive:
@@ -1528,11 +1538,6 @@ class PlayerManager(UnitManager):
 
         super().attack_update(elapsed)
 
-    def teleport_deathbind(self):
-        self.teleport(self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
-                                                           self.deathbind.deathbind_position_y,
-                                                           self.deathbind.deathbind_position_z))
-
     def get_deathbind_coordinates(self):
         return (self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
                                                      self.deathbind.deathbind_position_y,
@@ -1563,7 +1568,7 @@ class PlayerManager(UnitManager):
         return super().die(killer)
 
     # override
-    def respawn(self, recovery_percentage=1):
+    def respawn(self, recovery_percentage: float = 1):
         # Set expected HP / Power before respawning.
         # It wasn't until Patch 0.6 that players had 50% of health and mana after reviving. It is currently unknown
         # the % that players had in 0.5.3, so 100% is assumed.
@@ -1584,10 +1589,25 @@ class PlayerManager(UnitManager):
         #  resurrected by another player, assuming it was always applied for now.
         self.spell_manager.handle_cast_attempt(2146, self, SpellTargetMask.SELF, validate=False)
 
-    def repop(self):
-        self.respawn()
+    def resurrect(self):
+        if self.resurrect_data:
+            self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location)
+            recovery_percentage = self.resurrect_data.recovery_percentage
+        else:
+            deathbind_map, deathbind_location = self.get_deathbind_coordinates()
+            self.teleport(deathbind_map, deathbind_location)
+            recovery_percentage = 1
+
+        self.respawn(recovery_percentage)
         self.spirit_release_timer = 0
-        self.teleport_deathbind()
+        self.resurrect_data = None
+
+    def on_release_spirit(self):
+        self.resurrect_data = None
+        self.resurrect()
+
+    def on_resurrection_accept(self):
+        self.resurrect()
 
     def get_player_bytes(self):
         return ByteUtils.bytes_to_int(

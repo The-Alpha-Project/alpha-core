@@ -6,7 +6,7 @@ from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
-from utils.constants.UnitCodes import CreatureReactStates, AIReactionStates
+from utils.constants.UnitCodes import CreatureReactStates
 
 if TYPE_CHECKING:
     from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
