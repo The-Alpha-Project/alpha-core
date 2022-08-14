@@ -151,7 +151,7 @@ class ThreatManager:
     # TODO Checking pet relation until friendliness can be evaluated properly.
     def can_attack_target(self, unit: UnitManager):
         if not unit:
-            return None
+            return False
 
         if unit.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             if not unit.is_spawned:
