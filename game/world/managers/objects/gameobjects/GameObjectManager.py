@@ -523,15 +523,15 @@ class GameObjectManager(ObjectManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            # Time to live expired, destroy.
-            if self.time_to_live_timer < 0:
-                self.despawn(destroy=True)
-                return
-
             if self.is_spawned and self.initialized:
-                # Time to live.
+                # Time to live checks.
                 if self.time_to_live_timer > 0:
                     self.time_to_live_timer -= elapsed
+                    # Time to live expired, destroy.
+                    if self.time_to_live_timer <= 0:
+                        self.despawn(destroy=True)
+                        return
+
                 # Logic for Trap GameObjects (type 6).
                 if self.has_observers() and self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
                     self.trap_manager.update(elapsed)

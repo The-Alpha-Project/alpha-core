@@ -274,6 +274,7 @@ class SpellEffectHandler:
         duration = casting_spell.get_duration()
         # If no duration, default to 5 minutes.
         duration = 300 if duration == 0 else (duration / 1000)
+        print(duration)
         # TODO Refactor to avoid circular import?
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoner=caster,
