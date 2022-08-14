@@ -522,7 +522,7 @@ class SpellEffectHandler:
         if target.is_alive:
             return
 
-        target.respawn(recovery_percentage=effect.get_effect_points())
+        target.respawn(recovery_percentage=effect.get_effect_points() / 100)
         target.spirit_release_timer = 0
         target.teleport(caster.map_, caster.location)
 
