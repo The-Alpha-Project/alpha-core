@@ -311,6 +311,9 @@ class UnitManager(ObjectManager):
                 not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) or self.spell_manager.is_casting():
             return False
 
+        main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
+        off_attack_delay = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
+
         # Out of reach.
         if not self.is_within_interactable_distance(self.combat_target):
             swing_error = AttackSwingError.NOTINRANGE
@@ -338,7 +341,7 @@ class UnitManager(ObjectManager):
                         self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 500)
 
                 self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, False)
-                self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
+                self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
 
             # Off hand attack.
             if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
@@ -347,13 +350,13 @@ class UnitManager(ObjectManager):
                     self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
 
                 self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK, False)
-                self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
+                self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
         if self.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if swing_error != AttackSwingError.NONE:
-                self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
+                self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
                 if self.has_offhand_weapon():
-                    self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
+                    self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
                 if swing_error == AttackSwingError.NOTINRANGE:
                     self.send_attack_swing_not_in_range(self.combat_target)
