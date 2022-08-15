@@ -24,9 +24,6 @@ class FriendsManager(object):
             for entry in character_social_list:
                 self.friends[entry.friend] = entry
 
-    def _get_friend_results(self, target_name):
-        pass
-
     def try_add_friend(self, target_name):
         online_player = WorldSessionStateHandler.find_player_by_name(target_name)
         refresh_friend_list = False
