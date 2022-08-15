@@ -446,9 +446,32 @@ class WorldDatabaseManager(object):
                 if creature_entry in WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES else []
 
     @staticmethod
-    def creature_get_loot_template() -> Optional[list[CreatureLootTemplate]]:
+    def creature_get_loot_templates() -> Optional[list[CreatureLootTemplate]]:
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureLootTemplate).all()
+        world_db_session.close()
+        return res
+
+    class SkinningLootTemplateHolder:
+        SKINNING_LOOT_TEMPLATES: [int, SkinningLootTemplate] = {}
+
+        @staticmethod
+        def load_skinning_loot_template(skinning_loot_template):
+            if skinning_loot_template.entry not in WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES:
+                WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[skinning_loot_template.entry] = []
+
+            WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[skinning_loot_template.entry]\
+                .append(skinning_loot_template)
+
+        @staticmethod
+        def skinning_loot_template_get_by_creature(creature_entry) -> list[SkinningLootTemplate]:
+            return WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[creature_entry] \
+                if creature_entry in WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES else []
+
+    @staticmethod
+    def skinning_get_loot_templates() -> Optional[list[SkinningLootTemplate]]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SkinningLootTemplate).all()
         world_db_session.close()
         return res
 

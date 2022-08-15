@@ -29,6 +29,7 @@ class WorldLoader:
         WorldLoader.load_gameobject_loot_templates()
         WorldLoader.load_fishing_loot_templates()
         WorldLoader.load_creature_loot_templates()
+        WorldLoader.load_skinning_loot_templates()
         WorldLoader.load_item_templates()
         WorldLoader.load_reference_loot_templates()
         WorldLoader.load_pickpocketing_loot_templates()
@@ -211,7 +212,7 @@ class WorldLoader:
 
     @staticmethod
     def load_creature_loot_templates():
-        creature_loot_templates = WorldDatabaseManager.creature_get_loot_template()
+        creature_loot_templates = WorldDatabaseManager.creature_get_loot_templates()
         length = len(creature_loot_templates)
         count = 0
 
@@ -219,6 +220,19 @@ class WorldLoader:
             WorldDatabaseManager.CreatureLootTemplateHolder.load_creature_loot_template(loot_template)
             count += 1
             Logger.progress('Loading creature loot templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_skinning_loot_templates():
+        skinning_loot_templates = WorldDatabaseManager.skinning_get_loot_templates()
+        length = len(skinning_loot_templates)
+        count = 0
+
+        for loot_template in skinning_loot_templates:
+            WorldDatabaseManager.SkinningLootTemplateHolder.load_skinning_loot_template(loot_template)
+            count += 1
+            Logger.progress('Loading skinning loot templates...', count, length)
 
         return length
 
