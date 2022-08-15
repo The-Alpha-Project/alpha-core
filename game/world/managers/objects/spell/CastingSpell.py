@@ -169,11 +169,14 @@ class CastingSpell:
                 return None  # No ammo pouch/quiver.
 
             target_bag = self.spell_caster.inventory.get_container(target_bag_slot)
-            target_ammo = next(iter(target_bag.sorted_slots.values()), None)  # Get first item in bag.
+
+            target_ammo = [ammo for ammo in target_bag.sorted_slots.values() if
+                           ammo.item_template.required_level <= self.spell_caster.level]
             if not target_ammo:
                 return None  # No required ammo.
 
-            ranged_attack_item = target_ammo
+            # First valid ammo
+            ranged_attack_item = target_ammo[-1]
 
         return ranged_attack_item
 

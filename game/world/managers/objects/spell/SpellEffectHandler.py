@@ -14,7 +14,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
-from utils.constants.ItemCodes import EnchantmentSlots, InventoryError
+from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
     SpellImmunity
@@ -81,27 +81,14 @@ class SpellEffectHandler:
             # TODO This should be resolved during CastingSpell init, but more research is needed for a generic check.
             casting_spell.spell_attack_type = AttackTypes.BASE_ATTACK
 
-        weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
-                                                            casting_spell.spell_entry.School,
-                                                            target,
-                                                            apply_bonuses=False)  # Bonuses are applied on spell damage.
-
-        damage = weapon_damage + effect.get_effect_points()
-        caster.apply_spell_damage(target, damage, casting_spell)
-
-    @staticmethod
-    def handle_weapon_damage_plus(casting_spell, effect, caster, target):
-        if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            return
-
-        if casting_spell.spell_attack_type == -1:
-            casting_spell.spell_attack_type = AttackTypes.BASE_ATTACK
+        # Provide used bullets/arrows for base attack calculation.
+        used_ammo = casting_spell.used_ranged_attack_item if \
+            casting_spell.used_ranged_attack_item.item_template.class_ == ItemClasses.ITEM_CLASS_PROJECTILE else None
 
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
                                                             casting_spell.spell_entry.School,
-                                                            target,
+                                                            target, used_ammo=used_ammo,
                                                             apply_bonuses=False)  # Bonuses are applied on spell damage.
-
         damage_bonus = effect.get_effect_points()
 
         # Overpower also uses combo points, but shouldn't scale.
@@ -109,7 +96,8 @@ class SpellEffectHandler:
                 casting_spell.requires_combo_points():
             damage_bonus *= casting_spell.spent_combo_points
 
-        caster.apply_spell_damage(target, weapon_damage + damage_bonus, casting_spell)
+        damage = weapon_damage + effect.get_effect_points()
+        caster.apply_spell_damage(target, damage, casting_spell)
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
@@ -648,9 +636,9 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
     SpellEffects.SPELL_EFFECT_HEAL_MAX_HEALTH: SpellEffectHandler.handle_heal_max_health,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
+    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
-    SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage_plus,
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,

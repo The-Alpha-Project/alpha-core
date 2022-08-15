@@ -311,6 +311,9 @@ class UnitManager(ObjectManager):
                 not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) or self.spell_manager.is_casting():
             return False
 
+        main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
+        off_attack_delay = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
+
         # Out of reach.
         if not self.is_within_interactable_distance(self.combat_target):
             swing_error = AttackSwingError.NOTINRANGE
@@ -338,7 +341,7 @@ class UnitManager(ObjectManager):
                         self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 500)
 
                 self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, False)
-                self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
+                self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
 
             # Off hand attack.
             if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
@@ -347,13 +350,13 @@ class UnitManager(ObjectManager):
                     self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
 
                 self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK, False)
-                self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
+                self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
         if self.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if swing_error != AttackSwingError.NONE:
-                self.set_attack_timer(AttackTypes.BASE_ATTACK, self.base_attack_time)
+                self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
                 if self.has_offhand_weapon():
-                    self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
+                    self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
                 if swing_error == AttackSwingError.NOTINRANGE:
                     self.send_attack_swing_not_in_range(self.combat_target)
@@ -493,13 +496,19 @@ class UnitManager(ObjectManager):
         self.deal_damage(damage_info.target, damage_info.total_damage)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
-                                     apply_bonuses=True):
+                                     used_ammo: Optional[ItemManager] = None, apply_bonuses=True):
         min_damage, max_damage = self.calculate_min_max_damage(attack_type, attack_school, target)
 
         if min_damage > max_damage:
             tmp_min = min_damage
             min_damage = max_damage
             max_damage = tmp_min
+
+        # Bullets/arrows can't be equipped in 0.5.3 and thus aren't included in item stats.
+        # Add min/max ammo damage to base damage.
+        if used_ammo:
+            min_damage += used_ammo.item_template.dmg_min1
+            max_damage += used_ammo.item_template.dmg_max1
 
         rolled_damage = random.randint(min_damage, max_damage)
 
