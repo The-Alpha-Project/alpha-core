@@ -310,6 +310,8 @@ class PetManager:
 
         is_permanent = self.get_active_pet_info().permanent
         pet_index = self.active_pet.pet_index
+        self._update_active_pet_damage(reset=True)
+
         self.active_pet = None
 
         self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, 0)
@@ -417,6 +419,7 @@ class PetManager:
 
         # Update spells in case new ones were unlocked. TODO pet spells should be trained instead.
         self._send_pet_spell_info()
+        self._update_active_pet_damage()
 
     def get_active_pet_command_state(self):
         pet_info = self.get_active_pet_info()
@@ -445,6 +448,24 @@ class PetManager:
             return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
         return SpellCheckCastResult.SPELL_NO_ERROR
+
+    def _update_active_pet_damage(self, reset=False):
+        active_pet_info = self.get_active_pet_info()
+        if not active_pet_info:
+            return
+
+        if not reset:
+            # From VMaNGOS.
+            delay_mod = active_pet_info.creature_template.base_attack_time / 2000
+            damage_base = active_pet_info.get_level() * 1.05
+            damage_min = damage_base * 1.15 * delay_mod
+            damage_max = damage_base * 1.45 * delay_mod
+        else:
+            damage_min = active_pet_info.creature_template.dmg_min
+            damage_max = active_pet_info.creature_template.dmg_max
+
+        self.active_pet.creature.set_melee_damage(int(damage_min), int(damage_max))
+        self.active_pet.creature.stat_manager.apply_bonuses()
 
     def _send_tame_result(self, result):
         if result == PetTameResult.TAME_SUCCESS:
