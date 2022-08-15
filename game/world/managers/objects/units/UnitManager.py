@@ -496,13 +496,19 @@ class UnitManager(ObjectManager):
         self.deal_damage(damage_info.target, damage_info.total_damage)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
-                                     apply_bonuses=True):
+                                     used_ammo: Optional[ItemManager] = None, apply_bonuses=True):
         min_damage, max_damage = self.calculate_min_max_damage(attack_type, attack_school, target)
 
         if min_damage > max_damage:
             tmp_min = min_damage
             min_damage = max_damage
             max_damage = tmp_min
+
+        # Bullets/arrows can't be equipped in 0.5.3 and thus aren't included in item stats.
+        # Add min/max ammo damage to base damage.
+        if used_ammo:
+            min_damage += used_ammo.item_template.dmg_min1
+            max_damage += used_ammo.item_template.dmg_max1
 
         rolled_damage = random.randint(min_damage, max_damage)
 
