@@ -243,7 +243,7 @@ class ActiveQuest:
 
     def requires_items(self):
         req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
-        return any(req_items)
+        return len(req_items) > 0
 
     def requires_item(self, item_entry):
         req_items = QuestHelpers.generate_req_item_list(self.quest)

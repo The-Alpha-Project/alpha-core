@@ -230,7 +230,7 @@ class MapManager:
                 liquids_vectors.append(Vector(fx, fy, liquid_info.height))
             start_range += 1
 
-        if not any(liquids_vectors):
+        if len(liquids_vectors) == 0:
             return None
 
         # Should contain at least 1 element by now.

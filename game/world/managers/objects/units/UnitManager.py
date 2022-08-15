@@ -946,7 +946,7 @@ class UnitManager(ObjectManager):
 
     def stop_movement(self):
         # Stop only if unit has pending waypoints.
-        if any(self.movement_manager.pending_waypoints):
+        if len(self.movement_manager.pending_waypoints) == 0:
             self.movement_manager.send_move_stop()
 
     # Implemented by Creature/PlayerManager.

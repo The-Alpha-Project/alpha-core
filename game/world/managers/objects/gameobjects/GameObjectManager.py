@@ -296,7 +296,7 @@ class GameObjectManager(ObjectManager):
                 self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
 
     def has_observers(self):
-        return any(self.known_players)
+        return len(self.known_players) > 0
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)

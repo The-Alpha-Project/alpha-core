@@ -52,7 +52,7 @@ class ThreatManager:
                 Logger.warning(f'Passed non positive threat {threat} from {source.guid & ~HighGuid.HIGHGUID_UNIT}')
 
     def resolve_target(self):
-        if any(self.holders):
+        if len(self.holders) > 0:
             return self.get_hostile_target()
         return None
 
@@ -68,7 +68,7 @@ class ThreatManager:
         return None if not self.current_holder else self.current_holder.unit
 
     def select_attacking_target(self, attacking_target: AttackingTarget) -> Optional[UnitManager]:
-        if not any(self.holders):
+        if len(self.holders) == 0:
             return None
 
         if attacking_target == AttackingTarget.ATTACKING_TARGET_TOPAGGRO:

@@ -657,7 +657,7 @@ class CreatureManager(UnitManager):
         return waypoints, z_locked
 
     def has_observers(self):
-        return any(self.known_players)
+        return len(self.known_players) > 0
 
     def has_wander_type(self):
         return self.creature_instance.movement_type == MovementTypes.WANDER
