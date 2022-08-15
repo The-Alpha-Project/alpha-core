@@ -18,13 +18,13 @@ class CreatureLootManager(LootManager):
     # override
     def populate_loot_template(self):
         creature_loot_template = WorldDatabaseManager.CreatureLootTemplateHolder\
-            .creature_loot_template_get_by_creature(self.world_object.creature_template.loot_id)
+            .creature_loot_template_get_by_loot_id(self.world_object.creature_template.loot_id)
         # Merge normal creature loot template with skinning loot template as the only way to obtain leather in 0.5.3 was
         # to loot it from beasts. Only doing it if a normal template exists to avoid adding loot to creatures like
         # critters.
         if len(creature_loot_template) > 0:
             creature_loot_template += WorldDatabaseManager.SkinningLootTemplateHolder\
-                .skinning_loot_template_get_by_creature(self.world_object.creature_template.skinning_loot_id)
+                .skinning_loot_template_get_by_loot_id(self.world_object.creature_template.skinning_loot_id)
         return creature_loot_template
 
     # override

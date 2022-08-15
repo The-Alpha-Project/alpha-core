@@ -441,9 +441,9 @@ class WorldDatabaseManager(object):
                 .append(creature_loot_template)
 
         @staticmethod
-        def creature_loot_template_get_by_creature(creature_entry) -> list[CreatureLootTemplate]:
-            return WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[creature_entry] \
-                if creature_entry in WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES else []
+        def creature_loot_template_get_by_loot_id(loot_id) -> list[CreatureLootTemplate]:
+            return WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[loot_id] \
+                if loot_id in WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES else []
 
     @staticmethod
     def creature_get_loot_templates() -> Optional[list[CreatureLootTemplate]]:
@@ -464,9 +464,9 @@ class WorldDatabaseManager(object):
                 .append(skinning_loot_template)
 
         @staticmethod
-        def skinning_loot_template_get_by_creature(creature_entry) -> list[SkinningLootTemplate]:
-            return WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[creature_entry] \
-                if creature_entry in WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES else []
+        def skinning_loot_template_get_by_loot_id(loot_id) -> list[SkinningLootTemplate]:
+            return WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[loot_id] \
+                if loot_id in WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES else []
 
     @staticmethod
     def skinning_get_loot_templates() -> Optional[list[SkinningLootTemplate]]:
