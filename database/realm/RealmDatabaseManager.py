@@ -278,10 +278,11 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def character_update_social(character_social):
-        realm_db_session = SessionHolder()
-        realm_db_session.merge(character_social)
-        realm_db_session.flush()
-        realm_db_session.close()
+        if character_social:
+            realm_db_session = SessionHolder()
+            realm_db_session.merge(character_social)
+            realm_db_session.flush()
+            realm_db_session.close()
 
     @staticmethod
     def character_add_friend(character_social):
