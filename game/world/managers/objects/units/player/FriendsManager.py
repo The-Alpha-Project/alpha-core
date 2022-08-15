@@ -151,6 +151,8 @@ class FriendsManager(object):
 
             # No error, proceed to add ignored player to the list.
             if status == FriendResults.FRIEND_IGNORE_ADDED:
+                # TODO: Friend list is not being properly refreshed after adding to ignore someone who's currently a
+                #  friend. That player appears as "Unknown" in the friend's list until you relog.
                 if self.has_friend(target_guid):
                     self.friends[target_guid].ignore = True
                     RealmDatabaseManager.character_update_social(self.friends[target_guid])
