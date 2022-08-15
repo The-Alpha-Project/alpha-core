@@ -106,14 +106,14 @@ class AuraManager:
                 return False
         return True
 
-    def check_aura_interrupts(self, moved=False, changed_stand_state=False, negative_aura_applied=False,
+    def check_aura_interrupts(self, moved=False, turned=False, changed_stand_state=False, negative_aura_applied=False,
                               received_damage=False, cast_spell: Optional[CastingSpell] = None):
-        # TODO turning and water-related checks
         # Add once movement information is passed to update.
         flag_cases = {
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: self.unit_mgr.in_combat,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: moved,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING: turned,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: cast_spell is not None,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage,
