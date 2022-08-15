@@ -1216,11 +1216,12 @@ class SpellManager:
                         return False
 
                     target_bag = self.caster.inventory.get_container(target_bag_slot)
-                    target_ammo = next(iter(target_bag.sorted_slots.values()), None)  # Get first item in bag.
+                    target_ammo = [ammo for ammo in target_bag.sorted_slots.values() if
+                                   ammo.item_template.required_level <= self.caster.level]
 
                     # Also validate against casting_spell.used_ranged_attack_item,
                     # the initially selected ammo (inventory manipulation during casting)
-                    if not target_ammo or target_ammo != casting_spell.used_ranged_attack_item:
+                    if not target_ammo or target_ammo[-1] != casting_spell.used_ranged_attack_item:
                         self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO,
                                               misc_data=required_ammo)
                         return False
