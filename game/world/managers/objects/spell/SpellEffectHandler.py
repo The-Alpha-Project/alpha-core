@@ -83,6 +83,7 @@ class SpellEffectHandler:
 
         # Provide used bullets/arrows for base attack calculation.
         used_ammo = casting_spell.used_ranged_attack_item if \
+            casting_spell.used_ranged_attack_item and \
             casting_spell.used_ranged_attack_item.item_template.class_ == ItemClasses.ITEM_CLASS_PROJECTILE else None
 
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
