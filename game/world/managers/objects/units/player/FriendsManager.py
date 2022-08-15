@@ -202,7 +202,6 @@ class FriendsManager(object):
                 )
                 packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
                 player_mgr.enqueue_packet(packet)
-                player_mgr.friends_manager.send_friends()
 
     def send_offline_notification(self):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
@@ -212,7 +211,6 @@ class FriendsManager(object):
                 data = pack('<BQB', FriendResults.FRIEND_OFFLINE, self.owner.guid, FriendStatus.FRIEND_STATUS_OFFLINE)
                 packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
                 player_mgr.enqueue_packet(packet)
-                player_mgr.friends_manager.send_friends()
 
     def send_update_to_friends(self):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
