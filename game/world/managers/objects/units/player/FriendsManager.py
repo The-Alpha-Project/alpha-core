@@ -26,8 +26,6 @@ class FriendsManager(object):
 
     def try_add_friend(self, target_name):
         online_player = WorldSessionStateHandler.find_player_by_name(target_name)
-        refresh_friend_list = False
-        refresh_ignore_list = False
         target_guid = 0
         target_team = 0
 
@@ -61,18 +59,14 @@ class FriendsManager(object):
                 if self.has_ignore(target_guid):
                     self.friends[target_guid].ignore = False
                     RealmDatabaseManager.character_update_social(self.friends[target_guid])
-                    refresh_ignore_list = True
+                    data = pack('<BQ', FriendResults.FRIEND_IGNORE_REMOVED, target_guid)
+                    self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
                 else:
                     self.friends[target_guid] = self._create_friend(target_guid)
                     RealmDatabaseManager.character_add_friend(self.friends[target_guid])
-                refresh_friend_list = True
 
         data = pack('<BQ', status, target_guid)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
-        if refresh_friend_list:
-            self.send_friends()
-        if refresh_ignore_list:
-            self.send_ignores()
 
     def _create_friend(self, player_guid, ignored=False):
         friend = CharacterSocial()
@@ -91,8 +85,6 @@ class FriendsManager(object):
 
         data = pack('<BQ', status, player_guid)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
-        if status == FriendResults.FRIEND_REMOVED:
-            self.send_friends()
 
     def remove_ignore(self, player_guid):
         if self.has_ignore(player_guid):
@@ -104,8 +96,6 @@ class FriendsManager(object):
 
         data = pack('<BQ', status, player_guid)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
-        if status == FriendResults.FRIEND_IGNORE_REMOVED:
-            self.send_ignores()
 
     def count_friends(self):
         return len([friend for friend in self.friends.values() if friend.ignore == 0])
@@ -122,8 +112,6 @@ class FriendsManager(object):
     # TODO: Ignore also affects duel
     def try_add_ignore(self, target_name):
         online_player = WorldSessionStateHandler.find_player_by_name(target_name)
-        refresh_friend_list = False
-        refresh_ignore_list = False
         target_guid = 0
 
         # Try to pull the character from DB.
@@ -148,23 +136,17 @@ class FriendsManager(object):
 
             # No error, proceed to add ignored player to the list.
             if status == FriendResults.FRIEND_IGNORE_ADDED:
-                # TODO: Friend list is not being properly refreshed after adding to ignore someone who's currently a
-                #  friend. That player appears as "Unknown" in the friend's list until you relog.
                 if self.has_friend(target_guid):
                     self.friends[target_guid].ignore = True
                     RealmDatabaseManager.character_update_social(self.friends[target_guid])
-                    refresh_friend_list = True
+                    data = pack('<BQ', FriendResults.FRIEND_REMOVED, target_guid)
+                    self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
                 else:
                     self.friends[target_guid] = self._create_friend(target_guid, ignored=True)
                     RealmDatabaseManager.character_add_friend(self.friends[target_guid])
-                refresh_ignore_list = True
 
         data = pack('<BQ', status, target_guid)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
-        if refresh_friend_list:
-            self.send_friends()
-        if refresh_ignore_list:
-            self.send_ignores()
 
     def send_friends_and_ignores(self):
         self.send_friends()
