@@ -9859,9 +9859,8 @@ begin not atomic
 
         -- Jitters
         UPDATE `creature_template` SET `display_id1` = '231' WHERE (entry = '288');
-        UPDATE `spawns_creatures` SET `position_x` = '-10732.303', `position_y` = '336.989', `position_z` = '38.473', `orientation` = '3.795' WHERE (`spawn_id` = '4273');
 
-        --  Commander Felstrom
+        -- Commander Felstrom
         UPDATE `creature_template` SET `display_id1` = '518' WHERE (entry = '771');
 
         insert into applied_updates values ('150820221');
