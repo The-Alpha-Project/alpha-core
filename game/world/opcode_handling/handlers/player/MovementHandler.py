@@ -48,6 +48,7 @@ class MovementHandler:
                 # Turn actions.
                 if flags & MoveFlags.MOVEFLAG_TURN_MASK:
                     world_session.player_mgr.spell_manager.check_spell_interrupts(turned=True)
+                    world_session.player_mgr.aura_manager.check_aura_interrupts(turned=True)
 
                 world_session.player_mgr.transport_id = transport_guid
 

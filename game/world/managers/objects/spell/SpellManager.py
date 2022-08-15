@@ -990,9 +990,13 @@ class SpellManager:
                     return False
 
         # Pickpocketing target validity check.
-        if casting_spell.is_pickpocket_spell() and not validation_target.pickpocket_loot_manager:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
-            return False
+        if casting_spell.is_pickpocket_spell():
+            if not self.caster.can_attack_target(validation_target):
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_FRIENDLY)
+                return False
+            if not validation_target.pickpocket_loot_manager:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
+                return False
 
         # Duel target check.
         if casting_spell.is_duel_spell() and validation_target.duel_manager:

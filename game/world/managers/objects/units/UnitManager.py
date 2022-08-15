@@ -825,6 +825,9 @@ class UnitManager(ObjectManager):
             if self.guid in victim.attackers:
                 # Always pop self from victim attackers.
                 victim.attackers.pop(self.guid)
+                # Remove self from victim threat manager.
+                if victim.get_type_id() == ObjectTypeIds.ID_UNIT:
+                    victim.threat_manager.remove_unit_threat(self.guid)
                 # If by now the attacker has no more attackers, leave combat as well.
                 if len(victim.attackers) == 0:
                     victim.leave_combat(force=force)

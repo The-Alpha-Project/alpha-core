@@ -29,6 +29,14 @@ class ThreatManager:
         self.holders.clear()
         self.current_holder = None
 
+    def remove_unit_threat(self, unit_guid):
+        if unit_guid in self.holders:
+            # Reset current holder if needed.
+            if self.current_holder == self.holders[unit_guid]:
+                self.current_holder = None
+            # Pop unit from threat holders.
+            self.holders.pop(unit_guid)
+
     def add_threat(self, source: UnitManager, threat: float, is_call_for_help=False):
         if source is not self.owner:
             source_holder = self.holders.get(source.guid)
