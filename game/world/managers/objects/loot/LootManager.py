@@ -54,7 +54,8 @@ class LootManager(object):
         #     the loot. Group processing stops, the rest of group entries are just skipped. Non-groups can continue
         #     the checks with a new roll.
         #   · Otherwise the entry 'looses': the Item misses its chance to get into the loot. If we are processing a
-        #     group, R is decreased by the absolute value of chance and next entry is checked.
+        #     group, R is decreased by the absolute value of chance and next entry is checked, otherwise a new roll
+        #     is made.
         #
         # Notes:
         #   · A group is defined when group_id is greater than 0. A group can only generate a maximum of 1 item.
@@ -93,11 +94,12 @@ class LootManager(object):
                 # If a group is defined, don't generate more than one item.
                 if group_id > 0:
                     return loot_item_result
-                # Roll again for non-groups after a successful win.
-                else:
-                    current_roll = uniform(0.0, 100)
             elif group_id > 0:
                 current_roll -= chance
+                continue
+
+            # New roll for every non-group entry.
+            current_roll = uniform(0.0, 100)
 
         return loot_item_result
 
