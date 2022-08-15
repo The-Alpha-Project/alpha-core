@@ -318,6 +318,7 @@ class PetManager:
         if is_permanent:
             # TODO Not sure what correct behavior is here.
             pet_info.save(creature)
+            creature.leave_combat(force=True)
             creature.despawn(destroy=True)
 
             # Summon Pet cooldown is locked by default - unlock on despawn.
