@@ -97,8 +97,7 @@ class SpellEffectHandler:
                 casting_spell.requires_combo_points():
             damage_bonus *= casting_spell.spent_combo_points
 
-        damage = weapon_damage + effect.get_effect_points()
-        caster.apply_spell_damage(target, damage, casting_spell)
+        caster.apply_spell_damage(target, weapon_damage + damage_bonus, casting_spell)
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
