@@ -6,7 +6,6 @@ from utils.constants.MiscCodes import LootTypes
 class CreaturePickPocketLootManager(LootManager):
     def __init__(self, creature_mgr):
         super(CreaturePickPocketLootManager, self).__init__(creature_mgr)
-
         self.already_pickpocketed = False
 
     # override
