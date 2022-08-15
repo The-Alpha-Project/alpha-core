@@ -454,6 +454,9 @@ class PetManager:
         if not active_pet_info:
             return
 
+        # TODO Only pet damage is based on a formula.
+        #  This method should update other stats as well, but the required table ('pet_levelstats') is missing.
+
         if not reset:
             # From VMaNGOS.
             delay_mod = active_pet_info.creature_template.base_attack_time / 2000
