@@ -378,8 +378,10 @@ class AuraEffectHandler:
         else:
             new_value = base_stat + amount
 
-        # TODO? Missing apply or send update to player?
         effect_target.stat_manager.base_stats[stat_type] = new_value
+
+        # Update character sheet.
+        effect_target.stat_manager.send_resistances()
 
     @staticmethod
     def handle_mod_stat(aura, effect_target, remove):
