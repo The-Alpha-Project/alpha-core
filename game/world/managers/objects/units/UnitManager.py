@@ -238,16 +238,6 @@ class UnitManager(ObjectManager):
         if not self.can_attack_target(victim):
             return False
 
-        # In fight already
-        if self.combat_target:
-            if self.combat_target == victim:
-                if self.is_within_interactable_distance(self.combat_target):
-                    self.send_attack_start(victim.guid)
-                    return True
-                return False
-
-            self.attack_stop()
-
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
