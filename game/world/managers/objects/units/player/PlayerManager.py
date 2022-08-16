@@ -76,7 +76,6 @@ class PlayerManager(UnitManager):
         self.session = session
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
-        self.pending_update_world_objects = False
         self.update_lock = False
         self.known_objects = dict()
         self.known_items = dict()
@@ -446,7 +445,7 @@ class PlayerManager(UnitManager):
     def destroy_near_object(self, guid):
         known_object = self.known_objects.get(guid)
         if known_object:
-            self.known_objects.pop(guid, 'None')
+            del self.known_objects[guid]
             # Remove self from creature/go known players if needed.
             if known_object.get_type_id() != ObjectTypeIds.ID_PLAYER:
                 if self.guid in known_object.known_players:
@@ -1457,11 +1456,6 @@ class PlayerManager(UnitManager):
             # Update played time.
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
-
-            # Update surrounding world objects visibility if needed.
-            if self.pending_update_world_objects:
-                self.pending_update_world_objects = False
-                self.update_known_world_objects()
 
             # Regeneration.
             self.regenerate(elapsed)
