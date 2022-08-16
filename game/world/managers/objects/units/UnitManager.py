@@ -367,8 +367,6 @@ class UnitManager(ObjectManager):
                 elif swing_error == AttackSwingError.NOTSTANDING:
                     self.send_attack_swing_not_standing(self.combat_target)
 
-                self.send_attack_stop(self.combat_target.guid)
-
         self.swing_error = swing_error
         return swing_error == AttackSwingError.NONE
 
