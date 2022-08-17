@@ -9,7 +9,7 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
-from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms, SpellImmunity
+from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms, SpellImmunity, SpellHitFlags
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags
 
 
