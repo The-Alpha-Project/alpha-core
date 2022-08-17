@@ -16,68 +16,65 @@ class MovementHandler:
     def handle_movement_status(world_session, socket, reader: PacketReader) -> int:
         # Avoid handling malformed movement packets, or handling them while no player or player teleporting.
         if world_session.player_mgr and len(reader.data) >= 48:
+            player_mgr = world_session.player_mgr
             try:
                 transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
                     unpack('<Q9fI', reader.data[:48])
 
                 # Hacky way to prevent random teleports when colliding with elevators
                 # Also acts as a rudimentary teleport cheat detection
-                if not world_session.player_mgr.pending_taxi_destination and \
-                        world_session.player_mgr.location.distance(x=x, y=y, z=z) > 64:
-                    Logger.anticheat(f'Preventing coordinate desync from player {world_session.player_mgr.player.name} '
-                                     f'({world_session.player_mgr.guid}).')
-                    world_session.player_mgr.teleport(world_session.player_mgr.map_,
-                                                      world_session.player_mgr.location, is_instant=True)
-
+                if not player_mgr.pending_taxi_destination and player_mgr.location.distance(x=x, y=y, z=z) > 64:
+                    Logger.anticheat(f'Preventing desync from player {player_mgr.player.name} ({player_mgr.guid}).')
+                    player_mgr.teleport(player_mgr.map_, player_mgr.location, is_instant=True)
                     return 0
 
-                jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
+                player_jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
+                player_moved = flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK)
+                player_turned = flags & MoveFlags.MOVEFLAG_TURN_MASK
 
-                # Movement and jump actions.
-                if flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) or jumped:
-                    # Don't mark player as moved if only jumping.
-                    if not jumped:
-                        world_session.player_mgr.set_has_moved(True)
+                # Movement actions.
+                if player_moved or player_jumped or player_turned:
+                    # Flag player as moved only if x,y changed.
+                    if not player_jumped and not player_turned:
+                        player_mgr.set_has_moved(True)
 
-                    # Cancel looting if moved.
-                    if world_session.player_mgr.loot_selection:
-                        world_session.player_mgr.send_loot_release(world_session.player_mgr.loot_selection)
-                    world_session.player_mgr.spell_manager.check_spell_interrupts(moved=True)
-                    world_session.player_mgr.aura_manager.check_aura_interrupts(moved=True)
+                    # Cancel looting if x,y,z changed.
+                    if not player_turned:
+                        player_mgr.interrupt_looting()
 
-                # Turn actions.
-                if flags & MoveFlags.MOVEFLAG_TURN_MASK:
-                    world_session.player_mgr.spell_manager.check_spell_interrupts(turned=True)
-                    world_session.player_mgr.aura_manager.check_aura_interrupts(turned=True)
+                    # Check spell and aura interrupts.
+                    player_mgr.spell_manager.check_spell_interrupts(moved=player_moved or player_jumped,
+                                                                    turned=player_turned)
+                    player_mgr.aura_manager.check_aura_interrupts(moved=player_moved or player_jumped,
+                                                                  turned=player_turned)
+                # Update transport information.
+                player_mgr.transport_id = transport_guid
+                player_mgr.transport.x = transport_x
+                player_mgr.transport.y = transport_y
+                player_mgr.transport.z = transport_z
+                player_mgr.transport.o = transport_o
 
-                world_session.player_mgr.transport_id = transport_guid
+                # Update player location, pitch and movement flags.
+                player_mgr.location.x = x
+                player_mgr.location.y = y
+                player_mgr.location.z = z
+                player_mgr.location.o = o
+                player_mgr.pitch = pitch
+                player_mgr.movement_flags = flags
 
-                world_session.player_mgr.transport.x = transport_x
-                world_session.player_mgr.transport.y = transport_y
-                world_session.player_mgr.transport.z = transport_z
-                world_session.player_mgr.transport.o = transport_o
-
-                world_session.player_mgr.location.x = x
-                world_session.player_mgr.location.y = y
-                world_session.player_mgr.location.z = z
-                world_session.player_mgr.location.o = o
-
-                world_session.player_mgr.pitch = pitch
-                world_session.player_mgr.movement_flags = flags
-
+                # Unpack spline mover if needed.
                 if flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
-                    world_session.player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(
-                        reader.data[48:])
+                    player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(reader.data[48:])
 
                 # Broadcast player movement to surroundings.
-                movement_data = pack(f'<Q{len(reader.data)}s', world_session.player_mgr.guid, reader.data)
+                movement_data = pack(f'<Q{len(reader.data)}s', player_mgr.guid, reader.data)
                 movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), movement_data)
-                MapManager.send_surrounding(movement_packet, world_session.player_mgr, include_self=False)
+                MapManager.send_surrounding(movement_packet, player_mgr, include_self=False)
 
-                # Get up if you jump while not standing.
-                if jumped and world_session.player_mgr.stand_state != StandState.UNIT_DEAD and \
-                        world_session.player_mgr.stand_state != StandState.UNIT_STANDING:
-                    world_session.player_mgr.set_stand_state(StandState.UNIT_STANDING)
+                # Stand up if player jumps while not standing.
+                if player_jumped and player_mgr.stand_state != StandState.UNIT_DEAD and \
+                        player_mgr.stand_state != StandState.UNIT_STANDING:
+                    player_mgr.set_stand_state(StandState.UNIT_STANDING)
 
             except (AttributeError, error):
                 Logger.error(f'Error while handling {OpCode(reader.opcode).name}, skipping. Data: {reader.data}')
