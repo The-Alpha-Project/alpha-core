@@ -3,8 +3,8 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.spell import ExtendedSpellData
-from game.world.managers.objects.spell.AppliedAura import AppliedAura
-from game.world.managers.objects.spell.AuraEffectHandler import AuraEffectHandler
+from game.world.managers.objects.spell.aura.AppliedAura import AppliedAura
+from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds

@@ -7,7 +7,8 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.locks.LockManager import LockManager
-from game.world.managers.objects.spell.AuraManager import AppliedAura
+from game.world.managers.objects.spell import SpellEffectDummyHandler
+from game.world.managers.objects.spell.aura.AuraManager import AppliedAura
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -18,7 +19,7 @@ from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClas
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
     SpellImmunity
-from utils.constants.UnitCodes import UnitFlags, Classes
+from utils.constants.UnitCodes import UnitFlags
 
 
 class SpellEffectHandler:
@@ -518,6 +519,14 @@ class SpellEffectHandler:
         data = pack('<Q', caster.guid)
         target.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_RESURRECT_REQUEST, data))
 
+    @staticmethod
+    def handle_dummy(casting_spell, effect, caster, target):
+        if casting_spell.spell_entry.ID not in SpellEffectDummyHandler.DUMMY_SPELL_EFFECTS:
+            Logger.warning(f'Unimplemented dummy spell effect for spell {casting_spell.spell_entry.ID}.')
+            return
+
+        SpellEffectDummyHandler.DUMMY_SPELL_EFFECTS[casting_spell.spell_entry.ID](casting_spell, effect, caster, target)
+
     # TODO: Currently you always succeed.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
@@ -664,6 +673,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
     SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
     SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
+    SpellEffects.SPELL_EFFECT_DUMMY: SpellEffectHandler.handle_dummy,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

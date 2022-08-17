@@ -3,7 +3,7 @@ import time
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import SpellRadius
-from game.world.managers.objects.spell.AuraEffectHandler import PERIODIC_AURA_EFFECTS
+from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AURA_EFFECTS
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from utils.constants.SpellCodes import SpellEffects
 
