@@ -9867,7 +9867,7 @@ begin not atomic
     end if;
 
     -- 18/08/2022 1
-    if (select count(*) from applied_updates where id='200820221') = 0 then
+    if (select count(*) from applied_updates where id='180820221') = 0 then
         
         -- TANARIS
 
@@ -10003,7 +10003,7 @@ begin not atomic
         SET `display_id1`=91
         WHERE `entry`=4131;
         
-        insert into applied_updates values ('200820221');
+        insert into applied_updates values ('180820221');
     end if;
 end $
 delimiter ;
