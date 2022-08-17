@@ -762,16 +762,15 @@ class UnitManager(ObjectManager):
     def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False, healing=False):
         # TODO: Below use of SpellHitFlags might not be correct, needs further investigation.
         spell_id = casting_spell.spell_entry.ID
-        flags = SpellHitFlags.HIT_FLAG_NO_DAMAGE if healing else SpellHitFlags.HIT_FLAG_NORMAL
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
             combat_log_data = pack('<i2Q2i',
-                                   flags,
+                                   damage_info.hit_info,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
             combat_log_data = pack('<I2Q2If3I',
-                                   flags,
+                                   damage_info.hit_info,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id,
                                    damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
                                    damage_info.damage, damage_info.absorb)
@@ -787,7 +786,7 @@ class UnitManager(ObjectManager):
                                damage_info.target.guid,
                                damage_info.total_damage,
                                damage_info.damage,
-                               SpellHitFlags.HIT_FLAG_NORMAL,
+                               damage_info.hit_info,
                                0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells).
                                damage_info.attacker.guid)
 
