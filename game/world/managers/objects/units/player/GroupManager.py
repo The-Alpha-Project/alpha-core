@@ -86,7 +86,6 @@ class GroupManager(object):
 
             if len(self.members) > 1:
                 self.send_update()
-                self.send_party_members_stats()
 
             return True
 
@@ -160,8 +159,10 @@ class GroupManager(object):
 
         return PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
 
-    def send_party_members_stats(self):
+    def send_party_members_stats(self, requester=None):
         for member in list(self.members.values()):
+            if requester and requester.guid != member.guid:
+                continue
             # Send member stats to everyone except the member itself.
             self.send_packet_to_members(GroupManager._build_party_member_stats(member), exclude=member)
 

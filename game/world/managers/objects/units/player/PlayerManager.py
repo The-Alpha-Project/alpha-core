@@ -747,6 +747,10 @@ class PlayerManager(UnitManager):
                             for looter in loot_manager.get_active_looters():
                                 looter.enqueue_packet(packet)
 
+    def interrupt_looting(self):
+        if self.loot_selection:
+            self.send_loot_release(self.loot_selection)
+
     def send_loot_release(self, loot_selection):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
@@ -1471,10 +1475,6 @@ class PlayerManager(UnitManager):
 
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)
-            # Movement checks.
-            if self.has_moved:
-                self._on_relocation()
-                self.set_has_moved(False)
 
             # Duel tick.
             if self.duel_manager:
@@ -1501,10 +1501,22 @@ class PlayerManager(UnitManager):
                     self.logout()
                     return
 
+            # Check if player has update fields changes.
             has_changes = self.has_pending_updates()
             # Avoid inventory/item update if there is an ongoing inventory operation.
             has_inventory_changes = not self.inventory.update_locked and self.inventory.has_pending_updates()
-            # Check if player has pending fields or inventory updates.
+
+            # Movement checks and group updates.
+            if self.has_moved or has_changes:
+                # Update self stats and location to other party members.
+                if self.group_manager:
+                    self.group_manager.send_party_members_stats(requester=self)
+                # Player moved, notify surrounding units for proximity aggro.
+                if self.has_moved:
+                    self._on_relocation()
+                    self.set_has_moved(False)
+
+            # Update system, propagate player changes to surrounding units.
             if self.online and has_changes or has_inventory_changes:
                 MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
                 if has_changes:
