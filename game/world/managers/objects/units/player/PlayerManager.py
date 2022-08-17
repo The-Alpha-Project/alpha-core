@@ -1510,7 +1510,7 @@ class PlayerManager(UnitManager):
             if self.has_moved or has_changes:
                 # Update self stats and location to other party members.
                 if self.group_manager:
-                    self.group_manager.send_party_members_stats(requester=self)
+                    self.group_manager.update_party_member_stats(elapsed, requester=self)
                 # Player moved, notify surrounding units for proximity aggro.
                 if self.has_moved:
                     self._on_relocation()
