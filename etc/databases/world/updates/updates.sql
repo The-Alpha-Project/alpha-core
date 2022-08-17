@@ -10002,6 +10002,11 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=91
         WHERE `entry`=4131;
+
+        -- Land Rager
+        UPDATE `creature_template`
+        SET `display_id1`=3235
+        WHERE `entry`=5465;
         
         insert into applied_updates values ('180820221');
     end if;
