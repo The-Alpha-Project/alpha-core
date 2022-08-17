@@ -160,6 +160,7 @@ class StatManager(object):
             self.base_stats[UnitStats.STAMINA] = base_attrs.sta
             self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
             self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
+            self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
             self.unit_mgr.base_hp = base_stats.basehp
             self.unit_mgr.base_mana = base_stats.basemana
         # Creatures.
@@ -172,6 +173,7 @@ class StatManager(object):
             # Players have block scaling, assign flat 5% to creatures.
             self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
             self.base_stats[UnitStats.CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
+            self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
             self.unit_mgr.base_hp = self.unit_mgr.max_health
             self.unit_mgr.base_mana = self.unit_mgr.max_power_1
 
@@ -912,8 +914,9 @@ class StatManager(object):
 
 
 BASE_BLOCK_PARRY_CHANCE = 5
-BASE_MELEE_CRITICAL_CHANCE = 5
 BASE_DODGE_CHANCE_CREATURE = 5
+BASE_MELEE_CRITICAL_CHANCE = 5
+BASE_SPELL_CRITICAL_CHANCE = 5
 
 CLASS_SPIRIT_SCALING_HP5 = {
     Classes.CLASS_WARRIOR: 1.26,
