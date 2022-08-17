@@ -105,9 +105,7 @@ class AuraEffectHandler:
         spell = aura.source_spell
         damage = aura.get_effect_points()
         aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
-        # Only heal the caster back if it's alive.
-        if aura.caster.is_alive:
-            aura.caster.receive_healing(damage, aura.caster)
+        aura.caster.receive_healing(damage, aura.caster)
 
     # Proc effects are called each time the proc condition is met.
     @staticmethod

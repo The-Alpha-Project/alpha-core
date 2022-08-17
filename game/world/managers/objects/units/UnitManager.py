@@ -641,6 +641,9 @@ class UnitManager(ObjectManager):
         target.receive_damage(damage, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
+        if not self.is_alive:
+            return False
+
         if source is not self and not is_periodic and amount > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             self.spell_manager.check_spell_interrupts(received_damage=True)
@@ -654,17 +657,25 @@ class UnitManager(ObjectManager):
             damage_info.target = self
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
+        return True
 
     def receive_healing(self, amount, source=None):
+        if not self.is_alive:
+            return False
+
         new_health = self.health + amount
         if new_health > self.max_health:
             self.set_health(self.max_health)
         else:
             self.set_health(new_health)
+        return True
 
     def receive_power(self, amount, power_type, source=None):
+        if not self.is_alive:
+            return False
+
         if self.power_type != power_type:
-            return
+            return False
 
         new_power = self.get_power_type_value() + amount
         if power_type == PowerTypes.TYPE_MANA:
@@ -675,6 +686,7 @@ class UnitManager(ObjectManager):
             self.set_focus(new_power)
         elif power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(new_power)
+        return True
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         if target.guid in casting_spell.object_target_results:

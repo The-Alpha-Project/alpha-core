@@ -1417,16 +1417,18 @@ class PlayerManager(UnitManager):
     # override
     def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
         if self.is_god:
-            return
+            return False
 
-        super().receive_damage(amount, source, is_periodic=False)
+        return super().receive_damage(amount, source, is_periodic=False)
 
     # override
     def receive_healing(self, amount, source=None):
-        super().receive_healing(amount, source)
+        if not super().receive_healing(amount, source):
+            return
 
         data = pack('<IQ', amount, source.guid)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
+        return True
 
     def enqueue_packets(self, packets):
         if self.session:

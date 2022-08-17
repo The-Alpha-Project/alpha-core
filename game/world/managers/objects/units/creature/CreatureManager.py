@@ -821,26 +821,44 @@ class CreatureManager(UnitManager):
 
     # override
     def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
-        super().receive_damage(amount, source, is_periodic)
+        if not self.is_spawned:
+            return False
 
-        if self.is_alive:
-            # If creature's being attacked by another unit, automatically set combat target.
-            not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
-            if not_attacked_by_gameobject:
-                if not self.combat_target:
-                    # Make sure to first stop any movement right away.
-                    self.stop_movement()
+        if not super().receive_damage(amount, source, is_periodic):
+            return False
 
-                threat = amount
-                # TODO: Threat calculation.
-                # No threat but source spell generates threat on miss.
-                if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
-                    threat = 10
-                # Physical miss, block, etc.
-                elif not casting_spell and threat == 0:
-                    threat = 10
+        # If creature's being attacked by another unit, automatically set combat target.
+        not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
+        if not_attacked_by_gameobject:
+            if not self.combat_target:
+                # Make sure to first stop any movement right away.
+                self.stop_movement()
 
-                self.threat_manager.add_threat(source, threat)
+            threat = amount
+            # TODO: Threat calculation.
+            # No threat but source spell generates threat on miss.
+            if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
+                threat = 10
+            # Physical miss, block, etc.
+            elif not casting_spell and threat == 0:
+                threat = 10
+
+            self.threat_manager.add_threat(source, threat)
+        return True
+
+    # override
+    def receive_healing(self, amount, source=None):
+        if not self.is_spawned:
+            return False
+
+        return super().receive_healing(amount, source)
+
+    # override
+    def receive_power(self, amount, power_type, source=None):
+        if not self.is_spawned:
+            return False
+
+        return super().receive_power(amount, power_type, source)
 
     # override
     def respawn(self):
