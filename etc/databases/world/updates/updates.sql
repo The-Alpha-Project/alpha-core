@@ -9865,5 +9865,145 @@ begin not atomic
 
         insert into applied_updates values ('150820221');
     end if;
+
+    -- 18/08/2022 1
+    if (select count(*) from applied_updates where id='200820221') = 0 then
+        
+        -- TANARIS
+
+        -- Scorpid Hunter
+        UPDATE `creature_template`
+        SET `display_id1`=3247
+        WHERE `entry`=5422;
+
+        -- Scorpid Tail Lasher
+        UPDATE `creature_template`
+        SET `display_id1`=3247
+        WHERE `entry`=5423;
+
+        -- Scorpid Dunestalker
+        UPDATE `creature_template`
+        SET `display_id1`=2489
+        WHERE `entry`=5424;
+
+        -- Glasshide Basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=2743
+        WHERE `entry`=5419;
+
+        -- Glasshide Gazer
+        UPDATE `creature_template`
+        SET `display_id1`=2743
+        WHERE `entry`=5420;
+
+        -- Glasshide Petrifier
+        UPDATE `creature_template`
+        SET `display_id1`=2744
+        WHERE `entry`=5421;
+
+        -- Hazzali Stinger
+        UPDATE `creature_template`
+        SET `display_id1`=92
+        WHERE `entry`=5450;
+
+        -- Hazzali Swarmer
+        UPDATE `creature_template`
+        SET `display_id1`=92
+        WHERE `entry`=5451;
+
+        -- Hazzali Wasp
+        UPDATE `creature_template`
+        SET `display_id1`=92
+        WHERE `entry`=5441;
+
+        -- Hazzali Worker
+        UPDATE `creature_template`
+        SET `display_id1`=157
+        WHERE `entry`=5452;
+
+        -- Hazzali Tunneler
+        UPDATE `creature_template`
+        SET `display_id1`=91
+        WHERE `entry`=5453;
+
+        -- Hazzali Sandreaver
+        UPDATE `creature_template`
+        SET `display_id1`=91
+        WHERE `entry`=5454;
+
+        -- Dunemaul Enforcer
+        UPDATE `creature_template`
+        SET `display_id1`=3193
+        WHERE `entry`=5472;
+
+        -- Dunemaul Warlock
+        UPDATE `creature_template`
+        SET `display_id1`=3191
+        WHERE `entry`=5475;
+
+        -- Dunemaul Brute
+        UPDATE `creature_template`
+        SET `display_id1`=3192
+        WHERE `entry`=5474;
+
+        -- Dunemaul Ogre mage
+        UPDATE `creature_template`
+        SET `display_id1`=3190
+        WHERE `entry`=5473;
+
+        -- Dunemaul Ogre 
+        UPDATE `creature_template`
+        SET `display_id1`=3189
+        WHERE `entry`=5471;
+
+        -- Fire roc
+        UPDATE `creature_template`
+        SET `display_id1`=3248
+        WHERE `entry`=5429;
+
+        -- Searing roc
+        UPDATE `creature_template`
+        SET `display_id1`=3248
+        WHERE `entry`=5430;
+
+        -- Dune Smasher
+        UPDATE `creature_template`
+        SET `display_id1`=3216
+        WHERE `entry`=5469;
+
+        -- Thistlerub RootShaper
+        UPDATE `creature_template`
+        SET `display_id1`=3385
+        WHERE `entry`=5485;
+
+        -- Sandfury Hideskinner
+        UPDATE `creature_template`
+        SET `display_id1`=1154, `display_id2`=0
+        WHERE `entry`=5645;
+
+        -- Sandfury Axe Thrower
+        UPDATE `creature_template`
+        SET `display_id1`=590, `display_id2`=0
+        WHERE `entry`=5646;
+
+        -- Sandfury Firecaller
+        UPDATE `creature_template`
+        SET `display_id1`=590, `display_id2`=0
+        WHERE `entry`=5647;
+
+        -- Surf glider
+        UPDATE `creature_template`
+        SET `display_id1`=2308
+        WHERE `entry`=5431;
+
+        -- THOUSAND NEEDLES
+
+        -- Silithid Invader
+        UPDATE `creature_template`
+        SET `display_id1`=91
+        WHERE `entry`=4131;
+        
+        insert into applied_updates values ('200820221');
+    end if;
 end $
 delimiter ;
