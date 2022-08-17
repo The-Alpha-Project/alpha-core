@@ -1284,17 +1284,6 @@ class PlayerManager(UnitManager):
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
     # override
-    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
-        subclass = 0
-        if spell_attack_type != -1:
-            equipped_weapon = self.get_current_weapon_for_attack_type(spell_attack_type)
-            if equipped_weapon:
-                subclass = equipped_weapon.item_template.subclass
-
-        damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school, target, subclass)
-        return max(0, int(damage))
-
-    # override
     def handle_combat_skill_gain(self, damage_info):
         if damage_info.attacker == self:
             self.skill_manager.handle_weapon_skill_gain_chance(damage_info.attack_type)
