@@ -722,11 +722,8 @@ class UnitManager(ObjectManager):
                                   spell_id=casting_spell.spell_entry.ID):
             miss_reason = SpellMissReason.MISS_REASON_IMMUNE
 
-        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
+        damage_info = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
                                              casting_spell.spell_attack_type)
-
-        # TODO Handle misses, absorbs etc. for spells.
-        damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
 
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.damage = damage_info.total_damage = 0
