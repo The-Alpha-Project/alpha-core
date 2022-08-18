@@ -144,7 +144,7 @@ class ThreatManager:
             return False
         elif not unit.threat_manager:  # TODO: Might be better to just prevent threat manager to be None at any point.
             return False
-        elif not unit.can_attack_target(source):
+        elif not unit.can_attack_target(source) or not unit.is_hostile_to(source):
             return False
         elif unit.in_combat:
             return False
