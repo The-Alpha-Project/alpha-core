@@ -21,19 +21,19 @@ class BuyItemHandler(object):
 
                 if vendor_data:
                     item_template = vendor_data.item_template
-                    session.close()
-
                     total_cost = item_template.buy_price * count
                     real_count = count if item_template.buy_count == 1 else item_template.buy_count
 
                     if world_session.player_mgr.coinage < total_cost:
                         world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_NOT_ENOUGH_MONEY, item,
                                                                           vendor_guid, real_count)
+                        session.close()
                         return 0
 
-                    if 0 < vendor_data.maxcount < count:  # I should be checking here for current count too.
+                    if 0 < vendor_data.maxcount < count:  # We should be checking here for current count too.
                         world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_ITEM_SOLD_OUT, item,
                                                                           vendor_guid, real_count)
+                        session.close()
                         return 0
 
                     if world_session.player_mgr.inventory.add_item(item_template=item_template, count=real_count):
@@ -42,5 +42,6 @@ class BuyItemHandler(object):
                 else:
                     world_session.player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_FIND_ITEM, item,
                                                                       vendor_guid)
+                session.close()
 
         return 0
