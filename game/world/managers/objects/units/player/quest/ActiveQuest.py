@@ -223,7 +223,8 @@ class ActiveQuest:
             return current_qty < required_qty
         return False
 
-    def still_needs_item(self, item_entry):
+    def still_needs_item(self, item_template):
+        item_entry = item_template.entry
         req_items = QuestHelpers.generate_req_item_list(self.quest)
         req_src_items = QuestHelpers.generate_req_source_list(self.quest)
 
@@ -239,7 +240,6 @@ class ActiveQuest:
         # Required src item, based on owner inventory count.
         required = item_entry in req_src_items
         if required:
-            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
             if not item_template:
                 return False
 
