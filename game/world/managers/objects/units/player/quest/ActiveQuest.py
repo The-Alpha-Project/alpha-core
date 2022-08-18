@@ -239,10 +239,22 @@ class ActiveQuest:
         # Required src item, based on owner inventory count.
         required = item_entry in req_src_items
         if required:
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
+            if not item_template:
+                return False
+
             index = req_src_items.index(item_entry)
             required_items = QuestHelpers.generate_req_source_count_list(self.quest)[index]
             current_items = self.owner.inventory.get_item_count(item_entry)
-            if current_items < required_items:
+
+            # Unique item.
+            if item_template.max_count and current_items < item_template.max_count:
+                return True
+
+            # Allows custom amount drop when not 0.
+            if required_items and current_items < required_items:
+                return True
+            elif current_items < item_template.stackable:
                 return True
 
         return False
