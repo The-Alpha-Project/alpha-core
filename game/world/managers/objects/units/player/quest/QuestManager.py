@@ -60,7 +60,7 @@ class QuestManager(object):
         if game_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             if game_object.gobject_template.data1 != 0:
                 loot_template_id = game_object.gobject_template.data1
-                loot_template = WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
+                loot_template = WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_loot_id(loot_template_id)
                 # Empty loot template.
                 if len(loot_template) == 0:
                     return False

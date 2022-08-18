@@ -333,9 +333,9 @@ class WorldDatabaseManager(object):
                 .append(gameobject_loot_template)
 
         @staticmethod
-        def gameobject_loot_template_get_by_entry(entry) -> list[GameobjectLootTemplate]:
-            return WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[entry]\
-                if entry in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES else []
+        def gameobject_loot_template_get_by_loot_id(loot_id) -> list[GameobjectLootTemplate]:
+            return WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[loot_id]\
+                if loot_id in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES else []
 
     # Fishing.
 
@@ -350,18 +350,18 @@ class WorldDatabaseManager(object):
         FISHING_LOOT_TEMPLATES: [int, list[FishingLootTemplate]] = {}
 
         @staticmethod
-        def load_fishing_loot_template(fishing_template):
-            if fishing_template.entry not in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES:
+        def load_fishing_loot_template(fishing_loot_template):
+            if fishing_loot_template.entry not in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES:
                 WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[
-                    fishing_template.entry] = []
+                    fishing_loot_template.entry] = []
 
-            WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[fishing_template.entry] \
-                .append(fishing_template)
+            WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[fishing_loot_template.entry] \
+                .append(fishing_loot_template)
 
         @staticmethod
-        def fishing_loot_template_get_by_entry(entry) -> list[FishingLootTemplate]:
-            return WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[entry] \
-                if entry in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES else []
+        def fishing_loot_template_get_by_loot_id(loot_id) -> list[FishingLootTemplate]:
+            return WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES[loot_id] \
+                if loot_id in WorldDatabaseManager.FishingLootTemplateHolder.FISHING_LOOT_TEMPLATES else []
 
     # Fishing skill by zone.
     @staticmethod

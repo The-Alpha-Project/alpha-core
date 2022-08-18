@@ -19,10 +19,10 @@ class GameObjectLootManager(LootManager):
         # Handle Chest.
         if self.world_object.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             loot_template_id = self.world_object.gobject_template.data1
-            return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_entry(loot_template_id)
+            return WorldDatabaseManager.GameObjectLootTemplateHolder.gameobject_loot_template_get_by_loot_id(loot_template_id)
 
         if self.world_object.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
-            return WorldDatabaseManager.FishingLootTemplateHolder.fishing_loot_template_get_by_entry(self.world_object.zone)
+            return WorldDatabaseManager.FishingLootTemplateHolder.fishing_loot_template_get_by_loot_id(self.world_object.zone)
 
         return []
 
