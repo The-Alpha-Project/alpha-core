@@ -1009,6 +1009,9 @@ class QuestManager(object):
 
     def reward_item(self, item_entry, item_count):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
+        if not item_template:
+            return False
+
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.still_needs_item(item_template):
                 active_quest.update_item_count(item_entry, item_count)
