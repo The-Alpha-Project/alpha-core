@@ -238,7 +238,7 @@ class WorldLoader:
 
     @staticmethod
     def load_fishing_loot_templates():
-        fishing_loot_templates = WorldDatabaseManager.fishing_get_loot_template()
+        fishing_loot_templates = WorldDatabaseManager.fishing_get_loot_templates()
         length = len(fishing_loot_templates)
         count = 0
 

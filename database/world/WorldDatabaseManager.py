@@ -323,12 +323,14 @@ class WorldDatabaseManager(object):
         GAMEOBJECT_LOOT_TEMPLATES: [int, list[GameobjectLootTemplate]] = {}
 
         @staticmethod
-        def load_gameobject_loot_template(gameobject_template):
-            if gameobject_template.entry not in WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES:
-                WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[gameobject_template.entry] = []
+        def load_gameobject_loot_template(gameobject_loot_template):
+            if gameobject_loot_template.entry not in WorldDatabaseManager.GameObjectLootTemplateHolder.\
+                    GAMEOBJECT_LOOT_TEMPLATES:
+                WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[
+                    gameobject_loot_template.entry] = []
 
-            WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[gameobject_template.entry]\
-                .append(gameobject_template)
+            WorldDatabaseManager.GameObjectLootTemplateHolder.GAMEOBJECT_LOOT_TEMPLATES[gameobject_loot_template.entry]\
+                .append(gameobject_loot_template)
 
         @staticmethod
         def gameobject_loot_template_get_by_entry(entry) -> list[GameobjectLootTemplate]:
@@ -338,14 +340,7 @@ class WorldDatabaseManager(object):
     # Fishing.
 
     @staticmethod
-    def fishing_template_get_by_entry(entry) -> Optional[FishingLootTemplate]:
-        world_db_session = SessionHolder()
-        res = world_db_session.query(FishingLootTemplate).filter_by(entry=entry).first()
-        world_db_session.close()
-        return res
-
-    @staticmethod
-    def fishing_get_loot_template() -> list[FishingLootTemplate]:
+    def fishing_get_loot_templates() -> list[FishingLootTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(FishingLootTemplate).all()
         world_db_session.close()
