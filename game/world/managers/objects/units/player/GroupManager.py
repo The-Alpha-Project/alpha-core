@@ -284,74 +284,75 @@ class GroupManager(object):
     def is_party_member(self, player_guid):
         return player_guid in self.members
 
+    def get_close_members(self, requester):
+        close_members = []
+        for guid in [*self.members]:
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
+            if self.is_close_member(requester, player_mgr):
+                close_members.append(player_mgr)
+        return close_members
+
     # noinspection PyMethodMayBeStatic
     def is_close_member(self, requester, player_mgr):
         return requester and player_mgr and player_mgr.online and requester.map_ == player_mgr.map_ and \
                requester.location.distance(player_mgr.location) < Distances.GROUP_SHARING_DISTANCE
 
     def reward_group_reputation(self, requester, creature):
-        for guid in [*self.members]:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            if self.is_close_member(requester, player_mgr):
-                player_mgr.reward_reputation_on_kill(creature)
+        for player_mgr in self.get_close_members(requester):
+            player_mgr.reward_reputation_on_kill(creature)
 
     def reward_group_money(self, looter, creature):
-        members = [*self.members]
-        share = int(creature.loot_manager.current_money / len(members))
+        close_members = self.get_close_members(looter)
+        share = int(creature.loot_manager.current_money / len(close_members))
 
         if share < 1:
             return False
 
-        # Notify the money looter 'You distribute <coinage> to your party'.
-        data = pack('<QI', looter.guid, int(creature.loot_manager.current_money))
-        split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
-        looter.enqueue_packet(split_packet)
+        # Notify the money looter 'You distribute <coinage> to your party' if needed.
+        if len(close_members) > 1:
+            data = pack('<QI', looter.guid, int(creature.loot_manager.current_money))
+            split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
+            looter.enqueue_packet(split_packet)
 
         # Append div remainder to the player who killed the creature for now.
-        remainder = int(creature.loot_manager.current_money % len(members))
+        remainder = int(creature.loot_manager.current_money % len(close_members))
 
-        for guid in members:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            if self.is_close_member(looter, player_mgr):
-                player_share = share if player_mgr != creature.killed_by else share + remainder
-                data = pack('<I', player_share)
-                player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
-                player_mgr.mod_money(player_share)
-                player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
+        for player_mgr in close_members:
+            player_share = share if player_mgr != creature.killed_by else share + remainder
+            data = pack('<I', player_share)
+            player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
+            player_mgr.mod_money(player_share)
+            player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY))
 
         creature.loot_manager.clear_money()
         return True
 
     def reward_group_xp(self, requester, creature, is_elite):
-        player_list = []
+        close_members = self.get_close_members(requester)
         highest_level = requester.level
         level_sum = 0
         # Need to loop first through all members in order to find the highest level one and the total sum of levels.
-        for guid in [*self.members]:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            if self.is_close_member(requester, player_mgr):
-                if player_mgr.level > highest_level:
-                    highest_level = player_mgr.level
-                level_sum += player_mgr.level
-                player_list.append(player_mgr)
+        for player_mgr in close_members:
+            if player_mgr.level > highest_level:
+                highest_level = player_mgr.level
+            level_sum += player_mgr.level
 
         # Calculate base XP based on the player with the highest level.
         base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, highest_level, is_elite)
 
         # Iterate again over member players in order to award XP.
-        for player_mgr in player_list:
+        for player_mgr in close_members:
             player_mgr.give_xp([base_xp * player_mgr.level / level_sum], creature)
 
     def reward_group_creature_or_go(self, requester, creature):
+        close_members = self.get_close_members(requester)
         # Party kill log packet, not sure how to display on client but, it is handled.
         data = pack('<2Q', requester.guid, creature.guid)  # Player with killing blow and victim guid.
         kill_log_packet = PacketWriter.get_packet(OpCode.SMSG_PARTYKILLLOG, data)
 
-        for guid in [*self.members]:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(guid)
-            if self.is_close_member(requester, player_mgr):
-                player_mgr.enqueue_packet(kill_log_packet)
-                player_mgr.quest_manager.reward_creature_or_go(creature)
+        for player_mgr in close_members:
+            player_mgr.enqueue_packet(kill_log_packet)
+            player_mgr.quest_manager.reward_creature_or_go(creature)
 
     def send_invite_decline(self, player_name):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)

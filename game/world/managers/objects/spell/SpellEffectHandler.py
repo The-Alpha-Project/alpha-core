@@ -198,6 +198,13 @@ class SpellEffectHandler:
             return
 
         amount = effect.get_effect_points()
+
+        # Validate amount, at least 1 item should be created.
+        if amount < 1:
+            amount = 1
+        if amount > item_template.stackable:
+            amount = item_template.stackable
+
         can_store_item = target.inventory.can_store_item(item_template, amount)
         if can_store_item != InventoryError.BAG_OK:
             target.inventory.send_equip_error(can_store_item)

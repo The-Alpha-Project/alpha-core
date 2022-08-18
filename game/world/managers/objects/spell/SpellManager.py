@@ -1291,10 +1291,12 @@ class SpellManager:
         if is_player and casting_spell.requires_combo_points():
             self.caster.remove_combo_points()
 
+        removed_items = set()
         if is_player:
             for reagent_info in casting_spell.get_reagents():  # Reagents.
                 if reagent_info[0] == 0:
                     break
+                removed_items.add(reagent_info[0])
                 self.caster.inventory.remove_items(reagent_info[0], reagent_info[1])
 
         # Ammo.
@@ -1314,9 +1316,11 @@ class SpellManager:
 
         # Spells cast with consumables.
         if is_player and casting_spell.source_item and casting_spell.source_item.has_charges():
+            item_entry = casting_spell.source_item.item_template.entry
             charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
-            if charges < 0:  # Negative charges remove items.
-                self.caster.inventory.remove_items(casting_spell.source_item.item_template.entry, 1)
+            # Avoid removing items which were already removed as reagents.
+            if charges < 0 and item_entry not in removed_items:  # Negative charges remove items.
+                self.caster.inventory.remove_items(item_entry, 1)
 
             if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable.
                 new_charges = charges-1 if charges > 0 else charges+1
