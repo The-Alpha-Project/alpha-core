@@ -134,16 +134,18 @@ class ActiveQuest:
     def update_item_count(self, item_entry, quantity):
         req_items = QuestHelpers.generate_req_item_list(self.quest)
         req_count = QuestHelpers.generate_req_item_count_list(self.quest)
-        req_item_index = req_items.index(item_entry)
-        # Persist new item count.
-        self._update_db_item_count(req_item_index, quantity, req_count[req_item_index])  # Update db memento
-        # Notify the current item count to the player.
-        data = pack('<2I', item_entry, quantity)
-        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
-        self.owner.enqueue_packet(packet)
-        # Check if this makes it complete.
-        if self.can_complete_quest():
-            self.update_quest_state(QuestState.QUEST_REWARD)
+        # Only req items get persisted, not src items.
+        if item_entry in req_items:
+            req_item_index = req_items.index(item_entry)
+            # Persist new item count.
+            self._update_db_item_count(req_item_index, quantity, req_count[req_item_index])  # Update db memento
+            # Notify the current item count to the player.
+            data = pack('<2I', item_entry, quantity)
+            packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
+            self.owner.enqueue_packet(packet)
+            # Check if this makes it complete.
+            if self.can_complete_quest():
+                self.update_quest_state(QuestState.QUEST_REWARD)
 
     # noinspection PyUnusedLocal
     def _update_db_item_count(self, index, value, required_count, override=False):
@@ -223,12 +225,39 @@ class ActiveQuest:
 
     def still_needs_item(self, item_entry):
         req_items = QuestHelpers.generate_req_item_list(self.quest)
+        req_src_items = QuestHelpers.generate_req_source_list(self.quest)
+
+        # Required items, based on db item count fields.
         required = item_entry in req_items
         if required:
             index = req_items.index(item_entry)
             required_items = QuestHelpers.generate_req_item_count_list(self.quest)[index]
             current_items = self._get_db_item_count(index)
-            return current_items < required_items
+            if current_items < required_items:
+                return True
+
+        # Required src item, based on owner inventory count.
+        required = item_entry in req_src_items
+        if required:
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
+            if not item_template:
+                return False
+
+            index = req_src_items.index(item_entry)
+            required_items = QuestHelpers.generate_req_source_count_list(self.quest)[index]
+            current_items = self.owner.inventory.get_item_count(item_entry)
+
+            # Unique item.
+            if item_template.max_count and current_items < item_template.max_count:
+                return True
+
+            # Allows custom amount drop when not 0.
+            if required_items and current_items < required_items:
+                return True
+            elif current_items < item_template.stackable:
+                return True
+
+        return False
 
     def update_required_items_from_inventory(self):
         req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
@@ -272,12 +301,13 @@ class ActiveQuest:
         # Creature or gameobject.
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
+        offset = 0
         for index, creature_or_go in enumerate(req_creature_or_go):
             if req_creature_or_go[index] != 0:
                 current_count = eval(f'self.db_state.mobcount{index + 1}')
                 required = req_creature_or_go_count[index]
                 # Consider how many bits the previous creature required.
-                offset = index * req_creature_or_go_count[index - 1] if index > 0 else 0
+                offset += req_creature_or_go_count[index - 1] if index > 0 else 0
 
                 for i in range(required):
                     if i < current_count:  # Turn on actual kills

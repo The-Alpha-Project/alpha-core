@@ -699,9 +699,10 @@ class UnitManager(ObjectManager):
             miss_reason = SpellMissReason.MISS_REASON_EVADED
 
         # Overwrite on immune. TODO This and evade should be written in spell target results instead.
-        if target.handle_immunity(self, SpellImmunity.IMMUNITY_DAMAGE, casting_spell.spell_entry.School,
-                                  spell_id=casting_spell.spell_entry.ID):
-            miss_reason = SpellMissReason.MISS_REASON_IMMUNE
+        if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+            if target.handle_immunity(self, SpellImmunity.IMMUNITY_DAMAGE, casting_spell.spell_entry.School,
+                                      spell_id=casting_spell.spell_entry.ID):
+                miss_reason = SpellMissReason.MISS_REASON_IMMUNE
 
         damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
                                              casting_spell.spell_attack_type)
