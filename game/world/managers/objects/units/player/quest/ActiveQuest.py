@@ -272,12 +272,13 @@ class ActiveQuest:
         # Creature or gameobject.
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
         req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
+        offset = 0
         for index, creature_or_go in enumerate(req_creature_or_go):
             if req_creature_or_go[index] != 0:
                 current_count = eval(f'self.db_state.mobcount{index + 1}')
                 required = req_creature_or_go_count[index]
                 # Consider how many bits the previous creature required.
-                offset = index * req_creature_or_go_count[index - 1] if index > 0 else 0
+                offset += req_creature_or_go_count[index - 1] if index > 0 else 0
 
                 for i in range(required):
                     if i < current_count:  # Turn on actual kills
