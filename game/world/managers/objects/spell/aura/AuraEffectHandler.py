@@ -277,7 +277,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_taunt(aura, effect_target, remove):
-        if not effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
+        if effect_target.get_type_id() != ObjectTypeIds.ID_UNIT:
             return
 
         if not effect_target.is_alive:
