@@ -527,6 +527,18 @@ class SpellEffectHandler:
 
         SpellEffectDummyHandler.DUMMY_SPELL_EFFECTS[casting_spell.spell_entry.ID](casting_spell, effect, caster, target)
 
+    @staticmethod
+    def handle_threat(casting_spell, effect, caster, target):
+        if target.get_type_id() != ObjectTypeIds.ID_UNIT:
+            return
+
+        if not target.is_alive:
+            return
+
+        # TODO: Threat calculation considering spell school and crit.
+        threat = effect.get_effect_simple_points()
+        target.threat_manager.add_threat(caster, threat)
+
     # TODO: Currently you always succeed.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
@@ -674,6 +686,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
     SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
     SpellEffects.SPELL_EFFECT_DUMMY: SpellEffectHandler.handle_dummy,
+    SpellEffects.SPELL_EFFECT_THREAT: SpellEffectHandler.handle_threat,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

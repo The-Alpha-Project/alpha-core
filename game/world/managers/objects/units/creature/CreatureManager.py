@@ -838,10 +838,7 @@ class CreatureManager(UnitManager):
             # TODO: Threat calculation.
             # No threat but source spell generates threat on miss.
             if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
-                threat = 10
-            # Physical miss, block, etc.
-            elif not casting_spell and threat == 0:
-                threat = 10
+                threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
 
             self.threat_manager.add_threat(source, threat)
         return True

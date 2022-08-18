@@ -276,6 +276,16 @@ class AuraEffectHandler:
             pass  # TODO: Implement behavior for charmed players.
 
     @staticmethod
+    def handle_taunt(aura, effect_target, remove):
+        if not effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
+            return
+
+        if not effect_target.is_alive:
+            return
+
+        effect_target.threat_manager.update_unit_threat_modifier(aura.caster, remove=remove)
+
+    @staticmethod
     def handle_damage_shield(aura, effect_target, remove):
         if remove:
             return
@@ -620,6 +630,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
     AuraTypes.SPELL_AURA_DAMAGE_SHIELD: AuraEffectHandler.handle_damage_shield,
     AuraTypes.SPELL_AURA_MOD_PACIFY: AuraEffectHandler.handle_mod_pacify,
+    AuraTypes.SPELL_AURA_MOD_TAUNT: AuraEffectHandler.handle_taunt,
 
     # Immunity modifiers.
     AuraTypes.SPELL_AURA_EFFECT_IMMUNITY: AuraEffectHandler.handle_effect_immunity,

@@ -1,6 +1,7 @@
 import math
 
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
+from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from utils.constants.CustomCodes import Permits
 from utils.constants.PetCodes import PetCommandState
 from utils.constants.UnitCodes import SplineFlags, CreatureStaticFlags
@@ -42,7 +43,7 @@ class PetAI(CreatureAI):
     # override
     def attack_start(self, victim):
         # TODO This is bad, but a workaround for now until a valid solution is discussed.
-        self.creature.threat_manager.add_threat(victim, 10)
+        self.creature.threat_manager.add_threat(victim, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
         self.is_at_home = False
 
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
