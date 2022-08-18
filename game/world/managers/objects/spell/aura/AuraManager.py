@@ -35,7 +35,7 @@ class AuraManager:
             if aura.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and \
                     self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT and aura.source_spell.generates_threat():
                 # TODO: Threat calculation.
-                self.unit_mgr.threat_manager.add_threat(aura.caster, 10)
+                self.unit_mgr.threat_manager.add_threat(aura.caster, abs(aura.get_effect_points()))
 
             self.check_aura_interrupts(negative_aura_applied=True)
 

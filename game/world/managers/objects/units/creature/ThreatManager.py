@@ -13,7 +13,11 @@ from utils.constants.UnitCodes import CreatureReactStates
 @dataclass
 class ThreatHolder:
     unit: UnitManager
-    total_threat: float
+    total_raw_threat: float
+    threat_mod: float
+
+    def get_total_threat(self):
+        return self.total_raw_threat + self.threat_mod
 
 
 class ThreatManager:
@@ -29,6 +33,18 @@ class ThreatManager:
         self.holders.clear()
         self.current_holder = None
 
+    def update_unit_threat_modifier(self, unit_mgr, remove=False):
+        max_holder = self._get_max_threat_holder()
+        threat = 0  # Modifier does not affect current raw threat.
+        threat_mod = max_holder.total_raw_threat if max_holder and not remove else 0
+        holder = self.holders.get(unit_mgr.guid)
+        # Add or update threat and modifier.
+        if not remove:
+            self.add_threat(unit_mgr, threat, threat_mod)
+        # Remove modifier if player exist as a threat holder.
+        elif holder:
+            holder.threat_mod = threat_mod
+
     def remove_unit_threat(self, unit_guid):
         if unit_guid in self.holders:
             # Reset current holder if needed.
@@ -37,16 +53,17 @@ class ThreatManager:
             # Pop unit from threat holders.
             self.holders.pop(unit_guid)
 
-    def add_threat(self, source: UnitManager, threat: float, is_call_for_help=False):
+    def add_threat(self, source: UnitManager, threat: float, threat_mod=0, is_call_for_help=False):
         if source is not self.owner:
             source_holder = self.holders.get(source.guid)
             if source_holder:
-                new_threat = source_holder.total_threat + threat
-                source_holder.total_threat = max(new_threat, 0.0)
-            elif threat > 0.0:
+                new_threat = source_holder.total_raw_threat + threat
+                source_holder.total_raw_threat = max(new_threat, 0.0)
+                source_holder.threat_mod = threat_mod
+            elif threat >= 0.0:
                 if not is_call_for_help:
                     self._call_for_help(source, threat)
-                self.holders[source.guid] = ThreatHolder(source, threat)
+                self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
                 self._update_attackers_collection(source)
             else:
                 Logger.warning(f'Passed non positive threat {threat} from {source.guid & ~HighGuid.HIGHGUID_UNIT}')
@@ -62,7 +79,7 @@ class ThreatManager:
         # Threat target switching.
         if max_threat_holder != self.current_holder:
             if not self.current_holder or self.owner.can_attack_target(self.current_holder.unit) or \
-                    self._is_exceeded_current_threat_melee_range(max_threat_holder.total_threat):
+                    self._is_exceeded_current_threat_melee_range(max_threat_holder.get_total_threat()):
                 self.current_holder = max_threat_holder
 
         return None if not self.current_holder else self.current_holder.unit
@@ -153,10 +170,10 @@ class ThreatManager:
                 relevant_holders.append(holder)
 
         # Sort by threat.
-        relevant_holders.sort(key=lambda h: h.total_threat)
+        relevant_holders.sort(key=lambda h: h.get_total_threat())
         return relevant_holders
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):
-        current_threat = 0.0 if not self.current_holder else self.current_holder.total_threat
+        current_threat = 0.0 if not self.current_holder else self.current_holder.get_total_threat()
         return threat >= current_threat * 1.1
