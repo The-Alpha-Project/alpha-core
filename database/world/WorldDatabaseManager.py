@@ -313,7 +313,7 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def gameobject_get_loot_template() -> list[GameobjectLootTemplate]:
+    def gameobject_get_loot_templates() -> list[GameobjectLootTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(GameobjectLootTemplate).all()
         world_db_session.close()

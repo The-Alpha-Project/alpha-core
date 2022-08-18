@@ -264,7 +264,7 @@ class WorldLoader:
 
     @staticmethod
     def load_gameobject_loot_templates():
-        gameobject_loot_templates = WorldDatabaseManager.gameobject_get_loot_template()
+        gameobject_loot_templates = WorldDatabaseManager.gameobject_get_loot_templates()
         length = len(gameobject_loot_templates)
         count = 0
 
