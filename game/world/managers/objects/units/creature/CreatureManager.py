@@ -814,7 +814,7 @@ class CreatureManager(UnitManager):
         if not target:
             return False
 
-        # If the creature is evading.
+        # If the creature is evading or not spawned.
         if target.is_evading or not target.is_spawned:
             return False
 
