@@ -810,6 +810,17 @@ class CreatureManager(UnitManager):
         self.last_tick = now
 
     # override
+    def can_attack_target(self, target):
+        if not target:
+            return False
+
+        # If the creature is evading.
+        if target.is_evading or not target.is_spawned:
+            return False
+
+        return super().can_attack_target(target)
+
+    # override
     def attack(self, victim: UnitManager):
         if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)

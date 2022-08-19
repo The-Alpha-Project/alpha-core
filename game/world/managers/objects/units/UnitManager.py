@@ -212,7 +212,12 @@ class UnitManager(ObjectManager):
 
     # override
     def can_attack_target(self, target):
-        if not target:
+        # Checks for both players and creatures (all units).
+        if not target.is_alive:
+            return False
+
+        if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
+                target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
             return False
 
         is_enemy = super().can_attack_target(target)

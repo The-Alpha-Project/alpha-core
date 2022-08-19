@@ -349,8 +349,8 @@ class SpellEffectHandler:
             for target in effect.targets.get_resolved_effect_targets_by_type(ObjectManager):
                 if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
                     continue
-                recall_coordinates = target.get_deathbind_coordinates()
-                target.teleport(recall_coordinates[0], recall_coordinates[1])
+                deathbind_map, deathbind_location = target.get_deathbind_coordinates()
+                target.teleport(deathbind_map, deathbind_location)
 
     @staticmethod
     def handle_weapon_skill(casting_spell, effect, caster, target):
@@ -546,6 +546,14 @@ class SpellEffectHandler:
         threat = effect.get_effect_simple_points()
         target.threat_manager.add_threat(caster, threat)
 
+    @staticmethod
+    def handle_stuck(casting_spell, effect, caster, target):
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        deathbind_map, deathbind_location = target.get_deathbind_coordinates()
+        target.teleport(deathbind_map, deathbind_location)
+
     # TODO: Currently you always succeed.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
@@ -694,6 +702,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
     SpellEffects.SPELL_EFFECT_DUMMY: SpellEffectHandler.handle_dummy,
     SpellEffects.SPELL_EFFECT_THREAT: SpellEffectHandler.handle_threat,
+    SpellEffects.SPELL_EFFECT_STUCK: SpellEffectHandler.handle_stuck,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

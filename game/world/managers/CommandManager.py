@@ -588,12 +588,6 @@ class CommandManager(object):
             return -1, 'please specify a money amount.'
 
     @staticmethod
-    def suicide(world_session, args):
-        world_session.player_mgr.deal_damage(world_session.player_mgr, world_session.player_mgr.health)
-
-        return 0, ''
-
-    @staticmethod
     def guildcreate(world_session, args):
         GuildManager.create_guild(world_session.player_mgr, args)
 
@@ -699,7 +693,6 @@ class CommandManager(object):
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': [CommandManager.help, 'print this message'],
-    'suicide': [CommandManager.suicide, 'kill yourself and respawn at your binding location'],
     'serverinfo': [CommandManager.serverinfo, 'print server information'],
     'pwdchange': [CommandManager.pwdchange, 'change your password']
 }

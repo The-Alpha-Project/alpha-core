@@ -352,33 +352,12 @@ class ObjectManager:
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
     def can_attack_target(self, target):
+        # You can only attack units, not gameobjects.
+        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+            return False
+
         if target is self:
             return False
-
-        if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
-                target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
-            return False
-
-        # Player only checks.
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            # If player is on a flying path.
-            if target.movement_spline and target.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
-                return False
-
-            # If player is not in a PvP map (PvP system was not added until Patch 0.7).
-            if not MapManager.get_map(target.map_).is_pvp():
-                return False
-
-        # Creature only checks.
-        elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            # If the unit is evading.
-            if target.is_evading or not target.is_spawned:
-                return False
-
-        # Checks for both players and creatures (all units).
-        if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            if not target.is_alive:
-                return False
 
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
 
