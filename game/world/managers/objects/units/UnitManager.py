@@ -641,6 +641,7 @@ class UnitManager(ObjectManager):
         target.receive_damage(damage, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
+        # This method will return whether or not the unit is suitable to keep receiving damage.
         if not self.is_alive:
             return False
 
