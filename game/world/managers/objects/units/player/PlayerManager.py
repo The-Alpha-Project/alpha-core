@@ -1657,14 +1657,6 @@ class PlayerManager(UnitManager):
         self.quest_manager.update_surrounding_quest_status()
 
     # override
-    def can_attack_target(self, target):
-        is_enemy = super().can_attack_target(target)
-        if is_enemy:
-            return True
-
-        return False
-
-    # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
 
