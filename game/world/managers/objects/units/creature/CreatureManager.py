@@ -836,10 +836,6 @@ class CreatureManager(UnitManager):
         if not super().receive_damage(amount, source, is_periodic):
             return False
 
-        # Creature died, stop here.
-        if not self.is_alive:
-            return False
-
         # If creature's being attacked by another unit, automatically set combat target.
         not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
         if not_attacked_by_gameobject:
