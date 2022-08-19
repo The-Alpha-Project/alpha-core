@@ -238,7 +238,7 @@ class CastingSpell:
 
     def is_target_immune(self):
         if not self.initial_target_is_unit_or_player():
-            return False
+            return True
 
         # TODO SpellDispelType.dbc is in 0.5.3, but DispelType in Spell.dbc was added later (present in 0.5.5)
         #   Is there another way to determine the dispel type for a spell?
