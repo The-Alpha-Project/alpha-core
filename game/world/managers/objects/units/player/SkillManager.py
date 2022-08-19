@@ -629,7 +629,7 @@ class SkillManager(object):
         return 0
 
     def can_dual_wield(self):
-        return SkillTypes.DUALWIELD in self.skills and self.player_mgr.level >= 10
+        return SkillTypes.DUALWIELD in self.skills
 
     def build_update(self):
         count = 0
