@@ -241,8 +241,10 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
-        victim.attackers[self.guid] = self
-        self.attackers[victim.guid] = victim
+        if self.guid not in victim.attackers:
+            victim.attackers[self.guid] = self
+        if victim.guid not in self.attackers:
+            self.attackers[victim.guid] = victim
 
         self.enter_combat()
         victim.enter_combat()
@@ -831,23 +833,22 @@ class UnitManager(ObjectManager):
             return
 
         # Remove self from attacker list of attackers.
-        for guid, victim in list(self.attackers.items()):
-            if self.guid in victim.attackers:
-                # Always pop self from victim attackers.
-                victim.attackers.pop(self.guid)
-                # Remove self from victim threat manager.
-                if victim.get_type_id() == ObjectTypeIds.ID_UNIT:
-                    victim.threat_manager.remove_unit_threat(self.guid)
+        for guid, attacker in list(self.attackers.items()):
+            if self.guid in attacker.attackers:
+                # Always pop self from attacker.
+                del attacker.attackers[self.guid]
+                # Remove self from attacker threat manager.
+                if attacker.get_type_id() == ObjectTypeIds.ID_UNIT:
+                    attacker.threat_manager.remove_unit_threat(self.guid)
                 # If by now the attacker has no more attackers, leave combat as well.
-                if len(victim.attackers) == 0:
-                    victim.leave_combat(force=force)
+                if len(attacker.attackers) == 0:
+                    attacker.leave_combat(force=force)
 
         self.attackers.clear()
 
         self.send_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
         self.swing_error = 0
 
-        self.evading_waypoints.clear()
         self.combat_target = None
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
@@ -1225,6 +1226,7 @@ class UnitManager(ObjectManager):
             self.summoner.pet_manager.detach_active_pet()
 
         self.leave_combat(force=True)
+        self.evading_waypoints.clear()
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
 
