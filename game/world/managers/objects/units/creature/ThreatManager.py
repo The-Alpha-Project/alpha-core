@@ -54,6 +54,9 @@ class ThreatManager:
             self.holders.pop(unit_guid)
 
     def add_threat(self, source: UnitManager, threat: float, threat_mod=0, is_call_for_help=False):
+        if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
+            return
+
         if source is not self.owner:
             source_holder = self.holders.get(source.guid)
             if source_holder:

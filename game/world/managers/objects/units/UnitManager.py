@@ -241,10 +241,8 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
-        if self.guid not in victim.attackers:
-            victim.attackers[self.guid] = self
-        if victim.guid not in self.attackers:
-            self.attackers[victim.guid] = victim
+        victim.attackers[self.guid] = self
+        self.attackers[victim.guid] = victim
 
         self.enter_combat()
         victim.enter_combat()
@@ -653,6 +651,7 @@ class UnitManager(ObjectManager):
         new_health = self.health - amount
         if new_health <= 0:
             self.die(killer=source)
+            return False
         else:
             damage_info = DamageInfoHolder()
             damage_info.damage = amount
