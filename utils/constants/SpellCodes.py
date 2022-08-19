@@ -510,6 +510,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_ENEMY_UNIT = 6
     TARGET_AREAEFFECT_CUSTOM = 7  # VMaNGOS: "TARGET_ENUM_UNITS_SCRIPT_AOE_AT_SRC_LOC" Most likely correct definition - includes cozy fire effect etc. TODO
     TARGET_INNKEEPER_COORDINATES = 9  # Used in teleport to innkeeper spells
+    TARGET_NOT_YET_IMPLEMENTED = 10  # 1073 (Divine Escape)
     TARGET_11 = 11  # Only used by "Word of Recall Other" (4)
     TARGET_ALL_ENEMY_IN_AREA = 15
     TARGET_ALL_ENEMY_IN_AREA_INSTANT = 16
