@@ -3,6 +3,7 @@ from typing import Tuple, Dict
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
@@ -110,10 +111,13 @@ class EnchantmentManager(object):
             # Some enchant procs use spells that have cast times.
             # Ignore cast time for these spells by overriding cast time info.
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(proc_spell_id)
-            spell = self.unit_mgr.spell_manager.try_initialize_spell(spell_template, damage_info.target,
-                                                                     SpellTargetMask.UNIT, triggered=True)
-            spell.cast_time_entry = None
-            self.unit_mgr.spell_manager.start_spell_cast(initialized_spell=spell)
+            if spell_template:
+                spell = self.unit_mgr.spell_manager.try_initialize_spell(spell_template, damage_info.target,
+                                                                         SpellTargetMask.UNIT, triggered=True)
+                spell.cast_time_entry = None
+                self.unit_mgr.spell_manager.start_spell_cast(initialized_spell=spell)
+            else:
+                Logger.warning(f'Unable to locate enchantment proc spell {proc_spell_id}')
 
     def _handle_aura_removal(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
