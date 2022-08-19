@@ -1211,10 +1211,6 @@ class PlayerManager(UnitManager):
         self.current_selection = guid
         self.set_uint64(PlayerFields.PLAYER_SELECTION, guid)
 
-    def set_weapon_reach(self, reach):
-        self.weapon_reach = reach
-        self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, reach)
-
     def set_base_str(self, str_):
         self.base_str = str_
         self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, str_)

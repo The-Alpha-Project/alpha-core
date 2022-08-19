@@ -1141,6 +1141,10 @@ class UnitManager(ObjectManager):
         self.offhand_attack_time = attack_time
         self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, attack_time)
 
+    def set_weapon_reach(self, reach):
+        self.weapon_reach = reach
+        self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, reach)
+
     def set_weapon_mode(self, weapon_mode):
         self.sheath_state = weapon_mode
 
