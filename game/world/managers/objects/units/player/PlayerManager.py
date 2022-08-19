@@ -733,19 +733,7 @@ class PlayerManager(UnitManager):
 
             loot_manager = self.loot_selection.get_loot_manager(world_obj_target)
             if world_obj_target and loot_manager and loot_manager.has_loot():
-                loot = loot_manager.get_loot_in_slot(slot)
-                if loot and loot.item:
-                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
-                        loot_manager.do_loot(slot, self)
-                        data = pack('<B', slot)
-                        packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
-                        # Loot is multi-drop, notify only self about its removal.
-                        if loot.is_multi_drop():
-                            self.enqueue_packet(packet)
-                        # Notify players with loot window open about its removal.
-                        else:
-                            for looter in loot_manager.get_active_looters():
-                                looter.enqueue_packet(packet)
+                loot_manager.loot_item_in_slot(slot, requester=self)
 
     def interrupt_looting(self):
         if self.loot_selection:
