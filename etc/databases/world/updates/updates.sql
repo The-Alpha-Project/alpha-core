@@ -9931,6 +9931,61 @@ begin not atomic
         SET `display_id1`=91
         WHERE `entry`=5454;
 
+        -- Centipaar Stinger
+        UPDATE `creature_template`
+        SET `display_id1`=92
+        WHERE `entry`=5456;
+
+        -- Centipaar Swarmer
+        UPDATE `creature_template`
+        SET `display_id1`=92
+        WHERE `entry`=5457;
+
+        -- Centipaar Wasp
+        UPDATE `creature_template`
+        SET `display_id1`=92
+        WHERE `entry`=5455;
+
+        -- Centipaar Worker
+        UPDATE `creature_template`
+        SET `display_id1`=157
+        WHERE `entry`=5458;
+
+        -- Centipaar Tunneler
+        UPDATE `creature_template`
+        SET `display_id1`=91
+        WHERE `entry`=5459;
+
+        -- Centipaar Sandreaver
+        UPDATE `creature_template`
+        SET `display_id1`=91
+        WHERE `entry`=5460;
+
+        -- Wasterwander Shadow mage
+        UPDATE `creature_template`
+        SET `display_id1`=263, `display_id2`=278
+        WHERE `entry`=5617;
+
+        -- Wasterwander bandit
+        UPDATE `creature_template`
+        SET `display_id1`=208, `display_id2`=0
+        WHERE `entry`=5618;
+
+        -- Wasterwander thief
+        UPDATE `creature_template`
+        SET `display_id1`=208, `display_id2`=0
+        WHERE `entry`=5616;
+
+        -- Wasterwander assasin
+        UPDATE `creature_template`
+        SET `display_id1`=210, `display_id2`=0
+        WHERE `entry`=5623;
+
+        -- Wasterwander rogue
+        UPDATE `creature_template`
+        SET `display_id1`=210, `display_id2`=0
+        WHERE `entry`=5615;
+
         -- Dunemaul Enforcer
         UPDATE `creature_template`
         SET `display_id1`=3193
@@ -9996,17 +10051,17 @@ begin not atomic
         SET `display_id1`=2308
         WHERE `entry`=5431;
 
+        -- Land Rager
+        UPDATE `creature_template`
+        SET `display_id1`=3235
+        WHERE `entry`=5465;
+
         -- THOUSAND NEEDLES
 
         -- Silithid Invader
         UPDATE `creature_template`
         SET `display_id1`=91
         WHERE `entry`=4131;
-
-        -- Land Rager
-        UPDATE `creature_template`
-        SET `display_id1`=3235
-        WHERE `entry`=5465;
         
         insert into applied_updates values ('180820221');
     end if;
