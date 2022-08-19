@@ -329,14 +329,25 @@ class StatManager(object):
             min_damage, max_damage = unpack('<2H', pack('<I', self.unit_mgr.damage))
             main_min_dmg = min_damage
             main_max_dmg = max_damage
+            weapon_reach = 0
 
-            # Disarm effects. Only applies to mobs with a weapon equipped. Sources suggest a
-            # ~60% damage reduction on mobs which can be disarmed and have a weapon
-            # http://wowwiki.wikia.com/wiki/Attumen_the_Huntsman?oldid=1377353
-            # http://wowwiki.wikia.com/wiki/Disarm?direction=prev&oldid=200198
-            if self.unit_mgr.has_mainhand_weapon() and self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
-                main_min_dmg = math.ceil(main_min_dmg * 0.4)
-                main_max_dmg = math.ceil(main_max_dmg * 0.4)
+            if self.unit_mgr.has_mainhand_weapon():
+                # Disarm effects. Only applies to mobs with a weapon equipped. Sources suggest a
+                # ~60% damage reduction on mobs which can be disarmed and have a weapon
+                # http://wowwiki.wikia.com/wiki/Attumen_the_Huntsman?oldid=1377353
+                # http://wowwiki.wikia.com/wiki/Disarm?direction=prev&oldid=200198
+                if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                    main_min_dmg = math.ceil(main_min_dmg * 0.4)
+                    main_max_dmg = math.ceil(main_max_dmg * 0.4)
+                else:
+                    creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+                        self.unit_mgr.creature_template.equipment_id)
+                    if creature_equip_template:
+                        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(
+                            creature_equip_template.equipentry1)
+                        if item_template:
+                            weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
+            self.weapon_reach = weapon_reach
 
             # Main hand.
             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = main_min_dmg
@@ -402,11 +413,6 @@ class StatManager(object):
                             self.unit_mgr.is_in_feral_form():
                         continue
 
-                    # Main hand damage when disarmed.
-                    if item.current_slot == InventorySlots.SLOT_MAINHAND and \
-                            self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
-                        continue
-
                     if item.current_slot != InventorySlots.SLOT_MAINHAND and \
                         item.current_slot != InventorySlots.SLOT_OFFHAND and \
                             item.current_slot != InventorySlots.SLOT_RANGED:
@@ -425,11 +431,16 @@ class StatManager(object):
                     weapon_max_damage += weapon_enchant_bonus
 
                     if item.current_slot == InventorySlots.SLOT_MAINHAND:
-                        self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
-                        self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
-                        self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
-                        # Assuming only main hand affects weapon reach.
-                        self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
+                        if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = 0
+                            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = 0
+                            self.item_stats[UnitStats.MAIN_HAND_DELAY] = config.Unit.Defaults.base_attack_time
+                            self.weapon_reach = 0
+                        else:
+                            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
+                            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
+                            self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
+                            self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
                     elif item.current_slot == InventorySlots.SLOT_OFFHAND:
                         dual_wield_penalty = 0.5
                         self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = math.ceil(weapon_min_damage *
@@ -751,19 +762,17 @@ class StatManager(object):
         self.update_base_block_chance()
 
     def send_melee_attributes(self):
-        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
+        if self.unit_mgr.get_type_id == ObjectTypeIds.ID_PLAYER:
+            # Weapon enchant bonuses are included in the weapon's damage internally,
+            # but should be displayed as a bonus.
+            enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
+                self.unit_mgr.inventory.get_main_hand(), ItemEnchantmentType.DAMAGE
+            )
+        else:
+            enchant_bonus = 0
 
-        # Weapon enchant bonuses are included in the weapon's damage internally,
-        # but should be displayed as a bonus.
-
-        enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(self.unit_mgr.inventory.get_main_hand(),
-                                                                                 ItemEnchantmentType.DAMAGE)
-
-        # For stat sheet
         self.unit_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN) - enchant_bonus,
                                        self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX) - enchant_bonus)
-
         self.unit_mgr.set_melee_attack_time(self.get_total_stat(UnitStats.MAIN_HAND_DELAY))
         self.unit_mgr.set_offhand_attack_time(self.get_total_stat(UnitStats.OFF_HAND_DELAY))
         self.unit_mgr.set_weapon_reach(self.weapon_reach)

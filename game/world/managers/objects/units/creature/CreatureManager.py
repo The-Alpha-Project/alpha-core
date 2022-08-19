@@ -456,8 +456,6 @@ class CreatureManager(UnitManager):
                 self.wearing_mainhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
                                                 item_template.inventory_type == InventoryTypes.WEAPONMAINHAND or
                                                 item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON)
-                if self.wearing_mainhand_weapon:
-                    self.weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
 
             # Offhand.
             if slot == 1:
@@ -469,9 +467,6 @@ class CreatureManager(UnitManager):
                                               item_template.inventory_type == InventoryTypes.RANGEDRIGHT)
         else:
             self.virtual_item_info[slot] = CreatureManager.VirtualItemInfoHolder()
-
-            if slot == 0:
-                self.weapon_reach = 0.0
 
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
 
