@@ -41,6 +41,7 @@ class SpellEffectHandler:
                 return
 
             # Effect type.
+            # noinspection PyUnresolvedReferences
             if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT,
                                       effect.effect_type, spell_id=casting_spell.spell_entry.ID):
                 return
@@ -116,6 +117,10 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
+        # Duels can only happen between players.
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         arbiter = GameObjectManager.spawn(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
                                           summoner=caster, ttl=3600, spell_id=casting_spell.spell_entry.ID,
                                           override_faction=caster.faction)
