@@ -2,6 +2,7 @@ from game.world.opcode_handling.handlers.inventory.ItemQueryMultipleHandler impo
 from game.world.opcode_handling.handlers.inventory.WrapItemHandler import WrapItemHandler
 from game.world.opcode_handling.handlers.player.BootMeHandler import BootMeHandler
 from game.world.opcode_handling.handlers.pet.PetActionHandler import PetActionHandler
+from game.world.opcode_handling.handlers.player.PvPPortHandler import PvPPortHandler
 from game.world.opcode_handling.handlers.player.ResurrectResponseHandler import ResurrectResponseHandler
 from game.world.opcode_handling.handlers.player.cheats.BeastMasterHandler import CheatBeastMasterHandler
 from game.world.opcode_handling.handlers.player.cheats.RechargeHandler import RechargeHandler
@@ -329,6 +330,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_BOOTME: BootMeHandler.handle,
     OpCode.CMSG_PET_ACTION: PetActionHandler.handle,
     OpCode.CMSG_RESURRECT_RESPONSE: ResurrectResponseHandler.handle,
+    OpCode.CMSG_PVP_PORT: PvPPortHandler.handle,
 
     # Movement packets
     OpCode.MSG_MOVE_HEARTBEAT: MovementHandler.handle_movement_status,
