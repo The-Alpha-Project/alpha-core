@@ -55,8 +55,12 @@ class CreatureManager(UnitManager):
         self.static_flags = 0
         self.emote_state = 0
         self.spell_list_id = 0
+        self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
+        self.ranged_attack_time = 0
+        self.ranged_dmg_min = 0
+        self.ranged_dmg_max = 0
         self.time_to_live_timer = 0
         self.respawn_timer = 0
         self.last_random_movement = 0
@@ -123,6 +127,9 @@ class CreatureManager(UnitManager):
             self.regen_flags = self.creature_template.regeneration
             self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
             self.base_attack_time = self.creature_template.base_attack_time
+            self.ranged_attack_time = self.creature_template.ranged_attack_time
+            self.ranged_dmg_min = self.creature_template.ranged_dmg_min
+            self.ranged_dmg_max = self.creature_template.ranged_dmg_max
             self.unit_flags = self.creature_template.unit_flags
             self.emote_state = 0
             self.faction = self.creature_template.faction
@@ -143,6 +150,7 @@ class CreatureManager(UnitManager):
             self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
 
             self.mod_cast_speed = 1.0
+            self.wearing_mainhand_weapon = False
             self.wearing_offhand_weapon = False
             self.wearing_ranged_weapon = False
 
@@ -445,7 +453,11 @@ class CreatureManager(UnitManager):
 
             # Main hand.
             if slot == 0:
-                self.weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
+                self.wearing_mainhand_weapon = (item_template.inventory_type == InventoryTypes.WEAPON or
+                                                item_template.inventory_type == InventoryTypes.WEAPONMAINHAND or
+                                                item_template.inventory_type == InventoryTypes.TWOHANDEDWEAPON)
+                if self.wearing_mainhand_weapon:
+                    self.weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
 
             # Offhand.
             if slot == 1:
@@ -978,6 +990,10 @@ class CreatureManager(UnitManager):
     # override
     def notify_moved_in_line_of_sight(self, target):
         self.object_ai.move_in_line_of_sight(target)
+
+    # override
+    def has_mainhand_weapon(self):
+        return self.wearing_mainhand_weapon
 
     # override
     def has_offhand_weapon(self):

@@ -1,3 +1,4 @@
+import math
 import random
 from enum import auto, IntFlag
 from struct import pack, unpack
@@ -323,100 +324,123 @@ class StatManager(object):
         return bonuses
 
     def calculate_item_stats(self):
-        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            self.weapon_reach = self.unit_mgr.weapon_reach
+        # Creature-only calculations.
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
             min_damage, max_damage = unpack('<2H', pack('<I', self.unit_mgr.damage))
+            main_min_dmg = min_damage
+            main_max_dmg = max_damage
 
-            # TODO: properly calculate creature damage when disarmed.
-            if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
-                max_damage = min_damage
-                
-            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = min_damage
-            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = max_damage
+            # Disarm effects. Only applies to mobs with a weapon equipped. Sources suggest a
+            # ~60% damage reduction on mobs which can be disarmed and have a weapon
+            # http://wowwiki.wikia.com/wiki/Attumen_the_Huntsman?oldid=1377353
+            # http://wowwiki.wikia.com/wiki/Disarm?direction=prev&oldid=200198
+            if self.unit_mgr.has_mainhand_weapon() and self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                main_min_dmg = math.ceil(main_min_dmg * 0.4)
+                main_max_dmg = math.ceil(main_max_dmg * 0.4)
+
+            # Main hand.
+            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = main_min_dmg
+            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = main_max_dmg
             self.item_stats[UnitStats.MAIN_HAND_DELAY] = self.unit_mgr.base_attack_time
-            return
 
-        self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
-                           UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
+            # Off hand.
+            if self.unit_mgr.has_offhand_weapon():
+                dual_wield_penalty = 0.5
+                self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = math.ceil(min_damage * dual_wield_penalty)
+                self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = math.ceil(max_damage * dual_wield_penalty)
+                self.item_stats[UnitStats.OFF_HAND_DELAY] = self.unit_mgr.base_attack_time
 
-        if self.unit_mgr.is_in_feral_form():
-            # Druids in feral form don't use their weapon to attack.
-            # Use weapon damage values for paw damage instead.
-            # VMaNGOS values.
+            # Ranged.
+            if self.unit_mgr.has_ranged_weapon():
+                self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = self.unit_mgr.ranged_dmg_min
+                self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = self.unit_mgr.ranged_dmg_max
+                self.item_stats[UnitStats.RANGED_DELAY] = self.unit_mgr.ranged_attack_time
 
-            # Base attack delay for the two forms.
-            attack_delay = 1000 if self.unit_mgr.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT) else 2500
+        # Player-only calculations.
+        else:
+            self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
+                               UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
 
-            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = self.unit_mgr.level * 0.85 * (attack_delay / 1000)
-            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
-            self.item_stats[UnitStats.MAIN_HAND_DELAY] = attack_delay
+            if self.unit_mgr.is_in_feral_form():
+                # Druids in feral form don't use their weapon to attack.
+                # Use weapon damage values for paw damage instead.
+                # VMaNGOS values.
 
-        # Reset weapon reach.
-        self.weapon_reach = 0
+                # Base attack delay for the two forms.
+                attack_delay = 1000 if self.unit_mgr.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT) else 2500
 
-        # Regenerate item stats.
-        for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
-            # Check equipped items.
-            if item.current_slot <= InventorySlots.SLOT_TABARD:
-                # Handle normal item stats.
-                for stat in item.stats:
-                    stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
-                    if stat.value != 0:
-                        current = self.item_stats.get(stat_type, 0)
-                        self.item_stats[stat_type] = current + stat.value
+                self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = self.unit_mgr.level * 0.85 * (attack_delay / 1000)
+                self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
+                self.item_stats[UnitStats.MAIN_HAND_DELAY] = attack_delay
 
-                # Add resistances/block.
-                separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
-                                  UnitStats.RESISTANCE_HOLY: item.item_template.holy_res,
-                                  UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
-                                  UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
-                                  UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
-                                  UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res}
-                for stat, value in separate_stats.items():
-                    self.item_stats[stat] = self.item_stats.get(stat, 0) + value
+            # Reset weapon reach.
+            self.weapon_reach = 0
 
-                # Ignore weapon damage stats for feral druids.
-                if InventorySlots.SLOT_MAINHAND <= item.current_slot <= InventorySlots.SLOT_RANGED and \
-                        self.unit_mgr.is_in_feral_form():
-                    continue
+            # Regenerate item stats.
+            for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
+                # Check equipped items.
+                if item.current_slot <= InventorySlots.SLOT_TABARD:
+                    # Handle normal item stats.
+                    for stat in item.stats:
+                        stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
+                        if stat.value != 0:
+                            current = self.item_stats.get(stat_type, 0)
+                            self.item_stats[stat_type] = current + stat.value
 
-                # Main hand damage when disarmed.
-                if item.current_slot == InventorySlots.SLOT_MAINHAND and \
-                        self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
-                    continue
+                    # Add resistances/block.
+                    separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
+                                      UnitStats.RESISTANCE_HOLY: item.item_template.holy_res,
+                                      UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
+                                      UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
+                                      UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
+                                      UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res}
+                    for stat, value in separate_stats.items():
+                        self.item_stats[stat] = self.item_stats.get(stat, 0) + value
 
-                if item.current_slot != InventorySlots.SLOT_MAINHAND and \
-                    item.current_slot != InventorySlots.SLOT_OFFHAND and \
-                        item.current_slot != InventorySlots.SLOT_RANGED:
-                    continue  # Not a weapon.
+                    # Ignore weapon damage stats for feral druids.
+                    if InventorySlots.SLOT_MAINHAND <= item.current_slot <= InventorySlots.SLOT_RANGED and \
+                            self.unit_mgr.is_in_feral_form():
+                        continue
 
-                # Handle weapon damage stats.
-                weapon_min_damage = int(item.item_template.dmg_min1)
-                weapon_max_damage = int(item.item_template.dmg_max1)
-                weapon_delay = item.item_template.delay
+                    # Main hand damage when disarmed.
+                    if item.current_slot == InventorySlots.SLOT_MAINHAND and \
+                            self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                        continue
 
-                # Damage increase weapon enchants.
-                weapon_enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
-                    item, ItemEnchantmentType.DAMAGE)
+                    if item.current_slot != InventorySlots.SLOT_MAINHAND and \
+                        item.current_slot != InventorySlots.SLOT_OFFHAND and \
+                            item.current_slot != InventorySlots.SLOT_RANGED:
+                        continue  # Not a weapon.
 
-                weapon_min_damage += weapon_enchant_bonus
-                weapon_max_damage += weapon_enchant_bonus
-                
-                if item.current_slot == InventorySlots.SLOT_MAINHAND:
-                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
-                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
-                    self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
-                    # Assuming only main hand affects weapon reach.
-                    self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
-                elif item.current_slot == InventorySlots.SLOT_OFFHAND:
-                    dual_wield_penalty = 0.5
-                    self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = int(weapon_min_damage * dual_wield_penalty)
-                    self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = int(weapon_max_damage * dual_wield_penalty)
-                    self.item_stats[UnitStats.OFF_HAND_DELAY] = weapon_delay
-                elif item.current_slot == InventorySlots.SLOT_RANGED:
-                    self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
-                    self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
-                    self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
+                    # Handle weapon damage stats.
+                    weapon_min_damage = int(item.item_template.dmg_min1)
+                    weapon_max_damage = int(item.item_template.dmg_max1)
+                    weapon_delay = item.item_template.delay
+
+                    # Damage increase weapon enchants.
+                    weapon_enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
+                        item, ItemEnchantmentType.DAMAGE)
+
+                    weapon_min_damage += weapon_enchant_bonus
+                    weapon_max_damage += weapon_enchant_bonus
+
+                    if item.current_slot == InventorySlots.SLOT_MAINHAND:
+                        self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
+                        self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
+                        self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
+                        # Assuming only main hand affects weapon reach.
+                        self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
+                    elif item.current_slot == InventorySlots.SLOT_OFFHAND:
+                        dual_wield_penalty = 0.5
+                        self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = math.ceil(weapon_min_damage *
+                                                                                   dual_wield_penalty)
+                        self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = math.ceil(weapon_max_damage *
+                                                                                   dual_wield_penalty)
+                        self.item_stats[UnitStats.OFF_HAND_DELAY] = weapon_delay
+                    elif item.current_slot == InventorySlots.SLOT_RANGED:
+                        self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
+                        self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
+                        self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
 
     def update_max_health(self):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)

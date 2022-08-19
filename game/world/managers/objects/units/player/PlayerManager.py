@@ -1331,6 +1331,10 @@ class PlayerManager(UnitManager):
         self._send_attack_swing_error(victim, OpCode.SMSG_ATTACKSWING_NOTSTANDING)
 
     # override
+    def has_mainhand_weapon(self):
+        return self.inventory.has_main_weapon() or self.inventory.has_two_handed_weapon()
+
+    # override
     def has_offhand_weapon(self):
         return self.inventory.has_offhand_weapon()
 
