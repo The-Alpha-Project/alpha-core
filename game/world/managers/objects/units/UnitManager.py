@@ -646,17 +646,22 @@ class UnitManager(ObjectManager):
                 subclass = equipped_weapon.item_template.subclass
 
         damage = self.stat_manager.apply_bonuses_for_damage(base_damage,
-                                         spell_school, target, subclass)
+                                                            spell_school, target, subclass)
 
-        damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self, 
-                                                             spell_attack_type, spell_school)
+        damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self,
+                                                                                        spell_attack_type, spell_school)
                                                              
         is_crit = damage_info.hit_info == SpellHitFlags.HIT_FLAG_CRIT
+        # From 0.5.5 patch notes:
+        #     "Critical hits with ranged weapons now do 100% extra damage."
+        # We assume that ranged crits dealt 50% increased damage instead of 100%. The other option could be 200% but
+        # 50% sounds more logical.
+        crit_multiplier = 1.50 if spell_attack_type == AttackTypes.RANGED_ATTACK else 2.0
         if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL:
-            damage = int(damage * 2 if is_crit else damage)
+            damage = int(damage * crit_multiplier if is_crit else damage)
             damage_info.damage = damage_info.clean_damage = damage_info.total_damage = damage
         else:
-            damage_info.absorb = 0 #TODO: handle absorb
+            damage_info.absorb = 0  # TODO: handle absorbs.
             damage_info.damage = int(damage * 1.5 if is_crit else damage)
             damage_info.total_damage = max(0, damage_info.damage - damage_info.absorb)
 
@@ -731,14 +736,15 @@ class UnitManager(ObjectManager):
         if target.is_evading:
             miss_reason = SpellMissReason.MISS_REASON_EVADED
 
-        # Overwrite on immune. TODO This and evade should be written in spell target results instead.
+        # TODO This and evade should be written in spell target results instead.
+        # Overwrite on immune.
         if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
             if target.handle_immunity(self, SpellImmunity.IMMUNITY_DAMAGE, casting_spell.spell_entry.School,
                                       spell_id=casting_spell.spell_entry.ID):
                 miss_reason = SpellMissReason.MISS_REASON_IMMUNE
 
         damage_info = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
-                                             casting_spell.spell_attack_type)
+                                                  casting_spell.spell_attack_type)
 
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.damage = damage_info.total_damage = 0
@@ -772,7 +778,7 @@ class UnitManager(ObjectManager):
                     creature.threat_manager.add_threat(self, threat)
 
     def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False, healing=False):
-        # TODO: Below use of SpellHitFlags might not be correct, needs further investigation.
+        # TODO: Below use of flags (first field of the packet) might not be correct, needs further investigation.
         spell_id = casting_spell.spell_entry.ID
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
