@@ -10044,7 +10044,7 @@ begin not atomic
         -- Dread flyer
         UPDATE `creature_template`
         SET `display_id1`=1192
-        WHERE `entry`=4683;
+        WHERE `entry`=4693;
 
         -- Basilisk
         UPDATE `creature_template`
