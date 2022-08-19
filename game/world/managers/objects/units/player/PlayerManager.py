@@ -1658,22 +1658,6 @@ class PlayerManager(UnitManager):
 
     # override
     def can_attack_target(self, target):
-        if not target:
-            return False
-
-        # If player is on a flying path.
-        if target.movement_spline and target.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
-            return False
-
-        # Return True if players are currently dueling.
-        if self.duel_manager and target is not self and self.duel_manager.is_player_involved(target):
-            if self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED:
-                return True
-
-        # If player is not in a PvP map (PvP system was not added until Patch 0.7).
-        if not MapManager.get_map(target.map_).is_pvp():
-            return False
-
         is_enemy = super().can_attack_target(target)
         if is_enemy:
             return True
