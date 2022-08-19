@@ -353,11 +353,7 @@ class EffectTargets:
         initial_target = casting_spell.initial_target
         caster = casting_spell.spell_caster
 
-        if effect_type == SpellEffects.SPELL_EFFECT_DUEL:
-            # Only friendly duel targets.
-            return [initial_target] if not caster.can_attack_target(initial_target) else []
-
-        elif effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
+        if effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
             # Only tameable, attackable targets.
             return [initial_target] if initial_target.is_tameable() and \
                                        caster.can_attack_target(initial_target) else []
