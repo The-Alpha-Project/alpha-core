@@ -117,6 +117,10 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_request_duel(casting_spell, effect, caster, target):
+        # Prevent dueling vs non existent targets or vs self.
+        if not target or target == caster:
+            return
+
         # Duels can only happen between players.
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
