@@ -17,3 +17,6 @@ class Map:
 
     def is_dungeon(self):
         return self.map_.IsInMap == MapType.INSTANCE
+
+    def is_pvp(self):
+        return self.map_.PVP == 1
