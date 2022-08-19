@@ -618,6 +618,8 @@ class CreatureManager(UnitManager):
 
         # Get the path we are using to get back to spawn location.
         waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
+        self.evading_waypoints.clear()
+
         # Despawn this creature if the last evade point is too far away from its current position.
         if self.location.distance(waypoints_to_spawn[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
             self.despawn()
