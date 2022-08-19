@@ -10,7 +10,7 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
-from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms, SpellImmunity
+from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms, SpellImmunity, SpellHitFlags
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags
 
 
@@ -161,6 +161,7 @@ class StatManager(object):
             self.base_stats[UnitStats.STAMINA] = base_attrs.sta
             self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
             self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
+            self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_SPELL_CRITICAL_CHANCE / 100
             self.unit_mgr.base_hp = base_stats.basehp
             self.unit_mgr.base_mana = base_stats.basemana
         # Creatures.
@@ -173,6 +174,7 @@ class StatManager(object):
             # Players have block scaling, assign flat 5% to creatures.
             self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
             self.base_stats[UnitStats.CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
+            self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_SPELL_CRITICAL_CHANCE / 100
             self.unit_mgr.base_hp = self.unit_mgr.max_health
             self.unit_mgr.base_mana = self.unit_mgr.max_power_1
 
@@ -716,6 +718,17 @@ class StatManager(object):
         
         return HitInfo.SUCCESS
 
+    def get_spell_attack_result_against_self(self, attacker, spell_school: SpellSchools, spell_attack_type: AttackTypes = -1):
+        is_normal_school = spell_school == SpellSchools.SPELL_SCHOOL_NORMAL
+        critical_type = UnitStats.CRITICAL if is_normal_school else UnitStats.SPELL_CRITICAL
+        attacker_critical_chance = attacker.stat_manager.get_total_stat(critical_type, accept_float=True)
+
+        roll = random.random()
+        if roll < attacker_critical_chance:
+            return SpellHitFlags.HIT_FLAG_CRIT
+
+        return SpellHitFlags.HIT_FLAG_NORMAL
+
     def update_base_weapon_attributes(self, attack_type=0):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
@@ -934,8 +947,9 @@ class StatManager(object):
 
 
 BASE_BLOCK_PARRY_CHANCE = 5
-BASE_MELEE_CRITICAL_CHANCE = 5
 BASE_DODGE_CHANCE_CREATURE = 5
+BASE_MELEE_CRITICAL_CHANCE = 5
+BASE_SPELL_CRITICAL_CHANCE = 5
 
 CLASS_SPIRIT_SCALING_HP5 = {
     Classes.CLASS_WARRIOR: 1.26,

@@ -626,10 +626,41 @@ class UnitManager(ObjectManager):
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
-    # Implemented by PlayerManager
-    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target,
-                               spell_attack_type: AttackTypes = -1):
-        return base_damage
+    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
+        if not target:
+            return None
+
+        if not self.is_alive or not target.is_alive:
+            return None
+
+        damage_info = DamageInfoHolder()
+        damage_info.attacker = self
+        damage_info.target = target
+        damage_info.attack_type = spell_attack_type if spell_attack_type != -1 else 0
+        damage_info.damage_school_mask = spell_school
+        
+        subclass = 0
+        if spell_attack_type != -1:
+            equipped_weapon = self.get_current_weapon_for_attack_type(spell_attack_type)
+            if equipped_weapon:
+                subclass = equipped_weapon.item_template.subclass
+
+        damage = self.stat_manager.apply_bonuses_for_damage(base_damage,
+                                         spell_school, target, subclass)
+
+        damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self, 
+                                                             spell_attack_type, spell_school)
+                                                             
+        is_crit = damage_info.hit_info == SpellHitFlags.HIT_FLAG_CRIT
+        if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL:
+            damage = int(damage * 2 if is_crit else damage)
+            damage_info.damage = damage_info.clean_damage = damage_info.total_damage = damage
+        else:
+            damage_info.absorb = 0 #TODO: handle absorb
+            damage_info.damage = int(damage * 1.5 if is_crit else damage)
+            damage_info.total_damage = max(0, damage_info.damage - damage_info.absorb)
+
+        return damage_info
 
     def deal_damage(self, target, damage, is_periodic=False, casting_spell=None):
         if not target or not target.is_alive:
@@ -706,11 +737,8 @@ class UnitManager(ObjectManager):
                                       spell_id=casting_spell.spell_entry.ID):
                 miss_reason = SpellMissReason.MISS_REASON_IMMUNE
 
-        damage = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
+        damage_info = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
                                              casting_spell.spell_attack_type)
-
-        # TODO Handle misses, absorbs etc. for spells.
-        damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
 
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.damage = damage_info.total_damage = 0
@@ -746,16 +774,15 @@ class UnitManager(ObjectManager):
     def send_spell_cast_debug_info(self, damage_info, miss_reason, casting_spell, is_periodic=False, healing=False):
         # TODO: Below use of SpellHitFlags might not be correct, needs further investigation.
         spell_id = casting_spell.spell_entry.ID
-        flags = SpellHitFlags.HIT_FLAG_NO_DAMAGE if healing else SpellHitFlags.HIT_FLAG_NORMAL
 
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
             combat_log_data = pack('<i2Q2i',
-                                   flags,
+                                   damage_info.hit_info,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id, miss_reason)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS
         else:
             combat_log_data = pack('<I2Q2If3I',
-                                   flags,
+                                   damage_info.hit_info,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id,
                                    damage_info.total_damage, damage_info.damage, damage_info.damage_school_mask,
                                    damage_info.damage, damage_info.absorb)
@@ -771,7 +798,7 @@ class UnitManager(ObjectManager):
                                damage_info.target.guid,
                                damage_info.total_damage,
                                damage_info.damage,
-                               SpellHitFlags.HIT_FLAG_NORMAL,
+                               damage_info.hit_info,
                                0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells).
                                damage_info.attacker.guid)
 
