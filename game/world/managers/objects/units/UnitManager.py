@@ -395,14 +395,13 @@ class UnitManager(ObjectManager):
          for unit in [damage_info.attacker, damage_info.target]]
 
     def calculate_melee_damage(self, victim, attack_type):
-        damage_info = DamageInfoHolder()
-
         if not victim:
             return None
 
         if not self.is_alive or not victim.is_alive:
             return None
 
+        damage_info = DamageInfoHolder()
         damage_info.attacker = self
         damage_info.target = victim
         damage_info.attack_type = attack_type

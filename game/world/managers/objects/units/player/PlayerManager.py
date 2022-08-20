@@ -1648,6 +1648,21 @@ class PlayerManager(UnitManager):
         self.quest_manager.update_surrounding_quest_status()
 
     # override
+    def can_attack_target(self, target):
+        if not target:
+            return False
+
+        is_enemy = super().can_attack_target(target)
+        if is_enemy:
+            return True
+
+        # Return True if players are dueling.
+        if self.duel_manager and target is not self and self.duel_manager.is_player_involved(target):
+            return self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
+
+        return False
+
+    # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
 

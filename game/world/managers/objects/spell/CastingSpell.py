@@ -452,7 +452,6 @@ class CastingSpell:
 
     def get_cast_damage_info(self, attacker, victim, damage, absorb):
         damage_info = DamageInfoHolder()
-
         damage_info.attacker = attacker
         damage_info.target = victim
         damage_info.attack_type = self.spell_attack_type if self.spell_attack_type != -1 else 0
