@@ -10065,5 +10065,13 @@ begin not atomic
         
         insert into applied_updates values ('180820221');
     end if;
+
+    -- 20/08/2022 1
+    if (select count(*) from applied_updates where id='200820221') = 0 then
+        -- Fix Captain Morgan and Cap'n Crunch factions.
+        UPDATE `creature_template` SET `faction` = 35 WHERE `entry` IN (3151, 3152);
+
+        insert into applied_updates values ('200820221');
+    end if;
 end $
 delimiter ;
