@@ -210,12 +210,21 @@ begin not atomic
     -- 20/08/2022 3
     if (select count(*) from applied_updates where id='200820223') = 0 then
         -- BURNING BLADE MOBS (orc)
-
         UPDATE `creature_template`
         SET `display_id1`=1139, `display_id2`=0, `display_id3`=0, `display_id4`=0
         WHERE `name` LIKE "burning blade%" AND `name` NOT LIKE "burning blade nightmare" AND `entry` < 5764 AND `display_id1` > 4165;
 
         insert into applied_updates values ('200820223');
+
+        -- Magram Marauder
+        UPDATE `creature_template`
+        SET `display_id1`=1349
+        WHERE `entry`=4644;
+
+        -- Magram Outruner
+        UPDATE `creature_template`
+        SET `display_id1`=1348
+        WHERE `entry`=4639;
     end if;
 end $
 delimiter ;
