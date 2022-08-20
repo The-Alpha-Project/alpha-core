@@ -14,14 +14,13 @@ from utils.constants import EnvVars
 
 
 def release_process(process):
-    retry = True
-    while retry:
+    while process.is_alive():
         try:
-            process.close()
+            process.join(timeout=2)  # Seconds.
+            if process.is_alive():
+                process.terminate()
         except ValueError:
             sleep(0.1)
-        finally:
-            retry = False
 
 
 if __name__ == '__main__':
