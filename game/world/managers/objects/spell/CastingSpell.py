@@ -453,16 +453,13 @@ class CastingSpell:
     def get_cast_damage_info(self, attacker, victim, damage, absorb):
         damage_info = DamageInfoHolder()
 
-        if not victim:
-            return None
-
         damage_info.attacker = attacker
         damage_info.target = victim
         damage_info.attack_type = self.spell_attack_type if self.spell_attack_type != -1 else 0
 
         damage_info.damage += damage
         damage_info.damage_school_mask = self.spell_entry.School
-        # Not taking "subdamages" into account
+        # Not taking "subdamages" into account.
         damage_info.total_damage = max(0, damage - absorb)
         damage_info.absorb = absorb
         damage_info.hit_info = HitInfo.DAMAGE

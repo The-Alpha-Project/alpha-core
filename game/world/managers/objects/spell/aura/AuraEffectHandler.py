@@ -65,9 +65,8 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_trigger_spell(aura, effect_target, remove):
-        if not aura.is_past_next_period() or remove:
+        if not effect_target or not aura.is_past_next_period() or remove:
             return
-
         trigger_spell_id = aura.spell_effect.trigger_spell_id
         spell = aura.source_spell
         effect_target.spell_manager.handle_cast_attempt(trigger_spell_id, spell.initial_target, spell.spell_target_mask,
@@ -75,7 +74,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_healing(aura, effect_target, remove):
-        if not aura.is_past_next_period() or remove:
+        if not effect_target or not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
         healing = aura.get_effect_points()
@@ -83,7 +82,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_energize(aura, effect_target, remove):
-        if not aura.is_past_next_period() or remove:
+        if not effect_target or not aura.is_past_next_period() or remove:
             return
         power_type = aura.spell_effect.misc_value
 
@@ -92,7 +91,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_damage(aura, effect_target, remove):
-        if not aura.is_past_next_period() or remove:
+        if not effect_target or not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
         damage = aura.get_effect_points()
@@ -100,7 +99,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_periodic_leech(aura, effect_target, remove):
-        if not aura.is_past_next_period() or remove:
+        if not effect_target or not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
         damage = aura.get_effect_points()
