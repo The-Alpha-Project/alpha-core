@@ -214,8 +214,8 @@ begin not atomic
         SET `display_id1`=1139, `display_id2`=0, `display_id3`=0, `display_id4`=0
         WHERE `name` LIKE "burning blade%" AND `name` NOT LIKE "burning blade nightmare" AND `entry` < 5764 AND `display_id1` > 4165;
 
-        insert into applied_updates values ('200820223');
-
+        -- DESOLACE
+        
         -- Magram Marauder
         UPDATE `creature_template`
         SET `display_id1`=1349
@@ -225,6 +225,18 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=1348
         WHERE `entry`=4639;
+
+        -- Rabid Bonepaw
+        UPDATE `creature_template`
+        SET `display_id1`=2714
+        WHERE `entry`=4690;
+
+        -- Piter Verance
+        UPDATE `creature_template`
+        SET `display_id1`=4833
+        WHERE `entry`=4890;
+
+        insert into applied_updates values ('200820223');
     end if;
 end $
 delimiter ;
