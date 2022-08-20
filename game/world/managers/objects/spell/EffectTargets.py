@@ -409,6 +409,10 @@ class EffectTargets:
         return EffectTargets.get_party_members_from_unit_list(resolved_a, casting_spell.spell_caster)
 
     @staticmethod
+    def resolve_not_yet_implemented(casting_spell, target_effect):
+        return [casting_spell.spell_caster]
+
+    @staticmethod
     def resolve_party_around_caster_2(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
@@ -466,7 +470,8 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_SINGLE_PARTY: EffectTargets.resolve_single_party,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY: EffectTargets.resolve_aoe_party,
     SpellImplicitTargets.TARGET_SCRIPT: EffectTargets.resolve_script,
-    SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
+    SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster,
+    SpellImplicitTargets.TARGET_NOT_YET_IMPLEMENTED: EffectTargets.resolve_not_yet_implemented
 }
 
 FRIENDLY_IMPLICIT_TARGETS = [
