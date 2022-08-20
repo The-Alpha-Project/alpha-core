@@ -117,7 +117,7 @@ class EnchantmentManager(object):
                 spell.cast_time_entry = None
                 self.unit_mgr.spell_manager.start_spell_cast(initialized_spell=spell)
             else:
-                Logger.warning(f'Unable to locate enchantment proc spell {proc_spell_id}')
+                Logger.warning(f'Unable to locate enchantment proc spell {proc_spell_id}.')
 
     def _handle_aura_removal(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
