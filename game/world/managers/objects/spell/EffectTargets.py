@@ -66,13 +66,22 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_SELF: caster,
             SpellImplicitTargets.TARGET_PET: caster.pet_manager.active_pet if not caster_is_gameobject and caster.pet_manager.active_pet else [],
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: caster.get_deathbind_coordinates() if target_is_player and caster_is_player else [],
-            SpellImplicitTargets.TARGET_11: [],  # Word of Recall Other - seems deprecated so return nothing
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
             SpellImplicitTargets.TARGET_MASTER: caster.summoner if caster.summoner else [],
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
-            SpellImplicitTargets.TARGET_SELF_FISHING: self.initial_target
+            SpellImplicitTargets.TARGET_SELF_FISHING: self.initial_target,
+
+            # Unused, use guesses for now to avoid crashes.
+            # Assuming it teleported everyone near the caster to their respective binding locations (or maybe it
+            # teleported everyone to the nearest Binder).
+            SpellImplicitTargets.TARGET_10: caster.get_deathbind_coordinates() if target_is_player and caster_is_player else [],  # Divine Escape (NYI).
+            # No idea about this spell, you can't even select anything in the terrain.
+            SpellImplicitTargets.TARGET_11: caster.get_deathbind_coordinates() if target_is_player and caster_is_player else [],  # Word of Recall Other.
+            # I assume Zone Recall (OLD) teleported you to the Binder of the zone you were at, but just teleporting to
+            # binding location for now.
+            SpellImplicitTargets.TARGET_19: caster.get_deathbind_coordinates() if target_is_player and caster_is_player else []  # Zone Recall (OLD).
         }
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
@@ -409,10 +418,6 @@ class EffectTargets:
         return EffectTargets.get_party_members_from_unit_list(resolved_a, casting_spell.spell_caster)
 
     @staticmethod
-    def resolve_not_yet_implemented(casting_spell, target_effect):
-        return [casting_spell.spell_caster]
-
-    @staticmethod
     def resolve_party_around_caster_2(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
@@ -470,8 +475,7 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_SINGLE_PARTY: EffectTargets.resolve_single_party,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY: EffectTargets.resolve_aoe_party,
     SpellImplicitTargets.TARGET_SCRIPT: EffectTargets.resolve_script,
-    SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster,
-    SpellImplicitTargets.TARGET_NOT_YET_IMPLEMENTED: EffectTargets.resolve_not_yet_implemented
+    SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
 }
 
 FRIENDLY_IMPLICIT_TARGETS = [
