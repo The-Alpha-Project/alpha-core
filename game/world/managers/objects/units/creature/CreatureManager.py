@@ -375,29 +375,39 @@ class CreatureManager(UnitManager):
                     self.set_virtual_item(1, creature_equip_template.equipentry2)
                     self.set_virtual_item(2, creature_equip_template.equipentry3)
 
-            addon_template = self.creature_instance.addon_template
-            if addon_template:
-                self.set_stand_state(addon_template.stand_state)
-                self.set_weapon_mode(addon_template.sheath_state)
+            # Mount this creature, will be overriden if defined too in creature_addon.
+            if self.creature_template.mount_display_id > 0:
+                self.mount(self.creature_template.mount_display_id)
+
+            auras = set()
+            # Template auras.
+            if self.creature_template.auras:
+                auras = {int(aura) for aura in str(self.creature_template.auras).split()}
+
+            addon = self.creature_instance.addon
+            if addon:
+                self.set_stand_state(addon.stand_state)
+                self.set_weapon_mode(addon.sheath_state)
 
                 # Set emote state if available.
-                if addon_template.emote_state:
-                    self.set_emote_state(addon_template.emote_state)
+                if addon.emote_state:
+                    self.set_emote_state(addon.emote_state)
 
-                # Check auras; 'auras' points to an entry id on Spell dbc.
-                if addon_template.auras:
-                    spells = str(addon_template.auras).rsplit(' ')
-                    for spell in spells:
-                        self.spell_manager.handle_cast_attempt(int(spell), self, SpellTargetMask.SELF,
-                                                               validate=False)
+                # Check spawn auras.
+                if addon.auras:
+                    auras.update({int(aura) for aura in str(addon.auras).split()})
 
                 # Update display id if available.
-                if addon_template.display_id:
-                    self.set_display_id(addon_template.display_id)
+                if addon.display_id:
+                    self.set_display_id(addon.display_id)
 
-                # Mount this creature if defined.
-                if addon_template.mount_display_id > 0:
-                    self.mount(addon_template.mount_display_id)
+                # Mount this creature if defined (will override template mount).
+                if addon.mount_display_id > 0:
+                    self.mount(addon.mount_display_id)
+
+            # Cast active auras for this NPC.
+            for aura in auras:
+                self.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
 
             # Stats.
             self.stat_manager.init_stats()

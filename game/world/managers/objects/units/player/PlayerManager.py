@@ -1,4 +1,5 @@
 import math
+from threading import RLock
 from dataclasses import dataclass
 
 from bitarray import bitarray
@@ -73,6 +74,7 @@ class PlayerManager(UnitManager):
                  **kwargs):
         super().__init__(**kwargs)
 
+        self.player_lock = RLock()
         self.session = session
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
@@ -370,77 +372,78 @@ class PlayerManager(UnitManager):
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
     def update_known_world_objects(self):
-        players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeIds.ID_PLAYER,
-                                                                                     ObjectTypeIds.ID_UNIT,
-                                                                                     ObjectTypeIds.ID_GAMEOBJECT])
+        with self.player_lock:
+            players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeIds.ID_PLAYER,
+                                                                                         ObjectTypeIds.ID_UNIT,
+                                                                                         ObjectTypeIds.ID_GAMEOBJECT])
 
-        # Which objects were found in self surroundings.
-        active_objects = dict()
+            # Which objects were found in self surroundings.
+            active_objects = dict()
 
-        # Surrounding players.
-        for guid, player in players.items():
-            if self.guid != guid:
-                active_objects[guid] = player
+            # Surrounding players.
+            for guid, player in players.items():
+                if self.guid != guid:
+                    active_objects[guid] = player
+                    if guid not in self.known_objects or not self.known_objects[guid]:
+                        # We don't know this player, notify self with its update packet.
+                        self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
+                        # Retrieve their inventory updates.
+                        self.enqueue_packets(player.inventory.get_inventory_update_packets(self))
+                        # Create packet.
+                        self.enqueue_packet(player.generate_create_packet(requester=self))
+                        # Get partial movement packet if any.
+                        if player.movement_manager.unit_is_moving():
+                            packet = player.movement_manager.try_build_movement_packet(is_initial=False)
+                            if packet:
+                                self.enqueue_packet(packet)
+                    self.known_objects[guid] = player
+
+            # Surrounding creatures.
+            for guid, creature in creatures.items():
+                active_objects[guid] = creature
                 if guid not in self.known_objects or not self.known_objects[guid]:
-                    # We don't know this player, notify self with its update packet.
-                    self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
-                    # Retrieve their inventory updates.
-                    self.enqueue_packets(player.inventory.get_inventory_update_packets(self))
-                    # Create packet.
-                    self.enqueue_packet(player.generate_create_packet(requester=self))
-                    # Get partial movement packet if any.
-                    if player.movement_manager.unit_is_moving():
-                        packet = player.movement_manager.try_build_movement_packet(is_initial=False)
-                        if packet:
-                            self.enqueue_packet(packet)
-                self.known_objects[guid] = player
+                    # We don't know this creature, notify self with its update packet.
+                    self.enqueue_packet(CreatureManager.query_details(creature_mgr=creature))
+                    if creature.is_spawned:
+                        self.enqueue_packet(creature.generate_create_packet(requester=self))
+                        # Get partial movement packet if any.
+                        if creature.movement_manager.unit_is_moving():
+                            packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
+                            if packet:
+                                self.enqueue_packet(packet)
+                        # We only consider 'known' if its spawned, the details query is still sent.
+                        self.known_objects[guid] = creature
+                        # Add ourselves to creature known players.
+                        creature.known_players[self.guid] = self
+                        # Notify this creature of our presence, e.g. player just logged in or a creature spawns near.
+                        creature.notify_moved_in_line_of_sight(self)
+                # Player knows the creature but is not spawned anymore, destroy it for self.
+                elif guid in self.known_objects and not creature.is_spawned:
+                    active_objects.pop(guid)
 
-        # Surrounding creatures.
-        for guid, creature in creatures.items():
-            active_objects[guid] = creature
-            if guid not in self.known_objects or not self.known_objects[guid]:
-                # We don't know this creature, notify self with its update packet.
-                self.enqueue_packet(CreatureManager.query_details(creature_mgr=creature))
-                if creature.is_spawned:
-                    self.enqueue_packet(creature.generate_create_packet(requester=self))
-                    # Get partial movement packet if any.
-                    if creature.movement_manager.unit_is_moving():
-                        packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
-                        if packet:
-                            self.enqueue_packet(packet)
-                    # We only consider 'known' if its spawned, the details query is still sent.
-                    self.known_objects[guid] = creature
-                    # Add ourselves to creature known players.
-                    creature.known_players[self.guid] = self
-                    # Notify this creature of our presence, e.g. player just logged in or a creature spawns near.
-                    creature.notify_moved_in_line_of_sight(self)
-            # Player knows the creature but is not spawned anymore, destroy it for self.
-            elif guid in self.known_objects and not creature.is_spawned:
-                active_objects.pop(guid)
+            # Surrounding game objects.
+            for guid, gobject in game_objects.items():
+                active_objects[guid] = gobject
+                if guid not in self.known_objects or not self.known_objects[guid]:
+                    # We don't know this game object, notify self with its update packet.
+                    self.enqueue_packet(GameObjectManager.query_details(gameobject_mgr=gobject))
+                    if gobject.is_spawned:
+                        self.enqueue_packet(gobject.generate_create_packet(requester=self))
+                        # We only consider 'known' if its spawned, the details query is still sent.
+                        self.known_objects[guid] = gobject
+                        # Add ourselves to gameobject known players.
+                        gobject.known_players[self.guid] = self
+                # Player knows the game object but is not spawned anymore, destroy it for self.
+                elif guid in self.known_objects and not gobject.is_spawned:
+                    active_objects.pop(guid)
 
-        # Surrounding game objects.
-        for guid, gobject in game_objects.items():
-            active_objects[guid] = gobject
-            if guid not in self.known_objects or not self.known_objects[guid]:
-                # We don't know this game object, notify self with its update packet.
-                self.enqueue_packet(GameObjectManager.query_details(gameobject_mgr=gobject))
-                if gobject.is_spawned:
-                    self.enqueue_packet(gobject.generate_create_packet(requester=self))
-                    # We only consider 'known' if its spawned, the details query is still sent.
-                    self.known_objects[guid] = gobject
-                    # Add ourselves to gameobject known players.
-                    gobject.known_players[self.guid] = self
-            # Player knows the game object but is not spawned anymore, destroy it for self.
-            elif guid in self.known_objects and not gobject.is_spawned:
-                active_objects.pop(guid)
+            # World objects which are known but no longer active to self should be destroyed.
+            for guid, known_object in list(self.known_objects.items()):
+                if guid not in active_objects:
+                    self.destroy_near_object(guid)
 
-        # World objects which are known but no longer active to self should be destroyed.
-        for guid, known_object in list(self.known_objects.items()):
-            if guid not in active_objects:
-                self.destroy_near_object(guid)
-
-        # Cleanup.
-        active_objects.clear()
+            # Cleanup.
+            active_objects.clear()
 
     def destroy_near_object(self, guid):
         known_object = self.known_objects.get(guid)
@@ -733,19 +736,7 @@ class PlayerManager(UnitManager):
 
             loot_manager = self.loot_selection.get_loot_manager(world_obj_target)
             if world_obj_target and loot_manager and loot_manager.has_loot():
-                loot = loot_manager.get_loot_in_slot(slot)
-                if loot and loot.item:
-                    if self.inventory.add_item(item_template=loot.item.item_template, count=loot.quantity, looted=True):
-                        loot_manager.do_loot(slot, self)
-                        data = pack('<B', slot)
-                        packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, data)
-                        # Loot is multi-drop, notify only self about its removal.
-                        if loot.is_multi_drop():
-                            self.enqueue_packet(packet)
-                        # Notify players with loot window open about its removal.
-                        else:
-                            for looter in loot_manager.get_active_looters():
-                                looter.enqueue_packet(packet)
+                loot_manager.loot_item_in_slot(slot, requester=self)
 
     def interrupt_looting(self):
         if self.loot_selection:

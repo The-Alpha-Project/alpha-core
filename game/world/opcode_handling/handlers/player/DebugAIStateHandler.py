@@ -2,6 +2,7 @@ from struct import unpack, pack
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import HighGuid
@@ -15,6 +16,11 @@ class DebugAIStateHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
+        if not player_mgr:
+            return res
+
         if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet.
             guid = unpack('<Q', reader.data[:8])[0]
 
