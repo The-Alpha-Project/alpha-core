@@ -10071,6 +10071,9 @@ begin not atomic
         -- Fix Captain Morgan and Cap'n Crunch factions.
         UPDATE `creature_template` SET `faction` = 35 WHERE `entry` IN (3151, 3152);
 
+        -- Remove mounts from Stromgarde horseman NPCs.
+        UPDATE `creature_addon` SET `mount_display_id` = 0 WHERE `guid` IN (14572, 14574, 14575);
+
         insert into applied_updates values ('200820221');
     end if;
 end $
