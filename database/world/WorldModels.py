@@ -191,6 +191,7 @@ class CreatureTemplate(Base):
     display_id2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     display_id3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     display_id4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    mount_display_id = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     name = Column(CHAR(100), nullable=False, index=True, server_default=text("'0'"))
     subname = Column(CHAR(100))
     static_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
@@ -217,8 +218,8 @@ class CreatureTemplate(Base):
     dmg_school = Column(TINYINT(4), nullable=False, server_default=text("'0'"))
     attack_power = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     dmg_multiplier = Column(Float, nullable=False, server_default=text("'1'"))
-    base_attack_time = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    ranged_attack_time = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    base_attack_time = Column(INTEGER(10), nullable=False, server_default=text("'2000'"))
+    ranged_attack_time = Column(INTEGER(10), nullable=False, server_default=text("'2000'"))
     unit_class = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     unit_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     dynamic_flags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
@@ -247,6 +248,7 @@ class CreatureTemplate(Base):
     spell_id4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     spell_list_id = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     pet_spell_list_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    auras = Column(Text)
     gold_min = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     gold_max = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     ai_name = Column(CHAR(64), nullable=False, server_default=text("''"))
@@ -529,7 +531,6 @@ class NpcText(Base):
 class PlayerClasslevelstats(Base):
     __tablename__ = 'player_classlevelstats'
 
-    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
     _class = Column('class', TINYINT(3), primary_key=True, nullable=False)
     level = Column(TINYINT(3), primary_key=True, nullable=False)
     basehp = Column(SMALLINT(5), nullable=False)
@@ -539,7 +540,6 @@ class PlayerClasslevelstats(Base):
 class PlayerLevelstats(Base):
     __tablename__ = 'player_levelstats'
 
-    id = Column(INTEGER(11), primary_key=True, nullable=False, index=True)
     race = Column(TINYINT(3), primary_key=True, nullable=False)
     _class = Column('class', TINYINT(3), primary_key=True, nullable=False)
     level = Column(TINYINT(3), primary_key=True, nullable=False)
@@ -961,8 +961,6 @@ class SpawnsCreatures(Base):
     spawn_entry3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
     spawn_entry4 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"), comment='Creature Template Id')
     map = Column(SMALLINT(5), nullable=False, index=True, server_default=text("'0'"), comment='Map Identifier')
-    display_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    equipment_id = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
     position_x = Column(Float, nullable=False, server_default=text("'0'"))
     position_y = Column(Float, nullable=False, server_default=text("'0'"))
     position_z = Column(Float, nullable=False, server_default=text("'0'"))
@@ -977,9 +975,9 @@ class SpawnsCreatures(Base):
     visibility_mod = Column(Float, server_default=text("'0'"))
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
-    addon_template = relationship('CreatureAddonTemplate', foreign_keys='CreatureAddonTemplate.guid',
-                                  primaryjoin='SpawnsCreatures.spawn_id == CreatureAddonTemplate.guid',
-                                  lazy='joined', uselist=False)
+    addon = relationship('CreatureAddon', foreign_keys='CreatureAddon.guid',
+                         primaryjoin='SpawnsCreatures.spawn_id == CreatureAddon.guid',
+                         lazy='joined', uselist=False)
     npc_text = relationship('NpcText', secondary='npc_gossip')
 
 
@@ -1030,7 +1028,7 @@ class CreatureEquipTemplate(Base):
     equipentry3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
 
-class CreatureAddonTemplate(Base):
+class CreatureAddon(Base):
     __tablename__ = 'creature_addon'
 
     guid = Column(INTEGER(10), primary_key=True, comment='Global Unique Identifier')
