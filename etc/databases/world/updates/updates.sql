@@ -9867,7 +9867,7 @@ begin not atomic
     end if;
 
     -- 20/08/2022 1
-    if (select count(*) from applied_updates where id='330820221') = 0 then
+    if (select count(*) from applied_updates where id='200820221') = 0 then
 
         -- DESOLACE
 
@@ -10071,7 +10071,7 @@ begin not atomic
         SET `display_id2`=0
         WHERE `entry`=4701;
 
-        insert into applied_updates values ('330820221');
+        insert into applied_updates values ('200820221');
     end if;
 end $
 delimiter ;
