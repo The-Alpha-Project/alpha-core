@@ -173,8 +173,6 @@ class UnitManager(ObjectManager):
         self.evading_waypoints = []
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
-        self.disarmed_mainhand = False
-        self.disarmed_offhand = False
         self.last_regen = 0
         self.regen_flags = RegenStatsFlags.NO_REGENERATION
         self.attackers: dict[int, UnitManager] = {}
@@ -882,13 +880,6 @@ class UnitManager(ObjectManager):
         self.in_combat = False
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
-    def can_use_attack_type(self, attack_type):
-        if attack_type == AttackTypes.BASE_ATTACK:
-            return self.disarmed_mainhand
-        if attack_type == AttackTypes.OFFHAND_ATTACK:
-            return self.disarmed_offhand
-        return True
 
     def is_attack_ready(self, attack_type):
         return self.attack_timers[attack_type] <= 0
