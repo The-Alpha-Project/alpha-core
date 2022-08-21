@@ -501,5 +501,102 @@ begin not atomic
 
         insert into applied_updates values ('210820221');
     end if;
+
+    -- 21/08/2022 2
+    if (select count(*) from applied_updates where id='210820222') = 0 then
+        -- DUSTWALLOW MARCH
+        
+        -- Spider trainer
+        INSERT INTO `spawns_creatures` VALUES (NULL, 4882, 0, 0, 0, 1, -3154.872, -2848.983, 34.454, 0.031, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        UPDATE `creature_template`
+        SET `name`="Om'kan", `display_id1`=1120
+        WHERE `entry`=4882;
+        
+        -- Turtle trainer
+        INSERT INTO `spawns_creatures` VALUES (NULL, 4881, 0, 0, 0, 1, -3147.965, -2841.329, 34.646, 4.779, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Krak
+        UPDATE `creature_template`
+        SET `display_id1` =1120
+        WHERE `entry`=4883;
+
+        -- Ogg'mar
+        UPDATE `creature_template`
+        SET `display_id1` =1120
+        WHERE `entry`=4879;
+
+        -- Zulrg
+        UPDATE `creature_template`
+        SET `display_id1`=1120
+        WHERE `entry`=4884;
+
+        -- Draz'lib
+        UPDATE `creature_template`
+        SET `display_id1`=1120
+        WHERE `entry`=4501;
+
+        -- Overlord Mok
+        UPDATE `creature_template`
+        SET `display_id1`=3193
+        WHERE `entry`=4500;
+
+        -- Nazeer
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=4791;
+
+        -- Firemane Lash tail
+        UPDATE `creature_template`
+        SET `display_id1`=143
+        WHERE `entry`=4331;
+
+        -- Firemane Scalebane
+        UPDATE `creature_template`
+        SET `display_id1`=143
+        WHERE `entry`=4328;
+
+        -- Firemane Flamecaller
+        UPDATE `creature_template`
+        SET `display_id1`=143
+        WHERE `entry`=4334;
+
+        -- Giant Darkfang Spider
+        UPDATE `creature_template`
+        SET `display_id1`=2546
+        WHERE `entry`=4415;
+
+        -- Mirefin Coastrunner
+        UPDATE `creature_template`
+        SET `display_id1`=478
+        WHERE `entry`=4362;
+
+        -- Mirefin Oracle
+        UPDATE `creature_template`
+        SET `display_id1`=478
+        WHERE `entry`=4363;
+
+        -- Mirefin warrior
+        UPDATE `creature_template`
+        SET `display_id1`=478
+        WHERE `entry`=4360;
+
+        -- Murdrock Turtoise
+        UPDATE `creature_template`
+        SET `display_id1`=2307
+        WHERE `entry`=4396;
+
+        -- Murdrock Spikeshell
+        UPDATE `creature_template`
+        SET `display_id1`=2308
+        WHERE `entry`=4397;
+
+        -- Acidic Swamp Ooze
+        UPDATE `creature_template`
+        SET `display_id1`=1145
+        WHERE `entry`=4393;
+
+        insert into applied_updates values ('210820222');
+    end if;
 end $
 delimiter ;
