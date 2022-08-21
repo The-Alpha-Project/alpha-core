@@ -304,5 +304,202 @@ begin not atomic
 
         insert into applied_updates values ('200820225');
     end if;
+
+    -- 21/08/2022 1
+    if (select count(*) from applied_updates where id='210820221') = 0 then
+        -- FERALAS
+
+        -- Gordunni Ogre Mage
+        UPDATE `creature_template`
+        SET `display_id1`=3190
+        WHERE `entry`=5237;
+
+        -- Gordunni Brute
+        UPDATE `creature_template`
+        SET `display_id1`=3192
+        WHERE `entry`=5232;
+
+        -- Gordunni Warlock
+        UPDATE `creature_template`
+        SET `display_id1`=3191
+        WHERE `entry`=5240;
+
+        -- Gordunni Mauler
+        UPDATE `creature_template`
+        SET `display_id1`=3192
+        WHERE `entry`=5234;
+
+        -- Gordunni Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=3192
+        WHERE `entry`=5236;
+
+        -- Gordunni Battlemaster
+        UPDATE `creature_template`
+        SET `display_id1`=3193
+        WHERE `entry`=5238;
+
+        -- Gordunni Mage Lord
+        UPDATE `creature_template`
+        SET `display_id1`=3191
+        WHERE `entry`=5239;
+
+        -- Gordunni Warlord
+        UPDATE `creature_template`
+        SET `display_id1`=3192
+        WHERE `entry`=5241;
+
+        -- Woodpaw Trapper
+        UPDATE `creature_template`
+        SET `display_id1`=3197
+        WHERE `entry`=5251;
+
+        -- Woodpaw Mystic
+        UPDATE `creature_template`
+        SET `display_id1`=3198
+        WHERE `entry`=5254;
+
+        -- Woodpaw Alpha
+        UPDATE `creature_template`
+        SET `display_id1`=3199
+        WHERE `entry`=5258;
+
+        -- Woodpaw Reaver
+        UPDATE `creature_template`
+        SET `display_id1`=3196
+        WHERE `entry`=5255;
+
+        -- Woodpaw Mongrel
+        UPDATE `creature_template`
+        SET `display_id1`=3196
+        WHERE `entry`=5249;
+
+        -- Glizled Ironfur Bear
+        UPDATE `creature_template`
+        SET `display_id1`=3201
+        WHERE `entry`=5272;
+
+        -- Frayfeather Patriarch
+        UPDATE `creature_template`
+        SET `display_id1`=3212
+        WHERE `entry`=5306;
+
+        -- Frayfeather Stagwing
+        UPDATE `creature_template`
+        SET `display_id1`=3211
+        WHERE `entry`=5304;
+
+        -- Antilus (named frayfeather)
+        UPDATE `creature_template`
+        SET `display_id1`=3212
+        WHERE `entry`=5347;
+
+        -- Hulking Feral Scar
+        UPDATE `creature_template`
+        SET `display_id1`=3209
+        WHERE `entry`=5293;
+
+        -- Enraged Feral Scar
+        UPDATE `creature_template`
+        SET `display_id1`=3208
+        WHERE `entry`=5295;
+
+        -- See elemental
+        UPDATE `creature_template`
+        SET `display_id1`=110
+        WHERE `entry`=5461;
+
+        -- See spray
+        UPDATE `creature_template`
+        SET `display_id1`=110
+        WHERE `entry`=5462;
+
+        -- Deep strider
+        UPDATE `creature_template`
+        SET `display_id1`=3217
+        WHERE `entry`=5360;
+
+        -- Wave strider
+        UPDATE `creature_template`
+        SET `display_id1`=3219
+        WHERE `entry`=5361;
+
+        -- Jademir Broughguard
+        UPDATE `creature_template`
+        SET `display_id1`=624
+        WHERE `entry`=5320;
+
+        -- Jademir Oracle
+        UPDATE `creature_template`
+        SET `display_id1`=623
+        WHERE `entry`=5317;
+
+        -- Hatecrest Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=5331;
+
+        -- Hatecrest Screamer
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=5335;
+
+        -- Hatecrest Siren
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=5337;
+
+        -- Hatecrest Wave rider
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=5332;
+
+        -- Hatecrest Serpent Guard
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=5333;
+
+        -- Hatecrest Myrmidon
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=5334;
+
+        -- Hatecrest Sorceress
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=5336;
+
+        -- Sprite Dragon
+        UPDATE `creature_template`
+        SET `display_id1`=2158
+        WHERE `entry`=5276;
+
+        -- Land Walker
+        UPDATE `creature_template`
+        SET `display_id1`=3216
+        WHERE `entry`=5357;
+
+        -- Cliff Giant
+        UPDATE `creature_template`
+        SET `display_id1`=3216
+        WHERE `entry`=5358;
+
+        -- Northspring Roguefeather
+        UPDATE `creature_template`
+        SET `display_id1`=3218
+        WHERE `entry`=5363;
+
+        -- Northspring Harpy
+        UPDATE `creature_template`
+        SET `display_id1`=3218
+        WHERE `entry`=5362;
+
+        -- Northspring Slayer
+        UPDATE `creature_template`
+        SET `display_id1`=3218
+        WHERE `entry`=5364;
+
+        insert into applied_updates values ('210820221');
+    end if;
 end $
 delimiter ;
