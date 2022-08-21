@@ -598,5 +598,82 @@ begin not atomic
 
         insert into applied_updates values ('210820222');
     end if;
+
+    -- 22/08/2022 3
+    if (select count(*) from applied_updates where id='220820223') = 0 then
+        -- WEST PLAGUE
+
+        -- Freezing Ghoul
+        UPDATE `creature_template`
+        SET `display_id1`=547
+        WHERE `entry`=1796;
+        
+        -- Skeletal Sorcerer
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=1784;
+        
+        -- High Priest Thel'danis
+        UPDATE `creature_template`
+        SET `display_id1`=2192
+        WHERE `entry`=1854;
+        
+        -- Skeletal Executionner
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=1787;
+        
+        -- Skeletal Acolyte
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=1789;
+        
+        -- Soulless Ghoul
+        UPDATE `creature_template`
+        SET `display_id1`=519
+        WHERE `entry`=1794;
+        
+        -- Putridus
+        UPDATE `creature_template`
+        SET `display_id1`=1693
+        WHERE `entry`=1850;
+        
+        -- Rotting Cadaver
+        UPDATE `creature_template`
+        SET `display_id1`=1197
+        WHERE `entry`=4474;
+        
+        -- Blighted Zombie
+        UPDATE `creature_template`
+        SET `display_id1`=1198, `display_id2`=0
+        WHERE `entry`=4475;
+        
+        -- Skeletal Terror
+        UPDATE `creature_template`
+        SET `display_id1`=200
+        WHERE `entry`=1785;
+        
+        -- Hungering Wraith
+        UPDATE `creature_template`
+        SET `display_id1`=146
+        WHERE `entry`=1802;
+        
+        -- Wailing Death
+        UPDATE `creature_template`
+        SET `display_id1`=915
+        WHERE `entry`=1804;
+        
+        -- Rotting Behemoth
+        UPDATE `creature_template`
+        SET `display_id1`=631
+        WHERE `entry`=1812;
+        
+        -- Devoring Hooze
+        UPDATE `creature_template`
+        SET `display_id1`=682
+        WHERE `entry`=1808;
+
+        insert into applied_updates values ('220820223');
+    end if;
 end $
 delimiter ;
