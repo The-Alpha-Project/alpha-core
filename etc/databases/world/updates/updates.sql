@@ -632,10 +632,10 @@ begin not atomic
         SET `display_id1`=3216
         WHERE `entry`=2754;
         
-        -- -- Scorched Guardian
-        -- UPDATE `creature_template`
-        -- SET `display_id1`=2527
-        -- WHERE `entry`=2726;
+        -- Scorched Guardian
+        UPDATE `creature_template`
+        SET `display_id1`=2527
+        WHERE `entry`=2726;
         
         -- Starving Buzzard
         UPDATE `creature_template`
