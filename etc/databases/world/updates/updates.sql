@@ -598,5 +598,81 @@ begin not atomic
 
         insert into applied_updates values ('210820222');
     end if;
+    
+    -- 22/08/2022 1
+    if (select count(*) from applied_updates where id='220820221') = 0 then
+
+        -- Dustbelcher Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1120
+        WHERE `entry`=2718;
+        
+        -- Dustbelcher Wyrmhunter
+        UPDATE `creature_template`
+        SET `display_id1`=1121
+        WHERE `entry`=2716;
+        
+        -- Dustbelcher Ogre mage
+        UPDATE `creature_template`
+        SET `display_id1`=326
+        WHERE `entry`=2720;
+        
+        -- Dustbelcher Ogre
+        UPDATE `creature_template`
+        SET `display_id1`=1120
+        WHERE `entry`=2701;
+        
+        -- Dustbelcher Brute
+        UPDATE `creature_template`
+        SET `display_id1`=1120
+        WHERE `entry`=2715;
+        
+        -- Anathemus
+        UPDATE `creature_template`
+        SET `display_id1`=3216
+        WHERE `entry`=2754;
+        
+        -- Scorched Guardian
+        UPDATE `creature_template`
+        SET `display_id1`=2527
+        WHERE `entry`=2726;
+        
+        -- Starving Buzzard
+        UPDATE `creature_template`
+        SET `display_id1`=1105
+        WHERE `entry`=2829;
+        
+        -- Wargolem
+        UPDATE `creature_template`
+        SET `display_id1`=2695
+        WHERE `entry`=2751;
+        
+        -- Siege Golem
+        UPDATE `creature_template`
+        SET `display_id1`=2695
+        WHERE `entry`=2749;
+        
+        -- Rumbler
+        UPDATE `creature_template`
+        SET `display_id1`=171
+        WHERE `entry`=2752;
+        
+        -- Greater Rock Elemental
+        UPDATE `creature_template`
+        SET `display_id1`=171
+        WHERE `entry`=2736;
+        
+        -- Enraged Rock Elemental
+        UPDATE `creature_template`
+        SET `display_id1`=171
+        WHERE `entry`=2791;
+        
+        -- Galek
+        UPDATE `creature_template`
+        SET `display_id1`=1642
+        WHERE `entry`=2888;
+
+        insert into applied_updates values ('220820221');
+    end if;
 end $
 delimiter ;
