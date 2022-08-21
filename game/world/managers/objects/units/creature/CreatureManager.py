@@ -548,7 +548,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
             self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
             self.set_float(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
-            self.set_float(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, 0)
+            self.set_float(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.base_attack_time)
             self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)

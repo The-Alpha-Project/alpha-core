@@ -714,7 +714,7 @@ class StatManager(object):
 
         roll = random.random()
         if roll < critical_chance:
-            return HitInfo.CRITICAL_HIT
+            return HitInfo.SUCCESS | HitInfo.CRITICAL_HIT
         
         return HitInfo.SUCCESS
 
