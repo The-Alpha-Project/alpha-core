@@ -651,6 +651,121 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=621
         WHERE `entry`=740;
+
+        -- Sonard Hunter
+        UPDATE `creature_template`
+        SET `display_id1`=1139, `display_id2`=0
+        WHERE `entry`=863;
+        
+        -- Stonard Shaman
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=868;
+        
+        -- Stonard Explorer
+        UPDATE `creature_template`
+        SET `display_id1`=1139, `display_id2`=0
+        WHERE `entry`=862;
+        
+        -- Stonard Scout
+        UPDATE `creature_template`
+        SET `display_id1`=1139, `display_id2`=0
+        WHERE `entry`=861;
+        
+        -- Stonard Wayfinder
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=865;
+        
+        -- Stonard Cartographer
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=867;
+        
+        -- Stonard Orc
+        UPDATE `creature_template`
+        SET `display_id1`=1139, `display_id2`=0
+        WHERE `entry`=864;
+        
+        -- Thultazor
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=983;
+
+        -- Thultash
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=982;
+        
+        -- Thralosh
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=984;
+        
+        -- Hartash
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=981;
+        
+        -- Ogromm
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=987;
+        
+        -- Malosh
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=985;
+        
+        -- Stonard Grunt
+        UPDATE `creature_template`
+        SET `display_id1`=1139,`display_id2`=0
+        WHERE `entry`=866;
+        
+        -- Kartosh
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=988;
+        
+        -- Banalash
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=989;
+        
+        -- Rogvar
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1386;
+        
+        -- Helgrum
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1442;
+        
+        -- Fel'zerul
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1443;
+        
+        -- Zun'dartha
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=1775;
+        
+        -- Grokor
+        UPDATE `creature_template`
+        SET `display_id1`=3511
+        WHERE `entry`=3622;
+        
+        -- Grunt Zuul
+        UPDATE `creature_template`
+        SET `display_id1`=3546
+        WHERE `entry`=5546;
+        
+        -- Grunt Tharlak
+        UPDATE `creature_template`
+        SET `display_id1`=3546
+        WHERE `entry`=5547;
         
         insert into applied_updates values ('220820222');
     end if;
