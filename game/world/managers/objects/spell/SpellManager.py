@@ -292,6 +292,8 @@ class SpellManager:
             for target in object_targets:
                 if partial_targets and target.guid not in partial_targets:
                     continue
+                if target.guid not in casting_spell.object_target_results:
+                    continue
                 info = casting_spell.object_target_results[target.guid]
                 # TODO deflection handling? Swap target/caster for now
                 if info.result == SpellMissReason.MISS_REASON_DEFLECTED:
