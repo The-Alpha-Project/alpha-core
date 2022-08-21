@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from utils.Logger import Logger
 
@@ -6,9 +7,10 @@ class LevelUpCheatHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        player_mgr = world_session.player_mgr
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
         if not player_mgr:
-            return 0
+            return res
 
         if not player_mgr.is_gm:
             Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to modify level.')

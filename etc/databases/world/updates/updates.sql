@@ -207,7 +207,7 @@ begin not atomic
         insert into applied_updates values ('200820222');
     end if;
 
- -- 20/08/2022 3
+    -- 20/08/2022 3
     if (select count(*) from applied_updates where id='200820223') = 0 then
         -- NE Shadowmeld.
         UPDATE `playercreateinfo_spell` SET `Spell` = '743' WHERE (`race` = '4') and (`class` = '1') and (`Spell` = '20580') and (`id` = '627');
@@ -239,11 +239,76 @@ begin not atomic
 
         insert into applied_updates values ('200820223');
     end if;
-    
+
+    -- 20/08/2022 4
+    if (select count(*) from applied_updates where id='200820224') = 0 then
+        -- Drop not needed id field in playercreateinfo_spell and playercreateinfo_action.
+        ALTER TABLE `playercreateinfo_spell` DROP PRIMARY KEY, ADD PRIMARY KEY (`race`,`class`,`Spell`);
+        ALTER TABLE `playercreateinfo_spell` DROP COLUMN `id`;
+        ALTER TABLE `playercreateinfo_action` DROP PRIMARY KEY, ADD PRIMARY KEY (`race`,`class`, `button`);
+        ALTER TABLE `playercreateinfo_action` DROP COLUMN `id`;
+
+        -- Nature Resistance for NE.
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (4, 1, 4081, 'Nature Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (4, 4, 4081, 'Nature Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (4, 11, 4081, 'Nature Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (4, 3, 4081, 'Nature Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (4, 5, 4081, 'Nature Resistance');
+
+        -- Frost Resistance for NE.
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (3, 1, 4080, 'Frost Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (3, 3, 4080, 'Frost Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (3, 8, 4080, 'Frost Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (3, 2, 4080, 'Frost Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (3, 5, 4080, 'Frost Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (3, 4, 4080, 'Frost Resistance');
+
+        -- Shadow Resistance for NE.
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (5, 1, 4084, 'Shadow Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (5, 5, 4084, 'Shadow Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (5, 9, 4084, 'Shadow Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (5, 4, 4084, 'Shadow Resistance');
+        INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (5, 8, 4084, 'Shadow Resistance');
+
+        insert into applied_updates values ('200820224');
+    end if;
+
+    -- 20/08/2022 5
+    if (select count(*) from applied_updates where id='200820225') = 0 then
+        -- BURNING BLADE MOBS (orc)
+        UPDATE `creature_template`
+        SET `display_id1`=1139, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `name` LIKE "burning blade%" AND `name` NOT LIKE "burning blade nightmare" AND `entry` < 5764 AND `display_id1` > 4165;
+
+        -- DESOLACE
+
+        -- Magram Marauder
+        UPDATE `creature_template`
+        SET `display_id1`=1349
+        WHERE `entry`=4644;
+
+        -- Magram Outruner
+        UPDATE `creature_template`
+        SET `display_id1`=1348
+        WHERE `entry`=4639;
+
+        -- Rabid Bonepaw
+        UPDATE `creature_template`
+        SET `display_id1`=2714
+        WHERE `entry`=4690;
+
+        -- Piter Verance
+        UPDATE `creature_template`
+        SET `display_id1`=4833
+        WHERE `entry`=4890;
+
+        insert into applied_updates values ('200820225');
+    end if;
+
     -- 21/08/2022 1
     if (select count(*) from applied_updates where id='210820221') = 0 then
         -- FERALAS
-            
+
         -- Gordunni Ogre Mage
         UPDATE `creature_template`
         SET `display_id1`=3190

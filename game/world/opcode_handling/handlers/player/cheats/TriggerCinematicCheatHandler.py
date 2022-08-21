@@ -1,6 +1,7 @@
 from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
@@ -10,9 +11,10 @@ class TriggerCinematicCheatHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        player_mgr = world_session.player_mgr
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
         if not player_mgr:
-            return 0
+            return res
 
         if not player_mgr.is_gm:
             Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to force trigger a cinematic.')
@@ -22,6 +24,6 @@ class TriggerCinematicCheatHandler(object):
             cinematic_id = unpack('<I', reader.data[:4])[0]
             if DbcDatabaseManager.cinematic_sequences_get_by_id(cinematic_id):
                 data = pack('<I', cinematic_id)
-                world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
+                player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRIGGER_CINEMATIC, data))
 
         return 0
