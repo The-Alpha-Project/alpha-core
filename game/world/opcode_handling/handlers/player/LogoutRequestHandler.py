@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import LogoutResponseCodes
@@ -8,14 +9,19 @@ class LogoutRequestHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        if world_session.player_mgr.in_combat:
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        if not player_mgr:
+            return res
+
+        if player_mgr.in_combat:
             res = LogoutResponseCodes.LOGOUT_CANCEL
         else:
             res = LogoutResponseCodes.LOGOUT_PROCEED
-            if not world_session.player_mgr.is_swimming():
-                world_session.player_mgr.set_stand_state(StandState.UNIT_SITTING)
-            world_session.player_mgr.set_root(True)
-            world_session.player_mgr.logout_timer = 20
-        world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_RESPONSE, pack('<B', res)))
+            if not player_mgr.is_swimming():
+                player_mgr.set_stand_state(StandState.UNIT_SITTING)
+            player_mgr.set_root(True)
+            player_mgr.logout_timer = 20
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_RESPONSE, pack('<B', res)))
 
         return 0

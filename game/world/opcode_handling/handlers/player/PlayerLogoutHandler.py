@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 
 
@@ -5,9 +6,11 @@ class PlayerLogoutHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        if not world_session.player_mgr:
-            return -1
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        if not player_mgr:
+            return res
 
-        world_session.player_mgr.logout()
+        player_mgr.logout()
 
         return 0
