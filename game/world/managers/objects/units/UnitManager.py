@@ -645,7 +645,7 @@ class UnitManager(ObjectManager):
         damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self,
                                                                                         spell_attack_type, spell_school)
                                                              
-        is_crit = damage_info.hit_info == SpellHitFlags.HIT_FLAG_CRIT
+        is_crit = damage_info.hit_info & SpellHitFlags.HIT_FLAG_CRIT
         # From 0.5.5 patch notes:
         #     "Critical hits with ranged weapons now do 100% extra damage."
         # We assume that ranged crits dealt 50% increased damage instead of 100%. The other option could be 200% but
