@@ -598,5 +598,61 @@ begin not atomic
 
         insert into applied_updates values ('210820222');
     end if;
+
+    -- 22/08/2022 2
+    if (select count(*) from applied_updates where id='220820222') = 0 then
+        
+        -- Scalebane Captain
+        UPDATE `creature_template`
+        SET `display_id1`=624
+        WHERE `entry`=745;
+        
+        -- Green Scaleban
+        UPDATE `creature_template`
+        SET `display_id1`=623
+        WHERE `entry`=744;
+        
+        -- Green Wyrmkin
+        UPDATE `creature_template`
+        SET `display_id1`=623
+        WHERE `entry`=742;
+        
+        -- Wyrmkin dreamwalker
+        UPDATE `creature_template`
+        SET `display_id1`=624
+        WHERE `entry`=743;
+        
+        -- Silt Crawler
+        UPDATE `creature_template`
+        SET `display_id1`=642
+        WHERE `entry`=922;
+        
+        -- Lost One Riftseeker
+        UPDATE `creature_template`
+        SET `display_id1`=628
+        WHERE `entry`=762;
+        
+        -- Lost One Chieftain
+        UPDATE `creature_template`
+        SET `display_id1`=628
+        WHERE `entry`=763;
+        
+        -- Lost One Seer
+        UPDATE `creature_template`
+        SET `display_id1`=628
+        WHERE `entry`=761;
+        
+        -- Magtoor
+        UPDATE `creature_template`
+        SET `display_id1`=628
+        WHERE `entry`=1776;
+        
+        -- Adolescent Whelp
+        UPDATE `creature_template`
+        SET `display_id1`=621
+        WHERE `entry`=740;
+        
+        insert into applied_updates values ('220820222');
+    end if;
 end $
 delimiter ;
