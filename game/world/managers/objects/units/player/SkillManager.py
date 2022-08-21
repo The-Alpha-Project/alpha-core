@@ -385,7 +385,7 @@ class SkillManager(object):
 
     def handle_defense_skill_gain_chance(self, damage_info):
         # Vanilla formula.
-        target_skill_type = SkillTypes.BLOCK if damage_info.hit_info == HitInfo.BLOCK else SkillTypes.DEFENSE
+        target_skill_type = SkillTypes.BLOCK if damage_info.hit_info & HitInfo.BLOCK else SkillTypes.DEFENSE
         skill = self.skills.get(target_skill_type, None)
         if not skill:
             return False

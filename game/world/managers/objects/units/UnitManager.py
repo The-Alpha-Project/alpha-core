@@ -411,25 +411,25 @@ class UnitManager(ObjectManager):
         damage_info.hit_info = hit_info
         damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack.
 
-        if hit_info == HitInfo.CRITICAL_HIT:
+        if hit_info & HitInfo.CRITICAL_HIT:
             damage_info.damage *= 2
             damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
 
-        elif hit_info != HitInfo.SUCCESS:
+        elif not hit_info & HitInfo.SUCCESS:
             damage_info.hit_info = HitInfo.MISS
             damage_info.damage = 0
             # Check evade, there is no HitInfo flag for this.
             if victim.is_evading:
                 damage_info.target_state = VictimStates.VS_EVADE
-            elif hit_info == HitInfo.ABSORBED:
+            elif hit_info & HitInfo.ABSORBED:
                 damage_info.target_state = VictimStates.VS_IMMUNE
-            elif hit_info == HitInfo.DODGE:
+            elif hit_info & HitInfo.DODGE:
                 damage_info.target_state = VictimStates.VS_DODGE
                 damage_info.proc_victim |= ProcFlags.DODGE
-            elif hit_info == HitInfo.PARRY:
+            elif hit_info & HitInfo.PARRY:
                 damage_info.target_state = VictimStates.VS_PARRY
                 damage_info.proc_victim |= ProcFlags.PARRY
-            elif hit_info == HitInfo.BLOCK:
+            elif hit_info & HitInfo.BLOCK:
                 # 0.6 patch notes: "Blocking an attack no longer avoids all of the damage of an attack."
                 # Completely mitigate damage on block.
                 damage_info.target_state = VictimStates.VS_BLOCK

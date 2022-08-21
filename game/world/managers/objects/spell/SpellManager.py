@@ -424,7 +424,7 @@ class SpellManager:
 
                     # TODO Do crushing blows interrupt channeling too?
                     if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and \
-                            hit_info != HitInfo.CRUSHING and \
+                            not hit_info & HitInfo.CRUSHING and \
                             flag != SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT:
                         casting_spell.handle_partial_interrupt()
                     else:
@@ -437,7 +437,7 @@ class SpellManager:
                     continue
 
                 # - Creatures dealing enough damage (crushing blow) will now fully interrupt casting. (0.5.3 notes).
-                if spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL and hit_info != HitInfo.CRUSHING and \
+                if spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL and not hit_info & HitInfo.CRUSHING and \
                         flag != SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT:
                     casting_spell.handle_partial_interrupt()
                 else:
