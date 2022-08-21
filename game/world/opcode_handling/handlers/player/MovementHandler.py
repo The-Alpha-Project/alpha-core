@@ -2,6 +2,7 @@ from struct import error
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units import MovementManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
@@ -14,9 +15,13 @@ class MovementHandler:
 
     @staticmethod
     def handle_movement_status(world_session, socket, reader: PacketReader) -> int:
-        # Avoid handling malformed movement packets, or handling them while no player or player teleporting.
-        if world_session.player_mgr and len(reader.data) >= 48:
-            player_mgr = world_session.player_mgr
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        if not player_mgr:
+            return res
+
+        # Avoid handling malformed movement packets.
+        if len(reader.data) >= 48:
             try:
                 transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
                     unpack('<Q9fI', reader.data[:48])

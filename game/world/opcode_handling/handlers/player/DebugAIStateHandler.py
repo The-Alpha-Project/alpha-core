@@ -26,15 +26,15 @@ class DebugAIStateHandler(object):
 
             high_guid: HighGuid = ObjectManager.extract_high_guid(guid)
             if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PLAYER:
-                world_object = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid, include_players=True)
+                world_object = MapManager.get_surrounding_unit_by_guid(player_mgr, guid, include_players=True)
             else:
-                world_object = MapManager.get_surrounding_gameobject_by_guid(world_session.player_mgr, guid)
+                world_object = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
 
             # No object with that Guid? Return.
             if not world_object:
                 return 0
 
-            messages: list[str] = world_object.get_debug_messages(world_session.player_mgr)
+            messages: list[str] = world_object.get_debug_messages(player_mgr)
             data = pack(
                 '<QI',
                 guid,
@@ -48,6 +48,6 @@ class DebugAIStateHandler(object):
                     message_bytes
                 )
 
-            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DEBUG_AISTATE, data))
+            player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_DEBUG_AISTATE, data))
 
         return 0

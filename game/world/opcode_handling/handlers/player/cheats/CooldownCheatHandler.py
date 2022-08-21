@@ -1,3 +1,4 @@
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 from utils.Logger import Logger
@@ -8,9 +9,10 @@ class CooldownCheatHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
-        player_mgr = world_session.player_mgr
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
         if not player_mgr:
-            return 0
+            return res
 
         if not player_mgr.is_gm:
             Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to remove his cooldowns.')
@@ -22,6 +24,6 @@ class CooldownCheatHandler(object):
 
         # Clear client-side cooldowns.
         data = pack('<Q', player_mgr.guid)
-        world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_CHEAT, data))
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_CHEAT, data))
 
         return 0

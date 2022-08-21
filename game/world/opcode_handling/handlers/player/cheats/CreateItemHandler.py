@@ -1,4 +1,5 @@
 from game.world.managers.CommandManager import CommandManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
 
 from network.packet.PacketReader import *
@@ -8,9 +9,10 @@ class CreateItemHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        player_mgr = world_session.player_mgr
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
         if not player_mgr:
-            return 0
+            return res
 
         if not player_mgr.is_gm:
             Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried create item.')

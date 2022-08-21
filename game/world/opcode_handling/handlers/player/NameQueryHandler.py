@@ -2,6 +2,7 @@ from struct import pack, unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
@@ -11,17 +12,22 @@ class NameQueryHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        if not player_mgr:
+            return res
+
         if len(reader.data) >= 8:  # Avoid handling empty name query packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            player_mgr = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
+            requested_player = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
 
-            if player_mgr:
-                player = player_mgr.player
+            if requested_player:
+                player = requested_player.player
             else:
                 player = RealmDatabaseManager.character_get_by_guid(guid)
 
             if player:
-                world_session.enqueue_packet(NameQueryHandler.get_query_details(player))
+                player_mgr.enqueue_packet(NameQueryHandler.get_query_details(player))
 
         return 0
 

@@ -27,6 +27,7 @@ class PlayerLoginHandler(object):
 
         world_session.player_mgr = PlayerManager(
             RealmDatabaseManager.character_get_by_guid(guid), world_session)
+        player_mgr = world_session.player_mgr
 
         if not world_session.player_mgr.player:
             Logger.anticheat(f'Character with wrong guid ({guid}) tried to login.')
@@ -35,69 +36,69 @@ class PlayerLoginHandler(object):
             WorldSessionStateHandler.push_active_player_session(world_session)
 
         # Disabled race & class checks (only if not a GM).
-        if not world_session.player_mgr.is_gm:
+        if not player_mgr.is_gm:
             disabled_race_mask = config.Server.General.disabled_race_mask
-            disabled = disabled_race_mask & world_session.player_mgr.race_mask == world_session.player_mgr.race_mask
+            disabled = disabled_race_mask & player_mgr.race_mask == player_mgr.race_mask
 
             if not disabled:
                 disabled_class_mask = config.Server.General.disabled_class_mask
-                disabled = disabled_class_mask & world_session.player_mgr.class_mask == world_session.player_mgr.class_mask
+                disabled = disabled_class_mask & player_mgr.class_mask == player_mgr.class_mask
 
             if disabled:
                 # Not 100% sure if CHAR_LOGIN_DISABLED matters here, but I don't know where else to send it.
                 data = pack(
                     '<B', CharLogin.CHAR_LOGIN_DISABLED
                 )
-                world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CHARACTER_LOGIN_FAILED, data))
+                player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CHARACTER_LOGIN_FAILED, data))
                 return 0
 
         # Class & race allowed, continue with the login process.
 
-        world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
-                                                             PlayerLoginHandler._get_login_timespeed()))
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGIN_SETTIMESPEED,
+                                                          PlayerLoginHandler._get_login_timespeed()))
 
-        world_session.player_mgr.skill_manager.load_proficiencies()
-        world_session.player_mgr.skill_manager.load_skills()
-        world_session.player_mgr.spell_manager.load_spells()
-        world_session.player_mgr.skill_manager.update_skills_max_value()  # Can depend on learned spells.
-        world_session.player_mgr.pet_manager.load_pets()
+        player_mgr.skill_manager.load_proficiencies()
+        player_mgr.skill_manager.load_skills()
+        player_mgr.spell_manager.load_spells()
+        player_mgr.skill_manager.update_skills_max_value()  # Can depend on learned spells.
+        player_mgr.pet_manager.load_pets()
 
-        world_session.player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(world_session.player_mgr.guid)
-        world_session.player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(world_session.player_mgr.guid))
+        player_mgr.deathbind = RealmDatabaseManager.character_get_deathbind(player_mgr.guid)
+        player_mgr.friends_manager.load_from_db(RealmDatabaseManager.character_get_social(player_mgr.guid))
 
         # Only send the deathbind packet if it's a Binder NPC what bound the player.
-        if world_session.player_mgr.deathbind.creature_binder_guid > 0:
-            world_session.enqueue_packet(world_session.player_mgr.get_deathbind_packet())
+        if player_mgr.deathbind.creature_binder_guid > 0:
+            player_mgr.enqueue_packet(player_mgr.get_deathbind_packet())
         # Tutorials aren't implemented in 0.5.3.
         # world_session.enqueue_packet(world_session.player_mgr.get_tutorial_packet())
-        world_session.enqueue_packet(world_session.player_mgr.spell_manager.get_initial_spells())
-        world_session.enqueue_packet(world_session.player_mgr.get_action_buttons())
+        player_mgr.enqueue_packet(player_mgr.spell_manager.get_initial_spells())
+        player_mgr.enqueue_packet(player_mgr.get_action_buttons())
 
         # MotD.
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
-        world_session.player_mgr.inventory.load_items()
+        player_mgr.inventory.load_items()
 
         # Initialize stats first to have existing base stats for further calculations.
-        world_session.player_mgr.stat_manager.init_stats()
+        player_mgr.stat_manager.init_stats()
 
         # Passive spells contain skill and proficiency learning.
         # Perform passive spell casts after loading skills to avoid duplicate database entries.
-        world_session.player_mgr.spell_manager.cast_passive_spells()
-        world_session.player_mgr.spell_manager.apply_cast_when_learned_spells()
-        world_session.player_mgr.skill_manager.init_proficiencies()
+        player_mgr.spell_manager.cast_passive_spells()
+        player_mgr.spell_manager.apply_cast_when_learned_spells()
+        player_mgr.skill_manager.init_proficiencies()
 
-        world_session.player_mgr.quest_manager.load_quests()
-        world_session.player_mgr.reputation_manager.load_reputations()
-        GuildManager.set_character_guild(world_session.player_mgr)
-        GroupManager.set_character_group(world_session.player_mgr)
+        player_mgr.quest_manager.load_quests()
+        player_mgr.reputation_manager.load_reputations()
+        GuildManager.set_character_guild(player_mgr)
+        GroupManager.set_character_group(player_mgr)
 
-        first_login = world_session.player_mgr.player.totaltime == 0
+        first_login = player_mgr.player.totaltime == 0
         # Send cinematic.
         if first_login:
             PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
 
-        world_session.player_mgr.complete_login(first_login=first_login)
+        player_mgr.complete_login(first_login=first_login)
 
         return 0
 
