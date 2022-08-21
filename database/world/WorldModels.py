@@ -570,7 +570,6 @@ class PlayercreateinfoAction(Base):
         Index('playercreateinfo_race_class_index', 'race', 'class'),
     )
 
-    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
     race = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
     _class = Column('class', TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
     button = Column(SMALLINT(5), primary_key=True, nullable=False, server_default=text("'0'"))
@@ -594,7 +593,6 @@ class PlayercreateinfoItem(Base):
 class PlayercreateinfoSpell(Base):
     __tablename__ = 'playercreateinfo_spell'
 
-    id = Column(INTEGER(10), primary_key=True, nullable=False, index=True)
     race = Column(TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
     _class = Column('class', TINYINT(3), primary_key=True, nullable=False, server_default=text("'0'"))
     Spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
