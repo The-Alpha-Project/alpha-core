@@ -712,11 +712,13 @@ class StatManager(object):
             multiplier = 0.002 if rating_difference > 0 else 0.0004
             critical_chance = attacker_critical_chance - rating_difference * multiplier
 
-        roll = random.random()
-        if roll < critical_chance:
-            return HitInfo.SUCCESS | HitInfo.CRITICAL_HIT
+        hit_info = HitInfo.SUCCESS
+        if attack_type == AttackTypes.OFFHAND_ATTACK:
+            hit_info |= HitInfo.OFFHAND
+        if random.random() < critical_chance:
+            hit_info |= HitInfo.CRITICAL_HIT
         
-        return HitInfo.SUCCESS
+        return hit_info
 
     def get_spell_attack_result_against_self(self, attacker, spell_school: SpellSchools, spell_attack_type: AttackTypes = -1):
         is_normal_school = spell_school == SpellSchools.SPELL_SCHOOL_NORMAL

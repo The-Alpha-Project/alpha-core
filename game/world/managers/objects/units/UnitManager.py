@@ -287,13 +287,19 @@ class UnitManager(ObjectManager):
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
 
+        # If no combat target exists but the unit is in combat with no attackers, leave combat return.
         if not self.combat_target:
             if self.in_combat and len(self.attackers) == 0:
                 self.leave_combat()
             return False
 
+        # If neither main hand attack and off hand attack are ready, return.
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
-                not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) or self.spell_manager.is_casting():
+                (self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK)):
+            return False
+
+        # If unit is casting, return.
+        if self.spell_manager.is_casting():
             return False
 
         main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
@@ -337,12 +343,12 @@ class UnitManager(ObjectManager):
                 self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK, False)
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
-        if self.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            if swing_error != AttackSwingError.NONE:
-                self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
-                if self.has_offhand_weapon():
-                    self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
+        if swing_error != AttackSwingError.NONE:
+            self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
+            if self.has_offhand_weapon():
+                self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
+            if self.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 if swing_error == AttackSwingError.NOTINRANGE:
                     self.send_attack_swing_not_in_range(self.combat_target)
                 elif swing_error == AttackSwingError.BADFACING:
