@@ -24,7 +24,7 @@ class AuraEffectHandler:
                          f'{aura.spell_effect.aura_type}) from spell {aura.source_spell.spell_entry.ID}.')
             return
 
-        if not is_proc and aura_type in PROC_AURA_EFFECTS:
+        if not remove and not is_proc and aura_type in PROC_AURA_EFFECTS:
             return  # Only call proc effects when a proc happens.
 
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
