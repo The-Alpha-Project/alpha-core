@@ -1,5 +1,28 @@
 delimiter $
 begin not atomic
+    -- 22/08/2022 1
+    if (select count(*) from applied_updates where id='220820221') = 0 then
+      -- Add, Tauren Bull Rush" (4083) spell to all classes
+      INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (6, 1, 4083, 'Bull Rush');
+      INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (6, 3, 4083, 'Bull Rush');
+      INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (6, 7, 4083, 'Bull Rush');
+      INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (6, 11, 4083, 'Bull Rush');
+
+      -- Add, Tauren Bull Rush" (4083) button to all classes
+      INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES (6, 1, 74, 4083, 0);
+      INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES (6, 3, 2, 4083, 0);
+      INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES (6, 7, 3, 4083, 0);
+      INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES(6, 11, 3, 4083, 0);
+      INSERT INTO applied_updates values ('220820221');
+
+      -- Removes elevators next to Freewind Post
+      UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry`='11898';
+      UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry`='11899';
+
+      -- Updates Grimnal
+      UPDATE `creature_template` SET `display_id1`='1139' WHERE `entry`='980';
+    end if;
+
     -- 20/08/2022 2
     if (select count(*) from applied_updates where id='200820222') = 0 then
         -- DESOLACE
@@ -221,18 +244,18 @@ begin not atomic
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '4', '4', '743', '0');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '5', '3', '743', '0');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '11', '3', '743', '0');
-        
+
         -- Dwarf Find Treasure action button placement.
         UPDATE `playercreateinfo_action` SET `button` = '74' WHERE (`race` = '3') and (`class` = '1') and (`button` = '75') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '2' WHERE (`race` = '3') and (`class` = '2') and (`button` = '3') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '2' WHERE (`race` = '3') and (`class` = '3') and (`button` = '4') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '4' WHERE (`race` = '3') and (`class` = '4') and (`button` = '5') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '3' WHERE (`race` = '3') and (`class` = '5') and (`button` = '4') and (`id` = '1');
-        
+
         -- Find Treasure for Dwarf Mages.
         INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES ('1505', '3', '8', '2481', 'Find Treasure');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '3', '8', '3', '2481', '0');
-        
+
         -- Remove all invalid spells.
         DELETE FROM `playercreateinfo_spell` WHERE `Spell` > 7913;
         DELETE FROM `playercreateinfo_action` WHERE `action` > 7913 AND `type` = 0;
@@ -505,14 +528,14 @@ begin not atomic
     -- 21/08/2022 2
     if (select count(*) from applied_updates where id='210820222') = 0 then
         -- DUSTWALLOW MARCH
-        
+
         -- Spider trainer
         INSERT INTO `spawns_creatures` VALUES (NULL, 4882, 0, 0, 0, 1, -3154.872, -2848.983, 34.454, 0.031, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
         UPDATE `creature_template`
         SET `name`="Om'kan", `display_id1`=1120
         WHERE `entry`=4882;
-        
+
         -- Turtle trainer
         INSERT INTO `spawns_creatures` VALUES (NULL, 4881, 0, 0, 0, 1, -3147.965, -2841.329, 34.646, 4.779, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
@@ -598,7 +621,7 @@ begin not atomic
 
         insert into applied_updates values ('210820222');
     end if;
-    
+
     -- 22/08/2022 1
     if (select count(*) from applied_updates where id='220820221') = 0 then
 
@@ -606,67 +629,67 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2718;
-        
+
         -- Dustbelcher Wyrmhunter
         UPDATE `creature_template`
         SET `display_id1`=1121
         WHERE `entry`=2716;
-        
+
         -- Dustbelcher Ogre mage
         UPDATE `creature_template`
         SET `display_id1`=326
         WHERE `entry`=2720;
-        
+
         -- Dustbelcher Ogre
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2701;
-        
+
         -- Dustbelcher Brute
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2715;
-        
+
         -- Anathemus
         UPDATE `creature_template`
         SET `display_id1`=3216
         WHERE `entry`=2754;
-        
+
         -- Scorched Guardian
         UPDATE `creature_template`
         SET `display_id1`=2527
         WHERE `entry`=2726;
-        
+
         -- Starving Buzzard
         UPDATE `creature_template`
         SET `display_id1`=1105
         WHERE `entry`=2829;
-        
+
         -- Wargolem
         UPDATE `creature_template`
         SET `display_id1`=2695
         WHERE `entry`=2751;
-        
+
         -- Siege Golem
         UPDATE `creature_template`
         SET `display_id1`=2695
         WHERE `entry`=2749;
-        
+
         -- Rumbler
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2752;
-        
+
         -- Greater Rock Elemental
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2736;
-        
+
         -- Enraged Rock Elemental
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2791;
-        
+
         -- Galek
         UPDATE `creature_template`
         SET `display_id1`=1642
