@@ -627,10 +627,7 @@ class UnitManager(ObjectManager):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
     def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
-        if not target:
-            return None
-
-        if not self.is_alive or not target.is_alive:
+        if not target or not target.is_alive:
             return None
 
         damage_info = DamageInfoHolder()
