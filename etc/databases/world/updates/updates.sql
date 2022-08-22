@@ -922,5 +922,78 @@ begin not atomic
 
         insert into applied_updates values ('220820223');
     end if;
+
+    -- 23/08/2022 1
+    if (select count(*) from applied_updates where id='230820221') = 0 then
+        -- MISC DISPLAY ID & SPAWN FIX
+        -- FIX #455 #517 #518 #519 #520 #524 #534 #543
+
+        -- Kardris Dreamseeker
+        UPDATE `spawns_creatures`
+        SET `position_x`=1934.261, `position_y`=-4198.464, `position_z`=42.061, `orientation`=2.227
+        WHERE `spawn_id`=4663;
+
+        -- Grenil Steelfury
+        UPDATE `spawns_creatures`
+        SET `position_x`=-4933.364, `position_y`=-999.121, `position_z`=492.736, `orientation`=0.975
+        WHERE `spawn_id`=112;
+
+        -- Dolman Steelfury
+        UPDATE `spawns_creatures`
+        SET `position_x`=-4930.579, `position_y`=-1001.191, `position_z`=492.736, `orientation`=0.906
+        WHERE `spawn_id`=110;
+
+        -- Maeva Snowbraid
+        UPDATE `spawns_creatures`
+        SET `position_x`=-4660.537, `position_y`=-891.460, `position_z`=520.412, `orientation`=0.856
+        WHERE `spawn_id`=1801;
+
+        -- Ingrys Stonebrow
+        UPDATE `spawns_creatures`
+        SET `position_x`=-4597.981, `position_y`=-959.020, `position_z`=520.430, `orientation`=5.216
+        WHERE `spawn_id`=1800;
+
+        -- Raena Flinthammer
+        UPDATE `spawns_creatures`
+        SET `position_x`=-4874.195, `position_y`=-1019.104, `position_z`=492.753, `orientation`=5.422
+        WHERE `spawn_id`=1755;
+
+        -- Sovik
+        UPDATE `spawns_creatures`
+        SET `position_x`=2036.924, `position_y`=-4739.543, `position_z`=51.100, `orientation`=0.708
+        WHERE `spawn_id`=7968;
+
+        -- Darnassus Banker Idriana
+        UPDATE `spawns_creatures`
+        SET `position_x`=10038.049, `position_y`=2486.572, `position_z`=1318.426, `orientation`=1.812
+        WHERE `spawn_id`=46223;
+
+        -- Darnassus Banker Garryeth
+        UPDATE `spawns_creatures`
+        SET `position_x`=10044.490, `position_y`=2487.882, `position_z`=1318.426, `orientation`=1.962
+        WHERE `spawn_id`=46418;
+
+        -- Darnassus Banker Lain
+        UPDATE `spawns_creatures`
+        SET `position_x`=10031.436, `position_y`=2486.353, `position_z`=1318.426, `orientation`=1.667
+        WHERE `spawn_id`=46417;
+
+        -- Jorb
+        UPDATE `creature_template`
+        SET `display_id1`=1051
+        WHERE `entry`=3659;
+
+        -- Writhing Highborne
+        UPDATE `creature_template`
+        SET `display_id2`=1009
+        WHERE `entry`=2177;
+
+        -- Theramore Sentry
+        UPDATE `creature_template`
+        SET `display_id1`=1643, `display_id2`=2977
+        WHERE `entry`=5184;
+
+        insert into applied_updates values ('230820221');
+    end if;
 end $
 delimiter ;
