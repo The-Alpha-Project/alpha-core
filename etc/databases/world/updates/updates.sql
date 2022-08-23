@@ -923,6 +923,29 @@ begin not atomic
         insert into applied_updates values ('220820223');
     end if;
 
+    -- 22/08/2022 4
+    if (select count(*) from applied_updates where id='220820224') = 0 then
+      -- Add, Tauren Bull Rush" (4083) spell to all classes
+      INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (6, 1, 4083, 'Bull Rush');
+      INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (6, 3, 4083, 'Bull Rush');
+      INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (6, 7, 4083, 'Bull Rush');
+      INSERT INTO `playercreateinfo_spell` (`race`, `class`, `Spell`, `Note`) VALUES (6, 11, 4083, 'Bull Rush');
+
+      -- Add, Tauren Bull Rush" (4083) button to all classes
+      INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES (6, 1, 74, 4083, 0);
+      INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES (6, 3, 2, 4083, 0);
+      INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES (6, 7, 3, 4083, 0);
+      INSERT INTO `playercreateinfo_action` (`race`, `class`, `button`, `action`, `type`) VALUES(6, 11, 3, 4083, 0);
+
+      -- Removes elevators next to Freewind Post
+      UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry`='11898';
+      UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry`='11899';
+
+      -- Updates Grimnal
+      UPDATE `creature_template` SET `display_id1`='1139' WHERE `entry`='980';
+      INSERT INTO applied_updates values ('220820224');
+    end if;
+
     -- 23/08/2022 1
     if (select count(*) from applied_updates where id='230820221') = 0 then
         -- MISC DISPLAY ID & SPAWN FIX
