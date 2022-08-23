@@ -6,7 +6,7 @@ begin not atomic
       if (select count(*) from applied_updates where id='230820221') = 0 then
         -- Update quest enty 99.
         UPDATE `quest_template` SET `ReqItemCount1`='12' WHERE `entry`=99;
-      end if
+      end if;
 
         -- DESOLACE
 
