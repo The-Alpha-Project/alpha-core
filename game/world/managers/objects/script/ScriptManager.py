@@ -35,9 +35,11 @@ class ScriptManager:
             #  return source.get_charmer_or_self()
             pass
         elif target_type == ScriptTarget.TARGET_T_OWNER:
-            # TODO
-            #  return source.get_owner(), what does owner means here?
-            pass
+            if not ScriptManager._validate_is_unit(caster):
+                return None
+            if not caster.summoner:
+                return None
+            return caster.summoner
         elif target_type == ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY:
             # TODO, entry -> object type identification.
             #  Based on objects high guids.
@@ -274,12 +276,10 @@ class ScriptManager:
                                       unit_caller.location.distance(unit.location) < search_range]
         # Only friendly units, if requested.
         if friends_only:
-            surrounding_units_list = [unit for unit in surrounding_units_list if
-                                      not unit_caller.can_attack_target(unit)]
+            surrounding_units_list = [unit for unit in surrounding_units_list if not unit_caller.is_hostile_to(unit)]
         # Only enemies, if requested.
         if enemies_only:
-            surrounding_units_list = [unit for unit in surrounding_units_list if
-                                      unit_caller.can_attack_target(unit)]
+            surrounding_units_list = [unit for unit in surrounding_units_list if unit_caller.is_hostile_to(unit)]
         # Exclude unit, if provided.
         if exclude_unit:
             surrounding_units_list = [unit for unit in surrounding_units_list if

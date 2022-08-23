@@ -209,6 +209,15 @@ class UnitManager(ObjectManager):
         return current_distance <= UnitFormulas.interactable_distance(self, victim)
 
     # override
+    def is_hostile_to(self, target):
+        is_hostile = super().is_hostile_to(target)
+        if is_hostile:
+            return True
+
+        # Might be neutral, but was attacked by target.
+        return target and target.guid in self.attackers
+
+    # override
     def can_attack_target(self, target):
         is_enemy = super().can_attack_target(target)
         if is_enemy:
