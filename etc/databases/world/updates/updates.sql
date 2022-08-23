@@ -1018,5 +1018,13 @@ begin not atomic
 
         insert into applied_updates values ('230820221');
     end if;
+
+    -- 23/08/2022 2
+    if (select count(*) from applied_updates where id='230820222') = 0 then
+        -- From 0.5.4 Patch notes: H [15] Arugal's Folly: Reduced the number of Pyrewood Shackles required from 12 to 6.
+        UPDATE `quest_template` SET `ReqItemCount1` = 12 WHERE `entry` = 99;
+
+        insert into applied_updates values ('230820222');
+    end if;
 end $
 delimiter ;
