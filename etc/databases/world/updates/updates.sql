@@ -1034,6 +1034,43 @@ begin not atomic
 
       -- Stormscale Siren
       UPDATE `creature_template` SET `display_id1`='4036' WHERE `entry`='2180';
+
+    -- 25/08/2022 1
+    if (select count(*) from applied_updates where id='250820221') = 0 then
+        -- #565 Incorrect vendor inventory
+        DELETE FROM `npc_vendor` WHERE `entry`=5121;
+
+        INSERT INTO `npc_vendor` VALUES
+            (5121, 852, 0, 0, 0),
+            (5121, 2028, 0, 0, 0),
+            (5121, 925, 0, 0, 0),
+            (5121, 1197, 0, 0, 0),
+            (5121, 2026, 0, 0, 0),
+            (5121, 924, 0, 0, 0),
+            (5121, 854, 0, 0, 0),
+            (5121, 2030, 0, 0, 0),
+            (5121, 928, 0, 0, 0);
+
+            -- #567 Incorrect item damage
+            UPDATE `item_template` SET 
+                `dmg_min1`='28', 
+                `dmg_max1`='39' 
+            WHERE `entry`='854';
+
+            -- #572 Ruppo Zipcoil 
+            UPDATE `creature_template` SET 
+              `display_id1`='352', 
+              `name`='[PH] Ruppo Zipcoil',
+              `subname`='Superior Engineer'
+            WHERE `entry`='2688';
+
+            -- #573 Hill Giant
+            UPDATE `creature_template` SET `display_id1`='1163' WHERE `entry`='2689';
+
+            -- #575 Stranglekelp should be removed
+            -- Does not have gameobject_loot_template entry
+            UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry`='2045';
+        end if;
     end if;
 end $
 delimiter ;
