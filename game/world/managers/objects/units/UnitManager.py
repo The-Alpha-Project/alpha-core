@@ -770,7 +770,10 @@ class UnitManager(ObjectManager):
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
         self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
-        self._threat_assist(target, healing)
+        # From 0.5.4 Patch notes:
+        # Healing over time generates hate.
+        if casting_spell.generates_threat() and not is_periodic:
+            self._threat_assist(target, healing)
 
     def _threat_assist(self, target, source_threat: float):
         if target.in_combat:
