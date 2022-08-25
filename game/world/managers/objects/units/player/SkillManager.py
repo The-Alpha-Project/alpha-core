@@ -418,25 +418,26 @@ class SkillManager(object):
 
         return True
 
+    # TODO, gain chance, skills mechanics, etc.
+    def handle_spell_skill_gain(self, spell_id):
+        if not spell_id:
+            return
+
+        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        if not skill:
+            return
+
+        roll = random.randint(1, 100)
+        if roll < 75:
+            self.set_skill(skill_id, skill.value + 1)
+            self.build_update()
+
     def handle_profession_skill_gain(self, spell_id):
         skill_gain_factor = 1
 
-        skill_info_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
-
-        # skill_template = self.get_skill_for_spell_id(spell_id)
-        if not skill_info_entries:
-            return False
-
         # Should always resolve to one for professions.
-        skill_line_ability = skill_info_entries[0]
-
-        skill_id = skill_line_ability.SkillLine
-        if skill_id not in self.skills:
-            return False
-
-        skill = self.skills[skill_id]
-
-        if skill.value >= skill.max:
+        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        if not skill:
             return False
 
         gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
@@ -467,6 +468,34 @@ class SkillManager(object):
             chance = chance >> int(skill.value / mining_skill_chance_steps)
 
         self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)
+
+    @staticmethod
+    def get_skill_id_and_skill_line_for_spell_id(spell_id):
+        skill_info_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+
+        if not skill_info_entries:
+            return 0, None
+
+        skill_line_ability = skill_info_entries[0]
+        skill_id = skill_line_ability.SkillLine
+
+        return skill_id, skill_line_ability
+
+    def get_skill_info_for_spell_id(self, spell_id):
+        skill_id, skill_line_ability = SkillManager.get_skill_id_and_skill_line_for_spell_id(spell_id)
+
+        if not skill_id:
+            return None, 0, None
+
+        if skill_id not in self.skills:
+            return None, skill_id, skill_line_ability
+
+        skill = self.skills[skill_id]
+
+        if skill.value >= skill.max:
+            return None, skill_id, skill_line_ability
+
+        return skill, skill_id, skill_line_ability
 
     @staticmethod
     def _get_skill_gain_chance(skill_value, gray_level, green_level, yellow_level):

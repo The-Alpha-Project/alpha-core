@@ -1271,7 +1271,11 @@ class PlayerManager(UnitManager):
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
     # override
-    def handle_combat_skill_gain(self, damage_info):
+    def handle_spell_skill_gain(self, casting_spell):
+        self.skill_manager.handle_spell_skill_gain(casting_spell.spell_entry.ID)
+
+    # override
+    def handle_combat_skill_gain(self, damage_info, spell_id=0):
         if damage_info.attacker == self:
             self.skill_manager.handle_weapon_skill_gain_chance(damage_info.attack_type)
         else:
