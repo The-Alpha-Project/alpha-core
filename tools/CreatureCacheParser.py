@@ -68,7 +68,6 @@ class CreatureCacheParser:
                     sql_field_comment.append(f"-- type, from {creature_template.type} ({CreatureTypes(creature_template.type).name}) to {creature_type} ({CreatureTypes(creature_type).name})")
                     sql_field_updates.append(f"`type` = {creature_type}")
 
-                # Ignore creature family.
                 index, beast_family = CreatureCacheParser._read_int(data, index)
                 if CreatureCacheParser._should_update(beast_family, creature_template.beast_family):
                     src_family = CreatureFamily(creature_template.beast_family).name if creature_template.beast_family < len(CreatureFamily) else 'Invalid'
