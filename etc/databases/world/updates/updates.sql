@@ -1038,7 +1038,7 @@ begin not atomic
 
         -- Gozwin Vilesprocket
         -- name, from [UNUSED] Gozwin Vilesprocket to Gozwin Vilesprocket
-        UPDATE `creature_template` SET `name` = 'Gozwin Vilesprocket' WHERE (`entry` = 6046);
+        UPDATE `creature_template` SET `name` = 'Gozwin Vilesprocket', `subname` = 'Warlock Trainer' WHERE (`entry` = 6046);
 
         -- Durnan Furcutter
         -- subname, from Cloth & Leather Armor Merchant to Cloth & Leather
