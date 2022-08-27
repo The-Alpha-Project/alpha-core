@@ -909,6 +909,7 @@ class NpcVendor(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     incrtime = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
     itemflags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    slot = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
 
     creature = relationship('CreatureTemplate')
     item_template = relationship('ItemTemplate')

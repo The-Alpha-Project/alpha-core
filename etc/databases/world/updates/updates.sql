@@ -1463,5 +1463,29 @@ begin not atomic
 
         insert into applied_updates values ('260820221');
     end if;
+
+    -- 27/08/2022 1
+    if (select count(*) from applied_updates where id='270820221') = 0 then
+        -- Add slot field to npc_vendor table.
+        ALTER TABLE `npc_vendor` ADD COLUMN `slot` TINYINT(3) unsigned NOT NULL DEFAULT 0;
+
+        -- Sort Kelomir Ironhand item list.
+        DELETE FROM `npc_vendor` WHERE `entry`=5121;
+        INSERT INTO `npc_vendor` VALUES
+            (5121, 852, 0, 0, 0, 0),
+            (5121, 2028, 0, 0, 0, 1),
+            (5121, 925, 0, 0, 0, 2),
+            (5121, 1197, 0, 0, 0, 3),
+            (5121, 2026, 0, 0, 0, 4),
+            (5121, 924, 0, 0, 0, 5),
+            (5121, 854, 0, 0, 0, 6),
+            (5121, 2030, 0, 0, 0, 7),
+            (5121, 928, 0, 0, 0, 8);
+
+        -- Change Kelomir Ironhand subname.
+        UPDATE `creature_template` SET `subname` = 'Mace Merchant' WHERE `entry` = 5121;
+
+        insert into applied_updates values ('270820221');
+    end if;
 end $
 delimiter ;
