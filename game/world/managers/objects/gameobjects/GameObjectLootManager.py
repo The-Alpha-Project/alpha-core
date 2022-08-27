@@ -1,3 +1,5 @@
+from random import randint
+
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.loot.LootManager import LootManager
 from utils.constants.MiscCodes import LootTypes, GameObjectTypes
@@ -8,8 +10,14 @@ class GameObjectLootManager(LootManager):
         super(GameObjectLootManager, self).__init__(object_mgr)
 
     # override
+    def generate_money(self):
+        money = randint(self.world_object.gobject_template.mingold, self.world_object.gobject_template.maxgold)
+        self.current_money = money
+
+    # override
     def generate_loot(self, requester):
-        super().clear()
+        self.clear()
+        self.generate_money()
         loot_collection = self.generate_loot_groups(self.loot_template)
         for loot_item in self.process_loot_groups(loot_collection, requester):
             self.add_loot(loot_item, requester)

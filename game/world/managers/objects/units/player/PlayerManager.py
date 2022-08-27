@@ -9,6 +9,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
@@ -702,13 +703,21 @@ class PlayerManager(UnitManager):
 
     def loot_money(self):
         if self.loot_selection:
-            enemy = MapManager.get_surrounding_unit_by_guid(self, self.loot_selection.object_guid)
-            loot_manager = self.loot_selection.get_loot_manager(enemy)
-            if enemy and loot_manager.has_money():
+            high_guid = ObjectManager.extract_high_guid(self.loot_selection.object_guid)
+            if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
+                world_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
+            elif high_guid == HighGuid.HIGHGUID_UNIT:
+                world_object = MapManager.get_surrounding_unit_by_guid(self, self.loot_selection.object_guid)
+            else:
+                Logger.error(f'Tried to loot money from an unknown object type: ({high_guid}).')
+                return
+
+            loot_manager = self.loot_selection.get_loot_manager(world_object)
+            if world_object and loot_manager.has_money():
                 # If party is formed, try to split money.
                 if self.group_manager and self.group_manager.is_party_formed():
                     # Try to split money and finish on success.
-                    if self.group_manager.reward_group_money(self, enemy):
+                    if self.group_manager.reward_group_money(self, world_object):
                         return
                     else:  # Not able to split, notify the whole amount to the sole player.
                         data = pack('<I', loot_manager.current_money)

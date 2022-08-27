@@ -16,13 +16,13 @@ class LootManager(object):
         self.active_looters = []
         self.loot_lock = RLock()
 
-    # Needs overriding
+    # Needs overriding.
     def generate_loot(self, requester):
         pass
 
+    # Needs overriding.
     def generate_money(self):
-        money = randint(self.world_object.creature_template.gold_min, self.world_object.creature_template.gold_max)
-        self.current_money = money
+        pass
 
     # Generates a complete dictionary { group_id : items }, includes referenced loot items.
     # noinspection PyMethodMayBeStatic
