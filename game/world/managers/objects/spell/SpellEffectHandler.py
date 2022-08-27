@@ -712,7 +712,6 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_DUMMY: SpellEffectHandler.handle_dummy,
     SpellEffects.SPELL_EFFECT_THREAT: SpellEffectHandler.handle_threat,
     SpellEffects.SPELL_EFFECT_STUCK: SpellEffectHandler.handle_stuck,
-    SpellEffects.SPELL_EFFECT_SUMMON: SpellEffectHandler.handle_summon_pet,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,
