@@ -246,6 +246,9 @@ class CastingSpell:
         return self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
 
     def is_target_immune_to_effects(self):
+        if not self.initial_target_is_unit_or_player():
+            return False
+
         if self.is_target_immune():
             return True
 
