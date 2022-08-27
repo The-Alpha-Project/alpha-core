@@ -622,7 +622,7 @@ class PlayerManager(UnitManager):
     # override
     def mount(self, mount_display_id):
         if super().mount(mount_display_id):
-            # TODO, validate mount.
+            # TODO: validate mount.
             data = pack('<QI', self.guid, MountResults.MOUNTRESULT_OK)
             packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
             self.enqueue_packet(packet)
@@ -634,7 +634,7 @@ class PlayerManager(UnitManager):
     # override
     def unmount(self):
         super().unmount()
-        # TODO, validate dismount.
+        # TODO: validate dismount.
         data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_OK)
         packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
         self.enqueue_packet(packet)
@@ -1028,7 +1028,7 @@ class PlayerManager(UnitManager):
     def has_area_explored(self, area_explore_bit):
         return self.explored_areas[area_explore_bit]
 
-    # TODO, Trigger quest explore requirement checks.
+    # TODO: Trigger quest explore requirement checks.
     def set_area_explored(self, area_information):
         self.explored_areas[area_information.explore_bit] = True
         if area_information.level > 0:
@@ -1272,7 +1272,7 @@ class PlayerManager(UnitManager):
 
     # override
     def handle_spell_skill_gain(self, casting_spell):
-        self.skill_manager.handle_spell_skill_gain(casting_spell.spell_entry.ID)
+        return self.skill_manager.handle_spell_skill_gain(casting_spell.spell_entry.ID)
 
     # override
     def handle_combat_skill_gain(self, damage_info, spell_id=0):

@@ -232,7 +232,7 @@ class CastingSpell:
             return True
         return False
 
-    # TODO, Check 'IsImmuneToDamage' - VMaNGOS
+    # TODO: Check 'IsImmuneToDamage' - VMaNGOS
     def is_target_immune_to_damage(self):
         return False
 
@@ -290,7 +290,7 @@ class CastingSpell:
                 return True
         return False
 
-    # TODO, need more checks.
+    # TODO: need more checks.
     #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - VMaNGOS
     def is_positive_spell(self):
         return not self.spell_caster.can_attack_target(self.initial_target)

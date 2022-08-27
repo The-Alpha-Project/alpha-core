@@ -418,14 +418,14 @@ class SkillManager(object):
 
         return True
 
-    # TODO, gain chance, skills mechanics, etc.
+    # TODO: gain chance, skills mechanics, etc.
     def handle_spell_skill_gain(self, spell_id):
         if not spell_id:
-            return
+            return False
 
         skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
         if not skill:
-            return
+            return False
 
         roll = random.randint(1, 100)
         if roll < 75:
@@ -451,9 +451,9 @@ class SkillManager(object):
         return True
 
     def handle_gather_skill_gain(self, skill_type, required_skill_value):
-        gather_skill_gain_factor = 1  # TODO, configurable.
+        gather_skill_gain_factor = 1  # TODO: configurable.
         if skill_type not in self.skills:
-            return
+            return False
         skill = self.skills[skill_type]
         if skill.value >= skill.max:
             return False
@@ -464,7 +464,7 @@ class SkillManager(object):
                                                      required_skill_value + 25)
 
         if skill_type == SkillTypes.MINING:
-            mining_skill_chance_steps = 75  # TODO, configurable.
+            mining_skill_chance_steps = 75  # TODO: configurable.
             chance = chance >> int(skill.value / mining_skill_chance_steps)
 
         self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)

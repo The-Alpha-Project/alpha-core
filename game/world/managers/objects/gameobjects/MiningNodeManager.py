@@ -28,7 +28,7 @@ class MiningNodeManager(object):
             return
 
         chance_rate = 1.0
-        # TODO, need to override required_value from Locks.dbc, if available.
+        # TODO: need to override required_value from Locks.dbc, if available.
         required_value = 175
         skill_total = player.skill_manager.get_total_skill_value(11) / (required_value + 25)
         chance = math.pow(0.8 * chance_rate, 4 * (1 / self.max_restock) * self.attempts)

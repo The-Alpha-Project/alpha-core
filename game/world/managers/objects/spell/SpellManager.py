@@ -1017,7 +1017,7 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
                 return False
 
-            # GameObject already in use. TODO, 'gameobject_requirement' table.
+            # GameObject already in use. TODO: 'gameobject_requirement' table.
             if casting_spell.initial_target_is_gameobject() and \
                     (validation_target.is_active() or validation_target.has_flag(GameObjectFlags.IN_USE)):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)

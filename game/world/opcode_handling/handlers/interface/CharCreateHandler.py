@@ -186,7 +186,7 @@ class CharCreateHandler(object):
                     skill_to_set = CharacterSkill()
                     skill_to_set.guid = guid
                     skill_to_set.skill = skill_id
-                    # TODO, investigate Min and Max ranks.
+                    # TODO: investigate Min and Max ranks.
                     skill_to_set.value = 1
                     skill_to_set.max = skill.MaxRank
 

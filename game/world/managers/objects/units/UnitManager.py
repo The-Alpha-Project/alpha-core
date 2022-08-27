@@ -634,7 +634,7 @@ class UnitManager(ObjectManager):
 
     # Implemented by PlayerManager
     def handle_spell_skill_gain(self, casting_spell):
-        return
+        return False
 
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
@@ -778,7 +778,7 @@ class UnitManager(ObjectManager):
         self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
         # From 0.5.4 Patch notes:
-        # Healing over time generates hate.
+        #     "Healing over time generates hate."
         if casting_spell.generates_threat() and not is_periodic:
             self._threat_assist(target, healing)
         # Handle spell required skill gain.
@@ -976,7 +976,7 @@ class UnitManager(ObjectManager):
         self.mount(creature_template.display_id1)
         return True
 
-    # TODO, this should be moved to specific creature and player implementations.
+    # TODO: this should be moved to specific creature and player implementations.
     def mount(self, mount_display_id):
         if mount_display_id > 0 and \
                 DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(mount_display_id):
