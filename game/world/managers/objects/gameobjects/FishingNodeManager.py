@@ -2,7 +2,7 @@ import time
 from random import randint
 
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import GameObjectStates
+from utils.constants.MiscCodes import GameObjectStates, ObjectTypeFlags
 from utils.constants.OpCodes import OpCode
 
 
@@ -18,6 +18,21 @@ class FishingNodeManager(object):
         self.became_active_time = 0
         self.hook_result = False
         self.got_away = False
+
+        # Set channel object update field.
+        if fishing_node.summoner and fishing_node.summoner.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+            fishing_node.summoner.set_channel_object(fishing_node.guid)
+
+    def fishing_node_use(self, player):
+        # Generate loot if it's empty.
+        if not self.fishing_node.loot_manager.has_loot():
+            self.fishing_node.loot_manager.generate_loot(player)
+
+        if self.fishing_node.fishing_node_manager.try_hook_attempt(player):
+            player.send_loot(self.fishing_node.loot_manager)
+
+        # Remove cast.
+        player.spell_manager.remove_cast_by_id(self.fishing_node.ritual_summon_spell_id)
 
     def try_hook_attempt(self, player):
         if self.fishing_node.state != GameObjectStates.GO_STATE_ACTIVE:

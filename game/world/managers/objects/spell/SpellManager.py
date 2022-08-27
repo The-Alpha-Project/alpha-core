@@ -76,11 +76,6 @@ class SpellManager:
             if not self.caster.skill_manager.add_skill(related_profession_skill):
                 self.caster.skill_manager.update_skills_max_value()
 
-        # Add the spell required skill.
-        skill, skill_id, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
-        if not skill and skill_id:
-            self.caster.skill_manager.add_skill(skill_id)
-
         return True
 
     def unlearn_spell(self, spell_id) -> bool:
@@ -154,11 +149,11 @@ class SpellManager:
             return
 
         for spell_info in item.spell_stats:
-            if spell_info.spell_id == 0:
+            if spell_info.ritual_summon_spell_id == 0:
                 break
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.spell_id)
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.ritual_summon_spell_id)
             if not spell:
-                Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} '
+                Logger.warning(f'Spell {spell_info.ritual_summon_spell_id} tied to item {item.item_template.entry} '
                                f'({item.item_template.name}) could not be found in the spell database.')
                 continue
 
@@ -1126,23 +1121,7 @@ class SpellManager:
         channel_object = MapManager.get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
         if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL:
             return
-
-        # If the ritual caster interrupts channeling, interrupt others and remove the portal.
-        if channel_object.summoner is self.caster:
-            MapManager.remove_object(channel_object)
-
-            ritual_channel_spell_id = channel_object.gobject_template.data2
-            for player in channel_object.ritual_participants:
-                # Note that this call will lead to _handle_summoning_channel_end() calls from the participants.
-                player.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
-
-        # If a participant interrupts their channeling, remove from participants and interrupt summoning if necessary.
-        elif self.caster in channel_object.ritual_participants:
-            channel_object.ritual_participants.remove(self.caster)
-            required_participants = channel_object.gobject_template.data0
-            if len(channel_object.ritual_participants) < required_participants - 1:  # -1 to include ritual caster.
-                ritual_summon_spell_id = channel_object.gobject_template.data1
-                channel_object.summoner.spell_manager.remove_cast_by_id(ritual_summon_spell_id)
+        channel_object.ritual_manager.channel_end(self.caster)
 
     def meets_casting_requisites(self, casting_spell) -> bool:
         # This method should only check resource costs (ie. power/combo/items).

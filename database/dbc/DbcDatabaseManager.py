@@ -198,6 +198,13 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return res
 
+    @staticmethod
+    def spell_get_focus_by_id(spell_focus_id):
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(SpellFocusObject).filter_by(ID=spell_focus_id).first()
+        dbc_db_session.close()
+        return res
+
     # Skill
 
     class SkillHolder:

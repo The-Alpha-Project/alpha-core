@@ -9,16 +9,17 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.FishingNodeManager import FishingNodeManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
+from game.world.managers.objects.gameobjects.GooberManager import GooberManager
 from game.world.managers.objects.gameobjects.MiningNodeManager import MiningNodeManager
+from game.world.managers.objects.gameobjects.RitualManager import RitualManager
+from game.world.managers.objects.gameobjects.SpellFocusManager import SpellFocusManager
 from game.world.managers.objects.gameobjects.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from network.packet.PacketWriter import PacketWriter
-from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
-from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import StandState, UnitFlags
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFields
 
@@ -76,51 +77,64 @@ class GameObjectManager(ObjectManager):
         self.trap_manager = None  # Optional.
         self.fishing_node_manager = None  # Optional.
         self.mining_node_manager = None  # Optional.
+        self.goober_manager = None  # Optional.
+        self.ritual_manager = None  # Optional.
+        self.spell_focus_manager = None  # Optional.
 
+        # TODO: Can't we just initialize this directly on ObjectManager for all children?
         from game.world.managers.objects.spell.SpellManager import SpellManager  # Local due to circular imports.
         self.spell_manager = SpellManager(self)
 
-        # Chest initializations.
-        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
-            self.lock = self.gobject_template.data0
+        # Loot initialization.
+        if self.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
+                self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
             self.loot_manager = GameObjectLootManager(self)
-            # Mining node.
-            if self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4:
-                self.mining_node_manager = MiningNodeManager(self)
+
+        # Mining node initializations.
+        if self.is_mining_node():
+            self.mining_node_manager = MiningNodeManager(self)
 
         # Fishing node initialization.
         if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
-            self.loot_manager = GameObjectLootManager(self)
             self.fishing_node_manager = FishingNodeManager(self)
 
         # Ritual initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
-            self.ritual_participants = []
+            self.ritual_manager = RitualManager(self)
 
-        # Set channeled object for fishing nodes or rituals.
-        if summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL or \
-                    self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
-                summoner.set_channel_object(self.guid)
+        # Spell focus objects.
+        # TODO: Need to figure the proper link between Traps and SpellFocus objects.
+        #  For now, only summoned go's will use SpellFocusManager, e.g. Basic Campfire.
+        if self.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS and self.summoner:
+            self.spell_focus_manager = SpellFocusManager(self)
 
-        # Trap collision initializations.
-        self.lock = self.gobject_template.data0
+        # Trap initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
-            self.trap_manager = TrapManager.generate(self)
+            self.trap_manager = TrapManager(self)
+
+        # Goober initialization.
+        if self.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
+            self.goober_manager = GooberManager(self)
 
         # Lock initialization for button and door.
         if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON or \
                 self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
             self.lock = self.gobject_template.data1
 
-        # Lock initialization for quest giver, goober and camera.
+        # Lock initialization for quest giver, goober, camera, trap and chest.
         if self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER or \
                 self.gobject_template.type == GameObjectTypes.TYPE_GOOBER or \
-                self.gobject_template.type == GameObjectTypes.TYPE_CAMERA:
+                self.gobject_template.type == GameObjectTypes.TYPE_CAMERA or \
+                self.gobject_template.type == GameObjectTypes.TYPE_TRAP or \
+                self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.lock = gobject_template.data0
 
     def load(self):
         MapManager.update_object(self)
+
+    def is_mining_node(self):
+        return self.gobject_template and self.gobject_template.type == GameObjectTypes.TYPE_CHEST and \
+               self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4
 
     @staticmethod
     def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1, ttl=0):
@@ -221,22 +235,6 @@ class GameObjectManager(ObjectManager):
             player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
-    # noinspection PyMethodMayBeStatic
-    def _handle_use_quest_giver(self, player, target):
-        if target:
-            player.quest_manager.handle_quest_giver_hello(target, target.guid)
-
-    def _handle_fishing_node(self, player):
-        # Generate loot if it's empty.
-        if not self.loot_manager.has_loot():
-            self.loot_manager.generate_loot(player)
-
-        if self.fishing_node_manager.try_hook_attempt(player):
-            player.send_loot(self.loot_manager)
-
-        # Remove cast.
-        player.spell_manager.remove_cast_by_id(self.spell_id)
-
     def _handle_use_chest(self, player):
         # Activate chest open animation, while active, it won't let any other player loot.
         if self.state == GameObjectStates.GO_STATE_READY:
@@ -252,48 +250,19 @@ class GameObjectManager(ObjectManager):
 
         player.send_loot(self.loot_manager)
 
-    def _handle_use_ritual(self, player_mgr):
-        # Ritual should have a summoner.
-        if not self.summoner:
-            Logger.warning(f'Player {player_mgr.player.name} tried to use Ritual with no summoner set.')
-            player_mgr.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-            return
+    # noinspection PyMethodMayBeStatic
+    def _handle_use_quest_giver(self, player, target):
+        if target:
+            player.quest_manager.handle_quest_giver_hello(target, target.guid)
 
-        # Group check.
-        if not self.summoner.group_manager or not self.summoner.group_manager.is_party_member(player_mgr.guid):
-            player_mgr.spell_manager.send_cast_result(self.spell_id, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
-            return
+    def _handle_fishing_node(self, player):
+        self.fishing_node_manager.fishing_node_use(player)
 
-        ritual_channel_spell_id = self.gobject_template.data2
-        if player_mgr is self.summoner or player_mgr in self.ritual_participants:
-            return  # No action needed for this player.
+    def _handle_use_goober(self, player):
+        self.goober_manager.goober_use(player)
 
-        # Make the player channel for summoning.
-        channel_spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_channel_spell_id)
-        spell = player_mgr.spell_manager.try_initialize_spell(channel_spell_entry, self, SpellTargetMask.GAMEOBJECT,
-                                                              validate=False)
-
-        # Note: these triggered casts will skip the actual effects of the summon spell, only starting the channel.
-        player_mgr.spell_manager.remove_colliding_casts(spell)
-        player_mgr.spell_manager.casting_spells.append(spell)
-        player_mgr.spell_manager.handle_channel_start(spell)
-        self.ritual_participants.append(player_mgr)
-
-        # Check if the ritual can be completed with the current participants.
-        required_participants = self.gobject_template.data0 - 1  # -1 to include caster.
-        if len(self.ritual_participants) >= required_participants:
-            ritual_finish_spell_id = self.gobject_template.data1
-
-            # Cast the finishing spell.
-            spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(ritual_finish_spell_id)
-            spell_cast = self.summoner.spell_manager.try_initialize_spell(spell_entry, self.summoner,
-                                                                          SpellTargetMask.SELF,
-                                                                          triggered=True, validate=False)
-            if spell_cast:
-                self.summoner.spell_manager.start_spell_cast(initialized_spell=spell_cast)
-            else:
-                # Interrupt ritual channel if summon fails.
-                self.summoner.spell_manager.remove_cast_by_id(ritual_channel_spell_id)
+    def _handle_use_ritual(self, player):
+        self.ritual_manager.ritual_use(player)
 
     def has_observers(self):
         return len(self.known_players) > 0
@@ -321,32 +290,6 @@ class GameObjectManager(ObjectManager):
 
         target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
-
-    # TODO: Move goober to its own class.
-    def goober_has_custom_animation(self):
-        return self.gobject_template and self.gobject_template.data4
-
-    def goober_is_consumable(self):
-        return self.gobject_template and self.gobject_template.data5
-
-    def _handle_use_goober(self, player):
-        # Deadmines IronClad door (After triggering cannon)
-        # TODO: This should be moved somewhere else to avoid hardcoding entries in the core GameObject manager.
-        #  Future instance/map scripts?
-        if self.entry == 16398:  # Cannon.
-            # TODO: scripting, instancing, etc.
-            iron_clad_doors = [go for go in MapManager.get_surrounding_gameobjects(self).values() if go.entry == 16397]
-            if len(iron_clad_doors) > 0:
-                self.send_custom_animation(0)
-                iron_clad_doors[0].set_active()
-        # Check if player quests need this goober interaction.
-        if player.quest_manager.handle_goober_use(self, self.gobject_template.data1):
-            if self.goober_has_custom_animation():
-                self.send_custom_animation(0)
-            if self.goober_is_consumable():
-                self.despawn()
-        else:
-            Logger.warning(f'Unimplemented gameobject use for type Goober entry {self.entry} name {self.gobject_template.name}')
 
     def use(self, player, target=None):
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
@@ -524,6 +467,7 @@ class GameObjectManager(ObjectManager):
             elapsed = now - self.last_tick
 
             if self.is_spawned and self.initialized:
+
                 # Time to live checks.
                 if self.time_to_live_timer > 0:
                     self.time_to_live_timer -= elapsed
@@ -532,12 +476,13 @@ class GameObjectManager(ObjectManager):
                         self.despawn(destroy=True)
                         return
 
-                # Logic for Trap GameObjects (type 6).
-                if self.has_observers() and self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
-                    self.trap_manager.update(elapsed)
-                # Logic for Fishing node.
-                if self.has_observers() and self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
-                    self.fishing_node_manager.update(elapsed)
+                if self.has_observers():
+                    if self.trap_manager:
+                        self.trap_manager.update(elapsed)
+                    if self.fishing_node_manager:
+                        self.fishing_node_manager.update(elapsed)
+                    if self.spell_focus_manager:
+                        self.spell_focus_manager.update(elapsed)
 
                 # SpellManager update.
                 self.spell_manager.update(now)
