@@ -7,14 +7,20 @@ class TrapManager(object):
         3355  # zzOldSnare Trap Effect
     }
 
-    def __init__(self, trap_object, spell_id, charges, cooldown, start_delay, radius):
+    def __init__(self, trap_object):
         self.trap_object = trap_object
-        self.spell_id = spell_id
-        self.charges = charges  # Can only be 0 (infinite triggering) or 1 (should despawn after the trigger).
-        self.cooldown = cooldown
-        self.start_delay = start_delay
-        self.remaining_cooldown = start_delay
-        self.radius = radius
+        self.spell_id = trap_object.gobject_template.data3
+        # Can only be 0 (infinite triggering) or 1 (should despawn after the trigger).
+        self.charges = trap_object.gobject_template.data4
+        self.cooldown = trap_object.gobject_template.data5
+        # If cooldown was 0, initialize to 1.
+        self.cooldown = 1 if not self.cooldown else self.cooldown
+        self.start_delay = trap_object.gobject_template.data7
+        self.remaining_cooldown = self.start_delay
+        self.radius = trap_object.gobject_template.data2 / 2.0
+        # If no diameter is defined, use 2.5 yd as radius by default as it seems to be the most common value among traps
+        # that have one defined.
+        self.radius = 2.5 if not self.radius else self.radius  # If radius was 0, initialize to 2.5.
 
     def is_ready(self):
         return self.remaining_cooldown == 0
@@ -46,27 +52,9 @@ class TrapManager(object):
             break
 
     def trigger(self, who):
-        self.trap_object.spell_manager.handle_cast_attempt(self.spell_id, who, SpellTargetMask.UNIT, validate=False)
+        self.trap_object.spell_manager.handle_cast_attempt(self.spell_id, who, SpellTargetMask.UNIT, validate=True)
         self.remaining_cooldown = self.cooldown
-
         return True
 
     def reset(self):
         self.remaining_cooldown = self.start_delay
-
-    @staticmethod
-    def generate(gameobject):
-        radius = gameobject.gobject_template.data2 / 2.0
-        # If no diameter is defined, use 2.5 yd as radius by default as it seems to be the most common value among traps
-        # that have one defined.
-        if radius == 0:
-            radius = 2.5
-        spell_id = gameobject.gobject_template.data3
-        charges = gameobject.gobject_template.data4
-        cooldown = gameobject.gobject_template.data5
-        # If no cooldown is defined, use 1 second as this seems to be the default value as observed in Classic servers.
-        if cooldown == 0:
-            cooldown = 1
-        start_delay = gameobject.gobject_template.data7
-
-        return TrapManager(gameobject, spell_id, charges, cooldown, start_delay, radius)

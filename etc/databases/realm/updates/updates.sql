@@ -112,7 +112,7 @@ begin not atomic
         `health` int(11) unsigned NOT NULL DEFAULT 0,
         `mana` int(11) unsigned NOT NULL DEFAULT 0,
         `happiness` int(11) unsigned NOT NULL DEFAULT 0,
-        `action_bar` blob(40) NOT NULL DEFAULT 0,
+        `action_bar` blob(40) NOT NULL,
         PRIMARY KEY (`pet_id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         insert into applied_updates values ('070820221');
