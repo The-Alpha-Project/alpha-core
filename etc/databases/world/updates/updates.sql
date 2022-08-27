@@ -1070,5 +1070,398 @@ begin not atomic
 
         insert into applied_updates values ('250820221');
     end if;
+
+    -- 26/08/2022 1
+    if (select count(*) from applied_updates where id='260820221') = 0 then
+        -- FIX #583
+        -- 3494
+
+        -- Imp
+        -- static_flags, from 1048576 to 1048582
+        UPDATE `creature_template` SET `static_flags` = 1048582 WHERE (`entry` = 416);
+
+        -- Gozwin Vilesprocket
+        -- name, from [UNUSED] Gozwin Vilesprocket to Gozwin Vilesprocket
+        UPDATE `creature_template` SET `name` = 'Gozwin Vilesprocket', `subname` = 'Warlock Trainer' WHERE (`entry` = 6046);
+
+        -- Durnan Furcutter
+        -- subname, from Cloth & Leather Armor Merchant to Cloth & Leather
+        UPDATE `creature_template` SET `subname` = 'Cloth & Leather' WHERE (`entry` = 836);
+
+        -- Tannysa
+        -- subname, from Tailoring Trainer to Herbalism Trainer
+        UPDATE `creature_template` SET `subname` = 'Herbalism Trainer' WHERE (`entry` = 5566);
+
+        -- 3368
+
+        -- Undertaker Mordo
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1568);
+
+        -- Archibald Kava
+        -- subname, from Cloth & Leather Armor Merchant to Apprentice Cloth & Leather
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `subname` = 'Apprentice Cloth & Leather', `type` = 6 WHERE (`entry` = 2113);
+
+        -- Executor Arren
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1570);
+
+        -- David Trias
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2122);
+
+        -- Blacksmith Rand
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2116);
+
+        -- Joshua Kien
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2115);
+
+        -- Andrew Brounel
+        -- name, from Andrew Brownell to Andrew Brounel
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `name` = 'Andrew Brounel', `type` = 6 WHERE (`entry` = 2308);
+
+        -- Dannal Stern
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2119);
+
+        -- Harold Raims
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2117);
+
+        -- Maquell Ebonwood
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2315);
+
+        -- Deathguard Phillip
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1739);
+
+        -- Deathguard Bartrand
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1741);
+
+        -- Deathguard Randolph
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1736);
+
+        -- Shadow Priest Sarvis
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1569);
+
+        -- Novice Elreth
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1661);
+
+        -- Venya Marthand
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 5667);
+
+        -- Dark Cleric Duesten
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2123);
+
+        -- Maximillion
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2126);
+
+        -- Kayla Smithe
+        -- subname, from Demon Trainer to Demon Pet Trainer
+        UPDATE `creature_template` SET `subname` = 'Demon Pet Trainer' WHERE (`entry` = 5749);
+
+        -- Isabella
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2124);
+
+        -- Duskbat
+        -- beast_family, from 24 (Invalid) to 7 (CREATURE_FAMILY_CARRION_BIRD)
+        UPDATE `creature_template` SET `beast_family` = 7 WHERE (`entry` = 1512);
+
+        -- Deathguard Oliver
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1737);
+
+        -- Nerrik Shoyul
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2301);
+
+        -- Deathguard Saltain
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1740);
+
+        -- Caretaker Caice
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2307);
+
+        -- Mangy Duskbat
+        -- beast_family, from 24 (Invalid) to 7 (CREATURE_FAMILY_CARRION_BIRD)
+        UPDATE `creature_template` SET `beast_family` = 7 WHERE (`entry` = 1513);
+
+        -- Greater Duskbat
+        -- beast_family, from 24 (Invalid) to 7 (CREATURE_FAMILY_CARRION_BIRD)
+        UPDATE `creature_template` SET `beast_family` = 7 WHERE (`entry` = 1553);
+
+        -- Deathguard Simmer
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1519);
+
+        -- Deathguard Lundmark
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 5725);
+
+        -- Vampiric Duskbat
+        -- beast_family, from 24 (Invalid) to 7 (CREATURE_FAMILY_CARRION_BIRD)
+        UPDATE `creature_template` SET `beast_family` = 7 WHERE (`entry` = 1554);
+
+        -- Constance Brisboise
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 3522);
+
+        -- Bowen Brisboise
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 3523);
+
+        -- Deathguard Abraham
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1735);
+
+        -- Hamlin Atkins
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 3547);
+
+        -- Deathguard Lawrence
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1743);
+
+        -- Deathguard Dillinger
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1496);
+
+        -- Apothecary Johaan
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1518);
+
+        -- Carolai Anise
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2132);
+
+        -- Deathguard Bartholomew
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1742);
+
+        -- Thomas Arlento
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2309);
+
+        -- Zachariah Post
+        -- subname, from Undead Horse Merchant to Animal Handler
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `subname` = 'Animal Handler', `type` = 6 WHERE (`entry` = 4731);
+
+        -- Velma Warnam
+        -- subname, from Undead Horse Riding Instructor to Horse Riding Instructor
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `subname` = 'Horse Riding Instructor', `type` = 6 WHERE (`entry` = 4773);
+
+        -- Faruza
+        -- subname, from Herbalism Trainer to Apprentice Herbalist
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `subname` = 'Apprentice Herbalist', `type` = 6 WHERE (`entry` = 2114);
+
+        -- Deathguard Morris
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1745);
+
+        -- Doreen Beltis
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2311);
+
+        -- Oliver Dwor
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2136);
+
+        -- Eliza Callen
+        -- subname, from Leather Armor Merchant to Apprentice Leathercrafter
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `subname` = 'Apprentice Leathercrafter', `type` = 6 WHERE (`entry` = 2137);
+
+        -- Abe Winters
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2135);
+
+        -- Executor Zygand
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1515);
+
+        -- Cain Firesong
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2128);
+
+        -- Rupert Boch
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2127);
+
+        -- Dark Cleric Beryl
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2129);
+
+        -- Yvette Farthing
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1560);
+
+        -- Gina Lang
+        -- subname, from Demon Trainer to Demon Pet Trainer
+        UPDATE `creature_template` SET `subname` = 'Demon Pet Trainer' WHERE (`entry` = 5750);
+
+        -- Deathguard Mort
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1744);
+
+        -- Magistrate Sevren
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1499);
+
+        -- Lyranne May
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2303);
+
+        -- Mrs. Winters
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2134);
+
+        -- Abigail Shiel
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2118);
+
+        -- Sahvan Bloodshadow
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2314);
+
+        -- Jamie Nore
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2310);
+
+        -- Deathguard Burgess
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1652);
+
+        -- Deathguard Cyrus
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1746);
+
+        -- Ageron Kargal
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 5724);
+
+        -- Coleman Farthing
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1500);
+
+        -- Nurse Neela
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 5759);
+
+        -- Renee Samson
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 5688);
+
+        -- Gretchen Dedmar
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1521);
+
+        -- Deathguard Gavin
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2209);
+
+        -- Deathguard Royann
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2210);
+
+        -- Austil de Mon
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2131);
+
+        -- Marion Call
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 2130);
+
+        -- Vance Undergloom
+        -- subname, from Enchanting Trainer to Enchanter
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `subname` = 'Enchanter', `type` = 6 WHERE (`entry` = 5695);
+
+        -- Selina Weston
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 3548);
+
+        -- Deathguard Terrence
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1738);
+
+        -- Martine Tramblay
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 3550);
+
+        -- Deathguard Linnea
+        -- type, from 7 (HUMANOID) to 6 (UNDEAD)
+        UPDATE `creature_template` SET `type` = 6 WHERE (`entry` = 1495);
+
+        -- More ignored Gameobjects, not accesible due quest_tmeplate ignores.
+
+        -- Ju-Ju Heap
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12370');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12371');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12372');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12612');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12613');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12614');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '12615');
+
+        -- First Witherbark Cage, Second Witherbark Cage, Third Witherbark Cage.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46042');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46047');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46064');
+
+        -- Sharpbeak's Cage.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46076');
+
+        -- Highvale Records, Highvale Notes, Highvale Report.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46390');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46389');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46388');
+
+        -- Sentry Braziers.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7050');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6948');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '7048');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '6955');
+
+        -- Thaurissan Relic.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46076');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '46076');
+
+        -- Thaurissan Relics.
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_entry`=153556;
+
+        -- Soft Dirt Mound.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '4521');
+
+        -- Brazier of Pain, Brazier of Malice, Brazier of Suffering, Brazier of Hatred.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48841');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48838');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48842');
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '48839');
+
+        -- Gaea Dirt Mounds.
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_entry`=177929;
+
+        -- Cactus Apple.
+        UPDATE `spawns_gameobjects` SET `ignored`=1 WHERE `spawn_entry`=171938;
+
+        insert into applied_updates values ('260820221');
+    end if;
 end $
 delimiter ;
