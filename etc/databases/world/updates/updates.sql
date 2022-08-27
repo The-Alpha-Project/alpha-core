@@ -1487,5 +1487,49 @@ begin not atomic
 
         insert into applied_updates values ('270820221');
     end if;
+
+    -- 27/08/2022 2
+    if (select count(*) from applied_updates where id='270820222') = 0 then
+        -- Add missing creature_templates.
+        INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`,
+                                         `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`,
+                                         `level_min`, `level_max`, `health_min`, `health_max`, `mana_min`, `mana_max`,
+                                         `armor`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`,
+                                         `detection_range`, `call_for_help_range`, `leash_range`, `rank`,
+                                         `xp_multiplier`, `dmg_min`, `dmg_max`, `dmg_school`, `attack_power`,
+                                         `dmg_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`,
+                                         `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`,
+                                         `trainer_class`, `trainer_race`, `ranged_dmg_min`, `ranged_dmg_max`,
+                                         `ranged_attack_power`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`,
+                                         `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`,
+                                         `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`,
+                                         `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`,
+                                         `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`,
+                                         `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`,
+                                         `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`,
+                                         `script_name`) VALUES
+        (347,15092,0,0,0,0,'Grizzle Halfmane','Alterac Valley Battlemaster',0,6466,61,61,157200,157200,0,0,4091,1214,2049,1,1.14286,1,20,5,0,1,1,544,703,0,278,1,2000,2000,1,4672,0,0,0,0,0,0,172.1,240.07,100,7,0,0,0,0,0,5,5,5,5,5,0,0,0,0,3470,0,NULL,0,0,'EventAI',0,3,0,0,3,347,0,0,0,0,524296,''),
+        (857,15114,0,0,0,0,'Donal Osgood','Arathi Basin Battlemaster',0,6471,61,61,157200,157200,0,0,4091,1577,2049,1,1.14286,1,20,5,0,1,1,588,669,0,278,1,2000,2000,1,4672,0,0,0,0,0,0,172.1,240.07,100,7,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,NULL,0,0,'',0,3,0,0,3,857,0,0,0,0,524296,''),
+        (907,15115,0,0,0,0,'Keras Wolfheart','Arathi Basin Battlemaster',0,6472,61,61,157200,157200,0,0,4091,1577,2049,1,1.14286,1,20,5,0,1,1,544,703,0,278,1,2000,2000,1,4672,0,0,0,0,0,0,172.1,240.07,100,7,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,NULL,0,0,'',0,3,0,0,3,907,0,0,0,0,524296,''),
+        (1233,14310,0,0,0,0,'Shaethis Darkoak','Hippogryph Master',0,0,55,55,7842,7842,0,0,0,80,11,1,1.14286,1,20,5,0,1,1,298,427,0,100,1,1216,1338,1,0,0,0,0,0,0,0,58.872,80.949,100,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,1,774,'',0,3,1,0,3,1233,0,0,0,0,2,''),
+        (2225,14781,0,0,0,0,'Zora Guthrek','Trade Goods',0,0,55,55,26140,26140,0,0,3271,1215,6,1,1.14286,1,18,5,0,0,1,138,165,0,248,1,2000,2000,1,0,0,0,0,0,0,0,69.8544,96.0498,100,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,1,677,'',1,3,0,0,3,2225,0,0,0,0,524290,''),
+        (2302,14873,0,0,0,0,'Aethalas','Warsong Gulch Battlemaster',0,6282,61,61,157200,157200,0,0,4091,1514,2049,1,1.14286,1,20,5,0,1,1,361,467,0,278,1,2000,2000,1,4672,0,0,0,0,0,0,172.1,240.07,100,7,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,NULL,0,0,'',0,3,0,0,3,2302,0,0,0,0,524296,''),
+        (2804,1871,0,0,0,0,'Kurden Bloodclaw','Warsong Gulch Battlemaster',0,6462,61,61,157200,157200,0,0,4091,1515,2049,1,1.14286,1,20,5,0,1,1,361,467,0,278,1,2000,2000,1,4672,0,0,0,0,0,0,172.1,240.07,100,7,0,0,0,0,0,5,5,5,5,5,0,0,0,0,28040,0,NULL,0,0,'EventAI',0,3,0,0,3,2804,0,0,0,0,524296,''),
+        (3343,1359,0,0,0,0,'Grelkor','Blacksmithing Supplies',0,0,55,55,26140,26140,0,0,3271,1215,16390,1,1.14286,1,18,5,0,0,1,161,193,0,248,1,2000,2000,1,0,0,0,0,0,0,0,71.9664,98.9538,100,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,1,752,'',1,3,0,0,3,3343,0,0,0,0,524290,''),
+        (3625,4294,0,0,0,0,'Rarck','General Goods',0,0,55,55,26140,26140,0,0,3271,1215,6,1,1.14286,1,18,5,0,0,1,141,170,0,248,1,2000,2000,1,0,0,0,0,0,0,0,70.664,97.163,100,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,0,0,'',1,3,0,0,3,3625,0,0,0,0,524290,''),
+        (3890,15032,0,0,0,0,'Brakgul Deathbringer','Warsong Gulch Battlemaster',0,6459,61,61,157200,157200,0,0,4091,1515,2049,1,1.14286,1,20,5,0,1,1,361,467,0,278,1,2000,2000,1,4672,0,0,0,0,0,0,172.1,240.07,100,7,0,0,0,0,0,5,5,5,5,5,0,0,0,0,0,0,NULL,0,0,'',0,3,0,0,3,3890,0,0,0,0,524296,''),
+        (4255,2284,0,0,0,0,'Brogus Thunderbrew','Food and Drink',0,0,55,55,13070,13070,0,0,3271,1217,6,1,1.14286,1,18,5,0,0,1,141,170,0,248,1,2000,2000,1,0,0,0,0,0,0,0,70.664,97.163,100,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,0,0,'',1,3,0,0,3,4255,0,0,0,0,524288,''),
+        (4257,2286,0,0,0,0,'Lana Thunderbrew','Blacksmithing Supplies',0,0,55,55,26140,26140,0,0,3271,1217,16390,1,1.14286,1,18,5,0,0,1,161,193,0,248,1,2000,2000,1,0,0,0,0,0,0,0,71.9664,98.9538,100,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,0,0,'',1,3,0,0,3,4257,0,0,0,0,524288,''),
+        (5134,3061,0,0,0,0,'Jonivera Farmountain','General Goods',0,0,55,55,26140,26140,0,0,3271,1217,6,1,1.14286,1,18,5,0,0,1,141,170,0,248,1,2000,2000,1,0,0,0,0,0,0,0,70.664,97.163,100,7,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,1,689,'',1,3,0,0,3,5134,0,0,0,0,524288,''),
+        (5135,3083,0,0,0,0,'Svalbrad Farmountain','Trade Goods',0,0,55,55,26140,26140,0,0,3271,1217,6,1,1.14286,1,18,5,0,0,1,141,170,0,248,1,2000,2000,1,0,0,0,0,0,0,0,70.664,97.163,100,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NULL,1,689,'',1,3,0,0,3,5135,0,0,0,0,524288,'');
+
+        UPDATE `creature_template` SET `subname` = 'Cartography Trainer', `static_flags` = 102, `npc_flags` = 0x8 WHERE `entry` = 5134;
+        UPDATE `creature_template` SET `subname` = 'Cartography Supplier', `static_flags` = 102, `npc_flags` = 0x1 WHERE `entry` = 5135;
+        UPDATE `creature_template` SET `npc_flags` = 0x4 WHERE `entry` = 1233;
+        UPDATE `creature_template` SET `npc_flags` = 0 WHERE `entry` IN (347, 857, 907, 2302, 2804, 3890);
+        UPDATE `creature_template` SET `npc_flags` = 0x1 WHERE `entry` IN (2225, 3343, 3625, 4255, 4257);
+
+        insert into applied_updates values ('270820222');
+    end if;
 end $
 delimiter ;
