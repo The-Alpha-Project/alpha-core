@@ -30,7 +30,7 @@ class AIFactory:
             # 'GuardEventAI': GuardEventAI(None)
         }
 
-    # TODO, scripted AI's, EventAI.
+    # TODO: scripted AI's, EventAI.
     @staticmethod
     def build_ai(creature: CreatureManager) -> CreatureAI:
         # TODO
@@ -40,7 +40,7 @@ class AIFactory:
         ai_name = creature.creature_template.ai_name
         selected_ai = None
 
-        # TODO, Allow scripting AI for normal creatures and not controlled pets (guardians and mini-pets)
+        # TODO: Allow scripting AI for normal creatures and not controlled pets (guardians and mini-pets)
         #  if not creature.is_pet() or not creature.is_controlled() and not creature.is_charmed():
         #      selected_ai = ScriptManager.get_creature_ai(creature)
         #      if selected_ai:
@@ -51,11 +51,11 @@ class AIFactory:
         elif creature.is_totem():
             selected_ai = TotemAI(creature)
 
-        # TODO, EventAI assigned but creature is Pet.
+        # TODO: EventAI assigned but creature is Pet.
         #  if not selected_ai and ai_name and creature.is_pet() and ai_name == 'EventAI':
         #         selected_ai = PetEventAI(creature)
 
-        # TODO, EventAI assigned but creature is Guard.
+        # TODO: EventAI assigned but creature is Guard.
         #  if not selected_ai && ai_name and creature.is_guard() and ai_name == 'EventAI':
         #         selected_ai = GuardEventAI(creature)
 

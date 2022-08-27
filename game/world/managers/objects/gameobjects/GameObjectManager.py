@@ -334,7 +334,7 @@ class GameObjectManager(ObjectManager):
         # TODO: This should be moved somewhere else to avoid hardcoding entries in the core GameObject manager.
         #  Future instance/map scripts?
         if self.entry == 16398:  # Cannon.
-            # TODO, scripting, instancing, etc.
+            # TODO: scripting, instancing, etc.
             iron_clad_doors = [go for go in MapManager.get_surrounding_gameobjects(self).values() if go.entry == 16397]
             if len(iron_clad_doors) > 0:
                 self.send_custom_animation(0)

@@ -95,7 +95,7 @@ class CreatureManager(UnitManager):
         self.initialize_creature(self.generate_creature_template() if not creature_template else creature_template)
 
         # All creatures can block, parry and dodge by default.
-        # TODO, Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
+        # TODO: Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
@@ -140,7 +140,7 @@ class CreatureManager(UnitManager):
             if 0 < self.creature_template.rank < 4:
                 self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
 
-            # TODO, creatures are still resolving to aggressive.
+            # TODO: creatures are still resolving to aggressive.
             if self.is_totem() or self.is_critter() or not self.can_have_target():
                 self.react_state = CreatureReactStates.REACT_PASSIVE
             elif self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_AGGRO:

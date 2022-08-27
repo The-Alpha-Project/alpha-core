@@ -1027,6 +1027,50 @@ begin not atomic
         insert into applied_updates values ('230820222');
     end if;
 
+    -- 23/08/2022 3
+    if (select count(*) from applied_updates where id='230820223') = 0 then
+        -- Gavin Gnarltree #559
+        UPDATE `creature_template` SET `display_id1`='191' WHERE `entry`='225';
+
+        -- Stormscale Siren #558
+        UPDATE `creature_template` SET `display_id1`='4036' WHERE `entry`='2180';
+
+        insert into applied_updates values ('230820223');
+    end if;
+
+    -- 25/08/2022 1
+    if (select count(*) from applied_updates where id='250820221') = 0 then
+        -- #565 Incorrect vendor inventory
+        DELETE FROM `npc_vendor` WHERE `entry`=5121;
+
+        INSERT INTO `npc_vendor` VALUES
+            (5121, 852, 0, 0, 0),
+            (5121, 2028, 0, 0, 0),
+            (5121, 925, 0, 0, 0),
+            (5121, 1197, 0, 0, 0),
+            (5121, 2026, 0, 0, 0),
+            (5121, 924, 0, 0, 0),
+            (5121, 854, 0, 0, 0),
+            (5121, 2030, 0, 0, 0),
+            (5121, 928, 0, 0, 0);
+
+        -- #567 Incorrect item damage.
+        UPDATE `item_template` SET `dmg_min1`='28', `dmg_max1`='39' WHERE `entry`='854';
+
+        -- #572 Ruppo Zipcoil.
+        UPDATE `creature_template` SET `display_id1`='352', `name`='[PH] Ruppo Zipcoil',
+                                       `subname`='Superior Engineer', `level_min` = '42', `level_max` = '42'
+        WHERE `entry`='2688';
+
+        -- #573 Hill Giant.
+        UPDATE `creature_template` SET `display_id1`='1163' WHERE `entry`='2689';
+
+        -- #575 Stranglekelp gameobjects should be removed.
+        UPDATE `spawns_gameobjects` SET `ignored`='1' WHERE `spawn_entry`='2045';
+
+        insert into applied_updates values ('250820221');
+    end if;
+
     -- 26/08/2022 1
     if (select count(*) from applied_updates where id='260820221') = 0 then
         -- FIX #583

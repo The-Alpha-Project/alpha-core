@@ -76,6 +76,11 @@ class SpellManager:
             if not self.caster.skill_manager.add_skill(related_profession_skill):
                 self.caster.skill_manager.update_skills_max_value()
 
+        # Add the spell required skill.
+        skill, skill_id, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        if not skill and skill_id:
+            self.caster.skill_manager.add_skill(skill_id)
+
         return True
 
     def unlearn_spell(self, spell_id) -> bool:
@@ -1012,7 +1017,7 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
                 return False
 
-            # GameObject already in use. TODO, 'gameobject_requirement' table.
+            # GameObject already in use. TODO: 'gameobject_requirement' table.
             if casting_spell.initial_target_is_gameobject() and \
                     (validation_target.is_active() or validation_target.has_flag(GameObjectFlags.IN_USE)):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)

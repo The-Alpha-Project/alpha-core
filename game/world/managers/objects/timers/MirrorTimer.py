@@ -109,7 +109,7 @@ class MirrorTimer(object):
                     else:  # Feign Death.
                         self.handle_feign_death_timer()
 
-    # TODO, should we halt regeneration when drowning or fatigue?
+    # TODO: should we halt regeneration when drowning or fatigue?
     #  Find drowning damage formula.
     def handle_damage_timer(self, dmg_multiplier):
         if self.remaining == self.duration:

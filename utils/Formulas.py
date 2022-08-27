@@ -99,13 +99,13 @@ class PlayerFormulas:
     @staticmethod
     def calculate_reputation_gain(player, reputation_source, reputation_qty, creature_or_quest_level):
         percent = 100.0
-        config_rate_reputation_gain = 1.0  # TODO, configurable.
+        config_rate_reputation_gain = 1.0  # TODO: configurable.
         diff_level = 0
 
         if reputation_source == ReputationSourceGain.REPUTATION_SOURCE_KILL:
-            rate = 1.0  # TODO, configurable.
+            rate = 1.0  # TODO: configurable.
         elif reputation_source == ReputationSourceGain.REPUTATION_SOURCE_QUEST:
-            rate = 1.0  # TODO, configurable.
+            rate = 1.0  # TODO: configurable.
             if player.level >= creature_or_quest_level + 5:
                 diff_level = player.level - creature_or_quest_level - 5
             else:

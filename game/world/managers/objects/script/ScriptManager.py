@@ -41,36 +41,36 @@ class ScriptManager:
                 return None
             return caster.summoner
         elif target_type == ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY:
-            # TODO, entry -> object type identification.
+            # TODO: entry -> object type identification.
             #  Based on objects high guids.
             pass
         elif target_type == ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY:
-            # TODO, entry -> object type identification.
+            # TODO: entry -> object type identification.
             #  Based on objects high guids.
             pass
         elif target_type == ScriptTarget.TARGET_T_CREATURE_WITH_GUID:
-            # TODO, might need to do some guid conversion between low and high?
+            # TODO: might need to do some guid conversion between low and high?
             unit_guid: Optional[int] = param1
             unit = MapManager.get_surrounding_unit_by_guid(caster, unit_guid, True)
             return unit if unit and unit.is_alive else None
         elif target_type == ScriptTarget.TARGET_T_CREATURE_FROM_INSTANCE_DATA:
-            # TODO, instancing.
+            # TODO: instancing.
             pass
         elif target_type == ScriptTarget.TARGET_T_NEAREST_GAMEOBJECT_WITH_ENTRY:
-            # TODO, entry -> object type identification.
+            # TODO: entry -> object type identification.
             #  Based on objects high guids.
             pass
         elif target_type == ScriptTarget.TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY:
-            # TODO, entry -> object type identification.
+            # TODO: entry -> object type identification.
             #  Based on objects high guids.
             pass
         elif target_type == ScriptTarget.TARGET_T_GAMEOBJECT_WITH_GUID:
-            # TODO, might need to do some guid conversion between low and high?
+            # TODO: might need to do some guid conversion between low and high?
             gameobject_guid: Optional[int] = param1
             gameobject = MapManager.get_surrounding_gameobject_by_guid(caster, gameobject_guid)
             return gameobject if gameobject and gameobject.is_spawned else None
         elif target_type == ScriptTarget.TARGET_T_GAMEOBJECT_FROM_INSTANCE_DATA:
-            # TODO, instancing.
+            # TODO: instancing.
             pass
         elif target_type == ScriptTarget.TARGET_T_FRIENDLY:
             if not ScriptManager._validate_is_unit(caster):

@@ -394,7 +394,7 @@ class ItemManager(ObjectManager):
 
     # Transform an item into the wrapped item using the same item instance.
     def set_wrapped(self, player_mgr):
-        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(5043)  # TODO, fixed red gift.
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(5043)  # TODO: fixed red gift.
         if item_template:
             character_gift = CharacterGifts()
             character_gift.creator = self.get_creator_guid()  # Creator of the original item.

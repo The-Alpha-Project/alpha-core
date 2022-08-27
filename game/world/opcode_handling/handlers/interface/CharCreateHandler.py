@@ -3,12 +3,15 @@ from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.player.ReputationManager import ReputationManager
+from game.world.managers.objects.units.player.SkillManager import SkillManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils import TextUtils
 from utils.ConfigManager import config
 from utils.constants.CharCodes import *
 from utils.constants.ItemCodes import InventorySlots
+from utils.constants.MiscCodes import SkillCategories
+from utils.constants.SpellCodes import SpellAttributes
 from utils.constants.UnitCodes import Classes
 
 
@@ -75,6 +78,7 @@ class CharCreateHandler(object):
             RealmDatabaseManager.character_create(character)
             CharCreateHandler.generate_starting_reputations(character.guid)
             CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
+            CharCreateHandler.generate_starting_spells_skills(character.guid, race, class_, character.level)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
             CharCreateHandler.generate_starting_buttons(character.guid, race, class_)
             CharCreateHandler.generate_starting_taxi_nodes(character, race)
@@ -137,18 +141,16 @@ class CharCreateHandler(object):
 
     @staticmethod
     def generate_starting_spells(guid, race, class_, level):
-        added_spells = []
-
+        added_spells = set()
         for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
             spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
-            if spell_to_load:
-                if spell_to_load.ID not in added_spells:
-                    spell_to_set = CharacterSpell()
-                    spell_to_set.guid = guid
-                    spell_to_set.spell = spell_to_load.ID
+            if spell_to_load and spell_to_load.ID not in added_spells:
+                added_spells.add(spell_to_load.ID)
 
-                    RealmDatabaseManager.character_add_spell(spell_to_set)
-                    added_spells.append(spell_to_load.ID)
+                spell_to_set = CharacterSpell()
+                spell_to_set.guid = guid
+                spell_to_set.spell = spell_to_load.ID
+                RealmDatabaseManager.character_add_spell(spell_to_set)
 
         # TODO: Investigate the below behavior
         """
@@ -167,6 +169,28 @@ class CharCreateHandler(object):
 
                 insert_skill(lang_desc.skill_id, override_rank_value=1, override_max_rank_value=1)
         """
+
+    @staticmethod
+    def generate_starting_spells_skills(guid, race, class_, level):
+        added_skills = set()
+        for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
+            initial_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
+            if initial_spell and not initial_spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+                # Handle learning skills required by initial spells.
+                skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(initial_spell.ID)
+                if skill_id and skill_id not in added_skills:
+                    added_skills.add(skill_id)
+                    skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
+                    if not skill or skill.CategoryID != SkillCategories.CLASS_SKILL:
+                        continue
+                    skill_to_set = CharacterSkill()
+                    skill_to_set.guid = guid
+                    skill_to_set.skill = skill_id
+                    # TODO: investigate Min and Max ranks.
+                    skill_to_set.value = 1
+                    skill_to_set.max = skill.MaxRank
+
+                    RealmDatabaseManager.character_add_skill(skill_to_set)
 
     @staticmethod
     def generate_starting_items(guid, race, class_, gender):
