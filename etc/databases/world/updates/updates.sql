@@ -1565,5 +1565,15 @@ begin not atomic
 
         insert into applied_updates values ('270820223');
     end if;
+
+    -- 28/08/2022 1
+    if (select count(*) from applied_updates where id='280820221') = 0 then
+        -- Spiked Star
+        -- DisplayID from 4351 to 5199
+        -- Taken from 3494 WDB.
+        UPDATE `item_template` SET `display_id` = 5199 WHERE (`entry` = 925);
+
+        insert into applied_updates values ('280820221');
+    end if;
 end $
 delimiter ;
