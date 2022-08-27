@@ -12,13 +12,13 @@ class ItemCacheParser:
         with open(file_path, "rb") as wdb:
             wdb.read(4)  # Identifier.
             version = unpack('<i', wdb.read(4))[0]
-            record_count = unpack('<i', wdb.read(4))[0]
+            record_count = unpack('<i', wdb.read(4))[0]  # Does not match real count.
             wdb.read(4)  # Record version.
 
             sql_field_comment = []
             sql_field_updates = []
 
-            for x in range(record_count):
+            while True:
                 sql_field_comment.clear()
                 sql_field_updates.clear()
                 sql_field_updates.append(f"UPDATE `item_template` SET ")
@@ -37,6 +37,7 @@ class ItemCacheParser:
 
                 item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry_id)
                 if not item_template:
+                    print(f'-- Unable to locate item_template for entry {entry_id}')
                     continue
 
                 index, class_ = ItemCacheParser._read_int(data, index)
