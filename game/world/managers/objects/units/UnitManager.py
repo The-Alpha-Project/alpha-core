@@ -632,6 +632,10 @@ class UnitManager(ObjectManager):
     def handle_combat_skill_gain(self, damage_info):
         return
 
+    # Implemented by PlayerManager
+    def handle_spell_skill_gain(self, casting_spell):
+        return
+
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
@@ -762,6 +766,9 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
+        # Handle spell required skill gain.
+        self.handle_spell_skill_gain(casting_spell)
+
         self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell, is_periodic=is_periodic)
         self.deal_damage(target, damage_info.damage, is_periodic=is_periodic, casting_spell=casting_spell)
 
@@ -770,7 +777,12 @@ class UnitManager(ObjectManager):
         damage_info = casting_spell.get_cast_damage_info(self, target, healing, 0)
         self.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(healing, self)
-        self._threat_assist(target, healing)
+        # From 0.5.4 Patch notes:
+        # Healing over time generates hate.
+        if casting_spell.generates_threat() and not is_periodic:
+            self._threat_assist(target, healing)
+        # Handle spell required skill gain.
+        self.handle_spell_skill_gain(casting_spell)
 
     def _threat_assist(self, target, source_threat: float):
         if target.in_combat:
