@@ -20,7 +20,6 @@ class RitualManager(object):
 
         # Set channel object update field.
         if ritual_object.summoner and ritual_object.summoner.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            print('Set channel object')
             ritual_object.summoner.set_channel_object(ritual_object.guid)
 
     def ritual_use(self, player_mgr):

@@ -149,11 +149,11 @@ class SpellManager:
             return
 
         for spell_info in item.spell_stats:
-            if spell_info.ritual_summon_spell_id == 0:
+            if spell_info.spell_id == 0:
                 break
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.ritual_summon_spell_id)
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.spell_id)
             if not spell:
-                Logger.warning(f'Spell {spell_info.ritual_summon_spell_id} tied to item {item.item_template.entry} '
+                Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} '
                                f'({item.item_template.name}) could not be found in the spell database.')
                 continue
 
