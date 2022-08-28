@@ -476,11 +476,16 @@ class SpellManager:
             removed = removed or self.remove_cast(casting_spell, result, interrupted)
         return removed
 
-    def remove_all_casts(self, cast_result=SpellCheckCastResult.SPELL_NO_ERROR):
+    def remove_casts(self, remove_active=True):
         for casting_spell in list(self.casting_spells):
             result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
-            if not casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
+
+            # "Passive" casts like active area auras and delayed spells.
+            if not casting_spell.is_channeled() and \
+                    casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
                     casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
+                if not remove_active:
+                    continue
                 result = SpellCheckCastResult.SPELL_NO_ERROR  # Don't send interrupted error for active/delayed spells
 
             self.remove_cast(casting_spell, result, interrupted=True)
