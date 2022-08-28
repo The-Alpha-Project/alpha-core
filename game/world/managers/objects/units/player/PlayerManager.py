@@ -717,7 +717,7 @@ class PlayerManager(UnitManager):
                 # If party is formed, try to split money.
                 # TODO: Currently not splitting money when looting a chest, investigate if this is the correct
                 #  behavior or not.
-                if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT and self.group_manager and \
+                if world_object.get_type_id() == ObjectTypeIds.ID_UNIT and self.group_manager and \
                         self.group_manager.is_party_formed():
                     # Try to split money and finish on success.
                     if self.group_manager.reward_group_money(self, world_object):
