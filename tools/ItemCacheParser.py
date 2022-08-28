@@ -54,8 +54,8 @@ class ItemCacheParser:
                 sql_field_comment.insert(0, f'-- {displayName}')
                 if displayName != item_template.name:
                     sql_field_comment.append(f"-- name, from {item_template.name} to {displayName}")
-                    sql_field_updates.append(f"`name` = '{displayName}'")
-                    sql_field_updates[-1] = sql_field_updates[-1].replace("'", "''")
+                    final_name = displayName.replace('\'', '\\\'')
+                    sql_field_updates.append(f"`name` = '{final_name}'")
 
                 index, displayName_2 = ItemCacheParser._read_string(data, index)
                 index, displayName_3 = ItemCacheParser._read_string(data, index)
@@ -249,8 +249,8 @@ class ItemCacheParser:
                 index, description = ItemCacheParser._read_string(data, index)
                 if ItemCacheParser._should_update(description, item_template.description) and len(description) > 0:
                     sql_field_comment.append(f"-- description, from {item_template.description} to {description}")
-                    sql_field_updates.append(f"`description` = '{description}'")
-                    sql_field_updates[-1] = sql_field_updates[-1].replace("'", "''")
+                    final_description = description.replace('\'', '\\\'')
+                    sql_field_updates.append(f"`description` = '{final_description}'")
 
                 index, page_text = ItemCacheParser._read_int(data, index)
                 if ItemCacheParser._should_update(page_text, item_template.page_text):
