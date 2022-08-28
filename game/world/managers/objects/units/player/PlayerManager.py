@@ -715,13 +715,13 @@ class PlayerManager(UnitManager):
             loot_manager = self.loot_selection.get_loot_manager(world_object)
             if world_object and loot_manager.has_money():
                 # If party is formed, try to split money.
-                if self.group_manager and self.group_manager.is_party_formed():
+                # TODO: Currently not splitting money when looting a chest, investigate if this is the correct
+                #  behavior or not.
+                if world_object.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT and self.group_manager and \
+                        self.group_manager.is_party_formed():
                     # Try to split money and finish on success.
                     if self.group_manager.reward_group_money(self, world_object):
                         return
-                    else:  # Not able to split, notify the whole amount to the sole player.
-                        data = pack('<I', loot_manager.current_money)
-                        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_MONEY_NOTIFY, data))
 
                 # Not able to split money or no group, loot money to self only.
                 self.mod_money(loot_manager.current_money)

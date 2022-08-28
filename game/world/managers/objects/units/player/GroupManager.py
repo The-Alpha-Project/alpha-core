@@ -303,8 +303,10 @@ class GroupManager(object):
 
     def reward_group_money(self, looter, creature):
         close_members = self.get_close_members(looter)
-        share = int(creature.loot_manager.current_money / len(close_members))
+        if len(close_members) < 2:
+            return False
 
+        share = int(creature.loot_manager.current_money / len(close_members))
         if share < 1:
             return False
 
