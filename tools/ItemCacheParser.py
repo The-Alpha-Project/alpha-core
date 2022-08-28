@@ -172,11 +172,16 @@ class ItemCacheParser:
                         sql_field_comment.append(f"-- dmg_type{y + 1}, from {current_dmg_type} to {dmg_type}")
                         sql_field_updates.append(f"`dmg_type{y + 1}` = {dmg_type}")
 
-                if version >= 3807:
-                    index, physical_armor = ItemCacheParser._read_int(data, index)
+                index, physical_armor = ItemCacheParser._read_int(data, index)
+                if ItemCacheParser._should_update(physical_armor, item_template.armor):
+                    sql_field_comment.append(f"-- armor, from {item_template.armor} to {physical_armor}")
+                    sql_field_updates.append(f"`armor` = {delay}")
 
                 resistances = ['holy_res', 'fire_res', 'nature_res', 'frost_res', 'shadow_res', 'arcane_res']
-                for y in range(6):
+                # Arcane resistance was later added.
+                range_version_based = 6 if version >= 3807 else 5
+
+                for y in range(range_version_based):
                     index, resistance = ItemCacheParser._read_int(data, index)
                     current = eval(f' item_template.{resistances[y]}')
                     if ItemCacheParser._should_update(resistance, current):
