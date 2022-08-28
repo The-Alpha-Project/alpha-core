@@ -2761,5 +2761,52 @@ begin not atomic
 
         insert into applied_updates values ('280820221');
     end if;
+
+    -- 29/08/2022 1
+    if (select count(*) from applied_updates where id='290820221') = 0 then
+        -- FIX 593 590 588 587 580 578
+
+        -- Shore Strider
+        UPDATE `creature_template`
+        SET `display_id1`=3217
+        WHERE `entry`=5359;
+        
+        -- Holgar Stormaxe
+        UPDATE `creature_template`
+        SET `display_id1`=1906
+        WHERE `entry`=4311;
+        
+        -- Silithid Hive Drone
+        UPDATE `creature_template`
+        SET `display_id1`=2304
+        WHERE `entry`=4133;
+        
+        -- Devlin
+        UPDATE `creature_template`
+        SET `display_id1`=1245
+        WHERE `entry`=1657;
+        
+        -- Lethlas
+        UPDATE `creature_template`
+        SET `display_id1`=2930
+        WHERE `entry`=5212;
+        
+        -- Phantim
+        UPDATE `creature_template`
+        SET `display_id1`=2930
+        WHERE `entry`=5314;
+        
+        -- Thule Ravenclaw
+        UPDATE `creature_template`
+        SET `display_id1`=263
+        WHERE `entry`=1947;
+        
+        -- Silithid Grub
+        UPDATE `creature_template`
+        SET `display_id1`=641
+        WHERE `entry`=3251;
+        
+        insert into applied_updates values ('290820221');
+    end if;
 end $
 delimiter ;
