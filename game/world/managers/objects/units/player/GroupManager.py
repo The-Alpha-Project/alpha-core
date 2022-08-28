@@ -310,11 +310,10 @@ class GroupManager(object):
         if share < 1:
             return False
 
-        # Notify the money looter 'You distribute <coinage> to your party' if needed.
-        if len(close_members) > 1:
-            data = pack('<QI', looter.guid, int(creature.loot_manager.current_money))
-            split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
-            looter.enqueue_packet(split_packet)
+        # Notify the money looter with 'You distribute <coinage> to your party' message.
+        data = pack('<QI', looter.guid, int(creature.loot_manager.current_money))
+        split_packet = PacketWriter.get_packet(OpCode.MSG_SPLIT_MONEY, data)
+        looter.enqueue_packet(split_packet)
 
         # Append div remainder to the player who killed the creature for now.
         remainder = int(creature.loot_manager.current_money % len(close_members))
