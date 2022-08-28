@@ -303,7 +303,7 @@ class ItemCacheParser:
                         continue
 
                     if not applied_update:
-                        applied_item_update_sql += f'INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES ({entry_id}, {version});'
+                        applied_item_update_sql += f'REPLACE INTO `applied_item_updates` (`entry`, `version`) VALUES ({entry_id}, {version});'
                         applied_update = AppliedItemUpdates()
                     else:
                         applied_item_update_sql += f'UPDATE `applied_item_updates` SET `entry` = {entry_id}, `version` = {version} WHERE (`entry` = {entry_id});'
