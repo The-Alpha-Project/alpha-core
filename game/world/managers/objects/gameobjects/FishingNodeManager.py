@@ -32,7 +32,7 @@ class FishingNodeManager(object):
             player.send_loot(self.fishing_node.loot_manager)
 
         # Remove cast.
-        player.spell_manager.remove_cast_by_id(self.fishing_node.ritual_summon_spell_id)
+        player.spell_manager.remove_cast_by_id(self.fishing_node.spell_id)
 
     def try_hook_attempt(self, player):
         if self.fishing_node.state != GameObjectStates.GO_STATE_ACTIVE:
