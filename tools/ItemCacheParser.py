@@ -52,8 +52,7 @@ class ItemCacheParser:
 
                 index, displayName = ItemCacheParser._read_string(data, index)
                 sql_field_comment.insert(0, f'-- {displayName}')
-                # Keep our names, unless they come from 3494 or earlier.
-                if displayName != item_template.name and version <= 3494:
+                if displayName != item_template.name:
                     sql_field_comment.append(f"-- name, from {item_template.name} to {displayName}")
                     sql_field_updates.append(f"`name` = '{displayName}'")
                     sql_field_updates[-1] = sql_field_updates[-1].replace("'", "''")
@@ -63,8 +62,8 @@ class ItemCacheParser:
                 index, displayName_4 = ItemCacheParser._read_string(data, index)
 
                 index, display_id = ItemCacheParser._read_int(data, index)
-                # Only allow display_id downgrade for now.
-                if ItemCacheParser._should_update(display_id, item_template.display_id) and display_id < item_template.display_id:
+                should_update = ItemCacheParser._should_update(display_id, item_template.display_id)
+                if should_update and (display_id <= 11802 or (item_template.display_id > 11802 and display_id > 11802)):
                     sql_field_comment.append(f"-- display_id, from {item_template.display_id} to {display_id}")
                     sql_field_updates.append(f"`display_id` = {display_id}")
 
@@ -109,8 +108,7 @@ class ItemCacheParser:
                     sql_field_updates.append(f"`item_level` = {item_level}")
 
                 index, required_level = ItemCacheParser._read_int(data, index)
-                # Assume some items required a minor level in early stages due to level caps.
-                if ItemCacheParser._should_update(required_level, item_template.required_level) and version <= 3494:
+                if ItemCacheParser._should_update(required_level, item_template.required_level):
                     sql_field_comment.append(f"-- required_level, from {item_template.required_level} to {required_level}")
                     sql_field_updates.append(f"`required_level` = {required_level}")
 
@@ -220,9 +218,13 @@ class ItemCacheParser:
                     index, spellcategorycooldown = ItemCacheParser._read_int(data, index)
                     current_spellcategorycooldown = eval(f' item_template.spellcategorycooldown_{y + 1}')
 
-                    if ItemCacheParser._should_update(spellid, current_spellid) and spellid < 7913:  # 0.5.3 max.
-                        sql_field_comment.append(f"-- spellid_{y + 1}, from {current_spellid} to {spellid}")
-                        sql_field_updates.append(f"`spellid_{y + 1}` = {spellid}")
+                    should_update = ItemCacheParser._should_update(spellid, current_spellid)
+                    should_update = should_update and (spellid <= 7913 or (current_spellid > 7913 and spellid > 7913))
+                    if not should_update:
+                        continue
+
+                    sql_field_comment.append(f"-- spellid_{y + 1}, from {current_spellid} to {spellid}")
+                    sql_field_updates.append(f"`spellid_{y + 1}` = {spellid}")
                     if ItemCacheParser._should_update(spelltrigger, current_spelltrigger):
                         sql_field_comment.append(f"-- spelltrigger_{y + 1}, from {current_spelltrigger} to {spelltrigger}")
                         sql_field_updates.append(f"`spelltrigger_{y + 1}` = {spelltrigger}")

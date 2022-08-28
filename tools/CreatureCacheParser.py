@@ -44,8 +44,7 @@ class CreatureCacheParser:
 
                 index, display_name_1 = CreatureCacheParser._read_string(data, index)
                 sql_field_comment.insert(0, f'-- {display_name_1}')
-                # Keep our names, unless they come from 3494 or earlier.
-                if display_name_1 != creature_template.name and version <= 3494:
+                if display_name_1 != creature_template.name:
                     sql_field_comment.append(f"-- name, from {creature_template.name} to {display_name_1}")
                     sql_field_updates.append(f"`name` = '{display_name_1}'")
 
@@ -75,6 +74,8 @@ class CreatureCacheParser:
                     sql_field_updates.append(f"`beast_family` = {beast_family}")
 
                 if len(sql_field_updates) > 1:
+                    # TODO: Don't update creatures that have been previously updated by an older WDB, for this we need
+                    #  to store in the databse which creatures has been updated and under which version.
                     # Print updates to console.
                     for comment in sql_field_comment:
                         print(comment)
