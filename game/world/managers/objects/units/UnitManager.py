@@ -1292,7 +1292,7 @@ class UnitManager(ObjectManager):
             killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
             killer.aura_manager.check_aura_procs(killed_unit=True)
 
-        self.spell_manager.remove_all_casts()
+        self.spell_manager.remove_casts()
         self.aura_manager.handle_death()
 
         return True

@@ -423,7 +423,9 @@ class StatManager(object):
                     # Handle weapon damage stats.
                     weapon_min_damage = int(item.item_template.dmg_min1)
                     weapon_max_damage = int(item.item_template.dmg_max1)
-                    weapon_delay = item.item_template.delay
+                    weapon_delay = item.item_template.delay if item.item_template.delay != 0 and \
+                        not self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED \
+                        else config.Unit.Defaults.base_attack_time
 
                     # Damage increase weapon enchants.
                     weapon_enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
@@ -436,7 +438,7 @@ class StatManager(object):
                         if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
                             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = 0
                             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = 0
-                            self.item_stats[UnitStats.MAIN_HAND_DELAY] = config.Unit.Defaults.base_attack_time
+                            self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
                             self.weapon_reach = 0
                         else:
                             self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage

@@ -27,7 +27,8 @@ class AutoequipItemHandler(object):
                 target_slot = source_item.equip_slot
 
             target_bag_slot = InventorySlots.SLOT_INBACKPACK.value
-            if target_slot == -1 or inv_type == InventoryTypes.NONE_EQUIP:  # unequippable item or no free bag slot for bag autoequip
+            if target_slot == -1 or inv_type == InventoryTypes.NONE_EQUIP or \
+                    inv_type == InventoryTypes.AMMO:  # unequippable item or no free bag slot for bag autoequip
                 inventory.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, source_item, None)
                 return 0
             inventory.swap_item(source_bag_slot, source_slot, target_bag_slot, target_slot)

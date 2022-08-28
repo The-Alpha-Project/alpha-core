@@ -32,8 +32,7 @@ class OpenItemHandler(object):
                 return 0
 
             # Interrupt casts if any.
-            if world_session.player_mgr.spell_manager.is_casting():
-                world_session.player_mgr.spell_manager.remove_all_casts()
+            world_session.player_mgr.spell_manager.remove_casts(remove_active=False)
 
             # Validate lock.
             if not item.has_flag(ItemDynFlags.ITEM_DYNFLAG_UNLOCKED) and item.lock:

@@ -296,7 +296,7 @@ class PlayerManager(UnitManager):
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
-        self.spell_manager.remove_all_casts()
+        self.spell_manager.remove_casts()
         self.aura_manager.remove_all_auras()
         self.pet_manager.detach_active_pet()
         self.leave_combat(force=True)
@@ -499,7 +499,7 @@ class PlayerManager(UnitManager):
 
         # Remove any ongoing cast.
         if self.spell_manager.is_casting():
-            self.spell_manager.remove_all_casts()
+            self.spell_manager.remove_casts(remove_active=False)
 
         # TODO: Stop any movement, rotation?
         # New destination we will use when we receive an acknowledge message from client.

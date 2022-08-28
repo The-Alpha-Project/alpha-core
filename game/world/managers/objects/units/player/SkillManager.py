@@ -14,7 +14,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
-from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
+from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
 from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo, LockType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult
@@ -579,10 +579,23 @@ class SkillManager(object):
 
         return SpellCheckCastResult.SPELL_NO_ERROR
 
-    def can_use_equipment(self, item_class, item_subclass):
+    def get_equip_result_for(self, item_template) -> InventoryError:
+        item_class = item_template.class_
+        req_skill = item_template.required_skill
+
+        if req_skill:
+            req_skill_value = item_template.required_skill_rank
+            if self.get_total_skill_value(req_skill) < req_skill_value:
+                return InventoryError.BAG_SKILL_MISMATCH
+
+        if item_class not in {ItemClasses.ITEM_CLASS_WEAPON, ItemClasses.ITEM_CLASS_ARMOR}:
+            return InventoryError.BAG_OK  # No proficiency needed for misc. equipment.
+
         if item_class not in self.proficiencies:
-            return False
-        return self.proficiencies[item_class].matches(item_class, item_subclass)
+            return InventoryError.BAG_PROFICIENCY_NEEDED
+
+        return InventoryError.BAG_OK if self.proficiencies[item_class].matches(item_class, item_template.subclass) \
+            else InventoryError.BAG_PROFICIENCY_NEEDED
 
     def can_ever_use_equipment(self, item_class, item_subclass_mask):
         if item_class not in self.proficiencies:
