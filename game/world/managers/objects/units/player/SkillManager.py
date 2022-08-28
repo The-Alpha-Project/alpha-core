@@ -580,6 +580,9 @@ class SkillManager(object):
         return SpellCheckCastResult.SPELL_NO_ERROR
 
     def can_use_equipment(self, item_class, item_subclass):
+        if item_class not in {ItemClasses.ITEM_CLASS_WEAPON, ItemClasses.ITEM_CLASS_ARMOR}:
+            return True  # No proficiency needed for misc. equipment.
+
         if item_class not in self.proficiencies:
             return False
         return self.proficiencies[item_class].matches(item_class, item_subclass)
