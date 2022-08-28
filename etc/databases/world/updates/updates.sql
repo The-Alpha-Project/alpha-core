@@ -1568,12 +1568,6 @@ begin not atomic
 
     -- 28/08/2022 1
     if (select count(*) from applied_updates where id='280820221') = 0 then
-        -- Spiked Star
-        -- DisplayID from 4351 to 5199
-        -- Taken from 3494 WDB.
-        UPDATE `item_template` SET `display_id` = 5199 WHERE (`entry` = 925);
-        INSERT INTO `applied_item_updates` (`entry`, `version`) VALUES (925, 3494);
-
         -- Remove wrong reputation rewards for 0.5.3 quests.
         UPDATE `quest_template` SET `RewRepFaction1` = 0, `RewRepValue1` = 0, `RewRepFaction2` = 0, `RewRepValue2` = 0, `RewRepFaction3` = 0, `RewRepValue3` = 0, `RewRepFaction4` = 0, `RewRepValue4` = 0, `RewRepFaction5` = 0, `RewRepValue5` = 0 WHERE `entry`=2;
         UPDATE `quest_template` SET `RewRepFaction1` = 0, `RewRepValue1` = 0, `RewRepFaction2` = 0, `RewRepValue2` = 0, `RewRepFaction3` = 0, `RewRepValue3` = 0, `RewRepFaction4` = 0, `RewRepValue4` = 0, `RewRepFaction5` = 0, `RewRepValue5` = 0 WHERE `entry`=5;
