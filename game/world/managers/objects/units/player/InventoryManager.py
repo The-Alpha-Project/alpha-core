@@ -593,10 +593,10 @@ class InventoryManager(object):
             if source_template.required_level > self.owner.level:
                 self.send_equip_error(InventoryError.BAG_LEVEL_MISMATCH, source_item, dest_item)
                 return False
-            # Check if the player has the required proficiency.
-            if not self.owner.skill_manager.can_use_equipment(source_template.class_,
-                                                              source_template.subclass):
-                self.send_equip_error(InventoryError.BAG_PROFICIENCY_NEEDED, source_item, dest_item)
+            # Check if the player has the required proficiency/skill.
+            equip_result = self.owner.skill_manager.get_equip_result_for(source_template)
+            if equip_result != InventoryError.BAG_OK:
+                self.send_equip_error(equip_result, source_item, dest_item)
                 return False
 
         # Destination slot (item type) check for paper doll and bag slots
