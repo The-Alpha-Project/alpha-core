@@ -21,7 +21,7 @@ class Distances:
 
     # Other distances (not extracted from the client).
     CREATURE_EVADE_SPAWN_DISTANCE = 50.0  # Guessed.
-    CREATURE_EVADE_PLAYER_DISTANCE = 100.0  # Guessed (Max spell 'Vision' range).
+    CREATURE_EVADE_PLAYER_DISTANCE = 65.0  # Guessed (Spell Range 'Extra Long Range' + 5)
     GROUP_SHARING_DISTANCE = 74.0  # Used for XP, loot, reputation...
 
 
