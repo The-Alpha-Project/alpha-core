@@ -713,7 +713,7 @@ class CreatureManager(UnitManager):
             # From 0.5.4 patch notes:
             #     "Creature pursuit is now timer based rather than distance based."
             if spawn_distance > Distances.CREATURE_EVADE_DISTANCE  \
-                    or target_distance > Distances.CREATURE_EVADE_DISTANCE :
+                    or target_distance > Distances.CREATURE_EVADE_DISTANCE:
                 self.leave_combat(True)
                 return
 
