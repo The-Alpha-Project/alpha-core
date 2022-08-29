@@ -12450,5 +12450,14 @@ begin not atomic
 
         insert into applied_updates values ('290820222');
     end if;
+
+
+    -- 29/08/2022 3
+    if (select count(*) from applied_updates where id='290820223') = 0 then
+        -- #567 Incorrect item damage.
+        UPDATE `item_template` SET `dmg_min1`=28, `dmg_max1`=39 WHERE `entry`=854;
+
+        insert into applied_updates values ('290820223');
+    end if;
 end $
 delimiter ;
