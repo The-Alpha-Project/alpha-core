@@ -20,8 +20,7 @@ class Distances:
     # End of distances extracted from the client.
 
     # Other distances (not extracted from the client).
-    CREATURE_EVADE_SPAWN_DISTANCE = 50.0  # Guessed.
-    CREATURE_EVADE_PLAYER_DISTANCE = 65.0  # Guessed (Spell Range 'Extra Long Range' + 5)
+    CREATURE_EVADE_DISTANCE  = 65.0  # Guessed (Spell Range 'Extra Long Range' + 5)
     GROUP_SHARING_DISTANCE = 74.0  # Used for XP, loot, reputation...
 
 

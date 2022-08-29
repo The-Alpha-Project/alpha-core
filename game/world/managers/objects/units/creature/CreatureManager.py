@@ -712,8 +712,8 @@ class CreatureManager(UnitManager):
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
             # From 0.5.4 patch notes:
             #     "Creature pursuit is now timer based rather than distance based."
-            if spawn_distance > Distances.CREATURE_EVADE_SPAWN_DISTANCE \
-                    or target_distance > Distances.CREATURE_EVADE_PLAYER_DISTANCE:
+            if spawn_distance > Distances.CREATURE_EVADE_DISTANCE  \
+                    or target_distance > Distances.CREATURE_EVADE_DISTANCE :
                 self.leave_combat(True)
                 return
 
