@@ -17,7 +17,8 @@ class GooberManager(object):
         if self.goober_object.entry not in SCRIPTS:
             return None
         go_entry = SCRIPTS[self.goober_object.entry]
-        gameobjects = [go for go in MapManager.get_surrounding_gameobjects(self).values() if go.entry == go_entry]
+        gameobjects = [go for go in
+                       MapManager.get_surrounding_gameobjects(self.goober_object).values() if go.entry == go_entry]
         return gameobjects[0] if len(gameobjects) > 0 else None
 
     def goober_use(self, player):
