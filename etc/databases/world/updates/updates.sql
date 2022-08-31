@@ -12472,7 +12472,7 @@ begin not atomic
         UPDATE `creature_template` SET `subname` = 'Enchantress' WHERE (`entry` = 3606);
 
         -- Onu
-        UPDATE `creature_template` SET `subname` = "Ancient of Lore \'NEEDS TEXTURE\'" WHERE (`entry` = 3616);
+        UPDATE `creature_template` SET `subname` = 'Ancient of Lore *NEEDS TEXTURE*' WHERE (`entry` = 3616);
 
         -- #586
         -- Sen'jin Watcher
