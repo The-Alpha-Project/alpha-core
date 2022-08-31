@@ -12458,5 +12458,37 @@ begin not atomic
 
         insert into applied_updates values ('290820223');
     end if;
+
+    -- 29/08/2022 4
+    if (select count(*) from applied_updates where id='290820224') = 0 then
+        -- Partially fix #589
+        -- Basil Frye
+        UPDATE `creature_template` SET `subname` = 'Bone Equipment Merchant' WHERE (`entry` = 4605);
+
+        -- Silas Zimmer
+        UPDATE `creature_template` SET `subname` = 'Unholy Relic Vendor' WHERE (`entry` = 4572);
+
+        -- Alanna Raveneye
+        UPDATE `creature_template` SET `subname` = 'Enchantress' WHERE (`entry` = 3606);
+
+        -- Onu
+        UPDATE `creature_template` SET `subname` = 'Ancient of Lore *NEEDS TEXTURE*' WHERE (`entry` = 3616);
+
+        -- #586
+        -- Sen'jin Watcher
+        UPDATE `creature_template` SET `faction` = 125 WHERE (`entry` = 3297);
+
+        -- Partially fix #414
+        -- Peasant Woodpile
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_sentry` = 105568);
+
+        -- Campfire
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_sentry` = 129206);
+
+        -- Barrel of milk
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_id` = 42733);
+
+        insert into applied_updates values ('290820224');
+      end if;
 end $
 delimiter ;
