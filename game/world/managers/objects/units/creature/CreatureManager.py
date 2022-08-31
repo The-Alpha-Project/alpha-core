@@ -704,7 +704,7 @@ class CreatureManager(UnitManager):
             self.leave_combat(True)
             return
 
-        spawn_distance = self.location(self.spawn_position)
+        spawn_distance = self.location.distance(self.spawn_position)
         target_distance = self.location.distance(self.combat_target.location)
         combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
 
