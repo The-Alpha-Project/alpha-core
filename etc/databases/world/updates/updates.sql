@@ -12490,5 +12490,13 @@ begin not atomic
 
         insert into applied_updates values ('290820224');
       end if;
+
+    -- 31/08/2022 1
+    if (select count(*) from applied_updates where id='310820221') = 0 then
+        -- Fix static flags for Bluegill Murloc.
+        UPDATE `creature_template` SET `static_flags`=268959744 WHERE `entry` = 1024;
+
+        insert into applied_updates values ('310820221');
+    end if;
 end $
 delimiter ;
