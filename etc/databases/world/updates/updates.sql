@@ -221,18 +221,18 @@ begin not atomic
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '4', '4', '743', '0');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '5', '3', '743', '0');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '11', '3', '743', '0');
-
+        
         -- Dwarf Find Treasure action button placement.
         UPDATE `playercreateinfo_action` SET `button` = '74' WHERE (`race` = '3') and (`class` = '1') and (`button` = '75') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '2' WHERE (`race` = '3') and (`class` = '2') and (`button` = '3') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '2' WHERE (`race` = '3') and (`class` = '3') and (`button` = '4') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '4' WHERE (`race` = '3') and (`class` = '4') and (`button` = '5') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '3' WHERE (`race` = '3') and (`class` = '5') and (`button` = '4') and (`id` = '1');
-
+        
         -- Find Treasure for Dwarf Mages.
         INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES ('1505', '3', '8', '2481', 'Find Treasure');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '3', '8', '3', '2481', '0');
-
+        
         -- Remove all invalid spells.
         DELETE FROM `playercreateinfo_spell` WHERE `Spell` > 7913;
         DELETE FROM `playercreateinfo_action` WHERE `action` > 7913 AND `type` = 0;
@@ -505,14 +505,14 @@ begin not atomic
     -- 21/08/2022 2
     if (select count(*) from applied_updates where id='210820222') = 0 then
         -- DUSTWALLOW MARCH
-
+        
         -- Spider trainer
         INSERT INTO `spawns_creatures` VALUES (NULL, 4882, 0, 0, 0, 1, -3154.872, -2848.983, 34.454, 0.031, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
         UPDATE `creature_template`
         SET `name`="Om'kan", `display_id1`=1120
         WHERE `entry`=4882;
-
+        
         -- Turtle trainer
         INSERT INTO `spawns_creatures` VALUES (NULL, 4881, 0, 0, 0, 1, -3147.965, -2841.329, 34.646, 4.779, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
@@ -598,7 +598,7 @@ begin not atomic
 
         insert into applied_updates values ('210820222');
     end if;
-
+    
     -- 22/08/2022 1
     if (select count(*) from applied_updates where id='220820221') = 0 then
 
@@ -606,67 +606,67 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2718;
-
+        
         -- Dustbelcher Wyrmhunter
         UPDATE `creature_template`
         SET `display_id1`=1121
         WHERE `entry`=2716;
-
+        
         -- Dustbelcher Ogre mage
         UPDATE `creature_template`
         SET `display_id1`=326
         WHERE `entry`=2720;
-
+        
         -- Dustbelcher Ogre
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2701;
-
+        
         -- Dustbelcher Brute
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2715;
-
+        
         -- Anathemus
         UPDATE `creature_template`
         SET `display_id1`=3216
         WHERE `entry`=2754;
-
+        
         -- Scorched Guardian
         UPDATE `creature_template`
         SET `display_id1`=2527
         WHERE `entry`=2726;
-
+        
         -- Starving Buzzard
         UPDATE `creature_template`
         SET `display_id1`=1105
         WHERE `entry`=2829;
-
+        
         -- Wargolem
         UPDATE `creature_template`
         SET `display_id1`=2695
         WHERE `entry`=2751;
-
+        
         -- Siege Golem
         UPDATE `creature_template`
         SET `display_id1`=2695
         WHERE `entry`=2749;
-
+        
         -- Rumbler
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2752;
-
+        
         -- Greater Rock Elemental
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2736;
-
+        
         -- Enraged Rock Elemental
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2791;
-
+        
         -- Galek
         UPDATE `creature_template`
         SET `display_id1`=1642
@@ -2770,42 +2770,42 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=3217
         WHERE `entry`=5359;
-
+        
         -- Holgar Stormaxe
         UPDATE `creature_template`
         SET `display_id1`=1906
         WHERE `entry`=4311;
-
+        
         -- Silithid Hive Drone
         UPDATE `creature_template`
         SET `display_id1`=2304
         WHERE `entry`=4133;
-
+        
         -- Devlin
         UPDATE `creature_template`
         SET `display_id1`=1245
         WHERE `entry`=1657;
-
+        
         -- Lethlas
         UPDATE `creature_template`
         SET `display_id1`=2930
         WHERE `entry`=5212;
-
+        
         -- Phantim
         UPDATE `creature_template`
         SET `display_id1`=2930
         WHERE `entry`=5314;
-
+        
         -- Thule Ravenclaw
         UPDATE `creature_template`
         SET `display_id1`=263
         WHERE `entry`=1947;
-
+        
         -- Silithid Grub
         UPDATE `creature_template`
         SET `display_id1`=641
         WHERE `entry`=3251;
-
+        
         insert into applied_updates values ('290820221');
     end if;
 
@@ -12460,8 +12460,8 @@ begin not atomic
     end if;
 
     -- 29/08/2022 4
-    if (select count(*) from applied_updates where id='290820221') = 0 then
-        -- #589
+    if (select count(*) from applied_updates where id='290820224') = 0 then
+        -- Partially fix #589
         -- Basil Frye
         UPDATE `creature_template` SET `subname` = 'Bone Equipment Merchant' WHERE (`entry` = 4605);
 
@@ -12478,15 +12478,15 @@ begin not atomic
         -- Sen'jin Watcher
         UPDATE `creature_template` SET `faction` = 125 WHERE (`entry` = 3297);
 
-        -- #414
-        -- Peasent Woodpile
-        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_sentry` = 105568);
+        -- Partially fix #414
+        -- Peasant Woodpile
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_sentry` = 105568);
 
         -- Campfire
-        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_sentry` = 129206);
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_sentry` = 129206);
 
-        -- Barrel of mil
-        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = 42733);
+        -- Barrel of milk
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_id` = 42733);
 
         insert into applied_updates values ('290820224');
       end if;
