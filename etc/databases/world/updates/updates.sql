@@ -12480,10 +12480,10 @@ begin not atomic
 
         -- Partially fix #414
         -- Peasant Woodpile
-        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_sentry` = 105568);
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` = 105568);
 
         -- Campfire
-        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_sentry` = 129206);
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_entry` = 129206);
 
         -- Barrel of milk
         UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE (`spawn_id` = 42733);
