@@ -1255,7 +1255,7 @@ class UnitManager(ObjectManager):
 
     def set_channel_spell(self, spell_id):
         self.channel_spell = spell_id
-        self.set_uint64(UnitFields.UNIT_CHANNEL_SPELL, spell_id)
+        self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, spell_id)
 
     def die(self, killer=None):
         if not self.is_alive:
