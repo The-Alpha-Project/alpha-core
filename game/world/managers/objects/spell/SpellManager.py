@@ -461,9 +461,6 @@ class SpellManager:
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)
 
-        # Always flush channel fields.
-        self.caster.flush_channel_fields()
-
         # Send spell interrupted.
         if interrupted:
             data = pack('<QI', self.caster.guid, casting_spell.spell_entry.ID)
@@ -591,8 +588,6 @@ class SpellManager:
 
         # Spell start.
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-        self.caster.set_channel_object(casting_spell.initial_target.guid)
-        self.caster.set_channel_spell(casting_spell.spell_entry.ID)
         data = pack(signature, *data)
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data)
         MapManager.send_surrounding(packet, self.caster, include_self=is_player)
