@@ -1245,6 +1245,10 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
         return True
 
+    def flush_channel_fields(self):
+        self.set_channel_object(0)
+        self.set_channel_spell(0)
+
     def set_channel_object(self, guid):
         self.channel_object = guid
         self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, guid)
