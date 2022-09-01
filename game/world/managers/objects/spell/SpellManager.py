@@ -655,6 +655,7 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
 
     def play_spell_visual(self, visual_id):
+        # Must match an existing ID in the SpellVisualKit dbc.
         data = pack('<QI', self.caster.guid, visual_id)
         packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
         MapManager.send_surrounding(packet, self.caster,
