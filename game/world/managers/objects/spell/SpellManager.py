@@ -654,6 +654,12 @@ class SpellManager:
         data = pack('<I', 0)
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
 
+    def play_spell_visual(self, visual_id):
+        data = pack('<QI', self.caster.guid, visual_id)
+        packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
+        MapManager.send_surrounding(packet, self.caster,
+                                    include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
+
     def send_login_effect(self):
         chr_race = DbcDatabaseManager.chr_races_get_by_race(self.caster.race)
         self.handle_cast_attempt(chr_race.LoginEffectSpellID, self.caster, SpellTargetMask.SELF, validate=False)
