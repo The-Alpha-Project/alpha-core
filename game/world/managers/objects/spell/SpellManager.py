@@ -165,7 +165,6 @@ class SpellManager:
                 self.caster.set_stand_state(StandState.UNIT_SITTING)
 
             self.start_spell_cast(initialized_spell=casting_spell)
-            self.handle_visual_pre_cast_animation_kit(casting_spell)
 
     def handle_cast_attempt(self, spell_id, spell_target, target_mask, triggered=False, validate=True):
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
@@ -462,6 +461,15 @@ class SpellManager:
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)
 
+        # Always flush channel fields.
+        self.caster.flush_channel_fields()
+
+        # Send spell interrupted.
+        if interrupted:
+            data = pack('<QI', self.caster.guid, casting_spell.spell_entry.ID)
+            packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
+            MapManager.send_surrounding(packet, self.caster, include_self=True)
+
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
@@ -582,13 +590,12 @@ class SpellManager:
             data.append(casting_spell.used_ranged_attack_item.item_template.inventory_type)
 
         # Spell start.
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        self.caster.set_channel_object(casting_spell.initial_target.guid)
+        self.caster.set_channel_spell(casting_spell.spell_entry.ID)
         data = pack(signature, *data)
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data)
-        MapManager.send_surrounding(packet, self.caster,
-                                    include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
-
-        # Send visual animation pre cast kit if available.
-        self.handle_visual_pre_cast_animation_kit(casting_spell)
+        MapManager.send_surrounding(packet, self.caster, include_self=is_player)
 
     def handle_channel_start(self, casting_spell):
         if not casting_spell.is_channeled() or casting_spell.get_duration() == -1:
@@ -629,23 +636,6 @@ class SpellManager:
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True)
 
-    # Sends spell visual pre cast kit animation, if available.
-    def handle_visual_pre_cast_animation_kit(self, casting_spell):
-        if casting_spell.has_spell_visual_pre_cast_kit():
-            visual_kit = casting_spell.spell_visual_entry.precast_kit
-            visual_anim_name = visual_kit.visual_anim_name
-
-            # Do not send loop animations, we can't stop them once sent to the client.
-            # e.g. KneelLoop.
-            if visual_anim_name and 'Loop' in visual_anim_name.Name:
-                return
-
-            pre_cast_kit_id = casting_spell.spell_visual_entry.PrecastKit
-            data = pack('<QI', self.caster.guid, pre_cast_kit_id)
-            packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
-            is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-            MapManager.send_surrounding(packet, self.caster, include_self=is_player)
-
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
             return
@@ -660,8 +650,8 @@ class SpellManager:
                 # Interrupting Ritual of Summoning required special handling.
                 self._handle_summoning_channel_end()
 
-        self.caster.set_channel_object(0)
-        self.caster.set_channel_spell(0)
+        # Always flush channel fields.
+        self.caster.flush_channel_fields()
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
