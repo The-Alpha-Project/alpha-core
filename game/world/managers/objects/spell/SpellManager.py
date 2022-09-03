@@ -581,7 +581,8 @@ class SpellManager:
 
         signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
 
-        if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written.
+        # Client never expects a unit target for self target mask.
+        if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:
             target_info = casting_spell.get_initial_target_info()  # ([values], signature).
             data.extend(target_info[0])
             signature += target_info[1]
