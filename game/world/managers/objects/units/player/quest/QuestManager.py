@@ -1078,7 +1078,7 @@ class QuestManager(object):
         if self.last_timer_update >= 1:
             for active_quest in list(self.active_quests.values()):
                 if active_quest.is_timed_quest():
-                    active_quest.update_timer(elapsed)
+                    active_quest.update_timer(self.last_timer_update)
 
             self.last_timer_update = 0
 
