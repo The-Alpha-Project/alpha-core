@@ -39,6 +39,12 @@ class ObjectTypeIds(IntEnum):
     NUM_OBJECT_TYPES = 10
 
 
+class DynamicObjectTypes(IntEnum):
+    DYNAMIC_OBJECT_PORTAL = 0x0,
+    DYNAMIC_OBJECT_AREA_SPELL = 0x1,
+    DYNAMIC_OBJECT_FARSIGHT_FOCUS = 0x2,
+
+
 class UpdateTypes(IntEnum):
     PARTIAL = 0
     MOVEMENT = 1

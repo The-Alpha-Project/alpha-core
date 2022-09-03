@@ -365,10 +365,10 @@ class SpellManager:
                 continue
 
             cast_finished = casting_spell.cast_end_timestamp <= timestamp
-            if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:  # Channel tick/spells that need updates.
-                self.handle_spell_effect_update(casting_spell,
-                                                timestamp)  # Update effects if the cast wasn't interrupted.
-
+            # Channel tick/spells that need updates.
+            if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
+                # Update effects if the cast wasn't interrupted.
+                self.handle_spell_effect_update(casting_spell, timestamp)
                 if casting_spell.is_channeled() and cast_finished:
                     self.remove_cast(casting_spell)
                 continue
@@ -376,10 +376,12 @@ class SpellManager:
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING and not casting_spell.is_instant_cast():
                 if cast_finished:
                     self.perform_spell_cast(casting_spell)
-                    if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:  # Spell finished after perform (no impact delay).
+                    # Spell finished after perform (no impact delay).
+                    if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:
                         self.remove_cast(casting_spell)
 
-            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:  # Waiting for impact delay.
+            # Waiting for impact delay.
+            if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
                 targets_due = [guid for guid, stamp
                                in casting_spell.spell_impact_timestamps.items()
                                if stamp <= timestamp]
@@ -389,7 +391,8 @@ class SpellManager:
                 for target in targets_due:
                     casting_spell.spell_impact_timestamps.pop(target)
 
-                if len(casting_spell.spell_impact_timestamps) == 0:  # All targets finished impact delay.
+                # All targets finished impact delay.
+                if len(casting_spell.spell_impact_timestamps) == 0:
                     self.apply_spell_effects(casting_spell, remove=True, partial_targets=targets_due)
                     continue
 
@@ -447,6 +450,9 @@ class SpellManager:
             return False
 
         self.casting_spells.remove(casting_spell)
+
+        if casting_spell.dynamic_object:
+            casting_spell.dynamic_object.despawn(destroy=True)
 
         # Cancel auras applied by an active spell if the spell was interrupted.
         # If the cast finished normally, auras should wear off because of duration.
@@ -719,9 +725,9 @@ class SpellManager:
             data.append(casting_spell.used_ranged_attack_item.item_template.display_id)
             data.append(casting_spell.used_ranged_attack_item.item_template.inventory_type)
 
-        packed = pack(signature, *data)
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, packed), self.caster,
-                                    include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
+        MapManager.send_surrounding(packet, self.caster, include_self=is_player)
 
     def set_on_cooldown(self, casting_spell):
         spell = casting_spell.spell_entry

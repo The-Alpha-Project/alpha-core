@@ -56,6 +56,7 @@ class CastingSpell:
         self.spell_target_mask = target_mask
         self.triggered = triggered
 
+        self.dynamic_object = None
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)

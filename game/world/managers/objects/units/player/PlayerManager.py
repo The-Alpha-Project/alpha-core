@@ -374,9 +374,11 @@ class PlayerManager(UnitManager):
     # Range = This player current active cell plus its adjacent cells.
     def update_known_world_objects(self):
         with self.player_lock:
-            players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeIds.ID_PLAYER,
-                                                                                         ObjectTypeIds.ID_UNIT,
-                                                                                         ObjectTypeIds.ID_GAMEOBJECT])
+            players, creatures, game_objects, corpses, dynamic_objects = \
+                MapManager.get_surrounding_objects(self,
+                                                   [ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT,
+                                                    ObjectTypeIds.ID_GAMEOBJECT, ObjectTypeIds.ID_CORPSE,
+                                                    ObjectTypeIds.ID_DYNAMICOBJECT])
 
             # Which objects were found in self surroundings.
             active_objects = dict()
@@ -398,6 +400,15 @@ class PlayerManager(UnitManager):
                             if packet:
                                 self.enqueue_packet(packet)
                     self.known_objects[guid] = player
+
+            # Surrounding corpses.
+            for guid, corpse in corpses.items():
+                if self.guid != guid:
+                    active_objects[guid] = corpse
+                    if guid not in self.known_objects or not self.known_objects[guid]:
+                        # Create packet.
+                        self.enqueue_packet(corpse.generate_create_packet(requester=self))
+                    self.known_objects[guid] = corpse
 
             # Surrounding creatures.
             for guid, creature in creatures.items():
@@ -438,6 +449,18 @@ class PlayerManager(UnitManager):
                 elif guid in self.known_objects and not gobject.is_spawned:
                     active_objects.pop(guid)
 
+            # Surrounding dynamic objects.
+            for guid, dynamic_objects in dynamic_objects.items():
+                active_objects[guid] = dynamic_objects
+                if guid not in self.known_objects or not self.known_objects[guid]:
+                    if dynamic_objects.is_spawned:
+                        self.enqueue_packet(dynamic_objects.generate_create_packet(requester=self))
+                        # We only consider 'known' if its spawned, the details query is still sent.
+                        self.known_objects[guid] = dynamic_objects
+                # Player knows the dynamic object but is not spawned anymore, destroy it for self.
+                elif guid in self.known_objects and not dynamic_objects.is_spawned:
+                    active_objects.pop(guid)
+
             # World objects which are known but no longer active to self should be destroyed.
             for guid, known_object in list(self.known_objects.items()):
                 if guid not in active_objects:
@@ -447,11 +470,12 @@ class PlayerManager(UnitManager):
             active_objects.clear()
 
     def destroy_near_object(self, guid):
+        implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
         known_object = self.known_objects.get(guid)
         if known_object:
             del self.known_objects[guid]
             # Remove self from creature/go known players if needed.
-            if known_object.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            if known_object.get_type_id() in implements_known_players:
                 if self.guid in known_object.known_players:
                     del known_object.known_players[self.guid]
             # Destroy world object from self.
@@ -1566,6 +1590,7 @@ class PlayerManager(UnitManager):
         self.update_swimming_state(False)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+
         return super().die(killer)
 
     # override
@@ -1601,6 +1626,12 @@ class PlayerManager(UnitManager):
 
         self.respawn(recovery_percentage)
         self.spirit_release_timer = 0
+
+        # Spawn its corpse.
+        if not self.resurrect_data:
+            from game.world.managers.objects.corpse.CorpseManager import CorpseManager
+            CorpseManager.spawn(self)
+
         self.resurrect_data = None
 
     def get_player_bytes(self):

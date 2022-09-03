@@ -431,6 +431,11 @@ class MapManager:
             map_.grid_manager.update_gameobjects()
 
     @staticmethod
+    def update_corpses():
+        for map_id, map_ in MAPS.items():
+            map_.grid_manager.update_corpses()
+
+    @staticmethod
     def deactivate_cells():
         for map_id, map_ in MAPS.items():
             map_.grid_manager.deactivate_cells()

@@ -1,6 +1,11 @@
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
-from utils.constants.MiscCodes import ObjectTypeIds, HighGuid
+from utils.ByteUtils import ByteUtils
+from utils.constants.ItemCodes import InventorySlots
+from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
 from utils.constants.UpdateFields import ObjectFields, CorpseFields
 
 
@@ -11,14 +16,18 @@ class CorpseManager(ObjectManager):
     def __init__(self, owner: PlayerManager, **kwargs):
         super().__init__(**kwargs)
 
-        self.owner = owner.guid
+        self.owner = owner
         self.location = owner.location
         self.current_scale = owner.current_scale
         self.native_display_id = owner.native_display_id
         self.current_display_id = owner.native_display_id
+        self.ttl = 1200
 
         CorpseManager.CURRENT_HIGHEST_GUID += 1
         self.guid = CorpseManager.CURRENT_HIGHEST_GUID
+
+        self.object_type_mask |= ObjectTypeFlags.TYPE_CORPSE
+        self.update_packet_factory.init_values(self.owner, CorpseFields)
 
     # override
     def initialize_field_values(self):
@@ -29,14 +38,63 @@ class CorpseManager(ObjectManager):
         self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
         # Corpse fields.
-        self.set_uint64(CorpseFields.CORPSE_FIELD_OWNER, self.owner)
-        self.set_float(CorpseFields.CORPSE_FIELD_FACING, self.location.o)
+        self.set_uint64(CorpseFields.CORPSE_FIELD_OWNER, self.owner.guid)
         self.set_float(CorpseFields.CORPSE_FIELD_POS_X, self.location.x)
         self.set_float(CorpseFields.CORPSE_FIELD_POS_Y, self.location.y)
         self.set_float(CorpseFields.CORPSE_FIELD_POS_Z, self.location.z)
+        self.set_float(CorpseFields.CORPSE_FIELD_FACING, self.location.o)
         self.set_uint32(CorpseFields.CORPSE_FIELD_DISPLAY_ID, self.native_display_id)
 
+        # TODO: Grab this from inventory.
+        for slot in range(InventorySlots.SLOT_HEAD, InventorySlots.SLOT_BAG1):
+            item = RealmDatabaseManager.character_get_item_by_slot(self.owner.guid, slot)
+            if item:
+                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item.item_template)
+                if item_template:
+                    display_id = item_template.display_id
+                    inventory_type = item_template.inventory_type
+                    _cfi = display_id | (inventory_type << 24)
+                    self.set_uint32(CorpseFields.CORPSE_FIELD_ITEM + slot, _cfi)
+
+        self.set_uint32(CorpseFields.CORPSE_FIELD_BYTES_1, self.get_bytes_1())
+        self.set_uint32(CorpseFields.CORPSE_FIELD_BYTES_2, self.get_bytes_2())
+        self.set_uint32(CorpseFields.CORPSE_FIELD_GUILD, self.owner.guild_manager.guild_id if self.owner.guild_manager else 0)
+        self.set_uint32(CorpseFields.CORPSE_FIELD_LEVEL, self.owner.level)
+
         self.initialized = True
+
+    # override
+    def get_bytes_1(self):
+        return ByteUtils.bytes_to_int(
+            self.owner.player.skin,
+            self.owner.player.gender,
+            self.owner.player.race,
+            0
+        )
+
+    # override
+    def get_bytes_2(self):
+        return ByteUtils.bytes_to_int(
+            self.owner.player.facialhair,
+            self.owner.player.haircolour,
+            self.owner.player.hairstyle,
+            self.owner.player.face
+        )
+
+    # override
+    def update(self, now):
+        if now > self.last_tick > 0 and self.is_spawned:
+            elapsed = now - self.last_tick
+            self.ttl -= elapsed
+            if self.ttl <= 0:
+                self.despawn(destroy=True)
+            self.last_tick = now
+
+    @staticmethod
+    def spawn(player_mgr):
+        corpse = CorpseManager(owner=player_mgr)
+        MapManager.update_object(corpse)
+        return corpse
 
     # override
     def get_type_id(self):
