@@ -10,7 +10,7 @@ from utils.constants.UpdateFields import ObjectFields, CorpseFields
 
 
 class CorpseManager(ObjectManager):
-    CURRENT_HIGHEST_GUID = 100000
+    CURRENT_HIGHEST_GUID = 0
 
     def __init__(self, owner: PlayerManager, **kwargs):
         super().__init__(**kwargs)
@@ -24,7 +24,7 @@ class CorpseManager(ObjectManager):
         self.ttl = 600  # 10 Minutes.
 
         CorpseManager.CURRENT_HIGHEST_GUID += 1
-        self.guid = CorpseManager.CURRENT_HIGHEST_GUID
+        self.guid = self.generate_object_guid(CorpseManager.CURRENT_HIGHEST_GUID)
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_CORPSE
         self.update_packet_factory.init_values(self.owner, CorpseFields)

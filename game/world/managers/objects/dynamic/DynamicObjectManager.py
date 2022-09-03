@@ -6,7 +6,7 @@ from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 
 # TODO: Finish implementing.
 class DynamicObjectManager(ObjectManager):
-    CURRENT_HIGHEST_GUID = 50000
+    CURRENT_HIGHEST_GUID = 0
 
     def __init__(self, owner, location, radius, spell_id, dynamic_type, **kwargs):
         super().__init__(**kwargs)
@@ -19,7 +19,7 @@ class DynamicObjectManager(ObjectManager):
         self.radius = radius
 
         DynamicObjectManager.CURRENT_HIGHEST_GUID += 1
-        self.guid = DynamicObjectManager.CURRENT_HIGHEST_GUID
+        self.guid = self.generate_object_guid(DynamicObjectManager.CURRENT_HIGHEST_GUID)
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_DYNAMICOBJECT
         self.update_packet_factory.init_values(self.owner, DynamicObjectFields)
