@@ -1463,10 +1463,12 @@ class PlayerManager(UnitManager):
             # Check swimming state.
             self.check_swimming_state(elapsed)
 
-            # SpellManager tick.
+            # SpellManager.
             self.spell_manager.update(now)
-            # AuraManager tick.
+            # AuraManager.
             self.aura_manager.update(now)
+            # QuestManager.
+            self.quest_manager.update(elapsed)
 
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)

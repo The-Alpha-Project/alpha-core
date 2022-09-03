@@ -1,3 +1,5 @@
+import time
+
 from database.world.WorldModels import NpcGossip, NpcText, QuestGreeting
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
@@ -1045,11 +1047,6 @@ class QuestManager(object):
                     self.update_single_quest(quest_id)
                     self.complete_quest(active_quest, update_surrounding=True, notify=True)
 
-    def quest_failed(self, active_quest):
-        data = pack('<I', active_quest.quest.entry)
-        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_FAILED, data)
-        self.player_mgr.enqueue_packet(packet)
-
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
 
@@ -1075,10 +1072,17 @@ class QuestManager(object):
                 return True
         return False
 
+    def update(self, elapsed):
+        for active_quest in list(self.active_quests.values()):
+            if active_quest.is_timed_quest():
+                active_quest.update_timer(elapsed)
+
     def update_single_quest(self, quest_id, slot=-1):
         progress = 0
+        timer = 0
         if quest_id in self.active_quests:
             progress = self.active_quests[quest_id].get_progress()
+            timer = self.active_quests[quest_id].get_timer()
             if slot == -1:
                 slot = list(self.active_quests.keys()).index(quest_id)
 
@@ -1087,7 +1091,7 @@ class QuestManager(object):
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, 0)  # quest giver ID ?
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, 0)  # quest rewarder ID ?
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 3, progress)  # quest progress
-        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, 0)  # quest failure time
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, timer)  # quest time failure
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 5, 0)  # number of mobs to kill
 
     def build_update(self):
@@ -1095,10 +1099,14 @@ class QuestManager(object):
         for slot in range(MAX_QUEST_LOG):
             self.update_single_quest(active_quest_list[slot] if slot < len(active_quest_list) else 0, slot)
 
+    def save(self):
+        [quest.save() for quest in list(self.active_quests.values())]
+
     def _create_db_quest_status(self, quest):
         db_quest_status = CharacterQuestState()
         db_quest_status.guid = self.player_mgr.guid
         db_quest_status.quest = quest.entry
+        db_quest_status.timer = quest.LimitTime
         if quest.Method == QuestMethod.QUEST_AUTOCOMPLETE:
             db_quest_status.state = QuestState.QUEST_REWARD.value
         else:
