@@ -41,7 +41,8 @@ class GridManager:
         # Handle cell change within the same map.
         elif current_cell_key != source_cell_key:
             # Remove from old location and Add to new location.
-            self.remove_object(world_object, update_players=False)
+            if source_cell_key:
+                self.remove_object(world_object, update_players=False)
             self.add_object(world_object, update_players=False)
             # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
             affected_cells = self.update_players(source_cell_key)
@@ -222,9 +223,9 @@ class GridManager:
             if ObjectTypeIds.ID_GAMEOBJECT in object_types:
                 surrounding_objects[gameobject_index] = {**surrounding_objects[gameobject_index], **cell.gameobjects}
             if ObjectTypeIds.ID_DYNAMICOBJECT in object_types:
-                surrounding_objects[dynamic_index] = {**surrounding_objects[gameobject_index], **cell.dynamic_objects}
+                surrounding_objects[dynamic_index] = {**surrounding_objects[dynamic_index], **cell.dynamic_objects}
             if ObjectTypeIds.ID_CORPSE in object_types:
-                surrounding_objects[corpse_index] = {**surrounding_objects[gameobject_index], **cell.corpses}
+                surrounding_objects[corpse_index] = {**surrounding_objects[corpse_index], **cell.corpses}
 
         return surrounding_objects
 
