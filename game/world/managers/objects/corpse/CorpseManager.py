@@ -17,11 +17,12 @@ class CorpseManager(ObjectManager):
         super().__init__(**kwargs)
 
         self.owner = owner
+        self.guild_id = owner.guild_manager.guild_id if owner.guild_manager else 0
         self.location = owner.location
         self.current_scale = owner.current_scale
         self.native_display_id = owner.native_display_id
         self.current_display_id = owner.native_display_id
-        self.ttl = 600  # 10 Minutes
+        self.ttl = 600  # 10 Minutes.
 
         CorpseManager.CURRENT_HIGHEST_GUID += 1
         self.guid = CorpseManager.CURRENT_HIGHEST_GUID
@@ -45,20 +46,15 @@ class CorpseManager(ObjectManager):
         self.set_float(CorpseFields.CORPSE_FIELD_FACING, self.location.o)
         self.set_uint32(CorpseFields.CORPSE_FIELD_DISPLAY_ID, self.native_display_id)
 
-        # TODO: Grab this from inventory.
         for slot in range(InventorySlots.SLOT_HEAD, InventorySlots.SLOT_BAG1):
-            item = RealmDatabaseManager.character_get_item_by_slot(self.owner.guid, slot)
-            if item:
-                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item.item_template)
-                if item_template:
-                    display_id = item_template.display_id
-                    inventory_type = item_template.inventory_type
-                    _cfi = display_id | (inventory_type << 24)
-                    self.set_uint32(CorpseFields.CORPSE_FIELD_ITEM + slot, _cfi)
+            item_mngr = self.owner.inventory.get_item(InventorySlots.SLOT_INBACKPACK, slot)
+            if item_mngr and item_mngr.item_template:
+                field_item = item_mngr.item_template.display_id | (item_mngr.item_template.inventory_type << 24)
+                self.set_uint32(CorpseFields.CORPSE_FIELD_ITEM + slot, field_item)
 
         self.set_uint32(CorpseFields.CORPSE_FIELD_BYTES_1, self.get_bytes_1())
         self.set_uint32(CorpseFields.CORPSE_FIELD_BYTES_2, self.get_bytes_2())
-        self.set_uint32(CorpseFields.CORPSE_FIELD_GUILD, self.owner.guild_manager.guild_id if self.owner.guild_manager else 0)
+        self.set_uint32(CorpseFields.CORPSE_FIELD_GUILD, self.guild_id)
         self.set_uint32(CorpseFields.CORPSE_FIELD_LEVEL, self.owner.level)
 
         self.initialized = True
