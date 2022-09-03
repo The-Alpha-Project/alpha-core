@@ -12498,5 +12498,13 @@ begin not atomic
 
         insert into applied_updates values ('310820221');
     end if;
+
+    -- 03/09/2022 1
+    if (select count(*) from applied_updates where id='030920221') = 0 then
+        -- Invalid 230 faction template to 14 Monster (Non Social).
+        UPDATE `creature_template` SET `faction`=14 WHERE `faction` = 230;
+
+        insert into applied_updates values ('030920221');
+    end if;    
 end $
 delimiter ;
