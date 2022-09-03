@@ -11,7 +11,7 @@ from utils.constants.UpdateFields import ObjectFields, CorpseFields
 
 # TODO: Finish implementing.
 class CorpseManager(ObjectManager):
-    CURRENT_HIGHEST_GUID = 0
+    CURRENT_HIGHEST_GUID = 100000
 
     def __init__(self, owner: PlayerManager, **kwargs):
         super().__init__(**kwargs)
