@@ -30,20 +30,23 @@ class SpellEffectHandler:
                          f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
             return
 
-        # Immunities.
-        if target and isinstance(target, ObjectManager) and \
-                target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        from game.world.managers.objects.units.UnitManager import UnitManager
+        if target and isinstance(target, UnitManager):
+            # Do not apply spell effects on death targets unless resurrect.
+            if not target.is_alive and effect.effect_type != SpellEffects.SPELL_EFFECT_RESURRECT:
+                return
+
+            spell_id = casting_spell.spell_entry.ID
+            # Immunities.
             # Spell school/effect aura.
             if casting_spell.is_target_immune() or \
                     (effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
                      casting_spell.is_target_immune_to_aura()):
-                caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
+                caster.spell_manager.send_cast_immune_result(target, spell_id)
                 return
 
             # Effect type.
-            # noinspection PyUnresolvedReferences
-            if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT,
-                                      effect.effect_type, spell_id=casting_spell.spell_entry.ID):
+            if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT, effect.effect_type, spell_id=spell_id):
                 return
 
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)

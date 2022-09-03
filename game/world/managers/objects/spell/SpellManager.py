@@ -76,6 +76,11 @@ class SpellManager:
             if not self.caster.skill_manager.add_skill(related_profession_skill):
                 self.caster.skill_manager.update_skills_max_value()
 
+        # Add the spell required skill.
+        skill, skill_id, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        if not skill and skill_id:
+            self.caster.skill_manager.add_skill(skill_id)
+
         return True
 
     def unlearn_spell(self, spell_id) -> bool:
@@ -576,7 +581,8 @@ class SpellManager:
 
         signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
 
-        if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:  # Some self-cast spells crash client if target is written.
+        # Client never expects a unit target for self target mask.
+        if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:
             target_info = casting_spell.get_initial_target_info()  # ([values], signature).
             data.extend(target_info[0])
             signature += target_info[1]
