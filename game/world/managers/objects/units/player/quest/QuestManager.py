@@ -1,5 +1,3 @@
-import time
-
 from database.world.WorldModels import NpcGossip, NpcText, QuestGreeting
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
