@@ -31,6 +31,7 @@ MAX_QUEST_LOG = 16
 class QuestManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
+        self.last_update_tick = 0
         self.active_quests = {}
         self.completed_quests = set()
 
@@ -1071,10 +1072,15 @@ class QuestManager(object):
         return False
 
     def update(self, elapsed):
-        if len(self.active_quests) > 0:
+        self.last_update_tick += elapsed
+
+        # Every second.
+        if self.last_update_tick >= 1:
             for active_quest in list(self.active_quests.values()):
                 if active_quest.is_timed_quest():
                     active_quest.update_timer(elapsed)
+
+            self.last_update_tick = 0
 
     def update_single_quest(self, quest_id, slot=-1):
         progress = 0

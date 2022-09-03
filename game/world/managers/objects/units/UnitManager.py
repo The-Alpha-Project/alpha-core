@@ -537,7 +537,7 @@ class UnitManager(ObjectManager):
                     self.set_focus(0)
 
         self.last_regen += elapsed
-        # Every 2 seconds
+        # Every 2 seconds.
         if self.last_regen >= 2:
             self.last_regen = 0
 
