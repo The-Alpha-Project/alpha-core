@@ -21,7 +21,7 @@ class CorpseManager(ObjectManager):
         self.current_scale = owner.current_scale
         self.native_display_id = owner.native_display_id
         self.current_display_id = owner.native_display_id
-        self.ttl = 1200
+        self.ttl = 600  # 10 Minutes
 
         CorpseManager.CURRENT_HIGHEST_GUID += 1
         self.guid = CorpseManager.CURRENT_HIGHEST_GUID
@@ -88,7 +88,7 @@ class CorpseManager(ObjectManager):
             self.ttl -= elapsed
             if self.ttl <= 0:
                 self.despawn(destroy=True)
-            self.last_tick = now
+        self.last_tick = now
 
     @staticmethod
     def spawn(player_mgr):
