@@ -39,28 +39,28 @@ class WorldLoader:
         WorldLoader.load_spells()
         WorldLoader.load_creature_spells()
 
-        # # Gameobject spawns
-        # if config.Server.Settings.load_gameobjects:
-        #     WorldLoader.load_gameobject_quest_starters()
-        #     WorldLoader.load_gameobject_quest_finishers()
-        #     WorldLoader.load_gameobjects_spawns()
-        # else:
-        #     Logger.info('Skipped game object loading.')
-        #
-        # # Creature spawns
-        # if config.Server.Settings.load_creatures:
-        #     WorldLoader.load_creature_equip_templates()
-        #     WorldLoader.load_creature_spawns()
-        #     WorldLoader.load_creature_on_kill_reputation()
-        #     WorldLoader.load_creature_quest_starters()
-        #     WorldLoader.load_creature_quest_finishers()
-        #     WorldLoader.load_creature_display_info()
-        #     WorldLoader.load_creature_model_info()
-        #     WorldLoader.load_creature_families()
-        #     WorldLoader.load_npc_gossip()
-        #     WorldLoader.load_npc_text()
-        # else:
-        #     Logger.info('Skipped creature loading.')
+        # Gameobject spawns
+        if config.Server.Settings.load_gameobjects:
+            WorldLoader.load_gameobject_quest_starters()
+            WorldLoader.load_gameobject_quest_finishers()
+            WorldLoader.load_gameobjects_spawns()
+        else:
+            Logger.info('Skipped game object loading.')
+
+        # Creature spawns
+        if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_equip_templates()
+            WorldLoader.load_creature_spawns()
+            WorldLoader.load_creature_on_kill_reputation()
+            WorldLoader.load_creature_quest_starters()
+            WorldLoader.load_creature_quest_finishers()
+            WorldLoader.load_creature_display_info()
+            WorldLoader.load_creature_model_info()
+            WorldLoader.load_creature_families()
+            WorldLoader.load_npc_gossip()
+            WorldLoader.load_npc_text()
+        else:
+            Logger.info('Skipped creature loading.')
 
         WorldLoader.load_area_trigger_quest_relations()
         WorldLoader.load_quests()
