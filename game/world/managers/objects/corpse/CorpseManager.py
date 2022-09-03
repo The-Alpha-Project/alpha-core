@@ -9,7 +9,6 @@ from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
 from utils.constants.UpdateFields import ObjectFields, CorpseFields
 
 
-# TODO: Finish implementing.
 class CorpseManager(ObjectManager):
     CURRENT_HIGHEST_GUID = 100000
 
