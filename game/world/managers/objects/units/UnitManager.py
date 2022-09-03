@@ -419,8 +419,8 @@ class UnitManager(ObjectManager):
         damage_info.target = victim
         damage_info.attack_type = attack_type
 
-        hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
-                                                                      0.19 if self.has_offhand_weapon() else 0)  # Dual wield penalty.
+        dual_wield_penalty = 0.19 if self.has_offhand_weapon() else 0
+        hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type, dual_wield_penalty)
 
         damage_info.damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
         damage_info.hit_info = hit_info
@@ -431,7 +431,7 @@ class UnitManager(ObjectManager):
             damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
 
         elif not hit_info & HitInfo.SUCCESS:
-            damage_info.hit_info = HitInfo.MISS
+            damage_info.hit_info |= HitInfo.MISS
             damage_info.damage = 0
             # Check evade, there is no HitInfo flag for this.
             if victim.is_evading:

@@ -181,13 +181,12 @@ class CharCreateHandler(object):
                 if skill_id and skill_id not in added_skills:
                     added_skills.add(skill_id)
                     skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
-                    if not skill or skill.CategoryID != SkillCategories.CLASS_SKILL:
+                    if not skill:
                         continue
                     skill_to_set = CharacterSkill()
                     skill_to_set.guid = guid
                     skill_to_set.skill = skill_id
-                    # TODO: investigate Min and Max ranks.
-                    skill_to_set.value = 1
+                    skill_to_set.value = 1 if skill.CategoryID != SkillCategories.MAX_SKILL else skill.MaxRank
                     skill_to_set.max = skill.MaxRank
 
                     RealmDatabaseManager.character_add_skill(skill_to_set)
