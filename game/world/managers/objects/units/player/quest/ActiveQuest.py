@@ -1,3 +1,4 @@
+import time
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -30,6 +31,9 @@ class ActiveQuest:
 
     def is_exploration_quest(self):
         return self.quest.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION
+
+    def is_timed_quest(self):
+        return self.quest.LimitTime > 0
 
     def is_quest_complete(self, quest_giver_guid):
         quest_giver = None
@@ -100,6 +104,17 @@ class ActiveQuest:
     def reward_xp(self):
         xp = Formulas.PlayerFormulas.quest_xp_reward(self.quest.QuestLevel, self.owner.level, self.quest.RewXP)
         return self.owner.give_xp([xp], notify=False)
+
+    def update_timer(self, elapsed):
+        if not self.failed:
+            self.db_state.timer = max(0, self.db_state.timer - elapsed)
+            if self.db_state.timer == 0:
+                self.failed = True
+
+    def send_quest_failed(self):
+        data = pack('<I', self.quest.entry)
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_FAILED, data)
+        self.owner.enqueue_packet(packet)
 
     def update_creature_go_count(self, world_object, value):
         # Creatures > 0, Gameobjects < 0.
@@ -188,6 +203,9 @@ class ActiveQuest:
 
     # TODO: Should handle other types of quests here: game object related, item usage, etc.
     def can_complete_quest(self):
+        if self.failed:
+            return False
+
         # Check for required kills / gameobjects.
         required_creature_go = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
         for i in range(4):
@@ -207,7 +225,9 @@ class ActiveQuest:
             if self.get_quest_state() != QuestState.QUEST_REWARD:
                 return False
 
-        # TODO: Check ReqMoney
+        if self.is_timed_quest() and self.db_state.timer <= 0:
+            return False
+
         return True
 
     def requires_creature_or_go(self, world_object):
@@ -276,14 +296,19 @@ class ActiveQuest:
         req_src_items = QuestHelpers.generate_req_source_list(self.quest)
         return item_entry in req_items or item_entry in req_src_items
 
+    def get_timer(self):
+        if not self.is_timed_quest():
+            return 0
+        return int(time.time()) + int(self.db_state.timer)
+
     # What's happening inside get_progress():
     # Required MobKills1 = 5
     # Required MobKills2 = 12
     # No Kills:					             Mob2                 Mob1
     # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 0] [0 0 0 0 0]
-    # 1 kill on each
+    # 1 kill on each.
     # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 0 0 1] [0 0 0 0 1]
-    # 3 kills on each
+    # 3 kills on each.
     # 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 [0 0 0 0 0 0 0 0 0 1 1 1] [0 0 1 1 1]
     # Extras:
     # Last bit ON (LittleEndian) = Failed
