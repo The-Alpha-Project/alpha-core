@@ -216,7 +216,7 @@ class WorldServerSessionHandler:
 
     @staticmethod
     def schedule_background_tasks():
-        # Save characters
+        # Save characters.
         realm_saving_scheduler = BackgroundScheduler()
         realm_saving_scheduler._daemon = True
         realm_saving_scheduler.add_job(WorldSessionStateHandler.save_characters, 'interval',
@@ -224,17 +224,17 @@ class WorldServerSessionHandler:
                                        max_instances=1)
         realm_saving_scheduler.start()
 
-        # Player updates
+        # Player updates.
         player_update_scheduler = BackgroundScheduler()
         player_update_scheduler._daemon = True
         player_update_scheduler.add_job(WorldSessionStateHandler.update_players, 'interval', seconds=0.1,
                                         max_instances=1)
         player_update_scheduler.start()
 
-        # Corpses updates
+        # Corpses updates.
         corpses_update_scheduler = BackgroundScheduler()
         corpses_update_scheduler._daemon = True
-        corpses_update_scheduler.add_job(MapManager.update_corpses, 'interval', seconds=1.0, max_instances=1)
+        corpses_update_scheduler.add_job(MapManager.update_corpses, 'interval', seconds=10.0, max_instances=1)
         corpses_update_scheduler.start()
 
         # MapManager tile loading.
@@ -242,21 +242,21 @@ class WorldServerSessionHandler:
         world_session_thread.daemon = True
         world_session_thread.start()
 
-        # Creature updates
+        # Creature updates.
         creature_update_scheduler = BackgroundScheduler()
         creature_update_scheduler._daemon = True
         creature_update_scheduler.add_job(MapManager.update_creatures, 'interval', seconds=0.2,
                                           max_instances=1)
         creature_update_scheduler.start()
 
-        # Gameobject updates
+        # Gameobject updates.
         gameobject_update_scheduler = BackgroundScheduler()
         gameobject_update_scheduler._daemon = True
         gameobject_update_scheduler.add_job(MapManager.update_gameobjects, 'interval', seconds=1.0,
                                             max_instances=1)
         gameobject_update_scheduler.start()
 
-        # Cell deactivation
+        # Cell deactivation.
         cell_unloading_scheduler = BackgroundScheduler()
         cell_unloading_scheduler._daemon = True
         cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=120.0,
