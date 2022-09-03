@@ -6,7 +6,7 @@ from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 
 # TODO: Finish implementing.
 class DynamicObjectManager(ObjectManager):
-    CURRENT_HIGHEST_GUID = 0
+    CURRENT_HIGHEST_GUID = 50000
 
     def __init__(self, owner, location, radius, spell_id, dynamic_type, **kwargs):
         super().__init__(**kwargs)
