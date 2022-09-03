@@ -5,6 +5,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler
@@ -16,7 +17,7 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
-from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes, DynamicObjectTypes
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
     SpellImmunity
 from utils.constants.UnitCodes import UnitFlags
@@ -248,6 +249,14 @@ class SpellEffectHandler:
     def handle_persistent_area_aura(casting_spell, effect, caster, target):  # Ground-targeted aoe.
         if target is not None:
             return
+
+        # For now, dynamic object only enable us to properly display area effects to clients.
+        # Targeting and effect application is still done by 'handle_apply_area_aura'.
+        if not casting_spell.dynamic_object:
+            dynamic_object = DynamicObjectManager.spawn(caster, casting_spell.initial_target, effect.get_radius(),
+                                                        casting_spell.spell_entry.ID,
+                                                        DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
+            casting_spell.dynamic_object = dynamic_object
 
         SpellEffectHandler.handle_apply_area_aura(casting_spell, effect, caster, target)
         return

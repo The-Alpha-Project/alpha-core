@@ -231,6 +231,12 @@ class WorldServerSessionHandler:
                                         max_instances=1)
         player_update_scheduler.start()
 
+        # Corpses updates
+        corpses_update_scheduler = BackgroundScheduler()
+        corpses_update_scheduler._daemon = True
+        corpses_update_scheduler.add_job(MapManager.update_corpses, 'interval', seconds=1.0, max_instances=1)
+        corpses_update_scheduler.start()
+
         # MapManager tile loading.
         world_session_thread = threading.Thread(target=MapManager.load_pending_tiles)
         world_session_thread.daemon = True

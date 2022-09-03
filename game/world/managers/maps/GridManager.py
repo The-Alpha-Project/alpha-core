@@ -41,7 +41,8 @@ class GridManager:
         # Handle cell change within the same map.
         elif current_cell_key != source_cell_key:
             # Remove from old location and Add to new location.
-            self.remove_object(world_object, update_players=False)
+            if source_cell_key:
+                self.remove_object(world_object, update_players=False)
             self.add_object(world_object, update_players=False)
             # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
             affected_cells = self.update_players(source_cell_key)
@@ -198,6 +199,8 @@ class GridManager:
         players_index = 0
         creatures_index = 0
         gameobject_index = 0
+        dynamic_index = 0
+        corpse_index = 0
         # Define return collection and indexes dynamically.
         for index in range(len(object_types)):
             surrounding_objects.append(dict())
@@ -207,6 +210,10 @@ class GridManager:
                 creatures_index = index
             if object_types[index] == ObjectTypeIds.ID_GAMEOBJECT:
                 gameobject_index = index
+            if object_types[index] == ObjectTypeIds.ID_DYNAMICOBJECT:
+                dynamic_index = index
+            if object_types[index] == ObjectTypeIds.ID_CORPSE:
+                corpse_index = index
 
         for cell in self.get_surrounding_cells_by_object(world_object):
             if ObjectTypeIds.ID_PLAYER in object_types:
@@ -215,6 +222,10 @@ class GridManager:
                 surrounding_objects[creatures_index] = {**surrounding_objects[creatures_index], **cell.creatures}
             if ObjectTypeIds.ID_GAMEOBJECT in object_types:
                 surrounding_objects[gameobject_index] = {**surrounding_objects[gameobject_index], **cell.gameobjects}
+            if ObjectTypeIds.ID_DYNAMICOBJECT in object_types:
+                surrounding_objects[dynamic_index] = {**surrounding_objects[dynamic_index], **cell.dynamic_objects}
+            if ObjectTypeIds.ID_CORPSE in object_types:
+                surrounding_objects[corpse_index] = {**surrounding_objects[corpse_index], **cell.corpses}
 
         return surrounding_objects
 
@@ -315,29 +326,30 @@ class GridManager:
             for guid, gameobject in list(cell.gameobjects.items()):
                 gameobject.update(now)
 
+    def update_corpses(self):
+        now = time.time()
+        for key in list(self.active_cell_keys):
+            cell = self.cells[key]
+            for guid, corpse in list(cell.corpses.items()):
+                corpse.update(now)
+
 
 class Cell:
-    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, gameobjects=None,
-                 creatures=None, players=None, key=''):
+    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, key=''):
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x
         self.max_y = max_y
         self.map_ = map_
         self.key = key
-        self.gameobjects = gameobjects
-        self.creatures = creatures
-        self.players = players
+        self.gameobjects = dict()
+        self.creatures = dict()
+        self.players = dict()
+        self.dynamic_objects = dict()
+        self.corpses = dict()
 
         if not key:
             self.key = f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:{self.map_}'
-
-        if not gameobjects:
-            self.gameobjects = dict()
-        if not creatures:
-            self.creatures = dict()
-        if not players:
-            self.players = dict()
 
     def has_players(self):
         return len(self.players) > 0
@@ -363,6 +375,10 @@ class Cell:
             self.creatures[world_object.guid] = world_object
         elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.gameobjects[world_object.guid] = world_object
+        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
+            self.dynamic_objects[world_object.guid] = world_object
+        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
+            self.corpses[world_object.guid] = world_object
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
     def update_players(self, world_object=None, has_changes=False, has_inventory_changes=False):
@@ -379,6 +395,10 @@ class Cell:
             self.creatures.pop(world_object.guid, None)
         elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.gameobjects.pop(world_object.guid, None)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
+            self.dynamic_objects.pop(world_object.guid, None)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
+            self.corpses.pop(world_object.guid, None)
 
     def send_all(self, packet, source=None, exclude=None, use_ignore=False):
         for guid, player_mgr in list(self.players.items()):
