@@ -1071,9 +1071,10 @@ class QuestManager(object):
         return False
 
     def update(self, elapsed):
-        for active_quest in list(self.active_quests.values()):
-            if active_quest.is_timed_quest():
-                active_quest.update_timer(elapsed)
+        if len(self.active_quests) > 0:
+            for active_quest in list(self.active_quests.values()):
+                if active_quest.is_timed_quest():
+                    active_quest.update_timer(elapsed)
 
     def update_single_quest(self, quest_id, slot=-1):
         progress = 0
