@@ -37,8 +37,8 @@ class TrainerBuySpellHandler(object):
         spell_id = WorldDatabaseManager.TrainerSpellHolder.get_player_spell_by_trainer_spell_id(training_spell_id)
         if not spell_id:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, spell_id, fail_reason)
-            return 0
+            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
+            return
 
         talent_cost = player_mgr.talent_manager.get_talent_cost_by_id(spell_id)
         fail_reason = None
@@ -48,7 +48,7 @@ class TrainerBuySpellHandler(object):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
 
         if fail_reason:
-            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, spell_id, fail_reason)
+            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
         else:
             player_mgr.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.SELF,
                                                          validate=False)
@@ -70,7 +70,7 @@ class TrainerBuySpellHandler(object):
         if not trainer_spell:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
-            return 0
+            return
 
         spell_money_cost = trainer_spell.spellcost
         spell_skill_cost = trainer_spell.skillpointcost
@@ -94,7 +94,7 @@ class TrainerBuySpellHandler(object):
             if anti_cheat:
                 Logger.anticheat(f'Player {player_mgr.guid} tried to train spell {player_mgr} from NPC {unit.entry}.')
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
-            return 0
+            return
 
         # Succeeded.
         unit.spell_manager.handle_cast_attempt(trainer_spell.spell, player_mgr, SpellTargetMask.UNIT, validate=False)
