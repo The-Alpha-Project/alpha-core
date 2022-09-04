@@ -28,7 +28,7 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, Teams
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -242,7 +242,7 @@ class CreatureManager(UnitManager):
                                                    self.creature_template.display_id4]))
         return choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = cube.
 
-    def send_inventory_list(self, world_session):
+    def send_inventory_list(self, player_mgr):
         vendor_data, session = WorldDatabaseManager.creature_get_vendor_data(self.entry)
         item_count = len(vendor_data) if vendor_data else 0
 
@@ -270,15 +270,17 @@ class CreatureManager(UnitManager):
                 item_templates.append(vendor_data_entry.item_template)
 
             # Send all vendor item query details.
-            world_session.enqueue_packets(ItemManager.get_item_query_packets(item_templates))
+            player_mgr.enqueue_packets(ItemManager.get_item_query_packets(item_templates))
 
         session.close()
-        world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LIST_INVENTORY, data))
 
     # TODO Add skills (Two-Handed Swords etc.) to trainers for skill points https://i.imgur.com/tzyDDqL.jpg
-    def send_trainer_list(self, world_session):
-        if not self.can_train(world_session.player_mgr):
-            Logger.anticheat(f'send_trainer_list called from NPC {self.entry} by player with GUID {world_session.player_mgr.guid} but this unit does not train that player\'s class. Possible cheating')
+    def send_trainer_list(self, player_mgr):
+        if not self.can_train(player_mgr):
+            Logger.anticheat(f'send_trainer_list called from NPC {self.entry} by player with GUID '
+                             f'{player_mgr.guid} but this unit does not train that '
+                             f'player\'s class. Possible cheating')
             return
 
         train_spell_bytes: bytes = b''
@@ -290,21 +292,41 @@ class CreatureManager(UnitManager):
             Logger.warning(f'send_trainer_list called from NPC {self.entry} but no trainer spells found!')
             return
 
-        for trainer_spell in trainer_ability_list:  # trainer_spell: The spell the trainer uses to teach the player.
+        # Below spells skill line does not provide a race mask (Any race can use them) but we assume
+        # They were only taught to their either alliance or horde.
+        horde_only = {
+            3577,  # Teleport Undercity.
+            3580,  # Telelport Orgrimmar
+            3579,  # Teleport Thunderbluff.
+        }
+        alliance_only = {
+            665,  # Teleport Stormwind.
+            3581,  # Teleport Ironforge.
+            3578,  # Teleport Darnassus.
+        }
+
+        # trainer_spell: The spell the trainer uses to teach the player.
+        for trainer_spell in trainer_ability_list:
             player_spell_id = trainer_spell.playerspell
+            
+            if player_mgr.team == Teams.TEAM_HORDE and player_spell_id in alliance_only:
+                continue
+            elif player_mgr.team == Teams.TEAM_ALLIANCE and player_spell_id in horde_only:
+                continue
 
             ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(player_spell_id)
 
-            spell_level: int = trainer_spell.reqlevel  # Use this and not spell data, as there are differences between data source (2003 Game Guide) and what is in spell table.
+            # Use this and not spell data, there are differences between (2003 Game Guide) and what is in spell table.
+            spell_level: int = trainer_spell.reqlevel
             spell_rank: int = ability_spell_chain.rank
             prev_spell: int = ability_spell_chain.prev_spell
 
-            spell_is_too_high_level: bool = spell_level > world_session.player_mgr.level
+            spell_is_too_high_level: bool = spell_level > player_mgr.level
 
-            if player_spell_id in world_session.player_mgr.spell_manager.spells:
+            if player_spell_id in player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
-                if prev_spell in world_session.player_mgr.spell_manager.spells and spell_rank > 1 and not spell_is_too_high_level:
+                if prev_spell in player_mgr.spell_manager.spells and spell_rank > 1 and not spell_is_too_high_level:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
                 elif spell_rank == 1 and not spell_is_too_high_level:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
@@ -313,18 +335,18 @@ class CreatureManager(UnitManager):
 
             data: bytes = pack(
                 '<IBI3B6I',
-                trainer_spell.spell,  # Spell id
-                status,  # Status
-                trainer_spell.spellcost,  # Cost
-                trainer_spell.talentpointcost,  # Talent Point Cost
-                trainer_spell.skillpointcost,  # Skill Point Cost
-                spell_level,  # Required Level
-                trainer_spell.reqskill,  # Required Skill Line
-                trainer_spell.reqskillvalue,  # Required Skill Rank
-                0,  # Required Skill Step
-                prev_spell,  # Required Ability (1)
-                0,  # Required Ability (2)
-                0  # Required Ability (3)
+                trainer_spell.spell,  # Trainer Spell id.
+                status,  # Status.
+                trainer_spell.spellcost,  # Cost.
+                trainer_spell.talentpointcost,  # Talent Point Cost.
+                trainer_spell.skillpointcost,  # Skill Point Cost.
+                spell_level,  # Required Level.
+                trainer_spell.reqskill,  # Required Skill Line.
+                trainer_spell.reqskillvalue,  # Required Skill Rank.
+                0,  # Required Skill Step.
+                prev_spell,  # Required Ability (1).
+                0,  # Required Ability (2).
+                0  # Required Ability (3).
             )
             train_spell_bytes += data
             train_spell_count += 1
@@ -333,15 +355,12 @@ class CreatureManager(UnitManager):
         trainer_greeting = WorldDatabaseManager.get_npc_trainer_greeting(self.entry)
         greeting_to_use = trainer_greeting.content_default if trainer_greeting else placeholder_greeting
 
-        greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
-                                                                               greeting_to_use))
-        greeting_bytes = pack(
-                    f'<{len(greeting_bytes)}s',
-                    greeting_bytes
-        )
+        greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(player_mgr, greeting_to_use))
+        greeting_bytes = pack(f'<{len(greeting_bytes)}s', greeting_bytes)
 
-        data = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count) + train_spell_bytes + greeting_bytes
-        world_session.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
+        data_header = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count)
+        data = data_header + train_spell_bytes + greeting_bytes
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 
     def finish_loading(self):
         if self.creature_instance and not self.fully_loaded:
