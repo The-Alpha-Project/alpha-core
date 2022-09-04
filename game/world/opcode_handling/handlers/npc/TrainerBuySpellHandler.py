@@ -53,7 +53,7 @@ class TrainerBuySpellHandler(object):
             player_mgr.remove_talent_points(talent_cost)
             player_mgr.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.SELF,
                                                          validate=False)
-            TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, player_mgr.guid, spell_id)
+            TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, player_mgr.guid, training_spell_id)
 
     @staticmethod
     def handle_trainer_buy_spell(player_mgr, trainer_guid, training_spell_id):
@@ -105,7 +105,7 @@ class TrainerBuySpellHandler(object):
 
         # Succeeded.
         unit.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.UNIT, validate=False)
-        TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, trainer_guid, trainer_spell.spell)
+        TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, trainer_guid, training_spell_id)
 
     @staticmethod
     def send_trainer_buy_fail(player_mgr, trainer_guid: int, spell_id: int, reason: TrainingFailReasons):
