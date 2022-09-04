@@ -296,7 +296,7 @@ class CreatureManager(UnitManager):
         # They were only taught to either alliance or horde.
         horde_only = {
             3577,  # Teleport Undercity.
-            3580,  # Telelport Orgrimmar.
+            3580,  # Teleport Orgrimmar.
             3579,  # Teleport Thunderbluff.
         }
         alliance_only = {
