@@ -354,9 +354,7 @@ class CreatureManager(UnitManager):
         placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
         trainer_greeting = WorldDatabaseManager.get_npc_trainer_greeting(self.entry)
         greeting_to_use = trainer_greeting.content_default if trainer_greeting else placeholder_greeting
-
         greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(player_mgr, greeting_to_use))
-        greeting_bytes = pack(f'<{len(greeting_bytes)}s', greeting_bytes)
 
         data_header = pack('<Q2I', self.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count)
         data = data_header + train_spell_bytes + greeting_bytes
