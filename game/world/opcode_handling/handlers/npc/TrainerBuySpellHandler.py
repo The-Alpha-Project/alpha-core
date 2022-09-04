@@ -50,9 +50,9 @@ class TrainerBuySpellHandler(object):
         if fail_reason:
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
         else:
+            player_mgr.remove_talent_points(talent_cost)
             player_mgr.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.SELF,
                                                          validate=False)
-            player_mgr.remove_talent_points(talent_cost)
             TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, player_mgr.guid, spell_id)
 
     @staticmethod
@@ -96,9 +96,6 @@ class TrainerBuySpellHandler(object):
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
             return
 
-        # Succeeded.
-        unit.spell_manager.handle_cast_attempt(trainer_spell.spell, player_mgr, SpellTargetMask.UNIT, validate=False)
-
         if spell_money_cost > 0:
             player_mgr.mod_money(-spell_money_cost)
 
@@ -106,6 +103,8 @@ class TrainerBuySpellHandler(object):
         if spell_skill_cost > 0:
             player_mgr.remove_skill_points(spell_skill_cost)
 
+        # Succeeded.
+        unit.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.UNIT, validate=False)
         TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, trainer_guid, trainer_spell.spell)
 
     @staticmethod
