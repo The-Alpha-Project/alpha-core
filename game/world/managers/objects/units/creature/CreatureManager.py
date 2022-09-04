@@ -313,7 +313,7 @@ class CreatureManager(UnitManager):
 
             data: bytes = pack(
                 '<IBI3B6I',
-                player_spell_id,  # Spell id
+                trainer_spell.spell,  # Spell id
                 status,  # Status
                 trainer_spell.spellcost,  # Cost
                 trainer_spell.talentpointcost,  # Talent Point Cost
