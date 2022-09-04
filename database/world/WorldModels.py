@@ -550,6 +550,21 @@ class PlayerLevelstats(Base):
     spi = Column(TINYINT(3), nullable=False)
 
 
+class PetLevelstat(Base):
+    __tablename__ = 'pet_levelstats'
+
+    creature_entry = Column(MEDIUMINT(8), primary_key=True, nullable=False)
+    level = Column(TINYINT(3), primary_key=True, nullable=False)
+    hp = Column(SMALLINT(5), nullable=False)
+    mana = Column(SMALLINT(5), nullable=False)
+    armor = Column(INTEGER(10), nullable=False, server_default=text("0"))
+    str = Column(SMALLINT(5), nullable=False)
+    agi = Column(SMALLINT(5), nullable=False)
+    sta = Column(SMALLINT(5), nullable=False)
+    inte = Column(SMALLINT(5), nullable=False)
+    spi = Column(SMALLINT(5), nullable=False)
+
+
 class Playercreateinfo(Base):
     __tablename__ = 'playercreateinfo'
 
@@ -871,6 +886,13 @@ class TrainerTemplate(Base):
     reqskill = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     reqskillvalue = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     reqlevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+
+
+class NpcTrainerGreeting(Base):
+    __tablename__ = 'npc_trainer_greeting'
+
+    entry = Column(INTEGER(11), primary_key=True, server_default=text("0"))
+    content_default = Column(Text, nullable=False)
 
 
 class SpellChain(Base):

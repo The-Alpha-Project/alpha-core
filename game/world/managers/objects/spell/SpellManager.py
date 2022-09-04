@@ -450,6 +450,11 @@ class SpellManager:
                 else:
                     self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
 
+    # TODO, called by SPELL_EFFECT_INTERRUPT_CAST.
+    #  The given spell should be set on a cooldown equal to cooldown_penalty value.
+    def interrupt_cast_by_casting_spell(self, casting_spell, cooldown_penalty=0):
+        self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR, interrupted=False) -> bool:
         if casting_spell not in self.casting_spells:
             return False
@@ -798,6 +803,13 @@ class SpellManager:
                      (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE)):
                 return True
         return False
+
+    def get_casting_spell(self):
+        for spell in list(self.casting_spells):
+            if spell.cast_state == SpellState.SPELL_STATE_CASTING or \
+                    (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE):
+                return spell
+        return None
 
     def validate_cast(self, casting_spell) -> bool:
         if self.is_on_cooldown(casting_spell.spell_entry):

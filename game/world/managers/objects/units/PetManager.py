@@ -11,8 +11,10 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.player.StatManager import UnitStats
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
+from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
@@ -318,7 +320,6 @@ class PetManager:
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
 
         if is_permanent:
-            # TODO Not sure what correct behavior is here.
             pet_info.save(creature)
             creature.leave_combat(force=True)
             creature.despawn(destroy=True)
@@ -454,9 +455,6 @@ class PetManager:
         if not active_pet_info:
             return
 
-        # TODO Only pet damage is based on a formula.
-        #  This method should update other stats as well, but the required table ('pet_levelstats') is missing.
-
         if not reset:
             # From VMaNGOS.
             delay_mod = active_pet_info.creature_template.base_attack_time / 2000
@@ -466,6 +464,22 @@ class PetManager:
         else:
             damage_min = active_pet_info.creature_template.dmg_min
             damage_max = active_pet_info.creature_template.dmg_max
+
+        pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(active_pet_info.creature_template.entry,
+                                                                                active_pet_info.get_level())
+
+        if pet_stats:
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.HEALTH] = pet_stats.hp
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.MANA] = pet_stats.mana
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.RESISTANCE_PHYSICAL] = pet_stats.armor
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.STRENGTH] = pet_stats.str
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.AGILITY] = pet_stats.agi
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.STAMINA] = pet_stats.sta
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.INTELLECT] = pet_stats.inte
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.SPIRIT] = pet_stats.spi
+        else:
+            Logger.warning(f'Unable to locate pet level stats for creature entry '
+                           f'{active_pet_info.creature_template.entry} level {active_pet_info.get_level()}')
 
         self.active_pet.creature.set_melee_damage(int(damage_min), int(damage_max))
         self.active_pet.creature.stat_manager.apply_bonuses()
