@@ -329,11 +329,12 @@ class CreatureManager(UnitManager):
             train_spell_bytes += data
             train_spell_count += 1
 
-        # TODO: Placeholder text, although it seems to appear in most of the trainer screenshots.
-        #  https://imgur.com/a/70OcLjv
         placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
+        trainer_greeting = WorldDatabaseManager.get_npc_trainer_greeting(self.entry)
+        greeting_to_use = trainer_greeting.content_default if trainer_greeting else placeholder_greeting
+
         greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(world_session.player_mgr,
-                                                                               placeholder_greeting))
+                                                                               greeting_to_use))
         greeting_bytes = pack(
                     f'<{len(greeting_bytes)}s',
                     greeting_bytes

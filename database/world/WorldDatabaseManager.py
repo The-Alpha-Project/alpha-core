@@ -66,6 +66,15 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Pet stuff.
+
+    @staticmethod
+    def get_pet_level_stats_by_entry_and_level(entry, level):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PetLevelstat).filter_by(creature_entry=entry, level=level).first()
+        world_db_session.close()
+        return res
+
     # Area stuff.
 
     @staticmethod
@@ -683,9 +692,17 @@ class WorldDatabaseManager(object):
 
     # Trainer stuff.
 
+    @staticmethod
+    def get_npc_trainer_greeting(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(NpcTrainerGreeting).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
     class TrainerSpellHolder:
         TRAINER_SPELLS: dict[tuple[int, int], TrainerTemplate] = {}
-        # Custom constant value for talent trainer template id. Use this value to retrieve talents from trainer_template.
+        # Custom constant value for talent trainer template id.
+        # Use this value to retrieve talents from trainer_template.
         TRAINER_TEMPLATE_TALENT_ID = 1000
         TALENTS: list[TrainerTemplate] = []
 
