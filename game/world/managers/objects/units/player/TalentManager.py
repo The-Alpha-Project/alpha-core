@@ -37,14 +37,17 @@ class TalentManager(object):
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(
                 spell.ID, self.player_mgr)
 
-            if not skill_line_ability:  # Talent is not available for player
+            # Talent is not available for player
+            if not skill_line_ability:
                 continue
 
             spell_item_class = spell.EquippedItemClass
             spell_item_subclass_mask = spell.EquippedItemSubclass
-            if spell_item_class != -1 and spell_item_subclass_mask != 1:  # Check for required proficiencies for this talent
+            # Check for required proficiencies for this talent.
+            if spell_item_class != -1 and spell_item_subclass_mask != 1:
+                # Don't display talent if the player can never learn the proficiency needed.
                 if not self.player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
-                    continue  # Don't display talent if the player can never learn the proficiency needed.
+                    continue
 
             if spell.ID in self.player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
@@ -59,15 +62,15 @@ class TalentManager(object):
             talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             data = pack(
                 '<IBI3B6I',
-                training_spell.playerspell,  # Spell id
-                status,  # Status
-                0,  # Cost
-                talent_points_cost,  # Talent Point Cost
-                0,  # Skill Point Cost
-                spell.BaseLevel,  # Required Level
-                0,  # Required Skill Line
-                0,  # Required Skill Rank
-                0,  # Required Skill Step
+                training_spell.spell,  # Trainer Spell ID.
+                status,  # Status.
+                0,  # Cost.
+                talent_points_cost,  # Talent Point Cost.
+                0,  # Skill Point Cost.
+                spell.BaseLevel,  # Required Level.
+                0,  # Required Skill Line.
+                0,  # Required Skill Rank.
+                0,  # Required Skill Step.
                 skill_line_ability.custom_PrecededBySpell,  # Required Ability (1)
                 0,  # Required Ability (2)
                 0  # Required Ability (3)
