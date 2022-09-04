@@ -293,7 +293,7 @@ class CreatureManager(UnitManager):
             return
 
         # Below spells skill line does not provide a race mask (Any race can use them) but we assume
-        # They were only taught to their either alliance or horde.
+        # They were only taught to either alliance or horde.
         horde_only = {
             3577,  # Teleport Undercity.
             3580,  # Telelport Orgrimmar
