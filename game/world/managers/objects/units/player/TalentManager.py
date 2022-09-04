@@ -37,7 +37,7 @@ class TalentManager(object):
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(
                 spell.ID, self.player_mgr)
 
-            # Talent is not available for player
+            # Talent is not available to player.
             if not skill_line_ability:
                 continue
 
