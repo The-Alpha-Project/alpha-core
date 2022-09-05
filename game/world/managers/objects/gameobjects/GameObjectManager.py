@@ -468,13 +468,7 @@ class GameObjectManager(ObjectManager):
 
             if self.is_spawned and self.initialized:
 
-                # Time to live checks.
-                if self.time_to_live_timer > 0:
-                    self.time_to_live_timer -= elapsed
-                    # Time to live expired, destroy.
-                    if self.time_to_live_timer <= 0:
-                        self.despawn(destroy=True)
-                        return
+
 
                 if self.has_observers():
                     if self.trap_manager:

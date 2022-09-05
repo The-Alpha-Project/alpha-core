@@ -1,4 +1,6 @@
 # coding: utf-8
+from random import choice
+
 from sqlalchemy import CHAR, Column, Float, ForeignKey, Index, String, Table, Text, text
 from sqlalchemy.dialects.mysql import INTEGER, LONGTEXT, MEDIUMINT, SMALLINT, TINYINT
 from sqlalchemy.ext.declarative import declarative_base
@@ -267,6 +269,13 @@ class CreatureTemplate(Base):
 
     quest_involved = relationship('QuestTemplate', secondary='creature_quest_finisher')
     quest_relation = relationship('QuestTemplate', secondary='creature_quest_starter')
+
+    def get_creature_display_id(self):
+        display_id_list = list(filter((0).__ne__, [self.display_id1,
+                                                   self.display_id2,
+                                                   self.display_id3,
+                                                   self.display_id4]))
+        return choice(display_id_list) if len(display_id_list) > 0 else 4  # 4 = Shane Cube.
 
 
 class GameobjectTemplate(Base):

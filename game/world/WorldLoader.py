@@ -6,6 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
@@ -168,17 +169,10 @@ class WorldLoader:
         length = len(creature_spawns)
         count = 0
 
-        for creature in creature_spawns:
-            creature_mgr = CreatureManager(creature_instance=creature)
-            if not creature_mgr.creature_template:
-                Logger.warning(
-                    f'Found creature spawn with non existent creature template(s). '
-                    f'Spawn id: {creature_mgr.creature_instance.spawn_id}. '
-                    f'Spawn entry list: {creature_mgr.creature_entry_list}.'
-                )
-                continue
-            creature_mgr.load()
-            count += 1
+        for creature_spawn in creature_spawns:
+            creature_spawn = CreatureSpawn(creature_spawn)
+            if creature_spawn.spawn_creature():
+                count += 1
             Logger.progress('Loading creature spawns...', count, length)
 
         return length
