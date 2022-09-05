@@ -296,11 +296,6 @@ class CreatureManager(UnitManager):
         for trainer_spell in trainer_ability_list:
             player_spell_id = trainer_spell.playerspell
             
-            if player_mgr.team == Teams.TEAM_HORDE and player_spell_id in alliance_only:
-                continue
-            elif player_mgr.team == Teams.TEAM_ALLIANCE and player_spell_id in horde_only:
-                continue
-
             ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(player_spell_id)
 
             # Use this and not spell data, there are differences between (2003 Game Guide) and what is in spell table.
