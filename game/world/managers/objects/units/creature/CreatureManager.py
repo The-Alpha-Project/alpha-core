@@ -299,6 +299,7 @@ class CreatureManager(UnitManager):
             ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(player_spell_id)
 
             # Use this and not spell data, there are differences between (2003 Game Guide) and what is in spell table.
+            # TODO: Client validates spell data versus dbc information, might not be a good idea to send custom stuff.
             spell_level: int = trainer_spell.reqlevel
             spell_rank: int = ability_spell_chain.rank
             prev_spell: int = ability_spell_chain.prev_spell
