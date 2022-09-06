@@ -2,14 +2,20 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from game.world.managers.maps.MapManager import MapManager
 from struct import unpack
 
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
+
 
 class TrainerListHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        if not player_mgr:
+            return res
+
         if len(reader.data) >= 8:  # Avoid handling empty trainer list packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            player_mgr = world_session.player_mgr
 
             # Player talents.
             if guid == player_mgr.guid:
@@ -30,6 +36,6 @@ class TrainerListHandler(object):
                 if not trainer.can_train(player_mgr) or available_quests > 0:
                     player_mgr.quest_manager.handle_quest_giver_hello(trainer, guid)
                 elif trainer.can_train(player_mgr):
-                    trainer.send_trainer_list(world_session)
+                    trainer.send_trainer_list(player_mgr)
 
         return 0
