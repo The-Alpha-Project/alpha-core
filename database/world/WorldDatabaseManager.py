@@ -705,7 +705,7 @@ class WorldDatabaseManager(object):
         # Use this value to retrieve talents from trainer_template.
         TRAINER_TEMPLATE_TALENT_ID = 1000
         TALENTS: list[TrainerTemplate] = []
-        PLAYER_TALENT_SPELL_BY_TRAINER_SPELL = {}
+        PLAYER_TALENT_SPELL_BY_TRAINER_SPELL: dict[int, int] = {}
 
         @staticmethod
         def load_trainer_spell(trainer_spell: TrainerTemplate):
