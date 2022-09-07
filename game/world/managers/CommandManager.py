@@ -543,7 +543,7 @@ class CommandManager(object):
             gameobject = GameObjectManager.spawn2(3000491, position, world_session.player_mgr.map_, 35, display_id)
             return 0, ''
         except ValueError:
-            return -1, 'please specify a valid display id, distance to spawn the gameobject and optionally a state.'
+            return -1, 'please specify a valid display id and distance to spawn the gameobject.'
 
     @staticmethod
     def demorph(world_session, args):
