@@ -705,13 +705,20 @@ class WorldDatabaseManager(object):
         # Use this value to retrieve talents from trainer_template.
         TRAINER_TEMPLATE_TALENT_ID = 1000
         TALENTS: list[TrainerTemplate] = []
+        PLAYER_TALENT_SPELL_BY_TRAINER_SPELL: dict[int, int] = {}
 
         @staticmethod
         def load_trainer_spell(trainer_spell: TrainerTemplate):
             WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_spell.template_entry, trainer_spell.spell)] = trainer_spell
             # If this trainer template references a talent spell, load it in the corresponding table too.
             if trainer_spell.template_entry == WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID:
+                WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL[trainer_spell.spell] = trainer_spell.playerspell
                 WorldDatabaseManager.TrainerSpellHolder.TALENTS.append(trainer_spell)
+
+        @staticmethod
+        def get_player_spell_by_trainer_spell_id(trainer_spell_id):
+            return WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL[trainer_spell_id] if \
+                trainer_spell_id in WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL else 0
 
         @staticmethod
         def trainer_spells_get_by_trainer(trainer_entry_id: int) -> list[TrainerTemplate]:
