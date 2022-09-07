@@ -26,28 +26,29 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, Teams
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
 # noinspection PyCallByClass
 class CreatureManager(UnitManager):
-    def __init__(self, creature_spawn, creature_template, guid, location, summoner=None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        self.creature_template = creature_template
-        self.creature_spawn = creature_spawn
-        self.guid = self.generate_object_guid(guid)
-        if not summoner:
-            self.location = location
-            self.map_ = creature_spawn.map
-        else:
-            self.location = summoner.location
-            self.map_ = summoner.map_
-
-        # Keep the original position.
-        self.spawn_position = self.location.copy()
-
+        self.guid = 0
+        self.creature_template = None
+        self.location = None
+        self.spawn_position = None
+        self.map_ = 0
+        self.health_percent = 100
+        self.mana_percent = 100
+        self.summoner = None
+        self.addon = None
+        self.spell_id = 0
+        self.despawn_time = 1
+        self.ttl = 0
+        self.faction = 0
+        self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
+        self.react_state = CreatureReactStates.REACT_PASSIVE
         self.npc_flags = 0
         self.static_flags = 0
         self.emote_state = 0
@@ -58,31 +59,27 @@ class CreatureManager(UnitManager):
         self.ranged_attack_time = 0
         self.ranged_dmg_min = 0
         self.ranged_dmg_max = 0
-
         self.destroy_time = 0
         self.destroy_timer = 10000
         self.last_random_movement = 0
         self.random_movement_wait_time = randint(1, 12)
         self.virtual_item_info = {}
-        self.react_state = CreatureReactStates.REACT_PASSIVE
 
+        self.wander_distance = 0
+        self.movement_type = MovementTypes.IDLE
         self.fully_loaded = False
         self.killed_by = None
-        self.summoner = summoner
-        self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
         self.known_players = {}
 
-        # Managers, will be load upon lazy loading trigger.
+        # # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
         self.pickpocket_loot_manager = None
 
-        # All creatures can block, parry and dodge by default.
-        # TODO: Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
+        # # All creatures can block, parry and dodge by default.
+        # # TODO: Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
-
-        self.initialize_from_creature_template(creature_template)
 
     # This can also be used to 'morph' the creature.
     def initialize_from_creature_template(self, creature_template):
@@ -141,8 +138,8 @@ class CreatureManager(UnitManager):
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
 
         self.max_health, self.max_power_1 = self._calculate_max_health_and_max_power(self.level)
-        self.health = int((self.creature_spawn.health_percent / 100) * self.max_health)
-        self.power_1 = int((self.creature_spawn.mana_percent / 100) * self.max_power_1)
+        self.health = int((self.health_percent / 100) * self.max_health)
+        self.power_1 = int((self.mana_percent / 100) * self.max_power_1)
 
         self.last_random_movement = 0
         self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
@@ -162,6 +159,31 @@ class CreatureManager(UnitManager):
         max_health = c_template.health_min + int(rel_level * (c_template.health_max - c_template.health_min))
         max_power1 = c_template.mana_min + int(rel_level * (c_template.mana_max - c_template.mana_min))
         return max_health, max_power1
+
+    @staticmethod
+    def create(guid, creature_template, location, map_id, health_percent, mana_percent, summoner=None, faction=0,
+               despawn_time=1, spell_id=0, ttl=0, addon=None, wander_distance=0, movement_type=MovementTypes.IDLE):
+
+        creature_instance = CreatureManager()
+        creature_instance.guid = guid
+        creature_instance.creature_template = creature_template
+        creature_instance.location = location if not summoner else summoner.location
+        creature_instance.spawn_position = creature_instance.location.copy()
+        creature_instance.map_ = map_id
+        creature_instance.health_percent = health_percent
+        creature_instance.mana_percent = mana_percent
+        creature_instance.summoner = summoner
+        creature_instance.spell_id = spell_id
+        creature_instance.despawn_time = despawn_time
+        creature_instance.ttl = ttl
+        creature_instance.faction = faction if faction else creature_template.faction
+        creature_instance.addon = addon
+        creature_instance.wander_distance = wander_distance
+        creature_instance.movement_type = movement_type
+
+        creature_instance.initialize_from_creature_template(creature_template)
+
+        return creature_instance
 
     @staticmethod
     def spawn(entry, location, map_id, summoner=None, override_faction=0, despawn_time=1, spell_id=0, ttl=0):
@@ -349,7 +371,7 @@ class CreatureManager(UnitManager):
             if self.creature_template.auras:
                 auras = {int(aura) for aura in str(self.creature_template.auras).split()}
 
-            addon = self.creature_spawn.addon
+            addon = self.addon
             if addon:
                 self.set_stand_state(addon.stand_state)
                 self.set_weapon_mode(addon.sheath_state)
@@ -644,17 +666,14 @@ class CreatureManager(UnitManager):
         return len(self.known_players) > 0
 
     def has_wander_type(self):
-        if not self.creature_spawn:
-            return False
-        return self.creature_spawn.movement_type == MovementTypes.WANDER
+        return self.movement_type == MovementTypes.WANDER
 
     def _perform_random_movement(self, now):
         # Do not wander if dead, in combat, while evading or without wander flag.
         if self.is_alive and not self.in_combat and not self.is_evading and self.has_wander_type():
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
-                    self.movement_manager.move_random(self.spawn_position,
-                                                      self.creature_spawn.wander_distance)
+                    self.movement_manager.move_random(self.spawn_position, self.wander_distance)
                     self.random_movement_wait_time = randint(1, 12)
                     self.last_random_movement = now
 
@@ -728,10 +747,6 @@ class CreatureManager(UnitManager):
 
     # override
     def update(self, now):
-        # Update this creature instance spawn if needed.
-        if self.creature_spawn:
-            self.creature_spawn.update(now)
-
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
@@ -763,7 +778,7 @@ class CreatureManager(UnitManager):
                     if target and target != self.combat_target:
                         self.attack(target)
             # Dead creature with no creature spawn parent, handle destroy.
-            elif not self.creature_spawn and not self.is_alive and self.is_spawned and self.initialized:
+            elif not self.summoner and not self.is_alive and self.is_spawned and self.initialized:
                 self.destroy_timer += elapsed
                 if self.destroy_timer >= self.destroy_time:
                     self.despawn(destroy=True)

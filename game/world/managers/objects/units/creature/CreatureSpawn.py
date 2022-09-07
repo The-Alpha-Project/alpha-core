@@ -30,15 +30,20 @@ class CreatureSpawn:
     def spawn_creature(self):
         CreatureSpawn.CURRENT_HIGHEST_GUID += 1
         creature_template = self._generate_creature_template()
+        creature_location = self._get_location()
 
         if not creature_template:
             Logger.warning(f'Found creature spawn with non existent creature template(s). Spawn id: '
                            f'{self.creature_spawn.spawn_id}. ')
             return False
 
-        creature_guid = CreatureSpawn.CURRENT_HIGHEST_GUID
+        guid = CreatureSpawn.CURRENT_HIGHEST_GUID
         self.respawn_time = randint(10, 20)
-        self.creature_instance = CreatureManager(self, creature_template, creature_guid, self.spawn_location)
+        self.creature_instance = CreatureManager.create(guid, creature_template, creature_location, self.map,
+                                                        self.health_percent, self.mana_percent,
+                                                        wander_distance=self.creature_spawn.wander_distance,
+                                                        movement_type=self.creature_spawn.movement_type)
+
         MapManager.update_object(self.creature_instance)
         return True
 
