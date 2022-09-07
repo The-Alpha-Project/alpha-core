@@ -518,7 +518,32 @@ class CommandManager(object):
             unit = CreatureManager.spawn2(18199, position, world_session.player_mgr.map_, 35, display_id)
             return 0, ''
         except ValueError:
-            return -1, 'please specify a valid display id.'
+            return -1, 'please specify a valid display id and distance to spawn the creature.'
+
+    @staticmethod
+    def spg(world_session, args):
+        try:
+            import math
+            from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+
+            display_id, range_ = args.split()
+            display_id = int(display_id)
+            range_ = int(range_)
+
+            surrounding_gameobjects = MapManager.get_surrounding_gameobjects(world_session.player_mgr)
+            for gameobject in surrounding_gameobjects.values():
+                distance = gameobject.location.distance(world_session.player_mgr.location)
+                if gameobject.entry == 3000491:
+                    MapManager.remove_object(gameobject)
+
+            orientation = world_session.player_mgr.location.o
+            position = Vector(math.cos(orientation) * range_, math.sin(orientation) * range_) + world_session.player_mgr.location
+            position.face_point(world_session.player_mgr.location)
+
+            gameobject = GameObjectManager.spawn2(3000491, position, world_session.player_mgr.map_, 35, display_id)
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid display id, distance to spawn the gameobject and optionally a state.'
 
     @staticmethod
     def demorph(world_session, args):
@@ -698,5 +723,6 @@ GM_COMMAND_DEFINITIONS = {
     'guildcreate': CommandManager.guildcreate,
     'alltaxis': CommandManager.alltaxis,
     'morph2': CommandManager.morph2,
-    'sp': CommandManager.sp
+    'sp': CommandManager.sp,
+    'spg': CommandManager.spg
 }

@@ -115,6 +115,43 @@ class GameObjectManager(ObjectManager):
         gameobject.load()
         return gameobject
 
+    @staticmethod
+    def spawn2(entry, location, map_id, override_faction=0, display_id=0, despawn_time=1):
+        go_template = WorldDatabaseManager.gameobject_template_get_by_entry(entry)
+
+        if not go_template:
+            return None
+        go_template.display_id = display_id
+        go_template.name = str(display_id)
+
+        instance = SpawnsGameobjects()
+        instance.spawn_id = GameObjectManager.CURRENT_HIGHEST_GUID + 1
+        instance.spawn_entry = entry
+        instance.spawn_map = map_id
+        instance.spawn_rotation0 = 0
+        instance.spawn_rotation2 = 0
+        instance.spawn_rotation1 = 0
+        instance.spawn_rotation3 = 0
+        instance.spawn_positionX = location.x
+        instance.spawn_positionY = location.y
+        instance.spawn_positionZ = location.z
+        instance.spawn_orientation = location.o
+        if despawn_time < 1:
+            despawn_time = 1
+        instance.spawn_spawntimemin = despawn_time
+        instance.spawn_spawntimemax = despawn_time
+
+        gameobject = GameObjectManager(
+            gobject_template=go_template,
+            gobject_instance=instance,
+            is_summon=True
+        )
+        if override_faction > 0:
+            gameobject.faction = override_faction
+
+        gameobject.load()
+        return gameobject
+
     def _handle_use_door(self, player):
         # TODO: Check locks etc.
         self.set_active()
