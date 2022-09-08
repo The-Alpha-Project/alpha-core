@@ -22,12 +22,24 @@ class CreatureSpawn:
         self.map_ = creature_spawn.map
         self.location = self._get_location()
         self.addon = creature_spawn.addon
-        self.spawn_location = self._get_location()
         self.creature_instance: Optional[CreatureManager] = None
         self.respawn_timer = 0
         self.respawn_time = 0
-        self.time_to_live_timer = 0
         self.last_tick = 0
+
+    def update(self, now):
+        if now > self.last_tick > 0:
+            elapsed = now - self.last_tick
+            creature = self.creature_instance
+            if creature:
+                creature.update(now)
+                if (not creature.is_alive or not creature.is_spawned) and creature.initialized:
+                    self._update_respawn(elapsed)
+            else:
+                self._update_respawn(elapsed)
+
+        self.last_tick = now
+        return self.creature_instance.guid if self.creature_instance else 0
 
     def spawn_creature(self):
         CreatureSpawn.CURRENT_HIGHEST_GUID += 1
@@ -39,7 +51,8 @@ class CreatureSpawn:
             return False
 
         creature_location = self._get_location()
-        self.respawn_time = randint(10, 20)
+        self.respawn_timer = 0
+        self.respawn_time = randint(self.creature_spawn.spawntimesecsmin, self.creature_spawn.spawntimesecsmax)
         self.creature_instance = CreatureManager.create(CreatureSpawn.CURRENT_HIGHEST_GUID, creature_template,
                                                         creature_location, self.map_,
                                                         self.health_percent, self.mana_percent,
@@ -49,43 +62,15 @@ class CreatureSpawn:
         MapManager.spawn_object(self, self.creature_instance)
         return True
 
-    def update(self, now):
-        if now > self.last_tick > 0:
-            elapsed = now - self.last_tick
-            creature = self.creature_instance
-            if creature:
-                if creature.is_alive and creature.is_spawned and creature.initialized:
-                    # Time to live checks, return false if destroyed.
-                    if not self._update_time_to_live(elapsed):
-                        return
-                    creature.update(now)
-                elif (not creature.is_alive or not creature.is_spawned) and creature.initialized:
-                    self._update_respawn(elapsed)
-            else:
-                self._update_respawn(elapsed)
-
-        self.last_tick = now
-        return self.creature_instance.guid if self.creature_instance else 0
-
     def _update_respawn(self, elapsed):
         self.respawn_timer += elapsed
+        # Spawn a new creature instance when needed.
         if self.respawn_timer >= self.respawn_time:
             self.spawn_creature()
-        # Destroy body when creature is about to respawn.
+        # Destroy the current creature instance body when respawn timer is about to expire.
         elif self.creature_instance:
-            print(self.respawn_timer)
             if self.creature_instance.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
                 self.despawn()
-
-    def _update_time_to_live(self, elapsed):
-        if self.time_to_live_timer > 0:
-            self.time_to_live_timer -= elapsed
-            # Time to live expired, destroy.
-            if self.time_to_live_timer <= 0:
-                self.creature_instance.despawn(destroy=True)
-                self.creature_instance = None
-                return False
-        return True
 
     def despawn(self):
         if self.creature_instance:

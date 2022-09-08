@@ -778,9 +778,10 @@ class CreatureManager(UnitManager):
                     if target and target != self.combat_target:
                         self.attack(target)
             # Dead creature with no creature spawn parent, handle destroy.
-            elif not self.summoner and not self.is_alive and self.is_spawned and self.initialized:
+            elif self.summoner and not self.is_alive and self.is_spawned and self.initialized:
                 self.destroy_timer += elapsed
                 if self.destroy_timer >= self.destroy_time:
+                    print('Destroy standalone.')
                     self.despawn(destroy=True)
                     return
 
