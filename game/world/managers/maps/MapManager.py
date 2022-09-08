@@ -352,6 +352,15 @@ class MapManager:
             Logger.warning(f'Warning, did not find grid_manager for map: {world_object.map_}')
 
     @staticmethod
+    def spawn_object(world_object_spawn=None, world_object_instance=None):
+        map_ = world_object_spawn.map_ if world_object_spawn else world_object_instance.map_
+        grid_manager = MapManager.get_grid_manager_by_map_id(map_)
+        if grid_manager:
+            grid_manager.spawn_object(world_object_spawn, world_object_instance)
+        else:
+            Logger.warning(f'Warning, did not find grid_manager for map: {map_}')
+
+    @staticmethod
     def remove_object(world_object):
         MapManager.get_grid_manager_by_map_id(world_object.map_).remove_object(world_object)
 

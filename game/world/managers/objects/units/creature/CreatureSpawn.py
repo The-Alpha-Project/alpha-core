@@ -14,11 +14,13 @@ class CreatureSpawn:
 
     def __init__(self, creature_spawn):
         self.creature_spawn: SpawnsCreatures = creature_spawn
+        self.spawn_id = creature_spawn.spawn_id
         self.movement_type = creature_spawn.movement_type
         self.wander_distance = creature_spawn.wander_distance
         self.health_percent = creature_spawn.health_percent
         self.mana_percent = creature_spawn.mana_percent
-        self.map = creature_spawn.map
+        self.map_ = creature_spawn.map
+        self.location = self._get_location()
         self.addon = creature_spawn.addon
         self.spawn_location = self._get_location()
         self.creature_instance: Optional[CreatureManager] = None
@@ -30,21 +32,21 @@ class CreatureSpawn:
     def spawn_creature(self):
         CreatureSpawn.CURRENT_HIGHEST_GUID += 1
         creature_template = self._generate_creature_template()
-        creature_location = self._get_location()
 
         if not creature_template:
             Logger.warning(f'Found creature spawn with non existent creature template(s). Spawn id: '
                            f'{self.creature_spawn.spawn_id}. ')
             return False
 
-        guid = CreatureSpawn.CURRENT_HIGHEST_GUID
+        creature_location = self._get_location()
         self.respawn_time = randint(10, 20)
-        self.creature_instance = CreatureManager.create(guid, creature_template, creature_location, self.map,
+        self.creature_instance = CreatureManager.create(CreatureSpawn.CURRENT_HIGHEST_GUID, creature_template,
+                                                        creature_location, self.map_,
                                                         self.health_percent, self.mana_percent,
                                                         wander_distance=self.creature_spawn.wander_distance,
                                                         movement_type=self.creature_spawn.movement_type)
 
-        MapManager.update_object(self.creature_instance)
+        MapManager.spawn_object(self, self.creature_instance)
         return True
 
     def update(self, now):
@@ -53,15 +55,17 @@ class CreatureSpawn:
             creature = self.creature_instance
             if creature:
                 if creature.is_alive and creature.is_spawned and creature.initialized:
-                    # Time to live checks.
+                    # Time to live checks, return false if destroyed.
                     if not self._update_time_to_live(elapsed):
                         return
+                    creature.update(now)
                 elif (not creature.is_alive or not creature.is_spawned) and creature.initialized:
                     self._update_respawn(elapsed)
             else:
                 self._update_respawn(elapsed)
 
         self.last_tick = now
+        return self.creature_instance.guid if self.creature_instance else 0
 
     def _update_respawn(self, elapsed):
         self.respawn_timer += elapsed
