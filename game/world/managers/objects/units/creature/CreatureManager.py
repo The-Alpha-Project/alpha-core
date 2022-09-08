@@ -165,7 +165,7 @@ class CreatureManager(UnitManager):
                despawn_time=1, spell_id=0, ttl=0, addon=None, wander_distance=0, movement_type=MovementTypes.IDLE):
 
         creature_instance = CreatureManager()
-        creature_instance.guid = guid
+        creature_instance.guid = creature_instance.generate_object_guid(guid)
         creature_instance.creature_template = creature_template
         creature_instance.location = location if not summoner else summoner.location
         creature_instance.spawn_position = creature_instance.location.copy()
