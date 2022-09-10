@@ -1,11 +1,12 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.guids.GuidManager import GuidManager
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.UnitCodes import MovementTypes, UnitFlags
 
 
 class CreatureBuilder:
-    CURRENT_HIGHEST_GUID = 0
+    GUID_MANAGER = GuidManager()
 
     @staticmethod
     def create(entry, location, map_id, health_percent, mana_percent, summoner=None, faction=0,
@@ -16,10 +17,9 @@ class CreatureBuilder:
         if not creature_template:
             return None
 
-        CreatureBuilder.CURRENT_HIGHEST_GUID += 1
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_instance = CreatureManager()
-        creature_instance.guid = creature_instance.generate_object_guid(CreatureBuilder.CURRENT_HIGHEST_GUID)
+        creature_instance.guid = creature_instance.generate_object_guid(CreatureBuilder.GUID_MANAGER.get_new_guid())
         creature_instance.creature_template = creature_template
         creature_instance.location = location
         creature_instance.spawn_position = creature_instance.location.copy()

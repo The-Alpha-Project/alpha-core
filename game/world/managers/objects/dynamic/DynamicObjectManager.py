@@ -1,12 +1,13 @@
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.guids.GuidManager import GuidManager
 from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
 from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 
 
 # TODO: Finish implementing.
 class DynamicObjectManager(ObjectManager):
-    CURRENT_HIGHEST_GUID = 0
+    GUID_MANAGER = GuidManager()
 
     def __init__(self, owner, location, radius, spell_id, dynamic_type, **kwargs):
         super().__init__(**kwargs)
@@ -18,8 +19,7 @@ class DynamicObjectManager(ObjectManager):
         self.spell_id = spell_id
         self.radius = radius
 
-        DynamicObjectManager.CURRENT_HIGHEST_GUID += 1
-        self.guid = self.generate_object_guid(DynamicObjectManager.CURRENT_HIGHEST_GUID)
+        self.guid = self.generate_object_guid(DynamicObjectManager.GUID_MANAGER.get_new_guid())
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_DYNAMICOBJECT
         self.update_packet_factory.init_values(self.owner, DynamicObjectFields)

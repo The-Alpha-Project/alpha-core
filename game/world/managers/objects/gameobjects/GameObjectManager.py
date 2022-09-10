@@ -15,6 +15,7 @@ from game.world.managers.objects.gameobjects.RitualManager import RitualManager
 from game.world.managers.objects.gameobjects.SpellFocusManager import SpellFocusManager
 from game.world.managers.objects.gameobjects.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.guids.GuidManager import GuidManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
@@ -25,7 +26,7 @@ from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFie
 
 
 class GameObjectManager(ObjectManager):
-    CURRENT_HIGHEST_GUID = 0
+    GUID_MANAGER = GuidManager()
 
     def __init__(self,
                  gobject_template,
@@ -53,10 +54,7 @@ class GameObjectManager(ObjectManager):
             self.flags |= GameObjectFlags.TRIGGERED
 
         if gobject_instance:
-            if GameObjectManager.CURRENT_HIGHEST_GUID < gobject_instance.spawn_id:
-                GameObjectManager.CURRENT_HIGHEST_GUID = gobject_instance.spawn_id
-
-            self.guid = self.generate_object_guid(gobject_instance.spawn_id)
+            self.guid = self.generate_object_guid(GameObjectManager.GUID_MANAGER.get_new_guid())
             self.state = self.gobject_instance.spawn_state
             self.location.x = self.gobject_instance.spawn_positionX
             self.location.y = self.gobject_instance.spawn_positionY
@@ -144,7 +142,7 @@ class GameObjectManager(ObjectManager):
             return None
 
         instance = SpawnsGameobjects()
-        instance.spawn_id = GameObjectManager.CURRENT_HIGHEST_GUID + 1
+        instance.spawn_id = GameObjectManager.GUID_MANAGER.get_new_guid()
         instance.spawn_entry = entry
         instance.spawn_map = map_id
         instance.spawn_rotation0 = 0

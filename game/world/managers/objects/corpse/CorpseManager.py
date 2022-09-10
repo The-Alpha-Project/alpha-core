@@ -1,7 +1,6 @@
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.guids.GuidManager import GuidManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from utils.ByteUtils import ByteUtils
 from utils.constants.ItemCodes import InventorySlots
@@ -10,7 +9,7 @@ from utils.constants.UpdateFields import ObjectFields, CorpseFields
 
 
 class CorpseManager(ObjectManager):
-    CURRENT_HIGHEST_GUID = 0
+    GUID_MANAGER = GuidManager()
 
     def __init__(self, owner: PlayerManager, **kwargs):
         super().__init__(**kwargs)
@@ -23,8 +22,7 @@ class CorpseManager(ObjectManager):
         self.current_display_id = owner.native_display_id
         self.ttl = 600  # 10 Minutes.
 
-        CorpseManager.CURRENT_HIGHEST_GUID += 1
-        self.guid = self.generate_object_guid(CorpseManager.CURRENT_HIGHEST_GUID)
+        self.guid = self.generate_object_guid(CorpseManager.GUID_MANAGER.get_new_guid())
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_CORPSE
         self.update_packet_factory.init_values(self.owner, CorpseFields)
