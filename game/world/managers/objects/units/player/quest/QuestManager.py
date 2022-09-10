@@ -5,10 +5,9 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-from game.world.managers.objects.units.creature.utils.QueryUtils import QueryUtils
+from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
@@ -593,11 +592,11 @@ class QuestManager(object):
             if creature_or_go < 0:
                 go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(-creature_or_go)
                 if go_template:
-                    self.player_mgr.enqueue_packet(GameObjectManager.query_details(gobject_template=go_template))
+                    self.player_mgr.enqueue_packet(GoQueryUtils.query_details(gobject_template=go_template))
             elif creature_or_go > 0:
                 creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_go)
                 if creature_template:
-                    self.player_mgr.enqueue_packet(QueryUtils.query_details(creature_template))
+                    self.player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_template))
 
         # Objective texts.
         req_objective_text_list = QuestHelpers.generate_objective_text_list(quest)

@@ -69,6 +69,11 @@ class ObjectManager:
         self.movement_spline = None
         self.object_ai = None
 
+        # Units and gameobjects have SpellManager.
+        from game.world.managers.objects.spell.SpellManager import SpellManager
+        if self.object_type_mask & ObjectTypeFlags.TYPE_UNIT or self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            self.spell_manager = SpellManager(self)
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.guid == other.guid
@@ -320,13 +325,9 @@ class ObjectManager:
         pass
 
     # override
-    def despawn(self, destroy=False):
-        # is_spawned should be set to False in both cases.
+    def despawn(self):
         self.is_spawned = False
-        if destroy:
-            MapManager.remove_object(self)
-        else:
-            MapManager.despawn_object(self)
+        MapManager.remove_object(self)
 
     # override
     def respawn(self):

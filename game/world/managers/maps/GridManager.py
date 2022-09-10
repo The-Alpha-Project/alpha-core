@@ -92,22 +92,6 @@ class GridManager:
                 for creature in list(cell.creatures.values()):
                     self.active_cell_callback(creature)
 
-    # Make a world object not visible to its surroundings but keep it inside a cell.
-    def despawn_object(self, world_object, update_player=True):
-        world_object.is_spawned = False
-        if update_player:
-            cell = self.cells.get(world_object.current_cell)
-            if cell:
-                self.update_players(cell.key)
-
-    # Turn an existing world object visible to its surroundings.
-    def respawn_object(self, world_object, update_players=True):
-        world_object.is_spawned = True
-        if update_players:
-            cell = self.cells.get(world_object.current_cell)
-            if cell:
-                self.update_players(cell.key)
-
     # Destroy a world_object from others and remove it from its cell.
     def remove_object(self, world_object, update_players=True):
         cell = self.cells.get(world_object.current_cell)
@@ -246,6 +230,14 @@ class GridManager:
         else:
             return res[0]
 
+    def get_surrounding_unit_spawns(self, world_object):
+        spawns = {}
+        location = world_object.location
+        for cell in self.get_surrounding_cells_by_location(location.x, location.y, world_object.map_):
+            for spawn_id, spawn in list(cell.creatures_spawns.items()):
+                spawns[spawn_id] = spawn
+        return spawns
+
     def get_surrounding_units_by_location(self, vector, target_map, range_, include_players=False):
         units = [{}, {}]
         for cell in self.get_surrounding_cells_by_location(vector.x, vector.y, target_map):
@@ -270,6 +262,14 @@ class GridManager:
     def get_surrounding_gameobjects(self, world_object):
         return self.get_surrounding_objects(world_object, [ObjectTypeIds.ID_GAMEOBJECT])[0]
 
+    def get_surrounding_gameobjects_spawns(self, world_object):
+        spawns = {}
+        location = world_object.location
+        for cell in self.get_surrounding_cells_by_location(location.x, location.y, world_object.map_):
+            for spawn_id, spawn in list(cell.gameobject_spawns.items()):
+                spawns[spawn_id] = spawn
+        return spawns
+
     def get_surrounding_player_by_guid(self, world_object, guid):
         for p_guid, player in list(self.get_surrounding_players(world_object).items()):
             if p_guid == guid:
@@ -290,10 +290,24 @@ class GridManager:
 
         return None
 
+    def get_surrounding_unit_by_spawn_id(self, world_object, spawn_id_):
+        surrounding_units = self.get_surrounding_unit_spawns(world_object)
+        for spawn_id, spawn in surrounding_units.items():
+            if spawn_id_ == spawn_id:
+                return spawn
+        return None
+
     def get_surrounding_gameobject_by_guid(self, world_object, guid):
         for g_guid, gameobject in list(self.get_surrounding_gameobjects(world_object).items()):
             if g_guid == guid:
                 return gameobject
+        return None
+
+    def get_surrounding_gameobject_by_spawn_id(self, world_object, spawn_id_):
+        surrounding_gameobjects = self.get_surrounding_gameobject_spawns(world_object)
+        for spawn_id, spawn in surrounding_gameobjects.items():
+            if spawn_id_ == spawn_id:
+                return spawn
         return None
 
     def get_create_cell(self, vector, map_) -> Cell:
@@ -334,13 +348,9 @@ class GridManager:
     def update_gameobjects(self):
         now = time.time()
         for key in list(self.active_cell_keys):
-            cell = self.cells[key]
-            for guid, gameobject in list(cell.gameobjects.items()):
-                gameobject.update(now)
+            self.cells[key].update_gameobject(now)
 
     def update_corpses(self):
         now = time.time()
         for key in list(self.active_cell_keys):
-            cell = self.cells[key]
-            for guid, corpse in list(cell.corpses.items()):
-                corpse.update(now)
+            self.cells[key].update_corpses(now)

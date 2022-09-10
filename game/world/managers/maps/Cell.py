@@ -9,12 +9,15 @@ class Cell:
         self.max_y = max_y
         self.map_ = map_
         self.key = key
-        self.creatures_spawns = dict()
+        # Instances.
         self.gameobjects = dict()
         self.creatures = dict()
         self.players = dict()
         self.dynamic_objects = dict()
         self.corpses = dict()
+        # Spawns.
+        self.creatures_spawns = dict()
+        self.gameobject_spawns = dict()
 
         if not key:
             self.key = f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:{self.map_}'
@@ -34,7 +37,11 @@ class Cell:
         return False
 
     def add_world_object_spawn(self, world_object_spawn):
-        self.creatures_spawns[world_object_spawn.spawn_id] = world_object_spawn
+        from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
+        if isinstance(world_object_spawn, CreatureSpawn):
+            self.creatures_spawns[world_object_spawn.spawn_id] = world_object_spawn
+        else:
+            self.gameobject_spawns[world_object_spawn.spawn_id] = world_object_spawn
 
     def add_world_object(self, world_object):
         # Update world_object cell so the below messages affect the new cell surroundings.
@@ -53,11 +60,27 @@ class Cell:
 
     def update_creatures(self, now):
         updated_by_spawn = set()
+        # Update creatures Spawns.
         for spawn_id, spawn_creature in list(self.creatures_spawns.items()):
             updated_by_spawn.add(spawn_creature.update(now))
+        # Update orphan creature instances.
         for guid, creature in list(self.creatures.items()):
             if guid not in updated_by_spawn:
                 creature.update(now)
+
+    def update_gameobject(self, now):
+        updated_by_spawn = set()
+        # Update gameobjects Spawns.
+        for spawn_id, spawn_gameobject in list(self.gameobject_spawns.items()):
+            updated_by_spawn.add(spawn_gameobject.update(now))
+        # Update orphan gameobject instances.
+        for guid, gameobject in list(self.gameobjects.items()):
+            if guid not in updated_by_spawn:
+                gameobject.update(now)
+
+    def update_corpses(self, now):
+        for guid, corpse in list(self.corpses.items()):
+            corpse.update(now)
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
     def update_players(self, world_object=None, has_changes=False, has_inventory_changes=False):

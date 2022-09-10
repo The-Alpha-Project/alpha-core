@@ -4,7 +4,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 
 
-class QueryUtils:
+class UnitQueryUtils:
 
     @staticmethod
     def query_details(creature_template=None, creature_mgr=None):

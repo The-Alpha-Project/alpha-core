@@ -10,12 +10,11 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
-from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-from game.world.managers.objects.units.creature.utils.QueryUtils import QueryUtils
+from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -416,7 +415,7 @@ class PlayerManager(UnitManager):
                 active_objects[guid] = creature
                 if guid not in self.known_objects or not self.known_objects[guid]:
                     # We don't know this creature, notify self with its update packet.
-                    self.enqueue_packet(QueryUtils.query_details(creature_mgr=creature))
+                    self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
                     if creature.is_spawned:
                         self.enqueue_packet(creature.generate_create_packet(requester=self))
                         # Get partial movement packet if any.
@@ -439,7 +438,7 @@ class PlayerManager(UnitManager):
                 active_objects[guid] = gobject
                 if guid not in self.known_objects or not self.known_objects[guid]:
                     # We don't know this game object, notify self with its update packet.
-                    self.enqueue_packet(GameObjectManager.query_details(gameobject_mgr=gobject))
+                    self.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject))
                     if gobject.is_spawned:
                         self.enqueue_packet(gobject.generate_create_packet(requester=self))
                         # We only consider 'known' if its spawned, the details query is still sent.

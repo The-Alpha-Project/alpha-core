@@ -27,6 +27,7 @@ from utils.constants.UpdateFields import ObjectFields, UnitFields
 class CreatureManager(UnitManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.entry = 0
         self.guid = 0
         self.creature_template = None
         self.location = None
@@ -37,7 +38,6 @@ class CreatureManager(UnitManager):
         self.summoner = None
         self.addon = None
         self.spell_id = 0
-        self.despawn_time = 1
         self.time_to_live_timer = 0
         self.faction = 0
         self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
@@ -79,8 +79,8 @@ class CreatureManager(UnitManager):
         if not creature_template:
             return
 
+        self.entry = creature_template.entry
         self.creature_template = creature_template
-
         self.entry = self.creature_template.entry
         self.class_ = self.creature_template.unit_class
         self.resistance_0 = self.creature_template.armor
@@ -113,6 +113,7 @@ class CreatureManager(UnitManager):
             self.react_state = CreatureReactStates.REACT_DEFENSIVE
         else:
             self.react_state = CreatureReactStates.REACT_AGGRESSIVE
+
         self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
 
         self.mod_cast_speed = 1
@@ -538,7 +539,7 @@ class CreatureManager(UnitManager):
         if self.summoner and not self.is_alive and self.is_spawned and self.initialized:
             self.destroy_timer += elapsed
             if self.destroy_timer >= self.destroy_time:
-                self.despawn(destroy=True)
+                self.despawn()
                 return False
         return True
 
@@ -547,7 +548,7 @@ class CreatureManager(UnitManager):
             self.time_to_live_timer -= elapsed
             # Time to live expired, destroy.
             if self.time_to_live_timer <= 0:
-                self.despawn(destroy=True)
+                self.despawn()
                 return False
         return True
 

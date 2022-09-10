@@ -462,7 +462,7 @@ class SpellManager:
         self.casting_spells.remove(casting_spell)
 
         if casting_spell.dynamic_object:
-            casting_spell.dynamic_object.despawn(destroy=True)
+            casting_spell.dynamic_object.despawn()
 
         # Cancel auras applied by an active spell if the spell was interrupted.
         # If the cast finished normally, auras should wear off because of duration.

@@ -1,19 +1,17 @@
 import math
 from math import pi, cos, sin
-from random import randint
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager, SpawnsGameobjects
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.gameobjects.FishingNodeManager import FishingNodeManager
+from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
-from game.world.managers.objects.gameobjects.GooberManager import GooberManager
-from game.world.managers.objects.gameobjects.MiningNodeManager import MiningNodeManager
-from game.world.managers.objects.gameobjects.RitualManager import RitualManager
-from game.world.managers.objects.gameobjects.SpellFocusManager import SpellFocusManager
-from game.world.managers.objects.gameobjects.TrapManager import TrapManager
+from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager
+from game.world.managers.objects.gameobjects.managers.MiningNodeManager import MiningNodeManager
+from game.world.managers.objects.gameobjects.managers.RitualManager import RitualManager
+from game.world.managers.objects.gameobjects.managers.SpellFocusManager import SpellFocusManager
+from game.world.managers.objects.gameobjects.managers.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
 from network.packet.PacketWriter import PacketWriter
@@ -28,48 +26,32 @@ from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFie
 class GameObjectManager(ObjectManager):
     GUID_MANAGER = GuidManager()
 
-    def __init__(self,
-                 gobject_template,
-                 gobject_instance=None,
-                 summoner=None,
-                 **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-        self.gobject_template = gobject_template
-        self.gobject_instance = gobject_instance
-        self.summoner = summoner
+        self.entry = 0
+        self.guid = 0
+        self.gobject_template = None
+        self.location = None
+        self.rot0 = 0
+        self.rot1 = 0
+        self.rot2 = 0
+        self.rot3 = 0
+        self.summoner = None
         self.spell_id = 0  # Spell that summoned this object.
         self.known_players = {}
 
-        self.entry = self.gobject_template.entry
-        self.native_display_id = self.gobject_template.display_id
-        self.current_display_id = self.native_display_id
-        self.native_scale = self.gobject_template.scale
-        self.current_scale = self.native_scale
-        self.faction = self.gobject_template.faction
+        self.native_display_id = 0
+        self.current_display_id = 0
+        self.native_scale = 0
+        self.current_scale = 0
+        self.faction = 0
         self.lock = 0  # Unlocked.
-        self.flags = self.gobject_template.flags
-
-        if self.summoner:
-            self.flags |= GameObjectFlags.TRIGGERED
-
-        if gobject_instance:
-            self.guid = self.generate_object_guid(GameObjectManager.GUID_MANAGER.get_new_guid())
-            self.state = self.gobject_instance.spawn_state
-            self.location.x = self.gobject_instance.spawn_positionX
-            self.location.y = self.gobject_instance.spawn_positionY
-            self.location.z = self.gobject_instance.spawn_positionZ
-            self.location.o = self.gobject_instance.spawn_orientation
-            # If spawned by another unit, use that unit map and zone.
-            self.map_ = self.gobject_instance.spawn_map if not self.summoner else self.summoner.map_
-            self.zone = self.summoner.zone if self.summoner else 0
-            self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
-                                        self.gobject_instance.spawn_spawntimemax)
+        self.flags = 0
+        self.state = 0
 
         self.object_type_mask |= ObjectTypeFlags.TYPE_GAMEOBJECT
         self.update_packet_factory.init_values(self.guid, GameObjectFields)
 
-        self.respawn_timer = 0
         self.time_to_live_timer = 0
         self.loot_manager = None  # Optional.
         self.trap_manager = None  # Optional.
@@ -79,9 +61,19 @@ class GameObjectManager(ObjectManager):
         self.ritual_manager = None  # Optional.
         self.spell_focus_manager = None  # Optional.
 
-        # TODO: Can't we just initialize this directly on ObjectManager for all children?
-        from game.world.managers.objects.spell.SpellManager import SpellManager  # Local due to circular imports.
-        self.spell_manager = SpellManager(self)
+    def initialize_from_gameobject_template(self, gobject_template):
+        if not gobject_template:
+            return
+
+        self.entry = gobject_template.entry
+        self.gobject_template = gobject_template
+        self.native_display_id = self.gobject_template.display_id
+        self.current_display_id = self.native_display_id
+        self.native_scale = self.gobject_template.scale
+        self.current_scale = self.native_scale
+        self.faction = self.gobject_template.faction
+        self.lock = 0  # Unlocked.
+        self.flags = self.gobject_template.flags
 
         # Loot initialization.
         if self.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
@@ -127,61 +119,14 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.lock = gobject_template.data0
 
-    def load(self):
-        MapManager.update_object(self)
-
     def is_mining_node(self):
         return self.gobject_template and self.gobject_template.type == GameObjectTypes.TYPE_CHEST and \
                self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4
 
-    @staticmethod
-    def spawn(entry, location, map_id, summoner=None, spell_id=0, override_faction=0, despawn_time=1, ttl=0):
-        go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry)
-
-        if not go_template:
-            return None
-
-        instance = SpawnsGameobjects()
-        instance.spawn_id = GameObjectManager.GUID_MANAGER.get_new_guid()
-        instance.spawn_entry = entry
-        instance.spawn_map = map_id
-        instance.spawn_rotation0 = 0
-        instance.spawn_rotation2 = 0
-        instance.spawn_rotation1 = 0
-        instance.spawn_rotation3 = 0
-        instance.spawn_positionX = location.x
-        instance.spawn_positionY = location.y
-        instance.spawn_positionZ = location.z
-        instance.spawn_orientation = location.o
-        if despawn_time < 1:
-            despawn_time = 1
-        instance.spawn_spawntimemin = despawn_time
-        instance.spawn_spawntimemax = despawn_time
-        instance.spawn_state = GameObjectStates.GO_STATE_READY
-
-        gameobject = GameObjectManager(
-            gobject_template=go_template,
-            gobject_instance=instance,
-            summoner=summoner
-        )
-
-        if ttl > 0:
-            gameobject.time_to_live_timer = ttl
-
-        if spell_id:
-            gameobject.spell_id = spell_id
-
-        if override_faction:
-            gameobject.faction = override_faction
-            gameobject.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, override_faction)
-
-        gameobject.load()
-        return gameobject
-
     def handle_loot_release(self, player):
         # On loot release, always despawn the fishing bobber regardless of it still having loot or not.
         if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
-            self.despawn(True)
+            self.despawn()
             return
 
         if self.loot_manager:
@@ -191,7 +136,7 @@ class GameObjectManager(ObjectManager):
                 if self.loot_manager.has_loot():
                     self.set_ready()
                 else:  # Despawn or destroy.
-                    self.despawn(True if self.summoner else False)
+                    self.despawn()
             # Mining node.
             else:
                 self.mining_node_manager.handle_looted(player)
@@ -391,7 +336,7 @@ class GameObjectManager(ObjectManager):
     # override
     def initialize_field_values(self):
         # Initial field values, after this, fields must be modified by setters or directly writing values to them.
-        if not self.initialized and self.gobject_template and self.gobject_instance:
+        if not self.initialized and self.gobject_template:
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
             self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
@@ -404,15 +349,15 @@ class GameObjectManager(ObjectManager):
             self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
             self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.faction)
             self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
-            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION, self.gobject_instance.spawn_rotation0)
-            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 1, self.gobject_instance.spawn_rotation1)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION, self.rot0)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 1, self.rot1)
 
-            if self.gobject_instance.spawn_rotation2 == 0 and self.gobject_instance.spawn_rotation3 == 0:
+            if self.rot2 == 0 and self.rot3 == 0:
                 f_rot1 = math.sin(self.location.o / 2.0)
                 f_rot2 = math.cos(self.location.o / 2.0)
             else:
-                f_rot1 = self.gobject_instance.spawn_rotation2
-                f_rot2 = self.gobject_instance.spawn_rotation3
+                f_rot1 = self.rot2
+                f_rot2 = self.rot3
 
             self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 2, f_rot1)
             self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 3, f_rot2)
@@ -423,41 +368,9 @@ class GameObjectManager(ObjectManager):
 
             self.initialized = True
 
-    @staticmethod
-    def query_details(gobject_template=None, gameobject_mgr=None):
-        go_template = gameobject_mgr.gobject_template if gameobject_mgr else gobject_template
-        name_bytes = PacketWriter.string_to_bytes(go_template.name)
-        data = pack(
-            f'<3I{len(name_bytes)}ssss10I',
-            go_template.entry,
-            go_template.type,
-            gameobject_mgr.current_display_id if gameobject_mgr else go_template.display_id,
-            name_bytes, b'\x00', b'\x00', b'\x00',
-            go_template.data0,
-            go_template.data1,
-            go_template.data2,
-            go_template.data3,
-            go_template.data4,
-            go_template.data5,
-            go_template.data6,
-            go_template.data7,
-            go_template.data8,
-            go_template.data9
-        )
-        return PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_QUERY_RESPONSE, data)
-
     # override
     def respawn(self):
-        # Set properties before making it visible.
-        self.set_state(GameObjectStates.GO_STATE_READY)
-        self.respawn_timer = 0
-        self.respawn_time = randint(self.gobject_instance.spawn_spawntimemin,
-                                    self.gobject_instance.spawn_spawntimemin)
-
-        if self.gobject_template.type == GameObjectTypes.TYPE_TRAP:
-            self.trap_manager.reset()
-
-        MapManager.respawn_object(self)
+        pass
 
     # override
     def update(self, now):
@@ -465,8 +378,9 @@ class GameObjectManager(ObjectManager):
             elapsed = now - self.last_tick
 
             if self.is_spawned and self.initialized:
-
-
+                # Time to live checks for standalone instances.
+                if not self._check_time_to_live(elapsed):
+                    return  # Object destroyed.
 
                 if self.has_observers():
                     if self.trap_manager:
@@ -479,22 +393,21 @@ class GameObjectManager(ObjectManager):
                 # SpellManager update.
                 self.spell_manager.update(now)
 
-            # Not spawned but initialized.
-            elif self.initialized:
-                self.respawn_timer += elapsed
-                if self.respawn_timer >= self.respawn_time:
-                    if self.summoner:
-                        self.despawn(destroy=True)
-                        return
-                    else:
-                        self.respawn()
-
             # Check if this game object should be updated yet or not.
             if self.has_pending_updates():
                 MapManager.update_object(self, has_changes=True)
                 self.reset_fields_older_than(now)
 
         self.last_tick = now
+
+    def _check_time_to_live(self, elapsed):
+        if self.time_to_live_timer > 0:
+            self.time_to_live_timer -= elapsed
+            # Time to live expired, destroy.
+            if self.time_to_live_timer <= 0:
+                self.despawn()
+                return False
+        return True
 
     # override
     def on_cell_change(self):

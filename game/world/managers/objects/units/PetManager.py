@@ -1,4 +1,3 @@
-import time
 from struct import pack, unpack
 from typing import Optional, NamedTuple, List
 
@@ -8,7 +7,6 @@ from database.realm.RealmModels import CharacterPet
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
@@ -20,7 +18,7 @@ from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
-from utils.constants.UnitCodes import MovementTypes, UnitFlags
+from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -338,7 +336,7 @@ class PetManager:
         #  Should not permanent pets remain in world?
         creature.is_alive = False
         creature.leave_combat(force=True)
-        creature.despawn(destroy=True)
+        creature.despawn()
 
     def get_active_pet_info(self) -> Optional[PetData]:
         if not self.active_pet:

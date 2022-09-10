@@ -71,7 +71,7 @@ class CreatureSpawn:
     def despawn(self):
         if self.creature_instance:
             self.respawn_timer = 0
-            self.creature_instance.despawn(destroy=True)
+            self.creature_instance.despawn()
             self.creature_instance = None
 
     def _get_location(self):
