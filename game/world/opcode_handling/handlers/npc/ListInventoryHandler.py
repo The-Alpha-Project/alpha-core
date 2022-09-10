@@ -2,6 +2,7 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from struct import unpack
 
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.units.creature.utils import VendorUtils
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils import Formulas
 
@@ -30,5 +31,5 @@ class ListInventoryHandler(object):
                         player_mgr.quest_manager.handle_quest_giver_hello(vendor, npc_guid)
                         return 0
 
-                vendor.send_inventory_list(player_mgr)
+                VendorUtils.send_inventory_list(vendor, player_mgr)
         return 0

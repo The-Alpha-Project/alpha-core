@@ -1,17 +1,15 @@
 from random import choice, randint
 from typing import Optional
 
-from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import SpawnsCreatures
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from utils.Logger import Logger
 
 
 class CreatureSpawn:
-    CURRENT_HIGHEST_GUID = 0
-
     def __init__(self, creature_spawn):
         self.creature_spawn: SpawnsCreatures = creature_spawn
         self.spawn_id = creature_spawn.spawn_id
@@ -42,19 +40,17 @@ class CreatureSpawn:
         return self.creature_instance.guid if self.creature_instance else 0
 
     def spawn_creature(self):
-        CreatureSpawn.CURRENT_HIGHEST_GUID += 1
-        creature_template = self._generate_creature_template()
+        creature_template_id = self._generate_creature_template()
 
-        if not creature_template:
-            Logger.warning(f'Found creature spawn with non existent creature template(s). Spawn id: '
-                           f'{self.creature_spawn.spawn_id}. ')
+        if not creature_template_id:
+            Logger.warning(f'Found creature spawn with non existent creature template(s). '
+                           f'Spawn id:{self.creature_spawn.spawn_id}. ')
             return False
 
         creature_location = self._get_location()
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_spawn.spawntimesecsmin, self.creature_spawn.spawntimesecsmax)
-        self.creature_instance = CreatureManager.create(CreatureSpawn.CURRENT_HIGHEST_GUID, creature_template,
-                                                        creature_location, self.map_,
+        self.creature_instance = CreatureBuilder.create(creature_template_id, creature_location, self.map_,
                                                         self.health_percent, self.mana_percent,
                                                         wander_distance=self.creature_spawn.wander_distance,
                                                         movement_type=self.creature_spawn.movement_type)
@@ -78,12 +74,6 @@ class CreatureSpawn:
             self.creature_instance.despawn(destroy=True)
             self.creature_instance = None
 
-    # Detaches a creature instance from this spawn. (e.g. Taming)
-    def dettach_creature_instance(self):
-        if self.creature_instance:
-            self.respawn_timer = 0
-            self.creature_instance = None
-
     def _get_location(self):
         return Vector(self.creature_spawn.position_x, self.creature_spawn.position_y,
                       self.creature_spawn.position_z, self.creature_spawn.orientation)
@@ -95,5 +85,5 @@ class CreatureSpawn:
                                                self.creature_spawn.spawn_entry4])))
 
     def _generate_creature_template(self):
-        return WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(self._get_creature_entry())
+        return self._get_creature_entry()
 

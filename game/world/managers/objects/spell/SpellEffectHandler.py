@@ -4,12 +4,14 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraManager import AppliedAura
+from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -291,16 +293,15 @@ class SpellEffectHandler:
         duration = casting_spell.get_duration()
         # If no duration, default to 5 minutes.
         duration = 300 if duration == 0 else (duration / 1000)
-        # TODO Refactor to avoid circular import?
-        from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoner=caster,
-                                                 override_faction=caster.faction, ttl=duration)
+
+        creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, 100, 100, summoner=caster,
+                                                  faction=caster.faction, ttl=duration,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
 
         if not creature_manager:
             return
 
-        creature_manager.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
-        creature_manager.respawn()
+        MapManager.spawn_object(world_object_instance=creature_manager)
 
         # TODO This should be handled in creature AI instead
         # TODO Totems are not connected to player (pet etc. handling)
@@ -518,15 +519,16 @@ class SpellEffectHandler:
                     pz = target.location.z
 
             # Spawn the summoned unit.
-            from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-            unit = CreatureManager.spawn(creature_entry, Vector(px, py, pz), caster.map_, summoner=caster,
-                                         spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
-                                         ttl=duration)
-            if not unit:
+            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_, 100, 100,
+                                                      summoner=caster, faction=caster.faction, ttl=duration,
+                                                      spell_id=casting_spell.spell_entry.ID,
+                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
+
+            if not creature_manager:
                 Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
                 return
 
-            unit.respawn()
+            MapManager.spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):
