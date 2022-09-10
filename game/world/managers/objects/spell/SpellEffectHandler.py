@@ -255,10 +255,7 @@ class SpellEffectHandler:
         # For now, dynamic object only enable us to properly display area effects to clients.
         # Targeting and effect application is still done by 'handle_apply_area_aura'.
         if not casting_spell.dynamic_object:
-            dynamic_object = DynamicObjectManager.spawn(caster, casting_spell.initial_target, effect.get_radius(),
-                                                        casting_spell.spell_entry.ID,
-                                                        DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
-            casting_spell.dynamic_object = dynamic_object
+            DynamicObjectManager.spawn_from_casting_spell(casting_spell, effect)
 
         SpellEffectHandler.handle_apply_area_aura(casting_spell, effect, caster, target)
         return

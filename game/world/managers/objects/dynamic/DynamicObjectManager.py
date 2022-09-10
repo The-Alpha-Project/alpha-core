@@ -1,7 +1,7 @@
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
-from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
+from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags, DynamicObjectTypes
 from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 
 
@@ -50,6 +50,14 @@ class DynamicObjectManager(ObjectManager):
                                               dynamic_type=dynamic_type)
         MapManager.update_object(dynamic_object)
         return dynamic_object
+
+    @classmethod
+    def spawn_from_casting_spell(cls, casting_spell, effect):
+        casting_spell.dynamic_object = DynamicObjectManager.spawn(casting_spell.spell_caster,
+                                                                  casting_spell.initial_target,
+                                                                  effect.get_radius(), casting_spell.spell_entry.ID,
+                                                                  DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
+        return casting_spell.dynamic_object
 
     # override
     def get_type_id(self):
