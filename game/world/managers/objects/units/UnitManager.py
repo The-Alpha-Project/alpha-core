@@ -1300,6 +1300,12 @@ class UnitManager(ObjectManager):
 
         return True
 
+    # override
+    def despawn(self):
+        self.is_alive = False
+        super().despawn()
+
+    # override
     def respawn(self):
         # Force leave combat just in case.
         self.leave_combat(force=True)
