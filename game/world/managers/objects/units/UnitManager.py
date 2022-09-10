@@ -195,7 +195,6 @@ class UnitManager(ObjectManager):
         self.has_moved = False
 
         self.stat_manager = StatManager(self)
-        self.spell_manager = SpellManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
         # TODO: Support for CreatureManager is not added yet.
