@@ -21,8 +21,6 @@ class GridManager:
         self.active_cell_callback = active_cell_callback
 
     def spawn_object(self, world_object_spawn=None, world_object_instance=None):
-        location = world_object_spawn.location if world_object_spawn else world_object_instance.location
-        map_ = world_object_spawn.map_ if world_object_spawn else world_object_instance.map_
         if world_object_instance:
             self.add_world_object(world_object_instance)
         if world_object_spawn:
