@@ -12,6 +12,7 @@ from game.world.managers.objects.units.creature.CreatureLootManager import Creat
 from game.world.managers.objects.units.creature.CreaturePickPocketLootManager import CreaturePickPocketLootManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.items.VirtualItemsUtils import VirtualItemsUtils
+from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
@@ -127,7 +128,7 @@ class CreatureManager(UnitManager):
         self.killed_by = None
         self.known_players = {}
 
-        self.native_display_id = creature_template.get_creature_display_id()
+        self.native_display_id = CreatureUtils.generate_creature_display_id(self.creature_template)
         self.current_display_id = self.native_display_id
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
 
