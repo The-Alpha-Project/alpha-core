@@ -56,7 +56,7 @@ class CreatureSpawn:
                                                         wander_distance=self.creature_spawn.wander_distance,
                                                         movement_type=self.creature_spawn.movement_type)
 
-        MapManager.spawn_object(self, self.creature_instance)
+        MapManager.spawn_object(world_object_spawn=self, world_object_instance=self.creature_instance)
         return True
 
     def _update_respawn(self, elapsed):
