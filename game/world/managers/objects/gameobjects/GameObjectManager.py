@@ -80,7 +80,7 @@ class GameObjectManager(ObjectManager):
             self.loot_manager = GameObjectLootManager(self)
 
         # Mining node initializations.
-        if self.is_mining_node():
+        if self._is_mining_node():
             self.mining_node_manager = MiningNodeManager(self)
 
         # Fishing node initialization.
@@ -118,9 +118,40 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.lock = gobject_template.data0
 
-    def is_mining_node(self):
-        return self.gobject_template and self.gobject_template.type == GameObjectTypes.TYPE_CHEST and \
-               self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4
+    # override
+    def initialize_field_values(self):
+        # Initial field values, after this, fields must be modified by setters or directly writing values to them.
+        if not self.initialized and self.gobject_template:
+            # Object fields.
+            self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
+            self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
+            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
+
+            # Gameobject fields.
+            self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.faction)
+            self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION, self.rot0)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 1, self.rot1)
+
+            if self.rot2 == 0 and self.rot3 == 0:
+                f_rot1 = math.sin(self.location.o / 2.0)
+                f_rot2 = math.cos(self.location.o / 2.0)
+            else:
+                f_rot1 = self.rot2
+                f_rot2 = self.rot3
+
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 2, f_rot1)
+            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 3, f_rot2)
+            self.set_float(GameObjectFields.GAMEOBJECT_POS_X, self.location.x)
+            self.set_float(GameObjectFields.GAMEOBJECT_POS_Y, self.location.y)
+            self.set_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
+            self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
+
+            self.initialized = True
 
     def handle_loot_release(self, player):
         # On loot release, always despawn the fishing bobber regardless of it still having loot or not.
@@ -294,28 +325,6 @@ class GameObjectManager(ObjectManager):
         self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
         return True
 
-    # override
-    def _get_fields_update(self, is_create, requester):
-        data = b''
-        mask = self.update_packet_factory.update_mask.copy()
-        for field_index in range(self.update_packet_factory.update_mask.field_count):
-            # Partial packets only care for fields that had changes.
-            if not is_create and mask[field_index] == 0 and not self.update_packet_factory.is_dynamic_field(field_index):
-                continue
-            # Check for encapsulation, turn off the bit if requester has no read access.
-            if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
-                mask[field_index] = 0
-                continue
-            # Handle dynamic field, turn on this extra bit.
-            if self.update_packet_factory.is_dynamic_field(field_index):
-                data += pack('<I', self.generate_dynamic_field_value(requester))
-                mask[field_index] = 1
-            else:
-                # Append field value and turn on bit on mask.
-                data += self.update_packet_factory.update_values_bytes[field_index]
-                mask[field_index] = 1
-        return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
-
     # There are only 3 possible animations that can be used here.
     # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber does its animation by sending 0.
     # TODO: See if we can retrieve the animation names.
@@ -332,40 +341,48 @@ class GameObjectManager(ObjectManager):
                 return 1
         return 0
 
+    def _is_mining_node(self):
+        return self.gobject_template and self.gobject_template.type == GameObjectTypes.TYPE_CHEST and \
+               self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4
+
     # override
-    def initialize_field_values(self):
-        # Initial field values, after this, fields must be modified by setters or directly writing values to them.
-        if not self.initialized and self.gobject_template:
-            # Object fields.
-            self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
-            self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
-            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
-
-            # Gameobject fields.
-            self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
-            self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
-            self.set_uint32(GameObjectFields.GAMEOBJECT_FACTION, self.faction)
-            self.set_uint32(GameObjectFields.GAMEOBJECT_STATE, self.state)
-            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION, self.rot0)
-            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 1, self.rot1)
-
-            if self.rot2 == 0 and self.rot3 == 0:
-                f_rot1 = math.sin(self.location.o / 2.0)
-                f_rot2 = math.cos(self.location.o / 2.0)
+    def _get_fields_update(self, is_create, requester):
+        data = b''
+        mask = self.update_packet_factory.update_mask.copy()
+        for field_index in range(self.update_packet_factory.update_mask.field_count):
+            # Partial packets only care for fields that had changes.
+            if not is_create and mask[field_index] == 0 and not self.update_packet_factory.is_dynamic_field(
+                    field_index):
+                continue
+            # Check for encapsulation, turn off the bit if requester has no read access.
+            if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
+                mask[field_index] = 0
+                continue
+            # Handle dynamic field, turn on this extra bit.
+            if self.update_packet_factory.is_dynamic_field(field_index):
+                data += pack('<I', self.generate_dynamic_field_value(requester))
+                mask[field_index] = 1
             else:
-                f_rot1 = self.rot2
-                f_rot2 = self.rot3
+                # Append field value and turn on bit on mask.
+                data += self.update_packet_factory.update_values_bytes[field_index]
+                mask[field_index] = 1
+        return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
-            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 2, f_rot1)
-            self.set_float(GameObjectFields.GAMEOBJECT_ROTATION + 3, f_rot2)
-            self.set_float(GameObjectFields.GAMEOBJECT_POS_X, self.location.x)
-            self.set_float(GameObjectFields.GAMEOBJECT_POS_Y, self.location.y)
-            self.set_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
-            self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
+    def _check_time_to_live(self, elapsed):
+        if self.time_to_live_timer > 0:
+            self.time_to_live_timer -= elapsed
+            # Time to live expired, destroy.
+            if self.time_to_live_timer <= 0:
+                self.destroy()
+                return False
+        return True
 
-            self.initialized = True
+    # override
+    def destroy(self):
+        if self.spell_manager:
+            self.spell_manager.remove_casts()
+        self.is_spawned = False
+        super().destroy()
 
     # override
     def respawn(self):
@@ -398,15 +415,6 @@ class GameObjectManager(ObjectManager):
                 self.reset_fields_older_than(now)
 
         self.last_tick = now
-
-    def _check_time_to_live(self, elapsed):
-        if self.time_to_live_timer > 0:
-            self.time_to_live_timer -= elapsed
-            # Time to live expired, destroy.
-            if self.time_to_live_timer <= 0:
-                self.destroy()
-                return False
-        return True
 
     # override
     def on_cell_change(self):

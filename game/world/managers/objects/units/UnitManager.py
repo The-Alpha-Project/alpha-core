@@ -1315,6 +1315,10 @@ class UnitManager(ObjectManager):
 
     # override
     def destroy(self):
+        # Make sure to remove casts from units that are destroyed not necessarily killed. e.g. Totems.
+        if self.spell_manager:
+            self.spell_manager.remove_casts()
+            self.aura_manager.remove_all_auras()
         self.is_alive = False
         super().destroy()
 
