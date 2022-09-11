@@ -27,7 +27,7 @@ class CreatureBuilder:
         creature_instance.mana_percent = mana_percent
         creature_instance.health_percent = health_percent
 
-        # Initialize from gameobject template.
+        # Initialize from creature template.
         creature_instance.initialize_from_creature_template(creature_template)
 
         # Continue initialization, order above matters.
