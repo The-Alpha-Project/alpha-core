@@ -467,6 +467,10 @@ class UnitManager(ObjectManager):
             damage_info.proc_attacker |= ProcFlags.SWING
             damage_info.hit_info |= HitInfo.OFFHAND
 
+        # If the victim is going to die due this attack.
+        if victim.health - damage_info.total_damage <= 0:
+            damage_info.hit_info |= HitInfo.UNIT_DEAD
+
         return damage_info
 
     def send_attack_state_update(self, damage_info):
@@ -637,35 +641,36 @@ class UnitManager(ObjectManager):
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
-    def calculate_spell_damage(self, base_damage, spell_school: SpellSchools, target, spell_attack_type: AttackTypes = -1):
+    def calculate_spell_damage(self, base_damage, casting_spell, target):
         if not target or not target.is_alive:
             return None
 
         damage_info = DamageInfoHolder()
         damage_info.attacker = self
         damage_info.target = target
-        damage_info.attack_type = spell_attack_type if spell_attack_type != -1 else 0
-        damage_info.damage_school_mask = spell_school
+        damage_info.attack_type = casting_spell.spell_attack_type if casting_spell.spell_attack_type != -1 else 0
+        damage_info.damage_school_mask = casting_spell.spell_entry.School
         
         subclass = 0
-        if spell_attack_type != -1:
-            equipped_weapon = self.get_current_weapon_for_attack_type(spell_attack_type)
+        if damage_info.attack_type != -1:
+            equipped_weapon = self.get_current_weapon_for_attack_type(damage_info.attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
-        damage = self.stat_manager.apply_bonuses_for_damage(base_damage,
-                                                            spell_school, target, subclass)
+        damage = self.stat_manager.apply_bonuses_for_damage(base_damage, damage_info.damage_school_mask,
+                                                            target, subclass)
 
         damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self,
-                                                                                        spell_attack_type, spell_school)
+                                                                                        damage_info.attack_type,
+                                                                                        damage_info.damage_school_mask)
                                                              
         is_crit = damage_info.hit_info & SpellHitFlags.HIT_FLAG_CRIT
         # From 0.5.5 patch notes:
         #     "Critical hits with ranged weapons now do 100% extra damage."
         # We assume that ranged crits dealt 50% increased damage instead of 100%. The other option could be 200% but
         # 50% sounds more logical.
-        crit_multiplier = 1.50 if spell_attack_type == AttackTypes.RANGED_ATTACK else 2.0
-        if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL:
+        crit_multiplier = 1.50 if damage_info.attack_type == AttackTypes.RANGED_ATTACK else 2.0
+        if damage_info.damage_school_mask == SpellSchools.SPELL_SCHOOL_NORMAL:
             damage = int(damage * crit_multiplier if is_crit else damage)
             damage_info.damage = damage_info.clean_damage = damage_info.total_damage = damage
         else:
@@ -751,8 +756,7 @@ class UnitManager(ObjectManager):
                                       spell_id=casting_spell.spell_entry.ID):
                 miss_reason = SpellMissReason.MISS_REASON_IMMUNE
 
-        damage_info = self.calculate_spell_damage(damage, casting_spell.spell_entry.School, target,
-                                                  casting_spell.spell_attack_type)
+        damage_info = self.calculate_spell_damage(damage, casting_spell, target)
 
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.damage = damage_info.total_damage = 0
@@ -821,7 +825,7 @@ class UnitManager(ObjectManager):
                                damage_info.total_damage,
                                damage_info.damage,
                                damage_info.hit_info,
-                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells).
+                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
                                damage_info.attacker.guid)
 
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
