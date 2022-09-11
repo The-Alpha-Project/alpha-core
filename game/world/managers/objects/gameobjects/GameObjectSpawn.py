@@ -52,7 +52,7 @@ class GameObjectSpawn:
                                                             rot2=self.gameobject_spawn.spawn_rotation2,
                                                             rot3=self.gameobject_spawn.spawn_rotation3)
 
-        MapManager.spawn_object(self, self.gameobject_instance)
+        MapManager.spawn_object(world_object_spawn=self, world_object_instance=self.gameobject_instance)
         return True
 
     def _update_respawn(self, elapsed):
