@@ -206,7 +206,7 @@ class ContainerManager(ItemManager):
 
     # override
     def get_type_mask(self):
-        return ObjectTypeFlags.TYPE_CONTAINER
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_CONTAINER
 
     # override
     def get_type_id(self):

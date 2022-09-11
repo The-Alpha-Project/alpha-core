@@ -746,7 +746,7 @@ class UnitManager(ObjectManager):
 
         # TODO This and evade should be written in spell target results instead.
         # Overwrite on immune.
-        if target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             if target.handle_immunity(self, SpellImmunity.IMMUNITY_DAMAGE, casting_spell.spell_entry.School,
                                       spell_id=casting_spell.spell_entry.ID):
                 miss_reason = SpellMissReason.MISS_REASON_IMMUNE
@@ -786,7 +786,7 @@ class UnitManager(ObjectManager):
         if target.in_combat:
             creature_observers = [attacker for attacker
                                   in target.attackers.values()
-                                  if not attacker.object_type_mask & ObjectTypeFlags.TYPE_PLAYER]
+                                  if not attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER]
             observers_size = len(creature_observers)
             if observers_size > 0:
                 threat = source_threat / observers_size
@@ -1290,7 +1290,7 @@ class UnitManager(ObjectManager):
             if killer.combo_target == self.guid:
                 killer.remove_combo_points()
 
-        if killer and killer.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
             killer.aura_manager.check_aura_procs(killed_unit=True)
 
@@ -1348,7 +1348,7 @@ class UnitManager(ObjectManager):
 
     # override
     def get_type_mask(self):
-        return ObjectTypeFlags.TYPE_UNIT
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_UNIT
 
     # override
     def get_type_id(self):

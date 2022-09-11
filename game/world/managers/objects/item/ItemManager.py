@@ -317,7 +317,7 @@ class ItemManager(ObjectManager):
 
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.item_template.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, 1)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
@@ -473,7 +473,7 @@ class ItemManager(ObjectManager):
 
     # override
     def get_type_mask(self):
-        return ObjectTypeFlags.TYPE_ITEM
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_ITEM
 
     # override
     def get_type_id(self):

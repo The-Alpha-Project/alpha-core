@@ -63,7 +63,7 @@ class CastingSpell:
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
-        if self.spell_caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
         else:
             self.caster_effective_level = 0
@@ -105,7 +105,7 @@ class CastingSpell:
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.object_type_mask & ObjectTypeFlags.TYPE_UNIT
+        return self.initial_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
 
     def initial_target_is_player(self):
         if not self.initial_target_is_object():
@@ -420,7 +420,7 @@ class CastingSpell:
 
         cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
 
-        if self.is_ranged_weapon_attack() and self.spell_caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if self.is_ranged_weapon_attack() and self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             # Ranged attack tooltips are unfinished, so this is partially a guess.
             # All ranged attacks without delay seem to say "next ranged".
             # Ranged attacks with delay (cast time) say "attack speed + X (delay) sec".

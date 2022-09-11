@@ -58,7 +58,7 @@ class ThreatManager:
             return
 
         # Avoid adding threat between two friendly units, needs further investigation.
-        if source.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             if not source.is_hostile_to(self.owner) and source.summoner \
                     and not source.summoner.can_attack_target(self.owner):
                 return

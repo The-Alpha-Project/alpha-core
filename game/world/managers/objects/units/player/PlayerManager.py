@@ -1132,7 +1132,7 @@ class PlayerManager(UnitManager):
 
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
@@ -1709,7 +1709,7 @@ class PlayerManager(UnitManager):
 
     # override
     def get_type_mask(self):
-        return ObjectTypeFlags.TYPE_UNIT | ObjectTypeFlags.TYPE_PLAYER
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_UNIT | ObjectTypeFlags.TYPE_PLAYER
 
     # override
     def get_type_id(self):

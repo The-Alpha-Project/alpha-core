@@ -20,7 +20,7 @@ class FishingNodeManager(object):
         self.got_away = False
 
         # Set channel object update field.
-        if fishing_node.summoner and fishing_node.summoner.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if fishing_node.summoner and fishing_node.summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             fishing_node.summoner.set_channel_object(fishing_node.guid)
 
     def fishing_node_use(self, player):

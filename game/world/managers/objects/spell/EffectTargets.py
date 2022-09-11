@@ -299,7 +299,7 @@ class EffectTargets:
         units_in_range = []
 
         # These spells should most likely include self (battle shout, prayer of healing etc.)
-        if caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             units_in_range.append(caster)
 
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not caster.group_manager:

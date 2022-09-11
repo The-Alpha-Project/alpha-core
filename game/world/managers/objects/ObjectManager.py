@@ -58,7 +58,6 @@ class ObjectManager:
         self.zone = zone
         self.map_ = map_
 
-        self.object_type_mask = ObjectTypeFlags.TYPE_OBJECT | self.get_type_mask()
         self.update_packet_factory = UpdatePacketFactory()
 
         self.initialized = False
@@ -71,7 +70,7 @@ class ObjectManager:
 
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager
-        if self.object_type_mask & ObjectTypeFlags.TYPE_UNIT or self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+        if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT or self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.spell_manager = SpellManager(self)
 
     def __eq__(self, other):
@@ -116,7 +115,7 @@ class ObjectManager:
         data += self._get_movement_fields()
 
         # Misc fields.
-        combat_unit = UnitManager.UnitManager(self).combat_target if self.object_type_mask & ObjectTypeFlags.TYPE_UNIT \
+        combat_unit = UnitManager.UnitManager(self).combat_target if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT \
             else None
         data += pack(
             '<3IQ',
@@ -364,7 +363,7 @@ class ObjectManager:
             return False
 
         # You can only attack units, not gameobjects.
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return False
 
         if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
@@ -372,7 +371,7 @@ class ObjectManager:
             return False
 
         # Unit vs Player only checks.
-        if self.object_type_mask & ObjectTypeFlags.TYPE_UNIT and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # If player is on a flying path.
             if target.movement_spline and target.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
                 return False
