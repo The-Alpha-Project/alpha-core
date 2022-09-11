@@ -9,7 +9,7 @@ class CreatureBuilder:
     GUID_MANAGER = GuidManager()
 
     @staticmethod
-    def create(entry, location, map_id, health_percent, mana_percent, summoner=None, faction=0,
+    def create(entry, location, map_id, health_percent=100, mana_percent=100, summoner=None, faction=0,
                spell_id=0, ttl=0, addon=None, wander_distance=0, movement_type=MovementTypes.IDLE,
                subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
 

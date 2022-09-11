@@ -294,7 +294,7 @@ class PetManager:
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
 
-        creature_manager = CreatureBuilder.create(creature_id, spawn_position, self.owner.map_, 100, 100,
+        creature_manager = CreatureBuilder.create(creature_id, spawn_position, self.owner.map_,
                                                   summoner=self.owner, faction=self.owner.faction,
                                                   movement_type=MovementTypes.IDLE,
                                                   spell_id=spell_id,
@@ -490,7 +490,7 @@ class PetManager:
     def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False):
         # If this creature was taken from the world, despawn the original and create unit pet.
         if not is_permanent:
-            pet_creature = CreatureBuilder.create(creature.entry, creature.location, creature.map_, 100, 100,
+            pet_creature = CreatureBuilder.create(creature.entry, creature.location, creature.map_,
                                                   summoner=self.owner, faction=self.owner.faction,
                                                   movement_type=MovementTypes.IDLE,
                                                   spell_id=summon_spell_id,

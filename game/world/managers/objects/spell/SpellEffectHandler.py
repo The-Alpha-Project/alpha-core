@@ -291,7 +291,7 @@ class SpellEffectHandler:
         # If no duration, default to 5 minutes.
         duration = 300 if duration == 0 else (duration / 1000)
 
-        creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, 100, 100, summoner=caster,
+        creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, summoner=caster,
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
 
@@ -516,7 +516,7 @@ class SpellEffectHandler:
                     pz = target.location.z
 
             # Spawn the summoned unit.
-            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_, 100, 100,
+            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_,
                                                       summoner=caster, faction=caster.faction, ttl=duration,
                                                       spell_id=casting_spell.spell_entry.ID,
                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
