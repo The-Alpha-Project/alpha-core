@@ -51,7 +51,8 @@ class CreatureSpawn:
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_spawn.spawntimesecsmin, self.creature_spawn.spawntimesecsmax)
         self.creature_instance = CreatureBuilder.create(creature_template_id, creature_location, self.map_,
-                                                        self.health_percent, self.mana_percent,
+                                                        health_percent=self.health_percent,
+                                                        mana_percent=self.mana_percent,
                                                         wander_distance=self.creature_spawn.wander_distance,
                                                         movement_type=self.creature_spawn.movement_type)
 
