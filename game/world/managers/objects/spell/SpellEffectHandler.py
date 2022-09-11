@@ -307,7 +307,6 @@ class SpellEffectHandler:
 
         # TODO This should be handled in creature AI instead
         # TODO Totems are not connected to player (pet etc. handling)
-        # TODO Totems applied auras do not vanish upon totem destroy.
         for spell_id in [creature_manager.creature_template.spell_id1,
                          creature_manager.creature_template.spell_id2,
                          creature_manager.creature_template.spell_id3,
