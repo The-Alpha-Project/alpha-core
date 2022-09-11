@@ -2,9 +2,11 @@ import traceback
 import math
 import _queue
 from random import choice
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
@@ -317,7 +319,7 @@ class MapManager:
         return MAPS.get(map_id)
 
     @staticmethod
-    def get_grid_manager_by_map_id(map_id):
+    def get_grid_manager_by_map_id(map_id) -> Optional[GridManager]:
         if map_id in MAPS:
             return MAPS[map_id].grid_manager
         return None
