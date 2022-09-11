@@ -102,8 +102,7 @@ class WorldLoader:
 
         for gobject_spawn in gobject_spawns:
             gameobject_spawn = GameObjectSpawn(gobject_spawn)
-            if gameobject_spawn:
-                gameobject_spawn.spawn_gameobject()
+            gameobject_spawn.spawn_gameobject()
             count += 1
 
             Logger.progress('Loading gameobject spawns...', count, length)
@@ -159,8 +158,7 @@ class WorldLoader:
 
         for creature_spawn in creature_spawns:
             creature_spawn = CreatureSpawn(creature_spawn)
-            if creature_spawn:
-                creature_spawn.spawn_creature()
+            creature_spawn.spawn_creature()
             count += 1
             Logger.progress('Loading creature spawns...', count, length)
 
