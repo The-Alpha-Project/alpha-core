@@ -7,6 +7,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
+from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler
@@ -19,7 +20,8 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
-from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes, DynamicObjectTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes, DynamicObjectTypes, \
+    GameObjectStates
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
     SpellImmunity
 from utils.constants.UnitCodes import UnitFlags
@@ -131,9 +133,13 @@ class SpellEffectHandler:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        arbiter = GameObjectManager.spawn(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
-                                          summoner=caster, ttl=3600, spell_id=casting_spell.spell_entry.ID,
-                                          override_faction=caster.faction)
+        arbiter = GameObjectBuilder.create(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
+                                           GameObjectStates.GO_STATE_READY,
+                                           summoner=caster,
+                                           spell_id=casting_spell.spell_entry.ID,
+                                           faction=caster.faction, ttl=3600)
+
+        MapManager.spawn_object(world_object_instance=arbiter)
 
         DuelManager.request_duel(caster, target, arbiter)
 
@@ -294,7 +300,6 @@ class SpellEffectHandler:
         creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, summoner=caster,
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
-
         if not creature_manager:
             return
 
@@ -302,13 +307,15 @@ class SpellEffectHandler:
 
         # TODO This should be handled in creature AI instead
         # TODO Totems are not connected to player (pet etc. handling)
+        # TODO Totems applied auras do not vanish upon totem destroy.
         for spell_id in [creature_manager.creature_template.spell_id1,
                          creature_manager.creature_template.spell_id2,
                          creature_manager.creature_template.spell_id3,
                          creature_manager.creature_template.spell_id4]:
             if spell_id == 0:
                 break
-            creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager, SpellTargetMask.SELF)
+            creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager,
+                                                               SpellTargetMask.UNIT, validate=False)
 
     @staticmethod
     def handle_summon_object(casting_spell, effect, caster, target):
@@ -333,9 +340,13 @@ class SpellEffectHandler:
         duration = casting_spell.get_duration()
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
-        GameObjectManager.spawn(object_entry, target, caster.map_, summoner=caster,
-                                spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
-                                ttl=duration)
+
+        gameobject = GameObjectBuilder.create(object_entry, target, caster.map_,
+                                              GameObjectStates.GO_STATE_READY,
+                                              summoner=caster,
+                                              spell_id=casting_spell.spell_entry.ID,
+                                              faction=caster.faction, ttl=duration)
+        MapManager.spawn_object(world_object_instance=gameobject)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):

@@ -940,6 +940,20 @@ class UnitManager(ObjectManager):
     def is_tameable(self):
         return False
 
+    def get_pet(self):
+        pet_id = self.get_uint64(UnitFields.UNIT_FIELD_SUMMON)
+        if pet_id:
+            pet = MapManager.get_surrounding_unit_by_guid(self, pet_id, include_players=True)
+            return pet
+        return None
+
+    def get_summoner(self):
+        summoner_id = self.get_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY)
+        if summoner_id:
+            summoner = MapManager.get_surrounding_unit_by_guid(self, summoner_id, include_players=True)
+            return summoner
+        return None
+
     # override
     def change_speed(self, speed=0):
         # Assign new base speed.

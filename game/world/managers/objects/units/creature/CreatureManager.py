@@ -169,6 +169,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
             self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.spell_id)
             self.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.summoner.guid if self.summoner else 0)
+            self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if self.summoner else 0)
             self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
             self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
             self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)

@@ -16,6 +16,8 @@ class GameObjectBuilder:
         if not gobject_template:
             return None
 
+        if ttl:
+            print(ttl)
         gameobject_instance = GameObjectManager()
         gameobject_instance.entry = gobject_template.entry
         gameobject_instance.guid = gameobject_instance.generate_object_guid(GameObjectBuilder.GUID_MANAGER.get_new_guid())
@@ -35,7 +37,7 @@ class GameObjectBuilder:
         gameobject_instance.zone = summoner.zone if summoner else 0
         gameobject_instance.summoner = summoner
         gameobject_instance.spell_id = spell_id
-        gameobject_instance.state = state if not summoner else GameObjectStates.GO_STATE_READY
+        gameobject_instance.state = state
         gameobject_instance.time_to_live_timer = ttl
 
         if summoner:
