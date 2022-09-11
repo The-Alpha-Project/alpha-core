@@ -302,8 +302,9 @@ class EffectTargets:
         units_in_range = []
 
         caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-        caster_pet = caster.get_pet()
-        summoner = caster.get_summoner()
+        caster_is_unit = caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        caster_pet = caster.get_pet() if caster_is_unit else None
+        summoner = caster.get_summoner() if caster_is_unit else None
         party_group = None
         distance = target_effect.get_radius()
 
@@ -315,7 +316,7 @@ class EffectTargets:
             party_group = summoner.group_manager
 
         # These spells should most likely include self (battle shout, prayer of healing etc.)
-        if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if caster_is_unit:
             # Totems should not target themselves.
             if not caster.is_totem():
                 units_in_range.append(caster)
@@ -328,7 +329,7 @@ class EffectTargets:
         if caster_pet and caster.location.distance(caster_pet.location) < distance:
             units_in_range.append(caster_pet)
 
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not party_group:
+        if not caster_is_player or not party_group:
             return units_in_range
 
         for unit in units:
