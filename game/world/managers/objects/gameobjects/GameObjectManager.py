@@ -49,7 +49,6 @@ class GameObjectManager(ObjectManager):
         self.flags = 0
         self.state = 0
 
-        self.object_type_mask |= ObjectTypeFlags.TYPE_GAMEOBJECT
         self.update_packet_factory.init_values(self.guid, GameObjectFields)
 
         self.time_to_live_timer = 0
@@ -412,6 +411,10 @@ class GameObjectManager(ObjectManager):
     # override
     def on_cell_change(self):
         pass
+
+    # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_GAMEOBJECT
 
     # override
     def get_type_id(self):

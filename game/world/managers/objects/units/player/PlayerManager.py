@@ -161,7 +161,6 @@ class PlayerManager(UnitManager):
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
             self.is_alive = self.health > 0
 
-            self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
             self.update_packet_factory.init_values(self.guid, PlayerFields)
 
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
@@ -1707,6 +1706,10 @@ class PlayerManager(UnitManager):
             return self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
 
         return False
+
+    # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_UNIT | ObjectTypeFlags.TYPE_PLAYER
 
     # override
     def get_type_id(self):

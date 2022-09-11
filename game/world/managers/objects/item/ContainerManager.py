@@ -29,7 +29,6 @@ class ContainerManager(ItemManager):
             self.max_slot = InventorySlots.SLOT_BANK_END
             self.is_contained = self.owner
 
-        self.object_type_mask |= ObjectTypeFlags.TYPE_CONTAINER
         self.update_packet_factory.init_values(self.get_owner_guid(), ContainerFields)
 
     @classmethod
@@ -204,6 +203,10 @@ class ContainerManager(ItemManager):
         if self.item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_QUIVER:
             return item_template.bag_family == BagFamilies.ARROWS
         return item_template.bag_family == BagFamilies.BULLETS
+
+    # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_CONTAINER
 
     # override
     def get_type_id(self):

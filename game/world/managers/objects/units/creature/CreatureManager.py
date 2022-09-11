@@ -17,7 +17,7 @@ from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
@@ -750,6 +750,10 @@ class CreatureManager(UnitManager):
             self.power_type = ShapeshiftInfo.get_power_for_form(self.shapeshift_form)
 
         self.bytes_0 = self.get_bytes_0()
+
+    # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_UNIT
 
     # override
     def get_type_id(self):

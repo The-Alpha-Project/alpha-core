@@ -164,7 +164,6 @@ class UnitManager(ObjectManager):
         self.current_target = current_target
         self.summoner = summoner
 
-        self.object_type_mask |= ObjectTypeFlags.TYPE_UNIT
         self.update_packet_factory.init_values(self.guid, UnitFields)
 
         self.is_alive = True
@@ -1346,6 +1345,10 @@ class UnitManager(ObjectManager):
 
     def set_has_moved(self, has_moved):
         self.has_moved = has_moved
+
+    # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_UNIT
 
     # override
     def get_type_id(self):

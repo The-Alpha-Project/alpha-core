@@ -24,7 +24,6 @@ class CorpseManager(ObjectManager):
 
         self.guid = self.generate_object_guid(CorpseManager.GUID_MANAGER.get_new_guid())
 
-        self.object_type_mask |= ObjectTypeFlags.TYPE_CORPSE
         self.update_packet_factory.init_values(self.owner, CorpseFields)
 
     # override
@@ -88,6 +87,10 @@ class CorpseManager(ObjectManager):
         corpse = CorpseManager(owner=player_mgr)
         MapManager.update_object(corpse)
         return corpse
+
+    # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_CORPSE
 
     # override
     def get_type_id(self):

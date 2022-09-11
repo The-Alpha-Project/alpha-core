@@ -21,7 +21,6 @@ class DynamicObjectManager(ObjectManager):
 
         self.guid = self.generate_object_guid(DynamicObjectManager.GUID_MANAGER.get_new_guid())
 
-        self.object_type_mask |= ObjectTypeFlags.TYPE_DYNAMICOBJECT
         self.update_packet_factory.init_values(self.owner, DynamicObjectFields)
 
     # override
@@ -58,6 +57,10 @@ class DynamicObjectManager(ObjectManager):
                                                                   effect.get_radius(), casting_spell.spell_entry.ID,
                                                                   DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
         return casting_spell.dynamic_object
+
+    # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_DYNAMICOBJECT
 
     # override
     def get_type_id(self):

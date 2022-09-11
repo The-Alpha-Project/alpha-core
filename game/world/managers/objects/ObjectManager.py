@@ -58,7 +58,7 @@ class ObjectManager:
         self.zone = zone
         self.map_ = map_
 
-        self.object_type_mask = ObjectTypeFlags.TYPE_OBJECT
+        self.object_type_mask = ObjectTypeFlags.TYPE_OBJECT | self.get_type_mask()
         self.update_packet_factory = UpdatePacketFactory()
 
         self.initialized = False
@@ -306,6 +306,10 @@ class ObjectManager:
     # override
     def on_cell_change(self):
         pass
+
+    # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_OBJECT
 
     # override
     def get_type_id(self):

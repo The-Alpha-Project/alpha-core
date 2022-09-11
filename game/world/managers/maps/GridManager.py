@@ -269,43 +269,38 @@ class GridManager:
         return spawns
 
     def get_surrounding_player_by_guid(self, world_object, guid):
-        for p_guid, player in list(self.get_surrounding_players(world_object).items()):
-            if p_guid == guid:
-                return player
+        surrounding_players = self.get_surrounding_players(world_object)
+        if guid in surrounding_players:
+            return surrounding_players[guid]
         return None
 
     def get_surrounding_unit_by_guid(self, world_object, guid, include_players=False):
         surrounding_units = self.get_surrounding_units(world_object, include_players)
-        if include_players:
-            for p_guid, player in list(surrounding_units[0].items()):
-                if p_guid == guid:
-                    return player
+        if include_players and guid in surrounding_units[0]:
+            return surrounding_units[0][guid]
 
         creature_dict = surrounding_units[1] if include_players else surrounding_units
-        for u_guid, unit in list(creature_dict.items()):
-            if u_guid == guid:
-                return unit
+        if guid in creature_dict:
+            return creature_dict[guid]
 
         return None
 
     def get_surrounding_unit_by_spawn_id(self, world_object, spawn_id_):
-        surrounding_units = self.get_surrounding_unit_spawns(world_object)
-        for spawn_id, spawn in surrounding_units.items():
-            if spawn_id_ == spawn_id:
-                return spawn
+        surrounding_units_spawns = self.get_surrounding_unit_spawns(world_object)
+        if spawn_id_ in surrounding_units_spawns:
+            return surrounding_units_spawns[spawn_id_]
         return None
 
     def get_surrounding_gameobject_by_guid(self, world_object, guid):
-        for g_guid, gameobject in list(self.get_surrounding_gameobjects(world_object).items()):
-            if g_guid == guid:
-                return gameobject
+        surrounding_gameobjects = self.get_surrounding_gameobjects(world_object)
+        if guid in surrounding_gameobjects:
+            return surrounding_gameobjects[guid]
         return None
 
     def get_surrounding_gameobject_by_spawn_id(self, world_object, spawn_id_):
-        surrounding_gameobjects = self.get_surrounding_gameobject_spawns(world_object)
-        for spawn_id, spawn in surrounding_gameobjects.items():
-            if spawn_id_ == spawn_id:
-                return spawn
+        surrounding_gameobjects_spawns = self.get_surrounding_gameobjects_spawns(world_object)
+        if spawn_id_ in surrounding_gameobjects_spawns:
+            return surrounding_gameobjects_spawns[spawn_id_]
         return None
 
     def get_create_cell(self, vector, map_) -> Cell:
