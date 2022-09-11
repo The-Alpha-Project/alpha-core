@@ -45,14 +45,14 @@ class GridManager:
                 self.remove_object(world_object, update_players=False)
             self.add_world_object(world_object, update_players=False)
             # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
-            affected_cells = self.update_players(source_cell_key)
+            affected_cells = self.update_players_surroundings(source_cell_key)
             # Update new location surroundings, excluding intersecting cells from previous call.
-            self.update_players(current_cell_key, exclude_cells=affected_cells)
+            self.update_players_surroundings(current_cell_key, exclude_cells=affected_cells)
 
         # If this world object has pending field/inventory updates, trigger an update on interested players.
         if has_changes or has_inventory_changes:
-            self.update_players(current_cell_key, world_object=world_object, has_changes=has_changes,
-                                has_inventory_changes=has_inventory_changes)
+            self.update_players_surroundings(current_cell_key, world_object=world_object, has_changes=has_changes,
+                                             has_inventory_changes=has_inventory_changes)
 
         # Notify cell changed if needed.
         if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:
@@ -77,7 +77,7 @@ class GridManager:
 
         # Notify surrounding players.
         if update_players:
-            self.update_players(cell.key)
+            self.update_players_surroundings(cell.key)
 
     def activate_cells(self, cells: list[Cell]):
         for cell in cells:
@@ -97,9 +97,9 @@ class GridManager:
             cell.remove(world_object)
             # Notify surrounding players.
             if update_players:
-                self.update_players(cell.key)
+                self.update_players_surroundings(cell.key)
 
-    def update_players(self, cell_key, exclude_cells=None, world_object=None, has_changes=False, has_inventory_changes=False):
+    def update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None, has_changes=False, has_inventory_changes=False):
         # Avoid update calls if no players are present.
         if exclude_cells is None:
             exclude_cells = set()
@@ -111,7 +111,8 @@ class GridManager:
         if source_cell:
             for cell in self.get_surrounding_cells_by_cell(source_cell):
                 if cell not in exclude_cells:
-                    cell.update_players(world_object=world_object, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
+                    cell.update_players_surroundings(world_object=world_object, has_changes=has_changes,
+                                                     has_inventory_changes=has_inventory_changes)
                     affected_cells.add(cell)
 
         return affected_cells

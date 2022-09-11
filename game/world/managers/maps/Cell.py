@@ -83,7 +83,7 @@ class Cell:
             corpse.update(now)
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
-    def update_players(self, world_object=None, has_changes=False, has_inventory_changes=False):
+    def update_players_surroundings(self, world_object=None, has_changes=False, has_inventory_changes=False):
         for player in list(self.players.values()):
             if world_object:
                 player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
