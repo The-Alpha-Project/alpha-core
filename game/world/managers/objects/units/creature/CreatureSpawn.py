@@ -66,12 +66,12 @@ class CreatureSpawn:
         # Destroy the current creature instance body when respawn timer is about to expire.
         elif self.creature_instance:
             if self.creature_instance.is_spawned and self.respawn_timer >= self.respawn_time * 0.8:
-                self.despawn()
+                self.destroy()
 
-    def despawn(self):
+    def destroy(self):
         if self.creature_instance:
             self.respawn_timer = 0
-            self.creature_instance.despawn()
+            self.creature_instance.destroy()
             self.creature_instance = None
 
     def _get_location(self):

@@ -79,7 +79,7 @@ class CorpseManager(ObjectManager):
             elapsed = now - self.last_tick
             self.ttl -= elapsed
             if self.ttl <= 0:
-                self.despawn()
+                self.destroy()
         self.last_tick = now
 
     @staticmethod

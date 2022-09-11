@@ -61,10 +61,10 @@ class GameObjectSpawn:
         if self.respawn_timer >= self.respawn_time:
             self.spawn_gameobject()
 
-    def despawn(self):
+    def destroy(self):
         if self.gameobject_instance:
             self.respawn_timer = 0
-            self.gameobject_instance.despawn()
+            self.gameobject_instance.destroy()
             self.gameobject_instance = None
 
     def _get_location(self):

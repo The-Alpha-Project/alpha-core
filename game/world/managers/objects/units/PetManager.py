@@ -336,7 +336,7 @@ class PetManager:
         #  Should not permanent pets remain in world?
         creature.is_alive = False
         creature.leave_combat(force=True)
-        creature.despawn()
+        creature.destroy()
 
     def get_active_pet_info(self) -> Optional[PetData]:
         if not self.active_pet:
@@ -497,7 +497,7 @@ class PetManager:
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
 
             # Despawn source creature, its spawn parent will handle respawning.
-            creature.despawn()
+            creature.destroy()
             # Spawn new creature pet.
             MapManager.spawn_object(world_object_instance=pet_creature)
         # This is a permanent pet summoned by SPELL_EFFECT_SUMMON_PET, just spawn it.

@@ -34,7 +34,7 @@ class GooberManager(object):
             if self.has_custom_animation:
                 self.goober_object.send_custom_animation(0)
             if self.is_consumable:
-                self.goober_object.despawn()
+                self.goober_object.destroy()
         else:
             entry = self.goober_object.entry
             name = self.goober_object.gobject_template.name

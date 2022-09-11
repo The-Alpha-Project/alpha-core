@@ -361,7 +361,7 @@ class CreatureManager(UnitManager):
 
         # Despawn this creature if the last evade point is too far away from its current position.
         if self.location.distance(waypoints_to_spawn[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
-            self.despawn()
+            self.destroy()
         else:
             # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
             spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
@@ -526,7 +526,7 @@ class CreatureManager(UnitManager):
                     if target and target != self.combat_target:
                         self.attack(target)
             # Dead creature with no creature spawn parent, handle destroy.
-            elif not self._check_despawn(elapsed):
+            elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.
 
             # Check if this creature object should be updated yet or not.
@@ -536,11 +536,11 @@ class CreatureManager(UnitManager):
 
         self.last_tick = now
 
-    def _check_despawn(self, elapsed):
+    def _check_destroy(self, elapsed):
         if self.summoner and not self.is_alive and self.is_spawned and self.initialized:
             self.destroy_timer += elapsed
             if self.destroy_timer >= self.destroy_time:
-                self.despawn()
+                self.destroy()
                 return False
         return True
 
@@ -549,7 +549,7 @@ class CreatureManager(UnitManager):
             self.time_to_live_timer -= elapsed
             # Time to live expired, destroy.
             if self.time_to_live_timer <= 0:
-                self.despawn()
+                self.destroy()
                 return False
         return True
 

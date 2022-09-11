@@ -1300,9 +1300,9 @@ class UnitManager(ObjectManager):
         return True
 
     # override
-    def despawn(self):
+    def destroy(self):
         self.is_alive = False
-        super().despawn()
+        super().destroy()
 
     # override
     def respawn(self):
