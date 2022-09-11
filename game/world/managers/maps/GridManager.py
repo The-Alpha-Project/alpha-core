@@ -1,4 +1,5 @@
 from __future__ import annotations
+from threading import RLock
 
 import math
 import time
@@ -15,6 +16,7 @@ CELL_SIZE = config.Server.Settings.cell_size
 class GridManager:
     def __init__(self, map_id, active_cell_callback, instance_id=0):
         self.map_id = map_id
+        self.grid_lock = RLock()
         self.instance_id = instance_id
         self.active_cell_keys: set[str] = set()
         self.cells: dict[str, Cell] = {}
@@ -80,9 +82,10 @@ class GridManager:
             self.update_players_surroundings(cell.key)
 
     def activate_cells(self, cells: list[Cell]):
-        for cell in cells:
-            if cell.key not in self.active_cell_keys:
-                self.active_cell_keys.add(cell.key)
+        with self.grid_lock:
+            for cell in cells:
+                if cell.key not in self.active_cell_keys:
+                    self.active_cell_keys.add(cell.key)
 
     def load_maps_for_cells(self, cells):
         for cell in cells:
@@ -122,16 +125,19 @@ class GridManager:
 
     # TODO: Should cleanup loaded tiles for deactivated cells.
     def deactivate_cells(self):
-        for cell_key in list(self.active_cell_keys):
-            players_near = False
-            for cell in self.get_surrounding_cells_by_cell(self.cells[cell_key]):
-                if cell.has_players():
-                    players_near = True
-                    break
+        with self.grid_lock:
+            for cell_key in list(self.active_cell_keys):
+                players_near = False
+                for cell in self.get_surrounding_cells_by_cell(self.cells[cell_key]):
+                    if cell.has_players():
+                        players_near = True
+                        break
 
-            # Make sure only Cells with no players near are removed from the Active list.
-            if not players_near:
-                self.active_cell_keys.discard(cell_key)
+                # Make sure only Cells with no players near are removed from the Active list.
+                if not players_near:
+                    cell = self.cells[cell_key]
+                    self.active_cell_keys.discard(cell_key)
+                    cell.stop_movement()
 
     def get_surrounding_cell_keys(self, world_object, vector=None, x_s=-1, x_m=1, y_s=-1, y_m=1):
         if not vector:
@@ -335,16 +341,19 @@ class GridManager:
         return self.cells
 
     def update_creatures(self):
-        now = time.time()
-        for key in list(self.active_cell_keys):
-            self.cells[key].update_creatures(now)
+        with self.grid_lock:
+            now = time.time()
+            for key in list(self.active_cell_keys):
+                self.cells[key].update_creatures(now)
 
     def update_gameobjects(self):
-        now = time.time()
-        for key in list(self.active_cell_keys):
-            self.cells[key].update_gameobject(now)
+        with self.grid_lock:
+            now = time.time()
+            for key in list(self.active_cell_keys):
+                self.cells[key].update_gameobject(now)
 
     def update_corpses(self):
-        now = time.time()
-        for key in list(self.active_cell_keys):
-            self.cells[key].update_corpses(now)
+        with self.grid_lock:
+            now = time.time()
+            for key in list(self.active_cell_keys):
+                self.cells[key].update_corpses(now)

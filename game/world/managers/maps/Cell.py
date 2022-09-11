@@ -1,4 +1,5 @@
 from utils.constants.MiscCodes import ObjectTypeIds
+from threading import RLock
 
 
 class Cell:
@@ -9,6 +10,8 @@ class Cell:
         self.max_y = max_y
         self.map_ = map_
         self.key = key
+        # Cell lock.
+        self.cell_lock = RLock()
         # Instances.
         self.gameobjects = dict()
         self.creatures = dict()
@@ -59,28 +62,37 @@ class Cell:
             self.corpses[world_object.guid] = world_object
 
     def update_creatures(self, now):
-        updated_by_spawn = set()
-        # Update creatures Spawns.
-        for spawn_id, spawn_creature in list(self.creatures_spawns.items()):
-            updated_by_spawn.add(spawn_creature.update(now))
-        # Update orphan creature instances.
-        for guid, creature in list(self.creatures.items()):
-            if guid not in updated_by_spawn:
-                creature.update(now)
+        with self.cell_lock:
+            updated_by_spawn = set()
+            # Update creatures Spawns.
+            for spawn_id, spawn_creature in list(self.creatures_spawns.items()):
+                updated_by_spawn.add(spawn_creature.update(now))
+            # Update orphan creature instances.
+            for guid, creature in list(self.creatures.items()):
+                if guid not in updated_by_spawn:
+                    creature.update(now)
+
+    def stop_movement(self):
+        with self.cell_lock:
+            # Update orphan creature instances.
+            for guid, creature in list(self.creatures.items()):
+                creature.stop_movement()
 
     def update_gameobject(self, now):
-        updated_by_spawn = set()
-        # Update gameobjects Spawns.
-        for spawn_id, spawn_gameobject in list(self.gameobject_spawns.items()):
-            updated_by_spawn.add(spawn_gameobject.update(now))
-        # Update orphan gameobject instances.
-        for guid, gameobject in list(self.gameobjects.items()):
-            if guid not in updated_by_spawn:
-                gameobject.update(now)
+        with self.cell_lock:
+            updated_by_spawn = set()
+            # Update gameobjects Spawns.
+            for spawn_id, spawn_gameobject in list(self.gameobject_spawns.items()):
+                updated_by_spawn.add(spawn_gameobject.update(now))
+            # Update orphan gameobject instances.
+            for guid, gameobject in list(self.gameobjects.items()):
+                if guid not in updated_by_spawn:
+                    gameobject.update(now)
 
     def update_corpses(self, now):
-        for guid, corpse in list(self.corpses.items()):
-            corpse.update(now)
+        with self.cell_lock:
+            for guid, corpse in list(self.corpses.items()):
+                corpse.update(now)
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
     def update_players_surroundings(self, world_object=None, has_changes=False, has_inventory_changes=False):
