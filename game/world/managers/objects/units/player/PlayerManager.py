@@ -1709,7 +1709,7 @@ class PlayerManager(UnitManager):
 
     # override
     def get_type_mask(self):
-        return super().get_type_mask() | ObjectTypeFlags.TYPE_UNIT | ObjectTypeFlags.TYPE_PLAYER
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_PLAYER
 
     # override
     def get_type_id(self):
