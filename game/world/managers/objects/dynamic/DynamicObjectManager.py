@@ -52,8 +52,14 @@ class DynamicObjectManager(ObjectManager):
 
     @classmethod
     def spawn_from_casting_spell(cls, casting_spell, effect):
+        target = casting_spell.initial_target
+
+        # Target must be a vector.
+        if isinstance(ObjectManager, target):
+            target = target.location
+
         casting_spell.dynamic_object = DynamicObjectManager.spawn(casting_spell.spell_caster,
-                                                                  casting_spell.initial_target,
+                                                                  target,
                                                                   effect.get_radius(), casting_spell.spell_entry.ID,
                                                                   DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
         return casting_spell.dynamic_object
