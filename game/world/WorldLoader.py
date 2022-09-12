@@ -4,8 +4,8 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.gameobjects.GameObjectSpawn import GameObjectSpawn
+from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
@@ -101,22 +101,10 @@ class WorldLoader:
         count = 0
 
         for gobject_spawn in gobject_spawns:
-            go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(
-                gobject_spawn.spawn_entry)
-            if not go_template:
-                Logger.warning(
-                    f'Found gameobject spawn with non existent template. '
-                    f'Spawn id: {gobject_spawn.spawn_id}. '
-                )
-                continue
-
-            gobject_mgr = GameObjectManager(
-                gobject_template=go_template,
-                gobject_instance=gobject_spawn
-            )
-            gobject_mgr.load()
-
+            gameobject_spawn = GameObjectSpawn(gobject_spawn)
+            gameobject_spawn.spawn_gameobject()
             count += 1
+
             Logger.progress('Loading gameobject spawns...', count, length)
 
         return length
@@ -168,16 +156,9 @@ class WorldLoader:
         length = len(creature_spawns)
         count = 0
 
-        for creature in creature_spawns:
-            creature_mgr = CreatureManager(creature_instance=creature)
-            if not creature_mgr.creature_template:
-                Logger.warning(
-                    f'Found creature spawn with non existent creature template(s). '
-                    f'Spawn id: {creature_mgr.creature_instance.spawn_id}. '
-                    f'Spawn entry list: {creature_mgr.creature_entry_list}.'
-                )
-                continue
-            creature_mgr.load()
+        for creature_spawn in creature_spawns:
+            creature_spawn = CreatureSpawn(creature_spawn)
+            creature_spawn.spawn_creature()
             count += 1
             Logger.progress('Loading creature spawns...', count, length)
 

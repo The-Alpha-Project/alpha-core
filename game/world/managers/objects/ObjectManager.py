@@ -58,7 +58,6 @@ class ObjectManager:
         self.zone = zone
         self.map_ = map_
 
-        self.object_type_mask = ObjectTypeFlags.TYPE_OBJECT
         self.update_packet_factory = UpdatePacketFactory()
 
         self.initialized = False
@@ -68,6 +67,11 @@ class ObjectManager:
         self.last_tick = 0
         self.movement_spline = None
         self.object_ai = None
+
+        # Units and gameobjects have SpellManager.
+        from game.world.managers.objects.spell.SpellManager import SpellManager
+        if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT or self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            self.spell_manager = SpellManager(self)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -111,7 +115,7 @@ class ObjectManager:
         data += self._get_movement_fields()
 
         # Misc fields.
-        combat_unit = UnitManager.UnitManager(self).combat_target if self.object_type_mask & ObjectTypeFlags.TYPE_UNIT \
+        combat_unit = UnitManager.UnitManager(self).combat_target if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT \
             else None
         data += pack(
             '<3IQ',
@@ -303,6 +307,10 @@ class ObjectManager:
         pass
 
     # override
+    def get_type_mask(self):
+        return ObjectTypeFlags.TYPE_OBJECT
+
+    # override
     def get_type_id(self):
         return ObjectTypeIds.ID_OBJECT
 
@@ -320,13 +328,9 @@ class ObjectManager:
         pass
 
     # override
-    def despawn(self, destroy=False):
-        # is_spawned should be set to False in both cases.
+    def destroy(self):
         self.is_spawned = False
-        if destroy:
-            MapManager.remove_object(self)
-        else:
-            MapManager.despawn_object(self)
+        MapManager.remove_object(self)
 
     # override
     def respawn(self):
@@ -359,7 +363,7 @@ class ObjectManager:
             return False
 
         # You can only attack units, not gameobjects.
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return False
 
         if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
@@ -367,7 +371,7 @@ class ObjectManager:
             return False
 
         # Unit vs Player only checks.
-        if self.object_type_mask & ObjectTypeFlags.TYPE_UNIT and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # If player is on a flying path.
             if target.movement_spline and target.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
                 return False

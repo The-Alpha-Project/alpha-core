@@ -48,7 +48,7 @@ class TrapManager(object):
             # Valid target found, trigger the trap. In case charges = 1, despawn the trap.
             if self.trigger(unit) and self.charges == 1:
                 self.trap_object.set_active()
-                self.trap_object.despawn()
+                self.trap_object.destroy()
             break
 
     def trigger(self, who):

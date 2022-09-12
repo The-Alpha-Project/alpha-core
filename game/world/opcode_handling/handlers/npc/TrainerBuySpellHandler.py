@@ -1,3 +1,4 @@
+from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.constants.SpellCodes import SpellTargetMask
 from network.packet.PacketReader import PacketReader
@@ -77,7 +78,8 @@ class TrainerBuySpellHandler(object):
 
         fail_reason = None
         anti_cheat = False
-        if not unit.is_trainer() or not unit.can_train(player_mgr) or not unit.trainer_has_spell(training_spell_id):
+        if not unit.is_trainer() or not TrainerUtils.can_train(unit, player_mgr) or \
+                not TrainerUtils.trainer_has_spell(unit, training_spell_id):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
         elif spell_money_cost > 0 and spell_money_cost > player_mgr.coinage:

@@ -4,12 +4,15 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
+from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraManager import AppliedAura
+from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -17,7 +20,8 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
-from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes, DynamicObjectTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes, DynamicObjectTypes, \
+    GameObjectStates
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
     SpellImmunity
 from utils.constants.UnitCodes import UnitFlags
@@ -54,7 +58,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_school_damage(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         damage = effect.get_effect_points()
@@ -62,7 +66,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         healing = effect.get_effect_points()
@@ -70,7 +74,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_heal_max_health(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         healing = caster.max_health
@@ -78,7 +82,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_weapon_damage(casting_spell, effect, caster, target):
-        if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         if casting_spell.spell_attack_type == -1:
@@ -107,14 +111,14 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
-        if not caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         caster.add_combo_points_on_target(target, effect.get_effect_points())
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
@@ -129,9 +133,13 @@ class SpellEffectHandler:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        arbiter = GameObjectManager.spawn(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
-                                          summoner=caster, ttl=3600, spell_id=casting_spell.spell_entry.ID,
-                                          override_faction=caster.faction)
+        arbiter = GameObjectBuilder.create(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
+                                           GameObjectStates.GO_STATE_READY,
+                                           summoner=caster,
+                                           spell_id=casting_spell.spell_entry.ID,
+                                           faction=caster.faction, ttl=3600)
+
+        MapManager.spawn_object(world_object_instance=arbiter)
 
         DuelManager.request_duel(caster, target, arbiter)
 
@@ -162,7 +170,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         power_type = effect.misc_value
@@ -174,7 +182,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         already_mounted = target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED
@@ -193,7 +201,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_insta_kill(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         # No SMSG_SPELLINSTAKILLLOG in 0.5.3
@@ -231,7 +239,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_PLAYER:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
             return
 
         # Teleport targets should follow the format (map, Vector).
@@ -253,10 +261,7 @@ class SpellEffectHandler:
         # For now, dynamic object only enable us to properly display area effects to clients.
         # Targeting and effect application is still done by 'handle_apply_area_aura'.
         if not casting_spell.dynamic_object:
-            dynamic_object = DynamicObjectManager.spawn(caster, casting_spell.initial_target, effect.get_radius(),
-                                                        casting_spell.spell_entry.ID,
-                                                        DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
-            casting_spell.dynamic_object = dynamic_object
+            DynamicObjectManager.spawn_from_casting_spell(casting_spell, effect)
 
         SpellEffectHandler.handle_apply_area_aura(casting_spell, effect, caster, target)
         return
@@ -291,16 +296,14 @@ class SpellEffectHandler:
         duration = casting_spell.get_duration()
         # If no duration, default to 5 minutes.
         duration = 300 if duration == 0 else (duration / 1000)
-        # TODO Refactor to avoid circular import?
-        from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-        creature_manager = CreatureManager.spawn(totem_entry, target, caster.map_, summoner=caster,
-                                                 override_faction=caster.faction, ttl=duration)
 
+        creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, summoner=caster,
+                                                  faction=caster.faction, ttl=duration,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
         if not creature_manager:
             return
 
-        creature_manager.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
-        creature_manager.respawn()
+        MapManager.spawn_object(world_object_instance=creature_manager)
 
         # TODO This should be handled in creature AI instead
         # TODO Totems are not connected to player (pet etc. handling)
@@ -310,7 +313,8 @@ class SpellEffectHandler:
                          creature_manager.creature_template.spell_id4]:
             if spell_id == 0:
                 break
-            creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager, SpellTargetMask.SELF)
+            creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager,
+                                                               SpellTargetMask.UNIT, validate=False)
 
     @staticmethod
     def handle_summon_object(casting_spell, effect, caster, target):
@@ -335,9 +339,13 @@ class SpellEffectHandler:
         duration = casting_spell.get_duration()
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
-        GameObjectManager.spawn(object_entry, target, caster.map_, summoner=caster,
-                                spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
-                                ttl=duration)
+
+        gameobject = GameObjectBuilder.create(object_entry, target, caster.map_,
+                                              GameObjectStates.GO_STATE_READY,
+                                              summoner=caster,
+                                              spell_id=casting_spell.spell_entry.ID,
+                                              faction=caster.faction, ttl=duration)
+        MapManager.spawn_object(world_object_instance=gameobject)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):
@@ -518,15 +526,16 @@ class SpellEffectHandler:
                     pz = target.location.z
 
             # Spawn the summoned unit.
-            from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-            unit = CreatureManager.spawn(creature_entry, Vector(px, py, pz), caster.map_, summoner=caster,
-                                         spell_id=casting_spell.spell_entry.ID, override_faction=caster.faction,
-                                         ttl=duration)
-            if not unit:
+            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_,
+                                                      summoner=caster, faction=caster.faction, ttl=duration,
+                                                      spell_id=casting_spell.spell_entry.ID,
+                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
+
+            if not creature_manager:
                 Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
                 return
 
-            unit.respawn()
+            MapManager.spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):
@@ -569,7 +578,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_interrupt_cast(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         if not target.is_alive:
@@ -663,7 +672,7 @@ class SpellEffectHandler:
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod
     def handle_block_passive(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         target.has_block_passive = True
@@ -672,21 +681,21 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_parry_passive(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         target.has_parry_passive = True
 
     @staticmethod
     def handle_dodge_passive(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         target.has_dodge_passive = True
 
     @staticmethod
     def handle_defense_passive(casting_spell, effect, caster, target):
-        if not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:

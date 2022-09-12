@@ -1,12 +1,13 @@
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
+from game.world.managers.objects.guids.GuidManager import GuidManager
+from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags, DynamicObjectTypes
 from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 
 
 # TODO: Finish implementing.
 class DynamicObjectManager(ObjectManager):
-    CURRENT_HIGHEST_GUID = 0
+    GUID_MANAGER = GuidManager()
 
     def __init__(self, owner, location, radius, spell_id, dynamic_type, **kwargs):
         super().__init__(**kwargs)
@@ -18,17 +19,15 @@ class DynamicObjectManager(ObjectManager):
         self.spell_id = spell_id
         self.radius = radius
 
-        DynamicObjectManager.CURRENT_HIGHEST_GUID += 1
-        self.guid = self.generate_object_guid(DynamicObjectManager.CURRENT_HIGHEST_GUID)
+        self.guid = self.generate_object_guid(DynamicObjectManager.GUID_MANAGER.get_new_guid())
 
-        self.object_type_mask |= ObjectTypeFlags.TYPE_DYNAMICOBJECT
         self.update_packet_factory.init_values(self.owner, DynamicObjectFields)
 
     # override
     def initialize_field_values(self):
         # Object fields.
         self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-        self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
+        self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
         self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
         self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
@@ -50,6 +49,24 @@ class DynamicObjectManager(ObjectManager):
                                               dynamic_type=dynamic_type)
         MapManager.update_object(dynamic_object)
         return dynamic_object
+
+    @classmethod
+    def spawn_from_casting_spell(cls, casting_spell, effect):
+        target = casting_spell.initial_target
+
+        # Target must be a vector.
+        if isinstance(ObjectManager, target):
+            target = target.location
+
+        casting_spell.dynamic_object = DynamicObjectManager.spawn(casting_spell.spell_caster,
+                                                                  target,
+                                                                  effect.get_radius(), casting_spell.spell_entry.ID,
+                                                                  DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
+        return casting_spell.dynamic_object
+
+    # override
+    def get_type_mask(self):
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_DYNAMICOBJECT
 
     # override
     def get_type_id(self):

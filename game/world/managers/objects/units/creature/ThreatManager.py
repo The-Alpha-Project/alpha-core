@@ -5,7 +5,7 @@ from typing import Optional
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import HighGuid, ObjectTypeIds, ObjectTypeFlags
+from utils.constants.MiscCodes import HighGuid, ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates
 
@@ -58,7 +58,7 @@ class ThreatManager:
             return
 
         # Avoid adding threat between two friendly units, needs further investigation.
-        if source.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             if not source.is_hostile_to(self.owner) and source.summoner \
                     and not source.summoner.can_attack_target(self.owner):
                 return

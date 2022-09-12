@@ -32,7 +32,7 @@ class AuraManager:
         # Application threat and negative aura application interrupts.
         if aura.harmful:
             # Add threat for non-player targets against unit casters.
-            if aura.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and \
+            if aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and \
                     self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT and aura.source_spell.generates_threat():
                 # TODO: Threat calculation.
                 self.unit_mgr.threat_manager.add_threat(aura.caster, abs(aura.get_effect_points()))

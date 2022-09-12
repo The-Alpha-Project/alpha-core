@@ -59,6 +59,16 @@ class UnitFormulas(object):
             return item_info.WeaponSwingSize
         return 0
 
+    @staticmethod
+    def calculate_max_health_and_max_power(creature_mgr, level):
+        c_template = creature_mgr.creature_template
+        rel_level = 0
+        if c_template.level_max != c_template.level_min:
+            rel_level = ((level - c_template.level_min) / (c_template.level_max - c_template.level_min))
+        max_health = c_template.health_min + int(rel_level * (c_template.health_max - c_template.health_min))
+        max_power1 = c_template.mana_min + int(rel_level * (c_template.mana_max - c_template.mana_min))
+        return max_health, max_power1
+
     # Taken from the 0.5.3 client
     @staticmethod
     def interactable_distance(attacker, target):

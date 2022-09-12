@@ -10,11 +10,11 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
-from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -161,7 +161,6 @@ class PlayerManager(UnitManager):
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
             self.is_alive = self.health > 0
 
-            self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
             self.update_packet_factory.init_values(self.guid, PlayerFields)
 
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
@@ -415,7 +414,7 @@ class PlayerManager(UnitManager):
                 active_objects[guid] = creature
                 if guid not in self.known_objects or not self.known_objects[guid]:
                     # We don't know this creature, notify self with its update packet.
-                    self.enqueue_packet(CreatureManager.query_details(creature_mgr=creature))
+                    self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
                     if creature.is_spawned:
                         self.enqueue_packet(creature.generate_create_packet(requester=self))
                         # Get partial movement packet if any.
@@ -438,7 +437,7 @@ class PlayerManager(UnitManager):
                 active_objects[guid] = gobject
                 if guid not in self.known_objects or not self.known_objects[guid]:
                     # We don't know this game object, notify self with its update packet.
-                    self.enqueue_packet(GameObjectManager.query_details(gameobject_mgr=gobject))
+                    self.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject))
                     if gobject.is_spawned:
                         self.enqueue_packet(gobject.generate_create_packet(requester=self))
                         # We only consider 'known' if its spawned, the details query is still sent.
@@ -1133,7 +1132,7 @@ class PlayerManager(UnitManager):
 
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
@@ -1707,6 +1706,10 @@ class PlayerManager(UnitManager):
             return self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
 
         return False
+
+    # override
+    def get_type_mask(self):
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_PLAYER
 
     # override
     def get_type_id(self):
