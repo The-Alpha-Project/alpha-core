@@ -496,7 +496,7 @@ class PetManager:
                                                   spell_id=summon_spell_id,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
 
-            # Despawn source creature, its spawn parent will handle respawning.
+            # Despawn source creature, its spawn point will handle respawning.
             creature.destroy()
             # Spawn new creature pet.
             MapManager.spawn_object(world_object_instance=pet_creature)

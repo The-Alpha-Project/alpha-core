@@ -11,7 +11,7 @@ from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
 from game.world.managers.objects.units.creature.CreaturePickPocketLootManager import CreaturePickPocketLootManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
-from game.world.managers.objects.units.creature.items.VirtualItemsUtils import VirtualItemsUtils
+from game.world.managers.objects.units.creature.items.VirtualItemUtils import VirtualItemsUtils
 from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
@@ -526,7 +526,7 @@ class CreatureManager(UnitManager):
                     target = self.threat_manager.resolve_target()
                     if target and target != self.combat_target:
                         self.attack(target)
-            # Dead creature with no creature spawn parent, handle destroy.
+            # Dead creature with no creature spawn point, handle destroy.
             elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.
 

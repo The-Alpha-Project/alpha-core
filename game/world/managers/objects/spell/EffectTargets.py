@@ -321,11 +321,11 @@ class EffectTargets:
             if not caster.is_totem():
                 units_in_range.append(caster)
 
-        # Have a summoner and within radius.
+        # Has a summoner and is within radius.
         if summoner and caster.location.distance(summoner.location) < distance:
             units_in_range.append(summoner)
 
-        # Have a pet and within radius.
+        # Has a pet and is within radius.
         if caster_pet and caster.location.distance(caster_pet.location) < distance:
             units_in_range.append(caster_pet)
 
