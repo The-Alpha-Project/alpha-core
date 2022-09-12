@@ -30,7 +30,7 @@ class GooberManager(object):
             scripted_gameobject.set_active()
 
         # Check if player quests need this goober interaction.
-        if player.quest_manager.handle_goober_use(self, self.quest_id):
+        if player.quest_manager.handle_goober_use(self.goober_object, self.quest_id):
             if self.has_custom_animation:
                 self.goober_object.send_custom_animation(0)
             if self.is_consumable:
