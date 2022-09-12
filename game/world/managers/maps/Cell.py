@@ -63,31 +63,31 @@ class Cell:
 
     def update_creatures(self, now):
         with self.cell_lock:
-            updated_by_spawn = set()
-            # Update creatures Spawns.
-            for spawn_id, spawn_creature in list(self.creatures_spawns.items()):
-                updated_by_spawn.add(spawn_creature.update(now))
-            # Update orphan creature instances.
+            # Update creature instances.
             for guid, creature in list(self.creatures.items()):
-                if guid not in updated_by_spawn:
-                    creature.update(now)
+                creature.update(now)
 
     def stop_movement(self):
         with self.cell_lock:
-            # Update orphan creature instances.
+            # Try to stop movement from all creatures in this cell.
             for guid, creature in list(self.creatures.items()):
                 creature.stop_movement()
 
-    def update_gameobject(self, now):
+    def update_gameobjects(self, now):
         with self.cell_lock:
-            updated_by_spawn = set()
-            # Update gameobjects Spawns.
-            for spawn_id, spawn_gameobject in list(self.gameobject_spawns.items()):
-                updated_by_spawn.add(spawn_gameobject.update(now))
-            # Update orphan gameobject instances.
+            # Update gameobject instances.
             for guid, gameobject in list(self.gameobjects.items()):
-                if guid not in updated_by_spawn:
-                    gameobject.update(now)
+                gameobject.update(now)
+
+    def update_spawns(self, now):
+        with self.cell_lock:
+            # Update creatures spawn points.
+            for spawn_id, spawn_creature in list(self.creatures_spawns.items()):
+                spawn_creature.update(now)
+
+            # Update gameobject spawn points.
+            for spawn_id, spawn_gameobject in list(self.gameobject_spawns.items()):
+                spawn_gameobject.update(now)
 
     def update_corpses(self, now):
         with self.cell_lock:

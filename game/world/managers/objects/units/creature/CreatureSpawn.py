@@ -30,14 +30,12 @@ class CreatureSpawn:
             elapsed = now - self.last_tick
             creature = self.creature_instance
             if creature:
-                creature.update(now)
                 if (not creature.is_alive or not creature.is_spawned) and creature.initialized:
                     self._update_respawn(elapsed)
             else:
                 self._update_respawn(elapsed)
 
         self.last_tick = now
-        return self.creature_instance.guid if self.creature_instance else 0
 
     def spawn_creature(self):
         creature_template_id = self._generate_creature_template()

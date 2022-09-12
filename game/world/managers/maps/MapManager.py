@@ -444,6 +444,11 @@ class MapManager:
             map_.grid_manager.update_gameobjects()
 
     @staticmethod
+    def update_spawns():
+        for map_id, map_ in MAPS.items():
+            map_.grid_manager.update_spawns()
+
+    @staticmethod
     def update_corpses():
         for map_id, map_ in MAPS.items():
             map_.grid_manager.update_corpses()

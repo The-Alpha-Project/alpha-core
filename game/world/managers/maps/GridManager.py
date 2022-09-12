@@ -350,7 +350,13 @@ class GridManager:
         with self.grid_lock:
             now = time.time()
             for key in list(self.active_cell_keys):
-                self.cells[key].update_gameobject(now)
+                self.cells[key].update_gameobjects(now)
+
+    def update_spawns(self):
+        with self.grid_lock:
+            now = time.time()
+            for key in list(self.active_cell_keys):
+                self.cells[key].update_spawns(now)
 
     def update_corpses(self):
         with self.grid_lock:

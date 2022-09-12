@@ -495,7 +495,6 @@ class CreatureManager(UnitManager):
             elapsed = now - self.last_tick
 
             if self.is_alive and self.is_spawned and self.initialized:
-
                 # Time to live checks for standalone instances.
                 if not self._check_time_to_live(elapsed):
                     return  # Creature destroyed.
@@ -526,7 +525,7 @@ class CreatureManager(UnitManager):
                     target = self.threat_manager.resolve_target()
                     if target and target != self.combat_target:
                         self.attack(target)
-            # Dead creature with no creature spawn point, handle destroy.
+            # Dead creature with no spawn point, handle destroy.
             elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.
 

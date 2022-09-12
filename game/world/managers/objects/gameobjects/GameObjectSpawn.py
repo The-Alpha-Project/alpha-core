@@ -25,14 +25,12 @@ class GameObjectSpawn:
             elapsed = now - self.last_tick
             gameobject = self.gameobject_instance
             if gameobject:
-                gameobject.update(now)
                 if not gameobject.is_spawned and gameobject.initialized:
                     self._update_respawn(elapsed)
             else:
                 self._update_respawn(elapsed)
 
         self.last_tick = now
-        return self.gameobject_instance.guid if self.gameobject_instance else 0
 
     def spawn_gameobject(self):
         gameobject_template_id = self._generate_gameobject_template()
