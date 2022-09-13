@@ -2,7 +2,7 @@ from game.world.managers.objects.units.creature.CreatureManager import CreatureM
 from struct import unpack
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.units.creature.utils import VendorUtils
+from game.world.managers.objects.units.creature.utils.VendorUtils import VendorUtils
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils import Formulas
 
