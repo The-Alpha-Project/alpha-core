@@ -15,7 +15,7 @@ class CorpseManager(ObjectManager):
         super().__init__(**kwargs)
 
         self.owner = owner
-        self.guild_id = owner.guild_manager.guild_id if owner.guild_manager else 0
+        self.guild_id = owner.guild_manager.guild.guild_id if owner.guild_manager else 0
         self.location = owner.location
         self.current_scale = owner.current_scale
         self.native_display_id = owner.native_display_id
