@@ -12554,5 +12554,13 @@ begin not atomic
 
         insert into applied_updates values ('070920221');
     end if;
+
+    -- 15/09/2022 1
+    if (select count(*) from applied_updates where id='150920221') = 0 then
+        -- Fix https://github.com/The-Alpha-Project/alpha-core/issues/637
+        UPDATE `creature_template` SET `npc_flags` = 0x8 WHERE `entry` = 3604;
+
+        insert into applied_updates values ('150920221');
+    end if;
 end $
 delimiter ;
