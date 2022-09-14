@@ -55,7 +55,7 @@ class DynamicObjectManager(ObjectManager):
         target = casting_spell.initial_target
 
         # Target must be a vector.
-        if isinstance(ObjectManager, target):
+        if isinstance(target, ObjectManager):
             target = target.location
 
         casting_spell.dynamic_object = DynamicObjectManager.spawn(casting_spell.spell_caster,
