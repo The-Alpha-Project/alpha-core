@@ -59,12 +59,6 @@ class GameObjectSpawn:
         if self.respawn_timer >= self.respawn_time:
             self.spawn_gameobject()
 
-    def destroy(self):
-        if self.gameobject_instance:
-            self.respawn_timer = 0
-            self.gameobject_instance.destroy()
-            self.gameobject_instance = None
-
     def _get_location(self):
         return Vector(self.gameobject_spawn.spawn_positionX, self.gameobject_spawn.spawn_positionY,
                       self.gameobject_spawn.spawn_positionZ, self.gameobject_spawn.spawn_orientation)
