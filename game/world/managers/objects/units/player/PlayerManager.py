@@ -1712,6 +1712,10 @@ class PlayerManager(UnitManager):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_PLAYER
 
     # override
+    def get_low_guid(self):
+        return self.guid & ~HighGuid.HIGHGUID_PLAYER
+
+    # override
     def get_type_id(self):
         return ObjectTypeIds.ID_PLAYER
 

@@ -75,7 +75,7 @@ class ThreatManager:
                 self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
                 self._update_attackers_collection(source)
             else:
-                Logger.warning(f'Passed non positive threat {threat} from {source.guid & ~HighGuid.HIGHGUID_UNIT}')
+                Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
     def resolve_target(self):
         if len(self.holders) > 0:

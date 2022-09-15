@@ -1373,6 +1373,10 @@ class UnitManager(ObjectManager):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_UNIT
 
     # override
+    def get_low_guid(self):
+        return self.guid & ~HighGuid.HIGHGUID_UNIT
+
+    # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
 

@@ -434,6 +434,10 @@ class GameObjectManager(ObjectManager):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_GAMEOBJECT
 
     # override
+    def get_low_guid(self):
+        return self.guid & ~HighGuid.HIGHGUID_GAMEOBJECT
+
+    # override
     def get_type_id(self):
         return ObjectTypeIds.ID_GAMEOBJECT
 
