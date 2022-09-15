@@ -2,10 +2,10 @@ import time
 from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestFlags
 from utils.constants.MiscCodes import HighGuid
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -37,7 +37,7 @@ class ActiveQuest:
 
     def is_quest_complete(self, quest_giver_guid):
         quest_giver = None
-        high_guid = ObjectManager.extract_high_guid(quest_giver_guid)
+        high_guid = GuidUtils.extract_high_guid(quest_giver_guid)
 
         if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
             quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.owner, quest_giver_guid)

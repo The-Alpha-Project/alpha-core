@@ -28,6 +28,7 @@ class GameObjectManager(ObjectManager):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.spawn_id = 0
         self.entry = 0
         self.guid = 0
         self.gobject_template = None
@@ -419,6 +420,14 @@ class GameObjectManager(ObjectManager):
     # override
     def on_cell_change(self):
         pass
+
+    # override
+    def get_debug_messages(self, requester=None):
+        return [
+            f'SpawnID {self.spawn_id}, Guid: {self.get_low_guid()}, Entry: {self.entry}, Display ID: {self.current_display_id}',
+            f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}',
+            f'Distance: {self.location.distance(requester.location) if requester else 0} yd'
+        ]
 
     # override
     def get_type_mask(self):

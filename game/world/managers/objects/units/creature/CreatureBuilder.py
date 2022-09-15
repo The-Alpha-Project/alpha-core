@@ -11,7 +11,7 @@ class CreatureBuilder:
     @staticmethod
     def create(entry, location, map_id, health_percent=100, mana_percent=100, summoner=None, faction=0,
                spell_id=0, ttl=0, addon=None, wander_distance=0, movement_type=MovementTypes.IDLE,
-               subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
+               subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, spawn_id=0):
 
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
         if not creature_template:
@@ -19,6 +19,7 @@ class CreatureBuilder:
 
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_instance = CreatureManager()
+        creature_instance.spawn_id = spawn_id
         creature_instance.entry = creature_template.entry
         creature_instance.guid = creature_instance.generate_object_guid(CreatureBuilder.GUID_MANAGER.get_new_guid())
         creature_instance.creature_template = creature_template

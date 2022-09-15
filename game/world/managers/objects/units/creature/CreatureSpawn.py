@@ -52,7 +52,8 @@ class CreatureSpawn:
                                                         health_percent=self.health_percent,
                                                         mana_percent=self.mana_percent,
                                                         wander_distance=self.creature_spawn.wander_distance,
-                                                        movement_type=self.creature_spawn.movement_type)
+                                                        movement_type=self.creature_spawn.movement_type,
+                                                        spawn_id=self.spawn_id)
 
         MapManager.spawn_object(world_object_spawn=self, world_object_instance=self.creature_instance)
         return True

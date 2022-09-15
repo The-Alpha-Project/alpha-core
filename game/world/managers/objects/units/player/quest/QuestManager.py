@@ -13,6 +13,7 @@ from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHel
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
@@ -726,7 +727,7 @@ class QuestManager(object):
         quest_item_starter = None
         if quest_giver_guid:
             quest_giver = None
-            high_guid = ObjectManager.extract_high_guid(quest_giver_guid)
+            high_guid = GuidUtils.extract_high_guid(quest_giver_guid)
 
             if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
                 quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.player_mgr, quest_giver_guid)

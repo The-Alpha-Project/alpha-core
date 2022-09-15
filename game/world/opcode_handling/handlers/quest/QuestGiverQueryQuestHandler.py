@@ -1,8 +1,8 @@
 from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
 
@@ -18,7 +18,7 @@ class QuestGiverQueryQuestHandler(object):
 
         if len(reader.data) >= 8:  # Avoid handling empty quest giver query quest packet.
             guid, quest_entry = unpack('<QL', reader.data[:12])
-            high_guid = ObjectManager.extract_high_guid(guid)
+            high_guid = GuidUtils.extract_high_guid(guid)
 
             # NPC
             if high_guid == HighGuid.HIGHGUID_UNIT:

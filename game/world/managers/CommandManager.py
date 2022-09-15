@@ -516,7 +516,9 @@ class CommandManager(object):
                                                            world_session.player_mgr.current_selection)
 
         if creature:
-            return 0, f'[{creature.creature_template.name}] - Guid: {creature.guid & ~HighGuid.HIGHGUID_UNIT}, ' \
+            return 0, f'[{creature.creature_template.name}], ' \
+                      f'SpawnID: {creature.spawn_id}, ' \
+                      f'Guid: {creature.guid & ~HighGuid.HIGHGUID_UNIT}, ' \
                       f'Entry: {creature.creature_template.entry}, ' \
                       f'Display ID: {creature.current_display_id}, ' \
                       f'X: {creature.location.x}, ' \
@@ -550,7 +552,9 @@ class CommandManager(object):
                 if distance <= max_distance:
                     found_count += 1
                     ChatManager.send_system_message(world_session,
-                                                    f'[{gobject.gobject_template.name}] - Guid: {gobject.guid & ~HighGuid.HIGHGUID_GAMEOBJECT}, '
+                                                    f'[{gobject.gobject_template.name}], '
+                                                    f'SpawnID: {gobject.spawn_id}, '
+                                                    f'Guid: {gobject.guid & ~HighGuid.HIGHGUID_GAMEOBJECT}, '
                                                     f'Entry: {gobject.gobject_template.entry}, '
                                                     f'Display ID: {gobject.current_display_id}, '
                                                     f'X: {gobject.location.x}, '
