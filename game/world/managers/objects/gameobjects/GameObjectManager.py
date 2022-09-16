@@ -424,7 +424,7 @@ class GameObjectManager(ObjectManager):
     # override
     def get_debug_messages(self, requester=None):
         return [
-            f'SpawnID {self.spawn_id}, Guid: {self.get_low_guid()}, Entry: {self.entry}, Display ID: {self.current_display_id}',
+            f'Spawn ID {self.spawn_id}, Guid: {self.get_low_guid()}, Entry: {self.entry}, Display ID: {self.current_display_id}',
             f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}',
             f'Distance: {self.location.distance(requester.location) if requester else 0} yd'
         ]

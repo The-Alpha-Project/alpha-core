@@ -358,6 +358,10 @@ class ObjectManager:
                                                                self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
+    # override
+    def is_totem(self):
+        return False
+
     def can_attack_target(self, target):
         if not target:
             return False

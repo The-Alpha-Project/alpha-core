@@ -517,7 +517,7 @@ class CommandManager(object):
 
         if creature:
             return 0, f'[{creature.creature_template.name}], ' \
-                      f'SpawnID: {creature.spawn_id}, ' \
+                      f'Spawn ID: {creature.spawn_id}, ' \
                       f'Guid: {creature.get_low_guid()}, ' \
                       f'Entry: {creature.creature_template.entry}, ' \
                       f'Display ID: {creature.current_display_id}, ' \
@@ -553,7 +553,7 @@ class CommandManager(object):
                     found_count += 1
                     ChatManager.send_system_message(world_session,
                                                     f'[{gobject.gobject_template.name}], '
-                                                    f'SpawnID: {gobject.spawn_id}, '
+                                                    f'Spawn ID: {gobject.spawn_id}, '
                                                     f'Guid: {gobject.get_low_guid()}, '
                                                     f'Entry: {gobject.gobject_template.entry}, '
                                                     f'Display ID: {gobject.current_display_id}, '
