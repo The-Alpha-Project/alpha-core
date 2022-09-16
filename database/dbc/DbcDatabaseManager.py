@@ -242,10 +242,19 @@ class DbcDatabaseManager:
 
     class SkillLineAbilityHolder:
         SKILL_LINE_ABILITIES = defaultdict(list)
+        SKILL_LINE_PRECEDED = dict()
 
         @staticmethod
         def load_skill_line_ability(skill_line_ability):
             DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[skill_line_ability.Spell].append(skill_line_ability)
+            if skill_line_ability.SupercededBySpell:
+                DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_PRECEDED[skill_line_ability.SupercededBySpell] = skill_line_ability
+
+        @staticmethod
+        def skill_line_abilities_get_preceded_by_spell(spell_id) -> Optional[SkillLineAbility]:
+            if spell_id in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_PRECEDED:
+                return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_PRECEDED[spell_id]
+            return None
 
         @staticmethod
         def skill_line_abilities_get_by_spell(spell_id) -> list:

@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
+from utils.constants.SpellCodes import SpellEffects
 
 TALENT_SKILL_ID = 3
 # Weapon, Attribute, Slayer, Magic, Defensive
@@ -32,8 +33,11 @@ class TalentManager(object):
 
         for training_spell in WorldDatabaseManager.TrainerSpellHolder.TALENTS:
             spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(training_spell.playerspell)
-            spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
 
+            if not spell:
+                continue
+
+            spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(
                 spell.ID, self.player_mgr)
 
@@ -49,10 +53,19 @@ class TalentManager(object):
                 if not self.player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
                     continue
 
+            # Search previous spell.
+            preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
+            preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
+
+            # Skill step.
+            skill_step: int = 0
+            if spell.Effect_2 == SpellEffects.SPELL_EFFECT_SKILL_STEP:
+                skill_step = spell.EffectMiscValue_2
+
             if spell.ID in self.player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
-                if skill_line_ability.custom_PrecededBySpell in self.player_mgr.spell_manager.spells and spell_rank > 1:
+                if preceded_spell in self.player_mgr.spell_manager.spells and spell_rank > 1:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
                 elif spell_rank == 1:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
@@ -68,13 +81,14 @@ class TalentManager(object):
                 talent_points_cost,  # Talent Point Cost.
                 0,  # Skill Point Cost.
                 spell.BaseLevel,  # Required Level.
-                0,  # Required Skill Line.
-                0,  # Required Skill Rank.
-                0,  # Required Skill Step.
-                skill_line_ability.custom_PrecededBySpell,  # Required Ability (1)
+                skill_line_ability.SkillLine,  # Required Skill Line.
+                skill_line_ability.MinSkillLineRank,  # Required Skill Rank.
+                skill_step,  # Required Skill Step.
+                preceded_spell,  # Required Ability (1)
                 0,  # Required Ability (2)
                 0  # Required Ability (3)
             )
+
             talent_bytes += data
             talent_count += 1
 

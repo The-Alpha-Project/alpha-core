@@ -1,5 +1,8 @@
 from struct import pack
+from typing import Optional
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.dbc.DbcModels import Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import TrainerTemplate, SpellChain
 from network.packet.PacketWriter import PacketWriter
@@ -7,6 +10,7 @@ from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import SpellEffects
 
 
 class TrainerUtils:
@@ -33,6 +37,9 @@ class TrainerUtils:
         # trainer_spell: The spell the trainer uses to teach the player.
         for trainer_spell in trainer_ability_list:
             player_spell_id = trainer_spell.playerspell
+            spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(player_spell_id)
+            if not spell:
+                continue
 
             ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(
                 player_spell_id)
@@ -44,6 +51,11 @@ class TrainerUtils:
             prev_spell: int = ability_spell_chain.prev_spell
 
             spell_is_too_high_level: bool = spell_level > player_mgr.level
+
+            # Skill step.
+            skill_step: int = 0
+            if spell.Effect_2 == SpellEffects.SPELL_EFFECT_SKILL_STEP:
+                skill_step = spell.EffectMiscValue_2
 
             if player_spell_id in player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
@@ -65,7 +77,7 @@ class TrainerUtils:
                 spell_level,  # Required Level.
                 trainer_spell.reqskill,  # Required Skill Line.
                 trainer_spell.reqskillvalue,  # Required Skill Rank.
-                0,  # Required Skill Step.
+                skill_step,  # Required Skill Step.
                 prev_spell,  # Required Ability (1).
                 0,  # Required Ability (2).
                 0  # Required Ability (3).

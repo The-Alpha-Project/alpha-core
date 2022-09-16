@@ -3,7 +3,7 @@ from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.player.ReputationManager import ReputationManager
-from game.world.managers.objects.units.player.SkillManager import SkillManager
+from game.world.managers.objects.units.player.SkillManager import SkillManager, SkillLineType
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils import TextUtils
@@ -79,6 +79,7 @@ class CharCreateHandler(object):
             CharCreateHandler.generate_starting_reputations(character.guid)
             CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
             CharCreateHandler.generate_starting_spells_skills(character.guid, race, class_, character.level)
+            CharCreateHandler.generate_starting_talents_skills(character.guid)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
             CharCreateHandler.generate_starting_buttons(character.guid, race, class_)
             CharCreateHandler.generate_starting_taxi_nodes(character, race)
@@ -169,6 +170,20 @@ class CharCreateHandler(object):
 
                 insert_skill(lang_desc.skill_id, override_rank_value=1, override_max_rank_value=1)
         """
+
+    @staticmethod
+    def generate_starting_talents_skills(guid):
+        # Weapon Talents, Attribute Enhancements, Slayer Talents, Magic Talents, Defensive Talents.
+        # TODO: Need further research, maybe each type of class started with access to specific talents.
+        #  Doesn't make sense to have Magic Talents available to melee classes etc.
+        for skill_id, skill in DbcDatabaseManager.SkillHolder.SKILLS.items():
+            if skill.SkillType == SkillLineType.Talents:
+                skill_to_set = CharacterSkill()
+                skill_to_set.guid = guid
+                skill_to_set.skill = skill_id
+                skill_to_set.value = skill.MaxRank
+                skill_to_set.max = skill.MaxRank
+                RealmDatabaseManager.character_add_skill(skill_to_set)
 
     @staticmethod
     def generate_starting_spells_skills(guid, race, class_, level):
