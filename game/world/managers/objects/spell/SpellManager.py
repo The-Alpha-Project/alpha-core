@@ -58,14 +58,17 @@ class SpellManager:
         RealmDatabaseManager.character_add_spell(db_spell)
         self.spells[spell_id] = db_spell
 
-        data = pack('<H', spell_id)
-        self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
-
         # If this spell was preceded, handle spell supersede.
         # Some spells allow for multiple rank holding, others do not.
+        should_learn = True
         preceded_by_spell = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell_id)
-        if preceded_by_spell:
-            self.unlearn_spell(preceded_by_spell.Spell, spell_id)
+        if preceded_by_spell and self.unlearn_spell(preceded_by_spell.Spell, new_spell_id=spell_id):
+            should_learn = False
+
+        # Is not preceded by a known spell, should learn as new.
+        if should_learn:
+            data = pack('<H', spell_id)
+            self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
 
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
             self.start_spell_cast(spell, self.caster, SpellTargetMask.SELF)
@@ -94,13 +97,13 @@ class SpellManager:
                 RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
             self.remove_cast_by_id(spell_id)
             del self.spells[spell_id]
-            self.supersede_spell(spell_id, new_spell_id=new_spell_id)
+            self.supersede_spell(spell_id, new_spell_id)
             return True
         return False
 
     # Replaces a given spell with another (Updates action bars and SpellBook), deletes if new spell is 0.
     def supersede_spell(self, old_spell_id, new_spell_id):
-        data = pack('<2I', old_spell_id, new_spell_id)
+        data = pack('<2H', old_spell_id, new_spell_id)
         packet = PacketWriter.get_packet(OpCode.SMSG_SUPERCEDED_SPELL, data)
         self.caster.enqueue_packet(packet)
 
