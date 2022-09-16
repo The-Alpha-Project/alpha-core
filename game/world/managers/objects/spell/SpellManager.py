@@ -61,6 +61,12 @@ class SpellManager:
         data = pack('<H', spell_id)
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
 
+        # If this spell was preceded, handle spell supersede.
+        # Some spells allow for multiple rank holding, others do not.
+        preceded_by_spell = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell_id)
+        if preceded_by_spell:
+            self.unlearn_spell(preceded_by_spell.Spell, spell_id)
+
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
             self.start_spell_cast(spell, self.caster, SpellTargetMask.SELF)
 
@@ -83,12 +89,12 @@ class SpellManager:
 
         return True
 
-    def unlearn_spell(self, spell_id) -> bool:
+    def unlearn_spell(self, spell_id, new_spell_id=0) -> bool:
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_id in self.spells and \
                 RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
             self.remove_cast_by_id(spell_id)
             del self.spells[spell_id]
-            self.supersede_spell(spell_id, 0)
+            self.supersede_spell(spell_id, new_spell_id=new_spell_id)
             return True
         return False
 

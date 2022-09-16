@@ -4,7 +4,7 @@ from typing import Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from database.world.WorldModels import TrainerTemplate, SpellChain
+from database.world.WorldModels import TrainerTemplate
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
@@ -41,28 +41,29 @@ class TrainerUtils:
             if not spell:
                 continue
 
-            ability_spell_chain: SpellChain = WorldDatabaseManager.SpellChainHolder.spell_chain_get_by_spell(
-                player_spell_id)
-
-            # Use this and not spell data, there are differences between (2003 Game Guide) and what is in spell table.
-            # TODO: Client validates spell data versus dbc information, might not be a good idea to send custom stuff.
-            spell_level: int = trainer_spell.reqlevel
-            spell_rank: int = ability_spell_chain.rank
-            prev_spell: int = ability_spell_chain.prev_spell
-
-            spell_is_too_high_level: bool = spell_level > player_mgr.level
+            # Search previous spell.
+            preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
+            preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
 
             # Skill step.
             skill_step: int = 0
             if spell.Effect_2 == SpellEffects.SPELL_EFFECT_SKILL_STEP:
                 skill_step = spell.EffectMiscValue_2
 
+            # Required skill.
+            fulfill_skill_reqs = True
+            if trainer_spell.reqskill:
+                skill_value = player_mgr.skill_manager.get_total_skill_value(trainer_spell.reqskill, no_bonus=True)
+                fulfill_skill_reqs = skill_value >= trainer_spell.reqskillvalue
+
             if player_spell_id in player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
-                if prev_spell in player_mgr.spell_manager.spells and spell_rank > 1 and not spell_is_too_high_level:
-                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
-                elif spell_rank == 1 and not spell_is_too_high_level:
+                if preceded_spell and preceded_spell not in player_mgr.spell_manager.spells and player_mgr.level >= spell.BaseLevel:
+                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+                elif not fulfill_skill_reqs:
+                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+                elif player_mgr.level >= spell.BaseLevel:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
                 else:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
@@ -74,11 +75,11 @@ class TrainerUtils:
                 trainer_spell.spellcost,  # Cost.
                 trainer_spell.talentpointcost,  # Talent Point Cost.
                 trainer_spell.skillpointcost,  # Skill Point Cost.
-                spell_level,  # Required Level.
+                spell.BaseLevel,  # Required Level.
                 trainer_spell.reqskill,  # Required Skill Line.
                 trainer_spell.reqskillvalue,  # Required Skill Rank.
                 skill_step,  # Required Skill Step.
-                prev_spell,  # Required Ability (1).
+                preceded_spell,  # Required Ability (1).
                 0,  # Required Ability (2).
                 0  # Required Ability (3).
             )

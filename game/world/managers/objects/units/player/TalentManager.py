@@ -33,7 +33,6 @@ class TalentManager(object):
             if not spell:
                 continue
 
-            spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(
                 spell.ID, self.player_mgr)
 
@@ -61,9 +60,9 @@ class TalentManager(object):
             if spell.ID in self.player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
-                if preceded_spell in self.player_mgr.spell_manager.spells and spell_rank > 1:
-                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
-                elif spell_rank == 1:
+                if preceded_spell and preceded_spell not in self.player_mgr.spell_manager.spells:
+                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+                elif self.player_mgr.level >= spell.BaseLevel:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
                 else:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
