@@ -19,7 +19,7 @@ class BinderActivateHandler(object):
             if not binder or binder.location.distance(world_session.player_mgr.location) > Formulas.Distances.MAX_BIND_DISTANCE:
                 return 0
 
-            if binder_guid & ~HighGuid.HIGHGUID_UNIT == world_session.player_mgr.deathbind.creature_binder_guid:
+            if binder.get_low_guid() == world_session.player_mgr.deathbind.creature_binder_guid:
                 world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PLAYERBINDERROR))
             else:
                 binder.spell_manager.handle_cast_attempt(BIND_SPELL, world_session.player_mgr,

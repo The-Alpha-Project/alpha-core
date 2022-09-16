@@ -1,10 +1,10 @@
 from struct import unpack, pack
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import PacketWriter
+from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
 from utils.constants.OpCodes import OpCode
 
@@ -24,7 +24,7 @@ class DebugAIStateHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet.
             guid = unpack('<Q', reader.data[:8])[0]
 
-            high_guid: HighGuid = ObjectManager.extract_high_guid(guid)
+            high_guid: HighGuid = GuidUtils.extract_high_guid(guid)
             if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PLAYER:
                 world_object = MapManager.get_surrounding_unit_by_guid(player_mgr, guid, include_players=True)
             else:

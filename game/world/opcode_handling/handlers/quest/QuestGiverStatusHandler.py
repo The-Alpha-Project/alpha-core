@@ -1,7 +1,7 @@
 from struct import unpack
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
 
@@ -17,7 +17,7 @@ class QuestGiverStatusHandler(object):
 
         if len(reader.data) >= 8:  # Avoid handling empty quest giver status packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            high_guid = ObjectManager.extract_high_guid(guid)
+            high_guid = GuidUtils.extract_high_guid(guid)
 
             quest_giver = None
             if high_guid == HighGuid.HIGHGUID_UNIT:
