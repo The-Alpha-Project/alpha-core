@@ -93,10 +93,15 @@ class SpellManager:
         return True
 
     def unlearn_spell(self, spell_id, new_spell_id=0) -> bool:
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_id in self.spells and \
-                RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_id in self.spells:
+            if new_spell_id:
+                self.spells[spell_id].active = 0
+                RealmDatabaseManager.character_update_spell(self.spells[spell_id])
+            else:
+                if RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
+                    del self.spells[spell_id]
+
             self.remove_cast_by_id(spell_id)
-            del self.spells[spell_id]
             self.supersede_spell(spell_id, new_spell_id)
             return True
         return False
@@ -110,6 +115,9 @@ class SpellManager:
     def cast_passive_spells(self):
         # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
         for spell_id in self.spells.keys():
+            # Skip inactive spells.
+            if not self.spells[spell_id].active:
+                return
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
 
             # Shapeshift passives are only applied on shapeshift change.
@@ -122,6 +130,9 @@ class SpellManager:
     def apply_cast_when_learned_spells(self):
         # Cast any spell with SPELL_ATTR_EX_CAST_WHEN_LEARNED flag on player.
         for spell_id in self.spells.keys():
+            # Skip inactive spells.
+            if not self.spells[spell_id].active:
+                return
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
                 self.start_spell_cast(spell_template, self.caster, SpellTargetMask.SELF)
@@ -137,6 +148,9 @@ class SpellManager:
 
     def update_shapeshift_passives(self):
         for spell_id in self.spells.keys():
+            # Skip inactive spells.
+            if not self.spells[spell_id].active:
+                return
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             req_form = spell_template.ShapeshiftMask
             if not req_form or not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:

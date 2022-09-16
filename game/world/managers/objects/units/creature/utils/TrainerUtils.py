@@ -59,7 +59,7 @@ class TrainerUtils:
             if player_spell_id in player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
-                if preceded_spell and preceded_spell not in player_mgr.spell_manager.spells and player_mgr.level >= spell.BaseLevel:
+                if preceded_spell and preceded_spell not in player_mgr.spell_manager.spells:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
                 elif not fulfill_skill_reqs:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
