@@ -8,10 +8,6 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.SpellCodes import SpellEffects
 
-TALENT_SKILL_ID = 3
-# Weapon, Attribute, Slayer, Magic, Defensive
-SKILL_LINE_TALENT_IDS: list[int] = [222, 230, 231, 233, 234]
-
 
 class TalentManager(object):
     def __init__(self, player_mgr):
