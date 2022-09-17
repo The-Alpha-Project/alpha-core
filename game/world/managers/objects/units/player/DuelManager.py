@@ -4,8 +4,7 @@ from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.DuelCodes import *
 from utils.constants.MiscCodes import ObjectTypeIds
-from utils.constants.UnitCodes import UnitFlags
-from utils.constants.UpdateFields import PlayerFields, UnitFields
+from utils.constants.UpdateFields import PlayerFields
 
 
 class PlayerDuelInformation(object):

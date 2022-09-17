@@ -18,7 +18,6 @@ from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
-from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
@@ -34,7 +33,7 @@ class SpellManager:
     def __init__(self, caster):
         self.caster = caster  # GameObject, Unit or Player.
         self.spells: dict[int, CharacterSpell] = {}
-        self.cooldowns: list[CooldownEntry] = []
+        self.cooldowns: dict[int, CooldownEntry] = {}
         self.casting_spells: list[CastingSpell] = []
 
     def load_spells(self):
@@ -58,8 +57,17 @@ class SpellManager:
         RealmDatabaseManager.character_add_spell(db_spell)
         self.spells[spell_id] = db_spell
 
-        data = pack('<H', spell_id)
-        self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
+        # If this spell was preceded, handle spell supersede.
+        # Some spells allow for multiple rank holding, others do not.
+        should_learn = True
+        preceded_by_spell = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell_id)
+        if preceded_by_spell and self.unlearn_spell(preceded_by_spell.Spell, new_spell_id=spell_id):
+            should_learn = False
+
+        # Is not preceded by a known spell, should learn as new.
+        if should_learn:
+            data = pack('<H', spell_id)
+            self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
 
         if cast_on_learn or spell.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
             self.start_spell_cast(spell, self.caster, SpellTargetMask.SELF)
@@ -83,24 +91,32 @@ class SpellManager:
 
         return True
 
-    def unlearn_spell(self, spell_id) -> bool:
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_id in self.spells and \
-                RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
+    def unlearn_spell(self, spell_id, new_spell_id=0) -> bool:
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_id in self.spells:
+            if new_spell_id:
+                self.spells[spell_id].active = 0
+                RealmDatabaseManager.character_update_spell(self.spells[spell_id])
+            else:
+                if RealmDatabaseManager.character_delete_spell(self.caster.guid, spell_id) == 0:
+                    del self.spells[spell_id]
+
             self.remove_cast_by_id(spell_id)
-            del self.spells[spell_id]
-            self.supersede_spell(spell_id, 0)
+            self.supersede_spell(spell_id, new_spell_id)
             return True
         return False
 
     # Replaces a given spell with another (Updates action bars and SpellBook), deletes if new spell is 0.
     def supersede_spell(self, old_spell_id, new_spell_id):
-        data = pack('<2I', old_spell_id, new_spell_id)
+        data = pack('<2H', old_spell_id, new_spell_id)
         packet = PacketWriter.get_packet(OpCode.SMSG_SUPERCEDED_SPELL, data)
         self.caster.enqueue_packet(packet)
 
     def cast_passive_spells(self):
         # Self-cast all passive spells. This will apply learned skills, proficiencies, talents etc.
         for spell_id in self.spells.keys():
+            # Skip inactive spells.
+            if not self.spells[spell_id].active:
+                continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
 
             # Shapeshift passives are only applied on shapeshift change.
@@ -113,6 +129,9 @@ class SpellManager:
     def apply_cast_when_learned_spells(self):
         # Cast any spell with SPELL_ATTR_EX_CAST_WHEN_LEARNED flag on player.
         for spell_id in self.spells.keys():
+            # Skip inactive spells.
+            if not self.spells[spell_id].active:
+                continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
                 self.start_spell_cast(spell_template, self.caster, SpellTargetMask.SELF)
@@ -128,6 +147,9 @@ class SpellManager:
 
     def update_shapeshift_passives(self):
         for spell_id in self.spells.keys():
+            # Skip inactive spells.
+            if not self.spells[spell_id].active:
+                continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             req_form = spell_template.ShapeshiftMask
             if not req_form or not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
@@ -450,10 +472,29 @@ class SpellManager:
                 else:
                     self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
 
-    # TODO: called by SPELL_EFFECT_INTERRUPT_CAST.
-    #  The given spell should be set on a cooldown equal to cooldown_penalty value.
-    def interrupt_cast_by_casting_spell(self, casting_spell, cooldown_penalty=0):
+    def interrupt_casting_spell(self, cooldown_penalty=0):
+        casting_spell = self.get_casting_spell()
+        if not casting_spell:
+            return
+        spell = casting_spell.spell_entry
         self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+
+        # Remove existent cooldown for this spell if exists and a penalty was provided.
+        if spell.ID in self.cooldowns and cooldown_penalty:
+            del self.cooldowns[spell.ID]
+
+        # If a penalty was provided, set the given spell on cooldown for the given penalty.
+        if cooldown_penalty:
+            cooldown_entry = CooldownEntry(spell, time.time(), True, cooldown_penalty=cooldown_penalty)
+            self.cooldowns[spell.ID] = cooldown_entry
+
+        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        # Lock spell if a penalty was provided.
+        if cooldown_penalty:
+            data = pack('<IQI', spell.ID, self.caster.guid, self.cooldowns[spell.ID].cooldown_length)
+            self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR, interrupted=False) -> bool:
         if casting_spell not in self.casting_spells:
@@ -740,6 +781,10 @@ class SpellManager:
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
         MapManager.send_surrounding(packet, self.caster, include_self=is_player)
 
+    def flush_cooldowns(self):
+        for spell_id, cooldown_entry in list(self.cooldowns.items()):
+            del self.cooldowns[spell_id]
+
     def set_on_cooldown(self, casting_spell):
         spell = casting_spell.spell_entry
 
@@ -750,7 +795,7 @@ class SpellManager:
         unlocks_on_trigger = casting_spell.unlock_cooldown_on_trigger()
 
         cooldown_entry = CooldownEntry(spell, timestamp, unlocks_on_trigger)
-        self.cooldowns.append(cooldown_entry)
+        self.cooldowns[spell.ID] = cooldown_entry
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER or unlocks_on_trigger:
             return
@@ -759,13 +804,12 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def unlock_spell_cooldown(self, spell_id):
-        timestamp = time.time()
-        cooldown = next((cooldown for cooldown in self.cooldowns
-                         if cooldown.spell_id == spell_id), None)
-        if not cooldown:
+        if spell_id not in self.cooldowns:
             return
 
-        cooldown.unlock(timestamp)
+        timestamp = time.time()
+
+        self.cooldowns[spell_id].unlock(timestamp)
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
@@ -773,21 +817,19 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_EVENT, data))
 
     def check_spell_cooldowns(self):
-        for cooldown_entry in list(self.cooldowns):
+        for spell_id, cooldown_entry in list(self.cooldowns.items()):
             if cooldown_entry.is_valid():
                 continue
 
-            self.cooldowns.remove(cooldown_entry)
+            del self.cooldowns[spell_id]
             if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
                 continue
             data = pack('<IQ', cooldown_entry.spell_id, self.caster.guid)
             self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_entry) -> bool:
-        for cooldown_entry in list(self.cooldowns):
-            if cooldown_entry.is_valid() and cooldown_entry.matches_spell(spell_entry):
-                return True
-        return False
+        if spell_entry.ID not in self.cooldowns:
+            return False
 
     def is_casting(self):
         for spell in list(self.casting_spells):

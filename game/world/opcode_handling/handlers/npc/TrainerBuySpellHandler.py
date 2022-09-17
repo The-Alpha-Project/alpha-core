@@ -1,3 +1,4 @@
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.constants.SpellCodes import SpellTargetMask
@@ -69,6 +70,12 @@ class TrainerBuySpellHandler(object):
                 break
 
         if not trainer_spell:
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
+            return
+
+        player_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.playerspell)
+        if not player_spell:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
             return

@@ -8,7 +8,6 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraManager import AppliedAura
@@ -20,7 +19,7 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
-from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes, DynamicObjectTypes, \
+from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes, \
     GameObjectStates
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
     SpellImmunity
@@ -584,11 +583,7 @@ class SpellEffectHandler:
         if not target.is_alive:
             return
 
-        target_spell = target.spell_manager.get_casting_spell()
-        if not target_spell:
-            return
-
-        target.spell_manager.interrupt_cast(target_spell, cooldown_penalty=casting_spell.get_duration())
+        target.spell_manager.interrupt_casting_spell(cooldown_penalty=casting_spell.get_duration())
 
     @staticmethod
     def handle_stuck(casting_spell, effect, caster, target):

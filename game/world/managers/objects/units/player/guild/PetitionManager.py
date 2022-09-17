@@ -2,7 +2,6 @@ from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import Petition
-from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.ItemCodes import PetitionError

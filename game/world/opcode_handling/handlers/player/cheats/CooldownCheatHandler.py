@@ -19,8 +19,7 @@ class CooldownCheatHandler(object):
             return 0
 
         # Clear server-side cooldowns.
-        for cooldown_entry in list(player_mgr.spell_manager.cooldowns):
-            player_mgr.spell_manager.cooldowns.remove(cooldown_entry)
+        player_mgr.spell_manager.flush_cooldowns()
 
         # Clear client-side cooldowns.
         data = pack('<Q', player_mgr.guid)

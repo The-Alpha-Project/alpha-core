@@ -166,6 +166,13 @@ class SkillTypes(IntEnum):
     FISHING = 0x164
 
 
+class SkillLineType(IntEnum):
+    Primary = 0,
+    Racial = 2,
+    Talents = 3,
+    Secondary = 4
+
+
 class LanguageDesc(NamedTuple):
     lang_id: int
     spell_id: int

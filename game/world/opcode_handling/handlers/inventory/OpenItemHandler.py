@@ -2,10 +2,8 @@ from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from game.world.managers.objects.locks.LockManager import LockManager
 from utils.constants.ItemCodes import InventoryError, InventorySlots, ItemDynFlags
-from utils.constants.MiscCodes import LockType, HighGuid
-from utils.constants.SpellCodes import SpellCheckCastResult
+from utils.constants.MiscCodes import HighGuid
 from utils.constants.UnitCodes import UnitFlags
 
 

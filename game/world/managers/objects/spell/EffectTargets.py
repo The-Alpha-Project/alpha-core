@@ -12,7 +12,6 @@ from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHand
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
-from utils.constants.UpdateFields import UnitFields
 
 
 @dataclass

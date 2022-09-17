@@ -4,12 +4,10 @@ from database.dbc.DbcModels import Spell
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.MiscCodes import TrainerServices, TrainerTypes
-
-TALENT_SKILL_ID = 3
-# Weapon, Attribute, Slayer, Magic, Defensive
-SKILL_LINE_TALENT_IDS: list[int] = [222, 230, 231, 233, 234]
+from utils.constants.MiscCodes import TrainerTypes
+from utils.constants.SpellCodes import SpellEffects
 
 
 class TalentManager(object):
@@ -32,7 +30,9 @@ class TalentManager(object):
 
         for training_spell in WorldDatabaseManager.TrainerSpellHolder.TALENTS:
             spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(training_spell.playerspell)
-            spell_rank: int = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
+
+            if not spell:
+                continue
 
             skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(
                 spell.ID, self.player_mgr)
@@ -49,33 +49,21 @@ class TalentManager(object):
                 if not self.player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
                     continue
 
-            if spell.ID in self.player_mgr.spell_manager.spells:
-                status = TrainerServices.TRAINER_SERVICE_USED
-            else:
-                if skill_line_ability.custom_PrecededBySpell in self.player_mgr.spell_manager.spells and spell_rank > 1:
-                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
-                elif spell_rank == 1:
-                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
-                else:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
-            
+            # Search previous spell.
+            preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
+            preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
+
+            # Skill step.
+            skill_step: int = 0
+            if spell.Effect_2 == SpellEffects.SPELL_EFFECT_SKILL_STEP:
+                skill_step = spell.EffectMiscValue_2
+
             talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
-            data = pack(
-                '<IBI3B6I',
-                training_spell.spell,  # Trainer Spell ID.
-                status,  # Status.
-                0,  # Cost.
-                talent_points_cost,  # Talent Point Cost.
-                0,  # Skill Point Cost.
-                spell.BaseLevel,  # Required Level.
-                0,  # Required Skill Line.
-                0,  # Required Skill Rank.
-                0,  # Required Skill Step.
-                skill_line_ability.custom_PrecededBySpell,  # Required Ability (1)
-                0,  # Required Ability (2)
-                0  # Required Ability (3)
-            )
-            talent_bytes += data
+            status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, self.player_mgr)
+            talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
+                                                        talent_points_cost, 0,  # 0 Skill point cost.
+                                                        spell.BaseLevel, skill_line_ability.SkillLine,
+                                                        skill_line_ability.MinSkillLineRank, skill_step, preceded_spell)
             talent_count += 1
 
         data = pack('<Q2I', self.player_mgr.guid, TrainerTypes.TRAINER_TYPE_TALENTS, talent_count) + talent_bytes
