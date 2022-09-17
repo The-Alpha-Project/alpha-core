@@ -34,7 +34,7 @@ class SpellManager:
     def __init__(self, caster):
         self.caster = caster  # GameObject, Unit or Player.
         self.spells: dict[int, CharacterSpell] = {}
-        self.cooldowns: list[CooldownEntry] = []
+        self.cooldowns: dict[int, CooldownEntry] = {}
         self.casting_spells: list[CastingSpell] = []
 
     def load_spells(self):
@@ -477,18 +477,24 @@ class SpellManager:
         casting_spell = self.get_casting_spell()
         if not casting_spell:
             return
-
-        cooldown_penalty_seconds = int(cooldown_penalty/1000)
+        spell = casting_spell.spell_entry
         self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
-        cooldown_entry = CooldownEntry(casting_spell.spell_entry, time.time() + int(cooldown_penalty_seconds), False)
-        self.cooldowns.append(cooldown_entry)
+
+        # Remove existent cooldown for this spell if exists and a penalty was provided.
+        if spell.ID in self.cooldowns and cooldown_penalty:
+            del self.cooldowns[spell.ID]
+
+        # If a penalty was provided, set the given spell on cooldown for the given penalty.
+        if cooldown_penalty:
+            cooldown_entry = CooldownEntry(spell, time.time(), True, cooldown_penalty=cooldown_penalty)
+            self.cooldowns[spell.ID] = cooldown_entry
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         # Lock spell if a penalty was provided.
         if cooldown_penalty:
-            data = pack('<IQI', casting_spell.spell_entry.ID, self.caster.guid, cooldown_entry.cooldown_length)
+            data = pack('<IQI', spell.ID, self.caster.guid, self.cooldowns[spell.ID].cooldown_length)
             self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR, interrupted=False) -> bool:
@@ -776,6 +782,10 @@ class SpellManager:
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
         MapManager.send_surrounding(packet, self.caster, include_self=is_player)
 
+    def flush_cooldowns(self):
+        for spell_id, cooldown_entry in list(self.cooldowns.items()):
+            del self.cooldowns[spell_id]
+
     def set_on_cooldown(self, casting_spell):
         spell = casting_spell.spell_entry
 
@@ -786,7 +796,7 @@ class SpellManager:
         unlocks_on_trigger = casting_spell.unlock_cooldown_on_trigger()
 
         cooldown_entry = CooldownEntry(spell, timestamp, unlocks_on_trigger)
-        self.cooldowns.append(cooldown_entry)
+        self.cooldowns[spell.ID] = cooldown_entry
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER or unlocks_on_trigger:
             return
@@ -795,13 +805,12 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def unlock_spell_cooldown(self, spell_id):
-        timestamp = time.time()
-        cooldown = next((cooldown for cooldown in self.cooldowns
-                         if cooldown.spell_id == spell_id), None)
-        if not cooldown:
+        if spell_id not in self.cooldowns:
             return
 
-        cooldown.unlock(timestamp)
+        timestamp = time.time()
+
+        self.cooldowns[spell_id].unlock(timestamp)
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
@@ -809,21 +818,19 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_COOLDOWN_EVENT, data))
 
     def check_spell_cooldowns(self):
-        for cooldown_entry in list(self.cooldowns):
+        for spell_id, cooldown_entry in list(self.cooldowns.items()):
             if cooldown_entry.is_valid():
                 continue
 
-            self.cooldowns.remove(cooldown_entry)
+            del self.cooldowns[spell_id]
             if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
                 continue
             data = pack('<IQ', cooldown_entry.spell_id, self.caster.guid)
             self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_entry) -> bool:
-        for cooldown_entry in list(self.cooldowns):
-            if cooldown_entry.is_valid() and cooldown_entry.matches_spell(spell_entry):
-                return True
-        return False
+        if spell_entry.ID not in self.cooldowns:
+            return False
 
     def is_casting(self):
         for spell in list(self.casting_spells):
