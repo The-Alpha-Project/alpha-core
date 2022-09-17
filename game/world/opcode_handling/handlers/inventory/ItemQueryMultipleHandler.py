@@ -1,7 +1,6 @@
-from struct import unpack, pack
+from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from network.packet.PacketWriter import PacketWriter, OpCode
 
 
 class ItemQueryMultipleHandler(object):

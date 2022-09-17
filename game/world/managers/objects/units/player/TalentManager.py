@@ -6,7 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.MiscCodes import TrainerServices, TrainerTypes
+from utils.constants.MiscCodes import TrainerTypes
 from utils.constants.SpellCodes import SpellEffects
 
 
