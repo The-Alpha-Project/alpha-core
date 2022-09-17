@@ -12562,5 +12562,15 @@ begin not atomic
 
         insert into applied_updates values ('150920221');
     end if;
+
+    -- 17/09/2022 1
+    if (select count(*) from applied_updates where id='170920221') = 0 then
+        -- #642
+        RENAME TABLE `gameobject_involvedrelation` TO `gameobject_quest_finisher`;
+        RENAME TABLE `gameobject_questrelation` TO `gameobject_quest_starter`;
+        RENAME TABLE `areatrigger_involvedrelation` TO `areatrigger_quest_relation`;
+       
+        insert into applied_updates values ('170920221');
+    end if;
 end $
 delimiter ;

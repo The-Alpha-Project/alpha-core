@@ -847,6 +847,7 @@ begin not atomic
 
     -- 21/08/2022 1
     if (select count(*) from applied_updates where id='210820221') = 0 then
+        DROP TABLE IF EXISTS `SpellIcon`;
         CREATE TABLE `SpellIcon` ( `ID` INT NOT NULL DEFAULT '0', `TextureFilename` TEXT NULL, PRIMARY KEY (`ID`)) ENGINE=MyISAM DEFAULT CHARSET=utf8;
         INSERT INTO `SpellIcon` VALUES (1,"Interface\\Icons\\Temp");
         INSERT INTO `SpellIcon` VALUES (9,"Interface\\Icons\\Spell_Shadow_BlackPlague");
