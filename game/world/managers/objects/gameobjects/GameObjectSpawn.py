@@ -48,7 +48,8 @@ class GameObjectSpawn:
                                                             rot0=self.gameobject_spawn.spawn_rotation0,
                                                             rot1=self.gameobject_spawn.spawn_rotation1,
                                                             rot2=self.gameobject_spawn.spawn_rotation2,
-                                                            rot3=self.gameobject_spawn.spawn_rotation3)
+                                                            rot3=self.gameobject_spawn.spawn_rotation3,
+                                                            spawn_id=self.spawn_id)
 
         MapManager.spawn_object(world_object_spawn=self, world_object_instance=self.gameobject_instance)
         return True

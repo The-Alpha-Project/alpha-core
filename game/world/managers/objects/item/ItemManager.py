@@ -397,7 +397,7 @@ class ItemManager(ObjectManager):
         if item_template:
             character_gift = CharacterGifts()
             character_gift.creator = self.get_creator_guid()  # Creator of the original item.
-            character_gift.item_guid = self.guid & ~HighGuid.HIGHGUID_ITEM
+            character_gift.item_guid = self.get_low_guid()
             character_gift.entry = self.entry
             character_gift.flags = self.item_instance.item_flags
             RealmDatabaseManager.character_add_gift(character_gift)
@@ -474,6 +474,10 @@ class ItemManager(ObjectManager):
     # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_ITEM
+
+    # override
+    def get_low_guid(self):
+        return self.guid & ~HighGuid.HIGHGUID_ITEM
 
     # override
     def get_type_id(self):

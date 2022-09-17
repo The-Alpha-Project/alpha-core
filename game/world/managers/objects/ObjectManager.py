@@ -6,6 +6,7 @@ from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
 from utils.constants.OpCodes import OpCode
@@ -306,6 +307,9 @@ class ObjectManager:
     def on_cell_change(self):
         pass
 
+    def get_low_guid(self):
+        return self.guid & ~GuidUtils.extract_high_guid(self.guid)
+
     # override
     def get_type_mask(self):
         return ObjectTypeFlags.TYPE_OBJECT
@@ -316,9 +320,8 @@ class ObjectManager:
 
     # override
     def get_debug_messages(self, requester=None):
-        low_guid = self.guid & ~ObjectManager.extract_high_guid(self.guid)
         return [
-            f'Guid: {low_guid}, Entry: {self.entry}, Display ID: {self.current_display_id}',
+            f'Guid: {self.get_low_guid()}, Entry: {self.entry}, Display ID: {self.current_display_id}',
             f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}',
             f'Distance: {self.location.distance(requester.location) if requester else 0} yd'
         ]
@@ -354,6 +357,10 @@ class ObjectManager:
         liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
                                                                self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
+
+    # override
+    def is_totem(self):
+        return False
 
     def can_attack_target(self, target):
         if not target:
@@ -437,7 +444,3 @@ class ObjectManager:
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)
         return PacketWriter.get_packet(OpCode.SMSG_DESTROY_OBJECT, data)
-
-    @staticmethod
-    def extract_high_guid(guid):
-        return HighGuid(guid & (0xFFFF << 48))

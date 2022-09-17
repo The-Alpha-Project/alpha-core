@@ -1,6 +1,6 @@
 from struct import unpack
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
+from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
@@ -17,7 +17,7 @@ class QuestGiverChooseRewardHandler(object):
 
         if len(reader.data) >= 16:  # Avoid handling empty quest giver choose reward packet.
             guid, quest_id, item_choice = unpack('<Q2I', reader.data[:16])
-            high_guid = ObjectManager.extract_high_guid(guid)
+            high_guid = GuidUtils.extract_high_guid(guid)
             is_item = False
 
             quest_giver = None

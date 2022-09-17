@@ -17,7 +17,7 @@ from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, HighGuid
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
@@ -28,6 +28,7 @@ from utils.constants.UpdateFields import ObjectFields, UnitFields
 class CreatureManager(UnitManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.spawn_id = 0
         self.entry = 0
         self.guid = 0
         self.creature_template = None
@@ -750,6 +751,14 @@ class CreatureManager(UnitManager):
             self.power_type = ShapeshiftInfo.get_power_for_form(self.shapeshift_form)
 
         self.bytes_0 = self.get_bytes_0()
+
+    # override
+    def get_debug_messages(self, requester=None):
+        return [
+            f'Spawn ID {self.spawn_id}, Guid: {self.get_low_guid()}, Entry: {self.entry}, Display ID: {self.current_display_id}',
+            f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}',
+            f'Distance: {self.location.distance(requester.location) if requester else 0} yd'
+        ]
 
     # override
     def get_type_mask(self):

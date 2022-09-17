@@ -42,7 +42,7 @@ class InventoryManager(object):
                 )
                 if self.is_bag_pos(container_mgr.current_slot):
                     if item_instance.bag > 23:
-                        low_guid = container_mgr.guid & ~HighGuid.HIGHGUID_CONTAINER
+                        low_guid = container_mgr.get_low_guid()
                         Logger.warning(f'Invalid bag slot {item_instance.bag} for guid {low_guid} owner {self.owner.guid}')
                         continue
                     self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr

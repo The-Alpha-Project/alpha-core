@@ -308,9 +308,9 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def gameobject_spawn_get_by_guid(guid) -> [Optional[SpawnsGameobjects], scoped_session]:
+    def gameobject_spawn_get_by_spawn_id(spawn_id) -> [Optional[SpawnsGameobjects], scoped_session]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_GAMEOBJECT).first()
+        res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=spawn_id).first()
         world_db_session.close()
         return res
 
@@ -408,9 +408,9 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def creature_spawn_get_by_guid(guid) -> [Optional[SpawnsCreatures], scoped_session]:
+    def creature_spawn_get_by_spawn_id(spawn_id) -> [Optional[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_UNIT).first()
+        res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=spawn_id).first()
         world_db_session.close()
         return res
 

@@ -9,7 +9,7 @@ class GameObjectBuilder:
 
     @staticmethod
     def create(entry_id, location, map_id, state, summoner=None, rot0=0, rot1=0, rot2=0, rot3=0, faction=0, spell_id=0,
-               ttl=0):
+               ttl=0, spawn_id=0):
 
         gobject_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry_id)
         if not gobject_template:
@@ -18,6 +18,7 @@ class GameObjectBuilder:
         if ttl:
             print(ttl)
         gameobject_instance = GameObjectManager()
+        gameobject_instance.spawn_id = spawn_id
         gameobject_instance.entry = gobject_template.entry
         gameobject_instance.guid = gameobject_instance.generate_object_guid(GameObjectBuilder.GUID_MANAGER.get_new_guid())
         gameobject_instance.gobject_template = gobject_template

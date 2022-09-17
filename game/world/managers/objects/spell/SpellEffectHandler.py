@@ -422,7 +422,7 @@ class SpellEffectHandler:
 
         # Only save the GUID of the binder if the spell is casted by a creature.
         if caster.get_type_id() == ObjectTypeIds.ID_UNIT:
-            target.deathbind.creature_binder_guid = caster.guid & ~HighGuid.HIGHGUID_UNIT
+            target.deathbind.creature_binder_guid = caster.get_low_guid()
         else:
             target.deathbind.creature_binder_guid = 0
 

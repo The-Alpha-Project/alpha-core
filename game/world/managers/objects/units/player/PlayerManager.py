@@ -9,7 +9,6 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
@@ -31,6 +30,7 @@ from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQuer
 from network.packet.PacketWriter import *
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
@@ -726,7 +726,7 @@ class PlayerManager(UnitManager):
 
     def loot_money(self):
         if self.loot_selection:
-            high_guid = ObjectManager.extract_high_guid(self.loot_selection.object_guid)
+            high_guid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
             if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
                 world_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
             elif high_guid == HighGuid.HIGHGUID_UNIT:
@@ -755,7 +755,7 @@ class PlayerManager(UnitManager):
 
     def loot_item(self, slot):
         if self.loot_selection:
-            high_guid: HighGuid = self.extract_high_guid(self.loot_selection.object_guid)
+            high_guid: HighGuid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
             world_obj_target = None
             if high_guid == HighGuid.HIGHGUID_UNIT:
                 world_obj_target = MapManager.get_surrounding_unit_by_guid(
@@ -778,7 +778,7 @@ class PlayerManager(UnitManager):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-        high_guid: HighGuid = self.extract_high_guid(self.loot_selection.object_guid)
+        high_guid: HighGuid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
         data = pack('<QB', loot_selection.object_guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
@@ -1710,6 +1710,10 @@ class PlayerManager(UnitManager):
     # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_PLAYER
+
+    # override
+    def get_low_guid(self):
+        return self.guid & ~HighGuid.HIGHGUID_PLAYER
 
     # override
     def get_type_id(self):
