@@ -435,7 +435,7 @@ class AppliedItemUpdates(Base):
 
 
 class AreatriggerInvolvedrelation(Base):
-    __tablename__ = 'areatrigger_involvedrelation'
+    __tablename__ = 'areatrigger_quest_relation'
     __table_args__ = {'comment': 'Trigger System'}
 
     id = Column(MEDIUMINT(8), primary_key=True, server_default=text("0"), comment='Identifier')
@@ -818,14 +818,14 @@ t_creature_quest_finisher = Table(
 
 
 t_gameobject_quest_starter = Table(
-    'gameobject_questrelation', metadata,
+    'gameobject_quest_starter', metadata,
     Column('entry', ForeignKey('gameobject_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
     Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
 
 
 t_gameobject_quest_finisher = Table(
-    'gameobject_involvedrelation', metadata,
+    'gameobject_quest_finisher', metadata,
     Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
     Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
