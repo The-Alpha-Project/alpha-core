@@ -117,7 +117,7 @@ class SpellManager:
         for spell_id in self.spells.keys():
             # Skip inactive spells.
             if not self.spells[spell_id].active:
-                return
+                continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
 
             # Shapeshift passives are only applied on shapeshift change.
@@ -132,7 +132,7 @@ class SpellManager:
         for spell_id in self.spells.keys():
             # Skip inactive spells.
             if not self.spells[spell_id].active:
-                return
+                continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
                 self.start_spell_cast(spell_template, self.caster, SpellTargetMask.SELF)
@@ -150,7 +150,7 @@ class SpellManager:
         for spell_id in self.spells.keys():
             # Skip inactive spells.
             if not self.spells[spell_id].active:
-                return
+                continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             req_form = spell_template.ShapeshiftMask
             if not req_form or not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
