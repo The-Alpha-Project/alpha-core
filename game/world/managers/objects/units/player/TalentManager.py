@@ -4,6 +4,7 @@ from database.dbc.DbcModels import Spell
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.SpellCodes import SpellEffects
@@ -57,34 +58,12 @@ class TalentManager(object):
             if spell.Effect_2 == SpellEffects.SPELL_EFFECT_SKILL_STEP:
                 skill_step = spell.EffectMiscValue_2
 
-            if spell.ID in self.player_mgr.spell_manager.spells:
-                status = TrainerServices.TRAINER_SERVICE_USED
-            else:
-                if preceded_spell and preceded_spell not in self.player_mgr.spell_manager.spells:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
-                elif self.player_mgr.level >= spell.BaseLevel:
-                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
-                else:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
-            
             talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
-            data = pack(
-                '<IBI3B6I',
-                training_spell.spell,  # Trainer Spell ID.
-                status,  # Status.
-                0,  # Cost.
-                talent_points_cost,  # Talent Point Cost.
-                0,  # Skill Point Cost.
-                spell.BaseLevel,  # Required Level.
-                skill_line_ability.SkillLine,  # Required Skill Line.
-                skill_line_ability.MinSkillLineRank,  # Required Skill Rank.
-                skill_step,  # Required Skill Step.
-                preceded_spell,  # Required Ability (1)
-                0,  # Required Ability (2)
-                0  # Required Ability (3)
-            )
-
-            talent_bytes += data
+            status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, self.player_mgr)
+            talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
+                                                        talent_points_cost, 0,  # 0 Skill point cost.
+                                                        spell.BaseLevel, skill_line_ability.SkillLine,
+                                                        skill_line_ability.MinSkillLineRank, skill_step, preceded_spell)
             talent_count += 1
 
         data = pack('<Q2I', self.player_mgr.guid, TrainerTypes.TRAINER_TYPE_TALENTS, talent_count) + talent_bytes

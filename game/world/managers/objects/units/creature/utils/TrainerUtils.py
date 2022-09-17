@@ -56,34 +56,12 @@ class TrainerUtils:
                 skill_value = player_mgr.skill_manager.get_total_skill_value(trainer_spell.reqskill, no_bonus=True)
                 fulfill_skill_reqs = skill_value >= trainer_spell.reqskillvalue
 
-            if player_spell_id in player_mgr.spell_manager.spells:
-                status = TrainerServices.TRAINER_SERVICE_USED
-            else:
-                if preceded_spell and preceded_spell not in player_mgr.spell_manager.spells:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
-                elif not fulfill_skill_reqs:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
-                elif player_mgr.level >= spell.BaseLevel:
-                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
-                else:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
-
-            data: bytes = pack(
-                '<IBI3B6I',
-                trainer_spell.spell,  # Trainer Spell id.
-                status,  # Status.
-                trainer_spell.spellcost,  # Cost.
-                trainer_spell.talentpointcost,  # Talent Point Cost.
-                trainer_spell.skillpointcost,  # Skill Point Cost.
-                spell.BaseLevel,  # Required Level.
-                trainer_spell.reqskill,  # Required Skill Line.
-                trainer_spell.reqskillvalue,  # Required Skill Rank.
-                skill_step,  # Required Skill Step.
-                preceded_spell,  # Required Ability (1).
-                0,  # Required Ability (2).
-                0  # Required Ability (3).
-            )
-            train_spell_bytes += data
+            status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, player_mgr, fulfill_skill_reqs)
+            train_spell_bytes += TrainerUtils.get_spell_data(trainer_spell.spell, status, trainer_spell.spellcost,
+                                                             trainer_spell.talentpointcost,
+                                                             trainer_spell.skillpointcost, spell.BaseLevel,
+                                                             trainer_spell.reqskill, trainer_spell.reqskillvalue,
+                                                             skill_step, preceded_spell)
             train_spell_count += 1
 
         placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
@@ -95,6 +73,41 @@ class TrainerUtils:
         data_header = pack('<Q2I', creature_mgr.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count)
         data = data_header + train_spell_bytes + greeting_bytes_packed
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
+
+    @staticmethod
+    def get_spell_data(spell_id, status, cost, tp_cost, sp_cost, lvl, skill, req_skill, skill_step, preceded):
+        data: bytes = pack(
+            '<IBI3B6I',
+            spell_id,  # Trainer Spell id.
+            status,  # Status.
+            cost,  # Cost.
+            tp_cost,  # Talent Point Cost.
+            sp_cost,  # Skill Point Cost.
+            lvl,  # Required Level.
+            skill,  # Required Skill Line.
+            req_skill,  # Required Skill Rank.
+            skill_step,  # Required Skill Step.
+            preceded,  # Required Ability (1).
+            0,  # Required Ability (2).
+            0  # Required Ability (3).
+        )
+        return data
+
+    @staticmethod
+    def get_training_list_spell_status(spell, preceded_spell, player_mgr, fulfill_skill=True):
+        if not fulfill_skill:
+            status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+        else:
+            if spell.ID in player_mgr.spell_manager.spells:
+                status = TrainerServices.TRAINER_SERVICE_USED
+            else:
+                if preceded_spell and preceded_spell not in player_mgr.spell_manager.spells:
+                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+                elif player_mgr.level >= spell.BaseLevel:
+                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
+                else:
+                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+        return status
 
     @staticmethod
     def trainer_has_spell(creature_mgr, spell_id):

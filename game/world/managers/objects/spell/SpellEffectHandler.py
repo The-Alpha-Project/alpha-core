@@ -584,11 +584,7 @@ class SpellEffectHandler:
         if not target.is_alive:
             return
 
-        target_spell = target.spell_manager.get_casting_spell()
-        if not target_spell:
-            return
-
-        target.spell_manager.interrupt_cast(target_spell, cooldown_penalty=casting_spell.get_duration())
+        target.spell_manager.interrupt_casting_spell(cooldown_penalty=casting_spell.get_duration())
 
     @staticmethod
     def handle_stuck(casting_spell, effect, caster, target):

@@ -475,7 +475,11 @@ class SpellManager:
 
     # TODO: called by SPELL_EFFECT_INTERRUPT_CAST.
     #  The given spell should be set on a cooldown equal to cooldown_penalty value.
-    def interrupt_cast_by_casting_spell(self, casting_spell, cooldown_penalty=0):
+    def interrupt_casting_spell(self, cooldown_penalty=0):
+        casting_spell = self.get_casting_spell()
+        if not casting_spell:
+            return
+
         self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR, interrupted=False) -> bool:
