@@ -473,14 +473,23 @@ class SpellManager:
                 else:
                     self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
 
-    # TODO: called by SPELL_EFFECT_INTERRUPT_CAST.
-    #  The given spell should be set on a cooldown equal to cooldown_penalty value.
     def interrupt_casting_spell(self, cooldown_penalty=0):
         casting_spell = self.get_casting_spell()
         if not casting_spell:
             return
 
+        cooldown_penalty_seconds = int(cooldown_penalty/1000)
         self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+        cooldown_entry = CooldownEntry(casting_spell.spell_entry, time.time() + int(cooldown_penalty_seconds), False)
+        self.cooldowns.append(cooldown_entry)
+
+        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        # Lock spell if a penalty was provided.
+        if cooldown_penalty:
+            data = pack('<IQI', casting_spell.spell_entry.ID, self.caster.guid, cooldown_entry.cooldown_length)
+            self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR, interrupted=False) -> bool:
         if casting_spell not in self.casting_spells:
