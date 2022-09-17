@@ -434,7 +434,7 @@ class AppliedItemUpdates(Base):
     version = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
 
-class AreatriggerInvolvedrelation(Base):
+class AreatriggerQuestRelation(Base):
     __tablename__ = 'areatrigger_quest_relation'
     __table_args__ = {'comment': 'Trigger System'}
 

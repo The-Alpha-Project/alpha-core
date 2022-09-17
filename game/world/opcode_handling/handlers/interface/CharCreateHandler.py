@@ -177,7 +177,7 @@ class CharCreateHandler(object):
         # TODO: Need further research, maybe each type of class started with access to specific talents.
         #  Doesn't make sense to have Magic Talents available to melee classes etc.
         for skill_id, skill in DbcDatabaseManager.SkillHolder.SKILLS.items():
-            if skill.SkillType == SkillLineType.Talents:
+            if skill.SkillType == SkillLineType.TALENTS:
                 skill_to_set = CharacterSkill()
                 skill_to_set.guid = guid
                 skill_to_set.skill = skill_id

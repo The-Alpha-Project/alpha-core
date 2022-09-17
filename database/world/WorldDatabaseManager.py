@@ -666,9 +666,9 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def area_trigger_quest_relations_get_all() -> list[AreatriggerInvolvedrelation]:
+    def area_trigger_quest_relations_get_all() -> list[AreatriggerQuestRelation]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(AreatriggerInvolvedrelation).all()
+        res = world_db_session.query(AreatriggerQuestRelation).all()
         world_db_session.close()
         return res
 

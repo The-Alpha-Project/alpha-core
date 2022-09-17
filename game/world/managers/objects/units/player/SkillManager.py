@@ -167,10 +167,10 @@ class SkillTypes(IntEnum):
 
 
 class SkillLineType(IntEnum):
-    Primary = 0,
-    Racial = 2,
-    Talents = 3,
-    Secondary = 4
+    PRIMARY = 0
+    RACIAL = 2
+    TALENTS = 3
+    SECONDARY = 4
 
 
 class LanguageDesc(NamedTuple):

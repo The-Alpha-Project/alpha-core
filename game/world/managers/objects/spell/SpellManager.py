@@ -64,7 +64,7 @@ class SpellManager:
         if preceded_by_spell and self.unlearn_spell(preceded_by_spell.Spell, new_spell_id=spell_id):
             should_learn = False
 
-        # Is not preceded by a known spell, should learn as new.
+        # It's not preceded by a known spell, should learn as new.
         if should_learn:
             data = pack('<H', spell_id)
             self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LEARNED_SPELL, data))
@@ -479,7 +479,7 @@ class SpellManager:
         spell = casting_spell.spell_entry
         self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
 
-        # Remove existent cooldown for this spell if exists and a penalty was provided.
+        # Remove existent cooldown for this spell if it exists and a penalty was provided.
         if spell.ID in self.cooldowns and cooldown_penalty:
             del self.cooldowns[spell.ID]
 
