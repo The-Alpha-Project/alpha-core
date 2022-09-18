@@ -53,11 +53,6 @@ class TalentManager(object):
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
 
-            # Skill step.
-            # skill_step: int = 0
-            # if spell.Effect_2 == SpellEffects.SPELL_EFFECT_SKILL_STEP:
-            #    skill_step = spell.EffectMiscValue_2
-
             talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, self.player_mgr)
             talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
