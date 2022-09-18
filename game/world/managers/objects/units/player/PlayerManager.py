@@ -312,12 +312,14 @@ class PlayerManager(UnitManager):
         self.session.save_character()
 
         # Destroy all known objects to self.
-        for guid, known_object in list(self.known_objects.items()):
-            self.destroy_near_object(guid)
+        self.update_known_world_objects(flush=True)
 
         # Flush known items/objects cache.
         self.known_items.clear()
         self.known_objects.clear()
+
+        # Destroy self.
+        self.enqueue_packet(self.get_destroy_packet())
 
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
@@ -371,13 +373,19 @@ class PlayerManager(UnitManager):
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
-    def update_known_world_objects(self):
+    def update_known_world_objects(self, flush=False):
         with self.player_lock:
             players, creatures, game_objects, corpses, dynamic_objects = \
                 MapManager.get_surrounding_objects(self,
                                                    [ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT,
                                                     ObjectTypeIds.ID_GAMEOBJECT, ObjectTypeIds.ID_CORPSE,
                                                     ObjectTypeIds.ID_DYNAMICOBJECT])
+
+            # Destroy all known objects.
+            if flush:
+                for guid, known_object in list(self.known_objects.items()):
+                    self.destroy_near_object(guid)
+                return
 
             # Which objects were found in self surroundings.
             active_objects = dict()
@@ -477,6 +485,12 @@ class PlayerManager(UnitManager):
             if known_object.get_type_id() in implements_known_players:
                 if self.guid in known_object.known_players:
                     del known_object.known_players[self.guid]
+            # Destroy other player items for self.
+            if known_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                destroy_packets = known_object.inventory.get_inventory_destroy_packets()
+                for guid in destroy_packets.keys():
+                    self.known_items.pop(guid, None)
+                self.enqueue_packets(destroy_packets.values())
             # Destroy world object from self.
             self.enqueue_packet(known_object.get_destroy_packet())
             return True
@@ -564,6 +578,12 @@ class PlayerManager(UnitManager):
             # while the screen is still present.
             # Remove to others.
             MapManager.remove_object(self)
+            # Destroy all objects known to self.
+            self.update_known_world_objects(flush=True)
+            # Flush known items/objects cache.
+            self.known_items.clear()
+            self.known_objects.clear()
+            # Loading screen.
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
 
             data = pack(
@@ -588,9 +608,6 @@ class PlayerManager(UnitManager):
 
         # Player changed map. Send initial spells, action buttons and create packet.
         if changed_map:
-            # Flush known items/objects cache.
-            self.known_items.clear()
-            self.known_objects.clear()
             # Send initial packets for spells, action buttons and player creation.
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
