@@ -857,8 +857,11 @@ class InventoryManager(object):
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
-            if requester.guid == self.owner.guid or container.guid in requester.known_items:
+
+            # Only destroy containers to self, other players don't care about them.
+            if requester.guid == self.owner.guid:
                 destroy_packets[container.guid] = container.get_destroy_packet()
+
             for slot, item in list(container.sorted_slots.items()):
                 if requester.guid == self.owner.guid or item.guid in requester.known_items:
                     destroy_packets[item.guid] = item.get_destroy_packet()
