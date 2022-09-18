@@ -852,16 +852,16 @@ class InventoryManager(object):
         slots = [inv_slot_start + item.current_slot * 2 for item in self.get_backpack().sorted_slots.values()]
         return any(self.owner.update_packet_factory.update_mask.is_set(slot) for slot in slots)
 
-    def get_inventory_destroy_packets(self):
+    def get_inventory_destroy_packets(self, requester):
         destroy_packets = {}
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
-            container_destroy_packet = PacketWriter.get_packet(OpCode.SMSG_DESTROY_OBJECT, pack('<Q', container.guid))
-            destroy_packets[container.guid] = container_destroy_packet
+            if requester.guid == self.owner.guid or container.guid in requester.known_items:
+                destroy_packets[container.guid] = container.get_destroy_packet()
             for slot, item in list(container.sorted_slots.items()):
-                item_destroy_packet = PacketWriter.get_packet(OpCode.SMSG_DESTROY_OBJECT, pack('<Q', item.guid))
-                destroy_packets[item.guid] = item_destroy_packet
+                if requester.guid == self.owner.guid or item.guid in requester.known_items:
+                    destroy_packets[item.guid] = item.get_destroy_packet()
         return destroy_packets
 
     def get_inventory_update_packets(self, requester):
