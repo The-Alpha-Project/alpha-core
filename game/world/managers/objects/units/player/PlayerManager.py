@@ -318,8 +318,9 @@ class PlayerManager(UnitManager):
         self.known_items.clear()
         self.known_objects.clear()
 
-        # Destroy self.
+        # Destroy self and self items.
         self.enqueue_packet(self.get_destroy_packet())
+        self.enqueue_packets(self.inventory.get_inventory_destroy_packets(requester=self).values())
 
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
@@ -487,7 +488,7 @@ class PlayerManager(UnitManager):
                     del known_object.known_players[self.guid]
             # Destroy other player items for self.
             if known_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                destroy_packets = known_object.inventory.get_inventory_destroy_packets()
+                destroy_packets = known_object.inventory.get_inventory_destroy_packets(requester=self)
                 for guid in destroy_packets.keys():
                     self.known_items.pop(guid, None)
                 self.enqueue_packets(destroy_packets.values())
