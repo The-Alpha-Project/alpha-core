@@ -54,16 +54,17 @@ class TalentManager(object):
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
 
             # Skill step.
-            skill_step: int = 0
-            if spell.Effect_2 == SpellEffects.SPELL_EFFECT_SKILL_STEP:
-                skill_step = spell.EffectMiscValue_2
+            # skill_step: int = 0
+            # if spell.Effect_2 == SpellEffects.SPELL_EFFECT_SKILL_STEP:
+            #    skill_step = spell.EffectMiscValue_2
 
             talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, self.player_mgr)
             talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
                                                         talent_points_cost, 0,  # 0 Skill point cost.
-                                                        spell.BaseLevel, skill_line_ability.SkillLine,
-                                                        skill_line_ability.MinSkillLineRank, skill_step, preceded_spell)
+                                                        spell.BaseLevel,
+                                                        0, 0, 0,  # Required skill data, 0 for now.
+                                                        preceded_spell)
             talent_count += 1
 
         data = pack('<Q2I', self.player_mgr.guid, TrainerTypes.TRAINER_TYPE_TALENTS, talent_count) + talent_bytes

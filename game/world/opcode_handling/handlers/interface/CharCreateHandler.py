@@ -79,7 +79,8 @@ class CharCreateHandler(object):
             CharCreateHandler.generate_starting_reputations(character.guid)
             CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
             CharCreateHandler.generate_starting_spells_skills(character.guid, race, class_, character.level)
-            CharCreateHandler.generate_starting_talents_skills(character.guid)
+            # TODO: Investigate if talent skills are actually needed by players, I don't think they are.
+            # CharCreateHandler.generate_starting_talents_skills(character.guid)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
             CharCreateHandler.generate_starting_buttons(character.guid, race, class_)
             CharCreateHandler.generate_starting_taxi_nodes(character, race)
