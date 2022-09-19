@@ -30,9 +30,10 @@ class QuestGiverChooseRewardHandler(object):
                 quest_giver = player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_COMPLETE_QUEST, could not find quest giver with guid of: {guid}.')
+                Logger.error(f'Error in CMSG_QUESTGIVER_CHOOSE_REWARD, could not find quest giver with guid: {guid}.')
                 return 0
             if not is_item and player_mgr.is_hostile_to(quest_giver):
+                Logger.warning(f'Error in CMSG_QUESTGIVER_CHOOSE_REWARD, quest giver with guid: {guid} is hostile.')
                 return 0
 
             player_mgr.quest_manager.handle_choose_reward(quest_giver, quest_id, item_choice)
