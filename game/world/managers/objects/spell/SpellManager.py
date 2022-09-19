@@ -85,7 +85,9 @@ class SpellManager:
                 self.caster.skill_manager.update_skills_max_value()
 
         # Add the spell required skill.
-        skill, skill_id, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        skill, skill_id, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id,
+                                                                                                    self.caster.race,
+                                                                                                    self.caster.class_)
         if not skill and skill_id:
             self.caster.skill_manager.add_skill(skill_id)
 

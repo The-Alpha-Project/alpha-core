@@ -191,14 +191,16 @@ class CharCreateHandler(object):
         added_skills = set()
         for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
             initial_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
-            if initial_spell and not initial_spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+            if initial_spell:
                 # Handle learning skills required by initial spells.
-                skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(initial_spell.ID)
+                skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(initial_spell.ID, race,
+                                                                                             class_)
                 if skill_id and skill_id not in added_skills:
                     added_skills.add(skill_id)
                     skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
                     if not skill:
                         continue
+
                     skill_to_set = CharacterSkill()
                     skill_to_set.guid = guid
                     skill_to_set.skill = skill_id

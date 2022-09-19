@@ -430,7 +430,8 @@ class SkillManager(object):
         if not spell_id:
             return False
 
-        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id, self.player_mgr.race,
+                                                                               self.player_mgr.class_)
         if not skill:
             return False
 
@@ -443,7 +444,8 @@ class SkillManager(object):
         skill_gain_factor = 1
 
         # Should always resolve to one for professions.
-        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id, self.player_mgr.race,
+                                                                               self.player_mgr.class_)
         if not skill:
             return False
 
@@ -477,19 +479,28 @@ class SkillManager(object):
         self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)
 
     @staticmethod
-    def get_skill_id_and_skill_line_for_spell_id(spell_id):
+    def get_skill_id_and_skill_line_for_spell_id(spell_id, race, class_):
         skill_info_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
 
         if not skill_info_entries:
             return 0, None
 
-        skill_line_ability = skill_info_entries[0]
-        skill_id = skill_line_ability.SkillLine
+        for skill_line_ability in skill_info_entries:
+            race_mask = 1 << race - 1
+            class_mask = 1 << class_ - 1
 
-        return skill_id, skill_line_ability
+            if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race_mask == 0) or \
+                    (skill_line_ability.ClassMask and skill_line_ability.ClassMask & class_mask == 0) or \
+                    skill_line_ability.ExcludeRace & race_mask != 0 or \
+                    skill_line_ability.ExcludeClass & class_mask != 0:
+                continue
 
-    def get_skill_info_for_spell_id(self, spell_id):
-        skill_id, skill_line_ability = SkillManager.get_skill_id_and_skill_line_for_spell_id(spell_id)
+            return skill_line_ability.SkillLine, skill_line_ability
+
+        return 0, None
+
+    def get_skill_info_for_spell_id(self, spell_id, race, class_):
+        skill_id, skill_line_ability = SkillManager.get_skill_id_and_skill_line_for_spell_id(spell_id, race, class_)
 
         if not skill_id:
             return None, 0, None
