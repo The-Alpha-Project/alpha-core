@@ -12572,5 +12572,503 @@ begin not atomic
        
         insert into applied_updates values ('170920221');
     end if;
+	
+     -- 18/09/2022 1
+    if (select count(*) from applied_updates where id='180920221') = 0 then
+        -- RACE_HUMAN(1) - CLASS_WARRIOR(1) | Race Mask 1 Class Mask 1
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Guns 3830
+        -- Player Spell: Guns
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '3830', '266', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Guns 3830
+        -- Player Spell: Guns
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3830', '266', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Guns 3830
+        -- Player Spell: Guns
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3830', '266', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Two-Handed Swords 3835
+        -- Player Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Two-Handed Swords 3835
+        -- Player Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Two-Handed Swords 3835
+        -- Player Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Two-Handed Maces 3833
+        -- Player Spell: Two-Handed Maces
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '3833', '199', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Two-Handed Maces 3833
+        -- Player Spell: Two-Handed Maces
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3833', '199', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Two-Handed Maces 3833
+        -- Player Spell: Two-Handed Maces
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3833', '199', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Two-Handed Axes 3831
+        -- Player Spell: Two-Handed Axes
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '3831', '197', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Two-Handed Axes 3831
+        -- Player Spell: Two-Handed Axes
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3831', '197', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Two-Handed Axes 3831
+        -- Player Spell: Two-Handed Axes
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3831', '197', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Thrown 716
+        -- Player Spell: Thrown
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '716', '2567', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Thrown 716
+        -- Player Spell: Thrown
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '716', '2567', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Thrown 716
+        -- Player Spell: Thrown
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '716', '2567', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Crossbows 5013
+        -- Player Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '5013', '5011', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Crossbows 5013
+        -- Player Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '5013', '5011', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Crossbows 5013
+        -- Player Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '5013', '5011', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Polearms 3838
+        -- Player Spell: Polearms
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '3838', '200', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Polearms 3838
+        -- Player Spell: Polearms
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3838', '200', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Polearms 3838
+        -- Player Spell: Polearms
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3838', '200', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Shield Bash 1675
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '1675', '72', '300', '0', '0', '0', '0', '10');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Shield Bash 1675
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '1675', '72', '300', '0', '0', '0', '0', '10');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Shield Bash 1675
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1675', '72', '300', '0', '0', '0', '0', '10');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Shield Bash 1676
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '1676', '1671', '2200', '0', '0', '0', '0', '18');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Shield Bash 1676
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '1676', '1671', '2200', '0', '0', '0', '0', '18');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Shield Bash 1676
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1676', '1671', '2200', '0', '0', '0', '0', '18');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Shield Bash 1677
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '1677', '1672', '8100', '0', '0', '0', '0', '28');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Shield Bash 1677
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '1677', '1672', '8100', '0', '0', '0', '0', '28');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Shield Bash 1677
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1677', '1672', '8100', '0', '0', '0', '0', '28');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Shield Block 2570
+        -- Player Spell: Shield Block
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '2570', '2565', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Shield Block 2570
+        -- Player Spell: Shield Block
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '2570', '2565', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Shield Block 2570
+        -- Player Spell: Shield Block
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '2570', '2565', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Shield Bash 7378
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '7378', '7377', '23000', '0', '0', '0', '0', '38');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Shield Bash 7378
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '7378', '7377', '23000', '0', '0', '0', '0', '38');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Shield Bash 7378
+        -- Player Spell: Shield Bash
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '7378', '7377', '23000', '0', '0', '0', '0', '38');
+        -- Trainer Template ID: [22]
+        -- Trainer Spell: Shield Wall 1055
+        -- Player Spell: Shield Wall
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('22', '1055', '871', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID: [23]
+        -- Trainer Spell: Shield Wall 1055
+        -- Player Spell: Shield Wall
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '1055', '871', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Shield Wall 1055
+        -- Player Spell: Shield Wall
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1055', '871', '3400', '0', '0', '0', '0', '22');
+
+
+        -- RACE_HUMAN(1) - CLASS_PALADIN(2) | Race Mask 1 Class Mask 2
+        -- Trainer Template ID: [28]
+        -- Trainer Spell: One-Handed Swords 3834
+        -- Player Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('28', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [29]
+        -- Trainer Spell: One-Handed Swords 3834
+        -- Player Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('29', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: One-Handed Swords 3834
+        -- Player Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [28]
+        -- Trainer Spell: Two-Handed Swords 3835
+        -- Player Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('28', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [29]
+        -- Trainer Spell: Two-Handed Swords 3835
+        -- Player Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('29', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [28]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('28', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID: [29]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('29', '3128', '3127', '10', '0', '0', '0', '0', '1');
+
+
+        -- RACE_HUMAN(1) - CLASS_ROGUE(4) | Race Mask 1 Class Mask 8
+        -- Trainer Template ID: [25]
+        -- Trainer Spell: One-Handed Swords 3834
+        -- Player Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('25', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [25]
+        -- Trainer Spell: Guns 3830
+        -- Player Spell: Guns
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('25', '3830', '266', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [25]
+        -- Trainer Spell: Evasion 5278
+        -- Player Spell: Evasion
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('25', '5278', '5277', '100', '0', '0', '0', '0', '6');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Evasion 5278
+        -- Player Spell: Evasion
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '5278', '5277', '100', '0', '0', '0', '0', '6');
+        -- Trainer Template ID: [25]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('25', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID: [25]
+        -- Trainer Spell: Dual Wield 1080
+        -- Player Spell: Dual Wield
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('25', '1080', '674', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Dual Wield 1080
+        -- Player Spell: Dual Wield
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1080', '674', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [25]
+        -- Trainer Spell: Crossbows 5013
+        -- Player Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('25', '5013', '5011', '0', '0', '2', '0', '0', '0');
+
+
+        -- RACE_HUMAN(1) - CLASS_WARLOCK(9) | Race Mask 1 Class Mask 256
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Agony 981
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '981', '980', '200', '0', '0', '0', '0', '8');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Agony 981
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '981', '980', '200', '0', '0', '0', '0', '8');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Agony 981
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '981', '980', '200', '0', '0', '0', '0', '8');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Recklessness 7661
+        -- Player Spell: Curse of Recklessness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '7661', '7659', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Recklessness 7661
+        -- Player Spell: Curse of Recklessness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '7661', '7659', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Recklessness 7661
+        -- Player Spell: Curse of Recklessness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '7661', '7659', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Weakness 1109
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '1109', '1108', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Weakness 1109
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1109', '1108', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Weakness 1109
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1109', '1108', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Weakness 7647
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '7647', '7646', '18000', '0', '0', '0', '0', '34');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Weakness 7647
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '7647', '7646', '18000', '0', '0', '0', '0', '34');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Weakness 7647
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '7647', '7646', '18000', '0', '0', '0', '0', '34');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Tongues 956
+        -- Player Spell: Curse of Tongues
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '956', '1714', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Tongues 956
+        -- Player Spell: Curse of Tongues
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '956', '1714', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Tongues 956
+        -- Player Spell: Curse of Tongues
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '956', '1714', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Weakness 1031
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '1031', '6205', '5300', '0', '0', '0', '0', '24');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Weakness 1031
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1031', '6205', '5300', '0', '0', '0', '0', '24');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Weakness 1031
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1031', '6205', '5300', '0', '0', '0', '0', '24');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Weakness 729
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '729', '702', '80', '0', '0', '0', '0', '4');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Weakness 729
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '729', '702', '80', '0', '0', '0', '0', '4');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Weakness 729
+        -- Player Spell: Curse of Weakness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '729', '702', '80', '0', '0', '0', '0', '4');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Recklessness 7660
+        -- Player Spell: Curse of Recklessness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '7660', '7658', '6700', '0', '0', '0', '0', '26');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Recklessness 7660
+        -- Player Spell: Curse of Recklessness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '7660', '7658', '6700', '0', '0', '0', '0', '26');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Recklessness 7660
+        -- Player Spell: Curse of Recklessness
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '7660', '7658', '6700', '0', '0', '0', '0', '26');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Agony 1015
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '1015', '1014', '2600', '0', '0', '0', '0', '20');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Agony 1015
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1015', '1014', '2600', '0', '0', '0', '0', '20');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Agony 1015
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1015', '1014', '2600', '0', '0', '0', '0', '20');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of the Elements 7666
+        -- Player Spell: Curse of the Elements
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '7666', '1490', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of the Elements 7666
+        -- Player Spell: Curse of the Elements
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '7666', '1490', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of the Elements 7666
+        -- Player Spell: Curse of the Elements
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '7666', '1490', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID: [13]
+        -- Trainer Spell: Curse of Agony 1029
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('13', '1029', '6217', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID: [14]
+        -- Trainer Spell: Curse of Agony 1029
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1029', '6217', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Curse of Agony 1029
+        -- Player Spell: Curse of Agony
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1029', '6217', '11000', '0', '0', '0', '0', '32');
+
+
+        -- RACE_ORC(2) - CLASS_HUNTER(3) | Race Mask 2 Class Mask 4
+        -- Trainer Template ID: [19]
+        -- Trainer Spell: One-Handed Swords 3834
+        -- Player Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('19', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [20]
+        -- Trainer Spell: One-Handed Swords 3834
+        -- Player Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [19]
+        -- Trainer Spell: Two-Handed Swords 3835
+        -- Player Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('19', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [20]
+        -- Trainer Spell: Two-Handed Swords 3835
+        -- Player Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [19]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('19', '3128', '3127', '0', '0', '2', '0', '0', '1');
+        -- Trainer Template ID: [20]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '3128', '3127', '0', '0', '2', '0', '0', '1');
+        -- Trainer Template ID: [19]
+        -- Trainer Spell: Two-Handed Axes 3831
+        -- Player Spell: Two-Handed Axes
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('19', '3831', '197', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [20]
+        -- Trainer Spell: Two-Handed Axes 3831
+        -- Player Spell: Two-Handed Axes
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '3831', '197', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [19]
+        -- Trainer Spell: Thrown 716
+        -- Player Spell: Thrown
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('19', '716', '2567', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [20]
+        -- Trainer Spell: Thrown 716
+        -- Player Spell: Thrown
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '716', '2567', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [19]
+        -- Trainer Spell: Crossbows 5013
+        -- Player Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('19', '5013', '5011', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [20]
+        -- Trainer Spell: Crossbows 5013
+        -- Player Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '5013', '5011', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [19]
+        -- Trainer Spell: Spears 5014
+        -- Player Spell: Spears
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('19', '5014', '3386', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [20]
+        -- Trainer Spell: Spears 5014
+        -- Player Spell: Spears
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '5014', '3386', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Spears 5014
+        -- Player Spell: Spears
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '5014', '3386', '0', '0', '2', '0', '0', '0');
+
+
+        -- RACE_NIGHT_ELF(4) - CLASS_DRUID(11) | Race Mask 8 Class Mask 1024
+        -- Trainer Template ID: [17]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID: [16]
+        -- Trainer Spell: Parry 3128
+        -- Player Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID: [17]
+        -- Trainer Spell: Bear Form 5488
+        -- Player Spell: Bear Form
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5488', '5487', '0', '0', '2', '0', '0', '20');
+        -- Trainer Template ID: [16]
+        -- Trainer Spell: Bear Form 5488
+        -- Player Spell: Bear Form
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5488', '5487', '0', '0', '2', '0', '0', '20');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Bear Form 5488
+        -- Player Spell: Bear Form
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '5488', '5487', '0', '0', '2', '0', '0', '20');
+        -- Trainer Template ID: [17]
+        -- Trainer Spell: Aquatic Form 1446
+        -- Player Spell: Aquatic Form
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '1446', '1066', '0', '0', '2', '0', '0', '30');
+        -- Trainer Template ID: [16]
+        -- Trainer Spell: Aquatic Form 1446
+        -- Player Spell: Aquatic Form
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '1446', '1066', '0', '0', '2', '0', '0', '30');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Aquatic Form 1446
+        -- Player Spell: Aquatic Form
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1446', '1066', '0', '0', '2', '0', '0', '30');
+        -- Trainer Template ID: [17]
+        -- Trainer Spell: zzOLDLearn Swipe 799
+        -- Player Spell: Swipe
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '799', '780', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID: [16]
+        -- Trainer Spell: zzOLDLearn Swipe 799
+        -- Player Spell: Swipe
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '799', '780', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: zzOLDLearn Swipe 799
+        -- Player Spell: Swipe
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '799', '780', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID: [17]
+        -- Trainer Spell: Growl 6796
+        -- Player Spell: Growl
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '6796', '6795', '2600', '0', '0', '0', '0', '20');
+        -- Trainer Template ID: [16]
+        -- Trainer Spell: Growl 6796
+        -- Player Spell: Growl
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '6796', '6795', '2600', '0', '0', '0', '0', '20');
+        -- Trainer Template ID: [26]
+        -- Trainer Spell: Growl 6796
+        -- Player Spell: Growl
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '6796', '6795', '2600', '0', '0', '0', '0', '20');
+        
+        insert into applied_updates values ('180920221');
+    end if;
 end $
 delimiter ;
