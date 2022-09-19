@@ -4,6 +4,7 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
+from utils.constants.OpCodes import OpCode
 
 
 class QuestGiverStatusHandler(object):
@@ -28,7 +29,7 @@ class QuestGiverStatusHandler(object):
                 quest_giver = player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_STATUS_QUERY, could not find quest giver with guid of: {guid}')
+                Logger.error(f'Error in {OpCode(reader.opcode).name}, could not find quest giver with guid of: {guid}')
                 return 0
 
             # Only units are able to provide quest status.

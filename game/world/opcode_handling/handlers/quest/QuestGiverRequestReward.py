@@ -4,6 +4,7 @@ from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
+from utils.constants.OpCodes import OpCode
 
 
 class QuestGiverRequestReward(object):
@@ -30,9 +31,10 @@ class QuestGiverRequestReward(object):
                 quest_giver = player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_REQUEST_REWARD, could not find quest giver with guid: {guid}.')
+                Logger.error(f'Error in {OpCode(reader.opcode).name}, could not find quest giver with guid: {guid}.')
                 return 0
             if not is_item and player_mgr.is_hostile_to(quest_giver):
+                Logger.warning(f'{OpCode(reader.opcode).name}, quest giver with guid: {guid} is hostile.')
                 return 0
 
             player_mgr.quest_manager.handle_request_reward(guid, quest_id)

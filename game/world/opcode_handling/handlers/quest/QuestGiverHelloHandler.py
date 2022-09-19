@@ -4,6 +4,7 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
 from utils.Logger import Logger
+from utils.constants.OpCodes import OpCode
 
 
 class QuestGiverHelloHandler(object):
@@ -30,9 +31,10 @@ class QuestGiverHelloHandler(object):
                 quest_giver = player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_HELLO, could not find quest giver with guid of: {guid}')
+                Logger.error(f'Error in {OpCode(reader.opcode).name}, could not find quest giver with guid of: {guid}')
                 return 0
             if not is_item and player_mgr.is_hostile_to(quest_giver):
+                Logger.warning(f'{OpCode(reader.opcode).name}, quest giver with guid: {guid} is hostile.')
                 return 0
 
             # TODO: Stop the npc if it's moving
