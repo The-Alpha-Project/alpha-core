@@ -28,7 +28,7 @@ class QuestGiverStatusHandler(object):
                 quest_giver = player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_STATUS_QUERY, could not find quest giver with guid of: {guid}')
+                Logger.error(f'Error in {reader.opcode_str()}, could not find quest giver with guid of: {guid}')
                 return 0
 
             # Only units are able to provide quest status.
