@@ -82,6 +82,6 @@ class MovementHandler:
                     player_mgr.set_stand_state(StandState.UNIT_STANDING)
 
             except (AttributeError, error):
-                Logger.error(f'Error while handling {OpCode(reader.opcode).name}, skipping. Data: {reader.data}')
+                Logger.error(f'Error while handling {reader.opcode_str()}, skipping. Data: {reader.data}')
 
         return 0

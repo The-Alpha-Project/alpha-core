@@ -4,7 +4,6 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
-from utils.constants.OpCodes import OpCode
 
 
 class QuestGiverCompleteQuestHandler(object):
@@ -31,10 +30,10 @@ class QuestGiverCompleteQuestHandler(object):
                 quest_giver = player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in {OpCode(reader.opcode).name}, could not find quest giver with guid of: {guid}.')
+                Logger.error(f'Error in {reader.opcode_str()}, could not find quest giver with guid of: {guid}.')
                 return 0
             if not is_item and player_mgr.is_hostile_to(quest_giver):
-                Logger.warning(f'{OpCode(reader.opcode).name}, quest giver with guid: {guid} is hostile.')
+                Logger.warning(f'{reader.opcode_str()}, quest giver with guid: {guid} is hostile.')
                 return 0
 
             player_mgr.quest_manager.handle_complete_quest(quest_id, guid)

@@ -1,5 +1,7 @@
 from struct import unpack
 
+from utils.constants.OpCodes import OpCode
+
 
 class PacketReader(object):
     def __init__(self, data):
@@ -11,6 +13,9 @@ class PacketReader(object):
             self.size = 0
             self.opcode = 0
             self.data = bytearray()
+
+    def opcode_str(self):
+        return OpCode(self.opcode).name
 
     @staticmethod
     def read_string(packet, start, terminator='\x00'):
