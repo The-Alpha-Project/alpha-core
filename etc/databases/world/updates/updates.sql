@@ -13044,18 +13044,6 @@ begin not atomic
         -- Player Spell: Aquatic Form
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1446', '1066', '0', '0', '2', '0', '0', '30');
         -- Trainer Template ID: [17]
-        -- Trainer Spell: zzOLDLearn Swipe 799
-        -- Player Spell: Swipe
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '799', '780', '16000', '0', '0', '0', '0', '40');
-        -- Trainer Template ID: [16]
-        -- Trainer Spell: zzOLDLearn Swipe 799
-        -- Player Spell: Swipe
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '799', '780', '16000', '0', '0', '0', '0', '40');
-        -- Trainer Template ID: [26]
-        -- Trainer Spell: zzOLDLearn Swipe 799
-        -- Player Spell: Swipe
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '799', '780', '16000', '0', '0', '0', '0', '40');
-        -- Trainer Template ID: [17]
         -- Trainer Spell: Growl 6796
         -- Player Spell: Growl
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '6796', '6795', '2600', '0', '0', '0', '0', '20');
