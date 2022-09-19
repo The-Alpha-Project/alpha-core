@@ -126,6 +126,13 @@ class DbcDatabaseManager:
                 if spell_id in DbcDatabaseManager.SpellHolder.SPELLS else None
 
         @staticmethod
+        def spell_get_trainer_spell_by_id(spell_id):
+            for id, spell in DbcDatabaseManager.SpellHolder.SPELLS.items():
+                triggers = [spell.EffectTriggerSpell_1, spell.EffectTriggerSpell_2, spell.EffectTriggerSpell_3]
+                if spell_id in triggers:
+                    return spell
+
+        @staticmethod
         def spell_get_rank_by_spell(spell):
             rank_text = spell.NameSubtext_enUS
             if 'Rank' in rank_text:
@@ -255,6 +262,15 @@ class DbcDatabaseManager:
             if spell_id in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_PRECEDED:
                 return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_PRECEDED[spell_id]
             return None
+
+        @staticmethod
+        def skill_line_abilities_get_by_skill_line_id(skill_line_id) -> Optional[list[SkillLineAbility]]:
+            result = []
+            for skill_like_abilities in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.values():
+                for skill_like_ability in skill_like_abilities:
+                    if skill_like_ability.SkillLine == skill_line_id:
+                        result.append(skill_like_ability)
+            return result
 
         @staticmethod
         def skill_line_abilities_get_by_spell(spell_id) -> list:
