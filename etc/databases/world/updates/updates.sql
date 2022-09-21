@@ -13861,7 +13861,8 @@ begin not atomic
 		--  Parry, Trainer Spell 3128, Player Spell 3127
 		--  Dual Wield, Trainer Spell 1080, Player Spell 674
 		--  Crossbows, Trainer Spell 5013, Player Spell 5011
-
+		
+		UPDATE `creature_template` SET `trainer_class` = '4' WHERE (`entry` = '6707');
 
 		-- Trainer Template ID 23 - WARRIOR
 		-- Spell: Guns
