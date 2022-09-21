@@ -14,7 +14,6 @@ from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
-from tools.ClassTrainersSkillsGenerator import ClassTrainersSkillGenerator
 from utils.Logger import Logger
 from utils.constants.AuthCodes import AuthCode
 
@@ -268,8 +267,6 @@ class WorldServerSessionHandler:
 
     @staticmethod
     def start():
-        ClassTrainersSkillGenerator.generate()
-        return
         WorldLoader.load_data()
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
