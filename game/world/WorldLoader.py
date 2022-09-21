@@ -10,8 +10,6 @@ from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from utils.constants.SpellCodes import SpellAttributes
-from utils.constants.UnitCodes import Races, Classes
 
 
 class WorldLoader:
@@ -25,55 +23,52 @@ class WorldLoader:
         # Below order matters.
 
         WorldLoader.load_creature_templates()
-        # WorldLoader.load_gameobject_templates()
+        WorldLoader.load_gameobject_templates()
 
         # Loot related, even if not loading creatures or gameobjects, loot might be referenced.
-        # WorldLoader.load_gameobject_loot_templates()
-        # WorldLoader.load_fishing_loot_templates()
-        # WorldLoader.load_creature_loot_templates()
-        # WorldLoader.load_skinning_loot_templates()
-        # WorldLoader.load_item_templates()
-        # WorldLoader.load_reference_loot_templates()
-        # WorldLoader.load_pickpocketing_loot_templates()
-        # WorldLoader.load_item_loot_templates()
+        WorldLoader.load_gameobject_loot_templates()
+        WorldLoader.load_fishing_loot_templates()
+        WorldLoader.load_creature_loot_templates()
+        WorldLoader.load_skinning_loot_templates()
+        WorldLoader.load_item_templates()
+        WorldLoader.load_reference_loot_templates()
+        WorldLoader.load_pickpocketing_loot_templates()
+        WorldLoader.load_item_loot_templates()
 
         # Spells.
         WorldLoader.load_spells()
-        # WorldLoader.load_creature_spells()
+        WorldLoader.load_creature_spells()
 
-        # # Gameobject spawns
-        # if config.Server.Settings.load_gameobjects:
-        #     WorldLoader.load_gameobject_quest_starters()
-        #     WorldLoader.load_gameobject_quest_finishers()
-        #     WorldLoader.load_gameobjects_spawns()
-        # else:
-        #     Logger.info('Skipped game object loading.')
-        #
-        # # Creature spawns
-        # if config.Server.Settings.load_creatures:
-        #     WorldLoader.load_creature_equip_templates()
-        #     WorldLoader.load_creature_spawns()
-        #     WorldLoader.load_creature_on_kill_reputation()
-        #     WorldLoader.load_creature_quest_starters()
-        #     WorldLoader.load_creature_quest_finishers()
-        #     WorldLoader.load_creature_display_info()
-        #     WorldLoader.load_creature_model_info()
-        #     WorldLoader.load_creature_families()
-        #     WorldLoader.load_npc_gossip()
-        #     WorldLoader.load_npc_text()
-        # else:
-        #     Logger.info('Skipped creature loading.')
+        # Gameobject spawns
+        if config.Server.Settings.load_gameobjects:
+            WorldLoader.load_gameobject_quest_starters()
+            WorldLoader.load_gameobject_quest_finishers()
+            WorldLoader.load_gameobjects_spawns()
+        else:
+            Logger.info('Skipped game object loading.')
 
-        # WorldLoader.load_area_trigger_quest_relations()
-        # WorldLoader.load_quests()
-        # WorldLoader.load_spell_chains()
+        # Creature spawns
+        if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_equip_templates()
+            WorldLoader.load_creature_spawns()
+            WorldLoader.load_creature_on_kill_reputation()
+            WorldLoader.load_creature_quest_starters()
+            WorldLoader.load_creature_quest_finishers()
+            WorldLoader.load_creature_display_info()
+            WorldLoader.load_creature_model_info()
+            WorldLoader.load_creature_families()
+            WorldLoader.load_npc_gossip()
+            WorldLoader.load_npc_text()
+        else:
+            Logger.info('Skipped creature loading.')
+
+        WorldLoader.load_area_trigger_quest_relations()
+        WorldLoader.load_quests()
+        WorldLoader.load_spell_chains()
         WorldLoader.load_trainer_spells()
-        WorldLoader.load_char_base_infos()
-        WorldLoader.load_skill_line_abilities()
         WorldLoader.load_skills()
-        return
-
-
+        WorldLoader.load_skill_line_abilities()
+        WorldLoader.load_char_base_infos()
         WorldLoader.load_taxi_nodes()
         WorldLoader.load_taxi_path_nodes()
         WorldLoader.load_factions()
