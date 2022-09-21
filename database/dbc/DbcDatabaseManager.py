@@ -127,7 +127,7 @@ class DbcDatabaseManager:
 
         @staticmethod
         def spell_get_trainer_spell_by_id(spell_id):
-            for id, spell in DbcDatabaseManager.SpellHolder.SPELLS.items():
+            for id_, spell in DbcDatabaseManager.SpellHolder.SPELLS.items():
                 triggers = [spell.EffectTriggerSpell_1, spell.EffectTriggerSpell_2, spell.EffectTriggerSpell_3]
                 if spell_id in triggers:
                     return spell

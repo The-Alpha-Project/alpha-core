@@ -1,4 +1,7 @@
+from typing import NamedTuple
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.dbc.DbcModels import Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldLoader import WorldLoader
 from utils.Logger import Logger
@@ -6,11 +9,9 @@ from utils.constants.MiscCodes import SkillCategories, TrainerTypes
 from utils.constants.UnitCodes import Races, Classes
 
 
-class TrainerHolder:
-    def __init__(self, trainer):
-        self.trainer = trainer
-        self.trainer_spells = []
-        self.player_spells = []
+class TrainerSpellEntry(NamedTuple):
+    trainer_spell: Spell
+    player_spell: Spell
 
 
 class RaceClassHolder:
@@ -20,14 +21,86 @@ class RaceClassHolder:
         self.race = race
         self.class_ = class_
         self.spells = {}
+        self.trainers = {}
+        self.trainer_entries = set()
+        self.results = {}
 
     def push_spell(self, trainer, trainer_spell, player_spell):
+        # Ignore wrong spells. (Probably deprecated)
+        if trainer_spell.Name_enUS != player_spell.Name_enUS:
+            return
+
         if trainer.trainer_id not in self.spells:
             self.spells[trainer.trainer_id] = {}
 
+        if trainer.trainer_id not in self.trainers:
+            self.trainers[trainer.trainer_id] = []
+
+        if trainer.entry not in self.trainer_entries:
+            self.trainer_entries.add(trainer.entry)
+            self.trainers[trainer.trainer_id].append(trainer)
+
         if trainer_spell.ID not in self.spells[trainer.trainer_id]:
-            print(f'{self.race_name}-{self.class_name} | Spell {player_spell.Name_enUS}')
-            self.spells[trainer.trainer_id][trainer_spell.ID] = player_spell
+            self.spells[trainer.trainer_id][trainer_spell.ID] = TrainerSpellEntry(trainer_spell, player_spell)
+
+    def print(self):
+        print('\n')
+        for trainer_id, trainer_list in self.trainers.items():
+            print(f'-- {self.race_name} {self.class_name}')
+            print(f'-- Trainer template ID {trainer_id}')
+            print(f'-- Trainers:')
+            for trainer in trainer_list:
+                print(f'--  {trainer.name}')
+
+        trainer_ids = list(self.spells.keys())
+        trainer_id_len = len(self.spells.keys())
+
+        print('\n')
+        for trainer_id, trainer_spell_id in self.spells.items():
+            print(f'-- New spells for trainer template ID {trainer_id}')
+            for _id, trainer_spell_entry in trainer_spell_id.items():
+                trainer_spell = trainer_spell_entry.trainer_spell
+                player_spell = trainer_spell_entry.player_spell
+                trainer_id_index = trainer_ids.index(trainer_id)
+                # Do not use noob trainers.
+                if trainer_id_index > 0 or trainer_id_len == 1:
+                    # Add this entry as a result for later use in the sql query.
+                    if trainer_id not in self.results:
+                        self.results[trainer_id] = list()
+                    self.results[trainer_id].append(trainer_spell_entry)
+                    # Print information.
+                    sub_name = f' - ({trainer_spell.NameSubtext_enUS})' if trainer_spell.NameSubtext_enUS else ''
+                    print(f'--  {trainer_spell.Name_enUS}{sub_name}, Trainer Spell {_id}, Player Spell {player_spell.ID}')
+
+    @staticmethod
+    def _get_spell_price(spell):
+        skill_point_spells = ['sword', 'axe', 'mace', 'bow', 'polearm', 'dual wield', 'gun', 'thrown']
+        # SP.
+        if any(name.lower() in spell.Name_enUS.lower() for name in skill_point_spells):
+            return 2, 0
+        # Money.
+        else:
+            spell_level = 1 if not spell.BaseLevel else spell.BaseLevel
+            cost = WorldDatabaseManager.get_trainer_spell_price_by_level(spell_level)
+            cost = 10 if not cost else cost.spellcost
+            return 0, cost
+
+    def process_query(self, touched_trainer_ids, sql_query):
+        for trainer_id, result in self.results.items():
+            # If we already touched this trainer_id from another race/class mix, skip.
+            if trainer_id in touched_trainer_ids:
+                continue
+            touched_trainer_ids.add(trainer_id)
+            # Iterate trainer spell/player spell pairs.
+            for trainer_spell_entry in result:
+                trainer_spell = trainer_spell_entry.trainer_spell
+                player_spell = trainer_spell_entry.player_spell
+                sp_cost, money_cost = RaceClassHolder._get_spell_price(player_spell)
+                sub_name = f' - ({trainer_spell.NameSubtext_enUS})' if trainer_spell.NameSubtext_enUS else ''
+                sql_query.append(f'-- Trainer Template ID {trainer_id} - {self.class_name}')
+                sql_query.append(f'-- Spell: {player_spell.Name_enUS}{sub_name}')
+                insert = f"INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('{trainer_id}', '{trainer_spell.ID}', '{player_spell.ID}', '{money_cost if money_cost else 0}', '0', '{sp_cost if sp_cost else 0}', '0', '0', '{player_spell.BaseLevel}');"
+                sql_query.append(insert)
 
 
 class ClassTrainersSkillGenerator:
@@ -74,12 +147,11 @@ class ClassTrainersSkillGenerator:
         WorldLoader.load_trainer_spells()
 
         results = {}
-        inserts = {}
         for rId, race in enumerate(Races):
             for cId, class_ in enumerate(Classes):
                 chr_base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(race.value, class_.value)
                 if not chr_base_info:
-                    Logger.warning(f'Unable to locate ChrBaseInfo for race {race.name} class {class_.name}')
+                    #Logger.warning(f'Unable to locate ChrBaseInfo for race {race.name} class {class_.name}')
                     continue
 
                 # Initialize race-class dict if necessary.
@@ -91,9 +163,6 @@ class ClassTrainersSkillGenerator:
                 # Grab masks.
                 race_mask = 1 << race.value - 1
                 class_mask = 1 << class_.value - 1
-
-                #results[race][class_].append(
-                #    f'\n\n{race.name}({race}) - {class_.name}({class_}) | Race Mask {race_mask} Class Mask {class_mask}')
 
                 # Grab initial spells for this race and class.
                 initial_spells = WorldDatabaseManager.player_create_spell_get(race.value, class_.value)
@@ -110,10 +179,9 @@ class ClassTrainersSkillGenerator:
 
                     # Did not find skill line abilities.
                     if not skill_line_ability:
-                        Logger.warning(f'Did not find skill line abilities for skill id {skill.ID}')
+                        # Logger.warning(f'Did not find skill line abilities for skill id {skill.ID}')
                         continue
 
-                    spells = []
                     for skill_ab in skill_line_ability:
                         # Validate if the skill line ability is usable by this mix of race/class.
                         if not ClassTrainersSkillGenerator.validate_skill_line(skill_ab, race.value, class_.value,
@@ -123,7 +191,11 @@ class ClassTrainersSkillGenerator:
                         # Validate if it points to an existent spell.
                         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(skill_ab.Spell)
                         if not spell:
-                            Logger.warning(f'Did not find spell for id {skill_ab.Spell}')
+                            # Logger.warning(f'Did not find spell for id {skill_ab.Spell}')
+                            continue
+
+                        # Deprecated.
+                        if 'Spears' in spell.Name_enUS:
                             continue
 
                         # If this spell is already part of the initial spells, skip.
@@ -135,7 +207,7 @@ class ClassTrainersSkillGenerator:
 
                         # Validate this player spell can actually be trained by another spell.
                         if not trainer_spell:
-                            Logger.warning(f'Did not find trainer spell for id {spell.ID}')
+                            #Logger.warning(f'Did not find trainer spell for id {spell.ID}')
                             continue
 
                         # Find trainers for the current mix of race/class.
@@ -143,7 +215,7 @@ class ClassTrainersSkillGenerator:
                             race, class_, TrainerTypes.TRAINER_TYPE_GENERAL)
 
                         if not trainers:
-                            Logger.warning(f'Did not find trainers for race {race.name} class {class_.name} type {0}')
+                            #Logger.warning(f'Did not find trainers for race {race.name} class {class_.name} type {0}')
                             continue
 
                         # Validate if the spell is already trained by any trainer.
@@ -156,36 +228,20 @@ class ClassTrainersSkillGenerator:
                                 continue
 
                             results[race][class_].push_spell(trainer, trainer_spell, spell)
-                            # if trainer.trainer_id not in inserts:
-                            #     inserts[trainer.trainer_id] = {}
-                            #
-                            # if spell.ID in inserts[trainer.trainer_id]:
-                            #      # Logger.warning('Duple')
-                            #     continue
-                            #
-                            # # if spell.BaseLevel > trainer.level_min:
-                            # #    continue
-                            #
-                            # inserts[trainer.trainer_id][spell.ID] = None
-                            #
-                            # # Insert.
-                            # insert = f"INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('{trainer.trainer_id}', '{trainer_spell.ID}', '{spell.ID}', '0', '0', '2', '0', '0', '{spell.BaseLevel}');"
-                            # trainer_templates.add(trainer.trainer_id)
-                            # results[race][class_].append(f'-- Trainer Template ID: [{trainer.trainer_id}]')
-                            # results[race][class_].append(f'-- Trainer Spell: {trainer_spell.Name_enUS} {trainer_spell.ID}')
-                            # results[race][class_].append(f'-- Player Spell: {spell.Name_enUS}')
-                            # results[race][class_].append(insert)
 
-                    # spells.append(f' - Player Spell {spell.ID} - {spell.Name_enUS} {sub_name}')
-                    # sub_name = f'- ({trainer_spell.NameSubtext_enUS})' if trainer_spell.NameSubtext_enUS else ''
-                    # spells.append(f' * Trainer Spell {trainer_spell.ID} - {trainer_spell.Name_enUS} {sub_name} {trainer_spell.Description_enUS}')
+                # First, print all 'debug' information about trainers.
+                results[race][class_].print()
 
-            # if len(spells) > 0:
-            #     results[race][class_].append(
-            #         f'Can use weapon skill [{skill.DisplayName_enUS}] ({skill.ID})')
-            #     for spell_ in spells:
-            #         results[race][class_].append(spell_)
-            #
-            # if len(results[race][class_]) > 1:
-            #     for line in results[race][class_]:
-            #         print(line)
+        # Dictionary of dictionaries. (Trainer ID, Trainer Spell ID) : Player Spell.
+        touched_trainer_ids = set()
+        sql_query = []
+        for rId, race in enumerate(Races):
+            for cId, class_ in enumerate(Classes):
+                if race not in results:
+                    continue
+                if class_ not in results[race]:
+                    continue
+                results[race][class_].process_query(touched_trainer_ids, sql_query)
+
+        for sql_line in sql_query:
+            print(sql_line)
