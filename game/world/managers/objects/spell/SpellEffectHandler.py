@@ -686,6 +686,10 @@ class SpellEffectHandler:
             return
 
         target.has_parry_passive = True
+
+        # Parry does not apply a passive aura, refresh bonuses.
+        target.stat_manager.apply_bonuses()
+
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                          caster.race, caster.class_)

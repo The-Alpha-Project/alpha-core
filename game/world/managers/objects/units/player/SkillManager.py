@@ -14,6 +14,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
+from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
 from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo, LockType
 from utils.constants.OpCodes import OpCode
@@ -392,7 +393,7 @@ class SkillManager(object):
 
     def handle_defense_skill_gain_chance(self, damage_info):
         # Vanilla formula.
-        target_skill_type = SkillTypes.BLOCK if damage_info.hit_info & HitInfo.BLOCK else SkillTypes.DEFENSE
+        target_skill_type = self.get_defense_skill(damage_info)
         skill = self.skills.get(target_skill_type, None)
         if not skill:
             return False
@@ -624,6 +625,34 @@ class SkillManager(object):
 
         return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
 
+    def get_defense_skill(self, damage_info):
+        if damage_info.hit_info & HitInfo.BLOCK:
+            if SkillTypes.SHIELDS in self.skills:
+                return SkillTypes.SHIELDS
+            elif SkillTypes.BLOCK in self.skills:
+                return SkillTypes.BLOCK
+        return SkillTypes.DEFENSE
+
+    def get_defense_skill_value(self, use_block, no_bonus=False):
+        # Shields block.
+        if use_block and SkillTypes.SHIELDS in self.skills:
+            skill_id = SkillTypes.SHIELDS
+            skill = self.skills[skill_id]
+        # Normal block.
+        elif use_block and SkillTypes.BLOCK in self.skills:
+            skill_id = SkillTypes.BLOCK
+            skill = self.skills[skill_id]
+        # Miss / Dodge.
+        elif not use_block and SkillTypes.DEFENSE in self.skills:
+            skill_id = SkillTypes.DEFENSE
+            skill = self.skills[skill_id]
+        else:
+            Logger.warning(f'Unable to locate BLOCK skill for class {self.player_mgr.class_}')
+            return 0
+
+        bonus_skill = 0 if no_bonus else self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
+        return skill.value + bonus_skill
+
     def get_total_skill_value(self, skill_id, no_bonus=False):
         if skill_id not in self.skills:
             return -1
@@ -673,10 +702,10 @@ class SkillManager(object):
         level = self.player_mgr.level if level == -1 else level
 
         # Weapon, Defense, Spell
-        if skill.SkillType == 0:
+        if skill.SkillType == SkillLineType.PRIMARY:
             return level * 5
         # Language, Riding, Secondary profs
-        elif skill.SkillType == 4:
+        elif skill.SkillType == SkillLineType.SECONDARY:
             # Language, Riding
             if skill.CategoryID == SkillCategories.MAX_SKILL:
                 return skill.MaxRank

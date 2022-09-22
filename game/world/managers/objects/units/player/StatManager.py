@@ -644,6 +644,8 @@ class StatManager(object):
         return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in VMaNGOS)
 
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
+        return HitInfo.BLOCK
+
         # TODO Based on vanilla calculations.
         # Evading, return miss and handle on calling method.
         if self.unit_mgr.is_evading:
@@ -696,6 +698,7 @@ class StatManager(object):
             return HitInfo.PARRY
 
         rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating, use_block=True)
+
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
         roll = random.random()
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
@@ -918,7 +921,8 @@ class StatManager(object):
         value = max(0, value)
         self.unit_mgr.set_dodge_chance(value)
 
-    def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):  # > 0 if defense is higher
+    # Arguments greater than 0 if defense is higher.
+    def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):
         # Client displays percentages against enemies of equal level and max attack rating.
         if attacker_level == -1:
             attacker_level = self.unit_mgr.level
@@ -927,9 +931,8 @@ class StatManager(object):
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # TODO It's unclear what the block skill is used for based on patch notes.
-            # Replace Defense in calculations with block to at least give it a purpose.
-            # This way, block chance will be affected by block skill instead of defense skill like in vanilla.
-            own_defense_rating = self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE if not use_block else SkillTypes.BLOCK)
+            # Use Shields/Block or Defense, depending on the class.
+            own_defense_rating = self.unit_mgr.skill_manager.get_defense_skill_value(use_block=use_block)
         else:
             own_defense_rating = self.unit_mgr.level * 5
 
