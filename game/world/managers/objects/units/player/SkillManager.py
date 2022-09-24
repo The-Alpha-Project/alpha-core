@@ -431,32 +431,32 @@ class SkillManager(object):
         if not spell_id:
             return False
 
-        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id, self.player_mgr.race,
-                                                                               self.player_mgr.class_)
-        if not skill:
+        character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill.
+        if not character_skill:
             return False
 
         roll = random.randint(1, 100)
         if roll < 75:
-            self.set_skill(skill_id, skill.value + 1)
+            self.set_skill(skill.ID, character_skill.value + 1)
             self.build_update()
 
     def handle_profession_skill_gain(self, spell_id):
         skill_gain_factor = 1
 
         # Should always resolve to one for professions.
-        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id, self.player_mgr.race,
-                                                                               self.player_mgr.class_)
-        if not skill:
+        character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill.
+        if not character_skill:
             return False
 
         gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
         yellow_threshold = skill_line_ability.TrivialSkillLineRankLow
-        chance = SkillManager._get_skill_gain_chance(skill.value, gray_threshold,
+        chance = SkillManager._get_skill_gain_chance(character_skill.value, gray_threshold,
                                                      (gray_threshold + yellow_threshold) / 2,
                                                      yellow_threshold)
 
-        self._roll_profession_skill_gain_chance(skill_id, chance, skill_gain_factor)
+        self._roll_profession_skill_gain_chance(skill.ID, chance, skill_gain_factor)
         self.build_update()
         return True
 
@@ -480,41 +480,33 @@ class SkillManager(object):
         self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)
 
     @staticmethod
-    def get_skill_id_and_skill_line_for_spell_id(spell_id, race, class_):
-        skill_info_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+    def get_skill_and_skill_line_for_spell_id(spell_id, race, class_):
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+            spell_id, race, class_)
 
-        if not skill_info_entries:
+        if not skill_line_ability:
             return 0, None
 
-        for skill_line_ability in skill_info_entries:
-            race_mask = 1 << race - 1
-            class_mask = 1 << class_ - 1
+        skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
+        return skill, skill_line_ability
 
-            if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race_mask == 0) or \
-                    (skill_line_ability.ClassMask and skill_line_ability.ClassMask & class_mask == 0) or \
-                    skill_line_ability.ExcludeRace & race_mask != 0 or \
-                    skill_line_ability.ExcludeClass & class_mask != 0:
-                continue
+    def get_skill_info_for_spell_id(self, spell_id):
+        race = self.player_mgr.race
+        class_ = self.player_mgr.class_
+        skill, skill_line_ability = SkillManager.get_skill_and_skill_line_for_spell_id(spell_id, race, class_)
 
-            return skill_line_ability.SkillLine, skill_line_ability
+        if not skill:
+            return None, None, None
 
-        return 0, None
+        if skill.ID not in self.skills:
+            return None, skill, skill_line_ability
 
-    def get_skill_info_for_spell_id(self, spell_id, race, class_):
-        skill_id, skill_line_ability = SkillManager.get_skill_id_and_skill_line_for_spell_id(spell_id, race, class_)
+        character_skill = self.skills[skill.ID]
 
-        if not skill_id:
-            return None, 0, None
+        if character_skill.value >= character_skill.max:
+            return None, skill, skill_line_ability
 
-        if skill_id not in self.skills:
-            return None, skill_id, skill_line_ability
-
-        skill = self.skills[skill_id]
-
-        if skill.value >= skill.max:
-            return None, skill_id, skill_line_ability
-
-        return skill, skill_id, skill_line_ability
+        return character_skill, skill, skill_line_ability
 
     @staticmethod
     def _get_skill_gain_chance(skill_value, gray_level, green_level, yellow_level):
@@ -645,13 +637,10 @@ class SkillManager(object):
         elif use_block and SkillTypes.BLOCK in self.skills:
             skill_id = SkillTypes.BLOCK
             skill = self.skills[skill_id]
-        # Miss / Dodge.
-        elif not use_block and SkillTypes.DEFENSE in self.skills:
+        # Always fall back to defense.
+        else:
             skill_id = SkillTypes.DEFENSE
             skill = self.skills[skill_id]
-        else:
-            Logger.warning(f'Unable to locate BLOCK skill for class {self.player_mgr.class_}')
-            return 0
 
         bonus_skill = 0 if no_bonus else self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
         return skill.value + bonus_skill
@@ -692,8 +681,9 @@ class SkillManager(object):
         return -1
 
     def get_skill_for_spell_id(self, spell_id):
-        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(spell_id, self.player_mgr)
-        if not skill_line_ability:
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+            spell_id, self.player_mgr.race, self.player_mgr.class_)
+        if not skill_line_ability or not skill_line_ability.SkillLine:
             return None
         return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
 

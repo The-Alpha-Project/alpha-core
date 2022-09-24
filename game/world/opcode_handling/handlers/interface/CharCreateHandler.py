@@ -177,17 +177,12 @@ class CharCreateHandler(object):
             initial_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
             if initial_spell and not initial_spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 # Handle learning skills required by initial spells.
-                skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(initial_spell.ID, race,
-                                                                                             class_)
-                if skill_id and skill_id not in added_skills:
-                    added_skills.add(skill_id)
-                    skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
-                    if not skill:
-                        continue
-
+                skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(initial_spell.ID, race, class_)
+                if skill and skill.ID not in added_skills:
+                    added_skills.add(skill.ID)
                     skill_to_set = CharacterSkill()
                     skill_to_set.guid = guid
-                    skill_to_set.skill = skill_id
+                    skill_to_set.skill = skill.ID
                     skill_to_set.value = 1 if skill.CategoryID != SkillCategories.MAX_SKILL else skill.MaxRank
                     skill_to_set.max = skill.MaxRank
 

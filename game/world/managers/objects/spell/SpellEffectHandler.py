@@ -673,12 +673,10 @@ class SpellEffectHandler:
 
         target.has_block_passive = True
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
-                                                                                         caster.race, caster.class_)
-            if skill_id:
-                skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
-                if skill:
-                    target.skill_manager.add_skill(skill.ID)
+            skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
+                                                                                   caster.race, caster.class_)
+            if skill:
+                target.skill_manager.add_skill(skill.ID)
 
     @staticmethod
     def handle_parry_passive(casting_spell, effect, caster, target):
@@ -691,12 +689,10 @@ class SpellEffectHandler:
         target.stat_manager.apply_bonuses()
 
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
-                                                                                         caster.race, caster.class_)
-            if skill_id:
-                skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
-                if skill:
-                    target.skill_manager.add_skill(skill.ID)
+            skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
+                                                                                   caster.race, caster.class_)
+            if skill:
+                target.skill_manager.add_skill(skill.ID)
 
     @staticmethod
     def handle_dodge_passive(casting_spell, effect, caster, target):
@@ -705,12 +701,10 @@ class SpellEffectHandler:
 
         target.has_dodge_passive = True
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
-                                                                                         caster.race, caster.class_)
-            if skill_id:
-                skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
-                if skill:
-                    target.skill_manager.add_skill(skill.ID)
+            skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
+                                                                                   caster.race, caster.class_)
+            if skill:
+                target.skill_manager.add_skill(skill.ID)
 
     @staticmethod
     def handle_defense_passive(casting_spell, effect, caster, target):
@@ -718,12 +712,10 @@ class SpellEffectHandler:
             return
 
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
-                                                                                         caster.race, caster.class_)
-            if skill_id:
-                skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
-                if skill:
-                    target.skill_manager.add_skill(skill.ID)
+            skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
+                                                                                   caster.race, caster.class_)
+            if skill:
+                target.skill_manager.add_skill(skill.ID)
 
     @staticmethod
     def handle_spell_defense_passive(casting_spell, effect, caster, target):

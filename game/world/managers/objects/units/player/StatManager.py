@@ -695,7 +695,8 @@ class StatManager(object):
         if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
             return HitInfo.PARRY
 
-        rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating, use_block=True)
+        rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating,
+                                                                     use_block=self.unit_mgr.can_block())
 
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
         roll = random.random()

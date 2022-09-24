@@ -84,12 +84,10 @@ class SpellManager:
             if not self.caster.skill_manager.add_skill(related_profession_skill):
                 self.caster.skill_manager.update_skills_max_value()
 
-        # Add the spell required skill.
-        skill, skill_id, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id,
-                                                                                                    self.caster.race,
-                                                                                                    self.caster.class_)
-        if not skill and skill_id:
-            self.caster.skill_manager.add_skill(skill_id)
+        character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill, but it is a valid skill.
+        if not character_skill and skill:
+            self.caster.skill_manager.add_skill(skill.ID)
 
         return True
 
