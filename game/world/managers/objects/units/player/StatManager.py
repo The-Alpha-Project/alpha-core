@@ -644,8 +644,6 @@ class StatManager(object):
         return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in VMaNGOS)
 
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
-        return HitInfo.BLOCK
-
         # TODO Based on vanilla calculations.
         # Evading, return miss and handle on calling method.
         if self.unit_mgr.is_evading:

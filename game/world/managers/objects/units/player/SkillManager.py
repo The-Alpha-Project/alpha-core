@@ -16,7 +16,7 @@ from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo, LockType
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult
 from utils.constants.UpdateFields import PlayerFields
@@ -393,7 +393,7 @@ class SkillManager(object):
 
     def handle_defense_skill_gain_chance(self, damage_info):
         # Vanilla formula.
-        target_skill_type = self.get_defense_skill(damage_info)
+        target_skill_type = self.get_defense_skill()
         skill = self.skills.get(target_skill_type, None)
         if not skill:
             return False
@@ -625,13 +625,16 @@ class SkillManager(object):
 
         return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
 
-    def get_defense_skill(self, damage_info):
-        if damage_info.hit_info & HitInfo.BLOCK:
+    # Shields and Block do not require an actual block to be gained.
+    # Randomly pick one upon defense gain.
+    def get_defense_skill(self):
+        pool = [SkillTypes.DEFENSE]
+        if self.player_mgr.can_block():
             if SkillTypes.SHIELDS in self.skills:
-                return SkillTypes.SHIELDS
+                pool.append(SkillTypes.SHIELDS)
             elif SkillTypes.BLOCK in self.skills:
-                return SkillTypes.BLOCK
-        return SkillTypes.DEFENSE
+                pool.append(SkillTypes.BLOCK)
+        return random.choice(pool)
 
     def get_defense_skill_value(self, use_block, no_bonus=False):
         # Shields block.
