@@ -865,7 +865,8 @@ class QuestManager(object):
 
         # Check chosen reward item.
         reward_items = {}
-        rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(quest)
+        rew_item_choice_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_item_list(quest)))
+
         if item_choice < len(rew_item_choice_list) and rew_item_choice_list[item_choice] > 0:
             reward_items[rew_item_choice_list[item_choice]] = 1
 

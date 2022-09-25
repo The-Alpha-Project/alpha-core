@@ -98,9 +98,9 @@ class WorldServerSessionHandler:
                         if handler:
                             res = handler(self, self.request, reader)
                             if res == 0:
-                                Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
+                                Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
                             elif res == 1:
-                                Logger.debug(f'[{self.client_address[0]}] Ignoring {OpCode(reader.opcode).name}')
+                                Logger.debug(f'[{self.client_address[0]}] Ignoring {reader.opcode_str()}')
                             elif res < 0:
                                 break
                         elif not found:
