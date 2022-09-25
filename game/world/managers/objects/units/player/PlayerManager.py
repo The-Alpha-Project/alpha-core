@@ -1592,6 +1592,11 @@ class PlayerManager(UnitManager):
         if not self.is_alive:
             return False
 
+        # Notify pet AI about this kill.
+        killer_pet = killer.get_pet()
+        if killer_pet:
+            killer_pet.object_ai.killed_unit(self)
+
         if killer and self.duel_manager and self.duel_manager.is_player_involved(killer):
             self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
             self.set_health(1)
@@ -1705,6 +1710,8 @@ class PlayerManager(UnitManager):
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
             if self.guid not in unit.attackers and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
+            if unit.is_pet() and unit.summoner == self:
+                unit.object_ai.movement_inform()
 
     # override
     def on_cell_change(self):

@@ -248,14 +248,9 @@ class CreatureManager(UnitManager):
                     VirtualItemsUtils.set_virtual_item(self, 1, creature_equip_template.equipentry2)
                     VirtualItemsUtils.set_virtual_item(self, 2, creature_equip_template.equipentry3)
 
-            # Mount this creature, will be overriden if defined too in creature_addon.
+            # Mount this creature, will be overriden if defined in creature_addon.
             if self.creature_template.mount_display_id > 0:
                 self.mount(self.creature_template.mount_display_id)
-
-            auras = set()
-            # Template auras.
-            if self.creature_template.auras:
-                auras = {int(aura) for aura in str(self.creature_template.auras).split()}
 
             addon = self.addon
             if addon:
@@ -266,10 +261,6 @@ class CreatureManager(UnitManager):
                 if addon.emote_state:
                     self.set_emote_state(addon.emote_state)
 
-                # Check spawn auras.
-                if addon.auras:
-                    auras.update({int(aura) for aura in str(addon.auras).split()})
-
                 # Update display id if available.
                 if addon.display_id:
                     self.set_display_id(addon.display_id)
@@ -279,7 +270,7 @@ class CreatureManager(UnitManager):
                     self.mount(addon.mount_display_id)
 
             # Cast active auras for this NPC.
-            for aura in auras:
+            for aura in self.get_default_auras():
                 self.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
 
             # Stats.
@@ -321,6 +312,14 @@ class CreatureManager(UnitManager):
     # override
     def is_tameable(self):
         return self.static_flags & CreatureStaticFlags.TAMEABLE
+
+    def is_at_home(self):
+        return self.location == self.spawn_position and not self.is_moving()
+
+    def at_home(self):
+        # Apply default auras when this creature returns home.
+        for aura in self.get_default_auras():
+            self.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
 
     def can_swim(self):
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
@@ -405,6 +404,21 @@ class CreatureManager(UnitManager):
             waypoints.clear()
             waypoints.append(self.spawn_position)
         return waypoints, z_locked
+
+    def get_default_auras(self):
+        auras = set()
+        # Template auras.
+        if self.creature_template.auras:
+            auras = {int(aura) for aura in str(self.creature_template.auras).split()}
+
+        # Addon auras.
+        addon = self.addon
+        if addon:
+            # Check spawn auras.
+            if addon.auras:
+                auras.update({int(aura) for aura in str(addon.auras).split()})
+
+        return auras
 
     def has_observers(self):
         return len(self.known_players) > 0
@@ -620,6 +634,11 @@ class CreatureManager(UnitManager):
     def die(self, killer=None):
         if not self.is_alive:
             return False
+
+        # Notify pet AI about this kill.
+        pet_or_killer_pet = self if self.is_pet() else killer.get_pet()
+        if pet_or_killer_pet:
+            pet_or_killer_pet.object_ai.killed_unit(self)
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             # Attribute non-player kills to the creature's summoner.
