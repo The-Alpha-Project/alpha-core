@@ -679,12 +679,32 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    class QuestExclusiveGroupsHolder:
+        EXCLUSIVE_GROUPS: dict[int, list[int]] = {}
+
+        @staticmethod
+        def load_exclusive_group(quest_template):
+            if not quest_template.ExclusiveGroup:
+                return
+            if quest_template.ExclusiveGroup not in WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS:
+                WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS[quest_template.ExclusiveGroup] = []
+
+            WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS[quest_template.ExclusiveGroup].append(
+                quest_template.entry)
+
+        @staticmethod
+        def get_quest_for_group_id(group_id):
+            if group_id not in WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS:
+                return []
+            return WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS[group_id]
+
     class QuestTemplateHolder:
         QUEST_TEMPLATES: dict[int, QuestTemplate] = {}
 
         @staticmethod
         def load_quest_template(quest_template):
             WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES[quest_template.entry] = quest_template
+            WorldDatabaseManager.QuestExclusiveGroupsHolder.load_exclusive_group(quest_template)
 
         @staticmethod
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:

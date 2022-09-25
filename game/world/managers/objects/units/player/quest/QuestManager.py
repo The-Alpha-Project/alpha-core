@@ -351,6 +351,18 @@ class QuestManager(object):
         if quest_template.PrevQuestId > 0 and quest_template.PrevQuestId not in self.completed_quests:
             return False
 
+        # The given quest has alternative exclusive options.
+        if quest_template.ExclusiveGroup > 0:
+            exclusive_quests = WorldDatabaseManager.QuestExclusiveGroupsHolder.get_quest_for_group_id(
+                quest_template.ExclusiveGroup)
+            for exclusive_quest in exclusive_quests:
+                # Skip the quest triggering this check.
+                if exclusive_quest == quest_template.entry:
+                    continue
+                # Check the alternative quest is completed or active.
+                if exclusive_quest in self.completed_quests or exclusive_quest in self.active_quests:
+                    return False
+
         return True
 
     def check_quest_level(self, quest_template, will_send_response):
