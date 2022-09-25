@@ -17,7 +17,7 @@ from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, HighGuid
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
@@ -509,6 +509,9 @@ class CreatureManager(UnitManager):
                 self.movement_manager.update_pending_waypoints(elapsed)
                 if self.has_moved:
                     self._on_relocation()
+                    # Check spell and aura move interrupts.
+                    self.spell_manager.check_spell_interrupts(moved=True)
+                    self.aura_manager.check_aura_interrupts(moved=True)
                     self.set_has_moved(False)
                 # Random Movement, if visible to players.
                 if self.has_observers():
@@ -559,6 +562,8 @@ class CreatureManager(UnitManager):
         if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
         super().attack(victim)
+        # Handle enter combat interrupts.
+        self.aura_manager.check_aura_interrupts()
 
     # override
     def attack_update(self, elapsed):
