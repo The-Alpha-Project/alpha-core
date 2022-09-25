@@ -46,12 +46,12 @@ class QuestGiverQueryQuestHandler(object):
                 if not quest_giver_is_related:
                     return 0
             else:
-                Logger.error(f'Error in CMSG_QUESTGIVER_QUERY_QUEST, unknown quest giver type.')
+                Logger.error(f'Error in {reader.opcode_str()}, unknown quest giver type.')
                 return 0
 
             quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_entry)
             if not quest:
-                Logger.error(f'Error in CMSG_QUESTGIVER_QUERY_QUEST, could not find quest with an entry of: {quest_entry}')
+                Logger.error(f'Error in {reader.opcode_str()}, could not find quest with an entry of: {quest_entry}')
                 return 0
  
             player_mgr.quest_manager.send_quest_giver_quest_details(quest, guid, True)
