@@ -325,6 +325,20 @@ class CreatureManager(UnitManager):
         return self.static_flags & CreatureStaticFlags.AQUATIC == 0
 
     # override
+    def can_block(self, attacker_location=None):
+        if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_BLOCK:
+            return False
+
+        return super().can_block(attacker_location)
+
+    # override
+    def can_parry(self, attacker_location=None):
+        if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_PARRY:
+            return False
+
+        return super().can_block(attacker_location)
+
+    # override
     def leave_combat(self, force=False):
         super().leave_combat(force=force)
         # Reset threat table.
