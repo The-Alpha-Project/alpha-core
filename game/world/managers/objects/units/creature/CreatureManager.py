@@ -269,7 +269,7 @@ class CreatureManager(UnitManager):
                 if addon.mount_display_id > 0:
                     self.mount(addon.mount_display_id)
 
-            # Cast active auras for this unit.
+            # Cast default auras for this unit.
             self.aura_manager.apply_default_auras()
 
             # Stats.
