@@ -86,7 +86,7 @@ class MovementManager:
                     if self.unit.is_evading:
                         self.unit.is_evading = False
                     if self.unit.is_at_home():
-                        self.unit.at_home()
+                        self.unit.on_at_home()
 
                 self.reset()
 

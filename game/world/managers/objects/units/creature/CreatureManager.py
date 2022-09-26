@@ -269,9 +269,8 @@ class CreatureManager(UnitManager):
                 if addon.mount_display_id > 0:
                     self.mount(addon.mount_display_id)
 
-            # Cast active auras for this NPC.
-            for aura in self.get_default_auras():
-                self.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
+            # Cast active auras for this unit.
+            self.aura_manager.apply_default_auras()
 
             # Stats.
             self.stat_manager.init_stats()
@@ -316,10 +315,8 @@ class CreatureManager(UnitManager):
     def is_at_home(self):
         return self.location == self.spawn_position and not self.is_moving()
 
-    def at_home(self):
-        # Apply default auras when this creature returns home.
-        for aura in self.get_default_auras():
-            self.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
+    def on_at_home(self):
+        self.aura_manager.apply_default_auras()
 
     def can_swim(self):
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
