@@ -519,10 +519,16 @@ class CommandManager(object):
         unit = CommandManager._target_or_self(world_session)
         result = ''
         if unit:
+            flag_count = 0
             name = unit.player.name if unit.get_type_id() == ObjectTypeIds.ID_PLAYER else unit.creature_template.name
             result += f'Unit: {name}\n'
             for flag in UnitFlags:
-                result += ('|c0066FF00[ ON ]|r' if unit.unit_flags & flag else '|c66FF0000[OFF]|r') + f' - {UnitFlags(flag).name}\n'
+                if unit.unit_flags & flag:
+                    flag_count += 1
+                    result += f'|c0066FF00[SET]|r {UnitFlags(flag).name}\n'
+                if flag == UnitFlags.UNIT_FLAG_SHEATHE:  # Last unit flag, prevent checking masks.
+                    break
+            result += f'{flag_count} active unit flags.'
         return 0, result
 
     @staticmethod
