@@ -52,6 +52,21 @@ class SpellManager:
         if spell_id in self.spells:
             return False
 
+        # If a profession spell is learned, grant the required skill.
+        related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
+        if related_profession_skill and not self.caster.skill_manager.has_skill(related_profession_skill):
+            if not self.caster.skill_manager.add_skill(related_profession_skill):
+                return False
+        # If the player already knows the skill, update max skill level.
+        elif related_profession_skill:
+            self.caster.skill_manager.update_skills_max_value()
+
+        character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill, but it is a valid skill.
+        if not character_skill and skill:
+            if not self.caster.skill_manager.add_skill(skill.ID):
+                return False
+
         db_spell = CharacterSpell()
         db_spell.guid = self.caster.guid
         db_spell.spell = spell_id
@@ -77,18 +92,6 @@ class SpellManager:
         # Shapeshift passives are only updated on shapeshift change.
         if spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE and not spell.ShapeshiftMask:
             self.apply_passive_spell_effects(spell)
-
-        # If a profession spell is learned, grant the required skill.
-        # If the player already knows the skill, update max skill level.
-        related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
-        if related_profession_skill:
-            if not self.caster.skill_manager.add_skill(related_profession_skill):
-                self.caster.skill_manager.update_skills_max_value()
-
-        character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
-        # Character does not have the skill, but it is a valid skill.
-        if not character_skill and skill:
-            self.caster.skill_manager.add_skill(skill.ID)
 
         return True
 

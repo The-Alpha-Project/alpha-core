@@ -226,6 +226,7 @@ class Proficiency:
 
 class SkillManager(object):
     MAX_PROFESSION_SKILL = 225
+    MAX_SKILLS = 64
 
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
@@ -294,7 +295,14 @@ class SkillManager(object):
         for proficiency in self.proficiencies.values():
             self.send_set_proficiency(proficiency)
 
+    def has_skill(self, skill_id):
+        return skill_id in self.skills
+
     def add_skill(self, skill_id):
+        if len(self.skills) >= SkillManager.MAX_SKILLS:
+            Logger.warning(f'Player {self.player_mgr.player.name} with guid {self.player_mgr.guid} reached max skills.')
+            return False
+
         # Skill already learned.
         if skill_id in self.skills:
             return False
