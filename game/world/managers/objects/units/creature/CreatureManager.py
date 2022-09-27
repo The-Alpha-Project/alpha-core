@@ -336,7 +336,7 @@ class CreatureManager(UnitManager):
         if self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_PARRY:
             return False
 
-        return super().can_block(attacker_location)
+        return super().can_parry(attacker_location)
 
     # override
     def leave_combat(self, force=False):
