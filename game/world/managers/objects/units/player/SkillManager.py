@@ -617,8 +617,8 @@ class SkillManager(object):
 
         return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
 
-    # Shields and Block do not require an actual block to be gained.
-    # Randomly pick one upon defense gain.
+    # Shields and Block do not require an actual block to be gained, randomly pick one upon defense gain.
+    # Warriors use the Shield skill, Paladins the Block skill and the rest only the Defense skill.
     def get_defense_skill(self):
         pool = [SkillTypes.DEFENSE]
         if self.player_mgr.can_block():
