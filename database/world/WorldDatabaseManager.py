@@ -393,10 +393,39 @@ class WorldDatabaseManager(object):
         def creature_get_by_entry(entry) -> Optional[CreatureTemplate]:
             return WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.get(entry)
 
+        @staticmethod
+        def creature_trainers_by_race_class(race, class_, type):
+            trainers = []
+            for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
+                if creature.trainer_race and creature.trainer_race != race:
+                    continue
+                if creature.trainer_class and creature.trainer_class != class_:
+                    continue
+                if creature.trainer_type != type:
+                    continue
+                if not creature.trainer_id:
+                    continue
+                trainers.append(creature)
+            return trainers
+
     @staticmethod
     def creature_template_get_all() -> list[CreatureModelInfo]:
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureTemplate).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def get_trainer_spell(spell_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(TrainerTemplate).filter_by(spell=spell_id).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def get_trainer_spell_price_by_level(level):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(TrainerTemplate).filter_by(reqlevel=level).first()
         world_db_session.close()
         return res
 
@@ -744,9 +773,14 @@ class WorldDatabaseManager(object):
         def trainer_spells_get_by_trainer(trainer_entry_id: int) -> list[TrainerTemplate]:
             trainer_spells: list[TrainerTemplate] = []
 
-            creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(trainer_entry_id)
+            creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
+                trainer_entry_id)
             trainer_template_id = creature_template.trainer_id
+            return WorldDatabaseManager.TrainerSpellHolder.trainer_spell_get_by_trainer_id(creature_template.trainer_id)
 
+        @staticmethod
+        def trainer_spell_get_by_trainer_id(trainer_template_id: int) -> list[TrainerTemplate]:
+            trainer_spells: list[TrainerTemplate] = []
             for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
                 if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_template_id:
                     trainer_spells.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell])

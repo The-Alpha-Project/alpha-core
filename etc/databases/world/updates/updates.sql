@@ -12572,7 +12572,1434 @@ begin not atomic
        
         insert into applied_updates values ('170920221');
     end if;
+	
+     -- 18/09/2022 1
+    if (select count(*) from applied_updates where id='180920221') = 0 then
+        -- HUMAN WARRIOR
+        -- Trainer template ID 22
+        -- Trainers:
+        --  Llane Beshere
+        --  Thran Khorman
+        --  Dannal Stern
+        --  Harutt Thunderhorn
+        --  Frang
+        --  Alyissia
+        -- HUMAN WARRIOR
+        -- Trainer template ID 23
+        -- Trainers:
+        --  Lyria Du Lac
+        --  Ander Germaine
+        --  Malosh
+        --  Granis Swiftaxe
+        --  Kelstrum Stonebreaker
+        --  Austil de Mon
+        --  Torm Ragetotem
+        --  Sark Ragetotem
+        --  Ker Ragetotem
+        --  Krang Stonehoof
+        --  Tarshaw Jaggedscar
+        --  Grezz Ragefist
+        --  Sorek
+        --  Zel'mak
+        --  Kyra Windblade
+        --  Arias'ta Bladesinger
+        --  Sildanair
+        --  Christoph Walker
+        --  Angela Curthas
+        --  Baltus Fowler
+        --  Kelv Sternhammer
+        --  Bilban Tosslespanner
+        --  Wu Shen
+        --  Ilsa Corbin
+        --  Darnath Bladesinger
+        --  Captain Evencane
 
+
+        -- New spells for trainer template ID 22
+        -- New spells for trainer template ID 23
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Maces, Trainer Spell 3833, Player Spell 199
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+        --  Polearms, Trainer Spell 3838, Player Spell 200
+        --  Shield Bash - (Rank 1), Trainer Spell 1675, Player Spell 72
+        --  Shield Bash - (Rank 2), Trainer Spell 1676, Player Spell 1671
+        --  Shield Bash - (Rank 3), Trainer Spell 1677, Player Spell 1672
+        --  Shield Block, Trainer Spell 2570, Player Spell 2565
+        --  Shield Bash - (Rank 4), Trainer Spell 7378, Player Spell 7377
+        --  Shield Wall - (Rank 1), Trainer Spell 1055, Player Spell 871
+
+
+        -- HUMAN PALADIN
+        -- Trainer template ID 28
+        -- Trainers:
+        --  Brother Sammuel
+        --  Bromos Grummner
+        -- HUMAN PALADIN
+        -- Trainer template ID 29
+        -- Trainers:
+        --  Brother Wilhelm
+        --  Lord Grayson Shadowbreaker
+        --  Azar Stronghammer
+        --  Valgar Highforge
+        --  Beldruk Doombrow
+        --  Brandur Ironhammer
+        --  Arthur the Faithful
+        --  Katherine the Pure
+        --  Brother Karman
+
+
+        -- New spells for trainer template ID 28
+        -- New spells for trainer template ID 29
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+
+
+        -- HUMAN ROGUE
+        -- Trainer template ID 25
+        -- Trainers:
+        --  Jorik Kerridan
+        --  Solm Hargrin
+        --  David Trias
+        --  Rwag
+        --  Frahun Shadewhisper
+        -- HUMAN ROGUE
+        -- Trainer template ID 26
+        -- Trainers:
+        --  Keryn Sylvius
+        --  Osborne the Night Man
+        --  Hogral Bakkan
+        --  Ian Strom
+        --  Marion Call
+        --  Kaplak
+        --  Gest
+        --  Ormok
+        --  Shenthul
+        --  Jannok Breezesong
+        --  Syurna
+        --  Erion Shadewhisper
+        --  Anishar
+        --  Carolyn Ward
+        --  Miles Dexter
+        --  Gregory Charles
+        --  Hulfdan Blackbeard
+        --  Ormyr Flinteye
+        --  Fenthwick
+        --  Fahrad
+        --  Lord Tony Romano
+
+
+        -- New spells for trainer template ID 25
+        -- New spells for trainer template ID 26
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Evasion - (Rank 1), Trainer Spell 5278, Player Spell 5277
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Dual Wield, Trainer Spell 1080, Player Spell 674
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- HUMAN WARLOCK
+        -- Trainer template ID 13
+        -- Trainers:
+        --  Drusilla La Salle
+        --  Alamar Grimm
+        --  Maximillion
+        --  Nartok
+        -- HUMAN WARLOCK
+        -- Trainer template ID 14
+        -- Trainers:
+        --  Demisette Cloyce
+        --  Maximillian Crowe
+        --  Kartosh
+        --  Rupert Boch
+        --  Dhugru Gorelust
+        --  Grol'dar
+        --  Mirket
+        --  Zevrost
+        --  Kaal Soulreaper
+        --  Luther Pickman
+        --  Richard Kerwin
+        --  Thistleheart
+        --  Briarthorn
+        --  Alexander Calder
+        --  Ursula Deline
+        --  Sandahl
+        --  Gimrizz Shadowcog
+
+
+        -- New spells for trainer template ID 13
+        -- New spells for trainer template ID 14
+        --  Curse of Agony - (Rank 1), Trainer Spell 981, Player Spell 980
+        --  Curse of Recklessness - (Rank 3), Trainer Spell 7661, Player Spell 7659
+        --  Curse of Weakness - (Rank 2), Trainer Spell 1109, Player Spell 1108
+        --  Curse of Weakness - (Rank 4), Trainer Spell 7647, Player Spell 7646
+        --  Curse of Tongues - (Rank 1), Trainer Spell 956, Player Spell 1714
+        --  Curse of Weakness - (Rank 3), Trainer Spell 1031, Player Spell 6205
+        --  Curse of Weakness - (Rank 1), Trainer Spell 729, Player Spell 702
+        --  Curse of Recklessness - (Rank 2), Trainer Spell 7660, Player Spell 7658
+        --  Curse of Agony - (Rank 2), Trainer Spell 1015, Player Spell 1014
+        --  Curse of the Elements - (Rank 1), Trainer Spell 7666, Player Spell 1490
+        --  Curse of Agony - (Rank 3), Trainer Spell 1029, Player Spell 6217
+
+
+        -- ORC WARRIOR
+        -- Trainer template ID 22
+        -- Trainers:
+        --  Llane Beshere
+        --  Thran Khorman
+        --  Dannal Stern
+        --  Harutt Thunderhorn
+        --  Frang
+        --  Alyissia
+        -- ORC WARRIOR
+        -- Trainer template ID 23
+        -- Trainers:
+        --  Lyria Du Lac
+        --  Ander Germaine
+        --  Malosh
+        --  Granis Swiftaxe
+        --  Kelstrum Stonebreaker
+        --  Austil de Mon
+        --  Torm Ragetotem
+        --  Sark Ragetotem
+        --  Ker Ragetotem
+        --  Krang Stonehoof
+        --  Tarshaw Jaggedscar
+        --  Grezz Ragefist
+        --  Sorek
+        --  Zel'mak
+        --  Kyra Windblade
+        --  Arias'ta Bladesinger
+        --  Sildanair
+        --  Christoph Walker
+        --  Angela Curthas
+        --  Baltus Fowler
+        --  Kelv Sternhammer
+        --  Bilban Tosslespanner
+        --  Wu Shen
+        --  Ilsa Corbin
+        --  Darnath Bladesinger
+        --  Captain Evencane
+
+
+        -- New spells for trainer template ID 22
+        -- New spells for trainer template ID 23
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Maces, Trainer Spell 3833, Player Spell 199
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+        --  Polearms, Trainer Spell 3838, Player Spell 200
+        --  Shield Bash - (Rank 1), Trainer Spell 1675, Player Spell 72
+        --  Shield Bash - (Rank 2), Trainer Spell 1676, Player Spell 1671
+        --  Shield Bash - (Rank 3), Trainer Spell 1677, Player Spell 1672
+        --  Shield Block, Trainer Spell 2570, Player Spell 2565
+        --  Shield Bash - (Rank 4), Trainer Spell 7378, Player Spell 7377
+        --  Shield Wall - (Rank 1), Trainer Spell 1055, Player Spell 871
+
+
+        -- ORC HUNTER
+        -- Trainer template ID 19
+        -- Trainers:
+        --  Thorgas Grimson
+        --  Lanka Farshot
+        --  Jen'shan
+        --  Ayanna Everstride
+        -- ORC HUNTER
+        -- Trainer template ID 20
+        -- Trainers:
+        --  Ogromm
+        --  Grif Wildheart
+        --  Kragg
+        --  Kary Thunderhorn
+        --  Holt Thunderhorn
+        --  Urek Thunderhorn
+        --  Yaw Sharpmane
+        --  Thotar
+        --  Ormak Grimshot
+        --  Xor'juul
+        --  Sian'dur
+        --  Dazalar
+        --  Danlaar Nightstride
+        --  Jeen'ra Nightrunner
+        --  Jocaste
+        --  Dorion
+        --  Daera Brightspear
+        --  Olmin Burningbeard
+        --  Regnus Thundergranite
+        --  Kaerbrus
+        --  Einris Brightspear
+        --  Ulfir Ironbeard
+        --  Thorfin Stoneshield
+        --  Alenndaar Lapidaar
+        --  Dargh Trueaim
+
+
+        -- New spells for trainer template ID 19
+        -- New spells for trainer template ID 20
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- ORC ROGUE
+        -- Trainer template ID 25
+        -- Trainers:
+        --  Jorik Kerridan
+        --  Solm Hargrin
+        --  David Trias
+        --  Rwag
+        --  Frahun Shadewhisper
+        -- ORC ROGUE
+        -- Trainer template ID 26
+        -- Trainers:
+        --  Keryn Sylvius
+        --  Osborne the Night Man
+        --  Hogral Bakkan
+        --  Ian Strom
+        --  Marion Call
+        --  Kaplak
+        --  Gest
+        --  Ormok
+        --  Shenthul
+        --  Jannok Breezesong
+        --  Syurna
+        --  Erion Shadewhisper
+        --  Anishar
+        --  Carolyn Ward
+        --  Miles Dexter
+        --  Gregory Charles
+        --  Hulfdan Blackbeard
+        --  Ormyr Flinteye
+        --  Fenthwick
+        --  Fahrad
+        --  Lord Tony Romano
+
+
+        -- New spells for trainer template ID 25
+        -- New spells for trainer template ID 26
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Evasion - (Rank 1), Trainer Spell 5278, Player Spell 5277
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Dual Wield, Trainer Spell 1080, Player Spell 674
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- ORC WARLOCK
+        -- Trainer template ID 13
+        -- Trainers:
+        --  Drusilla La Salle
+        --  Alamar Grimm
+        --  Maximillion
+        --  Nartok
+        -- ORC WARLOCK
+        -- Trainer template ID 14
+        -- Trainers:
+        --  Demisette Cloyce
+        --  Maximillian Crowe
+        --  Kartosh
+        --  Rupert Boch
+        --  Dhugru Gorelust
+        --  Grol'dar
+        --  Mirket
+        --  Zevrost
+        --  Kaal Soulreaper
+        --  Luther Pickman
+        --  Richard Kerwin
+        --  Thistleheart
+        --  Briarthorn
+        --  Alexander Calder
+        --  Ursula Deline
+        --  Sandahl
+        --  Gimrizz Shadowcog
+
+
+        -- New spells for trainer template ID 13
+        -- New spells for trainer template ID 14
+        --  Curse of Agony - (Rank 1), Trainer Spell 981, Player Spell 980
+        --  Curse of Recklessness - (Rank 3), Trainer Spell 7661, Player Spell 7659
+        --  Curse of Weakness - (Rank 2), Trainer Spell 1109, Player Spell 1108
+        --  Curse of Weakness - (Rank 4), Trainer Spell 7647, Player Spell 7646
+        --  Curse of Tongues - (Rank 1), Trainer Spell 956, Player Spell 1714
+        --  Curse of Weakness - (Rank 3), Trainer Spell 1031, Player Spell 6205
+        --  Curse of Weakness - (Rank 1), Trainer Spell 729, Player Spell 702
+        --  Curse of Recklessness - (Rank 2), Trainer Spell 7660, Player Spell 7658
+        --  Curse of Agony - (Rank 2), Trainer Spell 1015, Player Spell 1014
+        --  Curse of the Elements - (Rank 1), Trainer Spell 7666, Player Spell 1490
+        --  Curse of Agony - (Rank 3), Trainer Spell 1029, Player Spell 6217
+
+
+        -- DWARF WARRIOR
+        -- Trainer template ID 22
+        -- Trainers:
+        --  Llane Beshere
+        --  Thran Khorman
+        --  Dannal Stern
+        --  Harutt Thunderhorn
+        --  Frang
+        --  Alyissia
+        -- DWARF WARRIOR
+        -- Trainer template ID 23
+        -- Trainers:
+        --  Lyria Du Lac
+        --  Ander Germaine
+        --  Malosh
+        --  Granis Swiftaxe
+        --  Kelstrum Stonebreaker
+        --  Austil de Mon
+        --  Torm Ragetotem
+        --  Sark Ragetotem
+        --  Ker Ragetotem
+        --  Krang Stonehoof
+        --  Tarshaw Jaggedscar
+        --  Grezz Ragefist
+        --  Sorek
+        --  Zel'mak
+        --  Kyra Windblade
+        --  Arias'ta Bladesinger
+        --  Sildanair
+        --  Christoph Walker
+        --  Angela Curthas
+        --  Baltus Fowler
+        --  Kelv Sternhammer
+        --  Bilban Tosslespanner
+        --  Wu Shen
+        --  Ilsa Corbin
+        --  Darnath Bladesinger
+        --  Captain Evencane
+
+
+        -- New spells for trainer template ID 22
+        -- New spells for trainer template ID 23
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Maces, Trainer Spell 3833, Player Spell 199
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+        --  Polearms, Trainer Spell 3838, Player Spell 200
+        --  Shield Bash - (Rank 1), Trainer Spell 1675, Player Spell 72
+        --  Shield Bash - (Rank 2), Trainer Spell 1676, Player Spell 1671
+        --  Shield Bash - (Rank 3), Trainer Spell 1677, Player Spell 1672
+        --  Shield Block, Trainer Spell 2570, Player Spell 2565
+        --  Shield Bash - (Rank 4), Trainer Spell 7378, Player Spell 7377
+        --  Shield Wall - (Rank 1), Trainer Spell 1055, Player Spell 871
+
+
+        -- DWARF PALADIN
+        -- Trainer template ID 28
+        -- Trainers:
+        --  Brother Sammuel
+        --  Bromos Grummner
+        -- DWARF PALADIN
+        -- Trainer template ID 29
+        -- Trainers:
+        --  Brother Wilhelm
+        --  Lord Grayson Shadowbreaker
+        --  Azar Stronghammer
+        --  Valgar Highforge
+        --  Beldruk Doombrow
+        --  Brandur Ironhammer
+        --  Arthur the Faithful
+        --  Katherine the Pure
+        --  Brother Karman
+
+
+        -- New spells for trainer template ID 28
+        -- New spells for trainer template ID 29
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+
+
+        -- DWARF HUNTER
+        -- Trainer template ID 19
+        -- Trainers:
+        --  Thorgas Grimson
+        --  Lanka Farshot
+        --  Jen'shan
+        --  Ayanna Everstride
+        -- DWARF HUNTER
+        -- Trainer template ID 20
+        -- Trainers:
+        --  Ogromm
+        --  Grif Wildheart
+        --  Kragg
+        --  Kary Thunderhorn
+        --  Holt Thunderhorn
+        --  Urek Thunderhorn
+        --  Yaw Sharpmane
+        --  Thotar
+        --  Ormak Grimshot
+        --  Xor'juul
+        --  Sian'dur
+        --  Dazalar
+        --  Danlaar Nightstride
+        --  Jeen'ra Nightrunner
+        --  Jocaste
+        --  Dorion
+        --  Daera Brightspear
+        --  Olmin Burningbeard
+        --  Regnus Thundergranite
+        --  Kaerbrus
+        --  Einris Brightspear
+        --  Ulfir Ironbeard
+        --  Thorfin Stoneshield
+        --  Alenndaar Lapidaar
+        --  Dargh Trueaim
+
+
+        -- New spells for trainer template ID 19
+        -- New spells for trainer template ID 20
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- DWARF ROGUE
+        -- Trainer template ID 25
+        -- Trainers:
+        --  Jorik Kerridan
+        --  Solm Hargrin
+        --  David Trias
+        --  Rwag
+        --  Frahun Shadewhisper
+        -- DWARF ROGUE
+        -- Trainer template ID 26
+        -- Trainers:
+        --  Keryn Sylvius
+        --  Osborne the Night Man
+        --  Hogral Bakkan
+        --  Ian Strom
+        --  Marion Call
+        --  Kaplak
+        --  Gest
+        --  Ormok
+        --  Shenthul
+        --  Jannok Breezesong
+        --  Syurna
+        --  Erion Shadewhisper
+        --  Anishar
+        --  Carolyn Ward
+        --  Miles Dexter
+        --  Gregory Charles
+        --  Hulfdan Blackbeard
+        --  Ormyr Flinteye
+        --  Fenthwick
+        --  Fahrad
+        --  Lord Tony Romano
+
+
+        -- New spells for trainer template ID 25
+        -- New spells for trainer template ID 26
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Evasion - (Rank 1), Trainer Spell 5278, Player Spell 5277
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Dual Wield, Trainer Spell 1080, Player Spell 674
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- NIGHT_ELF WARRIOR
+        -- Trainer template ID 22
+        -- Trainers:
+        --  Llane Beshere
+        --  Thran Khorman
+        --  Dannal Stern
+        --  Harutt Thunderhorn
+        --  Frang
+        --  Alyissia
+        -- NIGHT_ELF WARRIOR
+        -- Trainer template ID 23
+        -- Trainers:
+        --  Lyria Du Lac
+        --  Ander Germaine
+        --  Malosh
+        --  Granis Swiftaxe
+        --  Kelstrum Stonebreaker
+        --  Austil de Mon
+        --  Torm Ragetotem
+        --  Sark Ragetotem
+        --  Ker Ragetotem
+        --  Krang Stonehoof
+        --  Tarshaw Jaggedscar
+        --  Grezz Ragefist
+        --  Sorek
+        --  Zel'mak
+        --  Kyra Windblade
+        --  Arias'ta Bladesinger
+        --  Sildanair
+        --  Christoph Walker
+        --  Angela Curthas
+        --  Baltus Fowler
+        --  Kelv Sternhammer
+        --  Bilban Tosslespanner
+        --  Wu Shen
+        --  Ilsa Corbin
+        --  Darnath Bladesinger
+        --  Captain Evencane
+
+
+        -- New spells for trainer template ID 22
+        -- New spells for trainer template ID 23
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Maces, Trainer Spell 3833, Player Spell 199
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+        --  Polearms, Trainer Spell 3838, Player Spell 200
+        --  Shield Bash - (Rank 1), Trainer Spell 1675, Player Spell 72
+        --  Shield Bash - (Rank 2), Trainer Spell 1676, Player Spell 1671
+        --  Shield Bash - (Rank 3), Trainer Spell 1677, Player Spell 1672
+        --  Shield Block, Trainer Spell 2570, Player Spell 2565
+        --  Shield Bash - (Rank 4), Trainer Spell 7378, Player Spell 7377
+        --  Shield Wall - (Rank 1), Trainer Spell 1055, Player Spell 871
+
+
+        -- NIGHT_ELF HUNTER
+        -- Trainer template ID 19
+        -- Trainers:
+        --  Thorgas Grimson
+        --  Lanka Farshot
+        --  Jen'shan
+        --  Ayanna Everstride
+        -- NIGHT_ELF HUNTER
+        -- Trainer template ID 20
+        -- Trainers:
+        --  Ogromm
+        --  Grif Wildheart
+        --  Kragg
+        --  Kary Thunderhorn
+        --  Holt Thunderhorn
+        --  Urek Thunderhorn
+        --  Yaw Sharpmane
+        --  Thotar
+        --  Ormak Grimshot
+        --  Xor'juul
+        --  Sian'dur
+        --  Dazalar
+        --  Danlaar Nightstride
+        --  Jeen'ra Nightrunner
+        --  Jocaste
+        --  Dorion
+        --  Daera Brightspear
+        --  Olmin Burningbeard
+        --  Regnus Thundergranite
+        --  Kaerbrus
+        --  Einris Brightspear
+        --  Ulfir Ironbeard
+        --  Thorfin Stoneshield
+        --  Alenndaar Lapidaar
+        --  Dargh Trueaim
+
+
+        -- New spells for trainer template ID 19
+        -- New spells for trainer template ID 20
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- NIGHT_ELF ROGUE
+        -- Trainer template ID 25
+        -- Trainers:
+        --  Jorik Kerridan
+        --  Solm Hargrin
+        --  David Trias
+        --  Rwag
+        --  Frahun Shadewhisper
+        -- NIGHT_ELF ROGUE
+        -- Trainer template ID 26
+        -- Trainers:
+        --  Keryn Sylvius
+        --  Osborne the Night Man
+        --  Hogral Bakkan
+        --  Ian Strom
+        --  Marion Call
+        --  Kaplak
+        --  Gest
+        --  Ormok
+        --  Shenthul
+        --  Jannok Breezesong
+        --  Syurna
+        --  Erion Shadewhisper
+        --  Anishar
+        --  Carolyn Ward
+        --  Miles Dexter
+        --  Gregory Charles
+        --  Hulfdan Blackbeard
+        --  Ormyr Flinteye
+        --  Fenthwick
+        --  Fahrad
+        --  Lord Tony Romano
+
+
+        -- New spells for trainer template ID 25
+        -- New spells for trainer template ID 26
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Evasion - (Rank 1), Trainer Spell 5278, Player Spell 5277
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Dual Wield, Trainer Spell 1080, Player Spell 674
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- NIGHT_ELF DRUID
+        -- Trainer template ID 17
+        -- Trainers:
+        --  Turak Runetotem
+        --  Sheal Runetotem
+        --  Kym Wildmane
+        --  Gennia Runetotem
+        --  Kal
+        --  Mathrengyl Bearwalker
+        --  Denatharion
+        --  Fylerian Nightwing
+        --  Sheldras Moontree
+        --  Theridran
+        --  Maldryn
+        --  Jannos Lighthoof
+        --  Golhine the Hooded
+        --  Loganaar
+        -- NIGHT_ELF DRUID
+        -- Trainer template ID 16
+        -- Trainers:
+        --  Gart Mistrunner
+        --  Mardant Strongoak
+
+
+        -- New spells for trainer template ID 17
+        -- New spells for trainer template ID 16
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Bear Form - (Rank 1), Trainer Spell 5488, Player Spell 5487
+        --  Aquatic Form - (Rank 1), Trainer Spell 1446, Player Spell 1066
+        --  Growl - (Rank 1), Trainer Spell 6796, Player Spell 6795
+
+
+        -- UNDEAD WARRIOR
+        -- Trainer template ID 22
+        -- Trainers:
+        --  Llane Beshere
+        --  Thran Khorman
+        --  Dannal Stern
+        --  Harutt Thunderhorn
+        --  Frang
+        --  Alyissia
+        -- UNDEAD WARRIOR
+        -- Trainer template ID 23
+        -- Trainers:
+        --  Lyria Du Lac
+        --  Ander Germaine
+        --  Malosh
+        --  Granis Swiftaxe
+        --  Kelstrum Stonebreaker
+        --  Austil de Mon
+        --  Torm Ragetotem
+        --  Sark Ragetotem
+        --  Ker Ragetotem
+        --  Krang Stonehoof
+        --  Tarshaw Jaggedscar
+        --  Grezz Ragefist
+        --  Sorek
+        --  Zel'mak
+        --  Kyra Windblade
+        --  Arias'ta Bladesinger
+        --  Sildanair
+        --  Christoph Walker
+        --  Angela Curthas
+        --  Baltus Fowler
+        --  Kelv Sternhammer
+        --  Bilban Tosslespanner
+        --  Wu Shen
+        --  Ilsa Corbin
+        --  Darnath Bladesinger
+        --  Captain Evencane
+
+
+        -- New spells for trainer template ID 22
+        -- New spells for trainer template ID 23
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Maces, Trainer Spell 3833, Player Spell 199
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+        --  Polearms, Trainer Spell 3838, Player Spell 200
+        --  Shield Bash - (Rank 1), Trainer Spell 1675, Player Spell 72
+        --  Shield Bash - (Rank 2), Trainer Spell 1676, Player Spell 1671
+        --  Shield Bash - (Rank 3), Trainer Spell 1677, Player Spell 1672
+        --  Shield Block, Trainer Spell 2570, Player Spell 2565
+        --  Shield Bash - (Rank 4), Trainer Spell 7378, Player Spell 7377
+        --  Shield Wall - (Rank 1), Trainer Spell 1055, Player Spell 871
+
+
+        -- UNDEAD ROGUE
+        -- Trainer template ID 25
+        -- Trainers:
+        --  Jorik Kerridan
+        --  Solm Hargrin
+        --  David Trias
+        --  Rwag
+        --  Frahun Shadewhisper
+        -- UNDEAD ROGUE
+        -- Trainer template ID 26
+        -- Trainers:
+        --  Keryn Sylvius
+        --  Osborne the Night Man
+        --  Hogral Bakkan
+        --  Ian Strom
+        --  Marion Call
+        --  Kaplak
+        --  Gest
+        --  Ormok
+        --  Shenthul
+        --  Jannok Breezesong
+        --  Syurna
+        --  Erion Shadewhisper
+        --  Anishar
+        --  Carolyn Ward
+        --  Miles Dexter
+        --  Gregory Charles
+        --  Hulfdan Blackbeard
+        --  Ormyr Flinteye
+        --  Fenthwick
+        --  Fahrad
+        --  Lord Tony Romano
+
+
+        -- New spells for trainer template ID 25
+        -- New spells for trainer template ID 26
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Evasion - (Rank 1), Trainer Spell 5278, Player Spell 5277
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Dual Wield, Trainer Spell 1080, Player Spell 674
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- UNDEAD WARLOCK
+        -- Trainer template ID 13
+        -- Trainers:
+        --  Drusilla La Salle
+        --  Alamar Grimm
+        --  Maximillion
+        --  Nartok
+        -- UNDEAD WARLOCK
+        -- Trainer template ID 14
+        -- Trainers:
+        --  Demisette Cloyce
+        --  Maximillian Crowe
+        --  Kartosh
+        --  Rupert Boch
+        --  Dhugru Gorelust
+        --  Grol'dar
+        --  Mirket
+        --  Zevrost
+        --  Kaal Soulreaper
+        --  Luther Pickman
+        --  Richard Kerwin
+        --  Thistleheart
+        --  Briarthorn
+        --  Alexander Calder
+        --  Ursula Deline
+        --  Sandahl
+        --  Gimrizz Shadowcog
+
+
+        -- New spells for trainer template ID 13
+        -- New spells for trainer template ID 14
+        --  Curse of Agony - (Rank 1), Trainer Spell 981, Player Spell 980
+        --  Curse of Recklessness - (Rank 3), Trainer Spell 7661, Player Spell 7659
+        --  Curse of Weakness - (Rank 2), Trainer Spell 1109, Player Spell 1108
+        --  Curse of Weakness - (Rank 4), Trainer Spell 7647, Player Spell 7646
+        --  Curse of Tongues - (Rank 1), Trainer Spell 956, Player Spell 1714
+        --  Curse of Weakness - (Rank 3), Trainer Spell 1031, Player Spell 6205
+        --  Curse of Weakness - (Rank 1), Trainer Spell 729, Player Spell 702
+        --  Curse of Recklessness - (Rank 2), Trainer Spell 7660, Player Spell 7658
+        --  Curse of Agony - (Rank 2), Trainer Spell 1015, Player Spell 1014
+        --  Curse of the Elements - (Rank 1), Trainer Spell 7666, Player Spell 1490
+        --  Curse of Agony - (Rank 3), Trainer Spell 1029, Player Spell 6217
+
+
+        -- TAUREN WARRIOR
+        -- Trainer template ID 22
+        -- Trainers:
+        --  Llane Beshere
+        --  Thran Khorman
+        --  Dannal Stern
+        --  Harutt Thunderhorn
+        --  Frang
+        --  Alyissia
+        -- TAUREN WARRIOR
+        -- Trainer template ID 23
+        -- Trainers:
+        --  Lyria Du Lac
+        --  Ander Germaine
+        --  Malosh
+        --  Granis Swiftaxe
+        --  Kelstrum Stonebreaker
+        --  Austil de Mon
+        --  Torm Ragetotem
+        --  Sark Ragetotem
+        --  Ker Ragetotem
+        --  Krang Stonehoof
+        --  Tarshaw Jaggedscar
+        --  Grezz Ragefist
+        --  Sorek
+        --  Zel'mak
+        --  Kyra Windblade
+        --  Arias'ta Bladesinger
+        --  Sildanair
+        --  Christoph Walker
+        --  Angela Curthas
+        --  Baltus Fowler
+        --  Kelv Sternhammer
+        --  Bilban Tosslespanner
+        --  Wu Shen
+        --  Ilsa Corbin
+        --  Darnath Bladesinger
+        --  Captain Evencane
+
+
+        -- New spells for trainer template ID 22
+        -- New spells for trainer template ID 23
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+        --  Polearms, Trainer Spell 3838, Player Spell 200
+        --  Shield Bash - (Rank 1), Trainer Spell 1675, Player Spell 72
+        --  Shield Bash - (Rank 2), Trainer Spell 1676, Player Spell 1671
+        --  Shield Bash - (Rank 3), Trainer Spell 1677, Player Spell 1672
+        --  Shield Block, Trainer Spell 2570, Player Spell 2565
+        --  Shield Bash - (Rank 4), Trainer Spell 7378, Player Spell 7377
+        --  Shield Wall - (Rank 1), Trainer Spell 1055, Player Spell 871
+
+
+        -- TAUREN HUNTER
+        -- Trainer template ID 19
+        -- Trainers:
+        --  Thorgas Grimson
+        --  Lanka Farshot
+        --  Jen'shan
+        --  Ayanna Everstride
+        -- TAUREN HUNTER
+        -- Trainer template ID 20
+        -- Trainers:
+        --  Ogromm
+        --  Grif Wildheart
+        --  Kragg
+        --  Kary Thunderhorn
+        --  Holt Thunderhorn
+        --  Urek Thunderhorn
+        --  Yaw Sharpmane
+        --  Thotar
+        --  Ormak Grimshot
+        --  Xor'juul
+        --  Sian'dur
+        --  Dazalar
+        --  Danlaar Nightstride
+        --  Jeen'ra Nightrunner
+        --  Jocaste
+        --  Dorion
+        --  Daera Brightspear
+        --  Olmin Burningbeard
+        --  Regnus Thundergranite
+        --  Kaerbrus
+        --  Einris Brightspear
+        --  Ulfir Ironbeard
+        --  Thorfin Stoneshield
+        --  Alenndaar Lapidaar
+        --  Dargh Trueaim
+
+
+        -- New spells for trainer template ID 19
+        -- New spells for trainer template ID 20
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- TAUREN DRUID
+        -- Trainer template ID 17
+        -- Trainers:
+        --  Turak Runetotem
+        --  Sheal Runetotem
+        --  Kym Wildmane
+        --  Gennia Runetotem
+        --  Kal
+        --  Mathrengyl Bearwalker
+        --  Denatharion
+        --  Fylerian Nightwing
+        --  Sheldras Moontree
+        --  Theridran
+        --  Maldryn
+        --  Jannos Lighthoof
+        --  Golhine the Hooded
+        --  Loganaar
+        -- TAUREN DRUID
+        -- Trainer template ID 16
+        -- Trainers:
+        --  Gart Mistrunner
+        --  Mardant Strongoak
+
+
+        -- New spells for trainer template ID 17
+        -- New spells for trainer template ID 16
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Bear Form - (Rank 1), Trainer Spell 5488, Player Spell 5487
+        --  Aquatic Form - (Rank 1), Trainer Spell 1446, Player Spell 1066
+        --  Growl - (Rank 1), Trainer Spell 6796, Player Spell 6795
+
+
+        -- GNOME WARRIOR
+        -- Trainer template ID 22
+        -- Trainers:
+        --  Llane Beshere
+        --  Thran Khorman
+        --  Dannal Stern
+        --  Harutt Thunderhorn
+        --  Frang
+        --  Alyissia
+        -- GNOME WARRIOR
+        -- Trainer template ID 23
+        -- Trainers:
+        --  Lyria Du Lac
+        --  Ander Germaine
+        --  Malosh
+        --  Granis Swiftaxe
+        --  Kelstrum Stonebreaker
+        --  Austil de Mon
+        --  Torm Ragetotem
+        --  Sark Ragetotem
+        --  Ker Ragetotem
+        --  Krang Stonehoof
+        --  Tarshaw Jaggedscar
+        --  Grezz Ragefist
+        --  Sorek
+        --  Zel'mak
+        --  Kyra Windblade
+        --  Arias'ta Bladesinger
+        --  Sildanair
+        --  Christoph Walker
+        --  Angela Curthas
+        --  Baltus Fowler
+        --  Kelv Sternhammer
+        --  Bilban Tosslespanner
+        --  Wu Shen
+        --  Ilsa Corbin
+        --  Darnath Bladesinger
+        --  Captain Evencane
+
+
+        -- New spells for trainer template ID 22
+        -- New spells for trainer template ID 23
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Maces, Trainer Spell 3833, Player Spell 199
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+        --  Polearms, Trainer Spell 3838, Player Spell 200
+        --  Shield Bash - (Rank 1), Trainer Spell 1675, Player Spell 72
+        --  Shield Bash - (Rank 2), Trainer Spell 1676, Player Spell 1671
+        --  Shield Bash - (Rank 3), Trainer Spell 1677, Player Spell 1672
+        --  Shield Block, Trainer Spell 2570, Player Spell 2565
+        --  Shield Bash - (Rank 4), Trainer Spell 7378, Player Spell 7377
+        --  Shield Wall - (Rank 1), Trainer Spell 1055, Player Spell 871
+
+
+        -- GNOME ROGUE
+        -- Trainer template ID 25
+        -- Trainers:
+        --  Jorik Kerridan
+        --  Solm Hargrin
+        --  David Trias
+        --  Rwag
+        --  Frahun Shadewhisper
+        -- GNOME ROGUE
+        -- Trainer template ID 26
+        -- Trainers:
+        --  Keryn Sylvius
+        --  Osborne the Night Man
+        --  Hogral Bakkan
+        --  Ian Strom
+        --  Marion Call
+        --  Kaplak
+        --  Gest
+        --  Ormok
+        --  Shenthul
+        --  Jannok Breezesong
+        --  Syurna
+        --  Erion Shadewhisper
+        --  Anishar
+        --  Carolyn Ward
+        --  Miles Dexter
+        --  Gregory Charles
+        --  Hulfdan Blackbeard
+        --  Ormyr Flinteye
+        --  Fenthwick
+        --  Fahrad
+        --  Lord Tony Romano
+
+
+        -- New spells for trainer template ID 25
+        -- New spells for trainer template ID 26
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Guns, Trainer Spell 3830, Player Spell 266
+        --  Evasion - (Rank 1), Trainer Spell 5278, Player Spell 5277
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Dual Wield, Trainer Spell 1080, Player Spell 674
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- GNOME WARLOCK
+        -- Trainer template ID 13
+        -- Trainers:
+        --  Drusilla La Salle
+        --  Alamar Grimm
+        --  Maximillion
+        --  Nartok
+        -- GNOME WARLOCK
+        -- Trainer template ID 14
+        -- Trainers:
+        --  Demisette Cloyce
+        --  Maximillian Crowe
+        --  Kartosh
+        --  Rupert Boch
+        --  Dhugru Gorelust
+        --  Grol'dar
+        --  Mirket
+        --  Zevrost
+        --  Kaal Soulreaper
+        --  Luther Pickman
+        --  Richard Kerwin
+        --  Thistleheart
+        --  Briarthorn
+        --  Alexander Calder
+        --  Ursula Deline
+        --  Sandahl
+        --  Gimrizz Shadowcog
+
+
+        -- New spells for trainer template ID 13
+        -- New spells for trainer template ID 14
+        --  Curse of Agony - (Rank 1), Trainer Spell 981, Player Spell 980
+        --  Curse of Recklessness - (Rank 3), Trainer Spell 7661, Player Spell 7659
+        --  Curse of Weakness - (Rank 2), Trainer Spell 1109, Player Spell 1108
+        --  Curse of Weakness - (Rank 4), Trainer Spell 7647, Player Spell 7646
+        --  Curse of Tongues - (Rank 1), Trainer Spell 956, Player Spell 1714
+        --  Curse of Weakness - (Rank 3), Trainer Spell 1031, Player Spell 6205
+        --  Curse of Weakness - (Rank 1), Trainer Spell 729, Player Spell 702
+        --  Curse of Recklessness - (Rank 2), Trainer Spell 7660, Player Spell 7658
+        --  Curse of Agony - (Rank 2), Trainer Spell 1015, Player Spell 1014
+        --  Curse of the Elements - (Rank 1), Trainer Spell 7666, Player Spell 1490
+        --  Curse of Agony - (Rank 3), Trainer Spell 1029, Player Spell 6217
+
+
+        -- TROLL WARRIOR
+        -- Trainer template ID 22
+        -- Trainers:
+        --  Llane Beshere
+        --  Thran Khorman
+        --  Dannal Stern
+        --  Harutt Thunderhorn
+        --  Frang
+        --  Alyissia
+        -- TROLL WARRIOR
+        -- Trainer template ID 23
+        -- Trainers:
+        --  Lyria Du Lac
+        --  Ander Germaine
+        --  Malosh
+        --  Granis Swiftaxe
+        --  Kelstrum Stonebreaker
+        --  Austil de Mon
+        --  Torm Ragetotem
+        --  Sark Ragetotem
+        --  Ker Ragetotem
+        --  Krang Stonehoof
+        --  Tarshaw Jaggedscar
+        --  Grezz Ragefist
+        --  Sorek
+        --  Zel'mak
+        --  Kyra Windblade
+        --  Arias'ta Bladesinger
+        --  Sildanair
+        --  Christoph Walker
+        --  Angela Curthas
+        --  Baltus Fowler
+        --  Kelv Sternhammer
+        --  Bilban Tosslespanner
+        --  Wu Shen
+        --  Ilsa Corbin
+        --  Darnath Bladesinger
+        --  Captain Evencane
+
+
+        -- New spells for trainer template ID 22
+        -- New spells for trainer template ID 23
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Maces, Trainer Spell 3833, Player Spell 199
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+        --  Polearms, Trainer Spell 3838, Player Spell 200
+        --  Shield Bash - (Rank 1), Trainer Spell 1675, Player Spell 72
+        --  Shield Bash - (Rank 2), Trainer Spell 1676, Player Spell 1671
+        --  Shield Bash - (Rank 3), Trainer Spell 1677, Player Spell 1672
+        --  Shield Block, Trainer Spell 2570, Player Spell 2565
+        --  Shield Bash - (Rank 4), Trainer Spell 7378, Player Spell 7377
+        --  Shield Wall - (Rank 1), Trainer Spell 1055, Player Spell 871
+
+
+        -- TROLL HUNTER
+        -- Trainer template ID 19
+        -- Trainers:
+        --  Thorgas Grimson
+        --  Lanka Farshot
+        --  Jen'shan
+        --  Ayanna Everstride
+        -- TROLL HUNTER
+        -- Trainer template ID 20
+        -- Trainers:
+        --  Ogromm
+        --  Grif Wildheart
+        --  Kragg
+        --  Kary Thunderhorn
+        --  Holt Thunderhorn
+        --  Urek Thunderhorn
+        --  Yaw Sharpmane
+        --  Thotar
+        --  Ormak Grimshot
+        --  Xor'juul
+        --  Sian'dur
+        --  Dazalar
+        --  Danlaar Nightstride
+        --  Jeen'ra Nightrunner
+        --  Jocaste
+        --  Dorion
+        --  Daera Brightspear
+        --  Olmin Burningbeard
+        --  Regnus Thundergranite
+        --  Kaerbrus
+        --  Einris Brightspear
+        --  Ulfir Ironbeard
+        --  Thorfin Stoneshield
+        --  Alenndaar Lapidaar
+        --  Dargh Trueaim
+
+
+        -- New spells for trainer template ID 19
+        -- New spells for trainer template ID 20
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Two-Handed Swords, Trainer Spell 3835, Player Spell 202
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Two-Handed Axes, Trainer Spell 3831, Player Spell 197
+        --  Thrown, Trainer Spell 716, Player Spell 2567
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+
+        -- TROLL ROGUE
+        -- Trainer template ID 25
+        -- Trainers:
+        --  Jorik Kerridan
+        --  Solm Hargrin
+        --  David Trias
+        --  Rwag
+        --  Frahun Shadewhisper
+        -- TROLL ROGUE
+        -- Trainer template ID 26
+        -- Trainers:
+        --  Keryn Sylvius
+        --  Osborne the Night Man
+        --  Hogral Bakkan
+        --  Ian Strom
+        --  Marion Call
+        --  Kaplak
+        --  Gest
+        --  Ormok
+        --  Shenthul
+        --  Jannok Breezesong
+        --  Syurna
+        --  Erion Shadewhisper
+        --  Anishar
+        --  Carolyn Ward
+        --  Miles Dexter
+        --  Gregory Charles
+        --  Hulfdan Blackbeard
+        --  Ormyr Flinteye
+        --  Fenthwick
+        --  Fahrad
+        --  Lord Tony Romano
+
+
+        -- New spells for trainer template ID 25
+        -- New spells for trainer template ID 26
+        --  One-Handed Swords, Trainer Spell 3834, Player Spell 201
+        --  Evasion - (Rank 1), Trainer Spell 5278, Player Spell 5277
+        --  Parry, Trainer Spell 3128, Player Spell 3127
+        --  Dual Wield, Trainer Spell 1080, Player Spell 674
+        --  Crossbows, Trainer Spell 5013, Player Spell 5011
+
+        UPDATE `creature_template` SET `trainer_class` = '4' WHERE (`entry` = '6707');
+
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Guns
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3830', '266', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Two-Handed Maces
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3833', '199', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Two-Handed Axes
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3831', '197', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Thrown
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '716', '2567', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '5013', '5011', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Polearms
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3838', '200', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Shield Bash - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '1675', '72', '300', '0', '0', '0', '0', '10');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Shield Bash - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '1676', '1671', '2200', '0', '0', '0', '0', '18');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Shield Bash - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '1677', '1672', '8100', '0', '0', '0', '0', '28');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Shield Block
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '2570', '2565', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Shield Bash - (Rank 4)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '7378', '7377', '23000', '0', '0', '0', '0', '38');
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Shield Wall - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '1055', '871', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID 29 - PALADIN
+        -- Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('29', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 29 - PALADIN
+        -- Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('29', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 29 - PALADIN
+        -- Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('29', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: Guns
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3830', '266', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: Evasion - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '5278', '5277', '100', '0', '0', '0', '0', '6');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: Dual Wield
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '1080', '674', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '5013', '5011', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Agony - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '981', '980', '200', '0', '0', '0', '0', '8');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Recklessness - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '7661', '7659', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Weakness - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1109', '1108', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Weakness - (Rank 4)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '7647', '7646', '18000', '0', '0', '0', '0', '34');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Tongues - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '956', '1714', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Weakness - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1031', '6205', '5300', '0', '0', '0', '0', '24');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Weakness - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '729', '702', '80', '0', '0', '0', '0', '4');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Recklessness - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '7660', '7658', '6700', '0', '0', '0', '0', '26');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Agony - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1015', '1014', '2600', '0', '0', '0', '0', '20');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of the Elements - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '7666', '1490', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Agony - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1029', '6217', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID 20 - HUNTER
+        -- Spell: One-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '3834', '201', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 20 - HUNTER
+        -- Spell: Two-Handed Swords
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '3835', '202', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 20 - HUNTER
+        -- Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID 20 - HUNTER
+        -- Spell: Two-Handed Axes
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '3831', '197', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 20 - HUNTER
+        -- Spell: Thrown
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '716', '2567', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 20 - HUNTER
+        -- Spell: Crossbows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('20', '5013', '5011', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Parry
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '3128', '3127', '10', '0', '0', '0', '0', '1');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Bear Form - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5488', '5487', '2600', '0', '0', '0', '0', '20');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Aquatic Form - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '1446', '1066', '8000', '0', '0', '0', '0', '30');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Growl - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '6796', '6795', '2600', '0', '0', '0', '0', '20');
+
+        insert into applied_updates values ('180920221');
+    end if;
+	
     -- 24/09/2022 1
     if (select count(*) from applied_updates where id='240920221') = 0 then
         -- Fixes Wharfmaster Dizzywig placement.
