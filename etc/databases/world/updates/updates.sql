@@ -14003,7 +14003,7 @@ begin not atomic
     -- 24/09/2022 1
     if (select count(*) from applied_updates where id='240920221') = 0 then
         -- Fixes Wharfmaster Dizzywig placement.
-        UPDATE 'spawns_creatures' SET 'position_z' = '0.039' WHERE ('spawn_id' = '14419');
+        UPDATE `spawns_creatures` SET `position_z` = 0.039 WHERE (`spawn_id` = 14419);
         -- Fixes Quest - Zenn's Bidding
         UPDATE `quest_template` SET `ReqCreatureOrGOCount1` = 0 WHERE (`entry` = 488); 
 
