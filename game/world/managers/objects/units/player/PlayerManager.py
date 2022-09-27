@@ -1004,13 +1004,13 @@ class PlayerManager(UnitManager):
                 self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
                 self.player.leveltime = 0
 
+                self.skill_manager.update_skills_max_value()
+                self.skill_manager.build_update()
+
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
                 self.set_health(self.max_health)
                 self.set_mana(self.max_power_1)
-
-                self.skill_manager.update_skills_max_value()
-                self.skill_manager.build_update()
 
                 if is_leveling_up:
                     data = pack(
@@ -1391,7 +1391,7 @@ class PlayerManager(UnitManager):
         if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
             return False  # players can't parry from behind.
 
-        return
+        return True
 
     # override
     def can_dodge(self, attacker_location=None):
@@ -1592,6 +1592,11 @@ class PlayerManager(UnitManager):
         if not self.is_alive:
             return False
 
+        # Notify pet AI about this kill.
+        killer_pet = killer.get_pet()
+        if killer_pet:
+            killer_pet.object_ai.killed_unit(self)
+
         if killer and self.duel_manager and self.duel_manager.is_player_involved(killer):
             self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
             self.set_health(1)
@@ -1705,6 +1710,8 @@ class PlayerManager(UnitManager):
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
             if self.guid not in unit.attackers and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
+            if unit.is_pet() and unit.summoner == self:
+                unit.object_ai.movement_inform()
 
     # override
     def on_cell_change(self):

@@ -15,8 +15,6 @@ class GameObjectBuilder:
         if not gobject_template:
             return None
 
-        if ttl:
-            print(ttl)
         gameobject_instance = GameObjectManager()
         gameobject_instance.spawn_id = spawn_id
         gameobject_instance.entry = gobject_template.entry

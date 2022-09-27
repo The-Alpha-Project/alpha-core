@@ -126,6 +126,13 @@ class DbcDatabaseManager:
                 if spell_id in DbcDatabaseManager.SpellHolder.SPELLS else None
 
         @staticmethod
+        def spell_get_trainer_spell_by_id(spell_id):
+            for id_, spell in DbcDatabaseManager.SpellHolder.SPELLS.items():
+                triggers = [spell.EffectTriggerSpell_1, spell.EffectTriggerSpell_2, spell.EffectTriggerSpell_3]
+                if spell_id in triggers:
+                    return spell
+
+        @staticmethod
         def spell_get_rank_by_spell(spell):
             rank_text = spell.NameSubtext_enUS
             if 'Rank' in rank_text:
@@ -257,19 +264,28 @@ class DbcDatabaseManager:
             return None
 
         @staticmethod
+        def skill_line_abilities_get_by_skill_line_id(skill_line_id) -> Optional[list[SkillLineAbility]]:
+            result = []
+            for skill_like_abilities in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.values():
+                for skill_like_ability in skill_like_abilities:
+                    if skill_like_ability.SkillLine == skill_line_id:
+                        result.append(skill_like_ability)
+            return result
+
+        @staticmethod
         def skill_line_abilities_get_by_spell(spell_id) -> list:
             return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, list())
 
         @staticmethod
-        def skill_line_ability_get_by_spell_for_player(spell_id, player_mgr):
-            race = 1 << (player_mgr.race - 1)
-            class_ = 1 << (player_mgr.class_ - 1)
+        def skill_line_ability_get_by_spell_race_and_class(spell_id, race, class_):
+            race_mask = 1 << (race - 1)
+            class_mask = 1 << (class_ - 1)
             skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
             for skill_line_ability in skill_line_abilities:
-                if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race == 0) or \
-                        (skill_line_ability.ClassMask and skill_line_ability.ClassMask & class_ == 0) or \
-                        skill_line_ability.ExcludeRace & race != 0 or \
-                        skill_line_ability.ExcludeClass & class_ != 0:
+                if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race_mask == 0) or \
+                        (skill_line_ability.ClassMask and skill_line_ability.ClassMask & class_mask == 0) or \
+                        skill_line_ability.ExcludeRace & race_mask != 0 or \
+                        skill_line_ability.ExcludeClass & class_mask != 0:
                     continue
                 return skill_line_ability
             return None

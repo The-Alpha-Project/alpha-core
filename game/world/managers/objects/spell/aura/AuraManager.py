@@ -9,7 +9,7 @@ from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
-    SpellAttributesEx, SpellEffects
+    SpellAttributesEx, SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -23,6 +23,12 @@ class AuraManager:
     def apply_spell_effect_aura(self, caster, casting_spell, spell_effect):
         aura = AppliedAura(caster, casting_spell, spell_effect, self.unit_mgr)
         self.add_aura(aura)
+
+    def apply_default_auras(self):
+        # Apply default auras for creatures.
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            for aura in self.unit_mgr.get_default_auras():
+                self.unit_mgr.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
 
     def add_aura(self, aura):
         can_apply = self.can_apply_aura(aura) and self.remove_colliding_effects(aura)

@@ -362,6 +362,10 @@ class ObjectManager:
     def is_totem(self):
         return False
 
+    # override
+    def is_pet(self):
+        return False
+
     def can_attack_target(self, target):
         if not target:
             return False

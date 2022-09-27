@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Optional
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
-from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureAISpellsEntry
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
@@ -25,8 +24,7 @@ class CreatureAI:
     # https://www.reddit.com/r/wowservers/comments/834nt5/felmyst_ai_system_research/
     CREATURE_CASTING_DELAY = 1200
 
-    def __init__(self,
-                 creature: Optional[CreatureManager]):
+    def __init__(self, creature: Optional[CreatureManager]):
         if creature:
             self.creature = creature
             self.use_ai_at_control = False
@@ -48,7 +46,7 @@ class CreatureAI:
                 for creature_spell in creature_spells:
                     creature_spell.finish_loading()
                     if creature_spell.has_valid_spell:
-                        self.creature_spells.append(CreatureAISpellsEntry(creature_spell))
+                        self.creature_spells.append(creature_spell)
 
     def has_spell_list(self):
         return len(self.creature_spells) > 0
@@ -156,7 +154,7 @@ class CreatureAI:
     # Called when creature attack is expected (if creature can and doesn't have current victim).
     # Note: for reaction at hostile action must be called AttackedBy function.
     def attack_start(self, victim):
-        pass
+        self._initialize_spell_list_cooldowns()
 
     def can_cast_spell(self, target, spell_entry, triggered):
         pass
@@ -173,34 +171,38 @@ class CreatureAI:
 
         if self.casting_delay <= 0:
             self.casting_delay = CreatureAI.CREATURE_CASTING_DELAY
-            self.do_spell_list_cast(self.casting_delay / 1000)
+            self.do_spell_list_cast()
         else:
             self.casting_delay -= elapsed * 1000
 
-    def do_spell_list_cast(self, elapsed):
+    def _initialize_spell_list_cooldowns(self):
+        if self.has_spell_list():
+            for creature_spell in self.creature_spells:
+                initial_cooldown_delay = randint(creature_spell.delay_init_min, creature_spell.delay_init_max) * 1000
+                self.creature.spell_manager.force_cooldown(creature_spell.spell.ID, initial_cooldown_delay)
+
+    def do_spell_list_cast(self):
         do_not_cast = False
         for creature_spell in self.creature_spells:
-            creature_spell.cooldown -= elapsed
-            if creature_spell.cooldown < 0:
-                creature_spell.cooldown = 0
-            creature_spell_entry = creature_spell.creature_spell_entry
-            cast_flags = creature_spell_entry.cast_flags
-            chance = creature_spell_entry.chance
-            script_id = creature_spell_entry.script_id
-            # Check cooldown and if self is casting at the moment.
-            if creature_spell.cooldown <= 0:
+            cast_flags = creature_spell.cast_flags
+            chance = creature_spell.chance
+            script_id = creature_spell.script_id
+            # Check cooldown and if self is casting this spell at the moment.
+            if not self.creature.spell_manager.is_on_cooldown(creature_spell.spell) and \
+                    not self.creature.spell_manager.is_casting_spell(creature_spell.spell.ID):
                 # Prevent casting multiple spells in the same update, only update timers.
                 if not (cast_flags & (CastFlags.CF_TRIGGERED | CastFlags.CF_INTERRUPT_PREVIOUS)):
+                    # Can't be casting while using this spell.
                     if do_not_cast or self.creature.is_casting():
                         continue
 
-                spell_template = creature_spell.creature_spell_entry.spell
+                spell_template = creature_spell.spell
                 # Resolve a target.
                 target = ScriptManager.get_target_by_type(self.creature,
                                                           self.creature,
-                                                          creature_spell_entry.cast_target,
-                                                          creature_spell_entry.target_param1,
-                                                          abs(creature_spell_entry.target_param2),
+                                                          creature_spell.cast_target,
+                                                          creature_spell.target_param1,
+                                                          abs(creature_spell.target_param2),
                                                           spell_template)
                 # Unable to find target, move on.
                 if not target:
@@ -213,7 +215,8 @@ class CreatureAI:
                 casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
                                                                                  target,
                                                                                  spell_target_mask,
-                                                                                 validate=True)
+                                                                                 validate=True,
+                                                                                 creature_spell=creature_spell)
                 # Invalid spell perhaps.
                 if not casting_spell:
                     continue
@@ -222,8 +225,7 @@ class CreatureAI:
                 cast_result = self.try_to_cast(target, casting_spell, cast_flags, chance)
                 if cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
-                    # Set a new random cooldown for this spell.
-                    creature_spell.set_new_random_cooldown()
+
                     # Stop if ranged spell.
                     if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
                         self.creature.stop_movement()
@@ -239,7 +241,7 @@ class CreatureAI:
                     continue
                 elif cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
                     # Chance roll failed, so we set a new random cooldown.
-                    creature_spell.set_new_random_cooldown()
+                    self.creature.spell_manager.set_on_cooldown(casting_spell)
 
     def try_to_cast(self, target, casting_spell, cast_flags, chance):
         # Unable to initialize CastingSpell by caller.

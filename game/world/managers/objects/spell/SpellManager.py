@@ -1,5 +1,6 @@
 import math
 import time
+from random import randint
 from struct import pack
 from typing import Optional
 
@@ -84,10 +85,10 @@ class SpellManager:
             if not self.caster.skill_manager.add_skill(related_profession_skill):
                 self.caster.skill_manager.update_skills_max_value()
 
-        # Add the spell required skill.
-        skill, skill_id, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
-        if not skill and skill_id:
-            self.caster.skill_manager.add_skill(skill_id)
+        character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill, but it is a valid skill.
+        if not character_skill and skill:
+            self.caster.skill_manager.add_skill(skill.ID)
 
         return True
 
@@ -207,8 +208,9 @@ class SpellManager:
         self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
     def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
-                             triggered=False, validate=True) -> Optional[CastingSpell]:
-        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered)
+                             triggered=False, validate=True, creature_spell=None) -> Optional[CastingSpell]:
+        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered,
+                             creature_spell=creature_spell)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
@@ -476,25 +478,9 @@ class SpellManager:
         casting_spell = self.get_casting_spell()
         if not casting_spell:
             return
-        spell = casting_spell.spell_entry
+
         self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
-
-        # Remove existent cooldown for this spell if it exists and a penalty was provided.
-        if spell.ID in self.cooldowns and cooldown_penalty:
-            del self.cooldowns[spell.ID]
-
-        # If a penalty was provided, set the given spell on cooldown for the given penalty.
-        if cooldown_penalty:
-            cooldown_entry = CooldownEntry(spell, time.time(), True, cooldown_penalty=cooldown_penalty)
-            self.cooldowns[spell.ID] = cooldown_entry
-
-        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
-
-        # Lock spell if a penalty was provided.
-        if cooldown_penalty:
-            data = pack('<IQI', spell.ID, self.caster.guid, self.cooldowns[spell.ID].cooldown_length)
-            self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+        self.set_on_cooldown(casting_spell, cooldown_penalty=cooldown_penalty)
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR, interrupted=False) -> bool:
         if casting_spell not in self.casting_spells:
@@ -783,19 +769,45 @@ class SpellManager:
 
     def flush_cooldowns(self):
         for spell_id, cooldown_entry in list(self.cooldowns.items()):
-            del self.cooldowns[spell_id]
+            self.cooldowns[spell_id].cancel()
+        self.check_spell_cooldowns()
 
-    def set_on_cooldown(self, casting_spell):
-        spell = casting_spell.spell_entry
-
-        if spell.RecoveryTime == 0 and spell.CategoryRecoveryTime == 0:
+    # Used by creatures to set their initial CD for their spell list. (Time before casting after attack start).
+    def force_cooldown(self, spell_id, cooldown):
+        spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+        if not spell:
             return
 
-        timestamp = time.time()
+        cooldown_entry = CooldownEntry(spell, time.time(), False, cooldown_penalty=cooldown, forced=True)
+        self.cooldowns[spell.ID] = cooldown_entry
+
+        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        data = pack('<IQI', spell.ID, self.caster.guid, cooldown_entry.cooldown_length)
+        self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+
+    def set_on_cooldown(self, casting_spell, cooldown_penalty=0):
+        spell = casting_spell.spell_entry
         unlocks_on_trigger = casting_spell.unlock_cooldown_on_trigger()
 
-        cooldown_entry = CooldownEntry(spell, timestamp, unlocks_on_trigger)
-        self.cooldowns[spell.ID] = cooldown_entry
+        # If a penalty was provided or the spell comes from a creature spell,
+        # Set the spell on cooldown for the given penalty or a new cd if it is greater than the spell dbc cooldown.
+        if cooldown_penalty or casting_spell.creature_spell:
+            if not cooldown_penalty and casting_spell.creature_spell:
+                min_delay = casting_spell.creature_spell.delay_repeat_min
+                max_delay = casting_spell.creature_spell.delay_repeat_max
+                cooldown_penalty = randint(min_delay, max_delay) * 1000
+
+            cooldown_entry = CooldownEntry(spell, time.time(), unlocks_on_trigger, cooldown_penalty=cooldown_penalty)
+            # Update existent cooldown for this spell.
+            self.cooldowns[spell.ID] = cooldown_entry
+        # Normal cooldown handling.
+        else:
+            if spell.RecoveryTime == 0 and spell.CategoryRecoveryTime == 0:
+                return
+            cooldown_entry = CooldownEntry(spell, time.time(), unlocks_on_trigger)
+            self.cooldowns[spell.ID] = cooldown_entry
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER or unlocks_on_trigger:
             return
@@ -807,9 +819,7 @@ class SpellManager:
         if spell_id not in self.cooldowns:
             return
 
-        timestamp = time.time()
-
-        self.cooldowns[spell_id].unlock(timestamp)
+        self.cooldowns[spell_id].unlock(time.time())
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
@@ -828,8 +838,7 @@ class SpellManager:
             self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CLEAR_COOLDOWN, data))
 
     def is_on_cooldown(self, spell_entry) -> bool:
-        if spell_entry.ID not in self.cooldowns:
-            return False
+        return spell_entry.ID in self.cooldowns
 
     def is_casting(self):
         for spell in list(self.casting_spells):

@@ -1,16 +1,4 @@
-from random import randint
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-
-
-# References a CreatureSpellEntry, but has unit specific cooldowns.
-# This might later be somehow handled by SpellManager, and this wrapper could be deprecated then.
-class CreatureAISpellsEntry:
-    def __init__(self, creature_spell_entry):
-        self.creature_spell_entry = creature_spell_entry
-        self.cooldown = randint(self.creature_spell_entry.delay_init_min, self.creature_spell_entry.delay_init_max)
-
-    def set_new_random_cooldown(self):
-        self.cooldown = randint(self.creature_spell_entry.delay_repeat_min, self.creature_spell_entry.delay_repeat_max)
 
 
 # Generic CreatureSpellEntry template, shared across multiple creatures.

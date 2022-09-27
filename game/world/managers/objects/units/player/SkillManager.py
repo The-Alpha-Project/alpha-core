@@ -14,8 +14,9 @@ from network.packet.PacketWriter import PacketWriter
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
+from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, HitInfo, LockType
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult
 from utils.constants.UpdateFields import PlayerFields
@@ -392,7 +393,7 @@ class SkillManager(object):
 
     def handle_defense_skill_gain_chance(self, damage_info):
         # Vanilla formula.
-        target_skill_type = SkillTypes.BLOCK if damage_info.hit_info & HitInfo.BLOCK else SkillTypes.DEFENSE
+        target_skill_type = self.get_defense_skill()
         skill = self.skills.get(target_skill_type, None)
         if not skill:
             return False
@@ -430,30 +431,32 @@ class SkillManager(object):
         if not spell_id:
             return False
 
-        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
-        if not skill:
+        character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill.
+        if not character_skill:
             return False
 
         roll = random.randint(1, 100)
         if roll < 75:
-            self.set_skill(skill_id, skill.value + 1)
+            self.set_skill(skill.ID, character_skill.value + 1)
             self.build_update()
 
     def handle_profession_skill_gain(self, spell_id):
         skill_gain_factor = 1
 
         # Should always resolve to one for professions.
-        skill, skill_id, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
-        if not skill:
+        character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill.
+        if not character_skill:
             return False
 
         gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
         yellow_threshold = skill_line_ability.TrivialSkillLineRankLow
-        chance = SkillManager._get_skill_gain_chance(skill.value, gray_threshold,
+        chance = SkillManager._get_skill_gain_chance(character_skill.value, gray_threshold,
                                                      (gray_threshold + yellow_threshold) / 2,
                                                      yellow_threshold)
 
-        self._roll_profession_skill_gain_chance(skill_id, chance, skill_gain_factor)
+        self._roll_profession_skill_gain_chance(skill.ID, chance, skill_gain_factor)
         self.build_update()
         return True
 
@@ -477,32 +480,33 @@ class SkillManager(object):
         self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)
 
     @staticmethod
-    def get_skill_id_and_skill_line_for_spell_id(spell_id):
-        skill_info_entries = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
+    def get_skill_and_skill_line_for_spell_id(spell_id, race, class_):
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+            spell_id, race, class_)
 
-        if not skill_info_entries:
+        if not skill_line_ability:
             return 0, None
 
-        skill_line_ability = skill_info_entries[0]
-        skill_id = skill_line_ability.SkillLine
-
-        return skill_id, skill_line_ability
+        skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
+        return skill, skill_line_ability
 
     def get_skill_info_for_spell_id(self, spell_id):
-        skill_id, skill_line_ability = SkillManager.get_skill_id_and_skill_line_for_spell_id(spell_id)
+        race = self.player_mgr.race
+        class_ = self.player_mgr.class_
+        skill, skill_line_ability = SkillManager.get_skill_and_skill_line_for_spell_id(spell_id, race, class_)
 
-        if not skill_id:
-            return None, 0, None
+        if not skill:
+            return None, None, None
 
-        if skill_id not in self.skills:
-            return None, skill_id, skill_line_ability
+        if skill.ID not in self.skills:
+            return None, skill, skill_line_ability
 
-        skill = self.skills[skill_id]
+        character_skill = self.skills[skill.ID]
 
-        if skill.value >= skill.max:
-            return None, skill_id, skill_line_ability
+        if character_skill.value >= character_skill.max:
+            return None, skill, skill_line_ability
 
-        return skill, skill_id, skill_line_ability
+        return character_skill, skill, skill_line_ability
 
     @staticmethod
     def _get_skill_gain_chance(skill_value, gray_level, green_level, yellow_level):
@@ -613,6 +617,34 @@ class SkillManager(object):
 
         return self.full_proficiency_masks.get(item_class, 0) & item_subclass_mask
 
+    # Shields and Block do not require an actual block to be gained.
+    # Randomly pick one upon defense gain.
+    def get_defense_skill(self):
+        pool = [SkillTypes.DEFENSE]
+        if self.player_mgr.can_block():
+            if SkillTypes.SHIELDS in self.skills:
+                pool.append(SkillTypes.SHIELDS)
+            elif SkillTypes.BLOCK in self.skills:
+                pool.append(SkillTypes.BLOCK)
+        return random.choice(pool)
+
+    def get_defense_skill_value(self, use_block, no_bonus=False):
+        # Shields block.
+        if use_block and SkillTypes.SHIELDS in self.skills:
+            skill_id = SkillTypes.SHIELDS
+            skill = self.skills[skill_id]
+        # Normal block.
+        elif use_block and SkillTypes.BLOCK in self.skills:
+            skill_id = SkillTypes.BLOCK
+            skill = self.skills[skill_id]
+        # Always fall back to defense.
+        else:
+            skill_id = SkillTypes.DEFENSE
+            skill = self.skills[skill_id]
+
+        bonus_skill = 0 if no_bonus else self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
+        return skill.value + bonus_skill
+
     def get_total_skill_value(self, skill_id, no_bonus=False):
         if skill_id not in self.skills:
             return -1
@@ -649,8 +681,9 @@ class SkillManager(object):
         return -1
 
     def get_skill_for_spell_id(self, spell_id):
-        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_for_player(spell_id, self.player_mgr)
-        if not skill_line_ability:
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+            spell_id, self.player_mgr.race, self.player_mgr.class_)
+        if not skill_line_ability or not skill_line_ability.SkillLine:
             return None
         return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
 
@@ -662,10 +695,10 @@ class SkillManager(object):
         level = self.player_mgr.level if level == -1 else level
 
         # Weapon, Defense, Spell
-        if skill.SkillType == 0:
+        if skill.SkillType == SkillLineType.PRIMARY:
             return level * 5
         # Language, Riding, Secondary profs
-        elif skill.SkillType == 4:
+        elif skill.SkillType == SkillLineType.SECONDARY:
             # Language, Riding
             if skill.CategoryID == SkillCategories.MAX_SKILL:
                 return skill.MaxRank

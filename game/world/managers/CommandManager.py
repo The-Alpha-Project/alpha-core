@@ -12,8 +12,9 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
-from utils.constants.MiscCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
+from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import PlayerFields
 
 import platform
@@ -42,7 +43,10 @@ class CommandManager(object):
             if code != 0:
                 ChatManager.send_system_message(world_session, f'Error with <{command}> command: {res}')
             elif res:
-                ChatManager.send_system_message(world_session, res)
+                # Split message lines to overcome buffer limits.
+                lines = res.rsplit('\n')
+                for line in lines:
+                    ChatManager.send_system_message(world_session, line)
 
     @staticmethod
     def _target_or_self(world_session, only_players=False):
@@ -111,9 +115,9 @@ class CommandManager(object):
         player_o = world_session.player_mgr.location.o
         maps_z = MapManager.calculate_z_for_object(world_session.player_mgr)[0]
         adt_tile = MapManager.get_tile(player_x, player_y)
-        return 0, f'Map: {world_session.player_mgr.map_},  ' \
-                  f'Zone: {world_session.player_mgr.zone}, ' \
-                  f'ADT: [{adt_tile[0]},{adt_tile[1]}], ' \
+        return 0, f'Map: {world_session.player_mgr.map_}\n' \
+                  f'Zone: {world_session.player_mgr.zone}\n' \
+                  f'ADT: [{adt_tile[0]},{adt_tile[1]}]\n' \
                   f'X: {player_x:.3f}, ' \
                   f'Y: {player_y:.3f}, ' \
                   f'Z: {player_z:.3f}, ' \
@@ -511,20 +515,30 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def unit_flags(world_session, args):
+        unit = CommandManager._target_or_self(world_session)
+        result = ''
+        if unit:
+            name = unit.player.name if unit.get_type_id() == ObjectTypeIds.ID_PLAYER else unit.creature_template.name
+            result += f'Unit: {name}\n'
+            for flag in UnitFlags:
+                result += ('|c0066FF00[ ON ]|r' if unit.unit_flags & flag else '|c66FF0000[OFF]|r') + f' - {UnitFlags(flag).name}\n'
+        return 0, result
+
+    @staticmethod
     def creature_info(world_session, args):
         creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                            world_session.player_mgr.current_selection)
-
         if creature:
-            return 0, f'[{creature.creature_template.name}], ' \
-                      f'Spawn ID: {creature.spawn_id}, ' \
-                      f'Guid: {creature.get_low_guid()}, ' \
-                      f'Entry: {creature.creature_template.entry}, ' \
-                      f'Display ID: {creature.current_display_id}, ' \
+            return 0, f'[{creature.creature_template.name}]\n' \
+                      f'Spawn ID: {creature.spawn_id}\n' \
+                      f'Guid: {creature.get_low_guid()}\n' \
+                      f'Entry: {creature.creature_template.entry}\n' \
+                      f'Display ID: {creature.current_display_id}\n' \
                       f'X: {creature.location.x}, ' \
                       f'Y: {creature.location.y}, ' \
                       f'Z: {creature.location.z}, ' \
-                      f'O: {creature.location.o}, ' \
+                      f'O: {creature.location.o}\n' \
                       f'Map: {creature.map_}'
         return -1, 'error retrieving creature info.'
 
@@ -534,8 +548,8 @@ class CommandManager(object):
         player_mgr = CommandManager._target_or_self(world_session, only_players=True)
 
         if player_mgr:
-            return 0, f'[{player_mgr.player.name}] - Guid: {player_mgr.get_low_guid()}, ' \
-                      f'Account ID: {player_mgr.session.account_mgr.account.id}, ' \
+            return 0, f'[{player_mgr.player.name}] - Guid: {player_mgr.get_low_guid()}\n' \
+                      f'Account ID: {player_mgr.session.account_mgr.account.id}\n' \
                       f'Account name: {player_mgr.session.account_mgr.account.name}'
         return -1, 'error retrieving player info.'
 
@@ -552,16 +566,16 @@ class CommandManager(object):
                 if distance <= max_distance:
                     found_count += 1
                     ChatManager.send_system_message(world_session,
-                                                    f'[{gobject.gobject_template.name}], '
-                                                    f'Spawn ID: {gobject.spawn_id}, '
-                                                    f'Guid: {gobject.get_low_guid()}, '
-                                                    f'Entry: {gobject.gobject_template.entry}, '
-                                                    f'Display ID: {gobject.current_display_id}, '
+                                                    f'[{gobject.gobject_template.name}]\n'
+                                                    f'Spawn ID: {gobject.spawn_id}\n'
+                                                    f'Guid: {gobject.get_low_guid()}\n'
+                                                    f'Entry: {gobject.gobject_template.entry}\n'
+                                                    f'Display ID: {gobject.current_display_id}\n'
                                                     f'X: {gobject.location.x}, '
                                                     f'Y: {gobject.location.y}, '
                                                     f'Z: {gobject.location.z}, '
                                                     f'O: {gobject.location.o}, '
-                                                    f'Map: {gobject.map_}, '
+                                                    f'Map: {gobject.map_}\n'
                                                     f'Distance: {distance}')
             return 0, f'{found_count} game objects found within {max_distance} distance units.'
         except ValueError:
@@ -732,6 +746,7 @@ GM_COMMAND_DEFINITIONS = {
     'morph': [CommandManager.morph, 'morph the targeted unit'],
     'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     'cinfo': [CommandManager.creature_info, 'get targeted creature info'],
+    'unitflags': [CommandManager.unit_flags, 'get targeted unit unit flags status'],
     'pinfo': [CommandManager.player_info, 'get targeted player info'],
     'goinfo': [CommandManager.gobject_info, 'get gameobject information near you'],
     'level': [CommandManager.level, 'set your level'],
