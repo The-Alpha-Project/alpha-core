@@ -240,7 +240,7 @@ class CommandManager(object):
         if code == 0:
             spell_id = res
             if not world_session.player_mgr.spell_manager.learn_spell(spell_id):
-                return -1, 'you already know that spell.'
+                return -1, 'Unable to learn spell, invalid spell, already known or skill limit reached.'
             return 0, 'Spell learned.'
         return code, res
 
@@ -345,7 +345,9 @@ class CommandManager(object):
             if not skill:
                 return -1, 'The skill was not found.'
 
-            world_session.player_mgr.skill_manager.add_skill(skill_id)
+            if not world_session.player_mgr.skill_manager.add_skill(skill_id):
+                return -1, 'Unable to learn skill or already learned.'
+
             return 0, 'Skill learned.'
         except ValueError:
             return -1, 'Invalid ID.'
