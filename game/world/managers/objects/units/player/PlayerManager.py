@@ -1004,13 +1004,13 @@ class PlayerManager(UnitManager):
                 self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
                 self.player.leveltime = 0
 
+                self.skill_manager.update_skills_max_value()
+                self.skill_manager.build_update()
+
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
                 self.set_health(self.max_health)
                 self.set_mana(self.max_power_1)
-
-                self.skill_manager.update_skills_max_value()
-                self.skill_manager.build_update()
 
                 if is_leveling_up:
                     data = pack(
@@ -1391,7 +1391,7 @@ class PlayerManager(UnitManager):
         if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
             return False  # players can't parry from behind.
 
-        return
+        return True
 
     # override
     def can_dodge(self, attacker_location=None):

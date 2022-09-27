@@ -79,8 +79,6 @@ class CharCreateHandler(object):
             CharCreateHandler.generate_starting_reputations(character.guid)
             CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
             CharCreateHandler.generate_starting_spells_skills(character.guid, race, class_, character.level)
-            # TODO: Investigate if talent skills are actually needed by players, I don't think they are.
-            # CharCreateHandler.generate_starting_talents_skills(character.guid)
             CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
             CharCreateHandler.generate_starting_buttons(character.guid, race, class_)
             CharCreateHandler.generate_starting_taxi_nodes(character, race)
@@ -173,35 +171,18 @@ class CharCreateHandler(object):
         """
 
     @staticmethod
-    def generate_starting_talents_skills(guid):
-        # Weapon Talents, Attribute Enhancements, Slayer Talents, Magic Talents, Defensive Talents.
-        # TODO: Need further research, maybe each type of class started with access to specific talents.
-        #  Doesn't make sense to have Magic Talents available to melee classes etc.
-        for skill_id, skill in DbcDatabaseManager.SkillHolder.SKILLS.items():
-            if skill.SkillType == SkillLineType.TALENTS:
-                skill_to_set = CharacterSkill()
-                skill_to_set.guid = guid
-                skill_to_set.skill = skill_id
-                skill_to_set.value = skill.MaxRank
-                skill_to_set.max = skill.MaxRank
-                RealmDatabaseManager.character_add_skill(skill_to_set)
-
-    @staticmethod
     def generate_starting_spells_skills(guid, race, class_, level):
         added_skills = set()
         for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
             initial_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
             if initial_spell and not initial_spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 # Handle learning skills required by initial spells.
-                skill_id, skill_line = SkillManager.get_skill_id_and_skill_line_for_spell_id(initial_spell.ID)
-                if skill_id and skill_id not in added_skills:
-                    added_skills.add(skill_id)
-                    skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
-                    if not skill:
-                        continue
+                skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(initial_spell.ID, race, class_)
+                if skill and skill.ID not in added_skills:
+                    added_skills.add(skill.ID)
                     skill_to_set = CharacterSkill()
                     skill_to_set.guid = guid
-                    skill_to_set.skill = skill_id
+                    skill_to_set.skill = skill.ID
                     skill_to_set.value = 1 if skill.CategoryID != SkillCategories.MAX_SKILL else skill.MaxRank
                     skill_to_set.max = skill.MaxRank
 

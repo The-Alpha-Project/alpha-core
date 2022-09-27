@@ -651,7 +651,7 @@ class UnitManager(ObjectManager):
         damage_info.damage_school_mask = casting_spell.spell_entry.School
         
         subclass = 0
-        if damage_info.attack_type != -1:
+        if self.get_type_id() == ObjectTypeIds.ID_PLAYER and damage_info.attack_type != -1:
             equipped_weapon = self.get_current_weapon_for_attack_type(damage_info.attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
@@ -662,7 +662,6 @@ class UnitManager(ObjectManager):
         damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self,
                                                                                         damage_info.attack_type,
                                                                                         damage_info.damage_school_mask)
-                                                             
         is_crit = damage_info.hit_info & SpellHitFlags.HIT_FLAG_CRIT
         # From 0.5.5 patch notes:
         #     "Critical hits with ranged weapons now do 100% extra damage."

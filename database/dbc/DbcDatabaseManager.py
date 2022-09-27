@@ -261,15 +261,15 @@ class DbcDatabaseManager:
             return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, list())
 
         @staticmethod
-        def skill_line_ability_get_by_spell_for_player(spell_id, player_mgr):
-            race = 1 << (player_mgr.race - 1)
-            class_ = 1 << (player_mgr.class_ - 1)
+        def skill_line_ability_get_by_spell_race_and_class(spell_id, race, class_):
+            race_mask = 1 << (race - 1)
+            class_mask = 1 << (class_ - 1)
             skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
             for skill_line_ability in skill_line_abilities:
-                if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race == 0) or \
-                        (skill_line_ability.ClassMask and skill_line_ability.ClassMask & class_ == 0) or \
-                        skill_line_ability.ExcludeRace & race != 0 or \
-                        skill_line_ability.ExcludeClass & class_ != 0:
+                if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race_mask == 0) or \
+                        (skill_line_ability.ClassMask and skill_line_ability.ClassMask & class_mask == 0) or \
+                        skill_line_ability.ExcludeRace & race_mask != 0 or \
+                        skill_line_ability.ExcludeClass & class_mask != 0:
                     continue
                 return skill_line_ability
             return None
