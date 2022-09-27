@@ -28,7 +28,7 @@ class CooldownEntry:
         self.canceled = True
 
     def is_valid(self):
-        return not self.cancel() and (self.locked or self.end_timestamp > time.time())
+        return not self.canceled and (self.locked or self.end_timestamp > time.time())
 
     def unlock(self, timestamp):
         if not self.locked:
