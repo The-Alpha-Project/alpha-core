@@ -240,7 +240,7 @@ class CommandManager(object):
         if code == 0:
             spell_id = res
             if not world_session.player_mgr.spell_manager.learn_spell(spell_id):
-                return -1, 'Unable to learn spell, already known or skill limit reached.'
+                return -1, 'unable to learn spell, already known or skill limit reached.'
             return 0, 'Spell learned.'
         return code, res
 
@@ -343,14 +343,14 @@ class CommandManager(object):
                 return -1, 'please specify a skill ID.'
             skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
             if not skill:
-                return -1, 'The skill was not found.'
+                return -1, 'the skill was not found.'
 
             if not world_session.player_mgr.skill_manager.add_skill(skill_id):
-                return -1, 'Unable to learn skill or already learned.'
+                return -1, 'unable to learn skill or already learned.'
 
             return 0, 'Skill learned.'
         except ValueError:
-            return -1, 'Invalid ID.'
+            return -1, 'invalid ID.'
 
     @staticmethod
     def lskills(world_session, args):
