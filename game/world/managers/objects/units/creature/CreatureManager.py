@@ -586,6 +586,9 @@ class CreatureManager(UnitManager):
     def attack(self, victim: UnitManager):
         if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
+        # Had no target before, notify attack start.
+        if not self.combat_target:
+            self.object_ai.attack_start(victim)
         super().attack(victim)
         # Handle enter combat interrupts.
         self.aura_manager.check_aura_interrupts()

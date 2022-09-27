@@ -48,13 +48,14 @@ class CastingSpell:
     spell_attack_type: int
     used_ranged_attack_item: ItemManager  # Ammo or thrown.
 
-    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False):
+    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False, creature_spell=None):
         self.spell_entry = spell
         self.spell_caster = caster
         self.source_item = source_item
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
         self.triggered = triggered
+        self.creature_spell = creature_spell
 
         self.dynamic_object = None
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
