@@ -564,7 +564,7 @@ class SpellEffectHandler:
         if not target or not target.is_alive:
             return
 
-        caster.extra_attacks += 1
+        caster.extra_attacks += effect.get_effect_simple_points()
 
     @staticmethod
     def handle_dummy(casting_spell, effect, caster, target):

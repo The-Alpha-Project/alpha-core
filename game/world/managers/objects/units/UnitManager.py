@@ -372,7 +372,6 @@ class UnitManager(ObjectManager):
             # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
                 self.execute_extra_attacks()
-                return
 
             if self.spell_manager.cast_queued_melee_ability(attack_type):
                 return  # Melee ability replaces regular attack.
@@ -387,14 +386,10 @@ class UnitManager(ObjectManager):
         # Victim did not die with this hit, check melee attack procs.
         if not damage_info.hit_info & HitInfo.UNIT_DEAD:
             self.handle_melee_attack_procs(damage_info)
-        else:
+        else:  # Reset extra attacks on target death.
             self.extra_attacks = 0
 
         self.send_attack_state_update(damage_info)
-
-        # Extra attack only at any non-extra attack.
-        if not extra and self.extra_attacks > 0:
-            self.execute_extra_attacks()
 
     def execute_extra_attacks(self):
         while self.extra_attacks > 0:
