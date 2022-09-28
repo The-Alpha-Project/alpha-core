@@ -337,7 +337,7 @@ class UnitManager(ObjectManager):
                     if self.attack_timers[AttackTypes.OFFHAND_ATTACK] < 500:
                         self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 500)
 
-                self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, False)
+                self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK)
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
 
             # Off hand attack.
@@ -346,7 +346,7 @@ class UnitManager(ObjectManager):
                 if self.attack_timers[AttackTypes.BASE_ATTACK] < 500:
                     self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
 
-                self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK, False)
+                self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK)
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
         if swing_error != AttackSwingError.NONE:
@@ -367,7 +367,7 @@ class UnitManager(ObjectManager):
         self.swing_error = swing_error
         return swing_error == AttackSwingError.NONE
 
-    def attacker_state_update(self, victim, attack_type, extra):
+    def attacker_state_update(self, victim, attack_type, extra=False):
         if attack_type == AttackTypes.BASE_ATTACK:
             # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
@@ -385,7 +385,6 @@ class UnitManager(ObjectManager):
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
         self.handle_melee_attack_procs(damage_info)
-
         self.send_attack_state_update(damage_info)
 
         # Extra attack only at any non-extra attack.

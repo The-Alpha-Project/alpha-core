@@ -557,6 +557,16 @@ class SpellEffectHandler:
         target.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_RESURRECT_REQUEST, data))
 
     @staticmethod
+    def handle_extra_attacks(casting_spell, effect, caster, target):
+        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        if not target or not target.is_alive:
+            return
+
+        caster.extra_attacks += 1
+
+    @staticmethod
     def handle_dummy(casting_spell, effect, caster, target):
         if casting_spell.spell_entry.ID not in SpellEffectDummyHandler.DUMMY_SPELL_EFFECTS:
             Logger.warning(f'Unimplemented dummy spell effect for spell {casting_spell.spell_entry.ID}.')
@@ -760,6 +770,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
     SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
     SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
+    SpellEffects.SPELL_EFFECT_EXTRA_ATTACKS: SpellEffectHandler.handle_extra_attacks,
     SpellEffects.SPELL_EFFECT_DUMMY: SpellEffectHandler.handle_dummy,
     SpellEffects.SPELL_EFFECT_THREAT: SpellEffectHandler.handle_threat,
     SpellEffects.SPELL_EFFECT_STUCK: SpellEffectHandler.handle_stuck,
