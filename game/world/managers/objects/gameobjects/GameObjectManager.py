@@ -242,6 +242,10 @@ class GameObjectManager(ObjectManager):
         return len(self.known_players) > 0
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
+        # Skip if target is invalid or already dead.
+        if not target or not target.is_alive:
+            return
+
         damage_info = casting_spell.get_cast_damage_info(self, target, damage, 0)
         miss_info = casting_spell.object_target_results[target.guid].result
 
