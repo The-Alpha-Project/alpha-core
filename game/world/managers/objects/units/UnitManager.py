@@ -907,6 +907,7 @@ class UnitManager(ObjectManager):
 
         self.send_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
         self.swing_error = 0
+        self.extra_attacks = 0
 
         self.combat_target = None
         self.in_combat = False
