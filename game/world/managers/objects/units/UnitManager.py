@@ -384,7 +384,12 @@ class UnitManager(ObjectManager):
         if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
-        self.handle_melee_attack_procs(damage_info)
+        # Victim did not die with this hit, check melee attack procs.
+        if not damage_info.hit_info & HitInfo.UNIT_DEAD:
+            self.handle_melee_attack_procs(damage_info)
+        else:
+            self.extra_attacks = 0
+
         self.send_attack_state_update(damage_info)
 
         # Extra attack only at any non-extra attack.
@@ -640,9 +645,6 @@ class UnitManager(ObjectManager):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
     def calculate_spell_damage(self, base_damage, casting_spell, target):
-        if not target or not target.is_alive:
-            return None
-
         damage_info = DamageInfoHolder()
         damage_info.attacker = self
         damage_info.target = target
@@ -737,6 +739,10 @@ class UnitManager(ObjectManager):
         return True
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
+        # Skip if target is invalid or already dead.
+        if not target or not target.is_alive:
+            return
+
         if target.guid in casting_spell.object_target_results:
             miss_reason = casting_spell.object_target_results[target.guid].result
         else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
