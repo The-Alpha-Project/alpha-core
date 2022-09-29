@@ -607,11 +607,11 @@ class CreatureManager(UnitManager):
         super().attack_update(elapsed)
 
     # override
-    def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
+    def receive_damage(self, damage_info, source=None, is_periodic=False, casting_spell=None):
         if not self.is_spawned:
             return False
 
-        if not super().receive_damage(amount, source, is_periodic):
+        if not super().receive_damage(damage_info, source, is_periodic):
             return False
 
         # If creature's being attacked by another unit, automatically set combat target.
@@ -621,7 +621,7 @@ class CreatureManager(UnitManager):
                 # Make sure to first stop any movement right away.
                 self.stop_movement()
 
-            threat = amount
+            threat = damage_info.total_damage
             # TODO: Threat calculation.
             # No threat but source spell generates threat on miss.
             if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():

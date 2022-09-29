@@ -250,7 +250,7 @@ class GameObjectManager(ObjectManager):
         miss_info = casting_spell.object_target_results[target.guid].result
 
         target.send_spell_cast_debug_info(damage_info, miss_info, casting_spell, is_periodic=is_periodic)
-        target.receive_damage(damage, self, is_periodic)
+        target.receive_damage(damage_info, self, is_periodic)
 
         # Send environmental damage log packet to the affected player.
         if self.gobject_template.type == GameObjectTypes.TYPE_TRAP and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
