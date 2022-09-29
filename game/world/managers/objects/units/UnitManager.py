@@ -679,9 +679,11 @@ class UnitManager(ObjectManager):
         #     "Critical hits with ranged weapons now do 100% extra damage."
         # We assume that ranged crits dealt 50% increased damage instead of 100%. The other option could be 200% but
         # 50% sounds more logical.
+        # TODO: Combat log does not show hit as a crit for spells.
         if damage_info.hit_info & SpellHitFlags.HIT_FLAG_CRIT:
             is_ranged = damage_info.attack_type == AttackTypes.RANGED_ATTACK
             crit_multiplier = 1.50 if is_ranged else 2.0
+            damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
             damage_info.original_damage = int(damage_info.original_damage * crit_multiplier)
 
         if casting_spell.casts_on_swing():
@@ -828,7 +830,8 @@ class UnitManager(ObjectManager):
             combat_log_data = pack('<I2Q2If3I',
                                    damage_info.hit_info,
                                    damage_info.attacker.guid, damage_info.target.guid, spell_id,
-                                   damage_info.total_damage, damage_info.original_damage, damage_info.damage_school_mask,
+                                   damage_info.total_damage, damage_info.original_damage,
+                                   casting_spell.spell_entry.School,
                                    damage_info.original_damage, damage_info.absorb)
             combat_log_opcode = OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL
 
@@ -843,7 +846,7 @@ class UnitManager(ObjectManager):
                                damage_info.total_damage,
                                damage_info.original_damage,
                                damage_info.hit_info,
-                               spell_id,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
+                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
                                damage_info.attacker.guid)
 
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
