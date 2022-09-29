@@ -424,7 +424,7 @@ class UnitManager(ObjectManager):
 
         # Apply crit damage modifier first if necessary.
         if damage_info.hit_info & HitInfo.CRITICAL_HIT:
-            damage_info.base_damage += damage_info.base_damage * 2
+            damage_info.base_damage *= 2
 
         # Handle school absorb.
         damage_info.absorb = victim.get_school_absorb_for_damage(damage_info)
