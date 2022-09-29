@@ -558,13 +558,13 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_extra_attacks(casting_spell, effect, caster, target):
-        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        if not target or not target.is_alive:
+        if not target.is_alive:
             return
 
-        caster.extra_attacks += effect.get_effect_simple_points()
+        target.extra_attacks += effect.get_effect_simple_points()
 
     @staticmethod
     def handle_dummy(casting_spell, effect, caster, target):
