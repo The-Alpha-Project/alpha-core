@@ -1094,7 +1094,7 @@ class UnitManager(ObjectManager):
             self._school_absorbs[school_mask][aura_index] = 0
 
         if absorb:
-            self._school_absorbs[school_mask][aura_index] += value
+            self._school_absorbs[school_mask][aura_index] = value
         elif school_mask in self._school_absorbs and aura_index in self._school_absorbs[school_mask]:
             self._school_absorbs[school_mask][aura_index] = 0
 
