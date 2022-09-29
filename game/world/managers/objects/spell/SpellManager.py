@@ -556,9 +556,11 @@ class SpellManager:
 
             if target_guid in casting_spell.object_target_results:  # Only target of this spell.
                 result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
-                if not casting_spell.is_channeled() and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
+                # Don't send interrupted error for finished/active/delayed spells.
+                if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED or not casting_spell.is_channeled() \
+                        and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
                         casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
-                    result = SpellCheckCastResult.SPELL_NO_ERROR  # Don't send interrupted error for active/delayed spells.
+                    result = SpellCheckCastResult.SPELL_NO_ERROR
 
                 self.remove_cast(casting_spell, result, interrupted=True)
                 return
