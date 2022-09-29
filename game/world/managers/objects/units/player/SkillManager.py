@@ -429,7 +429,7 @@ class SkillManager(object):
         self.set_skill(target_skill_type, current_unmodified_skill + 1)
         self.build_update()
 
-        # Dodge / parry / block chance displayed in the player's abilities depends on current defense skill.
+        # Dodge/Parry/Block chance displayed in the player's abilities depends on selected defense skill.
         self.player_mgr.stat_manager.send_defense_bonuses()
 
         return True

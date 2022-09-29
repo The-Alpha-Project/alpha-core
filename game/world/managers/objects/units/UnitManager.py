@@ -371,6 +371,9 @@ class UnitManager(ObjectManager):
         return swing_error == AttackSwingError.NONE
 
     def attacker_state_update(self, victim, attack_type, extra=False):
+        if not victim or not self.is_alive or not victim.is_alive:
+            return
+
         if attack_type == AttackTypes.BASE_ATTACK:
             # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
@@ -381,18 +384,15 @@ class UnitManager(ObjectManager):
 
         damage_info = self.calculate_melee_damage(victim, attack_type)
 
-        if not damage_info:
-            return
-
         if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
-        # Victim did not die with this hit, check melee attack procs.
+        # Victim will not die with this hit.
         if not damage_info.hit_info & HitInfo.UNIT_DEAD:
+            # The hit was successful, check melee attack procs.
             if damage_info.hit_info & HitInfo.SUCCESS:
                 self.handle_melee_attack_procs(damage_info)
-            self.handle_melee_attack_procs(damage_info)
-        else:  # Reset extra attacks on target death.
+        else:  # Victim will die after this hit, reset extra attacks.
             self.extra_attacks = 0
 
         self.send_attack_state_update(damage_info)
@@ -410,9 +410,6 @@ class UnitManager(ObjectManager):
          for unit in [damage_info.attacker, damage_info.target]]
 
     def calculate_melee_damage(self, victim, attack_type):
-        if not victim or not self.is_alive or not victim.is_alive:
-            return None
-
         damage_info = DamageInfoHolder()
         damage_info.attacker = self
         damage_info.target = victim
@@ -425,33 +422,46 @@ class UnitManager(ObjectManager):
         damage_info.original_damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
         damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack.
 
-        victim.apply_school_absorb_for_damage(damage_info)
+        # Apply crit damage modifier first if necessary.
+        if damage_info.hit_info & HitInfo.CRITICAL_HIT:
+            damage_info.original_damage += damage_info.original_damage * 2
+
+        # Handle school absorb.
+        damage_info.absorb = victim.get_school_absorb_for_damage(damage_info)
+        if damage_info.absorb:
+            damage_info.hit_info |= HitInfo.ABSORBED
 
         # Check evade, there is no HitInfo flag for this.
         if victim.is_evading:
             damage_info.target_state = VictimStates.VS_EVADE
         elif damage_info.hit_info & HitInfo.MISS:
             damage_info.original_damage = damage_info.total_damage = 0
+            damage_info.target_state = VictimStates.VS_NONE
+        elif damage_info.hit_info & HitInfo.ABSORBED:
+            # Complete absorb, remove success hit flag, only applies for absorb/immune.
+            if damage_info.original_damage == damage_info.absorb:
+                damage_info.hit_info &= ~HitInfo.SUCCESS
+            damage_info.total_damage = max(0, damage_info.original_damage - damage_info.absorb)
+            # TODO: Absorbed due physical immunity (Displaying Immune instead of Absorbed):
+            #  damage_info.target_state = VictimStates.VS_IMMUNE
         elif damage_info.hit_info & HitInfo.DODGE:
-            damage_info.total_damage = 0
+            damage_info.original_damage = damage_info.total_damage = 0
             damage_info.target_state = VictimStates.VS_DODGE
             damage_info.proc_victim |= ProcFlags.DODGE
         elif damage_info.hit_info & HitInfo.PARRY:
-            damage_info.total_damage = 0
+            damage_info.original_damage = damage_info.total_damage = 0
             damage_info.target_state = VictimStates.VS_PARRY
             damage_info.proc_victim |= ProcFlags.PARRY
         elif damage_info.hit_info & HitInfo.BLOCK:
-            damage_info.total_damage = 0
-            damage_info.blocked_amount = damage_info.original_damage
             # 0.6 patch notes: "Blocking an attack no longer avoids all of the damage of an attack."
             # Completely mitigate damage on block.
+            damage_info.blocked_amount = damage_info.original_damage
+            damage_info.original_damage = damage_info.total_damage = 0
             damage_info.target_state = VictimStates.VS_BLOCK
             damage_info.proc_victim |= ProcFlags.BLOCK
-        elif damage_info.hit_info & HitInfo.SUCCESS and damage_info.hit_info & HitInfo.CRITICAL_HIT:
-            damage_info.original_damage += damage_info.original_damage * 2
-            damage_info.total_damage = damage_info.original_damage
-            damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
-        else:
+        else:  # Successful attack.
+            if damage_info.hit_info & HitInfo.CRITICAL_HIT:
+                damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
             damage_info.total_damage = damage_info.original_damage
 
         # Generate rage (if needed).
@@ -650,7 +660,7 @@ class UnitManager(ObjectManager):
         damage_info.attacker = self
         damage_info.target = target
         damage_info.attack_type = casting_spell.spell_attack_type if casting_spell.spell_attack_type != -1 else 0
-        damage_info.damage_school_mask = casting_spell.spell_entry.School
+        damage_info.damage_school_mask = casting_spell.get_school_mask()
         
         subclass = 0
         if self.get_type_id() == ObjectTypeIds.ID_PLAYER and damage_info.attack_type != -1:
@@ -658,25 +668,29 @@ class UnitManager(ObjectManager):
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
-        damage = self.stat_manager.apply_bonuses_for_damage(base_damage, damage_info.damage_school_mask,
-                                                            target, subclass)
+        spell_school = casting_spell.spell_entry.School
+        damage_info.original_damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school,
+                                                                                 target, subclass)
 
         damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self,
                                                                                         damage_info.attack_type,
-                                                                                        damage_info.damage_school_mask)
-        is_crit = damage_info.hit_info & SpellHitFlags.HIT_FLAG_CRIT
+                                                                                        spell_school)
         # From 0.5.5 patch notes:
         #     "Critical hits with ranged weapons now do 100% extra damage."
         # We assume that ranged crits dealt 50% increased damage instead of 100%. The other option could be 200% but
         # 50% sounds more logical.
-        crit_multiplier = 1.50 if damage_info.attack_type == AttackTypes.RANGED_ATTACK else 2.0
-        if damage_info.damage_school_mask == SpellSchools.SPELL_SCHOOL_NORMAL:
-            damage = int(damage * crit_multiplier if is_crit else damage)
-            damage_info.original_damage = damage
-        else:
-            damage_info.absorb = 0  # TODO: handle absorbs.
-            damage_info.original_damage = int(damage * 1.5 if is_crit else damage)
-            damage_info.total_damage = max(0, damage_info.original_damage - damage_info.absorb)
+        if damage_info.hit_info & SpellHitFlags.HIT_FLAG_CRIT:
+            is_ranged = damage_info.attack_type == AttackTypes.RANGED_ATTACK
+            crit_multiplier = 1.50 if is_ranged else 2.0
+            damage_info.original_damage = int(damage_info.original_damage * crit_multiplier)
+
+        if casting_spell.casts_on_swing():
+            damage_info.hit_info |= SpellHitFlags.HIT_FLAG_DEFERRED
+
+        # TODO: Unlike melee, setting the target state or removing hit flags does not remove the unit animation
+        #  when taking damage.
+        damage_info.absorb = target.get_school_absorb_for_damage(damage_info)
+        damage_info.total_damage = max(0, damage_info.original_damage - damage_info.absorb)
 
         return damage_info
 
@@ -829,7 +843,7 @@ class UnitManager(ObjectManager):
                                damage_info.total_damage,
                                damage_info.original_damage,
                                damage_info.hit_info,
-                               0,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
+                               spell_id,  # SpellID. (0 will allow client to display damage from dots and cast on swing spells)
                                damage_info.attacker.guid)
 
             MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, damage_data), self,
@@ -1072,43 +1086,56 @@ class UnitManager(ObjectManager):
         elif self.power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(max_power)
 
-    def set_school_absorb(self, school_mask, value, absorb=True):
+    def set_school_absorb(self, school_mask, aura_index, value, absorb=True):
         # Initialize if needed.
         if school_mask not in self._school_absorbs:
-            self._school_absorbs[school_mask] = 0
+            self._school_absorbs[school_mask] = {}
+        if aura_index not in self._school_absorbs[school_mask]:
+            self._school_absorbs[school_mask][aura_index] = 0
 
         if absorb:
-            print(f'{SpellSchoolMask(school_mask).name} : {value}')
-            self._school_absorbs[school_mask] += value
-        elif school_mask in self._school_absorbs:
-            self._school_absorbs[school_mask] = max(0, self._school_absorbs[school_mask] - value)
-            print(f'{SpellSchoolMask(school_mask).name} : {self._school_absorbs[school_mask]}')
+            self._school_absorbs[school_mask][aura_index] += value
+        elif school_mask in self._school_absorbs and aura_index in self._school_absorbs[school_mask]:
+            self._school_absorbs[school_mask][aura_index] = 0
 
     def can_absorb(self, spell_school_mask: SpellSchoolMask):
-        return spell_school_mask in self._school_absorbs and self._school_absorbs[spell_school_mask] > 0 or \
-               any(spell_school_mask & mask for mask in self._school_absorbs.keys())
+        return spell_school_mask in self._school_absorbs and any(self._school_absorbs[spell_school_mask].values()) > 0 \
+               or any(spell_school_mask & mask for mask in self._school_absorbs.keys())
 
-    def apply_school_absorb_for_damage(self, damage_info):
+    def get_school_absorb_for_damage(self, damage_info):
         if not self.can_absorb(damage_info.damage_school_mask):
-            return
+            return 0
 
         school_mask = [mask for mask in self._school_absorbs.keys() if damage_info.damage_school_mask & mask][0]
+        absorb_capability = 0   # Merge available sources for this school mask.
+        damage_to_mitigate = damage_info.original_damage
+        for aura_index, remaining in list(self._school_absorbs[school_mask].items()):
+            if remaining:
+                absorb_capability += remaining
+                absorb = absorb_capability - damage_to_mitigate
+                self._school_absorbs[school_mask][aura_index] = max(0, absorb)
+                # Complete absorb.
+                if absorb >= 0:
+                    damage_to_mitigate = 0
+                # Source depleted.
+                else:
+                    damage_to_mitigate -= remaining
 
-        absorb = self._school_absorbs[school_mask] - damage_info.original_damage
-        if absorb >= 0:
-            damage_info.absorb = damage_info.original_damage
-            damage_info.total_damage = 0
-        else:
-            damage_info.absorb = damage_info.original_damage - abs(absorb)
-            damage_info.total_damage = damage_info.original_damage - damage_info.absorb
+            # Cancel depleted aura.
+            if not self._school_absorbs[school_mask][aura_index]:
+                # Remove source school absorb.
+                self._school_absorbs[school_mask].pop(aura_index, None)
+                # No more sources available for this school, remove the entire school.
+                if len(self._school_absorbs[school_mask]) == 0:
+                    del self._school_absorbs[school_mask]
+                aura = self.aura_manager.get_aura_by_index(aura_index)
+                if aura:
+                    self.aura_manager.remove_aura(aura)
 
-        if damage_info.absorb:
-            damage_info.hit_info |= HitInfo.ABSORBED
-            damage_info.hit_info &= ~HitInfo.SUCCESS
-
-        self._school_absorbs[school_mask] = max(0, absorb)
-        print(f'Absorb {SpellSchoolMask(school_mask).name} {self._school_absorbs[school_mask]}')
-        print(f'Total damage: {damage_info.total_damage}')
+        # Calculate absorb.
+        absorb = absorb_capability - damage_info.original_damage
+        damage = damage_info.original_damage
+        return int(damage if absorb >= 0 else damage - abs(absorb))
 
     def set_immunity(self, immunity_type: SpellImmunity, source_id, immunity_arg: int = -1, immune=True):
         # Note: source ID can be an aura slot or -1 for an innate immunity.

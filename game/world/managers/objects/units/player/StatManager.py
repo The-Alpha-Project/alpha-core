@@ -633,7 +633,7 @@ class StatManager(object):
             # damage_dealt *= 1 - reduction
 
         # Damage taken reduction can bring damage to negative, limit to 0.
-        return max(0, damage_dealt)
+        return max(0, int(damage_dealt))
 
     def roll_proc_chance(self, base_chance: float) -> bool:
         chance = base_chance/100 + self.get_total_stat(UnitStats.PROC_CHANCE)

@@ -324,7 +324,7 @@ class AuraEffectHandler:
         else:
             school_mask = 1 << school
 
-        effect_target.set_school_absorb(school_mask, aura.get_effect_points(), absorb=not remove)
+        effect_target.set_school_absorb(school_mask, aura.index, aura.get_effect_points(), absorb=not remove)
 
     @staticmethod
     def handle_school_immunity(aura, effect_target, remove):
