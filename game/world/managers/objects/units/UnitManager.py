@@ -686,9 +686,6 @@ class UnitManager(ObjectManager):
             damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
             damage_info.original_damage = int(damage_info.original_damage * crit_multiplier)
 
-        if casting_spell.casts_on_swing():
-            damage_info.hit_info |= SpellHitFlags.HIT_FLAG_DEFERRED
-
         # TODO: Unlike melee, setting the target state or removing hit flags does not remove the unit animation
         #  when taking damage.
         damage_info.absorb = target.get_school_absorb_for_damage(damage_info)
