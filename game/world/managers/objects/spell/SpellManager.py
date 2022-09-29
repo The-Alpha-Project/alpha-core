@@ -16,6 +16,7 @@ from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
+from game.world.managers.objects.spell.ExtendedSpellData import SpellEffectModSpeed
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -26,7 +27,8 @@ from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes,
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools, \
+    AuraTypes
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
@@ -125,6 +127,23 @@ class SpellManager:
 
             # Shapeshift passives are only applied on shapeshift change.
             if spell_template.ShapeshiftMask:
+                continue
+
+            # Mod speed auras must be applied once the player has been created. (Create packet sent).
+            if SpellEffectModSpeed.has_mod_speed_effect(spell_template):
+                continue
+
+            if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+                self.apply_passive_spell_effects(spell_template)
+
+    def cast_passive_mod_speed(self):
+        for spell_id in self.spells.keys():
+            # Skip inactive spells.
+            if not self.spells[spell_id].active:
+                continue
+            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+
+            if not SpellEffectModSpeed.has_mod_speed_effect(spell_template):
                 continue
 
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
