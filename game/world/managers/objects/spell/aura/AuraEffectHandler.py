@@ -315,6 +315,18 @@ class AuraEffectHandler:
                                    immunity_arg=aura.spell_effect.misc_value, immune=not remove)
 
     @staticmethod
+    def handle_school_absorb(aura, effect_target, remove):
+        school = aura.spell_effect.misc_value
+        if school == -1:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
+        elif school == -2:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        else:
+            school_mask = 1 << school
+
+        effect_target.set_school_absorb(school_mask, aura.index, aura.get_effect_points(), absorb=not remove)
+
+    @staticmethod
     def handle_school_immunity(aura, effect_target, remove):
         school = aura.spell_effect.misc_value
         if school == -1:
@@ -643,6 +655,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MECHANIC_IMMUNITY: AuraEffectHandler.handle_mechanic_immunity,
 
     # Stat modifiers.
+    AuraTypes.SPELL_AURA_SCHOOL_ABSORB: AuraEffectHandler.handle_school_absorb,
     AuraTypes.SPELL_AURA_MOD_RESISTANCE: AuraEffectHandler.handle_mod_resistance,
     AuraTypes.SPELL_AURA_MOD_BASE_RESISTANCE: AuraEffectHandler.handle_mod_base_resistance,
     AuraTypes.SPELL_AURA_MOD_STAT: AuraEffectHandler.handle_mod_stat,

@@ -250,6 +250,11 @@ class AuraManager:
             auras.append(aura)
         return auras
 
+    def get_aura_by_index(self, aura_index) -> Optional[AppliedAura]:
+        if aura_index not in self.active_auras:
+            return None
+        return self.active_auras[aura_index]
+
     def get_auras_by_type(self, aura_type) -> list[AppliedAura]:
         auras = []
         for aura in list(self.active_auras.values()):

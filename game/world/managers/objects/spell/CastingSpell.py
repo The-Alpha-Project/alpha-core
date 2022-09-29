@@ -19,7 +19,7 @@ from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity
+    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask
 
 
 class CastingSpell:
@@ -149,6 +149,15 @@ class CastingSpell:
         effect.targets.resolve_targets()
         effect_info = effect.targets.get_effect_target_miss_results()
         self.object_target_results = self.object_target_results | effect_info
+
+    def get_school_mask(self):
+        if self.spell_entry.School == -1:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
+        elif self.spell_entry.School == -2:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        else:
+            school_mask = 1 << self.spell_entry.School
+        return school_mask
 
     def get_ammo_for_cast(self) -> Optional[ItemManager]:
         if not self.is_ranged_weapon_attack():
@@ -461,7 +470,7 @@ class CastingSpell:
         damage_info.target = victim
         damage_info.attack_type = self.spell_attack_type if self.spell_attack_type != -1 else 0
 
-        damage_info.damage += damage
+        damage_info.original_damage += damage
         damage_info.damage_school_mask = self.spell_entry.School
         # Not taking "subdamages" into account.
         damage_info.total_damage = max(0, damage - absorb)
