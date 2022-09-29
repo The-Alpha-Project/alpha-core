@@ -391,6 +391,7 @@ class UnitManager(ObjectManager):
         if not damage_info.hit_info & HitInfo.UNIT_DEAD:
             if damage_info.hit_info & HitInfo.SUCCESS:
                 self.handle_melee_attack_procs(damage_info)
+            self.handle_melee_attack_procs(damage_info)
         else:  # Reset extra attacks on target death.
             self.extra_attacks = 0
 
