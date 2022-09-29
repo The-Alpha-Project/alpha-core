@@ -7,6 +7,7 @@ from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
@@ -654,7 +655,7 @@ class CommandManager(object):
     @staticmethod
     def die(world_session, args):
         unit = CommandManager._target_or_self(world_session)
-        world_session.player_mgr.deal_damage(unit, unit.health)
+        world_session.player_mgr.deal_damage(unit, DamageInfoHolder(total_damage=unit.health))
 
         return 0, ''
 

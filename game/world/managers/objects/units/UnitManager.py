@@ -436,7 +436,6 @@ class UnitManager(ObjectManager):
             damage_info.target_state = VictimStates.VS_EVADE
         elif damage_info.hit_info & HitInfo.MISS:
             damage_info.base_damage = damage_info.total_damage = 0
-            damage_info.target_state = VictimStates.VS_NONE
         elif damage_info.hit_info & HitInfo.ABSORBED:
             # Complete absorb, remove success hit flag, only applies for absorb/immune.
             if damage_info.base_damage == damage_info.absorb:
@@ -506,7 +505,7 @@ class UnitManager(ObjectManager):
                                     include_self=self.get_type_id() == ObjectTypeIds.ID_PLAYER)
 
         # Damage effects
-        self.deal_damage(damage_info.target, damage_info.total_damage)
+        self.deal_damage(damage_info.target, damage_info)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
                                      used_ammo: Optional[ItemManager] = None, apply_bonuses=True):
@@ -693,32 +692,29 @@ class UnitManager(ObjectManager):
 
         return damage_info
 
-    def deal_damage(self, target, damage, is_periodic=False, casting_spell=None):
+    def deal_damage(self, target, damage_info, is_periodic=False, casting_spell=None):
         if not target or not target.is_alive:
             return
 
         if target.is_evading:
             return
 
-        target.receive_damage(damage, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
+        target.receive_damage(damage_info, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
 
-    def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
+    def receive_damage(self, damage_info, source=None, is_periodic=False, casting_spell=None):
         # This method will return whether or not the unit is suitable to keep receiving damage.
         if not self.is_alive:
             return False
 
-        if source is not self and not is_periodic and amount > 0:
+        if source is not self and not is_periodic and damage_info.total_damage > 0:
             self.aura_manager.check_aura_interrupts(received_damage=True)
             self.spell_manager.check_spell_interrupts(received_damage=True)
 
-        new_health = self.health - amount
+        new_health = self.health - damage_info.total_damage
         if new_health <= 0:
             self.die(killer=source)
             return False
         else:
-            damage_info = DamageInfoHolder()
-            damage_info.total_damage = max(0, amount)
-            damage_info.target = self
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
         return True
@@ -789,7 +785,7 @@ class UnitManager(ObjectManager):
         self.handle_spell_skill_gain(casting_spell)
 
         self.send_spell_cast_debug_info(damage_info, miss_reason, casting_spell, is_periodic=is_periodic)
-        self.deal_damage(target, damage_info.total_damage, is_periodic=is_periodic, casting_spell=casting_spell)
+        self.deal_damage(target, damage_info, is_periodic=is_periodic, casting_spell=casting_spell)
 
     def apply_spell_healing(self, target, healing, casting_spell, is_periodic=False):
         miss_info = casting_spell.object_target_results[target.guid].result
