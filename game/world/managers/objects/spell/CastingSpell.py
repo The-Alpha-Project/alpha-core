@@ -461,7 +461,7 @@ class CastingSpell:
         damage_info.target = victim
         damage_info.attack_type = self.spell_attack_type if self.spell_attack_type != -1 else 0
 
-        damage_info.damage += damage
+        damage_info.original_damage += damage
         damage_info.damage_school_mask = self.spell_entry.School
         # Not taking "subdamages" into account.
         damage_info.total_damage = max(0, damage - absorb)
