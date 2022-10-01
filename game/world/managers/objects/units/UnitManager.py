@@ -492,7 +492,7 @@ class UnitManager(ObjectManager):
 
     def send_attack_state_update(self, damage_info):
         is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
-        attack_state_packet = damage_info.get_attack_state_packet()
+        attack_state_packet = damage_info.get_attacker_state_update_packet()
         MapManager.send_surrounding(attack_state_packet, self, include_self=is_player)
 
         # Damage effects
@@ -801,7 +801,7 @@ class UnitManager(ObjectManager):
 
     def send_spell_cast_debug_info(self, damage_info, casting_spell):
         is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
-        spell_debug_packet = damage_info.get_debug_damage_packet()
+        spell_debug_packet = damage_info.get_attacker_state_update_spell_info_packet()
         if not damage_info.hit_info & SpellHitFlags.HEALED:
             MapManager.send_surrounding(spell_debug_packet, self, include_self=is_player)
             damage_done_packet = damage_info.get_damage_done_packet()

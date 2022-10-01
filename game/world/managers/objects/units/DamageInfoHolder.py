@@ -43,7 +43,7 @@ class DamageInfoHolder:
         self.spell_school = spell_school
         self.spell_miss_reason = spell_miss_reason
 
-    # TODO: Need better understanding of the how the client is handling this opcode in order to produce
+    # TODO: Need better understanding of how the client is handling this opcode in order to produce
     #  the right packet structure.
     def get_damage_done_packet(self):
         flags = WorldTextFlags.NORMAL_DAMAGE
@@ -53,28 +53,29 @@ class DamageInfoHolder:
             flags &= ~(WorldTextFlags.NORMAL_DAMAGE | WorldTextFlags.CRIT)
             flags |= WorldTextFlags.MISS_ABSORBED
 
-        # Spell ID (0 allows client to display damage from dots and cast on swing spells)
+        # Spell ID (0 allows client to display damage from dots and cast on swing spells).
         data = pack('<Q2IiIQ', self.target.guid, self.total_damage, self.base_damage, flags, 0, self.attacker.guid)
         return PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, data)
 
-    def get_debug_damage_packet(self):
+    def get_attacker_state_update_spell_info_packet(self):
         data = self._get_debug_spell_header()
+        # Spell cast not successful.
         if self.spell_miss_reason > SpellMissReason.MISS_REASON_NONE:
             data += pack('<I', self.spell_miss_reason)
             return PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS, data)
-        # Did damage/heal.
+        # Spell cast did damage or healed.
         elif not self.hit_info & SpellHitFlags.NON_DAMAGE_SPELL and not self.hit_info & SpellHitFlags.NONE:
             data += pack('<If3I', self.total_damage, self.base_damage, self.spell_school, self.base_damage, self.absorb)
 
         return PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELL, data)
 
-    def get_attack_state_packet(self):
+    def get_attacker_state_update_packet(self):
         data = pack('<I2QIBIf7I',
                     self.hit_info,
                     self.attacker.guid,
                     self.target.guid,
                     self.total_damage,
-                    1,  # Sub damage count
+                    1,  # Sub damage count.
                     self.damage_school_mask,
                     self.total_damage,
                     self.base_damage,
