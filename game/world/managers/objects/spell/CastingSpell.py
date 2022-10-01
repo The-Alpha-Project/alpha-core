@@ -19,7 +19,7 @@ from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask
+    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags
 
 
 class CastingSpell:
@@ -149,6 +149,9 @@ class CastingSpell:
         effect.targets.resolve_targets()
         effect_info = effect.targets.get_effect_target_miss_results()
         self.object_target_results = self.object_target_results | effect_info
+
+    def get_attack_type(self):
+        return self.spell_attack_type if self.spell_attack_type != -1 else 0
 
     def get_school_mask(self):
         if self.spell_entry.School == -1:
@@ -464,19 +467,13 @@ class CastingSpell:
         combo_gain = max(0, self.spent_combo_points - 1) * base_duration
         return min(base_duration + gain_per_level, self.duration_entry.MaxDuration) + combo_gain
 
-    def get_cast_damage_info(self, attacker, victim, damage, absorb):
-        damage_info = DamageInfoHolder()
-        damage_info.attacker = attacker
-        damage_info.target = victim
-        damage_info.attack_type = self.spell_attack_type if self.spell_attack_type != -1 else 0
-
-        damage_info.base_damage += damage
-        damage_info.damage_school_mask = self.spell_entry.School
-        # Not taking "subdamages" into account.
-        damage_info.total_damage = max(0, damage - absorb)
-        damage_info.absorb = absorb
-        damage_info.hit_info = HitInfo.DAMAGE
-
+    def get_cast_damage_info(self, attacker, victim, damage, absorb, healing=False):
+        damage_info = DamageInfoHolder(attacker=attacker, target=victim,
+                                       attack_type=self.get_attack_type(),
+                                       base_damage=damage, damage_school_mask=self.get_school_mask(),
+                                       spell_id=self.spell_entry.ID, spell_school=self.spell_entry.School,
+                                       total_damage=max(0, damage - absorb), absorb=absorb,
+                                       hit_info=HitInfo.DAMAGE if not healing else SpellHitFlags.HEALED)
         return damage_info
 
     def load_effects(self):

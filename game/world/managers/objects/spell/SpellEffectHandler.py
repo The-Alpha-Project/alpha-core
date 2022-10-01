@@ -47,11 +47,12 @@ class SpellEffectHandler:
             if casting_spell.is_target_immune() or \
                     (effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
                      casting_spell.is_target_immune_to_aura()):
-                caster.spell_manager.send_cast_immune_result(target, spell_id)
+                caster.spell_manager.send_cast_immune_result(target, casting_spell)
                 return
 
             # Effect type.
-            if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT, effect.effect_type, spell_id=spell_id):
+            if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT, effect.effect_type,
+                                      casting_spell=casting_spell):
                 return
 
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)

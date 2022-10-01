@@ -724,16 +724,19 @@ class StatManager(object):
         
         return hit_info
 
-    def get_spell_attack_result_against_self(self, attacker, spell_school: SpellSchools, spell_attack_type: AttackTypes = -1):
+    def get_spell_attack_result_against_self(self, attacker, spell_school: SpellSchools, is_periodic=False):
+        if is_periodic:
+            return SpellHitFlags.DAMAGE
+
         is_normal_school = spell_school == SpellSchools.SPELL_SCHOOL_NORMAL
         critical_type = UnitStats.CRITICAL if is_normal_school else UnitStats.SPELL_CRITICAL
         attacker_critical_chance = attacker.stat_manager.get_total_stat(critical_type, accept_float=True)
 
         roll = random.random()
         if roll < attacker_critical_chance:
-            return SpellHitFlags.HIT_FLAG_CRIT
+            return SpellHitFlags.CRIT
 
-        return SpellHitFlags.HIT_FLAG_NORMAL
+        return SpellHitFlags.DAMAGE
 
     def update_base_weapon_attributes(self, attack_type=0):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
