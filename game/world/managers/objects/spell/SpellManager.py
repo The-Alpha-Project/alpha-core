@@ -660,7 +660,8 @@ class SpellManager:
         # Validate if this spell crashes the client.
         # Force SpellCastFlags.CAST_FLAG_PROC, which hides the start cast.
         if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT and \
-                not ExtendedSpellData.UnitSpellsValidator.spell_precast_crashes(casting_spell):
+                not ExtendedSpellData.UnitSpellsValidator.spell_has_invalid_precast_kit(casting_spell):
+            Logger.warning(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid pre cast kit.')
             casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_PROC
 
         source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
