@@ -218,7 +218,7 @@ class UnitSpellsValidator:
 
     @staticmethod
     def unit_can_cast(casting_spell):
-        return casting_spell.spell_visual_entry and casting_spell.spell_visual_entry not in \
+        return casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.PrecastKit not in \
                UnitSpellsValidator._INVALID_PRECAST_KITS_
 
 
