@@ -208,6 +208,19 @@ class ProfessionInfo:
         return 0
 
 
+class UnitSpellsValidator:
+    # Spells that causes the client to crash.
+    # Might be that these spell were not used in alpha.
+    _INVALID_SPELLS = {
+        3129,  # Frost Breath, crashes both on Unit and Player cast.
+        3131,  # Frost Breath, crashes both on Unit and Player cast.
+    }
+
+    @staticmethod
+    def unit_can_cast(spell_id):
+        return spell_id not in UnitSpellsValidator._INVALID_SPELLS
+
+
 class SpellEffectModSpeed:
     _MOD_SPEED_AURAS = {
         AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED,

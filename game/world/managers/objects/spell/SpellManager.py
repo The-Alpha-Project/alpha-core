@@ -637,6 +637,12 @@ class SpellManager:
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return  # Non-unit casters should not broadcast their casts.
 
+        # Validate if this spell crashes the client, avoid sending spell start if it does.
+        # Only Spell GO will be sent.
+        if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT and \
+                not ExtendedSpellData.UnitSpellsValidator.unit_can_cast(casting_spell.spell_entry.ID):
+            return
+
         source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
         data = [source_guid, self.caster.guid,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
@@ -771,7 +777,8 @@ class SpellManager:
             for target_guid in guids:
                 data.append(target_guid)
 
-            if result == SpellMissReason.MISS_REASON_NONE:  # Write miss count at the end of hits since it needs to be written even if none happen.
+            # Write miss count at the end of hits since it needs to be written even if none happen.
+            if result == SpellMissReason.MISS_REASON_NONE:
                 signature += 'B'
                 data.append(miss_count)
 
