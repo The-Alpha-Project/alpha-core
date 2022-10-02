@@ -212,8 +212,8 @@ class UnitSpellsValidator:
     # Spells that causes the client to crash.
     # Might be that these spells were not used in alpha.
     _INVALID_SPELLS = {
-        3129,  # Frost Breath, crashes both on Unit and Player cast.
-        3131,  # Frost Breath, crashes both on Unit and Player cast.
+        3129,  # Frost Breath, crashes both on Unit and Player cast. (Player cast does not even reach server)
+        3131,  # Frost Breath, crashes both on Unit and Player cast. (Player cast does not even reach server)
     }
 
     @staticmethod
