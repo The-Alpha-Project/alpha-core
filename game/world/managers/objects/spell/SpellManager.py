@@ -659,11 +659,11 @@ class SpellManager:
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return  # Non-unit casters should not broadcast their casts.
 
-        # Validate if this spell crashes the client, avoid sending spell start if it does.
-        # Only Spell GO will be sent.
+        # Validate if this spell crashes the client.
+        # Force SpellCastFlags.CAST_FLAG_PROC, which hides the start cast.
         if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT and \
-                not ExtendedSpellData.UnitSpellsValidator.unit_can_cast(casting_spell):
-            return
+                not ExtendedSpellData.UnitSpellsValidator.spell_precast_crashes(casting_spell):
+            casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_PROC
 
         source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
         data = [source_guid, self.caster.guid,
