@@ -44,7 +44,7 @@ class SpellManager:
         for spell in RealmDatabaseManager.character_get_spells(self.caster.guid):
             self.spells[spell.spell] = spell
 
-    def learn_spell(self, spell_id, cast_on_learn=False) -> bool:
+    def can_learn_spell(self, spell_id):
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return False
 
@@ -53,6 +53,24 @@ class SpellManager:
             return False
 
         if spell_id in self.spells:
+            return False
+
+        # If a profession spell is learned for this spell, check if we can actually add that skill.
+        related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
+        if related_profession_skill and not self.caster.skill_manager.has_skill(related_profession_skill) and \
+                self.caster.skill_manager.has_reached_skills_limit():
+            return False
+
+        character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill, but it is a valid skill, check if we can add that skill.
+        if not character_skill and skill and not self.caster.skill_manager.has_skill(skill.ID) and \
+                self.caster.skill_manager.has_reached_skills_limit():
+            return False
+
+        return True
+
+    def learn_spell(self, spell_id, cast_on_learn=False) -> bool:
+        if not self.can_learn_spell(spell_id):
             return False
 
         # If a profession spell is learned, grant the required skill.
