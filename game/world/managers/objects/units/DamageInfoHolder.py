@@ -16,7 +16,7 @@ class DamageInfoHolder:
                  base_damage=0,
                  absorb=0,
                  resist=0,
-                 proc_spell=0,
+                 proc_victim_spell=0,
                  target_state=0,
                  hit_info=HitInfo.DAMAGE,
                  proc_attacker=ProcFlags.NONE,
@@ -33,7 +33,7 @@ class DamageInfoHolder:
         self.base_damage = base_damage
         self.absorb = absorb
         self.resist = resist
-        self.proc_spell = proc_spell
+        self.proc_victim_spell = proc_victim_spell
         self.target_state = target_state
         self.hit_info = hit_info
         self.proc_attacker = proc_attacker
@@ -83,7 +83,7 @@ class DamageInfoHolder:
                     self.target_state,
                     self.resist,
                     0, 0,
-                    self.proc_spell)
+                    self.proc_victim_spell)
         return PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data)
 
     def _get_debug_spell_header(self):
