@@ -423,11 +423,10 @@ class CreatureManager(UnitManager):
             auras = {int(aura) for aura in str(self.creature_template.auras).split()}
 
         # Addon auras.
-        addon = self.addon
-        if addon:
+        if self.addon:
             # Check spawn auras.
-            if addon.auras:
-                auras.update({int(aura) for aura in str(addon.auras).split()})
+            if self.addon.auras:
+                auras.update({int(aura) for aura in str(self.addon.auras).split()})
 
         return auras
 
