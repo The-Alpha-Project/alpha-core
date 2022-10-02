@@ -209,7 +209,7 @@ class ProfessionInfo:
 
 
 class UnitSpellsValidator:
-    # Spells that causes the client to crash.
+    # Spells pre cast kits that causes the client to crash.
     # Might be that these spells were not used in alpha.
     # e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player cast. (Player cast does not even reach server)
     _INVALID_PRECAST_KITS_ = {
