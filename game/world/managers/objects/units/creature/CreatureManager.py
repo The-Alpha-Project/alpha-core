@@ -252,22 +252,21 @@ class CreatureManager(UnitManager):
             if self.creature_template.mount_display_id > 0:
                 self.mount(self.creature_template.mount_display_id)
 
-            addon = self.addon
-            if addon:
-                self.set_stand_state(addon.stand_state)
-                self.set_weapon_mode(addon.sheath_state)
+            if self.addon:
+                self.set_stand_state(self.addon.stand_state)
+                self.set_weapon_mode(self.addon.sheath_state)
 
                 # Set emote state if available.
-                if addon.emote_state:
-                    self.set_emote_state(addon.emote_state)
+                if self.addon.emote_state:
+                    self.set_emote_state(self.addon.emote_state)
 
                 # Update display id if available.
-                if addon.display_id:
-                    self.set_display_id(addon.display_id)
+                if self.addon.display_id:
+                    self.set_display_id(self.addon.display_id)
 
                 # Mount this creature if defined (will override template mount).
-                if addon.mount_display_id > 0:
-                    self.mount(addon.mount_display_id)
+                if self.addon.mount_display_id > 0:
+                    self.mount(self.addon.mount_display_id)
 
             # Cast default auras for this unit.
             self.aura_manager.apply_default_auras()
