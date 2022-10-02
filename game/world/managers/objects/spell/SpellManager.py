@@ -76,7 +76,7 @@ class SpellManager:
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
         if not spell:
             return False
-        
+
         # If a profession spell is learned, grant the required skill.
         related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
         if related_profession_skill and not self.caster.skill_manager.has_skill(related_profession_skill):
@@ -662,7 +662,7 @@ class SpellManager:
         # Validate if this spell crashes the client, avoid sending spell start if it does.
         # Only Spell GO will be sent.
         if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT and \
-                not ExtendedSpellData.UnitSpellsValidator.unit_can_cast(casting_spell.spell_entry.ID):
+                not ExtendedSpellData.UnitSpellsValidator.unit_can_cast(casting_spell):
             return
 
         source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid

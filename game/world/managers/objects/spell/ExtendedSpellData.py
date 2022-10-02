@@ -211,14 +211,15 @@ class ProfessionInfo:
 class UnitSpellsValidator:
     # Spells that causes the client to crash.
     # Might be that these spells were not used in alpha.
-    _INVALID_SPELLS = {
-        3129,  # Frost Breath, crashes both on Unit and Player cast. (Player cast does not even reach server)
-        3131,  # Frost Breath, crashes both on Unit and Player cast. (Player cast does not even reach server)
+    # e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player cast. (Player cast does not even reach server)
+    _INVALID_PRECAST_KITS_ = {
+        703,
     }
 
     @staticmethod
-    def unit_can_cast(spell_id):
-        return spell_id not in UnitSpellsValidator._INVALID_SPELLS
+    def unit_can_cast(casting_spell):
+        return casting_spell.spell_visual_entry and casting_spell.spell_visual_entry not in \
+               UnitSpellsValidator._INVALID_PRECAST_KITS_
 
 
 class SpellEffectModSpeed:
