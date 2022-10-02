@@ -458,7 +458,6 @@ class UnitManager(ObjectManager):
         elif damage_info.hit_info & HitInfo.BLOCK:
             # 0.6 patch notes: "Blocking an attack no longer avoids all of the damage of an attack."
             # Completely mitigate damage on block.
-            damage_info.blocked_amount = damage_info.base_damage
             damage_info.base_damage = damage_info.total_damage = 0
             damage_info.target_state = VictimStates.VS_BLOCK
             damage_info.proc_victim |= ProcFlags.BLOCK
