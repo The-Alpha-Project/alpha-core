@@ -209,14 +209,14 @@ class ProfessionInfo:
 
 
 class UnitSpellsValidator:
-    # For further information:
-    # https://github.com/The-Alpha-Project/alpha-core/issues/655
-    # https://github.com/The-Alpha-Project/alpha-core/issues/383
-    # Spells pre cast kits that causes the client to crash.
-    # Might be that these spells were not used in alpha.
-    # e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player cast. (Player cast does not even reach server)
+    # TODO: For further investigation:
+    #  https://github.com/The-Alpha-Project/alpha-core/issues/655
+    #  https://github.com/The-Alpha-Project/alpha-core/issues/383
+    #  Spells pre cast kits that cause the client to crash.
+    #  Might be that these spells were not used in alpha.
+    #  e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player cast. (Player cast does not even reach server).
     _INVALID_PRECAST_KITS_ = {
-        703,
+        703
     }
 
     @staticmethod
