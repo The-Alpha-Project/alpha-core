@@ -23,13 +23,11 @@ from game.world.managers.objects.units.player.EnchantmentManager import Enchantm
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
-from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, \
-    VictimStates
+from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools, \
-    AuraTypes
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
@@ -44,7 +42,7 @@ class SpellManager:
         for spell in RealmDatabaseManager.character_get_spells(self.caster.guid):
             self.spells[spell.spell] = spell
 
-    def learn_spell(self, spell_id, cast_on_learn=False) -> bool:
+    def can_learn_spell(self, spell_id):
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return False
 
@@ -53,6 +51,28 @@ class SpellManager:
             return False
 
         if spell_id in self.spells:
+            return False
+
+        # If a profession spell is learned for this spell, check if we can actually add that skill.
+        related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
+        if related_profession_skill and not self.caster.skill_manager.has_skill(related_profession_skill) and \
+                self.caster.skill_manager.has_reached_skills_limit():
+            return False
+
+        character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
+        # Character does not have the skill, but it is a valid skill, check if we can add that skill.
+        if not character_skill and skill and not self.caster.skill_manager.has_skill(skill.ID) and \
+                self.caster.skill_manager.has_reached_skills_limit():
+            return False
+
+        return True
+
+    def learn_spell(self, spell_id, cast_on_learn=False) -> bool:
+        if not self.can_learn_spell(spell_id):
+            return False
+
+        spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+        if not spell:
             return False
 
         # If a profession spell is learned, grant the required skill.
@@ -637,6 +657,13 @@ class SpellManager:
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return  # Non-unit casters should not broadcast their casts.
 
+        # Validate if this spell crashes the client.
+        # Force SpellCastFlags.CAST_FLAG_PROC, which hides the start cast.
+        if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT and \
+                not ExtendedSpellData.UnitSpellsValidator.spell_has_invalid_precast_kit(casting_spell):
+            Logger.warning(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid pre cast kit.')
+            casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_PROC
+
         source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
         data = [source_guid, self.caster.guid,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
@@ -771,7 +798,8 @@ class SpellManager:
             for target_guid in guids:
                 data.append(target_guid)
 
-            if result == SpellMissReason.MISS_REASON_NONE:  # Write miss count at the end of hits since it needs to be written even if none happen.
+            # Write miss count at the end of hits since it needs to be written even if none happen.
+            if result == SpellMissReason.MISS_REASON_NONE:
                 signature += 'B'
                 data.append(miss_count)
 

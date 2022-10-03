@@ -48,6 +48,8 @@ class TrainerBuySpellHandler(object):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
         elif spell_id in player_mgr.spell_manager.spells:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+        elif not player_mgr.spell_manager.can_learn_spell(spell_id):
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
 
         if fail_reason:
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
@@ -94,6 +96,8 @@ class TrainerBuySpellHandler(object):
         elif spell_skill_cost > 0 and spell_skill_cost > player_mgr.skill_points:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
         elif trainer_spell.playerspell in player_mgr.spell_manager.spells:
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+        elif not player_mgr.spell_manager.can_learn_spell(player_spell.ID):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
         elif not player_mgr.is_gm and not unit.is_within_interactable_distance(player_mgr):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE

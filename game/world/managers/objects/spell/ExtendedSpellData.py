@@ -208,6 +208,23 @@ class ProfessionInfo:
         return 0
 
 
+class UnitSpellsValidator:
+    # TODO: For further investigation:
+    #  https://github.com/The-Alpha-Project/alpha-core/issues/655
+    #  https://github.com/The-Alpha-Project/alpha-core/issues/383
+    #  Spells pre cast kits that cause the client to crash.
+    #  Might be that these spells were not used in alpha.
+    #  e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player cast. (Player cast does not even reach server).
+    _INVALID_PRECAST_KITS_ = {
+        703
+    }
+
+    @staticmethod
+    def spell_has_invalid_precast_kit(casting_spell):
+        return casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.PrecastKit not in \
+               UnitSpellsValidator._INVALID_PRECAST_KITS_
+
+
 class SpellEffectModSpeed:
     _MOD_SPEED_AURAS = {
         AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED,
