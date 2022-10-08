@@ -250,12 +250,24 @@ class DbcDatabaseManager:
     class SkillLineAbilityHolder:
         SKILL_LINE_ABILITIES = defaultdict(list)
         SKILL_LINE_PRECEDED = dict()
+        SPELLS_BY_SKILL_LINE = defaultdict(list)
+        SKILL_LINES_BY_SKILL = defaultdict(list)
 
         @staticmethod
         def load_skill_line_ability(skill_line_ability):
-            DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[skill_line_ability.Spell].append(skill_line_ability)
+            DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES[skill_line_ability.Spell].append(
+                skill_line_ability)
+
             if skill_line_ability.SupercededBySpell:
                 DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_PRECEDED[skill_line_ability.SupercededBySpell] = skill_line_ability
+
+            if skill_line_ability.Spell:
+                DbcDatabaseManager.SkillLineAbilityHolder.SPELLS_BY_SKILL_LINE[skill_line_ability.SkillLine].append(
+                    skill_line_ability.Spell)
+
+            if skill_line_ability.SkillLine:
+                DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINES_BY_SKILL[skill_line_ability.SkillLine].append(
+                    skill_line_ability)
 
         @staticmethod
         def skill_line_abilities_get_preceded_by_spell(spell_id) -> Optional[SkillLineAbility]:
@@ -265,21 +277,15 @@ class DbcDatabaseManager:
 
         @staticmethod
         def skill_line_abilities_get_by_skill_id(skill_id) -> Optional[list[SkillLineAbility]]:
-            result = []
-            for skill_like_abilities in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.values():
-                for skill_like_ability in skill_like_abilities:
-                    if skill_like_ability.SkillLine == skill_id:
-                        result.append(skill_like_ability)
-            return result
+            if skill_id in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINES_BY_SKILL:
+                return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINES_BY_SKILL[skill_id]
+            return []
 
         @staticmethod
         def spells_get_by_skill_id(skill_id) -> Optional[list[int]]:
-            result = []
-            for skill_like_abilities in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.values():
-                for skill_like_ability in skill_like_abilities:
-                    if skill_like_ability.SkillLine == skill_id:
-                        result.append(skill_like_ability.Spell)
-            return result
+            if skill_id in DbcDatabaseManager.SkillLineAbilityHolder.SPELLS_BY_SKILL_LINE:
+                return DbcDatabaseManager.SkillLineAbilityHolder.SPELLS_BY_SKILL_LINE[skill_id]
+            return []
 
         @staticmethod
         def skill_line_abilities_get_by_spell(spell_id) -> list:
