@@ -273,7 +273,7 @@ class DbcDatabaseManager:
             return result
 
         @staticmethod
-        def spells_get_by_skill_line_id(skill_id) -> Optional[list[int]]:
+        def spells_get_by_skill_id(skill_id) -> Optional[list[int]]:
             result = []
             for skill_like_abilities in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.values():
                 for skill_like_ability in skill_like_abilities:
