@@ -14094,11 +14094,22 @@ begin not atomic
 
         -- FIX spawns_creatures 81391
         UPDATE spawns_creatures SET 
-        position_x=-9336.23828125,
-        position_y=160.5603485107422,
-        position_z=61.39207077026367,
-        orientation=5.26845121383667
+        position_x=-9335.6826171875,
+        position_y=161.30809020996094,
+        position_z=61.4175910949707,
+        orientation=5.344634056091309
         WHERE spawn_id=81391;
+
+        -- FIX spawns_creatures 81343
+        UPDATE spawns_creatures SET 
+        position_x=-9337.3515625,
+        position_y=160.24195861816406,
+        position_z=61.39207077026367,
+        orientation=5.247244834899902
+        WHERE spawn_id=81343;
+
+        -- CREATE spawns_creatures 5403
+        INSERT INTO spawns_creatures VALUES (NULL, 5403, 0, 0, 0, 0, -9340.7060546875, 189.63040161132812, 61.59168243408203, 2.941314935684204, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
         -- Grunenstur Balindom
         UPDATE `creature_template`
