@@ -502,7 +502,7 @@ class SkillManager(object):
         return skill, skill_line_ability
 
     def get_cast_ui_spell_for_skill_id(self, skill_id):
-        skill_line_spells = DbcDatabaseManager.SkillLineAbilityHolder.spells_get_by_skill_line_id(skill_id)
+        skill_line_spells = DbcDatabaseManager.SkillLineAbilityHolder.spells_get_by_skill_id(skill_id)
         for spell_id in skill_line_spells:
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell and spell.Effect_1 == SpellEffects.SPELL_EFFECT_SPELL_CAST_UI:
