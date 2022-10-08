@@ -264,12 +264,21 @@ class DbcDatabaseManager:
             return None
 
         @staticmethod
-        def skill_line_abilities_get_by_skill_line_id(skill_line_id) -> Optional[list[SkillLineAbility]]:
+        def skill_line_abilities_get_by_skill_id(skill_id) -> Optional[list[SkillLineAbility]]:
             result = []
             for skill_like_abilities in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.values():
                 for skill_like_ability in skill_like_abilities:
-                    if skill_like_ability.SkillLine == skill_line_id:
+                    if skill_like_ability.SkillLine == skill_id:
                         result.append(skill_like_ability)
+            return result
+
+        @staticmethod
+        def spells_get_by_skill_line_id(skill_id) -> Optional[list[int]]:
+            result = []
+            for skill_like_abilities in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.values():
+                for skill_like_ability in skill_like_abilities:
+                    if skill_like_ability.SkillLine == skill_id:
+                        result.append(skill_like_ability.Spell)
             return result
 
         @staticmethod

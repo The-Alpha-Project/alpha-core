@@ -90,6 +90,12 @@ class SpellManager:
             if not self.caster.skill_manager.add_skill(skill.ID):
                 return False
 
+        # Check if this skill requires a 'cast ui' spell. e.g. Poisons frame.
+        if skill:
+            cast_ui_spell = self.caster.skill_manager.get_cast_ui_spell_for_skill_id(skill.ID)
+            if cast_ui_spell.ID != spell_id and self.can_learn_spell(cast_ui_spell.ID):
+                self.learn_spell(cast_ui_spell.ID)
+
         db_spell = CharacterSpell()
         db_spell.guid = self.caster.guid
         db_spell.spell = spell_id
