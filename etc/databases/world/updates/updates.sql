@@ -14046,18 +14046,18 @@ begin not atomic
 
         -- FIX spawns_creatures 81393
         UPDATE spawns_creatures SET 
-        position_x=-9342.3916015625,
-        position_y=177.1521453857422,
-        position_z=61.49106216430664,
-        orientation=6.128467559814453
+        position_x=-9340.915,
+        position_y=177.269,
+        position_z=61.491,
+        orientation=5.312
         WHERE spawn_id=81393;
 
         -- FIX spawns_creatures 81388
         UPDATE spawns_creatures SET 
-        position_x=-9338.904296875,
-        position_y=179.11717224121094,
-        position_z=61.49106216430664,
-        orientation=3.813900947570801
+        position_x=-9338.215,
+        position_y=179.913,
+        position_z=61.491,
+        orientation=4.067
         WHERE spawn_id=81388;
 
         -- FIX spawns_creatures 81394
@@ -14070,10 +14070,10 @@ begin not atomic
 
         -- FIX spawns_creatures 81389
         UPDATE spawns_creatures SET 
-        position_x=-9324.546875,
-        position_y=169.15048217773438,
-        position_z=62.6046028137207,
-        orientation=3.4078481197357178
+        position_x=-9325.022,
+        position_y=169.818,
+        position_z=62.616,
+        orientation=2.940
         WHERE spawn_id=81389;
 
         -- FIX spawns_creatures 81385
