@@ -173,7 +173,7 @@ class ClassTrainersSkillGenerator:
                                                                       race_mask, class_mask):
                         continue
 
-                    skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_skill_line_id(
+                    skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_skill_id(
                         skill.ID)
 
                     # Did not find skill line abilities.
