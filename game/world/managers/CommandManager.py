@@ -544,6 +544,7 @@ class CommandManager(object):
                       f'Guid: {creature.get_low_guid()}\n' \
                       f'Entry: {creature.creature_template.entry}\n' \
                       f'Display ID: {creature.current_display_id}\n' \
+                      f'Faction: {creature.faction}\n' \
                       f'X: {creature.location.x}, ' \
                       f'Y: {creature.location.y}, ' \
                       f'Z: {creature.location.z}, ' \

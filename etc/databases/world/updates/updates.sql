@@ -14159,7 +14159,7 @@ begin not atomic
         UPDATE `creature_template` SET `subname` = 'Crocolisk Trainer' WHERE `entry` = 2876;
 
         UPDATE `creature_template` SET `faction` = 11 WHERE `entry` IN (2938, 2942, 5521);
-        UPDATE `creature_template` SET `faction` = 85 WHERE `entry` IN (2938, 2942);
+        UPDATE `creature_template` SET `faction` = 85 WHERE `entry` IN (4881, 4882);
         UPDATE `creature_template` SET `faction` = 12 WHERE `entry` = 5522;
 
         -- Servant of Azora
