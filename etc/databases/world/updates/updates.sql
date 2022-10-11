@@ -14009,5 +14009,149 @@ begin not atomic
 
         insert into applied_updates values ('240920221');
     end if;
+
+    -- 08/10/2022 1
+    if (select count(*) from applied_updates where id='081020221') = 0 then
+        -- CREATE spawns_creatures 5134
+        INSERT INTO spawns_creatures VALUES (NULL, 5134, 0, 0, 0, 0, -4818.14453125, -1300.14013671875, 502.1949157714844, 4.7296671867370605, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_creatures 5135
+        INSERT INTO spawns_creatures VALUES (NULL, 5135, 0, 0, 0, 0, -4822.83447265625, -1300.5174560546875, 502.1949157714844, 1.5440936088562012, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_creatures 2801
+        INSERT INTO spawns_creatures VALUES (NULL, 2801, 0, 0, 0, 0, -4818.74267578125, -1297.106689453125, 502.1949157714844, 3.2059969902038574, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_creatures 2876
+        INSERT INTO spawns_creatures VALUES (NULL, 2876, 0, 0, 0, 0, -5248.9169921875, -3048.378662109375, 340.46343994140625, 1.0830575227737427, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_creatures 2938
+        INSERT INTO spawns_creatures VALUES (NULL, 2938, 0, 0, 0, 0, -9688.8076171875, 677.389892578125, 35.0297966003418, 2.4025301933288574, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_creatures 2942
+        INSERT INTO spawns_creatures VALUES (NULL, 2942, 0, 0, 0, 0, -9487.5478515625, 43.263389587402344, 57.714317321777344, 3.0410609245300293, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- FIX spawns_creatures 223
+        UPDATE spawns_creatures SET 
+        position_x=-5669.9599609375,
+        position_y=-457.5539855957031,
+        position_z=395.48870849609375,
+        orientation=1.6807531118392944
+        WHERE spawn_id=223;
+
+        -- CREATE spawns_creatures 5521
+        INSERT INTO spawns_creatures VALUES (NULL, 5521, 0, 0, 0, 0, -8788.9228515625, 1116.4832763671875, 90.65508270263672, 2.8203659057617188, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- CREATE spawns_creatures 5522
+        INSERT INTO spawns_creatures VALUES (NULL, 5522, 0, 0, 0, 0, -8398.7734375, 648.2799682617188, 95.2513427734375, 0.08168182522058487, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- FIX spawns_creatures 81393
+        UPDATE spawns_creatures SET 
+        position_x=-9342.3916015625,
+        position_y=177.1521453857422,
+        position_z=61.49106216430664,
+        orientation=6.128467559814453
+        WHERE spawn_id=81393;
+
+        -- FIX spawns_creatures 81388
+        UPDATE spawns_creatures SET 
+        position_x=-9338.904296875,
+        position_y=179.11717224121094,
+        position_z=61.49106216430664,
+        orientation=3.813900947570801
+        WHERE spawn_id=81388;
+
+        -- FIX spawns_creatures 81394
+        UPDATE spawns_creatures SET 
+        position_x=-9346.6044921875,
+        position_y=180.0931396484375,
+        position_z=61.49106216430664,
+        orientation=5.917969226837158
+        WHERE spawn_id=81394;
+
+        -- FIX spawns_creatures 81389
+        UPDATE spawns_creatures SET 
+        position_x=-9324.546875,
+        position_y=169.15048217773438,
+        position_z=62.6046028137207,
+        orientation=3.4078481197357178
+        WHERE spawn_id=81389;
+
+        -- FIX spawns_creatures 81385
+        UPDATE spawns_creatures SET 
+        position_x=-9327.1630859375,
+        position_y=167.3548583984375,
+        position_z=62.36800765991211,
+        orientation=5.260592937469482
+        WHERE spawn_id=81385;
+
+        -- FIX spawns_creatures 253000
+        UPDATE spawns_creatures SET 
+        position_x=-9328.7138671875,
+        position_y=166.4746856689453,
+        position_z=62.208248138427734,
+        orientation=5.247241020202637
+        WHERE spawn_id=253000;
+
+        -- FIX spawns_creatures 81391
+        UPDATE spawns_creatures SET 
+        position_x=-9335.6826171875,
+        position_y=161.30809020996094,
+        position_z=61.4175910949707,
+        orientation=5.344634056091309
+        WHERE spawn_id=81391;
+
+        -- FIX spawns_creatures 81343
+        UPDATE spawns_creatures SET 
+        position_x=-9337.3515625,
+        position_y=160.24195861816406,
+        position_z=61.39207077026367,
+        orientation=5.247244834899902
+        WHERE spawn_id=81343;
+
+        -- CREATE spawns_creatures 5403
+        INSERT INTO spawns_creatures VALUES (NULL, 5403, 0, 0, 0, 0, -9340.7060546875, 189.63040161132812, 61.59168243408203, 2.941314935684204, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Grunenstur Balindom
+        UPDATE `creature_template`
+        SET `display_id1`=428
+        WHERE `entry`=2876;
+
+        -- Aldric Hunter
+        UPDATE `creature_template`
+        SET `display_id1`=428
+        WHERE `entry`=2938;
+
+        -- Captured Servant of Azora
+        UPDATE `creature_template`
+        SET `display_id1`=268
+        WHERE `entry`=3096;
+
+        -- Rathorian
+        UPDATE `creature_template`
+        SET `display_id1`=130
+        WHERE `entry`=3470;
+
+        -- Lilith Nefara 
+        UPDATE `creature_template`
+        SET `display_id1`=146
+        WHERE `entry`=1946;
+
+        -- Markel Smythe
+        UPDATE `creature_template`
+        SET `display_id1`=242
+        WHERE `entry`=2499;
+
+        -- Dylan Bissel
+        UPDATE `creature_template`
+        SET `display_id1`=428
+        WHERE `entry`=2942;
+
+        -- Peria Lamenur
+        UPDATE `creature_template`
+        SET `display_id1`=2585
+        WHERE `entry`=2878;
+
+        insert into applied_updates values ('081020221');
+    end if;
 end $
 delimiter ;
