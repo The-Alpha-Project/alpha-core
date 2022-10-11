@@ -14028,7 +14028,7 @@ begin not atomic
         INSERT INTO spawns_creatures VALUES (NULL, 2938, 0, 0, 0, 0, -9688.8076171875, 677.389892578125, 35.0297966003418, 2.4025301933288574, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
         -- CREATE spawns_creatures 2942
-        INSERT INTO spawns_creatures VALUES (NULL, 2942, 0, 0, 0, 0, -9487.5478515625, 43.263389587402344, 57.714317321777344, 3.0410609245300293, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+        INSERT INTO spawns_creatures VALUES (NULL, 2942, 0, 0, 0, 0, -9487.387, 42.313, 57.889, 3.477, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
         -- FIX spawns_creatures 223
         UPDATE spawns_creatures SET 
