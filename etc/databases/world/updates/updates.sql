@@ -14153,5 +14153,18 @@ begin not atomic
 
         insert into applied_updates values ('081020221');
     end if;
+
+    -- 12/10/2022 1
+    if (select count(*) from applied_updates where id='121020221') = 0 then
+        UPDATE `creature_template` SET `subname` = 'Crocolisk Trainer' WHERE `entry` = 2876;
+
+        UPDATE `creature_template` SET `faction` = 11 WHERE `entry` IN (2938, 2942, 5521);
+        UPDATE `creature_template` SET `faction` = 85 WHERE `entry` IN (2938, 2942);
+        UPDATE `creature_template` SET `faction` = 12 WHERE `entry` = 5522;
+
+        -- Servant of Azora
+        UPDATE `creature_template` SET `display_id1` = 268 WHERE `entry` = 1949;
+        insert into applied_updates values ('121020221');
+    end if;
 end $
 delimiter ;
