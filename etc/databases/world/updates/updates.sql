@@ -14163,7 +14163,7 @@ begin not atomic
         UPDATE `creature_template` SET `faction` = 12 WHERE `entry` = 5522;
 
         -- Servant of Azora
-        UPDATE `creature_template` SET `display_id1` = 268 WHERE `entry` = 1949;
+        UPDATE `creature_template` SET `display_id1` = 268, `display_id2` = 0 WHERE `entry` = 1949;
         insert into applied_updates values ('121020221');
     end if;
 end $
