@@ -1104,6 +1104,14 @@ class UnitManager(ObjectManager):
             immunities.pop(source_id)
         self._immunities[immunity_type] = immunities
 
+        # Remove any auras that collide with an added immunity.
+        if not immune:
+            return
+
+        for aura in list(self.aura_manager.active_auras.values()):
+            if aura.spell_effect.is_target_immune(aura.target):
+                self.aura_manager.remove_aura(aura)
+
     def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False):
         type_immunities = self._immunities.get(immunity_type, {})
 
