@@ -638,7 +638,7 @@ class UnitManager(ObjectManager):
         return
 
     # Implemented by PlayerManager
-    def handle_spell_skill_gain(self, casting_spell):
+    def handle_spell_cast_skill_gain(self, casting_spell):
         return False
 
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):

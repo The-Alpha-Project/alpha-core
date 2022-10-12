@@ -1324,8 +1324,8 @@ class PlayerManager(UnitManager):
         self.set_uint32(PlayerFields.PLAYER_CHARACTER_POINTS2, self.skill_points)
 
     # override
-    def handle_spell_skill_gain(self, casting_spell):
-        return self.skill_manager.handle_spell_skill_gain(casting_spell.spell_entry.ID)
+    def handle_spell_cast_skill_gain(self, casting_spell):
+        return self.skill_manager.handle_spell_cast_skill_gain(casting_spell.spell_entry.ID)
 
     # override
     def handle_combat_skill_gain(self, damage_info, spell_id=0):
