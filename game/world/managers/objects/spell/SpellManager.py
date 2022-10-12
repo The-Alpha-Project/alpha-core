@@ -361,6 +361,11 @@ class SpellManager:
         if not update:
             self.handle_procs_for_cast(casting_spell)
 
+            # Handle related skill gain.
+            if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and \
+                    not casting_spell.is_target_immune_to_effects():  # Don't reward skill on full immunity results.
+                self.caster.handle_spell_skill_gain(casting_spell)
+
         for effect in casting_spell.get_effects():
             if not update:
                 effect.start_aura_duration()

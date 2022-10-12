@@ -768,9 +768,6 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        # Handle spell required skill gain.
-        self.handle_spell_skill_gain(casting_spell)
-
         self.send_spell_cast_debug_info(damage_info, casting_spell)
         self.deal_damage(target, damage_info, is_periodic=is_periodic, casting_spell=casting_spell)
 
@@ -784,8 +781,6 @@ class UnitManager(ObjectManager):
         #     "Healing over time generates hate."
         if casting_spell.generates_threat() and not is_periodic:
             self._threat_assist(target, value)
-        # Handle spell required skill gain.
-        self.handle_spell_skill_gain(casting_spell)
 
     def _threat_assist(self, target, source_threat: float):
         if target.in_combat:
