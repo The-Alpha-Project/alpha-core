@@ -1,11 +1,15 @@
 import random
 import time
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import SpellRadius
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AURA_EFFECTS
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
-from utils.constants.SpellCodes import SpellEffects
+from utils.Logger import Logger
+from utils.constants.MiscCodes import ObjectTypeFlags
+from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity
 
 
 class SpellEffect:
@@ -31,6 +35,8 @@ class SpellEffect:
     targets: EffectTargets
     radius_entry: SpellRadius
 
+    _harmful: Optional[bool] = None
+
     # Duration and periodic timing info for auras applied by this effect
     applied_aura_duration = -1
     periodic_effect_ticks = []
@@ -47,7 +53,6 @@ class SpellEffect:
         self.caster_effective_level = casting_spell.caster_effective_level
         self.targets = EffectTargets(casting_spell, self)
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
-
         self.casting_spell = casting_spell
 
         is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS
@@ -103,6 +108,42 @@ class SpellEffect:
         if not self.radius_entry:
             return 0
         return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel * self.caster_effective_level)
+
+    def is_harmful(self):
+        if self._harmful is None:
+            self._harmful = self._resolve_harmful()
+
+        return self._harmful
+
+    def _resolve_harmful(self):
+        if self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA:
+            if self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
+                return True
+
+            if self.casting_spell.initial_target_is_object():
+                return self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
+
+        return not self.targets.can_target_friendly()  # TODO this may not cover all cases.
+
+    def is_target_immune(self, target):
+        # Validate target and check harmfulness.
+        if not target or not isinstance(target, ObjectManager) or \
+            not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT or \
+                (not self.is_harmful() and not
+                 self.casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IMMUNITY_HOSTILE_FRIENDLY_EFFECTS):
+            return False
+
+        # Spell school/effect aura.
+        if self.casting_spell.is_target_immune() or \
+                (self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
+                 self.casting_spell.is_target_immune_to_aura()):
+            return True
+
+        # Effect type.
+        if target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, self.effect_type):
+            return True
+
+        return False
 
     def load_first(self, spell):
         self.effect_type = spell.Effect_1

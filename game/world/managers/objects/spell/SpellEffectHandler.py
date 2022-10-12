@@ -18,7 +18,7 @@ from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, HighGuid, ObjectTypeIds, AttackTypes
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
-    SpellImmunity
+    SpellImmunity, SpellAttributesEx
 from utils.constants.UnitCodes import UnitFlags
 
 
@@ -31,20 +31,9 @@ class SpellEffectHandler:
             return
 
         # Immunities.
-        if target and isinstance(target, ObjectManager) and \
-                target.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            # Spell school/effect aura.
-            if casting_spell.is_target_immune() or \
-                    (effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
-                     casting_spell.is_target_immune_to_aura()):
-                caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
-                return
-
-            # Effect type.
-            # noinspection PyUnresolvedReferences
-            if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT,
-                                      effect.effect_type, spell_id=casting_spell.spell_entry.ID):
-                return
+        if effect.is_target_immune(target):
+            caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
+            return
 
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 
