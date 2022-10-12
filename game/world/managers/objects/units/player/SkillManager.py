@@ -444,7 +444,8 @@ class SkillManager(object):
 
         character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
 
-        if not character_skill or skill_line_ability.TrivialSkillLineRankLow:
+        if not character_skill or (skill.SkillType == SkillLineType.SECONDARY and
+                                   skill.CategoryID == SkillCategories.CLASS_SKILL):
             # Character doesn't have the required skill or the related skill is a profession.
             return False
 
