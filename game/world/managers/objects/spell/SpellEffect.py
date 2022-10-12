@@ -122,7 +122,7 @@ class SpellEffect:
     def is_target_immune(self, target):
         # Validate target and check harmfulness.
         if not target or not isinstance(target, ObjectManager) or \
-            not target.object_type_mask & ObjectTypeFlags.TYPE_UNIT or \
+            not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT or \
                 (not self.is_harmful() and not
                  self.casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IMMUNITY_HOSTILE_FRIENDLY_EFFECTS):
             return False
