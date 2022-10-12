@@ -302,18 +302,6 @@ class AuraEffectHandler:
         damage = aura.get_effect_points()
         aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
 
-    # Immunity effects
-
-    @staticmethod
-    def handle_effect_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_EFFECT, aura.index,
-                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
-
-    @staticmethod
-    def handle_state_immunity(aura, effect_target, remove):
-        effect_target.set_immunity(SpellImmunity.IMMUNITY_AURA, aura.index,
-                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
-
     @staticmethod
     def handle_school_absorb(aura, effect_target, remove):
         school = aura.spell_effect.misc_value
@@ -325,6 +313,18 @@ class AuraEffectHandler:
             school_mask = 1 << school
 
         effect_target.set_school_absorb(school_mask, aura.index, aura.get_effect_points(), absorb=not remove)
+
+    # Immunity effects
+
+    @staticmethod
+    def handle_effect_immunity(aura, effect_target, remove):
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_EFFECT, aura.index,
+                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
+
+    @staticmethod
+    def handle_state_immunity(aura, effect_target, remove):
+        effect_target.set_immunity(SpellImmunity.IMMUNITY_AURA, aura.index,
+                                   immunity_arg=aura.spell_effect.misc_value, immune=not remove)
 
     @staticmethod
     def handle_school_immunity(aura, effect_target, remove):
