@@ -37,7 +37,7 @@ class SpellEffectHandler:
 
         from game.world.managers.objects.units.UnitManager import UnitManager
         if target and isinstance(target, UnitManager):
-            # Only allow applying resurrect on dead targets.
+            # Do not apply spell effects on dead targets unless it's a resurrection effect.
             if not target.is_alive and effect.effect_type != SpellEffects.SPELL_EFFECT_RESURRECT:
                 return
 
