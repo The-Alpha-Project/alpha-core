@@ -21,7 +21,7 @@ class AppliedAura:
         self.max_stacks = ExtendedSpellData.AuraDoseInfo.get_aura_max_stacks(self.spell_id)
 
         self.passive = casting_spell.is_passive()
-        self.harmful = self.resolve_harmful()
+        self.harmful = self.spell_effect.is_harmful()
 
         for effect in casting_spell.get_effects():
             if effect.effect_index >= spell_effect.effect_index:
@@ -44,16 +44,6 @@ class AppliedAura:
 
     def is_periodic(self) -> bool:
         return self.spell_effect.is_periodic()
-
-    def resolve_harmful(self) -> bool:
-        if self.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
-            return True
-
-        if self.source_spell.initial_target_is_object():
-            return self.caster.can_attack_target(self.target)  # TODO not always applicable, ie. arcane missiles
-
-        # Terrain-targeted aura
-        return not self.spell_effect.targets.can_target_friendly()
 
     def get_duration(self):
         return self.spell_effect.applied_aura_duration

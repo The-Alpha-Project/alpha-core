@@ -638,7 +638,7 @@ class UnitManager(ObjectManager):
         return
 
     # Implemented by PlayerManager
-    def handle_spell_skill_gain(self, casting_spell):
+    def handle_spell_cast_skill_gain(self, casting_spell):
         return False
 
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
@@ -768,9 +768,6 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        # Handle spell required skill gain.
-        self.handle_spell_skill_gain(casting_spell)
-
         self.send_spell_cast_debug_info(damage_info, casting_spell)
         self.deal_damage(target, damage_info, is_periodic=is_periodic, casting_spell=casting_spell)
 
@@ -784,8 +781,6 @@ class UnitManager(ObjectManager):
         #     "Healing over time generates hate."
         if casting_spell.generates_threat() and not is_periodic:
             self._threat_assist(target, value)
-        # Handle spell required skill gain.
-        self.handle_spell_skill_gain(casting_spell)
 
     def _threat_assist(self, target, source_threat: float):
         if target.in_combat:
@@ -1103,6 +1098,14 @@ class UnitManager(ObjectManager):
         elif source_id in immunities:
             immunities.pop(source_id)
         self._immunities[immunity_type] = immunities
+
+        # Remove any auras that collide with an added immunity.
+        if not immune:
+            return
+
+        for aura in list(self.aura_manager.active_auras.values()):
+            if aura.spell_effect.is_target_immune(aura.target):
+                self.aura_manager.remove_aura(aura)
 
     def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False):
         type_immunities = self._immunities.get(immunity_type, {})

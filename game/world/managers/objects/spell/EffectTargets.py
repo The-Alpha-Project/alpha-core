@@ -135,8 +135,10 @@ class EffectTargets:
         # TODO if issues arise, add table for specifying ImplicitTargets
 
         # Accept B when it's the correct type and not 0.
-        if self.resolved_targets_b and self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL and \
-                len(self.resolved_targets_b) > 0 and isinstance(self.resolved_targets_b[0], _type):
+        # Also check for SPECIFYING_IMPLICIT_TARGETS since in those cases empty targets should still be prioritized.
+        if self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL and \
+                (self.target_effect.implicit_target_b in SPECIFYING_IMPLICIT_TARGETS or
+                 len(self.resolved_targets_b) > 0 and isinstance(self.resolved_targets_b[0], _type)):
             b_matches_type = True
         if self.resolved_targets_a and len(self.resolved_targets_a) > 0 and isinstance(self.resolved_targets_a[0], _type):
             if not b_matches_type:
@@ -509,7 +511,16 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER: EffectTargets.resolve_gameobject_script_near_caster
 }
 
-FRIENDLY_IMPLICIT_TARGETS = [
+# Targets that should gain priority over A when present in B instead of treating B as secondary targets for the spell.
+SPECIFYING_IMPLICIT_TARGETS = {
+    SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM,  # Used with 22 in A.
+    SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA,  # Used with 18/22 in A.
+    SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT,  # Used with 6/17/18/22 in A (note that 17 is a vector).
+    SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER,  # Used with 22 in A.
+    SpellImplicitTargets.TARGET_ALL_PARTY  # Used with 22 in A.
+}
+
+FRIENDLY_IMPLICIT_TARGETS = {
     SpellImplicitTargets.TARGET_SELF,
     SpellImplicitTargets.TARGET_PET,
     # SpellImplicitTargets.TARGET_EFFECT_SELECT  # All self casts except one hostile aoe
@@ -526,4 +537,4 @@ FRIENDLY_IMPLICIT_TARGETS = [
     SpellImplicitTargets.TARGET_SINGLE_PARTY,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     # SpellImplicitTargets.TARGET_SCRIPT  # Resolved separately
-]
+}

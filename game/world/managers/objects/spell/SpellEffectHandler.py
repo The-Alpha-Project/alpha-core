@@ -41,19 +41,10 @@ class SpellEffectHandler:
             if not target.is_alive and effect.effect_type != SpellEffects.SPELL_EFFECT_RESURRECT:
                 return
 
-            spell_id = casting_spell.spell_entry.ID
-            # Immunities.
-            # Spell school/effect aura.
-            if casting_spell.is_target_immune() or \
-                    (effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
-                     casting_spell.is_target_immune_to_aura()):
-                caster.spell_manager.send_cast_immune_result(target, casting_spell)
-                return
-
-            # Effect type.
-            if target.handle_immunity(caster, SpellImmunity.IMMUNITY_EFFECT, effect.effect_type,
-                                      casting_spell=casting_spell):
-                return
+        # Immunities.
+        if effect.is_target_immune(target):
+            caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
+            return
 
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 

@@ -512,6 +512,7 @@ class SpellImplicitTargets(IntEnum):
     TARGET_INNKEEPER_COORDINATES = 9  # Used in teleport to innkeeper spells
     TARGET_10 = 10  # Only used by "Divine Escape" (1073)
     TARGET_11 = 11  # Only used by "Word of Recall Other" (4)
+    TARGET_EQUIPPED_ITEM = 13  # Only used by Sunder (6570, 7097)
     TARGET_ALL_ENEMY_IN_AREA = 15
     TARGET_ALL_ENEMY_IN_AREA_INSTANT = 16
     TARGET_TABLE_X_Y_Z_COORDINATES = 17  # Used in teleport spells and some other

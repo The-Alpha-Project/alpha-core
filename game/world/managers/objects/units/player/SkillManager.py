@@ -438,13 +438,15 @@ class SkillManager(object):
         return True
 
     # TODO: gain chance, skills mechanics, etc.
-    def handle_spell_skill_gain(self, spell_id):
+    def handle_spell_cast_skill_gain(self, spell_id):
         if not spell_id:
             return False
 
         character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
-        # Character does not have the skill.
-        if not character_skill:
+
+        if not character_skill or (skill.SkillType == SkillLineType.SECONDARY and
+                                   skill.CategoryID == SkillCategories.CLASS_SKILL):
+            # Character doesn't have the required skill or the related skill is a profession.
             return False
 
         roll = random.randint(1, 100)
