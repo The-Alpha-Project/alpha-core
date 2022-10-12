@@ -35,6 +35,12 @@ class SpellEffectHandler:
                          f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
             return
 
+        from game.world.managers.objects.units.UnitManager import UnitManager
+        if target and isinstance(target, UnitManager):
+            # Only allow applying resurrect on dead targets.
+            if not target.is_alive and effect.effect_type != SpellEffects.SPELL_EFFECT_RESURRECT:
+                return
+
         # Immunities.
         if effect.is_target_immune(target):
             caster.spell_manager.send_cast_immune_result(target, casting_spell.spell_entry.ID)
