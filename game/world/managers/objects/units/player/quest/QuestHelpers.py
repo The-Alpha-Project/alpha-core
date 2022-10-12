@@ -17,6 +17,10 @@ class QuestHelpers:
         return quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
 
     @staticmethod
+    def is_quest_scripted(quest_template):
+        return quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_SCRIPT
+
+    @staticmethod
     # noinspection PyUnusedLocal
     def has_required_items_for_quest(player_mgr, quest_template):
         for index in range(1, 5):

@@ -9,12 +9,11 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
-from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -31,13 +30,14 @@ from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQuer
 from network.packet.PacketWriter import *
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
-from utils.constants.SpellCodes import SpellSchools, SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, \
     RegenStatsFlags
 from utils.constants.UpdateFields import *
@@ -161,7 +161,6 @@ class PlayerManager(UnitManager):
             self.next_level_xp = Formulas.PlayerFormulas.xp_to_level(self.level)
             self.is_alive = self.health > 0
 
-            self.object_type_mask |= ObjectTypeFlags.TYPE_PLAYER
             self.update_packet_factory.init_values(self.guid, PlayerFields)
 
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
@@ -259,6 +258,9 @@ class PlayerManager(UnitManager):
         # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
 
+        # Cast passive mod speed spells.
+        self.spell_manager.cast_passive_mod_speed()
+
         # Load & Apply enchantments.
         self.enchantment_manager.apply_enchantments(load=True)
 
@@ -313,12 +315,15 @@ class PlayerManager(UnitManager):
         self.session.save_character()
 
         # Destroy all known objects to self.
-        for guid, known_object in list(self.known_objects.items()):
-            self.destroy_near_object(guid)
+        self.update_known_world_objects(flush=True)
 
         # Flush known items/objects cache.
         self.known_items.clear()
         self.known_objects.clear()
+
+        # Destroy self and self items.
+        self.enqueue_packet(self.get_destroy_packet())
+        self.enqueue_packets(self.inventory.get_inventory_destroy_packets(requester=self).values())
 
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
@@ -372,11 +377,19 @@ class PlayerManager(UnitManager):
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
-    def update_known_world_objects(self):
+    def update_known_world_objects(self, flush=False):
         with self.player_lock:
-            players, creatures, game_objects = MapManager.get_surrounding_objects(self, [ObjectTypeIds.ID_PLAYER,
-                                                                                         ObjectTypeIds.ID_UNIT,
-                                                                                         ObjectTypeIds.ID_GAMEOBJECT])
+            players, creatures, game_objects, corpses, dynamic_objects = \
+                MapManager.get_surrounding_objects(self,
+                                                   [ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT,
+                                                    ObjectTypeIds.ID_GAMEOBJECT, ObjectTypeIds.ID_CORPSE,
+                                                    ObjectTypeIds.ID_DYNAMICOBJECT])
+
+            # Destroy all known objects.
+            if flush:
+                for guid, known_object in list(self.known_objects.items()):
+                    self.destroy_near_object(guid)
+                return
 
             # Which objects were found in self surroundings.
             active_objects = dict()
@@ -399,12 +412,21 @@ class PlayerManager(UnitManager):
                                 self.enqueue_packet(packet)
                     self.known_objects[guid] = player
 
+            # Surrounding corpses.
+            for guid, corpse in corpses.items():
+                if self.guid != guid:
+                    active_objects[guid] = corpse
+                    if guid not in self.known_objects or not self.known_objects[guid]:
+                        # Create packet.
+                        self.enqueue_packet(corpse.generate_create_packet(requester=self))
+                    self.known_objects[guid] = corpse
+
             # Surrounding creatures.
             for guid, creature in creatures.items():
                 active_objects[guid] = creature
                 if guid not in self.known_objects or not self.known_objects[guid]:
                     # We don't know this creature, notify self with its update packet.
-                    self.enqueue_packet(CreatureManager.query_details(creature_mgr=creature))
+                    self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
                     if creature.is_spawned:
                         self.enqueue_packet(creature.generate_create_packet(requester=self))
                         # Get partial movement packet if any.
@@ -427,7 +449,7 @@ class PlayerManager(UnitManager):
                 active_objects[guid] = gobject
                 if guid not in self.known_objects or not self.known_objects[guid]:
                     # We don't know this game object, notify self with its update packet.
-                    self.enqueue_packet(GameObjectManager.query_details(gameobject_mgr=gobject))
+                    self.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject))
                     if gobject.is_spawned:
                         self.enqueue_packet(gobject.generate_create_packet(requester=self))
                         # We only consider 'known' if its spawned, the details query is still sent.
@@ -436,6 +458,18 @@ class PlayerManager(UnitManager):
                         gobject.known_players[self.guid] = self
                 # Player knows the game object but is not spawned anymore, destroy it for self.
                 elif guid in self.known_objects and not gobject.is_spawned:
+                    active_objects.pop(guid)
+
+            # Surrounding dynamic objects.
+            for guid, dynamic_objects in dynamic_objects.items():
+                active_objects[guid] = dynamic_objects
+                if guid not in self.known_objects or not self.known_objects[guid]:
+                    if dynamic_objects.is_spawned:
+                        self.enqueue_packet(dynamic_objects.generate_create_packet(requester=self))
+                        # We only consider 'known' if its spawned, the details query is still sent.
+                        self.known_objects[guid] = dynamic_objects
+                # Player knows the dynamic object but is not spawned anymore, destroy it for self.
+                elif guid in self.known_objects and not dynamic_objects.is_spawned:
                     active_objects.pop(guid)
 
             # World objects which are known but no longer active to self should be destroyed.
@@ -447,13 +481,20 @@ class PlayerManager(UnitManager):
             active_objects.clear()
 
     def destroy_near_object(self, guid):
+        implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
         known_object = self.known_objects.get(guid)
         if known_object:
             del self.known_objects[guid]
             # Remove self from creature/go known players if needed.
-            if known_object.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            if known_object.get_type_id() in implements_known_players:
                 if self.guid in known_object.known_players:
                     del known_object.known_players[self.guid]
+            # Destroy other player items for self.
+            if known_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                destroy_packets = known_object.inventory.get_inventory_destroy_packets(requester=self)
+                for guid in destroy_packets.keys():
+                    self.known_items.pop(guid, None)
+                self.enqueue_packets(destroy_packets.values())
             # Destroy world object from self.
             self.enqueue_packet(known_object.get_destroy_packet())
             return True
@@ -541,6 +582,12 @@ class PlayerManager(UnitManager):
             # while the screen is still present.
             # Remove to others.
             MapManager.remove_object(self)
+            # Destroy all objects known to self.
+            self.update_known_world_objects(flush=True)
+            # Flush known items/objects cache.
+            self.known_items.clear()
+            self.known_objects.clear()
+            # Loading screen.
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRANSFER_PENDING))
 
             data = pack(
@@ -565,9 +612,6 @@ class PlayerManager(UnitManager):
 
         # Player changed map. Send initial spells, action buttons and create packet.
         if changed_map:
-            # Flush known items/objects cache.
-            self.known_items.clear()
-            self.known_objects.clear()
             # Send initial packets for spells, action buttons and player creation.
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
@@ -703,7 +747,7 @@ class PlayerManager(UnitManager):
 
     def loot_money(self):
         if self.loot_selection:
-            high_guid = ObjectManager.extract_high_guid(self.loot_selection.object_guid)
+            high_guid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
             if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
                 world_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
             elif high_guid == HighGuid.HIGHGUID_UNIT:
@@ -732,7 +776,7 @@ class PlayerManager(UnitManager):
 
     def loot_item(self, slot):
         if self.loot_selection:
-            high_guid: HighGuid = self.extract_high_guid(self.loot_selection.object_guid)
+            high_guid: HighGuid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
             world_obj_target = None
             if high_guid == HighGuid.HIGHGUID_UNIT:
                 world_obj_target = MapManager.get_surrounding_unit_by_guid(
@@ -755,7 +799,7 @@ class PlayerManager(UnitManager):
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_LOOTING
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-        high_guid: HighGuid = self.extract_high_guid(self.loot_selection.object_guid)
+        high_guid: HighGuid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
         data = pack('<QB', loot_selection.object_guid, 1)  # Must be 1 otherwise client keeps the loot window open
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOOT_RELEASE_RESPONSE, data))
 
@@ -963,13 +1007,13 @@ class PlayerManager(UnitManager):
                 self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
                 self.player.leveltime = 0
 
+                self.skill_manager.update_skills_max_value()
+                self.skill_manager.build_update()
+
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
                 self.set_health(self.max_health)
                 self.set_mana(self.max_power_1)
-
-                self.skill_manager.update_skills_max_value()
-                self.skill_manager.build_update()
 
                 if is_leveling_up:
                     data = pack(
@@ -1109,7 +1153,7 @@ class PlayerManager(UnitManager):
 
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.player.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
@@ -1129,11 +1173,11 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
             self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
-            self.set_uint32(UnitFields.UNIT_FIELD_STAT0, self.str)
-            self.set_uint32(UnitFields.UNIT_FIELD_STAT1, self.agi)
-            self.set_uint32(UnitFields.UNIT_FIELD_STAT2, self.sta)
-            self.set_uint32(UnitFields.UNIT_FIELD_STAT3, self.int)
-            self.set_uint32(UnitFields.UNIT_FIELD_STAT4, self.spi)
+            self.set_int32(UnitFields.UNIT_FIELD_STAT0, self.str)
+            self.set_int32(UnitFields.UNIT_FIELD_STAT1, self.agi)
+            self.set_int32(UnitFields.UNIT_FIELD_STAT2, self.sta)
+            self.set_int32(UnitFields.UNIT_FIELD_STAT3, self.int)
+            self.set_int32(UnitFields.UNIT_FIELD_STAT4, self.spi)
             self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, self.base_str)
             self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT1, self.base_agi)
             self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT2, self.base_sta)
@@ -1167,7 +1211,7 @@ class PlayerManager(UnitManager):
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative_4)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative_5)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-            self.set_float(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
+            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
             self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
@@ -1350,7 +1394,7 @@ class PlayerManager(UnitManager):
         if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
             return False  # players can't parry from behind.
 
-        return
+        return True
 
     # override
     def can_dodge(self, attacker_location=None):
@@ -1408,11 +1452,11 @@ class PlayerManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
-    def receive_damage(self, amount, source=None, is_periodic=False, casting_spell=None):
+    def receive_damage(self, damage_info, source=None, is_periodic=False, casting_spell=None):
         if self.is_god:
             return False
 
-        return super().receive_damage(amount, source, is_periodic=False)
+        return super().receive_damage(damage_info, source, is_periodic=False)
 
     # override
     def receive_healing(self, amount, source=None):
@@ -1463,10 +1507,12 @@ class PlayerManager(UnitManager):
             # Check swimming state.
             self.check_swimming_state(elapsed)
 
-            # SpellManager tick.
+            # SpellManager.
             self.spell_manager.update(now)
-            # AuraManager tick.
+            # AuraManager.
             self.aura_manager.update(now)
+            # QuestManager.
+            self.quest_manager.update(elapsed)
 
             # Waypoints (mostly flying paths) update.
             self.movement_manager.update_pending_waypoints(elapsed)
@@ -1549,6 +1595,11 @@ class PlayerManager(UnitManager):
         if not self.is_alive:
             return False
 
+        # Notify pet AI about this kill.
+        killer_pet = killer.get_pet()
+        if killer_pet:
+            killer_pet.object_ai.killed_unit(self)
+
         if killer and self.duel_manager and self.duel_manager.is_player_involved(killer):
             self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
             self.set_health(1)
@@ -1566,6 +1617,7 @@ class PlayerManager(UnitManager):
         self.update_swimming_state(False)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+
         return super().die(killer)
 
     # override
@@ -1601,6 +1653,12 @@ class PlayerManager(UnitManager):
 
         self.respawn(recovery_percentage)
         self.spirit_release_timer = 0
+
+        # Spawn its corpse.
+        if not self.resurrect_data:
+            from game.world.managers.objects.corpse.CorpseManager import CorpseManager
+            CorpseManager.spawn(self)
+
         self.resurrect_data = None
 
     def get_player_bytes(self):
@@ -1655,6 +1713,8 @@ class PlayerManager(UnitManager):
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
             if self.guid not in unit.attackers and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
+            if unit.is_pet() and unit.summoner == self:
+                unit.object_ai.movement_inform()
 
     # override
     def on_cell_change(self):
@@ -1674,6 +1734,14 @@ class PlayerManager(UnitManager):
             return self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
 
         return False
+
+    # override
+    def get_type_mask(self):
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_PLAYER
+
+    # override
+    def get_low_guid(self):
+        return self.guid & ~HighGuid.HIGHGUID_PLAYER
 
     # override
     def get_type_id(self):

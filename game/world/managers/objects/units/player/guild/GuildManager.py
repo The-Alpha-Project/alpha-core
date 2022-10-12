@@ -17,7 +17,7 @@ class GuildManager(object):
     PENDING_INVITES = {}
 
     def __init__(self, guild):
-        self.guild = guild
+        self.guild: Guild = guild
         self.members = {}
         self.guild_master = None
 

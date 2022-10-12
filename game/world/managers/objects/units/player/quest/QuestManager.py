@@ -5,14 +5,15 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
+from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
@@ -31,6 +32,7 @@ MAX_QUEST_LOG = 16
 class QuestManager(object):
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
+        self.last_timer_update = 0
         self.active_quests = {}
         self.completed_quests = set()
 
@@ -349,6 +351,18 @@ class QuestManager(object):
         if quest_template.PrevQuestId > 0 and quest_template.PrevQuestId not in self.completed_quests:
             return False
 
+        # The given quest has alternative exclusive options.
+        if quest_template.ExclusiveGroup > 0:
+            exclusive_quests = WorldDatabaseManager.QuestExclusiveGroupsHolder.get_quest_for_group_id(
+                quest_template.ExclusiveGroup)
+            for exclusive_quest in exclusive_quests:
+                # Skip the quest triggering this check.
+                if exclusive_quest == quest_template.entry:
+                    continue
+                # Check the alternative quest is completed or active.
+                if exclusive_quest in self.completed_quests or exclusive_quest in self.active_quests:
+                    return False
+
         return True
 
     def check_quest_level(self, quest_template, will_send_response):
@@ -591,11 +605,11 @@ class QuestManager(object):
             if creature_or_go < 0:
                 go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(-creature_or_go)
                 if go_template:
-                    self.player_mgr.enqueue_packet(GameObjectManager.query_details(gobject_template=go_template))
+                    self.player_mgr.enqueue_packet(GoQueryUtils.query_details(gobject_template=go_template))
             elif creature_or_go > 0:
                 creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_go)
                 if creature_template:
-                    self.player_mgr.enqueue_packet(CreatureManager.query_details(creature_template))
+                    self.player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_template))
 
         # Objective texts.
         req_objective_text_list = QuestHelpers.generate_objective_text_list(quest)
@@ -725,7 +739,7 @@ class QuestManager(object):
         quest_item_starter = None
         if quest_giver_guid:
             quest_giver = None
-            high_guid = ObjectManager.extract_high_guid(quest_giver_guid)
+            high_guid = GuidUtils.extract_high_guid(quest_giver_guid)
 
             if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
                 quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.player_mgr, quest_giver_guid)
@@ -863,7 +877,8 @@ class QuestManager(object):
 
         # Check chosen reward item.
         reward_items = {}
-        rew_item_choice_list = QuestHelpers.generate_rew_choice_item_list(quest)
+        rew_item_choice_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_item_list(quest)))
+
         if item_choice < len(rew_item_choice_list) and rew_item_choice_list[item_choice] > 0:
             reward_items[rew_item_choice_list[item_choice]] = 1
 
@@ -1045,11 +1060,6 @@ class QuestManager(object):
                     self.update_single_quest(quest_id)
                     self.complete_quest(active_quest, update_surrounding=True, notify=True)
 
-    def quest_failed(self, active_quest):
-        data = pack('<I', active_quest.quest.entry)
-        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_FAILED, data)
-        self.player_mgr.enqueue_packet(packet)
-
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
 
@@ -1075,10 +1085,23 @@ class QuestManager(object):
                 return True
         return False
 
+    def update(self, elapsed):
+        self.last_timer_update += elapsed
+
+        # Every second.
+        if self.last_timer_update >= 1:
+            for active_quest in list(self.active_quests.values()):
+                if active_quest.is_timed_quest():
+                    active_quest.update_timer(self.last_timer_update)
+
+            self.last_timer_update = 0
+
     def update_single_quest(self, quest_id, slot=-1):
         progress = 0
+        timer = 0
         if quest_id in self.active_quests:
             progress = self.active_quests[quest_id].get_progress()
+            timer = self.active_quests[quest_id].get_timer()
             if slot == -1:
                 slot = list(self.active_quests.keys()).index(quest_id)
 
@@ -1087,7 +1110,7 @@ class QuestManager(object):
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, 0)  # quest giver ID ?
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, 0)  # quest rewarder ID ?
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 3, progress)  # quest progress
-        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, 0)  # quest failure time
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, timer)  # quest time failure
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 5, 0)  # number of mobs to kill
 
     def build_update(self):
@@ -1095,10 +1118,14 @@ class QuestManager(object):
         for slot in range(MAX_QUEST_LOG):
             self.update_single_quest(active_quest_list[slot] if slot < len(active_quest_list) else 0, slot)
 
+    def save(self):
+        [quest.save() for quest in list(self.active_quests.values())]
+
     def _create_db_quest_status(self, quest):
         db_quest_status = CharacterQuestState()
         db_quest_status.guid = self.player_mgr.guid
         db_quest_status.quest = quest.entry
+        db_quest_status.timer = quest.LimitTime
         if quest.Method == QuestMethod.QUEST_AUTOCOMPLETE:
             db_quest_status.state = QuestState.QUEST_REWARD.value
         else:

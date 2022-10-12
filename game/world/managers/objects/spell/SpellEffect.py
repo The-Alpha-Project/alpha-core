@@ -7,7 +7,6 @@ from database.dbc.DbcModels import SpellRadius
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AURA_EFFECTS
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
-from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity
 
@@ -43,12 +42,7 @@ class SpellEffect:
     last_update_timestamp = -1
 
     def __init__(self, casting_spell, index):
-        if index == 0:
-            self.load_first(casting_spell.spell_entry)
-        elif index == 1:
-            self.load_second(casting_spell.spell_entry)
-        elif index == 2:
-            self.load_third(casting_spell.spell_entry)
+        self.load_effect(casting_spell.spell_entry, index)
 
         self.caster_effective_level = casting_spell.caster_effective_level
         self.targets = EffectTargets(casting_spell, self)
@@ -145,62 +139,23 @@ class SpellEffect:
 
         return False
 
-    def load_first(self, spell):
-        self.effect_type = spell.Effect_1
-        self.die_sides = spell.EffectDieSides_1
-        self.base_dice = spell.EffectBaseDice_1
-        self.dice_per_level = spell.EffectDicePerLevel_1
-        self.real_points_per_level = spell.EffectRealPointsPerLevel_1
-        self.base_points = spell.EffectBasePoints_1
-        self.implicit_target_a = spell.ImplicitTargetA_1
-        self.implicit_target_b = spell.ImplicitTargetB_1
-        self.radius_index = spell.EffectRadiusIndex_1
-        self.aura_type = spell.EffectAura_1
-        self.aura_period = spell.EffectAuraPeriod_1
-        self.amplitude = spell.EffectAmplitude_1
-        self.chain_targets = spell.EffectChainTargets_1
-        self.item_type = spell.EffectItemType_1
-        self.misc_value = spell.EffectMiscValue_1
-        self.trigger_spell_id = spell.EffectTriggerSpell_1
+    # noinspection PyUnusedLocal
+    def load_effect(self, spell, index):
+        self.effect_type = eval(f'spell.Effect_{index+1}')
+        self.die_sides = eval(f'spell.EffectDieSides_{index+1}')
+        self.base_dice = eval(f'spell.EffectBaseDice_{index+1}')
+        self.dice_per_level = eval(f'spell.EffectDicePerLevel_{index+1}')
+        self.real_points_per_level = eval(f'spell.EffectRealPointsPerLevel_{index+1}')
+        self.base_points = eval(f'spell.EffectBasePoints_{index+1}')
+        self.implicit_target_a = eval(f'spell.ImplicitTargetA_{index+1}')
+        self.implicit_target_b = eval(f'spell.ImplicitTargetB_{index+1}')
+        self.radius_index = eval(f'spell.EffectRadiusIndex_{index+1}')
+        self.aura_type = eval(f'spell.EffectAura_{index+1}')
+        self.aura_period = eval(f'spell.EffectAuraPeriod_{index+1}')
+        self.amplitude = eval(f'spell.EffectAmplitude_{index+1}')
+        self.chain_targets = eval(f'spell.EffectChainTargets_{index+1}')
+        self.item_type = eval(f'spell.EffectItemType_{index+1}')
+        self.misc_value = eval(f'spell.EffectMiscValue_{index+1}')
+        self.trigger_spell_id = eval(f'spell.EffectTriggerSpell_{index+1}')
 
-        self.effect_index = 0
-
-    def load_second(self, spell):
-        self.effect_type = spell.Effect_2
-        self.die_sides = spell.EffectDieSides_2
-        self.base_dice = spell.EffectBaseDice_2
-        self.dice_per_level = spell.EffectDicePerLevel_2
-        self.real_points_per_level = spell.EffectRealPointsPerLevel_2
-        self.base_points = spell.EffectBasePoints_2
-        self.implicit_target_a = spell.ImplicitTargetA_2
-        self.implicit_target_b = spell.ImplicitTargetB_2
-        self.radius_index = spell.EffectRadiusIndex_2
-        self.aura_type = spell.EffectAura_2
-        self.aura_period = spell.EffectAuraPeriod_2
-        self.amplitude = spell.EffectAmplitude_2
-        self.chain_targets = spell.EffectChainTargets_2
-        self.item_type = spell.EffectItemType_2
-        self.misc_value = spell.EffectMiscValue_2
-        self.trigger_spell_id = spell.EffectTriggerSpell_2
-
-        self.effect_index = 1
-
-    def load_third(self, spell):
-        self.effect_type = spell.Effect_3
-        self.die_sides = spell.EffectDieSides_3
-        self.base_dice = spell.EffectBaseDice_3
-        self.dice_per_level = spell.EffectDicePerLevel_3
-        self.real_points_per_level = spell.EffectRealPointsPerLevel_3
-        self.base_points = spell.EffectBasePoints_3
-        self.implicit_target_a = spell.ImplicitTargetA_3
-        self.implicit_target_b = spell.ImplicitTargetB_3
-        self.radius_index = spell.EffectRadiusIndex_3
-        self.aura_type = spell.EffectAura_3
-        self.aura_period = spell.EffectAuraPeriod_3
-        self.amplitude = spell.EffectAmplitude_3
-        self.chain_targets = spell.EffectChainTargets_3
-        self.item_type = spell.EffectItemType_3
-        self.misc_value = spell.EffectMiscValue_3
-        self.trigger_spell_id = spell.EffectTriggerSpell_3
-
-        self.effect_index = 2
+        self.effect_index = index

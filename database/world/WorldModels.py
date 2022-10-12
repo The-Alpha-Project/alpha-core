@@ -434,8 +434,8 @@ class AppliedItemUpdates(Base):
     version = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
 
-class AreatriggerInvolvedrelation(Base):
-    __tablename__ = 'areatrigger_involvedrelation'
+class AreatriggerQuestRelation(Base):
+    __tablename__ = 'areatrigger_quest_relation'
     __table_args__ = {'comment': 'Trigger System'}
 
     id = Column(MEDIUMINT(8), primary_key=True, server_default=text("0"), comment='Identifier')
@@ -548,6 +548,21 @@ class PlayerLevelstats(Base):
     sta = Column(TINYINT(3), nullable=False)
     inte = Column(TINYINT(3), nullable=False)
     spi = Column(TINYINT(3), nullable=False)
+
+
+class PetLevelstat(Base):
+    __tablename__ = 'pet_levelstats'
+
+    creature_entry = Column(MEDIUMINT(8), primary_key=True, nullable=False)
+    level = Column(TINYINT(3), primary_key=True, nullable=False)
+    hp = Column(SMALLINT(5), nullable=False)
+    mana = Column(SMALLINT(5), nullable=False)
+    armor = Column(INTEGER(10), nullable=False, server_default=text("0"))
+    str = Column(SMALLINT(5), nullable=False)
+    agi = Column(SMALLINT(5), nullable=False)
+    sta = Column(SMALLINT(5), nullable=False)
+    inte = Column(SMALLINT(5), nullable=False)
+    spi = Column(SMALLINT(5), nullable=False)
 
 
 class Playercreateinfo(Base):
@@ -803,14 +818,14 @@ t_creature_quest_finisher = Table(
 
 
 t_gameobject_quest_starter = Table(
-    'gameobject_questrelation', metadata,
+    'gameobject_quest_starter', metadata,
     Column('entry', ForeignKey('gameobject_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
     Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
 
 
 t_gameobject_quest_finisher = Table(
-    'gameobject_involvedrelation', metadata,
+    'gameobject_quest_finisher', metadata,
     Column('entry', ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"), comment='Identifier'),
     Column('quest', ForeignKey('quest_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"), comment='Quest Identifier')
 )
@@ -871,6 +886,13 @@ class TrainerTemplate(Base):
     reqskill = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     reqskillvalue = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     reqlevel = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+
+
+class NpcTrainerGreeting(Base):
+    __tablename__ = 'npc_trainer_greeting'
+
+    entry = Column(INTEGER(11), primary_key=True, server_default=text("0"))
+    content_default = Column(Text, nullable=False)
 
 
 class SpellChain(Base):

@@ -5,7 +5,7 @@ from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
-from game.world.managers.objects.units.player.SkillManager import SkillTypes, SkillManager
+from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
@@ -633,7 +633,7 @@ class StatManager(object):
             # damage_dealt *= 1 - reduction
 
         # Damage taken reduction can bring damage to negative, limit to 0.
-        return max(0, damage_dealt)
+        return max(0, int(damage_dealt))
 
     def roll_proc_chance(self, base_chance: float) -> bool:
         chance = base_chance/100 + self.get_total_stat(UnitStats.PROC_CHANCE)
@@ -695,7 +695,9 @@ class StatManager(object):
         if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
             return HitInfo.PARRY
 
-        rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating, use_block=True)
+        rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating,
+                                                                     use_block=self.unit_mgr.can_block())
+
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
         roll = random.random()
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
@@ -722,16 +724,19 @@ class StatManager(object):
         
         return hit_info
 
-    def get_spell_attack_result_against_self(self, attacker, spell_school: SpellSchools, spell_attack_type: AttackTypes = -1):
+    def get_spell_attack_result_against_self(self, attacker, spell_school: SpellSchools, is_periodic=False):
+        if is_periodic:
+            return SpellHitFlags.DAMAGE
+
         is_normal_school = spell_school == SpellSchools.SPELL_SCHOOL_NORMAL
         critical_type = UnitStats.CRITICAL if is_normal_school else UnitStats.SPELL_CRITICAL
         attacker_critical_chance = attacker.stat_manager.get_total_stat(critical_type, accept_float=True)
 
         roll = random.random()
         if roll < attacker_critical_chance:
-            return SpellHitFlags.HIT_FLAG_CRIT
+            return SpellHitFlags.CRIT
 
-        return SpellHitFlags.HIT_FLAG_NORMAL
+        return SpellHitFlags.DAMAGE
 
     def update_base_weapon_attributes(self, attack_type=0):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -918,7 +923,8 @@ class StatManager(object):
         value = max(0, value)
         self.unit_mgr.set_dodge_chance(value)
 
-    def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):  # > 0 if defense is higher
+    # Arguments greater than 0 if defense is higher.
+    def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):
         # Client displays percentages against enemies of equal level and max attack rating.
         if attacker_level == -1:
             attacker_level = self.unit_mgr.level
@@ -927,9 +933,8 @@ class StatManager(object):
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # TODO It's unclear what the block skill is used for based on patch notes.
-            # Replace Defense in calculations with block to at least give it a purpose.
-            # This way, block chance will be affected by block skill instead of defense skill like in vanilla.
-            own_defense_rating = self.unit_mgr.skill_manager.get_total_skill_value(SkillTypes.DEFENSE if not use_block else SkillTypes.BLOCK)
+            # Use Shields/Block or Defense, depending on the class.
+            own_defense_rating = self.unit_mgr.skill_manager.get_defense_skill_value(use_block=use_block)
         else:
             own_defense_rating = self.unit_mgr.level * 5
 

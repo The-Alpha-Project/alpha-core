@@ -23,7 +23,8 @@ class TargetMissInfo:
 class EffectTargets:
     def __init__(self, casting_spell, spell_effect):
         self.initial_target = casting_spell.initial_target
-        self.effect_source = casting_spell.spell_caster  # The source this effect is applied from. Used for calculating impact delay.
+        # The source this effect is applied from. Used for calculating impact delay.
+        self.effect_source = casting_spell.spell_caster
 
         self.casting_spell = casting_spell
 
@@ -37,8 +38,9 @@ class EffectTargets:
         self.resolved_targets_a = []
         self.resolved_targets_b = []
 
+        # Some area auras have self-target, but party target is required instead.
         if self.target_effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS and \
-                self.target_effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF:  # some area auras have self-target, but party target is required instead
+                self.target_effect.implicit_target_a == SpellImplicitTargets.TARGET_SELF:
             self.target_effect.implicit_target_a = SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY
 
     def resolve_simple_targets(self):
@@ -87,7 +89,7 @@ class EffectTargets:
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
         target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell, self.target_effect)
 
-        # Avoid crash on unfinished implementation while target resolving isn't finished TODO
+        # TODO: Avoid crash on unfinished implementation while target resolving isn't finished
         # Implemented handlers should always return [] if no targets are found
         if target is None:
             Logger.warning(f'Implicit target {implicit_target} resolved to None. Falling back to initial target or self.')
@@ -300,19 +302,48 @@ class EffectTargets:
 
         units_in_range = []
 
-        # These spells should most likely include self (battle shout, prayer of healing etc.)
-        if caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
-            units_in_range.append(caster)
+        caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        caster_is_unit = caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+        caster_pet = caster.get_pet() if caster_is_unit else None
+        summoner = caster.get_summoner() if caster_is_unit else None
+        party_group = None
+        distance = target_effect.get_radius()
 
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not caster.group_manager:
-            return units_in_range  # TODO pets etc. should probably be targeted
+        # Caster is a player, use his group manager, if any.
+        if caster_is_player and caster.group_manager:
+            party_group = caster.group_manager
+        # If caster has a player summoner, use the summoner group manager.
+        elif summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            party_group = summoner.group_manager
+
+        # These spells should most likely include self (battle shout, prayer of healing etc.)
+        if caster_is_unit:
+            # Totems should not target themselves.
+            if not caster.is_totem():
+                units_in_range.append(caster)
+
+        # Has a summoner and is within radius.
+        if summoner and caster.location.distance(summoner.location) < distance:
+            units_in_range.append(summoner)
+
+        # Has a pet and is within radius.
+        if caster_pet and caster.location.distance(caster_pet.location) < distance:
+            units_in_range.append(caster_pet)
+
+        if not caster_is_player or not party_group:
+            return units_in_range
 
         for unit in units:
-            if caster is unit or not caster.group_manager.is_party_member(unit.guid) or \
-                    caster.can_attack_target(unit):  # Dueling party members
+            if caster is unit or unit is summoner or unit is caster_pet or \
+                    not party_group.is_party_member(unit.guid) or \
+                    caster.can_attack_target(unit):   # Dueling party members
                 continue
-            distance = caster.location.distance(unit.location)
-            if distance <= target_effect.get_radius():
+            # Unit pets.
+            unit_pet = unit.get_pet()
+            if unit_pet and caster.location.distance(unit_pet.location) < distance:
+                units_in_range.append(unit_pet)
+            # Unit.
+            if caster.location.distance(unit.location) <= distance:
                 units_in_range.append(unit)
 
         return units_in_range

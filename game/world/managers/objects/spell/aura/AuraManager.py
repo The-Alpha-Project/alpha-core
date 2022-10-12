@@ -9,7 +9,7 @@ from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
-    SpellAttributesEx, SpellEffects
+    SpellAttributesEx, SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -24,6 +24,12 @@ class AuraManager:
         aura = AppliedAura(caster, casting_spell, spell_effect, self.unit_mgr)
         self.add_aura(aura)
 
+    def apply_default_auras(self):
+        # Apply default auras for creatures.
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            for aura in self.unit_mgr.get_default_auras():
+                self.unit_mgr.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
+
     def add_aura(self, aura):
         can_apply = self.can_apply_aura(aura) and self.remove_colliding_effects(aura)
         if not can_apply:
@@ -32,7 +38,7 @@ class AuraManager:
         # Application threat and negative aura application interrupts.
         if aura.harmful:
             # Add threat for non-player targets against unit casters.
-            if aura.caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT and \
+            if aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and \
                     self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT and aura.source_spell.generates_threat():
                 # TODO: Threat calculation.
                 self.unit_mgr.threat_manager.add_threat(aura.caster, abs(aura.get_effect_points()))
@@ -244,6 +250,11 @@ class AuraManager:
             auras.append(aura)
         return auras
 
+    def get_aura_by_index(self, aura_index) -> Optional[AppliedAura]:
+        if aura_index not in self.active_auras:
+            return None
+        return self.active_auras[aura_index]
+
     def get_auras_by_type(self, aura_type) -> list[AppliedAura]:
         auras = []
         for aura in list(self.active_auras.values()):
@@ -305,7 +316,8 @@ class AuraManager:
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target, remove=True)
         if not self.active_auras.pop(aura.index, None):
             return
-        # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects. Cancel cast on aura cancel, canceling the auras as well.
+        # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects.
+        # Cancel cast on aura cancel, canceling the auras as well.
         self.unit_mgr.spell_manager.remove_cast(aura.source_spell, interrupted=canceled)
 
         # Some spells start cooldown on aura remove, handle that case here.

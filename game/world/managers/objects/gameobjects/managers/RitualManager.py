@@ -19,7 +19,7 @@ class RitualManager(object):
         self.ritual_participants = []
 
         # Set channel object update field.
-        if ritual_object.summoner and ritual_object.summoner.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if ritual_object.summoner and ritual_object.summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             ritual_object.summoner.set_channel_object(ritual_object.guid)
 
     def ritual_use(self, player_mgr):
@@ -52,6 +52,7 @@ class RitualManager(object):
         player_mgr.spell_manager.remove_colliding_casts(spell)
         player_mgr.spell_manager.casting_spells.append(spell)
         player_mgr.spell_manager.handle_channel_start(spell)
+        player_mgr.set_channel_object(self.ritual_object.guid)
         self.ritual_participants.append(player_mgr)
 
         # Check if the ritual can be completed with the current participants.
@@ -76,6 +77,7 @@ class RitualManager(object):
         # If a participant interrupts their channeling, remove from participants and interrupt summoning if necessary.
         elif caster in self.ritual_participants:
             self.ritual_participants.remove(caster)
+            caster.flush_channel_fields()
             if not self.meets_participants():
                 self.ritual_object.summoner.spell_manager.remove_cast_by_id(self.ritual_summon_spell_id)
 

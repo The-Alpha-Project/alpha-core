@@ -19,7 +19,7 @@ from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity
+    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags
 
 
 class CastingSpell:
@@ -48,21 +48,23 @@ class CastingSpell:
     spell_attack_type: int
     used_ranged_attack_item: ItemManager  # Ammo or thrown.
 
-    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False):
+    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False, creature_spell=None):
         self.spell_entry = spell
         self.spell_caster = caster
         self.source_item = source_item
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
         self.triggered = triggered
+        self.creature_spell = creature_spell
 
+        self.dynamic_object = None
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
         self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
-        if self.spell_caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             self.caster_effective_level = self.calculate_effective_level(self.spell_caster.level)
         else:
             self.caster_effective_level = 0
@@ -104,7 +106,7 @@ class CastingSpell:
         if not self.initial_target_is_object():
             return False
 
-        return self.initial_target.object_type_mask & ObjectTypeFlags.TYPE_UNIT
+        return self.initial_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
 
     def initial_target_is_player(self):
         if not self.initial_target_is_object():
@@ -147,6 +149,18 @@ class CastingSpell:
         effect.targets.resolve_targets()
         effect_info = effect.targets.get_effect_target_miss_results()
         self.object_target_results = self.object_target_results | effect_info
+
+    def get_attack_type(self):
+        return self.spell_attack_type if self.spell_attack_type != -1 else 0
+
+    def get_school_mask(self):
+        if self.spell_entry.School == -1:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
+        elif self.spell_entry.School == -2:
+            school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
+        else:
+            school_mask = 1 << self.spell_entry.School
+        return school_mask
 
     def get_ammo_for_cast(self) -> Optional[ItemManager]:
         if not self.is_ranged_weapon_attack():
@@ -419,7 +433,7 @@ class CastingSpell:
 
         cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
 
-        if self.is_ranged_weapon_attack() and self.spell_caster.object_type_mask & ObjectTypeFlags.TYPE_UNIT:
+        if self.is_ranged_weapon_attack() and self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             # Ranged attack tooltips are unfinished, so this is partially a guess.
             # All ranged attacks without delay seem to say "next ranged".
             # Ranged attacks with delay (cast time) say "attack speed + X (delay) sec".
@@ -453,19 +467,13 @@ class CastingSpell:
         combo_gain = max(0, self.spent_combo_points - 1) * base_duration
         return min(base_duration + gain_per_level, self.duration_entry.MaxDuration) + combo_gain
 
-    def get_cast_damage_info(self, attacker, victim, damage, absorb):
-        damage_info = DamageInfoHolder()
-        damage_info.attacker = attacker
-        damage_info.target = victim
-        damage_info.attack_type = self.spell_attack_type if self.spell_attack_type != -1 else 0
-
-        damage_info.damage += damage
-        damage_info.damage_school_mask = self.spell_entry.School
-        # Not taking "subdamages" into account.
-        damage_info.total_damage = max(0, damage - absorb)
-        damage_info.absorb = absorb
-        damage_info.hit_info = HitInfo.DAMAGE
-
+    def get_cast_damage_info(self, attacker, victim, damage, absorb, healing=False):
+        damage_info = DamageInfoHolder(attacker=attacker, target=victim,
+                                       attack_type=self.get_attack_type(),
+                                       base_damage=damage, damage_school_mask=self.get_school_mask(),
+                                       spell_id=self.spell_entry.ID, spell_school=self.spell_entry.School,
+                                       total_damage=max(0, damage - absorb), absorb=absorb,
+                                       hit_info=HitInfo.DAMAGE if not healing else SpellHitFlags.HEALED)
         return damage_info
 
     def load_effects(self):

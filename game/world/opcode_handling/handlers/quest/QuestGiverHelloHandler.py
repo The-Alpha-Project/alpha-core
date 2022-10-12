@@ -1,7 +1,7 @@
 from struct import unpack
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
+from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
 from utils.Logger import Logger
 
@@ -17,7 +17,7 @@ class QuestGiverHelloHandler(object):
 
         if len(reader.data) >= 8:  # Avoid handling empty quest giver hello packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            high_guid = ObjectManager.extract_high_guid(guid)
+            high_guid = GuidUtils.extract_high_guid(guid)
             is_item = False
 
             quest_giver = None
@@ -30,9 +30,10 @@ class QuestGiverHelloHandler(object):
                 quest_giver = player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_HELLO, could not find quest giver with guid of: {guid}')
+                Logger.error(f'Error in {reader.opcode_str()}, could not find quest giver with guid of: {guid}')
                 return 0
             if not is_item and player_mgr.is_hostile_to(quest_giver):
+                Logger.warning(f'{reader.opcode_str()}, quest giver with guid: {guid} is hostile.')
                 return 0
 
             # TODO: Stop the npc if it's moving

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from utils.constants.MiscCodes import LockKeyTypes, LockType, ObjectTypeIds
 from utils.constants.SpellCodes import SpellCheckCastResult

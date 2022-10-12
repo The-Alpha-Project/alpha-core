@@ -98,9 +98,9 @@ class WorldServerSessionHandler:
                         if handler:
                             res = handler(self, self.request, reader)
                             if res == 0:
-                                Logger.debug(f'[{self.client_address[0]}] Handling {OpCode(reader.opcode).name}')
+                                Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
                             elif res == 1:
-                                Logger.debug(f'[{self.client_address[0]}] Ignoring {OpCode(reader.opcode).name}')
+                                Logger.debug(f'[{self.client_address[0]}] Ignoring {reader.opcode_str()}')
                             elif res < 0:
                                 break
                         elif not found:
@@ -216,45 +216,53 @@ class WorldServerSessionHandler:
 
     @staticmethod
     def schedule_background_tasks():
-        # Save characters
+        # Save characters.
         realm_saving_scheduler = BackgroundScheduler()
         realm_saving_scheduler._daemon = True
         realm_saving_scheduler.add_job(WorldSessionStateHandler.save_characters, 'interval',
-                                       seconds=config.Server.Settings.realm_saving_interval_seconds,
-                                       max_instances=1)
+                                       seconds=config.Server.Settings.realm_saving_interval_seconds, max_instances=1)
         realm_saving_scheduler.start()
 
-        # Player updates
+        # Player updates.
         player_update_scheduler = BackgroundScheduler()
         player_update_scheduler._daemon = True
         player_update_scheduler.add_job(WorldSessionStateHandler.update_players, 'interval', seconds=0.1,
                                         max_instances=1)
         player_update_scheduler.start()
 
+        # Corpses updates.
+        corpses_update_scheduler = BackgroundScheduler()
+        corpses_update_scheduler._daemon = True
+        corpses_update_scheduler.add_job(MapManager.update_corpses, 'interval', seconds=10.0, max_instances=1)
+        corpses_update_scheduler.start()
+
         # MapManager tile loading.
         world_session_thread = threading.Thread(target=MapManager.load_pending_tiles)
         world_session_thread.daemon = True
         world_session_thread.start()
 
-        # Creature updates
+        # Creature updates.
         creature_update_scheduler = BackgroundScheduler()
         creature_update_scheduler._daemon = True
-        creature_update_scheduler.add_job(MapManager.update_creatures, 'interval', seconds=0.2,
-                                          max_instances=1)
+        creature_update_scheduler.add_job(MapManager.update_creatures, 'interval', seconds=0.2, max_instances=1)
         creature_update_scheduler.start()
 
-        # Gameobject updates
+        # Gameobject updates.
         gameobject_update_scheduler = BackgroundScheduler()
         gameobject_update_scheduler._daemon = True
-        gameobject_update_scheduler.add_job(MapManager.update_gameobjects, 'interval', seconds=1.0,
-                                            max_instances=1)
+        gameobject_update_scheduler.add_job(MapManager.update_gameobjects, 'interval', seconds=1.0, max_instances=1)
         gameobject_update_scheduler.start()
 
-        # Cell deactivation
+        # Creature and Gameobject spawn updates (mostly to handle respawn logic).
+        spawn_update_scheduler = BackgroundScheduler()
+        spawn_update_scheduler._daemon = True
+        spawn_update_scheduler.add_job(MapManager.update_spawns, 'interval', seconds=1.0, max_instances=1)
+        spawn_update_scheduler.start()
+
+        # Cell deactivation.
         cell_unloading_scheduler = BackgroundScheduler()
         cell_unloading_scheduler._daemon = True
-        cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=120.0,
-                                         max_instances=1)
+        cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=120.0, max_instances=1)
         cell_unloading_scheduler.start()
 
     @staticmethod

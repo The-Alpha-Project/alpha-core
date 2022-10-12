@@ -1,4 +1,3 @@
-import time
 from struct import pack, unpack
 from typing import Optional, NamedTuple, List
 
@@ -8,16 +7,18 @@ from database.realm.RealmModels import CharacterPet
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.ai.PetAI import PetAI
+from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.player.StatManager import UnitStats
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
+from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
-from utils.constants.UnitCodes import MovementTypes, UnitFlags
+from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -224,12 +225,16 @@ class PetManager:
             self.get_active_pet_info().save()
 
     def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int,
-                           pet_level=-1, pet_index=-1, lifetime_sec=-1):
+                           pet_level=-1, pet_index=-1, lifetime_sec=-1, is_permanent=False):
         if self.active_pet:
             return
 
-        self._tame_creature(creature, summon_spell_id)
-        creature.leave_combat(force=True)
+        # Creature from world spawns.
+        if not is_permanent:
+            creature.leave_combat(force=True)
+
+        # Creature can be overrided depending if we are taming or summoning a permanent pet.
+        pet = self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent)
 
         if pet_index == -1:
             # Pet not in database.
@@ -239,10 +244,9 @@ class PetManager:
                 pet_level = creature.level
 
             # Add as a new pet.
-            pet_index = self.add_pet(creature.creature_template, summon_spell_id, pet_level,
-                                     lifetime_sec=lifetime_sec)
+            pet_index = self.add_pet(pet.creature_template, summon_spell_id, pet_level, lifetime_sec=lifetime_sec)
 
-        self._set_active_pet(pet_index, creature)
+        self._set_active_pet(pet_index, pet)
         self.set_active_pet_level(pet_level)
 
     def _set_active_pet(self, pet_index: int, creature: CreatureManager):
@@ -289,13 +293,16 @@ class PetManager:
 
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
-        creature = CreatureManager.spawn(creature_id, spawn_position, self.owner.map_, summoner=self.owner,
-                                         override_faction=self.owner.faction)
 
-        # Match summoner level if a creature ID is provided (warlock pets). Otherwise set to the level in PetData.
+        creature_manager = CreatureBuilder.create(creature_id, spawn_position, self.owner.map_,
+                                                  summoner=self.owner, faction=self.owner.faction,
+                                                  movement_type=MovementTypes.IDLE,
+                                                  spell_id=spell_id,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
+
+        # Match summoner level if a creature ID is provided (warlock pets). Otherwise, set to the level in PetData.
         pet_level = self.owner.level if match_summoner_level else -1
-
-        self.add_pet_from_world(creature, spell_id, pet_level=pet_level, pet_index=pet_index)
+        self.add_pet_from_world(creature_manager, spell_id, pet_level=pet_level, pet_index=pet_index, is_permanent=True)
 
     def remove_pet(self, pet_index):
         if self._get_pet_info(pet_index):
@@ -318,34 +325,18 @@ class PetManager:
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
 
         if is_permanent:
-            # TODO Not sure what correct behavior is here.
             pet_info.save(creature)
-            creature.leave_combat(force=True)
-            creature.despawn(destroy=True)
-
             # Summon Pet cooldown is locked by default - unlock on despawn.
             self.owner.spell_manager.unlock_spell_cooldown(pet_info.summon_spell_id)
-            return
         else:
             self.remove_pet(pet_index)
 
-        creature.set_summoned_by(None)
-        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, 0)
-
-        creature.unit_flags &= ~UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
-        creature.faction = creature.creature_template.faction
-
-        creature.set_uint32(UnitFields.UNIT_FIELD_FLAGS, creature.unit_flags)
-        creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
-        creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, 0)
-        creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 0)
-        creature.creature_instance.movement_type = creature.creature_template.movement_type
-        creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
-        creature.object_ai = AIFactory.build_ai(creature)
-
-        creature.leave_combat(force=True)
-
+        # Can't leave an orphan creature with no SpawnCreature, destroy in both cases.
         # TODO: Should pet attack the owner after losing the charm in 0.5.3?
+        #  Should not permanent pets remain in world?
+        creature.is_alive = False
+        creature.leave_combat(force=True)
+        creature.destroy()
 
     def get_active_pet_info(self) -> Optional[PetData]:
         if not self.active_pet:
@@ -454,9 +445,6 @@ class PetManager:
         if not active_pet_info:
             return
 
-        # TODO Only pet damage is based on a formula.
-        #  This method should update other stats as well, but the required table ('pet_levelstats') is missing.
-
         if not reset:
             # From VMaNGOS.
             delay_mod = active_pet_info.creature_template.base_attack_time / 2000
@@ -466,6 +454,22 @@ class PetManager:
         else:
             damage_min = active_pet_info.creature_template.dmg_min
             damage_max = active_pet_info.creature_template.dmg_max
+
+        pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(active_pet_info.creature_template.entry,
+                                                                                active_pet_info.get_level())
+
+        if pet_stats:
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.HEALTH] = pet_stats.hp
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.MANA] = pet_stats.mana
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.RESISTANCE_PHYSICAL] = pet_stats.armor
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.STRENGTH] = pet_stats.str
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.AGILITY] = pet_stats.agi
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.STAMINA] = pet_stats.sta
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.INTELLECT] = pet_stats.inte
+            self.active_pet.creature.stat_manager.base_stats[UnitStats.SPIRIT] = pet_stats.spi
+        else:
+            Logger.warning(f'Unable to locate pet level stats for creature entry '
+                           f'{active_pet_info.creature_template.entry} level {active_pet_info.get_level()}')
 
         self.active_pet.creature.set_melee_damage(int(damage_min), int(damage_max))
         self.active_pet.creature.stat_manager.apply_bonuses()
@@ -483,25 +487,28 @@ class PetManager:
 
         return self.pets[pet_index]
 
-    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int):
-        creature.set_summoned_by(self.owner)
-        creature.faction = self.owner.faction
-        creature.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False):
+        # If this creature was taken from the world, despawn the original and create unit pet.
+        if not is_permanent:
+            pet_creature = CreatureBuilder.create(creature.entry, creature.location, creature.map_,
+                                                  summoner=self.owner, faction=self.owner.faction,
+                                                  movement_type=MovementTypes.IDLE,
+                                                  spell_id=summon_spell_id,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
 
-        creature.set_uint32(UnitFields.UNIT_FIELD_FLAGS, creature.unit_flags)
-        creature.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, creature.faction)
-        creature.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, summon_spell_id)
-        creature.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.owner.guid)
+            # Despawn source creature, its spawn point will handle respawning.
+            creature.destroy()
+            # Spawn new creature pet.
+            MapManager.spawn_object(world_object_instance=pet_creature)
+        # This is a permanent pet summoned by SPELL_EFFECT_SUMMON_PET, just spawn it.
+        else:
+            pet_creature = creature
+            MapManager.spawn_object(world_object_instance=pet_creature)
 
-        # TODO pet naming/pet number?
-        creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))
-        creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 1)
-        # Just disable random movement for now.
-        creature.creature_instance.movement_type = MovementTypes.IDLE
+        # Link summoner to pet.
+        self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, pet_creature.guid)
 
-        self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, creature.guid)
-        creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_PET
-        creature.object_ai = AIFactory.build_ai(creature)
+        return pet_creature
 
     def _send_pet_spell_info(self):
         if not self.active_pet:

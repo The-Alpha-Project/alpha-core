@@ -42,7 +42,7 @@ class InventoryManager(object):
                 )
                 if self.is_bag_pos(container_mgr.current_slot):
                     if item_instance.bag > 23:
-                        low_guid = container_mgr.guid & ~HighGuid.HIGHGUID_CONTAINER
+                        low_guid = container_mgr.get_low_guid()
                         Logger.warning(f'Invalid bag slot {item_instance.bag} for guid {low_guid} owner {self.owner.guid}')
                         continue
                     self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr
@@ -851,6 +851,21 @@ class InventoryManager(object):
         inv_slot_start = PlayerFields.PLAYER_FIELD_INV_SLOT_1
         slots = [inv_slot_start + item.current_slot * 2 for item in self.get_backpack().sorted_slots.values()]
         return any(self.owner.update_packet_factory.update_mask.is_set(slot) for slot in slots)
+
+    def get_inventory_destroy_packets(self, requester):
+        destroy_packets = {}
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+
+            # Only destroy containers to self, other players don't care about them.
+            if requester.guid == self.owner.guid:
+                destroy_packets[container.guid] = container.get_destroy_packet()
+
+            for slot, item in list(container.sorted_slots.items()):
+                if requester.guid == self.owner.guid or item.guid in requester.known_items:
+                    destroy_packets[item.guid] = item.get_destroy_packet()
+        return destroy_packets
 
     def get_inventory_update_packets(self, requester):
         item_templates = []

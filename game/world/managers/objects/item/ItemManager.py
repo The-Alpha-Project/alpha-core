@@ -75,7 +75,6 @@ class ItemManager(ObjectManager):
         if self.item_template:
             self.load_item_template(self.item_template)
 
-        self.object_type_mask |= ObjectTypeFlags.TYPE_ITEM
         self.update_packet_factory.init_values(self.get_owner_guid(), ItemFields)
 
     def load_item_template(self, item_template):
@@ -318,7 +317,7 @@ class ItemManager(ObjectManager):
 
             # Object fields.
             self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.object_type_mask)
+            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
             self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.item_template.entry)
             self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, 1)
             self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
@@ -398,7 +397,7 @@ class ItemManager(ObjectManager):
         if item_template:
             character_gift = CharacterGifts()
             character_gift.creator = self.get_creator_guid()  # Creator of the original item.
-            character_gift.item_guid = self.guid & ~HighGuid.HIGHGUID_ITEM
+            character_gift.item_guid = self.get_low_guid()
             character_gift.entry = self.entry
             character_gift.flags = self.item_instance.item_flags
             RealmDatabaseManager.character_add_gift(character_gift)
@@ -471,6 +470,14 @@ class ItemManager(ObjectManager):
         if self.item_instance:
             self.item_instance.enchantments = self._get_enchantments_db_string()
             RealmDatabaseManager.character_inventory_update_item(self.item_instance)
+
+    # override
+    def get_type_mask(self):
+        return super().get_type_mask() | ObjectTypeFlags.TYPE_ITEM
+
+    # override
+    def get_low_guid(self):
+        return self.guid & ~HighGuid.HIGHGUID_ITEM
 
     # override
     def get_type_id(self):

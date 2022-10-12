@@ -1,6 +1,4 @@
 from network.packet.PacketReader import *
-from network.packet.PacketWriter import *
-from utils.constants.MiscCodes import FriendResults
 
 
 class FriendDeleteHandler(object):

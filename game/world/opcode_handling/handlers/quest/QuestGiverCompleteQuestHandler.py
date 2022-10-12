@@ -1,7 +1,7 @@
 from struct import unpack
-from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid
 
@@ -17,7 +17,7 @@ class QuestGiverCompleteQuestHandler(object):
 
         if len(reader.data) >= 12:  # Avoid handling empty quest giver complete quest packet.
             guid, quest_id = unpack('<QI', reader.data[:12])
-            high_guid = ObjectManager.extract_high_guid(guid)
+            high_guid = GuidUtils.extract_high_guid(guid)
             is_item = False
 
             quest_giver = None
@@ -30,9 +30,10 @@ class QuestGiverCompleteQuestHandler(object):
                 quest_giver = player_mgr.inventory.get_item_by_guid(guid)
 
             if not quest_giver:
-                Logger.error(f'Error in CMSG_QUESTGIVER_COMPLETE_QUEST, could not find quest giver with guid of: {guid}.')
+                Logger.error(f'Error in {reader.opcode_str()}, could not find quest giver with guid of: {guid}.')
                 return 0
             if not is_item and player_mgr.is_hostile_to(quest_giver):
+                Logger.warning(f'{reader.opcode_str()}, quest giver with guid: {guid} is hostile.')
                 return 0
 
             player_mgr.quest_manager.handle_complete_quest(quest_id, guid)

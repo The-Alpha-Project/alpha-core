@@ -66,6 +66,15 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Pet stuff.
+
+    @staticmethod
+    def get_pet_level_stats_by_entry_and_level(entry, level):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(PetLevelstat).filter_by(creature_entry=entry, level=level).first()
+        world_db_session.close()
+        return res
+
     # Area stuff.
 
     @staticmethod
@@ -299,9 +308,9 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def gameobject_spawn_get_by_guid(guid) -> [Optional[SpawnsGameobjects], scoped_session]:
+    def gameobject_spawn_get_by_spawn_id(spawn_id) -> [Optional[SpawnsGameobjects], scoped_session]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_GAMEOBJECT).first()
+        res = world_db_session.query(SpawnsGameobjects).filter_by(spawn_id=spawn_id).first()
         world_db_session.close()
         return res
 
@@ -384,10 +393,39 @@ class WorldDatabaseManager(object):
         def creature_get_by_entry(entry) -> Optional[CreatureTemplate]:
             return WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.get(entry)
 
+        @staticmethod
+        def creature_trainers_by_race_class(race, class_, type):
+            trainers = []
+            for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
+                if creature.trainer_race and creature.trainer_race != race:
+                    continue
+                if creature.trainer_class and creature.trainer_class != class_:
+                    continue
+                if creature.trainer_type != type:
+                    continue
+                if not creature.trainer_id:
+                    continue
+                trainers.append(creature)
+            return trainers
+
     @staticmethod
     def creature_template_get_all() -> list[CreatureModelInfo]:
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureTemplate).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def get_trainer_spell(spell_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(TrainerTemplate).filter_by(spell=spell_id).first()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def get_trainer_spell_price_by_level(level):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(TrainerTemplate).filter_by(reqlevel=level).first()
         world_db_session.close()
         return res
 
@@ -399,9 +437,9 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def creature_spawn_get_by_guid(guid) -> [Optional[SpawnsCreatures], scoped_session]:
+    def creature_spawn_get_by_spawn_id(spawn_id) -> [Optional[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=guid & ~HighGuid.HIGHGUID_UNIT).first()
+        res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=spawn_id).first()
         world_db_session.close()
         return res
 
@@ -657,9 +695,9 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def area_trigger_quest_relations_get_all() -> list[AreatriggerInvolvedrelation]:
+    def area_trigger_quest_relations_get_all() -> list[AreatriggerQuestRelation]:
         world_db_session = SessionHolder()
-        res = world_db_session.query(AreatriggerInvolvedrelation).all()
+        res = world_db_session.query(AreatriggerQuestRelation).all()
         world_db_session.close()
         return res
 
@@ -670,12 +708,32 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    class QuestExclusiveGroupsHolder:
+        EXCLUSIVE_GROUPS: dict[int, list[int]] = {}
+
+        @staticmethod
+        def load_exclusive_group(quest_template):
+            if not quest_template.ExclusiveGroup:
+                return
+            if quest_template.ExclusiveGroup not in WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS:
+                WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS[quest_template.ExclusiveGroup] = []
+
+            WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS[quest_template.ExclusiveGroup].append(
+                quest_template.entry)
+
+        @staticmethod
+        def get_quest_for_group_id(group_id):
+            if group_id not in WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS:
+                return []
+            return WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS[group_id]
+
     class QuestTemplateHolder:
         QUEST_TEMPLATES: dict[int, QuestTemplate] = {}
 
         @staticmethod
         def load_quest_template(quest_template):
             WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES[quest_template.entry] = quest_template
+            WorldDatabaseManager.QuestExclusiveGroupsHolder.load_exclusive_group(quest_template)
 
         @staticmethod
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
@@ -683,26 +741,46 @@ class WorldDatabaseManager(object):
 
     # Trainer stuff.
 
+    @staticmethod
+    def get_npc_trainer_greeting(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(NpcTrainerGreeting).filter_by(entry=entry).first()
+        world_db_session.close()
+        return res
+
     class TrainerSpellHolder:
         TRAINER_SPELLS: dict[tuple[int, int], TrainerTemplate] = {}
-        # Custom constant value for talent trainer template id. Use this value to retrieve talents from trainer_template.
+        # Custom constant value for talent trainer template id.
+        # Use this value to retrieve talents from trainer_template.
         TRAINER_TEMPLATE_TALENT_ID = 1000
         TALENTS: list[TrainerTemplate] = []
+        PLAYER_TALENT_SPELL_BY_TRAINER_SPELL: dict[int, int] = {}
 
         @staticmethod
         def load_trainer_spell(trainer_spell: TrainerTemplate):
             WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_spell.template_entry, trainer_spell.spell)] = trainer_spell
             # If this trainer template references a talent spell, load it in the corresponding table too.
             if trainer_spell.template_entry == WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID:
+                WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL[trainer_spell.spell] = trainer_spell.playerspell
                 WorldDatabaseManager.TrainerSpellHolder.TALENTS.append(trainer_spell)
+
+        @staticmethod
+        def get_player_spell_by_trainer_spell_id(trainer_spell_id):
+            return WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL[trainer_spell_id] if \
+                trainer_spell_id in WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL else 0
 
         @staticmethod
         def trainer_spells_get_by_trainer(trainer_entry_id: int) -> list[TrainerTemplate]:
             trainer_spells: list[TrainerTemplate] = []
 
-            creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(trainer_entry_id)
+            creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
+                trainer_entry_id)
             trainer_template_id = creature_template.trainer_id
+            return WorldDatabaseManager.TrainerSpellHolder.trainer_spell_get_by_trainer_id(creature_template.trainer_id)
 
+        @staticmethod
+        def trainer_spell_get_by_trainer_id(trainer_template_id: int) -> list[TrainerTemplate]:
+            trainer_spells: list[TrainerTemplate] = []
             for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
                 if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_template_id:
                     trainer_spells.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell])

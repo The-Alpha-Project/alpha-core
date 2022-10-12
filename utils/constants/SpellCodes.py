@@ -568,13 +568,26 @@ class SpellCastFlags(IntEnum):
     CAST_FLAG_HAS_AMMO = 0x10  # Written when ammo info is provided
 
 
+class WorldTextFlags:
+    NORMAL_DAMAGE = 0x0
+    CRIT = 0x1
+    MISS_ABSORBED = 0x2
+    DEFERRED = 0x4
+
+
 class SpellHitFlags(IntEnum):
-    HIT_FLAG_NORMAL = 0x0  # CGUnit_C::AddWorldDamageText(this, damage, normalCombatDamage);
-    HIT_FLAG_CRIT = 0x1  # CGUnit_C::AddWorldCritText(this, damage, normalCombatDamage);
-    HIT_FLAG_NO_DAMAGE = 0x2  # CGUnit_C::AddWorldText(this, WORLDTEXTMISS_ABSORBED);
-    # CGPlayer_C::AddDeferredDamage(normalCombatDamage, (CDataAllocator::Data *)flags, damage, this->m_obj->m_guid);
-    # (Also used if IsCombatSwingSpell(spellID), not sure what this does.
-    HIT_FLAG_DEFERRED = 0x4
+    NONE = 0x0
+    DAMAGE = 0x1
+    HEALED = 0x2
+    USE_AURA_EFFECT_ID = 0x4
+    REFLECTED = 0x8
+    CHANCE_STRING = 0x10  # hitRollNeededFloat, hitRollFloat.
+    ADVANCED_SPELL_LOGGING = 0x20
+    CRIT = 0x40
+    ENERGISED = 0x80  # Restore Health / Power.
+    PERIODIC = 0x100
+    NON_DAMAGE_SPELL = 0x200
+    SIMPLE_LOGGING = 0x400
 
 
 class TotemSlots(IntEnum):

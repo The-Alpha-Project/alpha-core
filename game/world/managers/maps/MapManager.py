@@ -2,9 +2,11 @@ import traceback
 import math
 import _queue
 from random import choice
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
+from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config
@@ -317,7 +319,7 @@ class MapManager:
         return MAPS.get(map_id)
 
     @staticmethod
-    def get_grid_manager_by_map_id(map_id):
+    def get_grid_manager_by_map_id(map_id) -> Optional[GridManager]:
         if map_id in MAPS:
             return MAPS[map_id].grid_manager
         return None
@@ -352,16 +354,17 @@ class MapManager:
             Logger.warning(f'Warning, did not find grid_manager for map: {world_object.map_}')
 
     @staticmethod
+    def spawn_object(world_object_spawn=None, world_object_instance=None):
+        map_ = world_object_spawn.map_ if world_object_spawn else world_object_instance.map_
+        grid_manager = MapManager.get_grid_manager_by_map_id(map_)
+        if grid_manager:
+            grid_manager.spawn_object(world_object_spawn, world_object_instance)
+        else:
+            Logger.warning(f'Warning, did not find grid_manager for map: {map_}')
+
+    @staticmethod
     def remove_object(world_object):
         MapManager.get_grid_manager_by_map_id(world_object.map_).remove_object(world_object)
-
-    @staticmethod
-    def despawn_object(world_object):
-        MapManager.get_grid_manager_by_map_id(world_object.map_).despawn_object(world_object)
-
-    @staticmethod
-    def respawn_object(world_object):
-        MapManager.get_grid_manager_by_map_id(world_object.map_).respawn_object(world_object)
 
     @staticmethod
     def send_surrounding(packet, world_object, include_self=True, exclude=None, use_ignore=False):
@@ -416,9 +419,19 @@ class MapManager:
             world_object, guid, include_players)
 
     @staticmethod
+    def get_surrounding_unit_by_spawn_id(world_object, spawn_id):
+        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_unit_by_spawn_id(
+            world_object, spawn_id)
+
+    @staticmethod
     def get_surrounding_gameobject_by_guid(world_object, guid):
         return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobject_by_guid(
             world_object, guid)
+
+    @staticmethod
+    def get_surrounding_gameobject_by_spawn_id(world_object, spawn_id):
+        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobject_by_spawn_id(
+            world_object, spawn_id)
 
     @staticmethod
     def update_creatures():
@@ -429,6 +442,16 @@ class MapManager:
     def update_gameobjects():
         for map_id, map_ in MAPS.items():
             map_.grid_manager.update_gameobjects()
+
+    @staticmethod
+    def update_spawns():
+        for map_id, map_ in MAPS.items():
+            map_.grid_manager.update_spawns()
+
+    @staticmethod
+    def update_corpses():
+        for map_id, map_ in MAPS.items():
+            map_.grid_manager.update_corpses()
 
     @staticmethod
     def deactivate_cells():
