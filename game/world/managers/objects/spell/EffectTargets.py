@@ -404,10 +404,6 @@ class EffectTargets:
 
         return [initial_target]
 
-    @staticmethod
-    def resolve_aoe_enemy_channel(casting_spell, target_effect):
-        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
-
     # Only used with TARGET_ALL_AROUND_CASTER in A.
     @staticmethod
     def resolve_all_friendly_around_caster(casting_spell, target_effect):
