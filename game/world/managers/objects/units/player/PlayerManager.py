@@ -258,9 +258,6 @@ class PlayerManager(UnitManager):
         # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
 
-        # Cast passive mod speed spells.
-        self.spell_manager.cast_passive_mod_speed()
-
         # Load & Apply enchantments.
         self.enchantment_manager.apply_enchantments(load=True)
 

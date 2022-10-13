@@ -225,21 +225,6 @@ class UnitSpellsValidator:
                UnitSpellsValidator._INVALID_PRECAST_KITS_
 
 
-class SpellEffectModSpeed:
-    _MOD_SPEED_AURAS = {
-        AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED,
-        AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED,
-        AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED,
-        AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED
-    }
-
-    @staticmethod
-    def has_mod_speed_effect(spell_template):
-        return spell_template.EffectAura_1 in SpellEffectModSpeed._MOD_SPEED_AURAS or \
-               spell_template.EffectAura_2 in SpellEffectModSpeed._MOD_SPEED_AURAS or \
-               spell_template.EffectAura_3 in SpellEffectModSpeed._MOD_SPEED_AURAS
-
-
 class SpellEffectMechanics:
     _MECHANIC_AURAS = {
         AuraTypes.SPELL_AURA_MOD_CHARM: SpellMechanic.MECHANIC_CHARM,
