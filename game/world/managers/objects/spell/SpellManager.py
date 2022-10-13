@@ -356,7 +356,7 @@ class SpellManager:
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources.
 
-    def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False,
+    def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False, update_index=-1,
                             partial_targets: Optional[list[int]] = None):
         if not update:
             self.handle_procs_for_cast(casting_spell)
@@ -368,6 +368,9 @@ class SpellManager:
                 self.caster.handle_spell_cast_skill_gain(casting_spell)
 
         for effect in casting_spell.get_effects():
+            if update and update_index != effect.effect_index:
+                continue
+
             if not update:
                 effect.start_aura_duration()
 
@@ -745,7 +748,7 @@ class SpellManager:
 
             # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
-                self.apply_spell_effects(casting_spell, update=True)
+                self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
