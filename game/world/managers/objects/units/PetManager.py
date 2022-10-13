@@ -225,7 +225,7 @@ class PetManager:
             self.get_active_pet_info().save()
 
     def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int,
-                           pet_level=-1, pet_index=-1, lifetime_sec=-1, is_permanent=False):
+                           pet_level=-1, pet_index=-1, is_permanent=False):
         if self.active_pet:
             return
 
@@ -244,7 +244,7 @@ class PetManager:
                 pet_level = creature.level
 
             # Add as a new pet.
-            pet_index = self.add_pet(pet.creature_template, summon_spell_id, pet_level, lifetime_sec=lifetime_sec)
+            pet_index = self.add_pet(pet.creature_template, summon_spell_id, pet_level, is_permanent)
 
         self._set_active_pet(pet_index, pet)
         self.set_active_pet_level(pet_level)
@@ -258,11 +258,11 @@ class PetManager:
         self.active_pet = ActivePet(pet_index, creature)
         self._send_pet_spell_info()
 
-    def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, lifetime_sec=-1) -> int:
+    def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, permanent: bool) -> int:
         # TODO: default name by beast_family - resolve id reference.
 
         pet = PetData(-1, creature_template.name, creature_template, self.owner.guid, level,
-                      0, summon_spell_id, permanent=lifetime_sec == -1)
+                      0, summon_spell_id, permanent=permanent)
 
         pet.save()
         self.pets.append(pet)
