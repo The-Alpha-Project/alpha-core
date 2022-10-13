@@ -1319,9 +1319,12 @@ class UnitManager(ObjectManager):
         # Stop movement on death.
         self.stop_movement()
 
-        # Detach from controller if this unit is a pet.
-        if self.summoner:
-            self.summoner.pet_manager.detach_active_pet()
+        # Detach from controller if this unit is an active pet and the summoner is a unit (game objects can only spawn
+        # creatures, but they can never have actual pets so they don't have any PetManager).
+        if self.summoner and self.summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            summoner_active_pet = self.summoner.pet_manager.active_pet
+            if summoner_active_pet and summoner_active_pet.creature.guid == self.guid:
+                self.summoner.pet_manager.detach_active_pet()
 
         self.leave_combat(force=True)
         self.evading_waypoints.clear()

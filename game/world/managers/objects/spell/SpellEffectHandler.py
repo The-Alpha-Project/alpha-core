@@ -521,7 +521,7 @@ class SpellEffectHandler:
             creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_,
                                                       summoner=caster, faction=caster.faction, ttl=duration,
                                                       spell_id=casting_spell.spell_entry.ID,
-                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
+                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
 
             if not creature_manager:
                 Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
