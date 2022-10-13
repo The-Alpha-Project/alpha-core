@@ -189,7 +189,7 @@ class ObjectManager:
 
     def force_fields_update(self):
         # TODO - This method is a hackfix for force-updating single fields.
-        #  Implement something like the following instead
+        #  Implement something like the following instead:
         # self.set_uint32(field_index, 0, force=true)
 
         MapManager.update_object(self, has_changes=True)

@@ -371,8 +371,8 @@ class AuraManager:
 
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
         if is_refresh:
-            # The aura needs to be rewritten on the unit to avoid a visual bug
-            # with aura refreshing and the aura blinking on low duration.
+            # The aura flag needs to be rewritten on the unit to avoid a visual bug with
+            # an aura being refreshed while the aura is fading due to low duration.
             self._write_aura_flag_to_unit(aura, clear=True)
             self.unit_mgr.force_fields_update()
 
