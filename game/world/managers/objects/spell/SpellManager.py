@@ -453,7 +453,7 @@ class SpellManager:
                     casting_spell.casts_on_swing():
                 continue
 
-            cast_finished = casting_spell.cast_end_timestamp <= timestamp
+            cast_finished = casting_spell.cast_end_timestamp <= timestamp and casting_spell.cast_end_timestamp != -1
             # Channel tick/spells that need updates.
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
                 # Update effects if the cast wasn't interrupted.
@@ -706,13 +706,16 @@ class SpellManager:
         MapManager.send_surrounding(packet, self.caster, include_self=is_player)
 
     def handle_channel_start(self, casting_spell):
-        if not casting_spell.is_channeled() or casting_spell.get_duration() == -1:
-            return  # TODO Permanent channel on -1?
+        if not casting_spell.is_channeled():
+            return
 
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
-        channel_end_timestamp = casting_spell.get_duration() / 1000 + time.time()
         casting_spell.cast_start_timestamp = time.time()
-        casting_spell.cast_end_timestamp = channel_end_timestamp  # Set the new timestamp for cast finish.
+
+        # Set new timestamp for cast finish. This will be -1 on an infinite channel (Drain Soul).
+        channel_duration = casting_spell.get_duration()
+        channel_end_timestamp = channel_duration / 1000 + time.time() if channel_duration != -1 else -1
+        casting_spell.cast_end_timestamp = channel_end_timestamp
 
         if casting_spell.initial_target_is_object():
             self.caster.set_channel_object(casting_spell.initial_target.guid)
@@ -723,7 +726,7 @@ class SpellManager:
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        data = pack('<2I', casting_spell.spell_entry.ID, casting_spell.get_duration())
+        data = pack('<2i', casting_spell.spell_entry.ID, casting_spell.get_duration())
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
     def handle_spell_effect_update(self, casting_spell, timestamp):

@@ -522,7 +522,7 @@ class CastingSpell:
         curr_time = time.time()
         remaining_cast_before_pushback = self.cast_end_timestamp - curr_time
 
-        if self.is_channeled() and self.cast_state == SpellState.SPELL_STATE_ACTIVE:
+        if self.is_channeled() and self.cast_state == SpellState.SPELL_STATE_ACTIVE and self.get_duration() != -1:
             channel_length = self.get_duration() / 1000  # /1000 for seconds.
             final_opcode = OpCode.MSG_CHANNEL_UPDATE
             pushback_length_sec = min(remaining_cast_before_pushback, channel_length * 0.25)
