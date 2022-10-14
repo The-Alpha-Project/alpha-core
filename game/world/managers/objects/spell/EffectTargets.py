@@ -136,10 +136,12 @@ class EffectTargets:
 
         # Accept B when it's the correct type and not 0.
         # Also check for SPECIFYING_IMPLICIT_TARGETS since in those cases empty targets should still be prioritized.
-        if self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL and \
-                (self.target_effect.implicit_target_b in SPECIFYING_IMPLICIT_TARGETS or
-                 len(self.resolved_targets_b) > 0 and isinstance(self.resolved_targets_b[0], _type)):
-            b_matches_type = True
+        if self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL:
+            has_valid_b_targets = len(self.resolved_targets_b) > 0
+            if not has_valid_b_targets and self.target_effect.implicit_target_b in SPECIFYING_IMPLICIT_TARGETS or \
+                    has_valid_b_targets and isinstance(self.resolved_targets_b[0], _type):
+                b_matches_type = True
+
         if self.resolved_targets_a and len(self.resolved_targets_a) > 0 and isinstance(self.resolved_targets_a[0], _type):
             if not b_matches_type:
                 return self.resolved_targets_a  # If B is not the correct type but A is, return A targets
@@ -402,10 +404,6 @@ class EffectTargets:
 
         return [initial_target]
 
-    @staticmethod
-    def resolve_aoe_enemy_channel(casting_spell, target_effect):
-        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
-
     # Only used with TARGET_ALL_AROUND_CASTER in A.
     @staticmethod
     def resolve_all_friendly_around_caster(casting_spell, target_effect):
@@ -493,13 +491,13 @@ TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_ENEMY_UNIT: EffectTargets.resolve_chain_damage,
     SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA: EffectTargets.resolve_all_enemy_in_area,
     SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT: EffectTargets.resolve_all_enemy_in_area_instant,
+    SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL: EffectTargets.resolve_all_enemy_in_area_instant,
     SpellImplicitTargets.TARGET_TABLE_X_Y_Z_COORDINATES: EffectTargets.resolve_table_coordinates,
     SpellImplicitTargets.TARGET_EFFECT_SELECT: EffectTargets.resolve_effect_select,
     SpellImplicitTargets.TARGET_AROUND_CASTER_PARTY: EffectTargets.resolve_party_around_caster,
     SpellImplicitTargets.TARGET_ALL_AROUND_CASTER: EffectTargets.resolve_all_around_caster,
     SpellImplicitTargets.TARGET_INFRONT: EffectTargets.resolve_enemy_infront,
     SpellImplicitTargets.TARGET_UNIT: EffectTargets.resolve_unit,
-    SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL: EffectTargets.resolve_aoe_enemy_channel,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_AROUND_CASTER: EffectTargets.resolve_all_friendly_around_caster,
     SpellImplicitTargets.TARGET_ALL_FRIENDLY_UNITS_IN_AREA: EffectTargets.resolve_all_friendly_in_area,
     SpellImplicitTargets.TARGET_MINION: EffectTargets.resolve_minion,

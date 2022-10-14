@@ -16,7 +16,6 @@ from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
-from game.world.managers.objects.spell.ExtendedSpellData import SpellEffectModSpeed
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -159,23 +158,6 @@ class SpellManager:
 
             # Shapeshift passives are only applied on shapeshift change.
             if spell_template.ShapeshiftMask:
-                continue
-
-            # Mod speed auras must be applied once the player has been created. (Create packet sent).
-            if SpellEffectModSpeed.has_mod_speed_effect(spell_template):
-                continue
-
-            if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
-                self.apply_passive_spell_effects(spell_template)
-
-    def cast_passive_mod_speed(self):
-        for spell_id in self.spells.keys():
-            # Skip inactive spells.
-            if not self.spells[spell_id].active:
-                continue
-            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
-
-            if not SpellEffectModSpeed.has_mod_speed_effect(spell_template):
                 continue
 
             if spell_template and spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
@@ -356,7 +338,7 @@ class SpellManager:
         self.set_on_cooldown(casting_spell)
         self.consume_resources_for_cast(casting_spell)  # Remove resources.
 
-    def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False,
+    def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False, update_index=-1,
                             partial_targets: Optional[list[int]] = None):
         if not update:
             self.handle_procs_for_cast(casting_spell)
@@ -368,6 +350,9 @@ class SpellManager:
                 self.caster.handle_spell_cast_skill_gain(casting_spell)
 
         for effect in casting_spell.get_effects():
+            if update and update_index != effect.effect_index:
+                continue
+
             if not update:
                 effect.start_aura_duration()
 
@@ -453,7 +438,7 @@ class SpellManager:
                     casting_spell.casts_on_swing():
                 continue
 
-            cast_finished = casting_spell.cast_end_timestamp <= timestamp
+            cast_finished = casting_spell.cast_end_timestamp <= timestamp and casting_spell.cast_end_timestamp != -1
             # Channel tick/spells that need updates.
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
                 # Update effects if the cast wasn't interrupted.
@@ -706,13 +691,16 @@ class SpellManager:
         MapManager.send_surrounding(packet, self.caster, include_self=is_player)
 
     def handle_channel_start(self, casting_spell):
-        if not casting_spell.is_channeled() or casting_spell.get_duration() == -1:
-            return  # TODO Permanent channel on -1?
+        if not casting_spell.is_channeled():
+            return
 
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
-        channel_end_timestamp = casting_spell.get_duration() / 1000 + time.time()
         casting_spell.cast_start_timestamp = time.time()
-        casting_spell.cast_end_timestamp = channel_end_timestamp  # Set the new timestamp for cast finish.
+
+        # Set new timestamp for cast finish. This will be -1 on an infinite channel (Drain Soul).
+        channel_duration = casting_spell.get_duration()
+        channel_end_timestamp = channel_duration / 1000 + time.time() if channel_duration != -1 else -1
+        casting_spell.cast_end_timestamp = channel_end_timestamp
 
         if casting_spell.initial_target_is_object():
             self.caster.set_channel_object(casting_spell.initial_target.guid)
@@ -723,7 +711,7 @@ class SpellManager:
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        data = pack('<2I', casting_spell.spell_entry.ID, casting_spell.get_duration())
+        data = pack('<2i', casting_spell.spell_entry.ID, casting_spell.get_duration())
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
     def handle_spell_effect_update(self, casting_spell, timestamp):
@@ -742,7 +730,7 @@ class SpellManager:
 
             # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
-                self.apply_spell_effects(casting_spell, update=True)
+                self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():

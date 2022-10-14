@@ -272,9 +272,8 @@ class AuraEffectHandler:
             # TODO Generate threat?
             return
 
-        duration_in_seconds = int(aura.get_duration() / 1000)
         if effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            aura.caster.pet_manager.add_pet_from_world(effect_target, aura.spell_id, lifetime_sec=duration_in_seconds)
+            aura.caster.pet_manager.add_pet_from_world(effect_target, aura.spell_id)
         elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
             pass  # TODO: Implement behavior for charmed players.
 

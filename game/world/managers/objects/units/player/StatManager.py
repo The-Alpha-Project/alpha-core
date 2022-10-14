@@ -230,6 +230,11 @@ class StatManager(object):
         return self.get_total_stat(UnitStats.SKILL, misc_value=skill_type)
 
     def apply_bonuses(self, replenish=False):
+        # Don't apply bonuses for players that haven't completed login.
+        # Sending a speed change before entering the world crashes the client.
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER and not self.unit_mgr.online:
+            return
+
         self.calculate_item_stats()
 
         # Always update base attack since unarmed damage should update.
