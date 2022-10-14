@@ -8,16 +8,19 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.PetAI import PetAI
+from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
-from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, SpellAttributesEx
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -225,16 +228,15 @@ class PetManager:
             self.get_active_pet_info().save()
 
     def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int,
-                           pet_level=-1, pet_index=-1, lifetime_sec=-1, is_permanent=False):
+                           pet_level=-1, pet_index=-1, is_permanent=False, is_temporal_mod=False):
         if self.active_pet:
             return
 
-        # Creature from world spawns.
-        if not is_permanent:
-            creature.leave_combat(force=True)
+        # Modify and link owner and creature.
+        self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent, is_temporal_mod=is_temporal_mod)
 
-        # Creature can be overrided depending if we are taming or summoning a permanent pet.
-        pet = self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent)
+        # Creature from world spawns.
+        creature.leave_combat(force=True)
 
         if pet_index == -1:
             # Pet not in database.
@@ -244,9 +246,9 @@ class PetManager:
                 pet_level = creature.level
 
             # Add as a new pet.
-            pet_index = self.add_pet(pet.creature_template, summon_spell_id, pet_level, lifetime_sec=lifetime_sec)
+            pet_index = self.add_pet(creature.creature_template, summon_spell_id, pet_level, is_permanent)
 
-        self._set_active_pet(pet_index, pet)
+        self._set_active_pet(pet_index, creature)
         self.set_active_pet_level(pet_level)
 
     def _set_active_pet(self, pet_index: int, creature: CreatureManager):
@@ -258,11 +260,11 @@ class PetManager:
         self.active_pet = ActivePet(pet_index, creature)
         self._send_pet_spell_info()
 
-    def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, lifetime_sec=-1) -> int:
+    def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, permanent: bool) -> int:
         # TODO: default name by beast_family - resolve id reference.
 
         pet = PetData(-1, creature_template.name, creature_template, self.owner.guid, level,
-                      0, summon_spell_id, permanent=lifetime_sec == -1)
+                      0, summon_spell_id, permanent=permanent)
 
         pet.save()
         self.pets.append(pet)
@@ -308,16 +310,32 @@ class PetManager:
         if self._get_pet_info(pet_index):
             self.pets.pop(pet_index)
 
-    def detach_active_pet(self):
+    def detach_active_pet(self, spell_entry=None):
         if not self.active_pet:
             return
 
         creature = self.active_pet.creature
         pet_info = self.get_active_pet_info()
 
+        # If this does not come from aura handling, check if we can retrieve the spell from channel spell field.
+        if not spell_entry:
+            channel_spell = self.owner.get_int32(UnitFields.UNIT_CHANNEL_SPELL)
+            if channel_spell:
+                spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(channel_spell)
+
         is_permanent = self.get_active_pet_info().permanent
         pet_index = self.active_pet.pet_index
         self._update_active_pet_damage(reset=True)
+
+        movement_type = MovementTypes.IDLE
+        # Check if this is a borrowed creature instance.
+        if creature.spawn_id:
+            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature.summoner, creature.spawn_id)
+            if not spawn:
+                Logger.error(f'Unable to locate SpawnCreature with id {creature.spawn_id} upon pet detach.')
+            if not spawn.un_borrow_creature(creature):
+                Logger.error(f'Unable to locate un-borrow creature from spawn id {creature.spawn_id} upon pet detach.')
+            movement_type = spawn.movement_type
 
         self.active_pet = None
 
@@ -331,12 +349,25 @@ class PetManager:
         else:
             self.remove_pet(pet_index)
 
-        # Can't leave an orphan creature with no SpawnCreature, destroy in both cases.
-        # TODO: Should pet attack the owner after losing the charm in 0.5.3?
-        #  Should not permanent pets remain in world?
-        creature.is_alive = False
+        # Flush ThreatManager before releasing this creature in order to avoid evade trigger.
         creature.leave_combat(force=True)
-        creature.destroy()
+        # Restore creature state.
+        creature.set_summoned_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
+                                 movement_type=movement_type, remove=True)
+
+        # Orphan creature, destroy.
+        if not creature.spawn_id:
+            creature.destroy()
+        # Check if spell entry exist and if it generates threat.
+        elif spell_entry and creature.get_type_id() == ObjectTypeIds.ID_UNIT and spell_entry.AttributesEx \
+                and not spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT:
+            # TODO: Proper threat value.
+            threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
+            creature.threat_manager.add_threat(self.owner, threat)
+
+        # Handle channeled interrupt if needed.
+        if spell_entry and self.owner.spell_manager.is_casting_spell(spell_entry.ID):
+            self.owner.spell_manager.remove_cast_by_id(spell_entry.ID)
 
     def get_active_pet_info(self) -> Optional[PetData]:
         if not self.active_pet:
@@ -487,28 +518,32 @@ class PetManager:
 
         return self.pets[pet_index]
 
-    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False):
-        # If this creature was taken from the world, despawn the original and create unit pet.
+    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False, is_temporal_mod=False):
         if not is_permanent:
-            pet_creature = CreatureBuilder.create(creature.entry, creature.location, creature.map_,
-                                                  summoner=self.owner, faction=self.owner.faction,
-                                                  movement_type=MovementTypes.IDLE,
-                                                  spell_id=summon_spell_id,
-                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
+            # Creatures which are linked to a CreatureSpawn.
+            if creature.get_type_id() == ObjectTypeIds.ID_UNIT and creature.spawn_id:
+                spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
+                if not spawn:
+                    Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+                    return
+                # No time limit, detach creature instance from spawn.
+                if not is_temporal_mod:
+                    if not spawn.detach_creature(creature):
+                        Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+                        return
+                # Time limit, borrow the creature instance.
+                elif is_temporal_mod:
+                    if not spawn.borrow_creature(creature):
+                        Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+                        return
 
-            # Despawn source creature, its spawn point will handle respawning.
-            creature.destroy()
-            # Spawn new creature pet.
-            MapManager.spawn_object(world_object_instance=pet_creature)
+        creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
+                                 subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
+                                 movement_type=MovementTypes.IDLE)
+
         # This is a permanent pet summoned by SPELL_EFFECT_SUMMON_PET, just spawn it.
-        else:
-            pet_creature = creature
-            MapManager.spawn_object(world_object_instance=pet_creature)
-
-        # Link summoner to pet.
-        self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, pet_creature.guid)
-
-        return pet_creature
+        if is_permanent:
+            MapManager.spawn_object(world_object_instance=creature)
 
     def _send_pet_spell_info(self):
         if not self.active_pet:

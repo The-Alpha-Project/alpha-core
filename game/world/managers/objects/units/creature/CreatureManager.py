@@ -104,6 +104,7 @@ class CreatureManager(UnitManager):
         self.creature_type = self.creature_template.type
         self.spell_list_id = self.creature_template.spell_list_id
         self.sheath_state = WeaponMode.NORMALMODE
+        self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
 
         if 0 < self.creature_template.rank < 4:
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -759,6 +760,19 @@ class CreatureManager(UnitManager):
     # override
     def has_ranged_weapon(self):
         return self.wearing_ranged_weapon
+
+    # override
+    def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
+                        movement_type=None, remove=False):
+        # Summoner must be set in here not in parent.
+        self.summoner = summoner if not remove else None
+        self.movement_type = movement_type
+        self.spell_id = spell_id
+        self.faction = summoner.faction if not remove else self.creature_template.faction
+        self.subtype = subtype
+        self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.spell_id)
+        self.object_ai = AIFactory.build_ai(self)
+        super().set_summoned_by(summoner, spell_id=spell_id, subtype=subtype, remove=remove)
 
     # override
     def set_weapon_mode(self, weapon_mode):

@@ -391,6 +391,11 @@ class MapManager:
             world_object, include_players)
 
     @staticmethod
+    def get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id):
+        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_creature_spawn_by_spawn_id(
+            world_object, spawn_id=spawn_id)
+
+    @staticmethod
     def get_surrounding_units_by_location(vector, target_map, range_, include_players=False):
         grid_mgr = MapManager.get_grid_manager_by_map_id(target_map)
         if not grid_mgr:

@@ -32,6 +32,7 @@ from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
+from utils.constants import CustomCodes
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults
@@ -257,9 +258,6 @@ class PlayerManager(UnitManager):
         self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
         # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
-
-        # Cast passive mod speed spells.
-        self.spell_manager.cast_passive_mod_speed()
 
         # Load & Apply enchantments.
         self.enchantment_manager.apply_enchantments(load=True)
@@ -1081,7 +1079,6 @@ class PlayerManager(UnitManager):
     def has_area_explored(self, area_explore_bit):
         return self.explored_areas[area_explore_bit]
 
-    # TODO: Trigger quest explore requirement checks.
     def set_area_explored(self, area_information):
         self.explored_areas[area_information.explore_bit] = True
         if area_information.level > 0:
@@ -1405,6 +1402,15 @@ class PlayerManager(UnitManager):
             return False  # players can't dodge from behind.
 
         return True  # TODO Stunned check
+
+    # override
+    def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
+        # Summoner must be set in here not in parent.
+        self.summoner = summoner if not remove else None
+        # Restore faction.
+        if remove:
+            self.set_player_variables()
+        super().set_summoned_by(summoner, spell_id, subtype, remove=remove)
 
     # override
     def set_weapon_mode(self, weapon_mode):

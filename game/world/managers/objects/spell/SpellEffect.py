@@ -114,7 +114,8 @@ class SpellEffect:
             if self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
                 return True
 
-            if self.casting_spell.initial_target_is_object():
+            # Don't compare to initial target for AoE spells since the source (initial target) can be the caster.
+            if self.casting_spell.initial_target_is_object() and not self.casting_spell.is_area_of_effect_spell():
                 return self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
 
         return not self.targets.can_target_friendly()  # TODO this may not cover all cases.

@@ -18,6 +18,7 @@ from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ByteUtils import ByteUtils
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
+from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
@@ -999,9 +1000,14 @@ class UnitManager(ObjectManager):
     def update_power_type(self):
         pass
 
-    def set_summoned_by(self, summoner: Optional[UnitManager]):
-        self.summoner = summoner
-        self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if self.summoner else 0)
+    # Implemented by Creature/PlayerManager.
+    def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
+        # Link summoner to self.
+        self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if not remove else 0)
+        # Link self to summoner.
+        summoner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, self.guid if not remove else 0)
+        # Set faction, either original or summoner. (Restored on CreatureManager/PlayerManager)
+        self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
     def get_power_type_value(self, power_type=-1):
         if power_type == -1:
