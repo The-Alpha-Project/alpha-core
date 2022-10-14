@@ -28,7 +28,7 @@ class CreatureSpawn:
 
     def update(self, now):
         if now > self.last_tick > 0:
-            # Creature under mod charm, skip update.
+            # Skip update if creature instance is charmed.
             if not self.borrowed:
                 elapsed = now - self.last_tick
                 creature = self.creature_instance
@@ -40,7 +40,7 @@ class CreatureSpawn:
 
         self.last_tick = now
 
-    def detach_creature(self, creature):
+    def detach_creature_from_spawn(self, creature):
         if self.creature_instance:
             if creature.guid == self.creature_instance.guid:
                 self.creature_instance.spawn_id = 0
@@ -48,14 +48,14 @@ class CreatureSpawn:
                 return True
         return False
 
-    def borrow_creature(self, creature):
+    def lend_creature_instance(self, creature):
         if self.creature_instance:
             if creature.guid == self.creature_instance.guid:
                 self.borrowed = True
                 return True
         return False
 
-    def un_borrow_creature(self, creature):
+    def restore_creature_instance(self, creature):
         if self.creature_instance:
             if creature.guid == self.creature_instance.guid:
                 self.borrowed = False

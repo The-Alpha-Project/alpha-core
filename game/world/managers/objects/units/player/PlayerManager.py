@@ -1405,7 +1405,7 @@ class PlayerManager(UnitManager):
 
     # override
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
-        # Summoner must be set in here not in parent.
+        # Summoner must be set here not in parent.
         self.summoner = summoner if not remove else None
         # Restore faction.
         if remove:

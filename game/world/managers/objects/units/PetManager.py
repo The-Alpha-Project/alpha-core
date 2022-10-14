@@ -316,7 +316,7 @@ class PetManager:
         creature = self.active_pet.creature
         pet_info = self.get_active_pet_info()
 
-        # If this does not come from aura handling, check if we can retrieve the spell from channel spell field.
+        # If this does not come from aura handling, check if we can retrieve the spell from the channel spell field.
         if not spell_entry:
             channel_spell = self.owner.get_int32(UnitFields.UNIT_CHANNEL_SPELL)
             if channel_spell:
@@ -332,7 +332,7 @@ class PetManager:
             spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature.summoner, creature.spawn_id)
             if not spawn:
                 Logger.error(f'Unable to locate SpawnCreature with id {creature.spawn_id} upon pet detach.')
-            if not spawn.un_borrow_creature(creature):
+            if not spawn.restore_creature_instance(creature):
                 Logger.error(f'Unable to locate un-borrow creature from spawn id {creature.spawn_id} upon pet detach.')
             movement_type = spawn.movement_type
 
@@ -357,7 +357,7 @@ class PetManager:
         # Orphan creature, destroy.
         if not creature.spawn_id:
             creature.destroy()
-        # Check if spell entry exist and if it generates threat.
+        # Check if the spell entry exists and if it generates threat.
         elif spell_entry and creature.get_type_id() == ObjectTypeIds.ID_UNIT and spell_entry.AttributesEx \
                 and not spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT:
             # TODO: Proper threat value.
@@ -526,12 +526,12 @@ class PetManager:
                 return
             # Detach creature instance from spawn.
             if is_permanent:
-                if not spawn.detach_creature(creature):
+                if not spawn.detach_creature_from_spawn(creature):
                     Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                     return
             # Borrow the creature instance.
             elif not is_permanent:
-                if not spawn.borrow_creature(creature):
+                if not spawn.lend_creature_instance(creature):
                     Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                     return
 
