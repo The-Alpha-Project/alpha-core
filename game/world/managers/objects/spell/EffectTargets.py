@@ -141,6 +141,7 @@ class EffectTargets:
             if not has_valid_b_targets and self.target_effect.implicit_target_b in SPECIFYING_IMPLICIT_TARGETS or \
                     has_valid_b_targets and isinstance(self.resolved_targets_b[0], _type):
                 b_matches_type = True
+                
         if self.resolved_targets_a and len(self.resolved_targets_a) > 0 and isinstance(self.resolved_targets_a[0], _type):
             if not b_matches_type:
                 return self.resolved_targets_a  # If B is not the correct type but A is, return A targets

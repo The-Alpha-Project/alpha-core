@@ -247,6 +247,7 @@ class PetManager:
             # Add as a new pet.
             pet_index = self.add_pet(creature.creature_template, summon_spell_id, pet_level, is_permanent)
 
+
         self._set_active_pet(pet_index, creature)
         self.set_active_pet_level(pet_level)
 
