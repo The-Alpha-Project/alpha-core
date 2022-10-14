@@ -474,7 +474,7 @@ class SpellEffectHandler:
 
         # Taming will always result in the target becoming the caster's pet.
         # Pass ID 883 (Summon Pet) as the spell creating this unit since it's saved in the database.
-        caster.pet_manager.add_pet_from_world(target, 883)
+        caster.pet_manager.add_pet_from_world(target, 883, is_permanent=True)
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):

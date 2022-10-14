@@ -518,23 +518,22 @@ class PetManager:
         return self.pets[pet_index]
 
     def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False):
-        if not is_permanent:
-            # Creatures which are linked to a CreatureSpawn.
-            if creature.get_type_id() == ObjectTypeIds.ID_UNIT and creature.spawn_id:
-                spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
-                if not spawn:
+        # Creatures which are linked to a CreatureSpawn.
+        if creature.get_type_id() == ObjectTypeIds.ID_UNIT and creature.spawn_id:
+            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
+            if not spawn:
+                Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+                return
+            # Detach creature instance from spawn.
+            if is_permanent:
+                if not spawn.detach_creature(creature):
                     Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                     return
-                # No time limit, detach creature instance from spawn.
-                if is_permanent:
-                    if not spawn.detach_creature(creature):
-                        Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
-                        return
-                # Time limit, borrow the creature instance.
-                elif not is_permanent:
-                    if not spawn.borrow_creature(creature):
-                        Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
-                        return
+            # Borrow the creature instance.
+            elif not is_permanent:
+                if not spawn.borrow_creature(creature):
+                    Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+                    return
 
         creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
