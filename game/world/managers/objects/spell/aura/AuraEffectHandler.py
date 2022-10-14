@@ -271,9 +271,6 @@ class AuraEffectHandler:
             aura.caster.pet_manager.detach_active_pet()
             return
 
-        # TODO: Effect points seem to point to max target level this aura can charm.
-        #  e.g. Sirens call (ID 5864) resolves to 21.
-
         if effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
             aura.caster.pet_manager.add_pet_from_world(effect_target, aura.spell_id)
         elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
