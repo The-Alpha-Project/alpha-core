@@ -1102,7 +1102,9 @@ class SpellManager:
                 return False
 
         # Charm checks.
-        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and casting_spell.is_charm_spell():
+
+        charm_effect = casting_spell.get_charm_effect()
+        if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and charm_effect:
             if not self.caster.can_attack_target(validation_target):
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
@@ -1115,11 +1117,18 @@ class SpellManager:
                 return False
 
             # Taming restrictions.
-            tame_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_TAME_CREATURE)
-            if tame_effect:
-                tame_result = self.caster.pet_manager.handle_tame_result(tame_effect, validation_target)
+            if charm_effect.effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
+                tame_result = self.caster.pet_manager.handle_tame_result(charm_effect, validation_target)
                 if tame_result != SpellCheckCastResult.SPELL_NO_ERROR:
                     self.send_cast_result(casting_spell.spell_entry.ID, tame_result)
+                    return False
+            else:
+                # All charm effects have the level restriction in effect points.
+                # Taming is handled separately since it has its own opcode for results.
+                max_charm_level = charm_effect.get_effect_points()
+                if validation_target.level > max_charm_level:
+                    self.send_cast_result(casting_spell.spell_entry.ID,
+                                          SpellCheckCastResult.SPELL_FAILED_LEVEL_REQUIREMENT)
                     return False
 
         # Pickpocketing target validity check.

@@ -110,15 +110,21 @@ class SpellEffect:
         return self._harmful
 
     def _resolve_harmful(self):
+        # Effect harmfulness is resolved before actual target resolution.
+        # Instead of analyzing resolved targets,
+        # take into account initial target friendliness and the nature of the effect's implicit targets.
+        can_target_friendly = self.targets.can_target_friendly()
+
         if self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA:
             if self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
                 return True
 
             # Don't compare to initial target for AoE spells since the source (initial target) can be the caster.
             if self.casting_spell.initial_target_is_object() and not self.casting_spell.is_area_of_effect_spell():
-                return self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
+                return not can_target_friendly and \
+                       self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
 
-        return not self.targets.can_target_friendly()  # TODO this may not cover all cases.
+        return not can_target_friendly  # TODO this may not cover all cases.
 
     def is_target_immune(self, target):
         # Validate target and check harmfulness.
