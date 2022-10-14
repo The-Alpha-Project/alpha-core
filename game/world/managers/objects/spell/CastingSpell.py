@@ -312,13 +312,13 @@ class CastingSpell:
     def is_positive_spell(self):
         return not self.spell_caster.can_attack_target(self.initial_target)
 
-    def is_charm_spell(self):
+    def get_charm_effect(self) -> Optional[SpellEffect]:
         for spell_effect in self.get_effects():
             if spell_effect.aura_type in [AuraTypes.SPELL_AURA_MOD_CHARM, AuraTypes.SPELL_AURA_MOD_POSSESS]:
-                return True
+                return spell_effect
             if spell_effect.effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
-                return True
-        return False
+                return spell_effect
+        return None
 
     def is_enchantment_spell(self):
         enchantment_effects = [SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
