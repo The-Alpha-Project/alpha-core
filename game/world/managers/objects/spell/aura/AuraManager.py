@@ -369,13 +369,15 @@ class AuraManager:
         if send_duration:
             self.send_aura_duration(aura)
 
-        if is_refresh:
-            # When refreshing auras, only a duration update is sent.
-            return
-
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
+        if is_refresh:
+            # The aura flag needs to be rewritten on the unit to avoid a visual bug with
+            # an aura being refreshed while the aura is fading due to low duration.
+            self._write_aura_flag_to_unit(aura, clear=True)
+            self.unit_mgr.force_fields_update()
+
         self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
-        self._write_aura_flag_to_unit(aura, clear)
+        self._write_aura_flag_to_unit(aura, clear=clear)
 
     def _write_aura_flag_to_unit(self, aura, clear=False):
         if not aura:

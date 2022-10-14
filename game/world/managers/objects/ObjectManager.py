@@ -1,3 +1,4 @@
+import time
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -185,6 +186,14 @@ class ObjectManager:
     def reset_fields_older_than(self, timestamp):
         # Reset updated fields older than the specified timestamp.
         return self.update_packet_factory.reset_older_than(timestamp)
+
+    def force_fields_update(self):
+        # TODO - This method is a hackfix for force-updating single fields.
+        #  Implement something like the following instead:
+        # self.set_uint32(field_index, 0, force=true)
+
+        MapManager.update_object(self, has_changes=True)
+        self.reset_fields_older_than(time.time())
 
     def _get_base_structure(self, update_type):
         return pack(

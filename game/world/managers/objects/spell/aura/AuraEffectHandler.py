@@ -37,8 +37,7 @@ class AuraEffectHandler:
         # Upon shapeshift set, we need to force the update upon player(s), else client action bars will misbehave.
         # TODO: Forcing an update goes outside our normal UpdateSystem work flow, this needs further investigation.
         if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER and effect_target.online and not remove:
-            MapManager.update_object(effect_target, has_changes=True)
-            effect_target.reset_fields_older_than(time.time())
+            effect_target.force_fields_update()
 
         faction = aura.target.team if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER else 0
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
