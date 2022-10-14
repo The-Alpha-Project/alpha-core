@@ -8,7 +8,6 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.PetAI import PetAI
-from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
@@ -228,12 +227,12 @@ class PetManager:
             self.get_active_pet_info().save()
 
     def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int,
-                           pet_level=-1, pet_index=-1, is_permanent=False, is_temporal_mod=False):
+                           pet_level=-1, pet_index=-1, is_permanent=False):
         if self.active_pet:
             return
 
         # Modify and link owner and creature.
-        self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent, is_temporal_mod=is_temporal_mod)
+        self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent)
 
         # Creature from world spawns.
         creature.leave_combat(force=True)
@@ -518,7 +517,7 @@ class PetManager:
 
         return self.pets[pet_index]
 
-    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False, is_temporal_mod=False):
+    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False):
         if not is_permanent:
             # Creatures which are linked to a CreatureSpawn.
             if creature.get_type_id() == ObjectTypeIds.ID_UNIT and creature.spawn_id:
@@ -527,12 +526,12 @@ class PetManager:
                     Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                     return
                 # No time limit, detach creature instance from spawn.
-                if not is_temporal_mod:
+                if is_permanent:
                     if not spawn.detach_creature(creature):
                         Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                         return
                 # Time limit, borrow the creature instance.
-                elif is_temporal_mod:
+                elif not is_permanent:
                     if not spawn.borrow_creature(creature):
                         Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                         return
