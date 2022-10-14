@@ -292,10 +292,10 @@ class GridManager:
 
         return None
 
-    def get_surrounding_unit_by_spawn_id(self, world_object, spawn_id_):
+    def get_surrounding_creature_spawn_by_spawn_id(self, world_object, spawn_id):
         surrounding_units_spawns = self.get_surrounding_unit_spawns(world_object)
-        if spawn_id_ in surrounding_units_spawns:
-            return surrounding_units_spawns[spawn_id_]
+        if spawn_id in surrounding_units_spawns:
+            return surrounding_units_spawns[spawn_id]
         return None
 
     def get_surrounding_gameobject_by_guid(self, world_object, guid):

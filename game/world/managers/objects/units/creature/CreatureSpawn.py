@@ -24,18 +24,43 @@ class CreatureSpawn:
         self.respawn_timer = 0
         self.respawn_time = 0
         self.last_tick = 0
+        self.borrowed = False
 
     def update(self, now):
         if now > self.last_tick > 0:
-            elapsed = now - self.last_tick
-            creature = self.creature_instance
-            if creature:
-                if (not creature.is_alive or not creature.is_spawned) and creature.initialized:
+            # Creature under mod charm, skip update.
+            if not self.borrowed:
+                elapsed = now - self.last_tick
+                creature = self.creature_instance
+                if creature:
+                    if (not creature.is_alive or not creature.is_spawned) and creature.initialized:
+                        self._update_respawn(elapsed)
+                else:
                     self._update_respawn(elapsed)
-            else:
-                self._update_respawn(elapsed)
 
         self.last_tick = now
+
+    def detach_creature(self, creature):
+        if self.creature_instance:
+            if creature.guid == self.creature_instance.guid:
+                self.creature_instance.spawn_id = 0
+                self.creature_instance = None
+                return True
+        return False
+
+    def borrow_creature(self, creature):
+        if self.creature_instance:
+            if creature.guid == self.creature_instance.guid:
+                self.borrowed = True
+                return True
+        return False
+
+    def un_borrow_creature(self, creature):
+        if self.creature_instance:
+            if creature.guid == self.creature_instance.guid:
+                self.borrowed = False
+                return True
+        return False
 
     def spawn_creature(self):
         creature_template_id = self._generate_creature_template()

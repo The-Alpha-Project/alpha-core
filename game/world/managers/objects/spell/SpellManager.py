@@ -704,6 +704,7 @@ class SpellManager:
 
         if casting_spell.initial_target_is_object():
             self.caster.set_channel_object(casting_spell.initial_target.guid)
+
         self.caster.set_channel_spell(casting_spell.spell_entry.ID)
 
         self.apply_spell_effects(casting_spell)
