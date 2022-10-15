@@ -372,9 +372,9 @@ class AuraManager:
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
 
         self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
-        self._write_aura_flag_to_unit(aura, clear=clear, refresh=is_refresh)
+        self._write_aura_flag_to_unit(aura, clear=clear, is_refresh=is_refresh)
 
-    def _write_aura_flag_to_unit(self, aura, clear=False, refresh=False):
+    def _write_aura_flag_to_unit(self, aura, clear=False, is_refresh=False):
         if not aura:
             return
         byte = (aura.index & 7) << 2  # magic value for AuraFlags.
@@ -384,7 +384,7 @@ class AuraManager:
             self.current_flags &= ~(0x9 << byte)
 
         field_index = UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3)
-        self.unit_mgr.set_uint32(field_index, self.current_flags, force=refresh)
+        self.unit_mgr.set_uint32(field_index, self.current_flags, force=is_refresh)
 
     def get_next_aura_index(self, aura) -> int:
         if aura.passive:
