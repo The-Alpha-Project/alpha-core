@@ -370,16 +370,11 @@ class AuraManager:
             self.send_aura_duration(aura)
 
         field_index = UnitFields.UNIT_FIELD_AURA + aura.index
-        if is_refresh:
-            # The aura flag needs to be rewritten on the unit to avoid a visual bug with
-            # an aura being refreshed while the aura is fading due to low duration.
-            self._write_aura_flag_to_unit(aura, clear=True)
-            self.unit_mgr.force_fields_update()
 
         self.unit_mgr.set_uint32(field_index, aura.spell_id if not clear else 0)
-        self._write_aura_flag_to_unit(aura, clear=clear)
+        self._write_aura_flag_to_unit(aura, clear=clear, refresh=is_refresh)
 
-    def _write_aura_flag_to_unit(self, aura, clear=False):
+    def _write_aura_flag_to_unit(self, aura, clear=False, refresh=False):
         if not aura:
             return
         byte = (aura.index & 7) << 2  # magic value for AuraFlags.
@@ -389,7 +384,7 @@ class AuraManager:
             self.current_flags &= ~(0x9 << byte)
 
         field_index = UnitFields.UNIT_FIELD_AURAFLAGS + (aura.index >> 3)
-        self.unit_mgr.set_uint32(field_index, self.current_flags)
+        self.unit_mgr.set_uint32(field_index, self.current_flags, force=refresh)
 
     def get_next_aura_index(self, aura) -> int:
         if aura.passive:
