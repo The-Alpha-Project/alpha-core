@@ -29,6 +29,7 @@ class PetAI(CreatureAI):
 
     # override
     def update_ai(self, elapsed):
+        super().update_ai(elapsed)
         if self.is_at_home or self.creature.combat_target:
             return
 

@@ -743,6 +743,13 @@ class PlayerManager(UnitManager):
         self.bytes_0 = self.get_bytes_0()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
 
+    # override
+    def set_stealthed(self, remove=False):
+        super().set_stealthed(remove=remove)
+        if remove:
+            # Notify surrounding units about fading stealth for proximity aggro.
+            self._on_relocation()
+
     def loot_money(self):
         if self.loot_selection:
             high_guid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
@@ -1512,6 +1519,8 @@ class PlayerManager(UnitManager):
             self.attack_update(elapsed)
             # Check swimming state.
             self.check_swimming_state(elapsed)
+            # Sanctuary check.
+            self.update_sanctuary(elapsed)
 
             # SpellManager.
             self.spell_manager.update(now)

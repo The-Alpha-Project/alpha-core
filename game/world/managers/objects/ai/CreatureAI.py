@@ -12,7 +12,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates
 
 if TYPE_CHECKING:
     from game.world.managers.objects.units.UnitManager import UnitManager
@@ -53,7 +53,8 @@ class CreatureAI:
 
     # Called at World update tick.
     def update_ai(self, elapsed):
-        pass
+        if self.last_alert_time > 0:
+            self.last_alert_time = max(0, self.last_alert_time - elapsed)
 
     # Like UpdateAI, but only when the creature is a dead corpse.
     def update_ai_corpse(self, elapsed):
@@ -67,11 +68,17 @@ class CreatureAI:
     def trigger_alert(self, unit):
         pass
 
-    # The client modifies unit facing, depending on the reaction.
+    # The client modifies unit facing.
     def send_ai_reaction(self, victim, ai_reaction):
+        if ai_reaction == AIReactionStates.AI_REACT_ALERT:
+            if self.last_alert_time > 0:
+                return False
+            self.last_alert_time = 10  # Seconds.
+
         data = pack('<QI', self.creature.guid, ai_reaction)
         packet = PacketWriter.get_packet(OpCode.SMSG_AI_REACTION, data)
         victim.enqueue_packet(packet)
+        return True
 
     # Called when the creature is killed.
     def just_died(self, unit):

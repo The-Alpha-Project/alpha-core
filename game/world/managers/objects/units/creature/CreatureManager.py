@@ -13,6 +13,7 @@ from game.world.managers.objects.units.creature.CreaturePickPocketLootManager im
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.items.VirtualItemUtils import VirtualItemsUtils
 from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
+from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
@@ -528,6 +529,8 @@ class CreatureManager(UnitManager):
                 # Spell/Aura Update.
                 self.spell_manager.update(now)
                 self.aura_manager.update(now)
+                # Sanctuary check.
+                self.update_sanctuary(elapsed)
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
                 if self.has_moved:

@@ -9,9 +9,9 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, HighGuid, LiquidTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import SplineFlags, UnitReaction, UnitFlags
+from utils.constants.UnitCodes import SplineFlags, UnitReaction, UnitFlags, UnitStates
 from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
 
@@ -386,6 +386,10 @@ class ObjectManager:
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return False
 
+        # Sanctuary.
+        if target.unit_state & UnitStates.SANCTUARY:
+            return False
+
         if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
                 target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
             return False
@@ -410,6 +414,10 @@ class ObjectManager:
             return False
 
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
+
+    # Implemented by UnitManager.
+    def can_detect(self, target, distance):
+        return True
 
     def _allegiance_status_checker(self, target) -> UnitReaction:
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)

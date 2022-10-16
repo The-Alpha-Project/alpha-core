@@ -55,13 +55,13 @@ class ThreatManager:
 
     def add_threat(self, source: UnitManager, threat: float, threat_mod=0, is_call_for_help=False):
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
-            return
+            return False
 
         # Avoid adding threat between two friendly units, needs further investigation.
         if source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             if not source.is_hostile_to(self.owner) and source.summoner \
                     and not source.summoner.can_attack_target(self.owner):
-                return
+                return False
 
         if source is not self.owner:
             source_holder = self.holders.get(source.guid)
@@ -69,13 +69,17 @@ class ThreatManager:
                 new_threat = source_holder.total_raw_threat + threat
                 source_holder.total_raw_threat = max(new_threat, 0.0)
                 source_holder.threat_mod = threat_mod
+                return True
             elif threat >= 0.0:
                 if not is_call_for_help:
                     self._call_for_help(source, threat)
                 self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
                 self._update_attackers_collection(source)
+                return True
             else:
                 Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
+
+        return False
 
     def resolve_target(self):
         if len(self.holders) > 0:

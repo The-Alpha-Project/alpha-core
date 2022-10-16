@@ -5,7 +5,6 @@ from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
-from game.world.managers.objects.units.player.SkillManager import SkillTypes
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType

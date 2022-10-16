@@ -6,7 +6,7 @@ from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
-from utils.constants.UnitCodes import CreatureReactStates
+from utils.constants.UnitCodes import CreatureReactStates, UnitStates
 
 if TYPE_CHECKING:
     from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
@@ -19,6 +19,7 @@ class BasicCreatureAI(CreatureAI):
 
     # override
     def update_ai(self, elapsed):
+        super().update_ai(elapsed)
         if not self.creature or not self.creature.combat_target:
             return
 
@@ -38,19 +39,23 @@ class BasicCreatureAI(CreatureAI):
             aggro_players = self.creature.known_players
             for guid, victim in list(aggro_players.items()):
                 distance = victim.location.distance(self.creature.location)
-                if distance <= max_distance and self.creature.is_hostile_to(victim):
+                if distance <= max_distance and self.creature.is_hostile_to(victim) \
+                        and self.creature.can_detect(victim, distance):
                     if self._start_proximity_aggro_attack(victim, target_is_player=True):
                         break
 
     # override
     def move_in_line_of_sight(self, unit):
         if self._is_ready_for_new_attack() and self.creature.is_hostile_to(unit):
+            target_distance = self.creature.location.distance(unit.location)
             target_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
             on_same_map = self.creature.map_ == unit.map_
-            target_distance = self.creature.location.distance(unit.location)
             detection_range = self.creature.creature_template.detection_range
             in_detection_range = target_distance <= detection_range
             if target_is_player and on_same_map and in_detection_range:
+                # Check stealth.
+                if not self.creature.can_detect(unit, target_distance):
+                    return
                 # noinspection PyTypeChecker
                 self._start_proximity_aggro_attack(unit, target_is_player=target_is_player)
 
@@ -65,7 +70,8 @@ class BasicCreatureAI(CreatureAI):
 
     def _is_ready_for_new_attack(self):
         return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0 \
-               and self._is_aggressive() and not self.creature.combat_target and not self.creature.is_evading
+               and self._is_aggressive() and not self.creature.combat_target and not self.creature.is_evading and \
+               not self.creature.unit_state & UnitStates.STUNNED
 
     def _is_aggressive(self):
         return self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE
@@ -74,7 +80,7 @@ class BasicCreatureAI(CreatureAI):
         # Avoid attacks on characters with Beastmaster flag on.
         if target_is_player and victim.beast_master:
             return False
-        self.creature.threat_manager.add_threat(victim, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
+        return self.creature.threat_manager.add_threat(victim, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
 
     def summon_guard(self, enemy):
         pass

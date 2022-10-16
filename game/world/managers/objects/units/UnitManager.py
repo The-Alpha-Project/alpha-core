@@ -22,8 +22,9 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask, WorldTextFlags
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
+    SpellSchoolMask
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
+    AIReactionStates
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -182,6 +183,8 @@ class UnitManager(ObjectManager):
 
         # Used to determine the current state of the unit (internal usage).
         self.unit_state = UnitStates.NONE
+        # Used to handle sanctuary state.
+        self.sanctuary_timer = 0
 
         # Defensive passive spells are not handled through the aura system.
         # The effects will instead flag the unit with these fields.
@@ -372,7 +375,7 @@ class UnitManager(ObjectManager):
         return swing_error == AttackSwingError.NONE
 
     def attacker_state_update(self, victim, attack_type, extra=False):
-        if not victim or not self.is_alive or not victim.is_alive:
+        if not victim or not self.is_alive or not victim.is_alive or victim.unit_state & UnitStates.SANCTUARY:
             return
 
         if attack_type == AttackTypes.BASE_ATTACK:
@@ -753,6 +756,9 @@ class UnitManager(ObjectManager):
         # Overwrite if evading.
         if target.is_evading:
             miss_reason = SpellMissReason.MISS_REASON_EVADED
+        # Overwrite if sanctuary.
+        if target.unit_state & UnitStates.SANCTUARY:
+            miss_reason = SpellMissReason.MISS_REASON_IMMUNE
 
         # TODO This and evade should be written in spell target results instead.
         # Overwrite on immune.
@@ -909,12 +915,26 @@ class UnitManager(ObjectManager):
     def is_stealthed(self):
         return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK
 
-    def set_stealthed(self, stealthed):
-        if stealthed:
+    def set_stealthed(self, remove=False):
+        if not remove:
             self.unit_flags |= UnitFlags.UNIT_FLAG_SNEAK
         else:
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_SNEAK
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+    def set_sanctuary(self, time_secs=0, remove=False):
+        if not remove:
+            self.unit_state |= UnitStates.SANCTUARY
+            self.sanctuary_timer = time_secs
+        else:
+            self.unit_state &= ~UnitStates.SANCTUARY
+            self.sanctuary_timer = 0
+
+    def update_sanctuary(self, elapsed):
+        if self.sanctuary_timer > 0:
+            self.sanctuary_timer = max(0, self.sanctuary_timer - elapsed)
+            if self.sanctuary_timer == 0:
+                self.set_sanctuary(remove=True)
 
     # Implemented by CreatureManager.
     def is_tameable(self):
@@ -942,6 +962,49 @@ class UnitManager(ObjectManager):
         speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING)
         # Limit to 0-56 and assign object field.
         return super().change_speed(speed)
+
+    # override
+    def can_detect(self, target, distance):
+        if target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+            if distance < 1.5:  # Collision.
+                return True
+
+            self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
+            target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
+            visible_distance = 5.0 / 6.0
+            yards_per_level = 5.0 / 6.0
+
+            # TODO: consider 'Stealth' player skill?.
+            target_stealth_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH) \
+                if not target_is_player else target.stat_manager.get_total_stat(UnitStats.STEALTH)
+            self_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION) \
+                if not self_is_player else self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION)
+
+            level_diff = abs(target.level - self.level)
+            if level_diff > 3:
+                yards_per_level *= 2
+
+            visible_distance += (self_detect_skill - target_stealth_skill) * yards_per_level / 5.0
+
+            if visible_distance > 30.0:
+                visible_distance = 30.0
+            elif visible_distance < 0.0:
+                visible_distance = 0.0
+
+            if not self.location.has_in_arc(target.location, math.pi):
+                visible_distance = max(0.0, visible_distance - 9.0)
+
+            # Creature vs Player, alert handling.
+            if self.get_type_id() == ObjectTypeIds.ID_UNIT and target_is_player:
+                alert_range = visible_distance + 5.0
+                alert = alert_range >= distance > visible_distance
+                if alert and self.object_ai.send_ai_reaction(target, AIReactionStates.AI_REACT_ALERT):
+                    self.stop_movement()
+                    self.movement_manager.send_face_target(target)
+
+            return distance <= visible_distance
+
+        return True
 
     def set_root(self, active):
         if active:

@@ -224,6 +224,9 @@ class MovementManager:
         if not target:
             return
 
+        # Server side.
+        self.unit.location.face_point(target.location)
+
         # Generate face target spline
         spline = MovementSpline(
             spline_type=SplineType.SPLINE_TYPE_FACING_TARGET,
@@ -231,7 +234,7 @@ class MovementManager:
             spot=target.location,
             guid=target.guid,
             facing=target.location.o,
-            points=[target.location]
+            points=[self.unit.location]
         )
 
         self._send_move_to(spline)
