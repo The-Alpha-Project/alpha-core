@@ -85,7 +85,7 @@ class MovementManager:
                 if not self.is_player:
                     if self.unit.is_evading:
                         self.unit.is_evading = False
-                    if self.unit.is_at_home():
+                    if self.unit.is_at_home() and self.unit.movement_spline.is_type(SplineType.SPLINE_TYPE_NORMAL):
                         self.unit.on_at_home()
 
                 self.reset()
@@ -234,7 +234,7 @@ class MovementManager:
             spot=target.location,
             guid=target.guid,
             facing=target.location.o,
-            points=[self.unit.location]
+            points=[self.unit.location]  # On its own axis.
         )
 
         self._send_move_to(spline)

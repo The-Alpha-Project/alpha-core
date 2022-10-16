@@ -18,6 +18,9 @@ class MovementSpline(object):
         if not points:
             self.points = []
 
+    def is_type(self, spline_type):
+        return spline_type == self.spline_type
+
     @staticmethod
     def from_bytes(spline_bytes):
         if len(spline_bytes < 42):

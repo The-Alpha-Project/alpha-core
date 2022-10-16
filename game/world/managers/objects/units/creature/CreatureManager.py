@@ -20,7 +20,7 @@ from utils.Formulas import UnitFormulas, Distances
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, UnitStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -317,6 +317,10 @@ class CreatureManager(UnitManager):
 
     def on_at_home(self):
         self.aura_manager.apply_default_auras()
+        # Restore original location including orientation.
+        self.location = self.spawn_position.copy()
+        # Restore original spawn face position.
+        self.movement_manager.send_face_target(self)
 
     def can_swim(self):
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
@@ -438,7 +442,8 @@ class CreatureManager(UnitManager):
 
     def _perform_random_movement(self, now):
         # Do not wander if dead, in combat, while evading or without wander flag.
-        if self.is_alive and not self.in_combat and not self.is_evading and self.has_wander_type():
+        if self.is_alive and not self.in_combat and not self.is_evading and self.has_wander_type() and \
+                not self.unit_state & UnitStates.STUNNED:
             if len(self.movement_manager.pending_waypoints) == 0:
                 if now > self.last_random_movement + self.random_movement_wait_time:
                     self.movement_manager.move_random(self.spawn_position, self.wander_distance)
@@ -448,8 +453,9 @@ class CreatureManager(UnitManager):
     # TODO: All the evade calls should be probably handled by aggro manager, it should be able to decide if unit can
     #  switch to another target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
-        # Avoid moving while casting, no combat target, evading or target already dead.
-        if self.is_casting() or not self.combat_target or self.is_evading or not self.combat_target.is_alive:
+        # Avoid moving while casting, no combat target, evading, target already dead or self stunned.
+        if self.is_casting() or not self.combat_target or self.is_evading or not self.combat_target.is_alive or \
+                self.unit_state & UnitStates.STUNNED:
             return
 
         # Check if target is player and is online.
@@ -486,9 +492,9 @@ class CreatureManager(UnitManager):
                     self.leave_combat(True)
                     return
 
-        # If this creature is not facing the attacker, update its orientation (server-side).
+        # If this creature is not facing the attacker, update its orientation.
         if not self.location.has_in_arc(self.combat_target.location, math.pi):
-            self.location.face_point(self.combat_target.location)
+            self.movement_manager.send_face_target(self.combat_target)
 
         combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
                                                                            vector=self.location)

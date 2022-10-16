@@ -1009,7 +1009,6 @@ class UnitManager(ObjectManager):
         if active:
             # Stop movement if needed.
             self.stop_movement()
-
             self.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
             self.unit_state |= UnitStates.ROOTED
         else:
