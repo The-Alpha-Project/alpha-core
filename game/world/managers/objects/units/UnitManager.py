@@ -1000,7 +1000,6 @@ class UnitManager(ObjectManager):
                 alert = alert_range >= distance > visible_distance
                 if alert and self.object_ai.send_ai_reaction(target, AIReactionStates.AI_REACT_ALERT):
                     self.stop_movement()
-                    self.movement_manager.send_face_target(target)
 
             return distance <= visible_distance
 
