@@ -975,16 +975,26 @@ class UnitManager(ObjectManager):
             yards_per_level = 5.0 / 6.0
 
             # TODO: consider 'Stealth' player skill?.
+            #  Vanilla handles invisibility using masks, mod invisibility misc values are always 0 for us.
+            #  For now, merge stealth and invisibility handling.
             target_stealth_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH) \
                 if not target_is_player else target.stat_manager.get_total_stat(UnitStats.STEALTH)
-            self_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION) \
+            self_detect_stealth_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION) \
                 if not self_is_player else self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION)
+
+            target_invisibility_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY) \
+                if not target_is_player else target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
+            self_detect_invisibility_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION) \
+                if not self_is_player else self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION)
+
+            total_target_stealth_invisibility = target_stealth_skill + target_invisibility_skill
+            total_self_stealth_invisibility_detect = self_detect_stealth_skill + self_detect_invisibility_skill
 
             level_diff = abs(target.level - self.level)
             if level_diff > 3:
                 yards_per_level *= 2
 
-            visible_distance += (self_detect_skill - target_stealth_skill) * yards_per_level / 5.0
+            visible_distance += (total_self_stealth_invisibility_detect - total_target_stealth_invisibility) * yards_per_level / 5.0
 
             if visible_distance > 30.0:
                 visible_distance = 30.0

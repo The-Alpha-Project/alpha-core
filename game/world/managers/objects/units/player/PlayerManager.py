@@ -641,9 +641,8 @@ class PlayerManager(UnitManager):
         # Charge).
         # TODO: Can we somehow send MSG_MOVE_HEARTBEAT instead?
         if not changed_map:
-            MapManager.send_surrounding(
-                PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_packet()),
-                self, False)
+            movement_packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_packet())
+            MapManager.send_surrounding(movement_packet, self, False)
 
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
@@ -653,6 +652,9 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_update_to_friends()
         if self.group_manager and self.group_manager.is_party_formed():
             self.group_manager.send_update()
+
+        # Notify surrounding for proximity checks.
+        self._on_relocation()
 
     def set_root(self, active):
         super().set_root(active)
