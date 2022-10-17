@@ -41,14 +41,17 @@ class BasicCreatureAI(CreatureAI):
         hostile_units = [unit for unit in source_units if self.creature.is_hostile_to(unit)]
         for victim in hostile_units:
             victim_distance = victim.location.distance(self.creature.location)
+            if victim_distance > detection_range:
+                continue
+            # Check for stealth/invisibility.
             can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
             if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
             if not can_detect_victim:
                 continue
-            if victim_distance <= detection_range:
-                if self._start_proximity_aggro_attack(victim, target_is_player=True):
-                    break
+            # Attempt to begin attack, break upon succeeding.
+            if self._start_proximity_aggro_attack(victim, target_is_player=True):
+                break
 
     # override
     def move_in_line_of_sight(self, unit):
