@@ -113,7 +113,7 @@ class SpellEffectHandler:
             # Remove self from combat and attackers.
             caster.leave_combat(force=True)
             # Set sanctuary state.
-            caster.set_sanctuary(time_secs=1)  # Seconds.
+            caster.set_sanctuary(True, time_secs=1)
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):

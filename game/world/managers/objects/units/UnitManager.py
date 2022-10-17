@@ -936,7 +936,7 @@ class UnitManager(ObjectManager):
         if self.sanctuary_timer > 0:
             self.sanctuary_timer = max(0, self.sanctuary_timer - elapsed)
             if self.sanctuary_timer == 0:
-                self.set_sanctuary(remove=True)
+                self.set_sanctuary(False)
 
     # Implemented by CreatureManager.
     def is_tameable(self):
