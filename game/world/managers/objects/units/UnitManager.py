@@ -967,66 +967,66 @@ class UnitManager(ObjectManager):
 
     # override
     def can_detect_target(self, target, distance):
-        if target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
-            # Collision.
-            if distance < 1.5:
-                return True, False
-            # TODO: Configurable, max detect distance.
-            if distance > 30.0:
-                return False, False
+        if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+            return True, False
 
-            self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
-            target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        # Collision.
+        if distance < 1.5:
+            return True, False
+        # TODO: Configurable, max detect distance.
+        if distance > 30.0:
+            return False, False
 
-            if self_is_player and target_is_player:
-                visible_distance = 9.0
-            elif self_is_player and not target_is_player:
-                visible_distance = 21.0
-            else:
-                visible_distance = 5.0 / 6.0
+        self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
+        target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
 
-            yards_per_level = 1.5 if self_is_player else 5.0 / 6.0
+        if self_is_player and target_is_player:
+            visible_distance = 9.0
+        elif self_is_player and not target_is_player:
+            visible_distance = 21.0
+        else:
+            visible_distance = 5.0 / 6.0
 
-            # TODO: consider 'Stealth' player skill?.
-            #  Vanilla handles invisibility using masks, mod invisibility misc values are always 0 for us.
-            #  For now, merge stealth and invisibility handling, use greater skill.
-            if target_is_player:
-                stealth_skill = target.stat_manager.get_total_stat(UnitStats.STEALTH)
-                invisibility_skill = target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
-            else:
-                stealth_skill = target.level * 5
-                invisibility_skill = target.level * 5
+        yards_per_level = 1.5 if self_is_player else 5.0 / 6.0
 
-            stealth_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION)
-            invisibility_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION)
+        # TODO: consider 'Stealth' player skill?.
+        #  Vanilla handles invisibility using masks, mod invisibility misc values are always 0 for us.
+        #  For now, merge stealth and invisibility handling, use greater skill.
+        if target_is_player:
+            stealth_skill = target.stat_manager.get_total_stat(UnitStats.STEALTH)
+            invisibility_skill = target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
+        else:
+            stealth_skill = target.level * 5
+            invisibility_skill = target.level * 5
 
-            total_stealth_skill = max(stealth_skill, invisibility_skill)
-            total_detect_skill = max(stealth_detect_skill, invisibility_detect_skill)
+        stealth_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION)
+        invisibility_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION)
 
-            level_diff = abs(target.level - self.level)
-            if level_diff > 3:
-                yards_per_level *= 2
+        total_stealth_skill = max(stealth_skill, invisibility_skill)
+        total_detect_skill = max(stealth_detect_skill, invisibility_detect_skill)
 
-            visible_distance += (total_detect_skill - total_stealth_skill) * yards_per_level / 5.0
+        level_diff = abs(target.level - self.level)
+        if level_diff > 3:
+            yards_per_level *= 2
 
-            if visible_distance > 30.0:
-                visible_distance = 30.0
-            elif visible_distance < 0.0:
-                visible_distance = 0.0
+        visible_distance += (total_detect_skill - total_stealth_skill) * yards_per_level / 5.0
 
-            # Sneaking unit is behind, reduce visible distance.
-            if not self.location.has_in_arc(target.location, math.pi):
-                visible_distance = max(0.0, visible_distance - 9.0)
+        if visible_distance > 30.0:
+            visible_distance = 30.0
+        elif visible_distance < 0.0:
+            visible_distance = 0.0
 
-            alert = False
-            # Creature vs Player, alert handling.
-            if self.get_type_id() == ObjectTypeIds.ID_UNIT and target_is_player:
-                alert_range = visible_distance + 5.0
-                alert = alert_range >= distance > visible_distance
+        # Sneaking unit is behind, reduce visible distance.
+        if not self.location.has_in_arc(target.location, math.pi):
+            visible_distance = max(0.0, visible_distance - 9.0)
 
-            return distance <= visible_distance, alert
+        alert = False
+        # Creature vs Player, alert handling.
+        if self.get_type_id() == ObjectTypeIds.ID_UNIT and target_is_player:
+            alert_range = visible_distance + 5.0
+            alert = alert_range >= distance > visible_distance
 
-        return True, False
+        return distance <= visible_distance, alert
 
     def set_root(self, active):
         if active:

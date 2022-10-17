@@ -416,8 +416,9 @@ class ObjectManager:
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
 
     # Implemented by UnitManager.
+    # Returns 1. if the target can be detected and 2. if alert should happen (AI reaction).
     def can_detect_target(self, target, distance):
-        return True
+        return True, False
 
     def _allegiance_status_checker(self, target) -> UnitReaction:
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
