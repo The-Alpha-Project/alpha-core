@@ -1601,19 +1601,22 @@ class PlayerManager(UnitManager):
         if not self.is_alive:
             return False
 
-        # Notify pet AI about this kill.
-        killer_pet = killer.get_pet()
-        if killer_pet:
-            killer_pet.object_ai.killed_unit(self)
+        if killer:
+            # Notify pet AI about this kill.
+            killer_pet = killer.get_pet()
+            if killer_pet:
+                killer_pet.object_ai.killed_unit(self)
 
-        if killer and self.duel_manager and self.duel_manager.is_player_involved(killer):
-            self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
-            self.set_health(1)
-            return False
+            # If this player is dueling and the death blow comes from the opponent just end duel and set HP to 1.
+            if self.duel_manager and self.duel_manager.is_player_involved(killer):
+                self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
+                self.set_health(1)
+                return False
 
-        if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
-            self.enqueue_packet(death_notify_packet)
+            # Shows a message in chat with the name of the killer.
+            if killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
+                self.enqueue_packet(death_notify_packet)
 
         self.pet_manager.detach_active_pet()
 
