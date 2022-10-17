@@ -997,7 +997,7 @@ class UnitManager(ObjectManager):
                 stealth_skill = target.level * 5
                 invisibility_skill = target.level * 5
 
-            stealth_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
+            stealth_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION)
             invisibility_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
 
             total_stealth_skill = max(stealth_skill, invisibility_skill)
