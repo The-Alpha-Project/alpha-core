@@ -68,7 +68,7 @@ class CreatureAI:
     def trigger_alert(self, unit):
         pass
 
-    # Modifies unit facing and sometimes play a sound.
+    # Modifies unit facing and sometimes plays a sound.
     def send_ai_reaction(self, victim, ai_reaction):
         if ai_reaction == AIReactionStates.AI_REACT_ALERT:
             if self.last_alert_time > 0:
