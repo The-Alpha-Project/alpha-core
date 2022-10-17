@@ -23,8 +23,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
     SpellSchoolMask
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
-    AIReactionStates
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -874,6 +873,9 @@ class UnitManager(ObjectManager):
                 # Remove self from attacker threat manager.
                 if attacker.get_type_id() == ObjectTypeIds.ID_UNIT:
                     attacker.threat_manager.remove_unit_threat(self.guid)
+                # Interrupt casting from attackers on self upon death.
+                if not self.is_alive:
+                    attacker.spell_manager.remove_unit_from_all_cast_targets(self.guid)
                 # If by now the attacker has no more attackers, leave combat as well.
                 if len(attacker.attackers) == 0:
                     attacker.leave_combat(force=force)
@@ -915,15 +917,15 @@ class UnitManager(ObjectManager):
     def is_stealthed(self):
         return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK
 
-    def set_stealthed(self, remove=False):
-        if not remove:
+    def set_stealthed(self, active):
+        if active:
             self.unit_flags |= UnitFlags.UNIT_FLAG_SNEAK
         else:
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_SNEAK
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-    def set_sanctuary(self, time_secs=0, remove=False):
-        if not remove:
+    def set_sanctuary(self, active, time_secs=0):
+        if active:
             self.unit_state |= UnitStates.SANCTUARY
             self.sanctuary_timer = time_secs
         else:
@@ -964,56 +966,67 @@ class UnitManager(ObjectManager):
         return super().change_speed(speed)
 
     # override
-    def can_detect(self, target, distance):
+    def can_detect_target(self, target, distance):
         if target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
-            if distance < 1.5:  # Collision.
-                return True
+            # Collision.
+            if distance < 1.5:
+                return True, False
+            # TODO: Configurable, max detect distance.
+            if distance > 30.0:
+                return False, False
 
             self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
             target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
-            visible_distance = 5.0 / 6.0
-            yards_per_level = 5.0 / 6.0
+
+            if self_is_player and target_is_player:
+                visible_distance = 9.0
+            elif self_is_player and not target_is_player:
+                visible_distance = 21.0
+            else:
+                visible_distance = 5.0 / 6.0
+
+            yards_per_level = 1.5 if self_is_player else 5.0 / 6.0
 
             # TODO: consider 'Stealth' player skill?.
             #  Vanilla handles invisibility using masks, mod invisibility misc values are always 0 for us.
-            #  For now, merge stealth and invisibility handling.
-            target_stealth_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH) \
-                if not target_is_player else target.stat_manager.get_total_stat(UnitStats.STEALTH)
-            self_detect_stealth_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION) \
-                if not self_is_player else self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION)
+            #  For now, merge stealth and invisibility handling, use greater skill.
+            if target_is_player:
+                stealth_skill = target.stat_manager.get_total_stat(UnitStats.STEALTH)
+                invisibility_skill = target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
+            else:
+                stealth_skill = target.level * 5
+                invisibility_skill = target.level * 5
 
-            target_invisibility_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY) \
-                if not target_is_player else target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
-            self_detect_invisibility_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION) \
-                if not self_is_player else self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION)
+            stealth_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
+            invisibility_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
 
-            total_target_stealth_invisibility = target_stealth_skill + target_invisibility_skill
-            total_self_stealth_invisibility_detect = self_detect_stealth_skill + self_detect_invisibility_skill
+            total_stealth_skill = max(stealth_skill, invisibility_skill)
+            total_detect_skill = max(stealth_detect_skill, invisibility_detect_skill)
 
             level_diff = abs(target.level - self.level)
             if level_diff > 3:
                 yards_per_level *= 2
 
-            visible_distance += (total_self_stealth_invisibility_detect - total_target_stealth_invisibility) * yards_per_level / 5.0
+            visible_distance += (total_detect_skill - total_stealth_skill) * yards_per_level / 5.0
 
             if visible_distance > 30.0:
                 visible_distance = 30.0
             elif visible_distance < 0.0:
                 visible_distance = 0.0
 
+            # Sneaking unit is behind, reduce visible distance.
             if not self.location.has_in_arc(target.location, math.pi):
                 visible_distance = max(0.0, visible_distance - 9.0)
 
+            alert = False
             # Creature vs Player, alert handling.
             if self.get_type_id() == ObjectTypeIds.ID_UNIT and target_is_player:
                 alert_range = visible_distance + 5.0
                 alert = alert_range >= distance > visible_distance
-                if alert and self.object_ai.send_ai_reaction(target, AIReactionStates.AI_REACT_ALERT):
-                    self.stop_movement()
 
-            return distance <= visible_distance
+            return distance <= visible_distance, alert
 
-        return True
+        return True, False
 
     def set_root(self, active):
         if active:
@@ -1423,7 +1436,6 @@ class UnitManager(ObjectManager):
                 killer.remove_combo_points()
 
         if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            killer.spell_manager.remove_unit_from_all_cast_targets(self.guid)  # Interrupt casting on target death
             killer.aura_manager.check_aura_procs(killed_unit=True)
 
         self.spell_manager.remove_casts()

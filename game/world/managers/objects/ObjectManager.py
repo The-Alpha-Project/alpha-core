@@ -416,7 +416,7 @@ class ObjectManager:
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
 
     # Implemented by UnitManager.
-    def can_detect(self, target, distance):
+    def can_detect_target(self, target, distance):
         return True
 
     def _allegiance_status_checker(self, target) -> UnitReaction:

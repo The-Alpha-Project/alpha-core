@@ -115,10 +115,6 @@ class SpellEffectHandler:
             # Set sanctuary state.
             caster.set_sanctuary(time_secs=1)  # Seconds.
 
-            # Vanish.
-            if casting_spell.spell_entry.ID == 1856 and caster.unit_state & UnitStates.ROOTED:
-                caster.aura_manager.remove_auras_by_aura_type(AuraTypes.SPELL_AURA_MOD_ROOT)
-
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:

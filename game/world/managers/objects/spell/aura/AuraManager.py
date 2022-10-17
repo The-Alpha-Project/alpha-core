@@ -307,11 +307,6 @@ class AuraManager:
                 continue
             self.remove_aura(aura)
 
-    def remove_auras_by_aura_type(self, aura_type):
-        for aura in list(self.active_auras.values()):
-            if aura.spell_effect.aura_type == aura_type:
-                self.remove_aura(aura)
-
     def remove_harmful_auras_by_caster(self, caster_guid):
         for aura in list(self.active_auras.values()):
             if aura.harmful and aura.caster.guid == caster_guid:

@@ -6,7 +6,7 @@ from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
-from utils.constants.UnitCodes import CreatureReactStates, UnitStates
+from utils.constants.UnitCodes import CreatureReactStates, UnitStates, AIReactionStates
 
 if TYPE_CHECKING:
     from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
@@ -33,31 +33,28 @@ class BasicCreatureAI(CreatureAI):
         return Permits.PERMIT_BASE_NORMAL
 
     # override
-    def movement_inform(self, move_type=None, data=None):
-        if self._is_ready_for_new_attack():
-            max_distance = self.creature.creature_template.detection_range
-            aggro_players = self.creature.known_players
-            for guid, victim in list(aggro_players.items()):
-                distance = victim.location.distance(self.creature.location)
-                if distance <= max_distance and self.creature.is_hostile_to(victim) \
-                        and self.creature.can_detect(victim, distance):
-                    if self._start_proximity_aggro_attack(victim, target_is_player=True):
-                        break
+    def movement_inform(self, move_type=None, data=None, units=None):
+        if not self._is_ready_for_new_attack():
+            return
+        detection_range = self.creature.creature_template.detection_range
+        source_units = self.creature.known_players.values() if not units else units
+        hostile_units = [unit for unit in source_units if self.creature.is_hostile_to(unit)]
+        for victim in hostile_units:
+            victim_distance = victim.location.distance(self.creature.location)
+            can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
+            if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
+            if not can_detect_victim:
+                continue
+            if victim_distance <= detection_range:
+                if self._start_proximity_aggro_attack(victim, target_is_player=True):
+                    break
 
     # override
     def move_in_line_of_sight(self, unit):
-        if self._is_ready_for_new_attack() and self.creature.is_hostile_to(unit):
-            target_distance = self.creature.location.distance(unit.location)
-            target_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
-            on_same_map = self.creature.map_ == unit.map_
-            detection_range = self.creature.creature_template.detection_range
-            in_detection_range = target_distance <= detection_range
-            if target_is_player and on_same_map and in_detection_range:
-                # Check stealth.
-                if not self.creature.can_detect(unit, target_distance):
-                    return
-                # noinspection PyTypeChecker
-                self._start_proximity_aggro_attack(unit, target_is_player=target_is_player)
+        if not self.creature.is_hostile_to(unit):
+            return
+        self.movement_inform(units=[unit])
 
     # override
     def just_respawned(self):

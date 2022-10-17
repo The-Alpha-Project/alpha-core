@@ -4,7 +4,7 @@ from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
-from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity, SpellEffects
+from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields, PlayerFields
 
@@ -259,14 +259,13 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_stealth(aura, effect_target, remove):
+        effect_target.set_stealthed(active=not remove)
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
-            effect_target.set_stealthed(remove=remove)
             return
 
         amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.STEALTH, amount)
-        effect_target.set_stealthed(remove=remove)
 
     @staticmethod
     def handle_mod_stealth_detection(aura, effect_target, remove):
@@ -279,14 +278,13 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_invisibility(aura, effect_target, remove):
+        effect_target.set_stealthed(active=not remove)
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
-            effect_target.set_stealthed(remove=remove)
             return
 
         amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.INVISIBILITY, amount)
-        effect_target.set_stealthed(remove=remove)
 
     @staticmethod
     def handle_mod_invisibility_detection(aura, effect_target, remove):
