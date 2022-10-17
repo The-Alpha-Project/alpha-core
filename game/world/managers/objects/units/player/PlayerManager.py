@@ -641,9 +641,8 @@ class PlayerManager(UnitManager):
         # Charge).
         # TODO: Can we somehow send MSG_MOVE_HEARTBEAT instead?
         if not changed_map:
-            MapManager.send_surrounding(
-                PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_packet()),
-                self, False)
+            movement_packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_packet())
+            MapManager.send_surrounding(movement_packet, self, False)
 
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
@@ -653,6 +652,9 @@ class PlayerManager(UnitManager):
         self.friends_manager.send_update_to_friends()
         if self.group_manager and self.group_manager.is_party_formed():
             self.group_manager.send_update()
+
+        # Notify surrounding for proximity checks.
+        self._on_relocation()
 
     def set_root(self, active):
         super().set_root(active)
@@ -742,6 +744,13 @@ class PlayerManager(UnitManager):
 
         self.bytes_0 = self.get_bytes_0()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
+
+    # override
+    def set_stealthed(self, active):
+        super().set_stealthed(active)
+        if not active:
+            # Notify surrounding units about fading stealth for proximity aggro.
+            self._on_relocation()
 
     def loot_money(self):
         if self.loot_selection:
@@ -1512,6 +1521,8 @@ class PlayerManager(UnitManager):
             self.attack_update(elapsed)
             # Check swimming state.
             self.check_swimming_state(elapsed)
+            # Sanctuary check.
+            self.update_sanctuary(elapsed)
 
             # SpellManager.
             self.spell_manager.update(now)

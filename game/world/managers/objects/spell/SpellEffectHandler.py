@@ -1,6 +1,5 @@
 from struct import pack
 
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -22,9 +21,8 @@ from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
     GameObjectStates
-from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, \
-    SpellImmunity
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask
+from utils.constants.UnitCodes import UnitFlags, UnitStates
 
 
 class SpellEffectHandler:
@@ -107,6 +105,15 @@ class SpellEffectHandler:
             return
 
         caster.add_combo_points_on_target(target, effect.get_effect_points())
+
+    @staticmethod
+    def handle_sanctuary(casting_spell, effect, caster, target):
+        if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            caster.spell_manager.remove_unit_from_all_cast_targets(caster.guid)
+            # Remove self from combat and attackers.
+            caster.leave_combat(force=True)
+            # Set sanctuary state.
+            caster.set_sanctuary(True, time_secs=1)
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
@@ -736,6 +743,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
+    SpellEffects.SPELL_EFFECT_SANCTUARY: SpellEffectHandler.handle_sanctuary,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
