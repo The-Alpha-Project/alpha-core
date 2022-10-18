@@ -793,7 +793,8 @@ class CreatureManager(UnitManager):
         self.faction = summoner.faction if not remove else self.creature_template.faction
         self.subtype = subtype
         self.object_ai = AIFactory.build_ai(self)
-        super().set_summoned_by(summoner, spell_id=spell_id, subtype=subtype, remove=remove)
+        self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, spell_id)
+        super().set_summoned_by(summoner, subtype=subtype, remove=remove)
 
     # override
     def set_weapon_mode(self, weapon_mode):
