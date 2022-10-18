@@ -352,9 +352,10 @@ class PetManager:
 
         # Restore creature state.
         if pet_info.permanent:
+            # Remove summoned.
             creature.set_summoned_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
                                      movement_type=movement_type, remove=True)
-
+        # Remove charmed.
         creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
                                 movement_type=movement_type, remove=True)
 
@@ -368,7 +369,7 @@ class PetManager:
             threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
             creature.threat_manager.add_threat(self.owner, threat)
 
-        # Always notify owner to restored spawn creature.
+        # Notify creature about owner proximity if we restored creature spawn.
         if creature.spawn_id and creature.get_type_id() == ObjectTypeIds.ID_UNIT:
             creature.notify_moved_in_line_of_sight(self.owner)
 
@@ -544,6 +545,7 @@ class PetManager:
                     return
 
         if is_permanent:
+            # Summoned by owner.
             creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
                                      movement_type=MovementTypes.IDLE)
