@@ -1403,6 +1403,14 @@ class PlayerManager(UnitManager):
 
         return True  # TODO Stunned check
 
+    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, movement_type=None, remove=False):
+        # Summoner must be set here not in parent.
+        self.charmer = charmer if not remove else None
+        # Restore faction.
+        if remove:
+            self.set_player_variables()
+        super().set_charmed_by(charmer, subtype=subtype, remove=remove)
+
     # override
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
         # Summoner must be set here not in parent.
@@ -1722,7 +1730,8 @@ class PlayerManager(UnitManager):
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
             if self.guid not in unit.attackers and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
-            if unit.is_pet() and unit.summoner == self:
+            charmer_or_summoner = unit.get_charmer_or_summoner()
+            if unit.is_pet() and charmer_or_summoner == self:
                 unit.object_ai.movement_inform()
 
     # override

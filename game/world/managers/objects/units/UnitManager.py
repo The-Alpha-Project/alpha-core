@@ -94,6 +94,7 @@ class UnitManager(ObjectManager):
                  current_target=0,  # guid
                  combat_target=None,  # victim
                  summoner=None,
+                 charmer=None,
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -164,6 +165,7 @@ class UnitManager(ObjectManager):
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
         self.current_target = current_target
         self.summoner = summoner
+        self.charmer = charmer
 
         self.update_packet_factory.init_values(self.guid, UnitFields)
 
@@ -934,6 +936,13 @@ class UnitManager(ObjectManager):
             return summoner
         return None
 
+    def get_charmer(self):
+        charmer_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARMEDBY)
+        if charmer_id:
+            charmer = MapManager.get_surrounding_unit_by_guid(self, charmer_id, include_players=True)
+            return charmer
+        return None
+
     # override
     def change_speed(self, speed=0):
         # Assign new base speed.
@@ -1000,9 +1009,18 @@ class UnitManager(ObjectManager):
     def update_power_type(self):
         pass
 
+    def get_charmer_or_summoner(self):
+        return self.charmer if self.charmer else self.summoner if self.summoner else None
+
+    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
+        self.set_uint64(UnitFields.UNIT_FIELD_CHARMEDBY, charmer.guid if not remove else 0)
+        charmer.set_uint64(UnitFields.UNIT_FIELD_CHARM, self.guid if not remove else 0)
+        # Set faction, either original or charmer. (Restored on CreatureManager/PlayerManager)
+        self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+
     # Implemented by Creature/PlayerManager.
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
-        # Link summoner to self.
+        self.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.summoner.guid if not remove else 0)
         self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if not remove else 0)
         # Link self to summoner.
         summoner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, self.guid if not remove else 0)
@@ -1325,12 +1343,13 @@ class UnitManager(ObjectManager):
         # Stop movement on death.
         self.stop_movement()
 
+        charmer_or_summoner = self.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit (game objects can only spawn
         # creatures, but they can never have actual pets so they don't have any PetManager).
-        if self.summoner and self.summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            summoner_active_pet = self.summoner.pet_manager.active_pet
-            if summoner_active_pet and summoner_active_pet.creature.guid == self.guid:
-                self.summoner.pet_manager.detach_active_pet()
+        if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            active_pet = charmer_or_summoner.pet_manager.active_pet
+            if active_pet:
+                charmer_or_summoner.pet_manager.detach_active_pet()
 
         self.leave_combat(force=True)
         self.evading_waypoints.clear()

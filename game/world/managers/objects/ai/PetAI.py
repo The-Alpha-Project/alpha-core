@@ -82,8 +82,7 @@ class PetAI(CreatureAI):
     # Handles moving the pet back to stay or owner.
     # Prevent activating movement when under control of spells.
     def handle_return_movement(self):
-        owner = self.creature.summoner
-        target_location = self.stay_position if self.stay_position else owner.location
+        target_location = self.stay_position if self.stay_position else self.creature.get_charmer_or_summoner().location
 
         current_distance = self.creature.location.distance(target_location)
 
@@ -140,7 +139,7 @@ class PetAI(CreatureAI):
             self.is_at_home = False
 
     def _get_command_state(self):
-        pet_info = self.creature.summoner.pet_manager.get_active_pet_info()
+        pet_info = self.creature.get_charmer_or_summoner().pet_manager.get_active_pet_info()
         if not pet_info:
             return PetCommandState.COMMAND_FOLLOW
         return pet_info.command_state

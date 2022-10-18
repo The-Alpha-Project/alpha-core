@@ -37,9 +37,10 @@ class ScriptManager:
         elif target_type == ScriptTarget.TARGET_T_OWNER:
             if not ScriptManager._validate_is_unit(caster):
                 return None
-            if not caster.summoner:
-                return None
-            return caster.summoner
+            charmer_or_summoner = caster.get_charmer_or_summoner()
+            if charmer_or_summoner:
+                return charmer_or_summoner
+            return None
         elif target_type == ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY:
             # TODO: entry -> object type identification.
             #  Based on objects high guids.

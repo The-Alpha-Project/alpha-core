@@ -37,6 +37,7 @@ class CreatureManager(UnitManager):
         self.health_percent = 100
         self.mana_percent = 100
         self.summoner = None
+        self.charmer = None
         self.addon = None
         self.spell_id = 0
         self.time_to_live_timer = 0
@@ -290,10 +291,11 @@ class CreatureManager(UnitManager):
         return self.creature_template.type == CreatureTypes.AMBIENT
 
     def is_pet(self):
-        return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+        return (self.summoner or self.charmer) and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
     def is_player_controlled_pet(self):
-        return self.is_pet() and self.summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
+        charmer_or_summoner = self.get_charmer_or_summoner()
+        return self.is_pet() and charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
 
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
@@ -653,9 +655,10 @@ class CreatureManager(UnitManager):
             pet_or_killer_pet.object_ai.killed_unit(self)
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            # Attribute non-player kills to the creature's summoner.
+            charmer_or_summoner = killer.get_charmer_or_summoner()
+            # Attribute non-player kills to the creature's charmer/summoner.
             # TODO Does this also apply for player mind control?
-            killer = killer.summoner if killer.summoner else killer
+            killer = charmer_or_summoner if charmer_or_summoner else killer
 
         if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.loot_manager.generate_loot(killer)
@@ -761,6 +764,16 @@ class CreatureManager(UnitManager):
     def has_ranged_weapon(self):
         return self.wearing_ranged_weapon
 
+    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, movement_type=None,
+                       remove=False):
+        # Summoner must be set here not in parent.
+        self.charmer = charmer if not remove else None
+        self.movement_type = movement_type
+        self.faction = charmer.faction if not remove else self.creature_template.faction
+        self.subtype = subtype
+        self.object_ai = AIFactory.build_ai(self)
+        super().set_charmed_by(charmer, subtype=subtype, remove=remove)
+
     # override
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
                         movement_type=None, remove=False):
@@ -770,7 +783,6 @@ class CreatureManager(UnitManager):
         self.spell_id = spell_id
         self.faction = summoner.faction if not remove else self.creature_template.faction
         self.subtype = subtype
-        self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.spell_id)
         self.object_ai = AIFactory.build_ai(self)
         super().set_summoned_by(summoner, spell_id=spell_id, subtype=subtype, remove=remove)
 

@@ -65,6 +65,7 @@ class ObjectManager:
         self.initialized = False
         self.is_spawned = True
         self.summoner = None
+        self.charmer = None
         self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
