@@ -307,20 +307,16 @@ class EffectTargets:
         caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         caster_is_unit = caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
         caster_pet = caster.get_pet() if caster_is_unit else None
-        summoner = caster.get_summoner() if caster_is_unit else None
-        charmer = caster.get_charmer() if caster_is_unit else None
+        charmer_or_summoner = caster.get_charmer_or_summoner() if caster_is_unit else None
         party_group = None
         distance = target_effect.get_radius()
 
         # Caster is a player, use his group manager, if any.
         if caster_is_player and caster.group_manager:
             party_group = caster.group_manager
-        # If caster has a player charmer, use the charmer group manager.
-        elif charmer and charmer.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            party_group = charmer.group_manager
-        # If caster has a player summoner, use the summoner group manager.
-        elif summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            party_group = summoner.group_manager
+        # If caster has a player charmer or summoner, use he's group manager.
+        elif charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            party_group = charmer_or_summoner.group_manager
 
         # These spells should most likely include self (battle shout, prayer of healing etc.)
         if caster_is_unit:
@@ -329,10 +325,8 @@ class EffectTargets:
                 units_in_range.append(caster)
 
         # Has a charmer/summoner and is within radius.
-        if charmer and caster.location.distance(charmer.location) < distance:
-            units_in_range.append(charmer)
-        elif summoner and caster.location.distance(summoner.location) < distance:
-            units_in_range.append(summoner)
+        if charmer_or_summoner and caster.location.distance(charmer_or_summoner.location) < distance:
+            units_in_range.append(charmer_or_summoner)
 
         # Has a pet and is within radius.
         if caster_pet and caster.location.distance(caster_pet.location) < distance:
@@ -342,7 +336,7 @@ class EffectTargets:
             return units_in_range
 
         for unit in units:
-            if caster is unit or unit is summoner or unit is caster or unit is caster_pet or \
+            if caster is unit or unit is charmer_or_summoner or unit is caster or unit is caster_pet or \
                     not party_group.is_party_member(unit.guid) or \
                     caster.can_attack_target(unit):   # Dueling party members
                 continue
