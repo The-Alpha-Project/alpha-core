@@ -957,20 +957,6 @@ class UnitManager(ObjectManager):
             return pet
         return None
 
-    def get_summoner(self):
-        summoner_id = self.get_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY)
-        if summoner_id:
-            summoner = MapManager.get_surrounding_unit_by_guid(self, summoner_id, include_players=True)
-            return summoner
-        return None
-
-    def get_charmer(self):
-        charmer_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARMEDBY)
-        if charmer_id:
-            charmer = MapManager.get_surrounding_unit_by_guid(self, charmer_id, include_players=True)
-            return charmer
-        return None
-
     # override
     def change_speed(self, speed=0):
         # Assign new base speed.
@@ -1099,6 +1085,7 @@ class UnitManager(ObjectManager):
     def update_power_type(self):
         pass
 
+    # Charmer must have priority over summoner since it is the current master.
     def get_charmer_or_summoner(self):
         return self.charmer if self.charmer else self.summoner if self.summoner else None
 
