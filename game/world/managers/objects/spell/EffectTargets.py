@@ -205,7 +205,7 @@ class EffectTargets:
                 break
 
         return final_targets
-    
+
     @staticmethod
     def resolve_master(casting_spell, target_effect):
         charmer_or_summoner = casting_spell.spell_caster.get_charmer_or_summoner()
