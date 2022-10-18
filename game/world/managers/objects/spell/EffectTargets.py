@@ -318,7 +318,7 @@ class EffectTargets:
         # If caster has a player charmer/summoner, use he's group manager.
         if charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
             party_group = charmer_or_summoner.group_manager
-        # No summoner/charmer and caster is a player, use his group manager.
+        # No charmer/summoner and caster is a player, use his group manager.
         elif caster_is_player and caster.group_manager:
             party_group = caster.group_manager
 

@@ -218,7 +218,7 @@ class UnitManager(ObjectManager):
         if not target:
             return False
 
-        # Always short circuit on Summoner/Charmer relationship.
+        # Always short circuit on Charmer/Summoner relationship.
         if self == target.get_charmer_or_summoner() or self.get_charmer_or_summoner() == target:
             return False
 
@@ -230,7 +230,7 @@ class UnitManager(ObjectManager):
         if is_enemy:
             return True
 
-        # Always short circuit on Summoner/Charmer relationship.
+        # Always short circuit on Charmer/Summoner relationship.
         if self == target.get_charmer_or_summoner() or self.get_charmer_or_summoner() == target:
             return False
 
@@ -1086,8 +1086,9 @@ class UnitManager(ObjectManager):
         pass
 
     # Charmer must have priority over summoner since it is the current master.
-    def get_charmer_or_summoner(self):
-        return self.charmer if self.charmer else self.summoner if self.summoner else None
+    def get_charmer_or_summoner(self, include_self=False):
+        charmer_or_summoner = self.charmer if self.charmer else self.summoner if self.summoner else None
+        return charmer_or_summoner if charmer_or_summoner else self if include_self else None
 
     def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
         self.set_uint64(UnitFields.UNIT_FIELD_CHARMEDBY, charmer.guid if not remove else 0)

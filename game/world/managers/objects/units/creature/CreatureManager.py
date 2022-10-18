@@ -775,7 +775,7 @@ class CreatureManager(UnitManager):
 
     def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, movement_type=None,
                        remove=False):
-        # Summoner must be set here not in parent.
+        # Charmer must be set here not in parent.
         self.charmer = charmer if not remove else None
         self.movement_type = movement_type
         self.faction = charmer.faction if not remove else self.creature_template.faction

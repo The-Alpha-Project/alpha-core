@@ -31,16 +31,13 @@ class ScriptManager:
             if ScriptManager._validate_is_unit(caster):
                 return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP)
         elif target_type == ScriptTarget.TARGET_T_OWNER_OR_SELF:
-            # TODO
-            #  return source.get_charmer_or_self()
-            pass
+            if not ScriptManager._validate_is_unit(caster):
+                return None
+            return caster.get_charmer_or_summoner(include_self=True)
         elif target_type == ScriptTarget.TARGET_T_OWNER:
             if not ScriptManager._validate_is_unit(caster):
                 return None
-            charmer_or_summoner = caster.get_charmer_or_summoner()
-            if charmer_or_summoner:
-                return charmer_or_summoner
-            return None
+            return caster.get_charmer_or_summoner()
         elif target_type == ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY:
             # TODO: entry -> object type identification.
             #  Based on objects high guids.
