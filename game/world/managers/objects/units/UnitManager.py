@@ -215,18 +215,24 @@ class UnitManager(ObjectManager):
 
     # override
     def is_hostile_to(self, target):
-        is_hostile = super().is_hostile_to(target)
-        if is_hostile:
-            return True
+        if not target or not target.is_alive:
+            return False
 
-        # Might be neutral, but was attacked by target.
-        return target and target.guid in self.attackers
+        # Always short circuit on Summoner/Charmer relationship.
+        if self == target.get_charmer_or_summoner() or self.get_charmer_or_summoner() == target:
+            return False
+
+        return super().is_hostile_to(target)
 
     # override
     def can_attack_target(self, target):
         is_enemy = super().can_attack_target(target)
         if is_enemy:
             return True
+
+        # Always short circuit on Summoner/Charmer relationship.
+        if self == target.get_charmer_or_summoner() or self.get_charmer_or_summoner() == target:
+            return False
 
         # Might be neutral, but was attacked by target.
         return target and target.guid in self.attackers

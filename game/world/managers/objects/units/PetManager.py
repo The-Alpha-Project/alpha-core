@@ -354,6 +354,7 @@ class PetManager:
         if pet_info.permanent:
             creature.set_summoned_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
                                      movement_type=movement_type, remove=True)
+
         creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
                                 movement_type=movement_type, remove=True)
 
@@ -366,7 +367,9 @@ class PetManager:
             # TODO: Proper threat value.
             threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
             creature.threat_manager.add_threat(self.owner, threat)
-        elif creature.get_type_id() == ObjectTypeIds.ID_UNIT:
+
+        # Always notify owner to restored spawn creature.
+        if creature.spawn_id and creature.get_type_id() == ObjectTypeIds.ID_UNIT:
             creature.notify_moved_in_line_of_sight(self.owner)
 
         # Handle channeled interrupt if needed.

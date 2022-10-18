@@ -421,6 +421,10 @@ class ObjectManager:
     def can_detect_target(self, target, distance):
         return True, False
 
+    # Implemented by UnitManager.
+    def get_charmer_or_summoner(self):
+        return None
+
     def _allegiance_status_checker(self, target) -> UnitReaction:
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
         target_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)

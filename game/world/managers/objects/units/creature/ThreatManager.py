@@ -169,20 +169,12 @@ class ThreatManager:
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
         for holder in list(self.holders.values()):
-            # No reason to keep targets we cannot longer attack.
-            if not self.owner.can_attack_target(holder.unit) or not holder.unit.is_hostile_to(self.owner) or \
-                    self._unit_is_charm_summon_related(holder.unit):
-                self.current_holder = None if self.current_holder == holder else self.current_holder
-                self.holders.pop(holder.unit.guid)
-            else:
+            if self.owner.can_attack_target(holder.unit) or holder.unit.is_hostile_to(self.owner):
                 relevant_holders.append(holder)
 
         # Sort by threat.
         relevant_holders.sort(key=lambda h: h.get_total_threat())
         return relevant_holders
-
-    def _unit_is_charm_summon_related(self, victim):
-        return self.owner == victim.get_charmer_or_summoner() or self.owner.get_charmer_or_summoner() == victim
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):

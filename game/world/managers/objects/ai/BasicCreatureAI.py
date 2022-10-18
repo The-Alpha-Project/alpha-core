@@ -55,8 +55,6 @@ class BasicCreatureAI(CreatureAI):
 
     # override
     def move_in_line_of_sight(self, unit):
-        if not self.creature.is_hostile_to(unit):
-            return
         self.movement_inform(units=[unit])
 
     # override
