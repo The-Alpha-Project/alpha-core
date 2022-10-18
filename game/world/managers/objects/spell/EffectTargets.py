@@ -71,7 +71,7 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
-            SpellImplicitTargets.TARGET_MASTER: caster.charmer if caster.charmer else caster.summoner if caster.summoner else [],
+            SpellImplicitTargets.TARGET_MASTER: self._resolve_master(caster),
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
             SpellImplicitTargets.TARGET_SELF_FISHING: self.initial_target,
 
@@ -85,6 +85,11 @@ class EffectTargets:
             # binding location for now.
             SpellImplicitTargets.TARGET_19: caster.get_deathbind_coordinates() if target_is_player and caster_is_player else []  # Zone Recall (OLD).
         }
+
+    # noinspection PyMethodMayBeStatic
+    def _resolve_master(self, caster):
+        charmer_or_summoner = caster.get_charmer_or_summoner()
+        return charmer_or_summoner if charmer_or_summoner else []
 
     def resolve_implicit_targets_reference(self, implicit_target) -> Optional[list[Union[ObjectManager, Vector]]]:
         target = self.simple_targets[implicit_target] if implicit_target in self.simple_targets else TARGET_RESOLVERS[implicit_target](self.casting_spell, self.target_effect)
