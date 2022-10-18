@@ -8,6 +8,7 @@ class GuardAI(CreatureAI):
 
     # override
     def update_ai(self, elapsed):
+        super().update_ai(elapsed)
         if not self.creature or not self.creature.combat_target:
             return
 

@@ -1,8 +1,5 @@
-import time
-
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
@@ -262,7 +259,41 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_stealth(aura, effect_target, remove):
-        effect_target.set_stealthed(not remove)
+        effect_target.set_stealthed(active=not remove)
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
+            return
+
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.STEALTH, amount)
+
+    @staticmethod
+    def handle_mod_stealth_detection(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
+            return
+
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.STEALTH_DETECTION, amount)
+
+    @staticmethod
+    def handle_mod_invisibility(aura, effect_target, remove):
+        effect_target.set_stealthed(active=not remove)
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
+            return
+
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.INVISIBILITY, amount)
+
+    @staticmethod
+    def handle_mod_invisibility_detection(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
+            return
+
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.INVISIBILITY_DETECTION, amount)
 
     @staticmethod
     def handle_mod_charm(aura, effect_target, remove):
@@ -636,6 +667,9 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_TRANSFORM: AuraEffectHandler.handle_transform,
     AuraTypes.SPELL_AURA_MOD_ROOT: AuraEffectHandler.handle_mod_root,
     AuraTypes.SPELL_AURA_MOD_STEALTH: AuraEffectHandler.handle_mod_stealth,
+    AuraTypes.SPELL_AURA_MOD_STEALTH_DETECT: AuraEffectHandler.handle_mod_stealth_detection,
+    AuraTypes.SPELL_AURA_MOD_INVISIBILITY: AuraEffectHandler.handle_mod_invisibility,
+    AuraTypes.SPELL_AURA_MOD_INVISIBILITY_DETECTION: AuraEffectHandler.handle_mod_invisibility_detection,
     AuraTypes.SPELL_AURA_MOD_CHARM: AuraEffectHandler.handle_mod_charm,
     AuraTypes.SPELL_AURA_MOD_STALKED: AuraEffectHandler.handle_mod_stalked,
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
