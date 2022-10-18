@@ -215,7 +215,7 @@ class UnitManager(ObjectManager):
 
     # override
     def is_hostile_to(self, target):
-        if not target or not target.is_alive:
+        if not target:
             return False
 
         # Always short circuit on Summoner/Charmer relationship.
