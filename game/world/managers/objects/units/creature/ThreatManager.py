@@ -93,22 +93,19 @@ class ThreatManager:
                 new_threat = source_holder.total_raw_threat + threat
                 source_holder.total_raw_threat = max(new_threat, 0.0)
                 source_holder.threat_mod = threat_mod
-                self._check_add_threat_relation(source)
                 return True
             # New holder.
             elif threat >= 0.0:
                 if not is_call_for_help:
                     self._call_for_help(source, threat)
                 self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
-                self._check_add_threat_relation(source)
+                # If source is a player, force it to be linked to the other unit through threat.
+                if source.get_type_id() == ObjectTypeIds.ID_PLAYER and not source.threat_manager.has_aggro_from(
+                        self.owner):
+                    source.threat_manager.add_threat(self.owner, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
                 return True
 
         return False
-
-    # Link both units through threat if source is a player.
-    def _check_add_threat_relation(self, source):
-        if source.get_type_id() == ObjectTypeIds.ID_PLAYER and not source.threat_manager.has_aggro_from(self.owner):
-            source.threat_manager.add_threat(self.owner, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
 
     def resolve_target(self):
         if len(self.holders) > 0:
