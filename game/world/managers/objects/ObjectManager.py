@@ -376,6 +376,10 @@ class ObjectManager:
     def is_pet(self):
         return False
 
+    # override
+    def is_unit_pet(self, unit):
+        return False
+
     def can_attack_target(self, target):
         if not target:
             return False
