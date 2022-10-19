@@ -177,7 +177,7 @@ class UnitManager(ObjectManager):
         self.extra_attacks = 0
         self.last_regen = 0
         self.regen_flags = RegenStatsFlags.NO_REGENERATION
-        self.attackers: dict[int, UnitManager] = {}
+
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
                               AttackTypes.OFFHAND_ATTACK: 0,
                               AttackTypes.RANGED_ATTACK: 0}
@@ -206,7 +206,7 @@ class UnitManager(ObjectManager):
         # TODO: Support for CreatureManager is not added yet.
         from game.world.managers.objects.units.PetManager import PetManager
         self.pet_manager = PetManager(self)
-        # Initialized by creatures only.
+        # Players/Creatures.
         self.threat_manager = None
 
     def is_within_interactable_distance(self, victim):
@@ -235,7 +235,7 @@ class UnitManager(ObjectManager):
             return False
 
         # Might be neutral, but was attacked by target.
-        return target and target.guid in self.attackers
+        return target and self.threat_manager.has_aggro_from(target)
 
     def attack(self, victim: UnitManager):
         if not victim or victim == self:
@@ -256,15 +256,14 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
-        victim.attackers[self.guid] = self
-        self.attackers[victim.guid] = victim
-
         self.enter_combat()
         victim.enter_combat()
 
+        # Set base weapon attack as ready.
+        self.set_attack_timer(AttackTypes.BASE_ATTACK, 0)
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
-            self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
+            self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 200)
 
         self.send_attack_start(self.combat_target.guid)
 
@@ -306,12 +305,6 @@ class UnitManager(ObjectManager):
 
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
-
-        # If no combat target exists but the unit is in combat with no attackers, leave combat return.
-        if not self.combat_target:
-            if self.in_combat and len(self.attackers) == 0:
-                self.leave_combat()
-            return False
 
         # If neither main hand attack and off hand attack are ready, return.
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
@@ -719,6 +712,15 @@ class UnitManager(ObjectManager):
         else:
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
+
+        threat = damage_info.total_damage
+        # TODO: Threat calculation.
+        # No threat but source spell generates threat on miss.
+        if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
+            from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
+            threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
+
+        self.threat_manager.add_threat(source, threat)
         return True
 
     def receive_healing(self, amount, source=None):
@@ -799,7 +801,7 @@ class UnitManager(ObjectManager):
     def _threat_assist(self, target, source_threat: float):
         if target.in_combat:
             creature_observers = [attacker for attacker
-                                  in target.attackers.values()
+                                  in target.threat_manager.get_threat_holders()
                                   if not attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER]
             observers_size = len(creature_observers)
             if observers_size > 0:
@@ -869,30 +871,16 @@ class UnitManager(ObjectManager):
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-    def leave_combat(self, force=False):
-        if not self.in_combat and not force:
+    def leave_combat(self):
+        if not self.in_combat:
             return
-
-        # Remove self from attacker list of attackers.
-        for guid, attacker in list(self.attackers.items()):
-            if self.guid in attacker.attackers:
-                # Always pop self from attacker.
-                del attacker.attackers[self.guid]
-                # Remove self from attacker threat manager.
-                if attacker.get_type_id() == ObjectTypeIds.ID_UNIT:
-                    attacker.threat_manager.remove_unit_threat(self.guid)
-                # Interrupt casting from attackers on self upon death.
-                if not self.is_alive:
-                    attacker.spell_manager.remove_unit_from_all_cast_targets(self.guid)
-                # If by now the attacker has no more attackers, leave combat as well.
-                if len(attacker.attackers) == 0:
-                    attacker.leave_combat(force=force)
-
-        self.attackers.clear()
 
         self.send_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
         self.swing_error = 0
         self.extra_attacks = 0
+
+        # Reset threat table.
+        self.threat_manager.reset()
 
         self.combat_target = None
         self.in_combat = False
@@ -1421,6 +1409,9 @@ class UnitManager(ObjectManager):
         # Stop movement on death.
         self.stop_movement()
 
+        # Reset threat table.
+        self.threat_manager.reset()
+
         charmer_or_summoner = self.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit (game objects can only spawn
         # creatures, but they can never have actual pets so they don't have any PetManager).
@@ -1429,7 +1420,7 @@ class UnitManager(ObjectManager):
             if active_pet:
                 charmer_or_summoner.pet_manager.detach_active_pet()
 
-        self.leave_combat(force=True)
+        self.leave_combat()
         self.evading_waypoints.clear()
         self.set_health(0)
         self.set_stand_state(StandState.UNIT_DEAD)
@@ -1468,7 +1459,7 @@ class UnitManager(ObjectManager):
     # override
     def respawn(self):
         # Force leave combat just in case.
-        self.leave_combat(force=True)
+        self.leave_combat()
         self.set_current_target(0)
         self.is_alive = True
 

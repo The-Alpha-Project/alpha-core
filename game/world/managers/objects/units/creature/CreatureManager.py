@@ -345,10 +345,8 @@ class CreatureManager(UnitManager):
         return super().can_parry(attacker_location)
 
     # override
-    def leave_combat(self, force=False):
-        super().leave_combat(force=force)
-        # Reset threat table.
-        self.threat_manager.reset()
+    def leave_combat(self):
+        super().leave_combat()
         if not self.is_player_controlled_pet():
             self.evade()
 
@@ -370,7 +368,9 @@ class CreatureManager(UnitManager):
 
         # Pets should return to owner on evading, not to spawn position. This case at this moment only affects
         # creature summoned pets since player summoned pets will never enter this method.
-        if self.is_pet():
+        if self.is_pet() or self.is_at_home():
+            # Should turn off flag since we are not sending move packets.
+            self.is_evading = False
             return
 
         # Get the path we are using to get back to spawn location.
@@ -463,7 +463,7 @@ class CreatureManager(UnitManager):
         # Check if target is player and is online.
         target_is_player = self.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER
         if target_is_player and not self.combat_target.online:
-            self.leave_combat(True)
+            self.leave_combat()
             return
 
         spawn_distance = self.location.distance(self.spawn_position)
@@ -476,7 +476,7 @@ class CreatureManager(UnitManager):
             #     "Creature pursuit is now timer based rather than distance based."
             if spawn_distance > Distances.CREATURE_EVADE_DISTANCE  \
                     or target_distance > Distances.CREATURE_EVADE_DISTANCE:
-                self.leave_combat(True)
+                self.leave_combat()
                 return
 
             # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
@@ -487,11 +487,11 @@ class CreatureManager(UnitManager):
             #   - Most humanoids NPCs have gained the ability to swim.
             if self.is_on_water():
                 if not self.can_swim():
-                    self.leave_combat(True)
+                    self.leave_combat()
                     return
             else:
                 if not self.can_exit_water():
-                    self.leave_combat(True)
+                    self.leave_combat()
                     return
 
         # If this creature is not facing the attacker, update its orientation.
@@ -595,7 +595,7 @@ class CreatureManager(UnitManager):
     def attack(self, victim: UnitManager):
         if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
-        # Had no target before, notify attack start.
+        # Had no target before, notify attack start on ai.
         if not self.combat_target:
             self.object_ai.attack_start(victim)
         super().attack(victim)
@@ -608,11 +608,6 @@ class CreatureManager(UnitManager):
         # Has a target, check if we need to attack or switch target.
         if target and self.combat_target != target:
             self.attack(target)
-        # No target at all, leave combat, reset aggro.
-        elif not target and self.combat_target:
-            self.leave_combat(force=True)
-            return
-
         super().attack_update(elapsed)
 
     # override
@@ -630,13 +625,6 @@ class CreatureManager(UnitManager):
                 # Make sure to first stop any movement right away.
                 self.stop_movement()
 
-            threat = damage_info.total_damage
-            # TODO: Threat calculation.
-            # No threat but source spell generates threat on miss.
-            if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
-                threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
-
-            self.threat_manager.add_threat(source, threat)
         return True
 
     # override

@@ -30,7 +30,8 @@ class PetAI(CreatureAI):
     # override
     def update_ai(self, elapsed):
         super().update_ai(elapsed)
-        if self.is_at_home or self.creature.combat_target:
+        if self.is_at_home or self.creature.combat_target and \
+                self.creature.can_attack_target(self.creature.combat_target):
             return
 
         self.handle_return_movement()
@@ -41,10 +42,9 @@ class PetAI(CreatureAI):
             return Permits.PERMIT_BASE_SPECIAL
         return Permits.PERMIT_BASE_NO
 
+    # Called when creature base attack() starts.
     # override
     def attack_start(self, victim):
-        # TODO This is bad, but a workaround for now until a valid solution is discussed.
-        self.creature.threat_manager.add_threat(victim, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
         self.is_at_home = False
 
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.

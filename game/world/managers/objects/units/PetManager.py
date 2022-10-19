@@ -235,7 +235,7 @@ class PetManager:
         self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent)
 
         # Creature from world spawns.
-        creature.leave_combat(force=True)
+        creature.leave_combat()
 
         if pet_index == -1:
             # Pet not in database.
@@ -348,7 +348,7 @@ class PetManager:
             self.remove_pet(pet_index)
 
         # Flush ThreatManager before releasing this creature in order to avoid evade trigger.
-        creature.leave_combat(force=True)
+        creature.leave_combat()
 
         # Restore creature state.
         if pet_info.permanent:
@@ -411,7 +411,7 @@ class PetManager:
             self.get_active_pet_info().command_state = action_id
             self.active_pet.creature.object_ai.command_state_update()
             if action_id == PetCommandState.COMMAND_ATTACK and target_unit:
-                self.active_pet.creature.object_ai.attack_start(target_unit)
+                self.active_pet.creature.attack(target_unit)
             if action_id == PetCommandState.COMMAND_DISMISS:
                 self.detach_active_pet()
 

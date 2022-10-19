@@ -111,7 +111,7 @@ class SpellEffectHandler:
         if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             caster.spell_manager.remove_unit_from_all_cast_targets(caster.guid)
             # Remove self from combat and attackers.
-            caster.leave_combat(force=True)
+            caster.leave_combat()
             # Set sanctuary state.
             caster.set_sanctuary(True, time_secs=1)
 

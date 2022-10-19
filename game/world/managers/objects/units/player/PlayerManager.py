@@ -13,6 +13,7 @@ from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUt
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
+from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -166,6 +167,7 @@ class PlayerManager(UnitManager):
 
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
 
+            self.threat_manager = ThreatManager(self)
             self.enchantment_manager = EnchantmentManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
@@ -299,7 +301,7 @@ class PlayerManager(UnitManager):
         self.spell_manager.remove_casts()
         self.aura_manager.remove_all_auras()
         self.pet_manager.detach_active_pet()
-        self.leave_combat(force=True)
+        self.leave_combat()
 
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
@@ -1526,7 +1528,8 @@ class PlayerManager(UnitManager):
             # Regeneration.
             self.regenerate(elapsed)
             # Attack update.
-            self.attack_update(elapsed)
+            if self.combat_target:
+                self.attack_update(elapsed)
             # Check swimming state.
             self.check_swimming_state(elapsed)
             # Sanctuary check.
@@ -1599,16 +1602,6 @@ class PlayerManager(UnitManager):
                 self.synchronize_db_player()
 
         self.last_tick = now
-
-    # override
-    def attack_update(self, elapsed):
-        # If we have a combat target, no attackers and target is no longer alive or is evading, leave combat.
-        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
-            if len(self.attackers) == 0:
-                self.leave_combat()
-                return
-
-        super().attack_update(elapsed)
 
     def get_deathbind_coordinates(self):
         return (self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
@@ -1739,7 +1732,7 @@ class PlayerManager(UnitManager):
     def _on_relocation(self):
         for guid, unit in MapManager.get_surrounding_units(self).items():
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
-            if self.guid not in unit.attackers and unit.is_alive and unit.is_spawned:
+            if not unit.threat_manager.has_aggro_from(self) and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
             charmer_or_summoner = unit.get_charmer_or_summoner()
             if unit.is_pet() and charmer_or_summoner == self:
