@@ -315,7 +315,7 @@ class EffectTargets:
         party_group = None
         distance = target_effect.get_radius()
 
-        # If caster has a player charmer/summoner, use he's group manager.
+        # If caster has a player charmer/summoner, use his group manager.
         if charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
             party_group = charmer_or_summoner.group_manager
         # No charmer/summoner and caster is a player, use his group manager.

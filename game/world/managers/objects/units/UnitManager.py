@@ -218,7 +218,7 @@ class UnitManager(ObjectManager):
         if not target:
             return False
 
-        # Always short circuit on Charmer/Summoner relationship.
+        # Always short circuit on charmer/summoner relationship.
         if self == target.get_charmer_or_summoner() or self.get_charmer_or_summoner() == target:
             return False
 
@@ -230,7 +230,7 @@ class UnitManager(ObjectManager):
         if is_enemy:
             return True
 
-        # Always short circuit on Charmer/Summoner relationship.
+        # Always short circuit on charmer/summoner relationship.
         if self == target.get_charmer_or_summoner() or self.get_charmer_or_summoner() == target:
             return False
 
@@ -291,10 +291,8 @@ class UnitManager(ObjectManager):
         if self.is_casting() or self.unit_state & UnitStates.STUNNED:
             return
 
-        # Only increment if attack timers ain't ready.
-        if not self.is_attack_ready(AttackTypes.BASE_ATTACK):
-            self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
-        if self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
+        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
+        if self.has_offhand_weapon():
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
         self.update_melee_attacking_state()
@@ -891,10 +889,11 @@ class UnitManager(ObjectManager):
         return self.attack_timers[attack_type] <= 0
 
     def update_attack_time(self, attack_type, value):
-        new_value = self.attack_timers[attack_type] - value
-        if new_value < 0:
-            new_value = 0
         if not self.is_attack_ready(attack_type):
+            new_value = self.attack_timers[attack_type] - value
+            if new_value < 0:
+                new_value = 0
+
             self.set_attack_timer(attack_type, new_value)
 
     def set_attack_timer(self, attack_type, value):
