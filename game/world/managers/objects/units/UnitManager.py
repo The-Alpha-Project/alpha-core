@@ -261,7 +261,7 @@ class UnitManager(ObjectManager):
 
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
-            self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 200)
+            self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
         self.send_attack_start(self.combat_target.guid)
 
