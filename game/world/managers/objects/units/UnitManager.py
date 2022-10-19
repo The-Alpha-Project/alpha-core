@@ -801,7 +801,7 @@ class UnitManager(ObjectManager):
     def _threat_assist(self, target, source_threat: float):
         if target.in_combat:
             creature_observers = [attacker for attacker
-                                  in target.threat_manager.get_threat_holders()
+                                  in target.threat_manager.get_threat_holder_units()
                                   if not attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER]
             observers_size = len(creature_observers)
             if observers_size > 0:

@@ -38,8 +38,8 @@ class ThreatManager:
     def get_targets_count(self):
         return len(self.holders)
 
-    def get_threat_holders(self):
-        return self.holders.values()
+    def get_threat_holder_units(self):
+        return [holder.unit for holder in self.holders.values()]
 
     def update_unit_threat_modifier(self, unit_mgr, remove=False):
         max_holder = self._get_max_threat_holder()
@@ -55,10 +55,10 @@ class ThreatManager:
 
     def reset(self):
         # Remove self from attacker threat managers.
-        for holder in self.get_threat_holders():
-            if not holder.unit.threat_manager.has_aggro_from(self.owner):
+        for unit in self.get_threat_holder_units():
+            if not unit.threat_manager.has_aggro_from(self.owner):
                 continue
-            holder.unit.threat_manager.remove_unit_threat(self.owner)
+            unit.threat_manager.remove_unit_threat(self.owner)
 
         self.holders.clear()
         self.current_holder = None
