@@ -14166,5 +14166,28 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1` = 268, `display_id2` = 0 WHERE `entry` = 1949;
         insert into applied_updates values ('121020221');
     end if;
+
+    -- 19/10/2022 1
+    if (select count(*) from applied_updates where id='191020221') = 0 then
+        -- #667
+        UPDATE `creature_template` SET `level_min` = 19 WHERE `entry` = 3989;
+        UPDATE `creature_template` SET `level_min` = 20 WHERE `entry` IN (3988, 3991);
+        UPDATE `creature_template` SET `level_max` = 20 WHERE `entry` = 3989;
+        UPDATE `creature_template` SET `level_max` = 21 WHERE `entry` IN (3988, 3991);
+        
+        -- Creatures not spawned yet
+        UPDATE `creature_template` SET `level_min` = 17 WHERE `entry` = 3990;
+        UPDATE `creature_template` SET `level_max` = 18 WHERE `entry` = 3990;
+        UPDATE `creature_template` SET `level_min` = 19 WHERE `entry` = 4071;
+        UPDATE `creature_template` SET `level_max` = 19 WHERE `entry` = 4071;
+        UPDATE `creature_template` SET `level_min` = 20 WHERE `entry` = 4069;
+        UPDATE `creature_template` SET `level_max` = 20 WHERE `entry` = 4069;
+
+
+
+
+
+        insert into applied_updates values ('191020221');
+    end if;
 end $
 delimiter ;
