@@ -10,7 +10,6 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas

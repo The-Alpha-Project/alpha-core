@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
-from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.UnitCodes import CreatureReactStates, UnitStates, AIReactionStates
