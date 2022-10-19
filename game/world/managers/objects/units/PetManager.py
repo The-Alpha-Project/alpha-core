@@ -366,8 +366,7 @@ class PetManager:
         elif spell_entry and creature.get_type_id() == ObjectTypeIds.ID_UNIT and spell_entry.AttributesEx \
                 and not spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT:
             # TODO: Proper threat value.
-            threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
-            creature.threat_manager.add_threat(self.owner, threat)
+            creature.threat_manager.add_threat(self.owner)
 
         # Notify creature about owner proximity if we restored creature spawn.
         if creature.spawn_id and creature.get_type_id() == ObjectTypeIds.ID_UNIT:

@@ -711,14 +711,13 @@ class UnitManager(ObjectManager):
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
 
-        threat = damage_info.total_damage
         # TODO: Threat calculation.
-        # No threat but source spell generates threat on miss.
-        if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
-            from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
-            threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
+        # No damage but source spell generates threat on miss.
+        if casting_spell and damage_info.total_damage == 0 and casting_spell.generates_threat_on_miss():
+            self.threat_manager.add_threat(source)
+            return True
 
-        self.threat_manager.add_threat(source, threat)
+        self.threat_manager.add_threat(source, damage_info.total_damage)
         return True
 
     def receive_healing(self, amount, source=None):

@@ -79,7 +79,8 @@ class ThreatManager:
         if not self.has_aggro():
             self.owner.leave_combat()
 
-    def add_threat(self, source: UnitManager, threat: float, threat_mod=0, is_call_for_help=False):
+    def add_threat(self, source: UnitManager, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
+                   is_call_for_help: bool = False):
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return False
 
@@ -102,7 +103,7 @@ class ThreatManager:
                 # If source is a player, force it to be linked to the other unit through threat.
                 if source.get_type_id() == ObjectTypeIds.ID_PLAYER and not source.threat_manager.has_aggro_from(
                         self.owner):
-                    source.threat_manager.add_threat(self.owner, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
+                    source.threat_manager.add_threat(self.owner)
                 return True
 
         return False
