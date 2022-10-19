@@ -65,6 +65,7 @@ class ObjectManager:
         self.initialized = False
         self.is_spawned = True
         self.summoner = None
+        self.charmer = None
         self.current_cell = ''
         self.last_tick = 0
         self.movement_spline = None
@@ -375,6 +376,10 @@ class ObjectManager:
     def is_pet(self):
         return False
 
+    # override
+    def is_unit_pet(self, unit):
+        return False
+
     def can_attack_target(self, target):
         if not target:
             return False
@@ -419,6 +424,10 @@ class ObjectManager:
     # Returns 1. if the target can be detected and 2. if alert should happen (AI reaction).
     def can_detect_target(self, target, distance):
         return True, False
+
+    # Implemented by UnitManager.
+    def get_charmer_or_summoner(self, include_self=False):
+        return self if include_self else None
 
     def _allegiance_status_checker(self, target) -> UnitReaction:
         own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)

@@ -235,7 +235,7 @@ class PetManager:
         self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent)
 
         # Creature from world spawns.
-        creature.leave_combat(force=True)
+        creature.leave_combat()
 
         if pet_index == -1:
             # Pet not in database.
@@ -329,7 +329,8 @@ class PetManager:
         movement_type = MovementTypes.IDLE
         # Check if this is a borrowed creature instance.
         if creature.spawn_id:
-            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature.summoner, creature.spawn_id)
+            charmer_or_summoner = creature.get_charmer_or_summoner()
+            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(charmer_or_summoner, creature.spawn_id)
             if not spawn:
                 Logger.error(f'Unable to locate SpawnCreature with id {creature.spawn_id} upon pet detach.')
             if not spawn.restore_creature_instance(creature):
@@ -337,8 +338,6 @@ class PetManager:
             movement_type = spawn.movement_type
 
         self.active_pet = None
-
-        self.owner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, 0)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
 
         if is_permanent:
@@ -349,10 +348,16 @@ class PetManager:
             self.remove_pet(pet_index)
 
         # Flush ThreatManager before releasing this creature in order to avoid evade trigger.
-        creature.leave_combat(force=True)
+        creature.leave_combat()
+
         # Restore creature state.
-        creature.set_summoned_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
-                                 movement_type=movement_type, remove=True)
+        if pet_info.permanent:
+            # Remove summoned.
+            creature.set_summoned_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
+                                     movement_type=movement_type, remove=True)
+        # Remove charmed.
+        creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
+                                movement_type=movement_type, remove=True)
 
         # Orphan creature, destroy.
         if not creature.spawn_id:
@@ -363,6 +368,10 @@ class PetManager:
             # TODO: Proper threat value.
             threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
             creature.threat_manager.add_threat(self.owner, threat)
+
+        # Notify creature about owner proximity if we restored creature spawn.
+        if creature.spawn_id and creature.get_type_id() == ObjectTypeIds.ID_UNIT:
+            creature.notify_moved_in_line_of_sight(self.owner)
 
         # Handle channeled interrupt if needed.
         if spell_entry and self.owner.spell_manager.is_casting_spell(spell_entry.ID):
@@ -402,7 +411,7 @@ class PetManager:
             self.get_active_pet_info().command_state = action_id
             self.active_pet.creature.object_ai.command_state_update()
             if action_id == PetCommandState.COMMAND_ATTACK and target_unit:
-                self.active_pet.creature.object_ai.attack_start(target_unit)
+                self.active_pet.creature.attack(target_unit)
             if action_id == PetCommandState.COMMAND_DISMISS:
                 self.detach_active_pet()
 
@@ -535,9 +544,14 @@ class PetManager:
                     Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                     return
 
-        creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
-                                 subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
-                                 movement_type=MovementTypes.IDLE)
+        if is_permanent:
+            # Summoned by owner.
+            creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
+                                     subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
+                                     movement_type=MovementTypes.IDLE)
+        # Charmed by owner.
+        creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
+                                movement_type=MovementTypes.IDLE)
 
         # This is a permanent pet summoned by SPELL_EFFECT_SUMMON_PET, just spawn it.
         if is_permanent:

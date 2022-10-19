@@ -313,7 +313,7 @@ class CreatureAI:
                     return SpellCheckCastResult.SPELL_FAILED_ERROR
 
             # Mind control abilities can't be used with just 1 attacker or mob will reset.
-            if len(target.attackers) == 1 and casting_spell.get_charm_effect():
+            if target.threat_manager.get_targets_count() == 1 and casting_spell.get_charm_effect():
                 return SpellCheckCastResult.SPELL_FAILED_CANT_BE_CHARMED
 
         # Interrupt any previous spell.

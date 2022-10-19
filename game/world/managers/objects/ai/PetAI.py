@@ -30,7 +30,8 @@ class PetAI(CreatureAI):
     # override
     def update_ai(self, elapsed):
         super().update_ai(elapsed)
-        if self.is_at_home or self.creature.combat_target:
+        if self.is_at_home or self.creature.combat_target and \
+                self.creature.can_attack_target(self.creature.combat_target):
             return
 
         self.handle_return_movement()
@@ -41,10 +42,9 @@ class PetAI(CreatureAI):
             return Permits.PERMIT_BASE_SPECIAL
         return Permits.PERMIT_BASE_NO
 
+    # Called when creature base attack() starts.
     # override
     def attack_start(self, victim):
-        # TODO This is bad, but a workaround for now until a valid solution is discussed.
-        self.creature.threat_manager.add_threat(victim, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
         self.is_at_home = False
 
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
@@ -83,8 +83,7 @@ class PetAI(CreatureAI):
     # Handles moving the pet back to stay or owner.
     # Prevent activating movement when under control of spells.
     def handle_return_movement(self):
-        owner = self.creature.summoner
-        target_location = self.stay_position if self.stay_position else owner.location
+        target_location = self.stay_position if self.stay_position else self.creature.get_charmer_or_summoner().location
 
         current_distance = self.creature.location.distance(target_location)
 
@@ -141,7 +140,7 @@ class PetAI(CreatureAI):
             self.is_at_home = False
 
     def _get_command_state(self):
-        pet_info = self.creature.summoner.pet_manager.get_active_pet_info()
+        pet_info = self.creature.get_charmer_or_summoner().pet_manager.get_active_pet_info()
         if not pet_info:
             return PetCommandState.COMMAND_FOLLOW
         return pet_info.command_state

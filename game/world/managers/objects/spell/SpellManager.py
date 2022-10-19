@@ -1237,7 +1237,8 @@ class SpellManager:
 
         channel_object = MapManager.get_surrounding_gameobject_by_guid(self.caster,
                                                                        self.caster.channel_object)
-        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL or channel_object.summoner is not self.caster:
+        if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL \
+                or channel_object.summoner is not self.caster:
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
             return False
 
@@ -1457,8 +1458,9 @@ class SpellManager:
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
         if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
-            if self.caster.summoner:
-                self.caster.summoner.pet_manager.handle_cast_result(spell_id, error)
+            charmer_or_summoner = self.caster.get_charmer_or_summoner()
+            if charmer_or_summoner:
+                charmer_or_summoner.pet_manager.handle_cast_result(spell_id, error)
             return
 
         if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:

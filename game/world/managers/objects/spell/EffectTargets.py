@@ -71,7 +71,6 @@ class EffectTargets:
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],
             SpellImplicitTargets.TARGET_GAMEOBJECT_AND_ITEM: self.initial_target if target_is_gameobject or target_is_item else [],
-            SpellImplicitTargets.TARGET_MASTER: caster.summoner if caster.summoner else [],
             SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION: self.casting_spell.targeted_unit_on_cast_start if targeted_unit_is_hostile else [],
             SpellImplicitTargets.TARGET_SELF_FISHING: self.initial_target,
 
@@ -208,6 +207,11 @@ class EffectTargets:
         return final_targets
 
     @staticmethod
+    def resolve_master(casting_spell, target_effect):
+        charmer_or_summoner = casting_spell.spell_caster.get_charmer_or_summoner()
+        return charmer_or_summoner if charmer_or_summoner else []
+
+    @staticmethod
     def resolve_unit_near_caster(casting_spell, target_effect):
         result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
         units = list(result[0].values()) + list(result[1].values())
@@ -307,16 +311,16 @@ class EffectTargets:
         caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         caster_is_unit = caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
         caster_pet = caster.get_pet() if caster_is_unit else None
-        summoner = caster.get_summoner() if caster_is_unit else None
+        charmer_or_summoner = caster.get_charmer_or_summoner() if caster_is_unit else None
         party_group = None
         distance = target_effect.get_radius()
 
-        # Caster is a player, use his group manager, if any.
-        if caster_is_player and caster.group_manager:
+        # If caster has a player charmer/summoner, use he's group manager.
+        if charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            party_group = charmer_or_summoner.group_manager
+        # No charmer/summoner and caster is a player, use his group manager.
+        elif caster_is_player and caster.group_manager:
             party_group = caster.group_manager
-        # If caster has a player summoner, use the summoner group manager.
-        elif summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            party_group = summoner.group_manager
 
         # These spells should most likely include self (battle shout, prayer of healing etc.)
         if caster_is_unit:
@@ -324,9 +328,9 @@ class EffectTargets:
             if not caster.is_totem():
                 units_in_range.append(caster)
 
-        # Has a summoner and is within radius.
-        if summoner and caster.location.distance(summoner.location) < distance:
-            units_in_range.append(summoner)
+        # Has a charmer/summoner and is within radius.
+        if charmer_or_summoner and caster.location.distance(charmer_or_summoner.location) < distance:
+            units_in_range.append(charmer_or_summoner)
 
         # Has a pet and is within radius.
         if caster_pet and caster.location.distance(caster_pet.location) < distance:
@@ -336,7 +340,7 @@ class EffectTargets:
             return units_in_range
 
         for unit in units:
-            if caster is unit or unit is summoner or unit is caster_pet or \
+            if caster is unit or unit is charmer_or_summoner or unit is caster or unit is caster_pet or \
                     not party_group.is_party_member(unit.guid) or \
                     caster.can_attack_target(unit):   # Dueling party members
                 continue
@@ -485,6 +489,7 @@ class EffectTargets:
 
 
 TARGET_RESOLVERS = {
+    SpellImplicitTargets.TARGET_MASTER: EffectTargets.resolve_master,
     SpellImplicitTargets.TARGET_RANDOM_ENEMY_CHAIN_IN_AREA: EffectTargets.resolve_random_enemy_chain_in_area,
     SpellImplicitTargets.TARGET_UNIT_NEAR_CASTER: EffectTargets.resolve_unit_near_caster,
     SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM: EffectTargets.resolve_area_effect_custom,

@@ -13,6 +13,7 @@ from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUt
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
+from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -166,6 +167,7 @@ class PlayerManager(UnitManager):
 
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
 
+            self.threat_manager = ThreatManager(self)
             self.enchantment_manager = EnchantmentManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
@@ -299,7 +301,7 @@ class PlayerManager(UnitManager):
         self.spell_manager.remove_casts()
         self.aura_manager.remove_all_auras()
         self.pet_manager.detach_active_pet()
-        self.leave_combat(force=True)
+        self.leave_combat()
 
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
@@ -1412,6 +1414,14 @@ class PlayerManager(UnitManager):
 
         return True  # TODO Stunned check
 
+    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, movement_type=None, remove=False):
+        # Charmer must be set here not in parent.
+        self.charmer = charmer if not remove else None
+        # Restore faction.
+        if remove:
+            self.set_player_variables()
+        super().set_charmed_by(charmer, subtype=subtype, remove=remove)
+
     # override
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
         # Summoner must be set here not in parent.
@@ -1592,16 +1602,6 @@ class PlayerManager(UnitManager):
 
         self.last_tick = now
 
-    # override
-    def attack_update(self, elapsed):
-        # If we have a combat target, no attackers and target is no longer alive or is evading, leave combat.
-        if self.combat_target and (not self.combat_target.is_alive or self.combat_target.is_evading):
-            if len(self.attackers) == 0:
-                self.leave_combat()
-                return
-
-        super().attack_update(elapsed)
-
     def get_deathbind_coordinates(self):
         return (self.deathbind.deathbind_map, Vector(self.deathbind.deathbind_position_x,
                                                      self.deathbind.deathbind_position_y,
@@ -1731,9 +1731,9 @@ class PlayerManager(UnitManager):
     def _on_relocation(self):
         for guid, unit in MapManager.get_surrounding_units(self).items():
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
-            if self.guid not in unit.attackers and unit.is_alive and unit.is_spawned:
+            if not unit.threat_manager.has_aggro_from(self) and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
-            if unit.is_pet() and unit.summoner == self:
+            if unit.is_unit_pet(self):
                 unit.object_ai.movement_inform()
 
     # override

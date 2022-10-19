@@ -38,6 +38,7 @@ class CreatureManager(UnitManager):
         self.health_percent = 100
         self.mana_percent = 100
         self.summoner = None
+        self.charmer = None
         self.addon = None
         self.spell_id = 0
         self.time_to_live_timer = 0
@@ -291,10 +292,15 @@ class CreatureManager(UnitManager):
         return self.creature_template.type == CreatureTypes.AMBIENT
 
     def is_pet(self):
-        return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+        return (self.summoner or self.charmer) and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+
+    # override
+    def is_unit_pet(self, unit):
+        return self.is_pet() and self.get_charmer_or_summoner() == unit
 
     def is_player_controlled_pet(self):
-        return self.is_pet() and self.summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
+        charmer_or_summoner = self.get_charmer_or_summoner()
+        return self.is_pet() and charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER
 
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
@@ -343,10 +349,8 @@ class CreatureManager(UnitManager):
         return super().can_parry(attacker_location)
 
     # override
-    def leave_combat(self, force=False):
-        super().leave_combat(force=force)
-        # Reset threat table.
-        self.threat_manager.reset()
+    def leave_combat(self):
+        super().leave_combat()
         if not self.is_player_controlled_pet():
             self.evade()
 
@@ -368,7 +372,9 @@ class CreatureManager(UnitManager):
 
         # Pets should return to owner on evading, not to spawn position. This case at this moment only affects
         # creature summoned pets since player summoned pets will never enter this method.
-        if self.is_pet():
+        if self.is_pet() or self.is_at_home():
+            # Should turn off flag since we are not sending move packets.
+            self.is_evading = False
             return
 
         # Get the path we are using to get back to spawn location.
@@ -461,7 +467,7 @@ class CreatureManager(UnitManager):
         # Check if target is player and is online.
         target_is_player = self.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER
         if target_is_player and not self.combat_target.online:
-            self.leave_combat(True)
+            self.leave_combat()
             return
 
         spawn_distance = self.location.distance(self.spawn_position)
@@ -474,7 +480,7 @@ class CreatureManager(UnitManager):
             #     "Creature pursuit is now timer based rather than distance based."
             if spawn_distance > Distances.CREATURE_EVADE_DISTANCE  \
                     or target_distance > Distances.CREATURE_EVADE_DISTANCE:
-                self.leave_combat(True)
+                self.leave_combat()
                 return
 
             # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
@@ -485,11 +491,11 @@ class CreatureManager(UnitManager):
             #   - Most humanoids NPCs have gained the ability to swim.
             if self.is_on_water():
                 if not self.can_swim():
-                    self.leave_combat(True)
+                    self.leave_combat()
                     return
             else:
                 if not self.can_exit_water():
-                    self.leave_combat(True)
+                    self.leave_combat()
                     return
 
         # If this creature is not facing the attacker, update its orientation.
@@ -593,7 +599,7 @@ class CreatureManager(UnitManager):
     def attack(self, victim: UnitManager):
         if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
-        # Had no target before, notify attack start.
+        # Had no target before, notify attack start on ai.
         if not self.combat_target:
             self.object_ai.attack_start(victim)
         super().attack(victim)
@@ -606,11 +612,6 @@ class CreatureManager(UnitManager):
         # Has a target, check if we need to attack or switch target.
         if target and self.combat_target != target:
             self.attack(target)
-        # No target at all, leave combat, reset aggro.
-        elif not target and self.combat_target:
-            self.leave_combat(force=True)
-            return
-
         super().attack_update(elapsed)
 
     # override
@@ -628,13 +629,6 @@ class CreatureManager(UnitManager):
                 # Make sure to first stop any movement right away.
                 self.stop_movement()
 
-            threat = damage_info.total_damage
-            # TODO: Threat calculation.
-            # No threat but source spell generates threat on miss.
-            if casting_spell and threat == 0 and casting_spell.generates_threat_on_miss():
-                threat = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT
-
-            self.threat_manager.add_threat(source, threat)
         return True
 
     # override
@@ -662,9 +656,10 @@ class CreatureManager(UnitManager):
             pet_or_killer_pet.object_ai.killed_unit(self)
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            # Attribute non-player kills to the creature's summoner.
+            charmer_or_summoner = killer.get_charmer_or_summoner()
+            # Attribute non-player kills to the creature's charmer/summoner.
             # TODO Does this also apply for player mind control?
-            killer = killer.summoner if killer.summoner else killer
+            killer = charmer_or_summoner if charmer_or_summoner else killer
 
         if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.loot_manager.generate_loot(killer)
@@ -770,6 +765,16 @@ class CreatureManager(UnitManager):
     def has_ranged_weapon(self):
         return self.wearing_ranged_weapon
 
+    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, movement_type=None,
+                       remove=False):
+        # Charmer must be set here not in parent.
+        self.charmer = charmer if not remove else None
+        self.movement_type = movement_type
+        self.faction = charmer.faction if not remove else self.creature_template.faction
+        self.subtype = subtype
+        self.object_ai = AIFactory.build_ai(self)
+        super().set_charmed_by(charmer, subtype=subtype, remove=remove)
+
     # override
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
                         movement_type=None, remove=False):
@@ -779,9 +784,9 @@ class CreatureManager(UnitManager):
         self.spell_id = spell_id
         self.faction = summoner.faction if not remove else self.creature_template.faction
         self.subtype = subtype
-        self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.spell_id)
         self.object_ai = AIFactory.build_ai(self)
-        super().set_summoned_by(summoner, spell_id=spell_id, subtype=subtype, remove=remove)
+        self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, spell_id)
+        super().set_summoned_by(summoner, subtype=subtype, remove=remove)
 
     # override
     def set_weapon_mode(self, weapon_mode):

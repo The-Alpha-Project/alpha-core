@@ -5,7 +5,7 @@ from typing import Optional
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import HighGuid, ObjectTypeFlags
+from utils.constants.MiscCodes import HighGuid, ObjectTypeFlags, ObjectTypeIds
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates
 
@@ -29,9 +29,17 @@ class ThreatManager:
         self.current_holder: Optional[ThreatHolder] = None
         self._call_for_help_range = call_for_help_range
 
-    def reset(self):
-        self.holders.clear()
-        self.current_holder = None
+    def has_aggro_from(self, target):
+        return target.guid in self.holders
+
+    def has_aggro(self):
+        return self.get_targets_count() > 0
+
+    def get_targets_count(self):
+        return len(self.holders)
+
+    def get_threat_holder_units(self):
+        return [holder.unit for holder in self.holders.values()]
 
     def update_unit_threat_modifier(self, unit_mgr, remove=False):
         max_holder = self._get_max_threat_holder()
@@ -45,41 +53,62 @@ class ThreatManager:
         elif holder:
             holder.threat_mod = threat_mod
 
-    def remove_unit_threat(self, unit_guid):
-        if unit_guid in self.holders:
+    def reset(self):
+        # Remove self from attacker threat managers.
+        for unit in self.get_threat_holder_units():
+            if not unit.threat_manager.has_aggro_from(self.owner):
+                continue
+            unit.threat_manager.remove_unit_threat(self.owner)
+
+        self.holders.clear()
+        self.current_holder = None
+
+    def remove_unit_threat(self, unit):
+        if unit.guid in self.holders:
             # Reset current holder if needed.
-            if self.current_holder == self.holders[unit_guid]:
+            if self.current_holder == self.holders[unit.guid]:
                 self.current_holder = None
             # Pop unit from threat holders.
-            self.holders.pop(unit_guid)
+            self.holders.pop(unit.guid)
+            # Remove from self casts if needed.
+            if not unit.is_alive:
+                self.owner.spell_manager.remove_unit_from_all_cast_targets(unit.guid)
+            if not unit.threat_manager.has_aggro():
+                unit.leave_combat()
+
+        if not self.has_aggro():
+            self.owner.leave_combat()
 
     def add_threat(self, source: UnitManager, threat: float, threat_mod=0, is_call_for_help=False):
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return False
 
-        # Avoid adding threat between two friendly units, needs further investigation.
-        if source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            if not source.is_hostile_to(self.owner) and source.summoner \
-                    and not source.summoner.can_attack_target(self.owner):
-                return False
+        if threat <= 0.0:
+            Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
         if source is not self.owner:
             source_holder = self.holders.get(source.guid)
+            # Update existent holder.
             if source_holder:
                 new_threat = source_holder.total_raw_threat + threat
                 source_holder.total_raw_threat = max(new_threat, 0.0)
                 source_holder.threat_mod = threat_mod
+                self._check_add_threat_relation(source)
                 return True
+            # New holder.
             elif threat >= 0.0:
                 if not is_call_for_help:
                     self._call_for_help(source, threat)
                 self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
-                self._update_attackers_collection(source)
+                self._check_add_threat_relation(source)
                 return True
-            else:
-                Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
         return False
+
+    # Link both units through threat if source is a player.
+    def _check_add_threat_relation(self, source):
+        if source.get_type_id() == ObjectTypeIds.ID_PLAYER and not source.threat_manager.has_aggro_from(self.owner):
+            source.threat_manager.add_threat(self.owner, ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT)
 
     def resolve_target(self):
         if len(self.holders) > 0:
@@ -131,13 +160,7 @@ class ThreatManager:
         # No suitable target found.
         return None
 
-    # Make sure both involved units update their attackers' collection if hostility did not begin from a melee swing.
-    def _update_attackers_collection(self, attacker):
-        if attacker.guid not in self.owner.attackers:
-            self.owner.attackers[attacker.guid] = attacker
-        if self.owner.guid not in attacker.attackers:
-            attacker.attackers[self.owner.guid] = self.owner
-
+    # Creatures only.
     def _call_for_help(self, source, threat):
         if self._call_for_help_range:
             units = MapManager.get_surrounding_units_by_location(self.owner.location,
@@ -154,8 +177,6 @@ class ThreatManager:
         if unit == self.owner:
             return False
         elif unit.is_pet() or unit.is_evading:
-            return False
-        elif not unit.threat_manager:  # TODO: Might be better to just prevent threat manager to be None at any point.
             return False
         elif not unit.can_attack_target(source) or not unit.is_hostile_to(source):
             return False
@@ -175,11 +196,7 @@ class ThreatManager:
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
         for holder in list(self.holders.values()):
-            # No reason to keep targets we cannot longer attack.
-            if not self.owner.can_attack_target(holder.unit):
-                self.current_holder = None if self.current_holder == holder else self.current_holder
-                self.holders.pop(holder.unit.guid)
-            else:
+            if self.owner.can_attack_target(holder.unit) or holder.unit.is_hostile_to(self.owner):
                 relevant_holders.append(holder)
 
         # Sort by threat.
