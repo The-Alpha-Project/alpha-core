@@ -14166,5 +14166,49 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1` = 268, `display_id2` = 0 WHERE `entry` = 1949;
         insert into applied_updates values ('121020221');
     end if;
+
+    -- 19/10/2022 1
+    if (select count(*) from applied_updates where id='191020221') = 0 then
+        -- #667
+        UPDATE `creature_template` SET `level_min` = 19 WHERE `entry` = 3989;
+        UPDATE `creature_template` SET `level_min` = 20 WHERE `entry` IN (3988, 3991);
+        UPDATE `creature_template` SET `level_max` = 20 WHERE `entry` = 3989;
+        UPDATE `creature_template` SET `level_max` = 21 WHERE `entry` IN (3988, 3991);
+        
+        -- Creatures not spawned yet
+        UPDATE `creature_template` SET `level_min` = 17 WHERE `entry` = 3990;
+        UPDATE `creature_template` SET `level_max` = 18 WHERE `entry` = 3990;
+        UPDATE `creature_template` SET `level_min` = 19 WHERE `entry` = 4071;
+        UPDATE `creature_template` SET `level_max` = 19 WHERE `entry` = 4071;
+        UPDATE `creature_template` SET `level_min` = 20 WHERE `entry` = 4069;
+        UPDATE `creature_template` SET `level_max` = 20 WHERE `entry` = 4069;
+
+        -- #665
+        -- Kyndri
+        DELETE FROM `npc_vendor` WHERE `entry` = 4190;
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '4540', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '4541', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '4542', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '4544', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '159', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '1179', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '1205', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '1708', '0', '0', '0', '0');
+
+        -- Veenix - Handles #666
+        UPDATE `creature_template` SET `subname` = 'Venture Weapon Salesman' WHERE `entry`= 4086;
+        DELETE FROM `npc_vendor` WHERE `entry` = 4086;
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '923', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '922', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '927', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '926', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '925', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '924', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '2209', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '928', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '4818', '1', '0', '0', '0');
+
+        insert into applied_updates values ('191020221');
+    end if;
 end $
 delimiter ;
