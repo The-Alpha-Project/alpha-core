@@ -14195,7 +14195,8 @@ begin not atomic
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '1205', '0', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4190', '1708', '0', '0', '0', '0');
 
-        -- Veenix
+        -- Veenix - Handles #666
+        UPDATE `creature_template` SET `subname` = 'Venture Weapon Salesman' WHERE `entry`= 4086;
         DELETE FROM `npc_vendor` WHERE `entry` = 4086;
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '923', '0', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4086', '922', '0', '0', '0', '0');
