@@ -14183,10 +14183,6 @@ begin not atomic
         UPDATE `creature_template` SET `level_min` = 20 WHERE `entry` = 4069;
         UPDATE `creature_template` SET `level_max` = 20 WHERE `entry` = 4069;
 
-
-
-
-
         insert into applied_updates values ('191020221');
     end if;
 end $
