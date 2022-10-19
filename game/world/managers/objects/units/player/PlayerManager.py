@@ -1528,8 +1528,7 @@ class PlayerManager(UnitManager):
             # Regeneration.
             self.regenerate(elapsed)
             # Attack update.
-            if self.combat_target:
-                self.attack_update(elapsed)
+            self.attack_update(elapsed)
             # Check swimming state.
             self.check_swimming_state(elapsed)
             # Sanctuary check.

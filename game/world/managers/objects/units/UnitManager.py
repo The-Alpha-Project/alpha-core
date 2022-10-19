@@ -259,8 +259,6 @@ class UnitManager(ObjectManager):
         self.enter_combat()
         victim.enter_combat()
 
-        # Set base weapon attack as ready.
-        self.set_attack_timer(AttackTypes.BASE_ATTACK, 0)
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 200)
@@ -293,14 +291,16 @@ class UnitManager(ObjectManager):
         if self.is_casting() or self.unit_state & UnitStates.STUNNED:
             return
 
-        self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
-        if self.has_offhand_weapon():
+        # Only increment if attack timers ain't ready.
+        if not self.is_attack_ready(AttackTypes.BASE_ATTACK):
+            self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
+        if self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
         self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
-        if self.unit_state & UnitStates.STUNNED:
+        if self.unit_state & UnitStates.STUNNED or not self.combat_target:
             return
 
         swing_error = AttackSwingError.NONE
