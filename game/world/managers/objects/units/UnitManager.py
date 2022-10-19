@@ -890,10 +890,7 @@ class UnitManager(ObjectManager):
 
     def update_attack_time(self, attack_type, value):
         if not self.is_attack_ready(attack_type):
-            new_value = self.attack_timers[attack_type] - value
-            if new_value < 0:
-                new_value = 0
-
+            new_value = max(0, self.attack_timers[attack_type] - value)
             self.set_attack_timer(attack_type, new_value)
 
     def set_attack_timer(self, attack_type, value):
