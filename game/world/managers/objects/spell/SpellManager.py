@@ -659,11 +659,11 @@ class SpellManager:
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return  # Non-unit casters should not broadcast their casts.
 
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         # Validate if this spell crashes the client.
         # Force SpellCastFlags.CAST_FLAG_PROC, which hides the start cast.
-        if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT and \
-                not ExtendedSpellData.UnitSpellsValidator.spell_has_invalid_precast_kit(casting_spell):
-            Logger.warning(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid pre cast kit.')
+        if not is_player and not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell):
+            Logger.warning(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid cast.')
             casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_PROC
 
         source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
@@ -685,7 +685,6 @@ class SpellManager:
             data.append(casting_spell.used_ranged_attack_item.item_template.inventory_type)
 
         # Spell start.
-        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         data = pack(signature, *data)
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data)
         MapManager.send_surrounding(packet, self.caster, include_self=is_player)
