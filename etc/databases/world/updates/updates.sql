@@ -14213,7 +14213,7 @@ begin not atomic
     end if;
 
     -- 20/10/2022 1
-    -- #657 #664 #667 #686 #689
+    -- #657 #664 #677 #686 #689
     if (select count(*) from applied_updates where id='201020221') = 0 then
         -- #657
         -- Mangletooth
@@ -14337,7 +14337,7 @@ begin not atomic
         orientation=1.119
         WHERE spawn_id=32677;
 
-        -- #667
+        -- #677
         UPDATE `creature_template` SET `display_id1`='616' WHERE  `entry`=3888;
 
         -- #686
