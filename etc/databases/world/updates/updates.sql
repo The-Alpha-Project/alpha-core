@@ -14211,5 +14211,171 @@ begin not atomic
 
         insert into applied_updates values ('191020221');
     end if;
+
+    -- 20/10/2022 1
+    -- #657 #664 #667 #686 #689
+    if (select count(*) from applied_updates where id='201020221') = 0 then
+        -- #657
+        -- Mangletooth
+        UPDATE `spawns_creatures` SET 
+        position_x=-418.259,
+        position_y=-2571.113,
+        position_z=98.980,
+        orientation=5.195
+        WHERE spawn_id=14345;
+
+        -- Uthrok
+        UPDATE `spawns_creatures` SET 
+        position_x=-430.250,
+        position_y=-2690.008,
+        position_z=99.653,
+        orientation=1.488
+        WHERE spawn_id=15103;
+
+        -- Gazrog
+        UPDATE `spawns_creatures` SET 
+        position_x=-431.779,
+        position_y=-2638.041,
+        position_z=95.985,
+        orientation=3.314
+        WHERE spawn_id=15029;
+
+        -- Darsok Swiftdagger
+        UPDATE `spawns_creatures` SET 
+        position_x=-404.915,
+        position_y=-2649.898,
+        position_z=145.825,
+        orientation=5.058
+        WHERE spawn_id=14415;
+
+        -- Grub
+        UPDATE `spawns_creatures` SET 
+        position_x=-417.593,
+        position_y=-2657.668,
+        position_z=96.031,
+        orientation=4.659
+        WHERE spawn_id=14390;
+
+        -- Zargh
+        UPDATE `spawns_creatures` SET 
+        position_x=-408.556,
+        position_y=-2661.161,
+        position_z=95.988,
+        orientation=4.573
+        WHERE spawn_id=15104;
+
+        -- Rethgar Deathgate
+        UPDATE `spawns_creatures` SET 
+        position_x=-473.619,
+        position_y=-2596.796,
+        position_z=103.912,
+        orientation=6.057
+        WHERE spawn_id=13950;
+
+        -- Moorane Hearthgrain
+        UPDATE `spawns_creatures` SET 
+        position_x=-390.703,
+        position_y=-2707.016,
+        position_z=99.232,
+        orientation=1.276
+        WHERE spawn_id=15091;
+
+        -- Hula'mahi
+        UPDATE `spawns_creatures` SET 
+        position_x=-420.274,
+        position_y=-2625.528,
+        position_z=95.657,
+        orientation=2.452
+        WHERE spawn_id=15108;
+
+        -- Grenthar
+        UPDATE `spawns_creatures` SET 
+        position_x=-413.143,
+        position_y=-2620.501,
+        position_z=95.998,
+        orientation=1.956
+        WHERE spawn_id=14347;
+
+        -- Thork
+        UPDATE `spawns_creatures` SET 
+        position_x=-430.731,
+        position_y=-2568.288,
+        position_z=96.689,
+        orientation=5.415
+        WHERE spawn_id=14344;
+
+        -- Sergra Darkthorn
+        UPDATE `spawns_creatures` SET 
+        position_x=-441.497,
+        position_y=-2645.144,
+        position_z=96.075,
+        orientation=3.224
+        WHERE spawn_id=13950;
+
+        -- #664
+        -- Kayneth Stillwind
+        UPDATE `spawns_creatures` SET 
+        position_x=2323.507,
+        position_y=-2559.115,
+        position_z=105.948,
+        orientation=2.260
+        WHERE spawn_id=32331;
+
+        -- Cylania Rootstalker
+        UPDATE `spawns_creatures` SET 
+        position_x=2420.542,
+        position_y=-2610.767,
+        position_z=78.055,
+        orientation=3.672
+        WHERE spawn_id=32719;
+
+        -- Harklan Moongrove
+        UPDATE `spawns_creatures` SET 
+        position_x=2360.490,
+        position_y=-2661.508,
+        position_z=82.097,
+        orientation=1.119
+        WHERE spawn_id=32677;
+
+        -- #667
+        UPDATE `creature_template` SET `display_id1`='616' WHERE  `entry`=3888;
+
+        -- #686
+        UPDATE `creature_template` SET `display_id1`='1987' WHERE  `entry`=2540;
+
+        -- #689
+        UPDATE `creature_template` SET `health_min`='2052' WHERE  `entry`=1696;
+        UPDATE `creature_template` SET `health_max`='2052' WHERE  `entry`=1696;
+        UPDATE `creature_template` SET `health_min`='1890' WHERE  `entry`=1707;
+        UPDATE `creature_template` SET `health_max`='2052' WHERE  `entry`=1707;
+        UPDATE `creature_template` SET `health_min`='2052' WHERE  `entry`=1711;
+        UPDATE `creature_template` SET `health_max`='2166' WHERE  `entry`=1711;
+        UPDATE `creature_template` SET `health_min`='2052' WHERE  `entry`=1708;
+        UPDATE `creature_template` SET `health_max`='2166' WHERE  `entry`=1708;
+        UPDATE `creature_template` SET `health_min`='2667' WHERE  `entry`=1717;
+        UPDATE `creature_template` SET `health_max`='2667' WHERE  `entry`=1717;
+        UPDATE `creature_template` SET `health_min`='2331' WHERE  `entry`=1663;
+        UPDATE `creature_template` SET `health_max`='2331' WHERE  `entry`=1663;
+        UPDATE `creature_template` SET `health_min`='2166' WHERE  `entry`=1715;
+        UPDATE `creature_template` SET `health_max`='2331' WHERE  `entry`=1715;
+
+        -- Dextren Ward
+        UPDATE `spawns_creatures` SET 
+        position_x=69.028,
+        position_y=-87.137,
+        position_z=-33.940,
+        orientation=5.765
+        WHERE spawn_id=79116;
+
+        -- Change weapon models
+        UPDATE `creature_equip_template` SET `equipentry1`='1896', `equipentry2`='1961' WHERE  `entry`=1711;
+        UPDATE `creature_equip_template` SET `equipentry1`='1908' WHERE  `entry`=1715;
+
+        -- #644
+        UPDATE `creature_spells` SET `spellId_2`='0', `castTarget_2`='0', `castFlags_2`='0', `delayRepeatMin_2`='0', `delayRepeatMax_2`='0' WHERE  `entry`=21800;
+        UPDATE `creature_spells` SET `spellId_1`='5864', `castTarget_1`='1',`delayInitialMin_1`='5', `delayInitialMax_1`='10' WHERE  `entry`=21800;
+
+        insert into applied_updates values ('201020221');
+    end if;
 end $
 delimiter ;
