@@ -354,9 +354,6 @@ class CreatureManager(UnitManager):
     def leave_combat(self):
         super().leave_combat()
 
-        # Stop casts.
-        self.spell_manager.remove_casts()
-
         if not self.is_player_controlled_pet():
             self.evade()
 
