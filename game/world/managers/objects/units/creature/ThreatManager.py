@@ -54,10 +54,11 @@ class ThreatManager:
             holder.threat_mod = threat_mod
 
     def reset(self):
-        # Remove self from attacker threat managers.
+        # Remove threat between self and attackers.
         for unit in self.get_threat_holder_units():
             if not unit.threat_manager.has_aggro_from(self.owner):
                 continue
+            self.remove_unit_threat(unit)
             unit.threat_manager.remove_unit_threat(self.owner)
 
         self.holders.clear()
@@ -84,10 +85,11 @@ class ThreatManager:
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return False
 
-        if threat <= 0.0:
+        if threat < 0.0:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
         if source is not self.owner:
+
             source_holder = self.holders.get(source.guid)
             # Update existent holder.
             if source_holder:
@@ -101,8 +103,8 @@ class ThreatManager:
                     self._call_for_help(source, threat)
                 self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
                 # If source is a player, force it to be linked to the other unit through threat.
-                if source.get_type_id() == ObjectTypeIds.ID_PLAYER and not source.threat_manager.has_aggro_from(
-                        self.owner):
+                source_is_player = source.get_type_id() == ObjectTypeIds.ID_PLAYER
+                if source_is_player and not source.threat_manager.has_aggro_from(self.owner):
                     source.threat_manager.add_threat(self.owner)
                 return True
 
@@ -194,6 +196,8 @@ class ThreatManager:
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
         for holder in list(self.holders.values()):
+            if not holder.unit.is_alive:
+                continue
             if self.owner.can_attack_target(holder.unit) or holder.unit.is_hostile_to(self.owner):
                 relevant_holders.append(holder)
 

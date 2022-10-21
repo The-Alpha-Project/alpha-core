@@ -212,17 +212,18 @@ class UnitSpellsValidator:
     # TODO: For further investigation:
     #  https://github.com/The-Alpha-Project/alpha-core/issues/655
     #  https://github.com/The-Alpha-Project/alpha-core/issues/383
-    #  Spells pre cast kits that cause the client to crash.
+    #  Spells that crashes the client upon cast.
     #  Might be that these spells were not used in alpha.
-    #  e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player cast. (Player cast does not even reach server).
-    _INVALID_PRECAST_KITS_ = {
-        703
+    #  e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player. (Cast reaches server, crashes before reply)
+    _INVALID_PRECAST_SPELLS_ = {
+        3131,  # Frost Breath
+        3129,  # Frost Breath
+        3143,  # Glacial Roar
     }
 
     @staticmethod
-    def spell_has_invalid_precast_kit(casting_spell):
-        return casting_spell.spell_visual_entry and casting_spell.spell_visual_entry.PrecastKit not in \
-               UnitSpellsValidator._INVALID_PRECAST_KITS_
+    def spell_has_valid_cast(casting_spell):
+        return casting_spell.spell_entry.ID not in UnitSpellsValidator._INVALID_PRECAST_SPELLS_
 
 
 class SpellEffectMechanics:

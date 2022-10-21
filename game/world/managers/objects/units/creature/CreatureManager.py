@@ -327,6 +327,8 @@ class CreatureManager(UnitManager):
         self.location = self.spawn_position.copy()
         # Restore original spawn face position.
         self.movement_manager.send_face_target(self)
+        # Scan surrounding for enemies.
+        self._on_relocation()
 
     def can_swim(self):
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
@@ -351,6 +353,10 @@ class CreatureManager(UnitManager):
     # override
     def leave_combat(self):
         super().leave_combat()
+
+        # Stop casts.
+        self.spell_manager.remove_casts()
+
         if not self.is_player_controlled_pet():
             self.evade()
 

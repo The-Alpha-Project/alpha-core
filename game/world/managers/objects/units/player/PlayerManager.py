@@ -79,6 +79,7 @@ class PlayerManager(UnitManager):
 
         self.player_lock = RLock()
         self.session = session
+        self.pending_teleport_recovery_percentage = -1
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
         self.update_lock = False
@@ -523,7 +524,7 @@ class PlayerManager(UnitManager):
             self.player.money = self.coinage
             self.player.online = self.online
 
-    def teleport(self, map_, location, is_instant=False):
+    def teleport(self, map_, location, is_instant=False, recovery: float = -1.0):
         if not DbcDatabaseManager.map_get_by_id(map_):
             return False
 
@@ -545,6 +546,7 @@ class PlayerManager(UnitManager):
         # TODO: Stop any movement, rotation?
         # New destination we will use when we receive an acknowledge message from client.
         self.pending_teleport_destination_map = map_
+        self.pending_teleport_recovery_percentage = recovery
         self.pending_teleport_destination = Vector(location.x, location.y, location.z, location.o)
 
         if is_instant:
@@ -636,6 +638,12 @@ class PlayerManager(UnitManager):
         if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
             self.unmount()
 
+        # Repop/Resurrect.
+        if self.pending_teleport_recovery_percentage != -1:
+            self.respawn(self.pending_teleport_recovery_percentage)
+            self.spirit_release_timer = 0
+            self.resurrect_data = None
+
         # Get us in a new cell.
         MapManager.update_object(self)
 
@@ -646,6 +654,8 @@ class PlayerManager(UnitManager):
             movement_packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_packet())
             MapManager.send_surrounding(movement_packet, self, False)
 
+        # TODO: Wrap pending teleport data in a new holder object?
+        self.pending_teleport_recovery_percentage = -1
         self.pending_teleport_destination_map = -1
         self.pending_teleport_destination = None
         self.update_lock = False
@@ -1663,23 +1673,17 @@ class PlayerManager(UnitManager):
         self.spell_manager.handle_cast_attempt(2146, self, SpellTargetMask.SELF, validate=False)
 
     def resurrect(self, release_spirit=False):
-        if self.resurrect_data and not release_spirit:
-            self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location)
-            recovery_percentage = self.resurrect_data.recovery_percentage
-        else:
-            deathbind_map, deathbind_location = self.get_deathbind_coordinates()
-            self.teleport(deathbind_map, deathbind_location)
-            recovery_percentage = 1
-
-        self.respawn(recovery_percentage)
-        self.spirit_release_timer = 0
-
         # Spawn its corpse.
         if not self.resurrect_data:
             from game.world.managers.objects.corpse.CorpseManager import CorpseManager
             CorpseManager.spawn(self)
 
-        self.resurrect_data = None
+        if self.resurrect_data and not release_spirit:
+            self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location, is_instant=False,
+                          recovery=self.resurrect_data.recovery_percentage)
+        else:
+            deathbind_map, deathbind_location = self.get_deathbind_coordinates()
+            self.teleport(deathbind_map, deathbind_location, recovery=1, is_instant=False)
 
     def get_player_bytes(self):
         return ByteUtils.bytes_to_int(
