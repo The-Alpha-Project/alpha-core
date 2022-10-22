@@ -373,6 +373,10 @@ class ObjectManager:
         return False
 
     # override
+    def get_pet(self):
+        return None
+
+    # override
     def is_pet(self):
         return False
 
