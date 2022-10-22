@@ -5,7 +5,7 @@ from typing import Optional
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates
 
@@ -83,8 +83,12 @@ class ThreatManager:
         if not self.has_aggro():
             self.owner.leave_combat()
 
-    def add_threat(self, source: UnitManager, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
+    def add_threat(self, source, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
                    is_call_for_help: bool = False):
+        # Only players/units.
+        if not source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return False
+
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return False
 
