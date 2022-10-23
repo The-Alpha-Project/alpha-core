@@ -14377,5 +14377,12 @@ begin not atomic
 
         insert into applied_updates values ('201020221');
     end if;
+	
+    -- 23/10/2022 1
+    if (select count(*) from applied_updates where id='231020221') = 0 then
+        -- Fix Sirens Call cooldown.
+        UPDATE `creature_spells` SET `delayRepeatMin_1` = '120', `delayRepeatMax_1` = '180' WHERE (`entry` = '21800');
+        insert into applied_updates values ('231020221');
+    end if;	
 end $
 delimiter ;

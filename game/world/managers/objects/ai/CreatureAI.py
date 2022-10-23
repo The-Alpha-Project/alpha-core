@@ -204,24 +204,32 @@ class CreatureAI:
                     if do_not_cast or self.creature.is_casting():
                         continue
 
+                # Spell entry.
                 spell_template = creature_spell.spell
+
+                # Target mask.
+                spell_target_mask = spell_template.Targets
+
                 # Resolve a target.
-                target = ScriptManager.get_target_by_type(self.creature,
-                                                          self.creature,
-                                                          creature_spell.cast_target,
-                                                          creature_spell.target_param1,
-                                                          abs(creature_spell.target_param2),
-                                                          spell_template)
+                unit_target = ScriptManager.get_target_by_type(self.creature,
+                                                               self.creature,
+                                                               creature_spell.cast_target,
+                                                               creature_spell.target_param1,
+                                                               abs(creature_spell.target_param2),
+                                                               spell_template)
                 # Unable to find target, move on.
-                if not target:
+                if not unit_target:
                     continue
 
-                # Dynamic target mask.
-                spell_target_mask = SpellTargetMask.SELF if target == self.creature else SpellTargetMask.UNIT
+                spell_target = unit_target
+
+                # Override target with Vector if this spell targets terrain.
+                if spell_target_mask & SpellTargetMask.CAN_TARGET_TERRAIN != 0:
+                    spell_target = unit_target.location
 
                 # Try to initialize the spell.
                 casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
-                                                                                 target,
+                                                                                 spell_target,
                                                                                  spell_target_mask,
                                                                                  validate=True,
                                                                                  creature_spell=creature_spell)
@@ -230,7 +238,7 @@ class CreatureAI:
                     continue
 
                 # Validate spell cast.
-                cast_result = self.try_to_cast(target, casting_spell, cast_flags, chance)
+                cast_result = self.try_to_cast(unit_target, casting_spell, cast_flags, chance)
                 if cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
 
@@ -313,7 +321,7 @@ class CreatureAI:
                     return SpellCheckCastResult.SPELL_FAILED_ERROR
 
             # Mind control abilities can't be used with just 1 attacker or mob will reset.
-            if target.threat_manager.get_targets_count() == 1 and casting_spell.get_charm_effect():
+            if self.creature.threat_manager.get_targets_count() == 1 and casting_spell.get_charm_effect():
                 return SpellCheckCastResult.SPELL_FAILED_CANT_BE_CHARMED
 
         # Interrupt any previous spell.

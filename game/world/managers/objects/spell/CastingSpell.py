@@ -310,6 +310,8 @@ class CastingSpell:
     # TODO: need more checks.
     #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - VMaNGOS
     def is_positive_spell(self):
+        if not self.initial_target_is_unit_or_player():
+            return False
         return not self.spell_caster.can_attack_target(self.initial_target)
 
     def get_charm_effect(self) -> Optional[SpellEffect]:

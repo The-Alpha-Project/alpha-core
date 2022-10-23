@@ -978,8 +978,7 @@ class SpellManager:
         # Required nearby spell focus GO.
         spell_focus_type = casting_spell.spell_entry.RequiresSpellFocus
         if spell_focus_type:
-            surrounding_gos = [go for go in
-                               MapManager.get_surrounding_gameobjects(self.caster).values()]
+            surrounding_gos = [go for go in MapManager.get_surrounding_gameobjects(self.caster).values()]
 
             # Check if any nearby GO is the required spell focus.
             if not any([go.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS and
@@ -1022,7 +1021,6 @@ class SpellManager:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)
                 else:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT)
-
                 return False
 
         # Range validations. Skip for fishing as generated targets will always be valid.
