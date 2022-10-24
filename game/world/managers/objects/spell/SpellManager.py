@@ -441,9 +441,11 @@ class SpellManager:
             cast_finished = casting_spell.cast_end_timestamp <= timestamp and casting_spell.cast_end_timestamp != -1
             # Channel tick/spells that need updates.
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
-                # Update effects if the cast wasn't interrupted.
-                self.handle_spell_effect_update(casting_spell, timestamp)
-                if casting_spell.is_channeled() and cast_finished:
+                # Active spells can either finish because of the associated channel ending or
+                # because of their effects' duration.
+                cast_finished = self.handle_spell_effect_update(casting_spell, timestamp) or \
+                                (casting_spell.is_channeled() and cast_finished)
+                if cast_finished:
                     self.remove_cast(casting_spell)
                 continue
 
@@ -505,6 +507,10 @@ class SpellManager:
                         casting_spell.handle_partial_interrupt()
                     else:
                         self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                continue
+
+            if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
+                # If the spell is already active (area aura etc.), don't check SpellInterrupts.
                 continue
 
             for flag, condition in casting_spell_flag_cases.items():
@@ -660,15 +666,18 @@ class SpellManager:
             return  # Non-unit casters should not broadcast their casts.
 
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+
+        source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
+        cast_flags = casting_spell.cast_flags
+
         # Validate if this spell crashes the client.
         # Force SpellCastFlags.CAST_FLAG_PROC, which hides the start cast.
         if not is_player and not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell):
             Logger.warning(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid cast.')
-            casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_PROC
+            cast_flags |= SpellCastFlags.CAST_FLAG_PROC
 
-        source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
         data = [source_guid, self.caster.guid,
-                casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
+                casting_spell.spell_entry.ID, cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
         signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
@@ -714,16 +723,19 @@ class SpellManager:
         data = pack('<2i', casting_spell.spell_entry.ID, casting_spell.get_duration())
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
-    def handle_spell_effect_update(self, casting_spell, timestamp):
+    def handle_spell_effect_update(self, casting_spell, timestamp) -> bool:
+        is_finished = False
         for effect in casting_spell.get_effects():
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
             # Auras applied by channels can be independent of targets.
-            # Handle all channeled spells in a way that they don't require an AuraManager tick to update.
+            # Handle all channeled spells so that they don't require an AuraManager tick to update.
 
-            # Update ticks that expired during previous update.
+            # Update ticks that expired during previous update (before updating aura duration).
             effect.remove_old_periodic_effect_ticks()
+            if effect.is_periodic() and not len(effect.periodic_effect_ticks):
+                is_finished = True
 
             # Update effect aura duration.
             effect.update_effect_aura(timestamp)
@@ -731,6 +743,8 @@ class SpellManager:
             # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
+
+        return is_finished
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
@@ -769,12 +783,6 @@ class SpellManager:
     def send_spell_go(self, casting_spell):
         # The client expects the source to only be set for unit casters.
         source_unit = self.caster.guid if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else 0
-
-        # Spell cast sent with CAST_FLAG_PROC to avoid client crashing, set back to CAST_FLAG_NONE here.
-        # This allows spells like 'Deadmines Dynamite' to actually show an explosion and trigger an animation on caster.
-        if not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell) and \
-                self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
-            casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_NONE
 
         data = [self.caster.guid, source_unit,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags]

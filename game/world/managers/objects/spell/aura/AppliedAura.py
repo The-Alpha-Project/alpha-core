@@ -55,14 +55,15 @@ class AppliedAura:
         return self.spell_effect.is_past_next_period()
 
     def update(self, timestamp):
-        if self.has_duration():
+        # Don't manage active effects' duration/ticks here; both are handled by the caster's SpellManager instead.
+        # See SpellManager::handle_spell_effect_update for more information.
+        is_active = self.source_spell.cast_state == SpellState.SPELL_STATE_ACTIVE
+
+        if self.has_duration() and not is_active:
             self.spell_effect.update_effect_aura(timestamp)
 
         if self.is_periodic():
             AuraEffectHandler.handle_aura_effect_change(self, self.target)
 
-        # Don't remove periodic ticks for channeled spells.
-        # Channeled spells have special handling for applied auras because of targeting reasons.
-        # See SpellManager::handle_spell_effect_update for more information.
-        if self.source_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
+        if not is_active:
             self.spell_effect.remove_old_periodic_effect_ticks()
