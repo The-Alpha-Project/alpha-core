@@ -210,15 +210,17 @@ class ProfessionInfo:
 
 class UnitSpellsValidator:
     # TODO: For further investigation:
+    #  Spells that crashes the client upon cast.
+    #  All client crashes end up at ModelHasSequenceId/AnimHasSequenceId.
     #  https://github.com/The-Alpha-Project/alpha-core/issues/655
     #  https://github.com/The-Alpha-Project/alpha-core/issues/383
-    #  Spells that crashes the client upon cast.
     #  Might be that these spells were not used in alpha.
     #  e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player. (Cast reaches server, crashes before reply)
     _INVALID_PRECAST_SPELLS_ = {
         3131,  # Frost Breath
         3129,  # Frost Breath
         3143,  # Glacial Roar
+        7395  # Deadmines Dynamite
     }
 
     @staticmethod
