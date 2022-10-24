@@ -226,6 +226,9 @@ class UnitManager(ObjectManager):
 
     # override
     def can_attack_target(self, target):
+        if not target:
+            return False
+
         is_enemy = super().can_attack_target(target)
         if is_enemy:
             return True

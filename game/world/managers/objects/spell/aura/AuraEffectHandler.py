@@ -297,14 +297,17 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_charm(aura, effect_target, remove):
+        # Player target.
+        # TODO: Implement behavior for charmed players.
+        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            effect_target.set_charmed_by(aura.caster, remove=remove)
+            return
+
+        # Creature.
         if remove:
             aura.caster.pet_manager.detach_active_pet()
             return
-
-        if effect_target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            aura.caster.pet_manager.add_pet_from_world(effect_target, aura.spell_id)
-        elif effect_target.get_type_id == ObjectTypeIds.ID_PLAYER:
-            pass  # TODO: Implement behavior for charmed players.
+        aura.caster.pet_manager.add_pet_from_world(effect_target, aura.spell_id)
 
     @staticmethod
     def handle_taunt(aura, effect_target, remove):

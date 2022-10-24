@@ -770,6 +770,12 @@ class SpellManager:
         # The client expects the source to only be set for unit casters.
         source_unit = self.caster.guid if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else 0
 
+        # Spell cast sent with CAST_FLAG_PROC to avoid client crashing, set back to CAST_FLAG_NONE here.
+        # This allows spells like 'Deadmines Dynamite' to actually show an explosion and trigger an animation on caster.
+        if not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell) and \
+                self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
+            casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_NONE
+
         data = [self.caster.guid, source_unit,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags]
 
@@ -978,8 +984,7 @@ class SpellManager:
         # Required nearby spell focus GO.
         spell_focus_type = casting_spell.spell_entry.RequiresSpellFocus
         if spell_focus_type:
-            surrounding_gos = [go for go in
-                               MapManager.get_surrounding_gameobjects(self.caster).values()]
+            surrounding_gos = [go for go in MapManager.get_surrounding_gameobjects(self.caster).values()]
 
             # Check if any nearby GO is the required spell focus.
             if not any([go.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS and
@@ -1022,7 +1027,6 @@ class SpellManager:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)
                 else:
                     self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT)
-
                 return False
 
         # Range validations. Skip for fishing as generated targets will always be valid.

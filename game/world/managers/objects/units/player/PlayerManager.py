@@ -1379,12 +1379,16 @@ class PlayerManager(UnitManager):
 
         return True  # TODO Stunned check
 
-    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, movement_type=None, remove=False):
+    def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):
         # Charmer must be set here not in parent.
         self.charmer = charmer if not remove else None
-        # Restore faction.
+
         if remove:
+            # Restore faction.
             self.set_player_variables()
+        else:
+            # Charmer faction.
+            self.faction = charmer.faction
         super().set_charmed_by(charmer, subtype=subtype, remove=remove)
 
     # override
