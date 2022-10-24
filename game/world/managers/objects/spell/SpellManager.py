@@ -441,9 +441,11 @@ class SpellManager:
             cast_finished = casting_spell.cast_end_timestamp <= timestamp and casting_spell.cast_end_timestamp != -1
             # Channel tick/spells that need updates.
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
-                # Update effects if the cast wasn't interrupted.
-                self.handle_spell_effect_update(casting_spell, timestamp)
-                if casting_spell.is_channeled() and cast_finished:
+                # Active spells can either finish because of the associated channel ending or
+                # because of their effects' duration.
+                cast_finished = self.handle_spell_effect_update(casting_spell, timestamp) or \
+                                (casting_spell.is_channeled() and cast_finished)
+                if cast_finished:
                     self.remove_cast(casting_spell)
                 continue
 
@@ -505,6 +507,10 @@ class SpellManager:
                         casting_spell.handle_partial_interrupt()
                     else:
                         self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                continue
+
+            if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
+                # If the spell is already active (area aura etc.), don't check SpellInterrupts.
                 continue
 
             for flag, condition in casting_spell_flag_cases.items():
@@ -714,7 +720,8 @@ class SpellManager:
         data = pack('<2i', casting_spell.spell_entry.ID, casting_spell.get_duration())
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
-    def handle_spell_effect_update(self, casting_spell, timestamp):
+    def handle_spell_effect_update(self, casting_spell, timestamp) -> bool:
+        is_finished = False
         for effect in casting_spell.get_effects():
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
@@ -722,8 +729,10 @@ class SpellManager:
             # Auras applied by channels can be independent of targets.
             # Handle all channeled spells in a way that they don't require an AuraManager tick to update.
 
-            # Update ticks that expired during previous update.
+            # Update ticks that expired during previous update (before updating aura duration).
             effect.remove_old_periodic_effect_ticks()
+            if effect.is_periodic() and not len(effect.periodic_effect_ticks):
+                is_finished = True
 
             # Update effect aura duration.
             effect.update_effect_aura(timestamp)
@@ -731,6 +740,8 @@ class SpellManager:
             # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
+
+        return is_finished
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
