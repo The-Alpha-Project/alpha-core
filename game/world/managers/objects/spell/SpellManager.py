@@ -666,15 +666,18 @@ class SpellManager:
             return  # Non-unit casters should not broadcast their casts.
 
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+
+        source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
+        cast_flags = casting_spell.cast_flags
+
         # Validate if this spell crashes the client.
         # Force SpellCastFlags.CAST_FLAG_PROC, which hides the start cast.
         if not is_player and not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell):
             Logger.warning(f'Hiding spell {casting_spell.spell_entry.Name_enUS} start cast due invalid cast.')
-            casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_PROC
+            cast_flags |= SpellCastFlags.CAST_FLAG_PROC
 
-        source_guid = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() else self.caster.guid
         data = [source_guid, self.caster.guid,
-                casting_spell.spell_entry.ID, casting_spell.cast_flags, casting_spell.get_base_cast_time(),
+                casting_spell.spell_entry.ID, cast_flags, casting_spell.get_base_cast_time(),
                 casting_spell.spell_target_mask]
 
         signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
@@ -780,12 +783,6 @@ class SpellManager:
     def send_spell_go(self, casting_spell):
         # The client expects the source to only be set for unit casters.
         source_unit = self.caster.guid if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else 0
-
-        # Spell cast sent with CAST_FLAG_PROC to avoid client crashing, set back to CAST_FLAG_NONE here.
-        # This allows spells like 'Deadmines Dynamite' to actually show an explosion and trigger an animation on caster.
-        if not ExtendedSpellData.UnitSpellsValidator.spell_has_valid_cast(casting_spell) and \
-                self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
-            casting_spell.cast_flags = SpellCastFlags.CAST_FLAG_NONE
 
         data = [self.caster.guid, source_unit,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags]
