@@ -730,7 +730,7 @@ class SpellManager:
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
             # Auras applied by channels can be independent of targets.
-            # Handle all channeled spells in a way that they don't require an AuraManager tick to update.
+            # Handle all channeled spells so that they don't require an AuraManager tick to update.
 
             # Update ticks that expired during previous update (before updating aura duration).
             effect.remove_old_periodic_effect_ticks()
