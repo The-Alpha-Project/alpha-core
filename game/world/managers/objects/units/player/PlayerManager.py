@@ -764,52 +764,6 @@ class PlayerManager(UnitManager):
             # Notify surrounding units about fading stealth for proximity aggro.
             self._on_relocation()
 
-    def loot_money(self):
-        if self.loot_selection:
-            high_guid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
-            if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                world_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
-            elif high_guid == HighGuid.HIGHGUID_UNIT:
-                world_object = MapManager.get_surrounding_unit_by_guid(self, self.loot_selection.object_guid)
-            else:
-                Logger.error(f'Tried to loot money from an unknown object type: ({high_guid}).')
-                return
-
-            loot_manager = self.loot_selection.get_loot_manager(world_object)
-            if world_object and loot_manager.has_money():
-                # If party is formed, try to split money.
-                # TODO: Currently not splitting money when looting a chest, investigate if this is the correct
-                #  behavior or not.
-                if world_object.get_type_id() == ObjectTypeIds.ID_UNIT and self.group_manager and \
-                        self.group_manager.is_party_formed():
-                    # Try to split money and finish on success.
-                    if self.group_manager.reward_group_money(self, world_object):
-                        return
-
-                # Not able to split money or no group, loot money to self only.
-                self.mod_money(loot_manager.current_money)
-                loot_manager.clear_money()
-                packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_CLEAR_MONEY)
-                for looter in loot_manager.get_active_looters():
-                    looter.enqueue_packet(packet)
-
-    def loot_item(self, slot):
-        if self.loot_selection:
-            high_guid: HighGuid = GuidUtils.extract_high_guid(self.loot_selection.object_guid)
-            world_obj_target = None
-            if high_guid == HighGuid.HIGHGUID_UNIT:
-                world_obj_target = MapManager.get_surrounding_unit_by_guid(
-                    self, self.loot_selection.object_guid, include_players=False)
-            elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                world_obj_target = MapManager.get_surrounding_gameobject_by_guid(
-                    self, self.loot_selection.object_guid)
-            elif high_guid == HighGuid.HIGHGUID_ITEM:
-                world_obj_target = self.inventory.get_item_by_guid(self.loot_selection.object_guid)
-
-            loot_manager = self.loot_selection.get_loot_manager(world_obj_target)
-            if world_obj_target and loot_manager and loot_manager.has_loot():
-                loot_manager.loot_item_in_slot(slot, requester=self)
-
     def interrupt_looting(self):
         if self.loot_selection:
             self.send_loot_release(self.loot_selection)
@@ -825,7 +779,8 @@ class PlayerManager(UnitManager):
         # Resolve loot target first.
         target_world_object = None
         if high_guid == HighGuid.HIGHGUID_UNIT:
-            target_world_object = MapManager.get_surrounding_unit_by_guid(self, loot_selection.object_guid, include_players=False)
+            target_world_object = MapManager.get_surrounding_unit_by_guid(self, loot_selection.object_guid,
+                                                                          include_players=False)
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
             target_world_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
         elif high_guid == HighGuid.HIGHGUID_ITEM:
