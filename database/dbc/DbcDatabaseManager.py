@@ -297,10 +297,16 @@ class DbcDatabaseManager:
             class_mask = 1 << (class_ - 1)
             skill_line_abilities = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)
             for skill_line_ability in skill_line_abilities:
-                if (skill_line_ability.RaceMask and skill_line_ability.RaceMask & race_mask == 0) or \
-                        (skill_line_ability.ClassMask and skill_line_ability.ClassMask & class_mask == 0) or \
-                        skill_line_ability.ExcludeRace & race_mask != 0 or \
-                        skill_line_ability.ExcludeClass & class_mask != 0:
+                req_race_mask = skill_line_ability.RaceMask
+                req_class_mask = skill_line_ability.ClassMask
+
+                if skill_line_ability.ExcludeRace:  # Always 0
+                    req_race_mask = ~req_race_mask
+                if skill_line_ability.ExcludeClass:
+                    req_class_mask = ~req_class_mask
+
+                if (req_race_mask and req_race_mask & race_mask == 0) or \
+                        (req_class_mask and req_class_mask & class_mask == 0):
                     continue
                 return skill_line_ability
             return None

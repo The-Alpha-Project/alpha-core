@@ -105,17 +105,21 @@ class RaceClassHolder:
 class ClassTrainersSkillGenerator:
 
     @staticmethod
-    def validate_skill(skill, race, class_, race_mask, class_mask):
+    def validate_skill(skill, race_mask, class_mask):
         # Only interested in weapon skills.
         if skill.CategoryID != SkillCategories.WEAPON_SKILL:  # Weapons
             return False
-        if skill.RaceMask and not skill.RaceMask & race_mask:
+
+        skill_race_mask = skill.RaceMask
+        skill_class_mask = skill.ClassMask
+        if skill.ExcludeRace:
+            skill_race_mask = ~skill_race_mask
+        if skill.ExcludeClass:
+            skill_class_mask = ~skill_class_mask
+
+        if skill_race_mask and not skill_race_mask & race_mask:
             return False
-        if skill.ClassMask and not skill.ClassMask & class_mask:
-            return False
-        if skill.ExcludeRace and skill.ExcludeRace & race:
-            return False
-        if skill.ExcludeClass and skill.ExcludeClass & class_:
+        if skill_class_mask and not skill_class_mask & class_mask:
             return False
         # Skip First Aid related.
         if 'First Aid' in skill.DisplayName_enUS:
@@ -124,14 +128,18 @@ class ClassTrainersSkillGenerator:
         return True
 
     @staticmethod
-    def validate_skill_line(skill_line, race, class_, race_mask, class_mask):
-        if skill_line.RaceMask and not skill_line.RaceMask & race_mask:
+    def validate_skill_line(skill_line, race_mask, class_mask):
+        skill_line_race_mask = skill_line.RaceMask
+        skill_line_class_mask = skill_line.ClassMask
+
+        if skill_line.ExcludeRace:
+            skill_line_race_mask = ~skill_line_race_mask
+        if skill_line.ExcludeClass:
+            skill_line_class_mask = ~skill_line_class_mask
+
+        if skill_line_race_mask and not skill_line_race_mask & race_mask:
             return False
-        if skill_line.ClassMask and not skill_line.ClassMask & class_mask:
-            return False
-        if skill_line.ExcludeRace and skill_line.ExcludeRace & race:
-            return False
-        if skill_line.ExcludeClass and skill_line.ExcludeClass & class_:
+        if skill_line_class_mask and not skill_line_class_mask & class_mask:
             return False
 
         return True
@@ -169,8 +177,7 @@ class ClassTrainersSkillGenerator:
                 # Search for all spells which are part of this race/class skill line abilities.
                 for skill in DbcDatabaseManager.SkillHolder.SKILLS.values():
                     # Validate that this mix of race and class have access to these skills.
-                    if not ClassTrainersSkillGenerator.validate_skill(skill, race.value, class_.value,
-                                                                      race_mask, class_mask):
+                    if not ClassTrainersSkillGenerator.validate_skill(skill, race_mask, class_mask):
                         continue
 
                     skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_skill_id(
@@ -183,8 +190,7 @@ class ClassTrainersSkillGenerator:
 
                     for skill_ab in skill_line_ability:
                         # Validate if the skill line ability is usable by this mix of race/class.
-                        if not ClassTrainersSkillGenerator.validate_skill_line(skill_ab, race.value, class_.value,
-                                                                               race_mask, class_mask):
+                        if not ClassTrainersSkillGenerator.validate_skill_line(skill_ab, race_mask, class_mask):
                             continue
 
                         # Validate if it points to an existent spell.
