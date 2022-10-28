@@ -531,8 +531,8 @@ class PlayerManager(UnitManager):
         if not MapManager.validate_teleport_destination(map_, location.x, location.y):
             return False
 
-        # Make sure to end duel before starting the teleport process.
-        if self.duel_manager:
+        # Make sure to end duel before teleporting if this isn't an instant teleport (blink, chair use etc.)
+        if self.duel_manager and not is_instant:
             self.duel_manager.force_duel_end(self)
 
         # If unit is being moved by a spline, stop it.
