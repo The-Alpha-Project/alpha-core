@@ -591,4 +591,4 @@ class PetManager:
     def get_action_button_for(spell_id: int, auto_cast: bool = True, castable: bool = True):
         # All pet actions have |0x1.
         # Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
-        return spell_id | (0x1 | (0x40 if auto_cast else 0x0) | (0x80 if castable else 0x0) << 24)
+        return spell_id | ((0x1 | (0x40 if auto_cast else 0x0) | (0x80 if castable else 0x0)) << 24)
