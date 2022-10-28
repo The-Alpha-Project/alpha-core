@@ -234,8 +234,14 @@ class UnitManager(ObjectManager):
             return True
 
         # Always short circuit on charmer/summoner relationship.
-        if self == target.get_charmer_or_summoner() or self.get_charmer_or_summoner() == target:
+        charmer = self.get_charmer_or_summoner()
+        if charmer is target or self is target.get_charmer_or_summoner():
             return False
+
+        # Charmed unit whose charmer is dueling the target.
+        if charmer and charmer.get_type_id() == ObjectTypeIds.ID_PLAYER and \
+                charmer.duel_manager and charmer.duel_manager.is_player_involved(target):
+            return True
 
         # Might be neutral, but was attacked by target.
         return target and self.threat_manager.has_aggro_from(target)
