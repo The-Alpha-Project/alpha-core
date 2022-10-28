@@ -14383,6 +14383,27 @@ begin not atomic
         -- Fix Sirens Call cooldown.
         UPDATE `creature_spells` SET `delayRepeatMin_1` = '120', `delayRepeatMax_1` = '180' WHERE (`entry` = '21800');
         insert into applied_updates values ('231020221');
-    end if;	
+    end if;
+
+    -- 28/10/2022 1
+    -- Change Several Display ID's
+    if (select count(*) from applied_updates where id='281020221') = 0 then
+        -- #411
+        UPDATE `creature_template` SET `display_id1`='115' WHERE  `entry`=1960;
+
+        -- #560
+        UPDATE `creature_template` SET `display_id1`='1538' WHERE  `entry`=3473;
+
+        -- #692
+        UPDATE `creature_template` SET `display_id1`='1139' WHERE  `entry`=2102;
+
+        -- #693
+        UPDATE `creature_template` SET `display_id1`='1643' WHERE  `entry`=4456;
+
+        -- #698
+        UPDATE `creature_template` SET `display_id1`='1046' WHERE  `entry`=2567;
+
+        insert into applied_updates values ('281020221');
+    end if;		
 end $
 delimiter ;
