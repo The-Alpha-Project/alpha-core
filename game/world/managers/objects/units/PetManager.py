@@ -476,6 +476,10 @@ class PetManager:
             self._send_tame_result(PetTameResult.TAME_TOO_MANY)
             return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
+        if not target.is_tameable():
+            self._send_tame_result(PetTameResult.TAME_NOT_TAMABLE)
+            return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
+
         return SpellCheckCastResult.SPELL_NO_ERROR
 
     def _update_active_pet_stats(self, reset=False):
