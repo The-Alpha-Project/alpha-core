@@ -1142,6 +1142,12 @@ class SpellManager:
                                           SpellCheckCastResult.SPELL_FAILED_LEVEL_REQUIREMENT)
                     return False
 
+        # Permanent pet summon check.
+        if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET) and not \
+                len(self.caster.pet_manager.pets):
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_PET)
+            return False
+
         # Pickpocketing target validity check.
         if casting_spell.is_pickpocket_spell():
             if not self.caster.can_attack_target(validation_target):

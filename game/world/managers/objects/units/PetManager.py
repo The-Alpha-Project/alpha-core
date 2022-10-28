@@ -279,7 +279,8 @@ class PetManager:
         pet_index = -1
         if not creature_id:
             if not len(self.pets):
-                return  # TODO Catch in validate_cast.
+                return
+
             # TODO Assume permanent pet in slot 0 for now. This might (?) lead to some unexpected behavior.
             pet_index = 0
             creature_id = self.pets[pet_index].creature_template.entry
