@@ -1022,6 +1022,12 @@ class SpellManager:
             self.send_cast_result(casting_spell.spell_entry.ID, result)
             return False
 
+        # Basic effect harmfulness/attackability check for fully harmful spells.
+        # The client checks this for player casts, but not pet casts.
+        if not self.caster.can_attack_target(validation_target) and casting_spell.has_only_harmful_effects():
+            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return False
+
         if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive and not \
                 (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_DEAD):
             self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
