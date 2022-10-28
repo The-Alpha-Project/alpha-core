@@ -144,6 +144,20 @@ class PetData:
         if not creature_family:
             return []
 
+        # TODO - vanilla pet spell data isn't compatible with alpha
+        #  Pet abilities are very different from what they are in vanilla based on the family SkillLines.
+        #  Beasts of the same family should probably have variation in their initial ability set like in vanilla.
+        #  Since using sniffed vanilla data isn't viable in this case,
+        #  we'll just instead assume (for now) that all beasts of the same family know the same abilities.
+
+        # In alpha, pet families have both their family-specific skill lines and pet talent skill lines.
+        # The world also has specific trainers for (almost) all existing pet families along with pet trainers.
+        # There's no data on what these trainers did currently.
+        # A reasonable assumption is that the pet trainers trained talents that are generic for all families,
+        # and the specific pet family trainers allowed training the pet's family-specific skills.
+        # This would also make sense with no pet stables, as otherwise the player would have to abandon their pet
+        # at some point to learn higher rank abilities.
+
         family_entry = DbcDatabaseManager.CreatureFamilyHolder.creature_family_get_by_id(creature_family)
         if not family_entry:
             # No spells for this type of pet yet (bats, hyenas etc.)
