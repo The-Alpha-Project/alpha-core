@@ -183,13 +183,10 @@ class PetData:
                 2 | (0x06 << 24), 1 | (0x06 << 24), 0 | (0x06 << 24)  # Aggressive, Defensive, Passive.
         ]
 
-        # All pet actions seem to have |0x1.
-        # Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
-
         spells_index = PetActionBarIndex.INDEX_SPELL_START
         max_spell_count = PetActionBarIndex.INDEX_REACT_START - spells_index
 
-        spell_ids = [spell | ((0x1 | 0x40 | 0x80) << 24) for spell in self.spells[:4]]
+        spell_ids = [PetManager.get_action_button_for(spell) for spell in self.spells[:4]]
         spell_ids += [0] * (max_spell_count - len(spell_ids))  # Always 4 spells, pad with 0.
         pet_bar[spells_index:spells_index] = spell_ids  # Insert spells to action bar.
 
@@ -566,18 +563,32 @@ class PetManager:
 
         # This packet contains both the action bar of the pet and the spellbook entries.
 
-        pet_info = self._get_pet_info(self.active_pet.pet_index)
+        pet_info: PetData = self._get_pet_info(self.active_pet.pet_index)
+        spell_count = len(pet_info.spells) if pet_info.permanent else 0
 
         # Creature guid, time limit, react state (0 = passive, 1 = defensive, 2 = aggressive),
         # command state (0 = stay, 1 = follow, 2 = attack, 3 = dismiss),
         # ??, Enabled (0x0 : 0x8)
-        signature = f'<QI4B{PetActionBarIndex.INDEX_END}I2B'
+        signature = f'<QI4B{PetActionBarIndex.INDEX_END}IB'
         data = [self.active_pet.creature.guid, 0, pet_info.react_state, pet_info.command_state, 0, 0]
 
         data.extend(pet_info.action_bar)
 
-        data.append(0)  # TODO: Spellbook entry count.
+        # TODO Spell action buttons should be savable to preserve spellbook order and cast flags.
+        data.append(spell_count)
+        if spell_count:
+            data.extend([PetManager.get_action_button_for(spell) for spell in pet_info.spells])
+            signature += f'{spell_count}I'
+
+        signature += 'B'
         data.append(0)  # TODO: Cooldown count.
 
         packet = pack(signature, *data)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
+
+
+    @staticmethod
+    def get_action_button_for(spell_id: int, auto_cast: bool = True, castable: bool = True):
+        # All pet actions have |0x1.
+        # Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
+        return spell_id | (0x1 | (0x40 if auto_cast else 0x0) | (0x80 if castable else 0x0) << 24)
