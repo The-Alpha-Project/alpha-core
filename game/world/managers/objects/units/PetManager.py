@@ -324,7 +324,7 @@ class PetManager:
 
         is_permanent = self.get_active_pet_info().permanent
         pet_index = self.active_pet.pet_index
-        self._update_active_pet_damage(reset=True)
+        self._update_active_pet_stats(reset=True)
 
         movement_type = MovementTypes.IDLE
         # Check if this is a borrowed creature instance.
@@ -448,7 +448,7 @@ class PetManager:
 
         # Update spells in case new ones were unlocked. TODO pet spells should be trained instead.
         self._send_pet_spell_info()
-        self._update_active_pet_damage()
+        self._update_active_pet_stats()
 
     def get_active_pet_command_state(self):
         pet_info = self.get_active_pet_info()
@@ -478,7 +478,7 @@ class PetManager:
 
         return SpellCheckCastResult.SPELL_NO_ERROR
 
-    def _update_active_pet_damage(self, reset=False):
+    def _update_active_pet_stats(self, reset=False):
         active_pet_info = self.get_active_pet_info()
         if not active_pet_info:
             return
