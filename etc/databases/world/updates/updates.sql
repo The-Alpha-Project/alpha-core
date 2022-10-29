@@ -14403,6 +14403,25 @@ begin not atomic
         -- #698
         UPDATE `creature_template` SET `display_id1`='1046' WHERE  `entry`=2567;
 
+        
+        -- Fix for Pull Request #691
+        -- Data entry error resulting in NPCs moved to wrong locations.
+        -- Rethgar Deathgate
+        UPDATE `spawns_creatures` SET 
+        position_x=-473.619,
+        position_y=-2596.796,
+        position_z=103.912,
+        orientation=6.057
+        WHERE spawn_id=13950;
+
+        -- Sergra Darkthorn
+        UPDATE `spawns_creatures` SET 
+        position_x=-441.497,
+        position_y=-2645.144,
+        position_z=96.075,
+        orientation=3.224
+        WHERE spawn_id=13167;
+
         insert into applied_updates values ('281020221');
     end if;		
 end $
