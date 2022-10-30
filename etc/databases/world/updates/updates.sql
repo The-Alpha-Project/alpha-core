@@ -14384,5 +14384,17 @@ begin not atomic
         UPDATE `creature_spells` SET `delayRepeatMin_1` = '120', `delayRepeatMax_1` = '180' WHERE (`entry` = '21800');
         insert into applied_updates values ('231020221');
     end if;	
+	
+    -- 28/10/2022 1
+    if (select count(*) from applied_updates where id='281020221') = 0 then
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Bows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3828', '264', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: Bows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3828', '264', '0', '0', '2', '0', '0', '0');
+        insert into applied_updates values ('281020221');
+    end if;	
+
 end $
 delimiter ;
