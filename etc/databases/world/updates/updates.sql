@@ -14383,31 +14383,42 @@ begin not atomic
         -- Fix Sirens Call cooldown.
         UPDATE `creature_spells` SET `delayRepeatMin_1` = '120', `delayRepeatMax_1` = '180' WHERE (`entry` = '21800');
         insert into applied_updates values ('231020221');
+    end if;	
+	
+    -- 28/10/2022 1
+    if (select count(*) from applied_updates where id='281020221') = 0 then
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Bows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3828', '264', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: Bows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3828', '264', '0', '0', '2', '0', '0', '0');
+        insert into applied_updates values ('281020221');
     end if;
 
-    -- 28/10/2022 1
+    -- 28/10/2022 2
     -- Change Several Display ID's
-    if (select count(*) from applied_updates where id='281020221') = 0 then
+    if (select count(*) from applied_updates where id='281020222') = 0 then
         -- #411
-        UPDATE `creature_template` SET `display_id1`='115' WHERE  `entry`=1960;
+        UPDATE `creature_template` SET `display_id1`=115 WHERE  `entry`=1960;
 
         -- #560
-        UPDATE `creature_template` SET `display_id1`='1538' WHERE  `entry`=3473;
+        UPDATE `creature_template` SET `display_id1`=1540 WHERE  `entry`=3473;
 
         -- #692
-        UPDATE `creature_template` SET `display_id1`='1139' WHERE  `entry`=2102;
+        UPDATE `creature_template` SET `display_id1`=1139 WHERE  `entry`=2102;
 
         -- #693
-        UPDATE `creature_template` SET `display_id1`='1643' WHERE  `entry`=4456;
+        UPDATE `creature_template` SET `display_id1`=1643 WHERE  `entry`=4456;
 
         -- #698
-        UPDATE `creature_template` SET `display_id1`='1046' WHERE  `entry`=2567;
+        UPDATE `creature_template` SET `display_id1`=1046 WHERE  `entry`=2567;
 
-        
+
         -- Fix for Pull Request #691
         -- Data entry error resulting in NPCs moved to wrong locations.
         -- Rethgar Deathgate
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-473.619,
         position_y=-2596.796,
         position_z=103.912,
@@ -14415,14 +14426,15 @@ begin not atomic
         WHERE spawn_id=13950;
 
         -- Sergra Darkthorn
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-441.497,
         position_y=-2645.144,
         position_z=96.075,
         orientation=3.224
         WHERE spawn_id=13167;
 
-        insert into applied_updates values ('281020221');
-    end if;		
+        insert into applied_updates values ('281020222');
+    end if;
+
 end $
 delimiter ;
