@@ -21,7 +21,7 @@ class LootManager(object):
         pass
 
     # Needs overriding.
-    def generate_money(self):
+    def generate_money(self, requester):
         pass
 
     # Generates a complete dictionary { group_id : items }, includes referenced loot items.

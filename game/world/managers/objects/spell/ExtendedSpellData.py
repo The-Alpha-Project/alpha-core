@@ -115,7 +115,8 @@ class CastPositionRestrictions:
         6785, 6787, 6788, 6789,  # Rip and Tear
         2070, 6770,  # Sap
         5221, 6800,  # Suprise Attack
-        6595  # Exploit Weakness
+        6595,  # Exploit Weakness
+        921  # Pick Pocket, Patch 1.1.0 (2004-11-07): Removed facing requirement.
     }
 
     CASTABLE_FROM_FRONT = {
