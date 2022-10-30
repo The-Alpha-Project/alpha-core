@@ -133,9 +133,10 @@ class DuelManager(object):
         self.arbiter = None
         self.map = None
 
-    def is_player_involved(self, who):
+    def is_unit_involved(self, who):
         if who.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return False
+            # If the provided unit is a pet, check for its owner instead.
+            who = who.get_charmer_or_summoner(include_self=True)
 
         return self.players and who.guid in self.players
 

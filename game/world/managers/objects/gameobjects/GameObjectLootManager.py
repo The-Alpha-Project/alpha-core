@@ -10,14 +10,14 @@ class GameObjectLootManager(LootManager):
         super(GameObjectLootManager, self).__init__(object_mgr)
 
     # override
-    def generate_money(self):
+    def generate_money(self, requester):
         money = randint(self.world_object.gobject_template.mingold, self.world_object.gobject_template.maxgold)
         self.current_money = money
 
     # override
     def generate_loot(self, requester):
         self.clear()
-        self.generate_money()
+        self.generate_money(requester)
         loot_collection = self.generate_loot_groups(self.loot_template)
         for loot_item in self.process_loot_groups(loot_collection, requester):
             self.add_loot(loot_item, requester)

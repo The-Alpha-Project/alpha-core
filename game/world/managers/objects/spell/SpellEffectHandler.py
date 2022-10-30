@@ -455,7 +455,7 @@ class SpellEffectHandler:
         # Terrain targeted leaps (ie. blink).
         if casting_spell.initial_target_is_terrain():
             leap_target.o = leaper.location.o
-            leaper.teleport(caster.map_, leap_target)
+            leaper.teleport(caster.map_, leap_target, is_instant=True)
             return
 
         # Unit-targeted leap (Charge/heroic leap).
