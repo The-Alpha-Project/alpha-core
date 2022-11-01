@@ -92,6 +92,14 @@ class ThreatManager:
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return False
 
+        # If the threat comes from a pet, owner should be added to this unit threat list.
+        charmer_or_summoner = source.get_charmer_or_summoner()
+        if charmer_or_summoner and not self.has_aggro_from(charmer_or_summoner):
+            # If the charmer/summoner is a player, set him in combat as well.
+            if charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                charmer_or_summoner.attack(self.owner)
+            self.add_threat(charmer_or_summoner)
+
         if threat < 0.0:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
