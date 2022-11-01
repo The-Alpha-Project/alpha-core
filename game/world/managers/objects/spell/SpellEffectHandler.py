@@ -604,6 +604,7 @@ class SpellEffectHandler:
         target.teleport(deathbind_map, deathbind_location)
 
     # TODO: Currently you always succeed.
+    #  This chance should be handled by Spell miss results.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -618,7 +619,6 @@ class SpellEffectHandler:
     def handle_temporary_enchant(casting_spell, effect, caster, target):
         SpellEffectHandler.handle_permanent_enchant(casting_spell, effect, caster, target, True)
 
-    # TODO: Handle ITEM_ENCHANTMENT_TYPE, e.g. Damage, Stats modifiers, etc
     @staticmethod
     def handle_permanent_enchant(casting_spell, effect, caster, target, is_temporary=False):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:

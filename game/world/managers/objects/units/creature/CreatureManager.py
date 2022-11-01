@@ -72,7 +72,6 @@ class CreatureManager(UnitManager):
         self.pickpocket_loot_manager = None
 
         # # All creatures can block, parry and dodge by default.
-        # # TODO: Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True

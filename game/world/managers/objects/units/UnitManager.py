@@ -1338,15 +1338,6 @@ class UnitManager(ObjectManager):
     def set_weapon_mode(self, weapon_mode):
         self.sheath_state = weapon_mode
 
-        # TODO: Implement temp enchants updates.
-        if WeaponMode.NORMALMODE:
-            # Update main hand temp enchants
-            # Update off hand temp enchants
-            pass
-        elif WeaponMode.RANGEDMODE:
-            # Update ranged temp enchants
-            pass
-
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
 
