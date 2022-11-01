@@ -20,6 +20,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, Obj
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags
+from utils.constants.UpdateFields import UnitFields
 
 
 class CastingSpell:
@@ -435,7 +436,14 @@ class CastingSpell:
 
         cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
 
-        if self.is_ranged_weapon_attack() and self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        caster_is_unit = self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+
+        if caster_is_unit and self.spell_entry.Attributes & (SpellAttributes.SPELL_ATTR_IS_ABILITY or
+                                                             SpellAttributes.SPELL_ATTR_TRADESPELL):
+            mod_cast_speed = self.spell_caster.get_uint32(UnitFields.UNIT_MOD_CAST_SPEED)
+            cast_time = int(cast_time * (1.0 + mod_cast_speed / 100.0))
+
+        if self.is_ranged_weapon_attack() and caster_is_unit:
             # Ranged attack tooltips are unfinished, so this is partially a guess.
             # All ranged attacks without delay seem to say "next ranged".
             # Ranged attacks with delay (cast time) say "attack speed + X (delay) sec".
