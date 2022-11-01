@@ -415,7 +415,8 @@ class CastingSpell:
         return self.spell_entry.EquippedItemSubclass & (1 << ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE) != 0
 
     def requires_combo_points(self):
-        cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
+        cp_att = (SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS |
+                  SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS)
         return self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
             self.spell_entry.AttributesEx & cp_att != 0
 
@@ -434,12 +435,14 @@ class CastingSpell:
         if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
 
-        cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
+        cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel *
+                            skill))
 
         caster_is_unit = self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
 
-        if caster_is_unit and self.spell_entry.Attributes & (SpellAttributes.SPELL_ATTR_IS_ABILITY or
+        if caster_is_unit and self.spell_entry.Attributes & (SpellAttributes.SPELL_ATTR_IS_ABILITY |
                                                              SpellAttributes.SPELL_ATTR_TRADESPELL):
+            # TODO: UNIT_MOD_CAST_SPEED is always 0 at this moment.
             mod_cast_speed = self.spell_caster.get_uint32(UnitFields.UNIT_MOD_CAST_SPEED)
             cast_time = int(cast_time * (1.0 + mod_cast_speed / 100.0))
 
