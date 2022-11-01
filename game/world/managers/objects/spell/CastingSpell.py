@@ -443,6 +443,7 @@ class CastingSpell:
         if caster_is_unit and self.spell_entry.Attributes & (SpellAttributes.SPELL_ATTR_IS_ABILITY |
                                                              SpellAttributes.SPELL_ATTR_TRADESPELL):
             # TODO: UNIT_MOD_CAST_SPEED is always 0 at this moment.
+            #  This calculation should probably be out of 'base' cast time.
             mod_cast_speed = self.spell_caster.get_uint32(UnitFields.UNIT_MOD_CAST_SPEED)
             cast_time = int(cast_time * (1.0 + mod_cast_speed / 100.0))
 
