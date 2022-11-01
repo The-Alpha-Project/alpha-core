@@ -72,7 +72,6 @@ class CreatureManager(UnitManager):
         self.pickpocket_loot_manager = None
 
         # # All creatures can block, parry and dodge by default.
-        # # TODO: Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
@@ -120,7 +119,6 @@ class CreatureManager(UnitManager):
 
         self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
 
-        self.mod_cast_speed = 1
         self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
@@ -199,7 +197,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
-            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
+            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, 0)
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
             self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 

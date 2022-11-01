@@ -1143,7 +1143,6 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER4, self.max_power_4)
             self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
             self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
-            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
             self.set_int32(UnitFields.UNIT_FIELD_STAT0, self.str)
             self.set_int32(UnitFields.UNIT_FIELD_STAT1, self.agi)
             self.set_int32(UnitFields.UNIT_FIELD_STAT2, self.sta)
@@ -1181,11 +1180,12 @@ class PlayerManager(UnitManager):
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, self.resistance_buff_mods_negative_3)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative_4)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative_5)
+            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
+            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
+            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, 0)
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
             self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
-            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
             # Player fields.
             self.set_uint32(PlayerFields.PLAYER_FIELD_NUM_INV_SLOTS, self.num_inv_slots)

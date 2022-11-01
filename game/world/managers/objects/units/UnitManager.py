@@ -88,7 +88,6 @@ class UnitManager(ObjectManager):
                  sheathe_state=WeaponMode.SHEATHEDMODE,
                  shapeshift_form=0,
                  bytes_1=0,  # stand state, shapeshift form, sheathstate
-                 mod_cast_speed=1,
                  dynamic_flags=0,
                  damage=0,  # current damage, max damage
                  bytes_2=0,  # combo points, 0, 0, 0
@@ -160,7 +159,6 @@ class UnitManager(ObjectManager):
         self.sheath_state = sheathe_state
         self.shapeshift_form = shapeshift_form
         self.bytes_1 = bytes_1  # stand state, shapeshift form, sheathstate
-        self.mod_cast_speed = mod_cast_speed
         self.dynamic_flags = dynamic_flags
         self.damage = damage  # current damage, max damage
         self.bytes_2 = bytes_2  # combo points, 0, 0, 0
@@ -1337,15 +1335,6 @@ class UnitManager(ObjectManager):
 
     def set_weapon_mode(self, weapon_mode):
         self.sheath_state = weapon_mode
-
-        # TODO: Implement temp enchants updates.
-        if WeaponMode.NORMALMODE:
-            # Update main hand temp enchants
-            # Update off hand temp enchants
-            pass
-        elif WeaponMode.RANGEDMODE:
-            # Update ranged temp enchants
-            pass
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form

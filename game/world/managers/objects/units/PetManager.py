@@ -320,6 +320,8 @@ class PetManager:
             channel_spell = self.owner.get_int32(UnitFields.UNIT_CHANNEL_SPELL)
             if channel_spell:
                 spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(channel_spell)
+            elif pet_info.summon_spell_id:
+                spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(pet_info.summon_spell_id)
 
         is_permanent = self.get_active_pet_info().permanent
         pet_index = self.active_pet.pet_index
@@ -362,8 +364,8 @@ class PetManager:
         if not creature.spawn_id:
             creature.destroy()
         # Check if the spell entry exists and if it generates threat.
-        elif spell_entry and creature.get_type_id() == ObjectTypeIds.ID_UNIT and spell_entry.AttributesEx \
-                and not spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT:
+        elif spell_entry and creature.get_type_id() == ObjectTypeIds.ID_UNIT and \
+                not spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT:
             # TODO: Proper threat value.
             creature.threat_manager.add_threat(self.owner)
 

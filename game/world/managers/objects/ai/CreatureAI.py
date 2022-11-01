@@ -73,6 +73,9 @@ class CreatureAI:
         if ai_reaction == AIReactionStates.AI_REACT_ALERT:
             if self.last_alert_time > 0:
                 return False
+            # Stop creature movement if needed.
+            if self.creature.is_moving():
+                self.creature.stop_movement()
             self.last_alert_time = 10  # Seconds.
 
         data = pack('<QI', self.creature.guid, ai_reaction)
