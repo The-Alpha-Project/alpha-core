@@ -383,10 +383,12 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(self.generate_partial_packet(requester=self))
         # Stealth detection.
         else:
+            # Unit is now visible.
             if world_object.guid not in self.known_objects and can_detect:
                 if world_object.guid in self.known_stealth_units:
                     del self.known_stealth_units[world_object.guid]
                 self.update_known_objects_on_tick = True  # Create this object for self on tick.
+            # Unit went stealth.
             elif world_object.guid in self.known_objects and not can_detect:
                 self.known_stealth_units[world_object.guid] = world_object
                 self.update_known_objects_on_tick = True  # Destroy this object for self on tick.
