@@ -958,9 +958,13 @@ class UnitManager(ObjectManager):
         return super().change_speed(speed)
 
     # override
-    def can_detect_target(self, target, distance):
+    def can_detect_target(self, target, distance=0):
         if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
             return True, False
+
+        # No distance provided, calculate here.
+        if not distance:
+            distance = self.location.distance(target.location)
 
         # Collision.
         if distance < 1.5:

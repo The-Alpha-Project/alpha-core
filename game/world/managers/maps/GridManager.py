@@ -177,7 +177,7 @@ class GridManager:
     def send_surrounding(self, packet, world_object, include_self=True, exclude=None, use_ignore=False):
         if world_object.current_cell:
             for cell in self.get_surrounding_cells_by_object(world_object):
-                cell.send_all(packet, source=None if include_self else world_object, exclude=exclude, use_ignore=use_ignore)
+                cell.send_all(packet, world_object, include_source=include_self, exclude=exclude, use_ignore=use_ignore)
         # This player has no current cell, send the message directly.
         elif world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and include_self:
             world_object.enqueue_packet(packet)
