@@ -1156,9 +1156,14 @@ class SpellManager:
                 return False
 
         # Duel target check.
-        if casting_spell.is_duel_spell() and validation_target.duel_manager:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
-            return False
+        if casting_spell.is_duel_spell():
+            if validation_target.duel_manager:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
+                return False
+            if casting_spell.spell_caster.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+                # There is no 'SPELL_FAILED_CANT_DUEL_WHILE_STEALTHED' in alpha, but this needs to be handled.
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                return False
 
         # Lock/chest checks.
         if casting_spell.is_unlocking_spell():

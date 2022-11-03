@@ -271,6 +271,9 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
+        # Handle enter combat interrupts.
+        self.aura_manager.check_aura_interrupts(enter_combat=True)
+
         self.send_attack_start(self.combat_target.guid)
 
         return True
@@ -961,6 +964,10 @@ class UnitManager(ObjectManager):
     # TODO: Always detect party members, other cases?
     def can_detect_target(self, target, distance=0):
         if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+            return True, False
+
+        # Attacked by sneaking unit.
+        if self.threat_manager.has_aggro_from(target):
             return True, False
 
         # No distance provided, calculate here.

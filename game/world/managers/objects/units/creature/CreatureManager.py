@@ -604,8 +604,6 @@ class CreatureManager(UnitManager):
         if not self.combat_target:
             self.object_ai.attack_start(victim)
         super().attack(victim)
-        # Handle enter combat interrupts.
-        self.aura_manager.check_aura_interrupts()
 
     # override
     def attack_update(self, elapsed):

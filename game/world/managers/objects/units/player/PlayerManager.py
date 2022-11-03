@@ -85,6 +85,7 @@ class PlayerManager(UnitManager):
         self.known_objects = dict()
         self.known_items = dict()
         self.known_stealth_units = dict()
+        self.update_known_objects_on_tick = False
 
         self.player = player
         self.online = online
@@ -148,7 +149,6 @@ class PlayerManager(UnitManager):
             self.coinage = self.player.money
             self.regen_flags = RegenStatsFlags.REGEN_FLAG_HEALTH | RegenStatsFlags.REGEN_FLAG_POWER
             self.online = self.player.online
-            self.update_known_objects_on_tick = False
 
             # GM checks
             self.is_god = False
@@ -384,14 +384,16 @@ class PlayerManager(UnitManager):
         # Stealth detection.
         else:
             # Unit is now visible.
-            if world_object.guid not in self.known_objects and can_detect:
-                if world_object.guid in self.known_stealth_units:
-                    del self.known_stealth_units[world_object.guid]
-                self.update_known_objects_on_tick = True  # Create this object for self on tick.
+            if world_object.guid not in self.known_objects and can_detect \
+                    and world_object.guid in self.known_stealth_units:
+                self.known_stealth_units[world_object.guid] = (world_object, False)
             # Unit went stealth.
-            elif world_object.guid in self.known_objects and not can_detect:
-                self.known_stealth_units[world_object.guid] = world_object
-                self.update_known_objects_on_tick = True  # Destroy this object for self on tick.
+            elif world_object.guid in self.known_objects and not can_detect \
+                    and world_object.guid not in self.known_stealth_units:
+                # Update self with known world object partial update packet.
+                if has_changes:
+                    self.enqueue_packet(world_object.generate_partial_packet(requester=self))
+                self.known_stealth_units[world_object.guid] = (world_object, True)
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
@@ -415,9 +417,14 @@ class PlayerManager(UnitManager):
         for guid, player in players.items():
             if self.guid == guid:
                 continue
+
+            # Handle visibility/stealth.
             if not self.can_detect_target(player)[0]:
-                self.known_stealth_units[guid] = player
+                self.known_stealth_units[guid] = (player, True)
                 continue
+            elif guid in self.known_stealth_units:
+                del self.known_stealth_units[guid]
+
             active_objects[guid] = player
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this player, notify self with its update packet.
@@ -444,9 +451,14 @@ class PlayerManager(UnitManager):
 
         # Surrounding creatures.
         for guid, creature in creatures.items():
-            if not self.can_detect_target(creature):
-                self.known_stealth_units[guid] = creature
+
+            # Handle visibility/stealth.
+            if not self.can_detect_target(creature)[0]:
+                self.known_stealth_units[guid] = (creature, True)
                 continue
+            elif guid in self.known_stealth_units:
+                del self.known_stealth_units[guid]
+
             active_objects[guid] = creature
             if guid not in self.known_objects or not self.known_objects[guid]:
                 # We don't know this creature, notify self with its update packet.
@@ -1521,7 +1533,7 @@ class PlayerManager(UnitManager):
                 self.update_known_world_objects()
 
             # Stealth detect.
-            self.stealth_detect_units(elapsed)
+            self.units_stealth_detection_check(elapsed)
             # Regeneration.
             self.regenerate(elapsed)
             # Attack update.
@@ -1721,14 +1733,39 @@ class PlayerManager(UnitManager):
     def get_damages(self):
         return self.damage
 
-    def stealth_detect_units(self, elapsed):
+    # override
+    def can_detect_target(self, target, distance=0):
+        # Party group.
+        if self.group_manager and self.group_manager.is_party_member(target.guid):
+            # Not dueling.
+            if not self.duel_manager or not self.duel_manager.is_unit_involved(target):
+                return True, False
+        return super().can_detect_target(target, distance)
+
+    def units_stealth_detection_check(self, elapsed):
         if len(self.known_stealth_units) == 0:
             return
         self.stealth_detect_timer += elapsed
-        if self.stealth_detect_timer >= 2:  # Secs.
-            for guid, unit in list(self.known_stealth_units.items()):
-                print(f'Checking {unit.player.name}')
-                self.update_world_object_on_me(unit)
+        if self.stealth_detect_timer >= 1:  # Secs.
+            for guid, stealth_status in list(self.known_stealth_units.items()):
+                is_stealth = stealth_status[1]
+                unit = stealth_status[0]
+                can_detect = self.can_detect_target(unit)[0]
+                # Can detect and we had the object invisible.
+                if stealth_status[1] and can_detect and guid in self.known_objects:
+                    # Unit is no longer stealth, pop.
+                    if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+                        del self.known_stealth_units[guid]
+                    self.update_known_objects_on_tick = True
+                # Unit is stealth but remains visible to us, should destroy.
+                elif is_stealth and not can_detect and guid in self.known_objects:
+                    self.update_known_objects_on_tick = True
+                elif not is_stealth and can_detect and guid not in self.known_objects:
+                    # Unit is no longer stealth, pop.
+                    if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+                        del self.known_stealth_units[guid]
+                    self.update_known_objects_on_tick = True
+
             self.stealth_detect_timer = 0
 
     def _on_relocation(self):

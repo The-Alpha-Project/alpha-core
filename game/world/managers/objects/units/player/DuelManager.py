@@ -111,6 +111,8 @@ class DuelManager(object):
 
         packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
         for entry in self.players.values():
+            if entry.player.combo_target:
+                entry.player.remove_combo_points()
             entry.player.enqueue_packet(packet)
             entry.player.leave_combat()
             self.build_update(entry.player)
