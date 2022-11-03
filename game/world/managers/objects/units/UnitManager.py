@@ -271,9 +271,6 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
 
-        # Handle enter combat interrupts.
-        self.aura_manager.check_aura_interrupts(enter_combat=True)
-
         self.send_attack_start(self.combat_target.guid)
 
         return True
@@ -878,6 +875,8 @@ class UnitManager(ObjectManager):
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        # Handle enter combat interrupts.
+        self.aura_manager.check_aura_interrupts(enter_combat=True)
 
     def leave_combat(self):
         if not self.in_combat:
