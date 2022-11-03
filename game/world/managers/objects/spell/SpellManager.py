@@ -218,7 +218,7 @@ class SpellManager:
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.spell_id)
             if not spell:
                 Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} '
-                               f'({item.item_template.name}) could not be found in the spell database.')
+                               f'({item.get_name()}) could not be found in the spell database.')
                 continue
 
             casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)

@@ -1,5 +1,4 @@
 import math
-from threading import RLock
 from dataclasses import dataclass
 
 from bitarray import bitarray
@@ -1685,6 +1684,10 @@ class PlayerManager(UnitManager):
         else:
             deathbind_map, deathbind_location = self.get_deathbind_coordinates()
             self.teleport(deathbind_map, deathbind_location, recovery=1, is_instant=False)
+
+    # override
+    def get_name(self):
+        return self.player.name
 
     def get_player_bytes(self):
         return ByteUtils.bytes_to_int(

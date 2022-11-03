@@ -102,8 +102,8 @@ class DuelManager(object):
 
         # Was not interrupted, broadcast duel result.
         if duel_complete_flag == DuelComplete.DUEL_FINISHED:
-            winner_name_bytes = PacketWriter.string_to_bytes(winner.player.name)
-            loser_name_bytes = PacketWriter.string_to_bytes(self.players[winner.guid].target.player.name)
+            winner_name_bytes = PacketWriter.string_to_bytes(winner.get_name())
+            loser_name_bytes = PacketWriter.string_to_bytes(self.players[winner.guid].target.get_name())
             data = pack(f'<B{len(winner_name_bytes)}s{len(loser_name_bytes)}s', duel_winner_flag, winner_name_bytes,
                         loser_name_bytes)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_WINNER, data)

@@ -17,7 +17,7 @@ class TriggerCinematicCheatHandler(object):
             return res
 
         if not player_mgr.is_gm:
-            Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to force trigger a cinematic.')
+            Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to force trigger a cinematic.')
             return 0
 
         if len(reader.data) >= 4:  # Avoid handling empty trigger cinematic cheat packet.

@@ -13,7 +13,7 @@ class RechargeHandler(object):
             return res
 
         if not player_mgr.is_gm:
-            Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to recharge powers.')
+            Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to recharge powers.')
             return 0
 
         player_mgr.recharge_power()

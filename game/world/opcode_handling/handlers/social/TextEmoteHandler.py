@@ -22,11 +22,11 @@ class TextEmoteHandler(object):
                 if not target:
                     data += pack('<B', 0)
                 elif target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                    player_name_bytes = PacketWriter.string_to_bytes(target.player.name)
+                    player_name_bytes = PacketWriter.string_to_bytes(target.get_name())
                     data += pack(f'<{len(player_name_bytes)}s',
                                  player_name_bytes)
                 elif target.get_type_id() == ObjectTypeIds.ID_UNIT and target.creature_template:
-                    unit_name_bytes = PacketWriter.string_to_bytes(target.creature_template.name)
+                    unit_name_bytes = PacketWriter.string_to_bytes(target.get_name())
                     data += pack(f'<{len(unit_name_bytes)}s',
                                  unit_name_bytes)
                 else:

@@ -37,5 +37,5 @@ class GooberManager(object):
                 self.goober_object.destroy()
         else:
             entry = self.goober_object.entry
-            name = self.goober_object.gobject_template.name
+            name = self.goober_object.get_name()
             Logger.warning(f'Unimplemented gameobject use for type Goober entry {entry} name {name}')

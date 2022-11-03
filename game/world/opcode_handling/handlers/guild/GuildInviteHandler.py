@@ -34,7 +34,7 @@ class GuildInviteHandler(object):
                     GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_INVITE_S, target_name,
                                                            GuildCommandResults.GUILD_U_HAVE_INVITED)
 
-                    name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+                    name_bytes = PacketWriter.string_to_bytes(player_mgr.get_name())
                     data = pack(
                         f'<{len(name_bytes)}s',
                         name_bytes

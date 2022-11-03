@@ -523,8 +523,7 @@ class CommandManager(object):
         result = ''
         if unit:
             flag_count = 0
-            name = unit.player.name if unit.get_type_id() == ObjectTypeIds.ID_PLAYER else unit.creature_template.name
-            result += f'Unit: {name}\n'
+            result += f'Unit: {unit.get_name()}\n'
             for flag in UnitFlags:
                 if unit.unit_flags & flag:
                     flag_count += 1
@@ -539,7 +538,7 @@ class CommandManager(object):
         creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                            world_session.player_mgr.current_selection)
         if creature:
-            return 0, f'[{creature.creature_template.name}]\n' \
+            return 0, f'[{creature.get_name()}]\n' \
                       f'Spawn ID: {creature.spawn_id}\n' \
                       f'Guid: {creature.get_low_guid()}\n' \
                       f'Entry: {creature.creature_template.entry}\n' \
@@ -558,7 +557,7 @@ class CommandManager(object):
         player_mgr = CommandManager._target_or_self(world_session, only_players=True)
 
         if player_mgr:
-            return 0, f'[{player_mgr.player.name}] - Guid: {player_mgr.get_low_guid()}\n' \
+            return 0, f'[{player_mgr.get_name()}] - Guid: {player_mgr.get_low_guid()}\n' \
                       f'Account ID: {player_mgr.session.account_mgr.account.id}\n' \
                       f'Account name: {player_mgr.session.account_mgr.account.name}'
         return -1, 'error retrieving player info.'
@@ -576,7 +575,7 @@ class CommandManager(object):
                 if distance <= max_distance:
                     found_count += 1
                     ChatManager.send_system_message(world_session,
-                                                    f'[{gobject.gobject_template.name}]\n'
+                                                    f'[{gobject.get_name()}]\n'
                                                     f'Spawn ID: {gobject.spawn_id}\n'
                                                     f'Guid: {gobject.get_low_guid()}\n'
                                                     f'Entry: {gobject.gobject_template.entry}\n'

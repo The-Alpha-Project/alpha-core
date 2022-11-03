@@ -712,6 +712,10 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
     # override
+    def get_name(self):
+        return self.creature_template.name
+
+    # override
     def get_bytes_0(self):
         return ByteUtils.bytes_to_int(
             self.power_type,  # power type

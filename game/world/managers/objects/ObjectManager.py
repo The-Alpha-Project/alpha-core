@@ -151,6 +151,9 @@ class ObjectManager:
 
         return data
 
+    def get_name(self):
+        return ''
+
     def get_display_id(self):
         return self.current_display_id
 

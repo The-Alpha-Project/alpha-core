@@ -100,7 +100,7 @@ class UpdatePacketFactory(object):
     def _debug_field_acquisition(self, requester, index, was_protected):
         update_field_info = ENCAPSULATION_INFORMATION[self.fields_type][index]
         result = {'[PROTECTED]' if was_protected else '[ACCESSED]'}
-        Logger.debug(f"{requester.player.name} - [{update_field_info}] - {result}, Value [{self.update_values[index]}]")
+        Logger.debug(f"{requester.get_name()} - [{update_field_info}] - {result}, Value [{self.update_values[index]}]")
 
     def reset(self):
         self.update_mask.clear()
