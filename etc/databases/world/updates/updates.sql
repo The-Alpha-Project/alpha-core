@@ -14435,6 +14435,13 @@ begin not atomic
 
         insert into applied_updates values ('281020222');
     end if;
-
+    
+    -- 03/11/2022 1
+    -- Fix QuickShot repeat delay to 60/70 secs.
+    if (select count(*) from applied_updates where id='031120221') = 0 then
+        UPDATE `creature_spells` SET `delayRepeatMin_1` = '60', `delayRepeatMax_1` = '70' WHERE (`entry` = '29510');
+        insert into applied_updates values ('281020222');
+    end if;
+        
 end $
 delimiter ;
