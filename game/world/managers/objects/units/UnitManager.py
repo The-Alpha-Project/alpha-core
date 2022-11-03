@@ -961,7 +961,6 @@ class UnitManager(ObjectManager):
         return super().change_speed(speed)
 
     # override
-    # TODO: Always detect party members, other cases?
     def can_detect_target(self, target, distance=0):
         if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
             return True, False
