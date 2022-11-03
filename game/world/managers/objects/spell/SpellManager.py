@@ -557,7 +557,7 @@ class SpellManager:
 
         # Send spell interrupted.
         if interrupted:
-            data = pack('<QI', self.caster.guid, casting_spell.spell_entry.ID)
+            data = pack('<QIB', self.caster.guid, casting_spell.spell_entry.ID, cast_result)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
             MapManager.send_surrounding(packet, self.caster, include_self=True)
 
