@@ -1755,7 +1755,7 @@ class PlayerManager(UnitManager):
                 unit = stealth_status[0]
                 can_detect = self.can_detect_target(unit)[0]
                 # Can detect and we had the object invisible.
-                if stealth_status[1] and can_detect and guid in self.known_objects:
+                if is_stealth and can_detect and guid in self.known_objects:
                     # Unit is no longer stealth, pop.
                     if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
                         del self.known_stealth_units[guid]
