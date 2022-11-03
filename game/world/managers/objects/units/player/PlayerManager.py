@@ -1763,6 +1763,7 @@ class PlayerManager(UnitManager):
                 # Unit is stealth but remains visible to us, should destroy.
                 elif is_stealth and not can_detect and guid in self.known_objects:
                     self.update_known_objects_on_tick = True
+                # Unit is no longer stealth, can detect and we don't know this unit, should create.
                 elif not is_stealth and can_detect and guid not in self.known_objects:
                     # Unit is no longer stealth, pop.
                     if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
