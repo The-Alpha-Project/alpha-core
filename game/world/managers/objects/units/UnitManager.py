@@ -965,7 +965,7 @@ class UnitManager(ObjectManager):
         if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
             return True, False
 
-        # Attacked by sneaking unit.
+        # Already attacked by the target.
         if self.threat_manager.has_aggro_from(target):
             return True, False
 
