@@ -113,7 +113,7 @@ class GuildManager(object):
         self.members[player_mgr.guid] = guild_member
 
         data = pack('<2B', GuildEvents.GUILD_EVENT_JOINED, 1)
-        name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+        name_bytes = PacketWriter.string_to_bytes(player_mgr.get_name())
         data += pack(f'<{len(name_bytes)}s', name_bytes)
 
         self.build_update(player_mgr)

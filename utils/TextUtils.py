@@ -51,8 +51,8 @@ class GameTextFormatter:
         return text \
             .replace('$B', '\n') \
             .replace('$b', '\n') \
-            .replace('$N', player_mgr.player.name) \
-            .replace('$n', player_mgr.player.name) \
+            .replace('$N', player_mgr.get_name()) \
+            .replace('$n', player_mgr.get_name()) \
             .replace('$R', GameTextFormatter.race_to_text(player_mgr.player.race)) \
             .replace('$r', GameTextFormatter.race_to_text(player_mgr.player.race).lower()) \
             .replace('$C', GameTextFormatter.class_to_text(player_mgr.player.class_)) \

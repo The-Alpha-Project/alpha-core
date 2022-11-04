@@ -433,6 +433,10 @@ class GameObjectManager(ObjectManager):
         ]
 
     # override
+    def get_name(self):
+        return self.gobject_template.name
+
+    # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_GAMEOBJECT
 

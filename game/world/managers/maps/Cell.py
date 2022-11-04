@@ -100,7 +100,7 @@ class Cell:
             if world_object:
                 player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
             else:
-                player.update_known_world_objects()
+                player.update_known_objects_on_tick = True
 
     def remove(self, world_object):
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -114,27 +114,31 @@ class Cell:
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
             self.corpses.pop(world_object.guid, None)
 
-    def send_all(self, packet, source=None, exclude=None, use_ignore=False):
+    def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
         for guid, player_mgr in list(self.players.items()):
             if player_mgr.online:
-                if source and player_mgr.guid == source.guid:
+                if not include_source and player_mgr.guid == source.guid:
                     continue
                 if exclude and player_mgr.guid in exclude:
                     continue
                 if use_ignore and source and player_mgr.friends_manager.has_ignore(source.guid):
                     continue
-
+                # Never send messages to a player that does not know the source object.
+                if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
+                    continue
                 player_mgr.enqueue_packet(packet)
 
-    def send_all_in_range(self, packet, range_, source, include_self=True, exclude=None, use_ignore=False):
+    def send_all_in_range(self, packet, range_, source, include_source=True, exclude=None, use_ignore=False):
         if range_ <= 0:
             self.send_all(packet, source, exclude)
         else:
             for guid, player_mgr in list(self.players.items()):
                 if player_mgr.online and player_mgr.location.distance(source.location) <= range_:
-                    if not include_self and player_mgr.guid == source.guid:
+                    if not include_source and player_mgr.guid == source.guid:
                         continue
                     if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
                         continue
-
+                    # Never send messages to a player that does not know the source object.
+                    if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
+                        continue
                     player_mgr.enqueue_packet(packet)

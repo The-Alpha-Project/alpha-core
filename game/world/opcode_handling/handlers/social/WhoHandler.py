@@ -56,7 +56,7 @@ class WhoHandler(object):
 
                     if player_mgr.level < level_min or player_mgr.level > level_max:
                         continue
-                    if player_name and not player_name.lower() in player_mgr.player.name.lower:
+                    if player_name and not player_name.lower() in player_mgr.get_name().lower:
                         continue
                     if player_mgr.guild_manager and guild_name and guild_name.lower() not in player_mgr.guild_manager.guild.name.lower():
                         continue
@@ -84,13 +84,13 @@ class WhoHandler(object):
                     if user_strings_count > 0:
                         skip = True
                         for string in user_strings:
-                            if string.lower() in player_mgr.player.name.lower():
+                            if string.lower() in player_mgr.get_name().lower():
                                 skip = False
                                 break
                         if skip:
                             continue
 
-                    player_name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+                    player_name_bytes = PacketWriter.string_to_bytes(player_mgr.get_name())
 
                     player_guild_name = player_mgr.guild_manager.guild.name if player_mgr.guild_manager else ''
                     guild_name_bytes = PacketWriter.string_to_bytes(player_guild_name)

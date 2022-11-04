@@ -32,7 +32,7 @@ class PetitionOfferHandler(object):
                 # If target is already in a guild.
                 if target_player_mgr.guild_manager:
                     GuildManager.send_guild_command_result(world_session.player_mgr, GuildTypeCommand.GUILD_INVITE_S,
-                                                           target_player_mgr.player.name,
+                                                           target_player_mgr.get_name(),
                                                            GuildCommandResults.GUILD_ALREADY_IN_GUILD)
                     return 0
 

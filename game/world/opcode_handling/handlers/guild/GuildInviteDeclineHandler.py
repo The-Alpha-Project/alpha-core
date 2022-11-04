@@ -12,7 +12,7 @@ class GuildInviteDeclineHandler(object):
             inviter = GuildManager.PENDING_INVITES[player_mgr.guid].inviter
             GuildManager.PENDING_INVITES.pop(player_mgr.guid)
 
-            inviter_name_bytes = PacketWriter.string_to_bytes(inviter.player.name)
+            inviter_name_bytes = PacketWriter.string_to_bytes(inviter.get_name())
             data = pack(
                 f'<{len(inviter_name_bytes)}s',
                 inviter_name_bytes

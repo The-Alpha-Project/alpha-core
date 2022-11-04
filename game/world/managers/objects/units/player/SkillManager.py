@@ -303,7 +303,7 @@ class SkillManager(object):
 
     def add_skill(self, skill_id):
         if self.has_reached_skills_limit():
-            Logger.warning(f'Player {self.player_mgr.player.name} with guid {self.player_mgr.guid} reached max skills.')
+            Logger.warning(f'Player {self.player_mgr.get_name()} with guid {self.player_mgr.guid} reached max skills.')
             return False
 
         # Skill already learned.

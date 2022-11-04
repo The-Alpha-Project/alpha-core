@@ -604,8 +604,6 @@ class CreatureManager(UnitManager):
         if not self.combat_target:
             self.object_ai.attack_start(victim)
         super().attack(victim)
-        # Handle enter combat interrupts.
-        self.aura_manager.check_aura_interrupts()
 
     # override
     def attack_update(self, elapsed):
@@ -712,6 +710,10 @@ class CreatureManager(UnitManager):
         else:
             self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+
+    # override
+    def get_name(self):
+        return self.creature_template.name
 
     # override
     def get_bytes_0(self):

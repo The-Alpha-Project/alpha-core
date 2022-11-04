@@ -21,7 +21,7 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def push_active_player_session(session):
-        lowercase_name = session.player_mgr.player.name.lower()
+        lowercase_name = session.player_mgr.get_name().lower()
 
         # This is filled upon player successful login (in-world).
         PLAYERS_BY_GUID[session.player_mgr.guid] = session.player_mgr
@@ -31,7 +31,7 @@ class WorldSessionStateHandler(object):
 
     @staticmethod
     def pop_active_player(player_mgr):
-        lowercase_name = player_mgr.player.name.lower()
+        lowercase_name = player_mgr.get_name().lower()
 
         # Flushed when player leaves the world.
         if lowercase_name in PLAYER_BY_NAME:
@@ -113,4 +113,4 @@ class WorldSessionStateHandler(object):
             player_mgr.pet_manager.save()
             player_mgr.quest_manager.save()
         except AttributeError as ae:
-            Logger.error(f'Error while saving {player_mgr.player.name} ({player_mgr.player.guid}) into db: {ae}.')
+            Logger.error(f'Error while saving {player_mgr.get_name()} ({player_mgr.player.guid}) into db: {ae}.')

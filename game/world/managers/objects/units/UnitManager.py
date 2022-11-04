@@ -875,6 +875,8 @@ class UnitManager(ObjectManager):
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        # Handle enter combat interrupts.
+        self.aura_manager.check_aura_interrupts(enter_combat=True)
 
     def leave_combat(self):
         if not self.in_combat:
@@ -958,9 +960,17 @@ class UnitManager(ObjectManager):
         return super().change_speed(speed)
 
     # override
-    def can_detect_target(self, target, distance):
+    def can_detect_target(self, target, distance=0):
         if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
             return True, False
+
+        # Already attacked by the target.
+        if self.threat_manager.has_aggro_from(target):
+            return True, False
+
+        # No distance provided, calculate here.
+        if not distance:
+            distance = self.location.distance(target.location)
 
         # Collision.
         if distance < 1.5:

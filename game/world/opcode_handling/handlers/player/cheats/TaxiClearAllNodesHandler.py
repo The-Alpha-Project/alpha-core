@@ -13,7 +13,7 @@ class TaxiClearAllNodesHandler(object):
             return res
 
         if not player_mgr.is_gm:
-            Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to clear all taxi nodes.')
+            Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to clear all taxi nodes.')
             return 0
 
         player_mgr.taxi_manager.disable_all_taxi_nodes()

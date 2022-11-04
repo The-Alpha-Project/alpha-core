@@ -218,7 +218,7 @@ class SpellManager:
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.spell_id)
             if not spell:
                 Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} '
-                               f'({item.item_template.name}) could not be found in the spell database.')
+                               f'({item.get_name()}) could not be found in the spell database.')
                 continue
 
             casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)
@@ -557,7 +557,7 @@ class SpellManager:
 
         # Send spell interrupted.
         if interrupted:
-            data = pack('<QI', self.caster.guid, casting_spell.spell_entry.ID)
+            data = pack('<QIB', self.caster.guid, casting_spell.spell_entry.ID, cast_result)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
             MapManager.send_surrounding(packet, self.caster, include_self=True)
 
@@ -1156,9 +1156,14 @@ class SpellManager:
                 return False
 
         # Duel target check.
-        if casting_spell.is_duel_spell() and validation_target.duel_manager:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
-            return False
+        if casting_spell.is_duel_spell():
+            if validation_target.duel_manager:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
+                return False
+            if casting_spell.spell_caster.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+                # There is no 'SPELL_FAILED_CANT_DUEL_WHILE_STEALTHED' in alpha, but this needs to be handled.
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                return False
 
         # Lock/chest checks.
         if casting_spell.is_unlocking_spell():

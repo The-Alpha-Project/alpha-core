@@ -472,6 +472,10 @@ class ItemManager(ObjectManager):
             RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 
     # override
+    def get_name(self):
+        return self.item_template.name
+
+    # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_ITEM
 

@@ -14,7 +14,7 @@ class CheatSetMoneyHandler(object):
             return res
 
         if not player_mgr.is_gm:
-            Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to give himself money.')
+            Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to give himself money.')
             return 0
 
         if len(reader.data) >= 4:  # Avoid handling empty cheat set money packet.
