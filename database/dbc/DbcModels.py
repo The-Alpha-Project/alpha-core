@@ -883,6 +883,7 @@ class Spell(Base):
     ManaCostPct = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     StartRecoveryCategory = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     StartRecoveryTime = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    custom_DispelType = Column(INTEGER(4), nullable=False, server_default=text("'0'"))
 
 
 class SpellAuraName(Base):
