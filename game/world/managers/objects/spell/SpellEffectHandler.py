@@ -116,6 +116,13 @@ class SpellEffectHandler:
             caster.set_sanctuary(True, time_secs=1)
 
     @staticmethod
+    def handle_dispel(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        dispel_type = effect.misc_value
+
+    @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -746,6 +753,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SANCTUARY: SpellEffectHandler.handle_sanctuary,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
+    SpellEffects.SPELL_EFFECT_DISPEL: SpellEffectHandler.handle_dispel,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
     SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,

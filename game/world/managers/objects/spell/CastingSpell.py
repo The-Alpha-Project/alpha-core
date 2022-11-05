@@ -255,10 +255,10 @@ class CastingSpell:
         if not self.initial_target_is_unit_or_player():
             return False
 
-        # TODO SpellDispelType.dbc is in 0.5.3, but DispelType in Spell.dbc was added later (present in 0.5.5)
-        #   Is there another way to determine the dispel type for a spell?
+        dispel_type = self.spell_entry.custom_DispelType
         # 0.5.5: "Holy Word: Shield can now be dispelled. It is considered a Magic effect."
-        return self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
+        school_immunity = self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
+        return school_immunity or self.initial_target.has_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, dispel_type)
 
     def is_target_immune_to_effects(self):
         if not self.initial_target_is_unit_or_player():
