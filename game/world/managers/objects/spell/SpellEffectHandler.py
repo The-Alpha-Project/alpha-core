@@ -123,7 +123,7 @@ class SpellEffectHandler:
 
         dispel_type = effect.misc_value
         friendly = not caster.can_attack_target(target)
-        # Remove harmful from friendly, beneficial from enemy.
+        # Retrieve either harmful or beneficial depending on target allegiance.
         auras = target.aura_manager.get_harmful_auras() if friendly else target.aura_manager.get_beneficial_auras()
         # Match by dispel type.
         dispel_match = [aura for aura in auras if aura.get_dispel_type() == dispel_type]
