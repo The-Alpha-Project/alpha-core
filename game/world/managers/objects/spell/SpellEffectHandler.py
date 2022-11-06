@@ -128,7 +128,7 @@ class SpellEffectHandler:
         # Match by dispel type.
         dispel_match = [aura for aura in auras if aura.get_dispel_type() == dispel_type]
         # Select N to remove given effect points.
-        to_remove_auras = sample(auras, min(effect.get_effect_points(), len(dispel_match)))
+        to_remove_auras = sample(dispel_match, min(effect.get_effect_points(), len(dispel_match)))
         # Remove.
         [target.aura_manager.remove_aura(aura) for aura in to_remove_auras]
 
