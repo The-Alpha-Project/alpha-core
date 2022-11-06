@@ -126,11 +126,11 @@ class SpellEffectHandler:
         # Retrieve either harmful or beneficial depending on target allegiance.
         auras = target.aura_manager.get_harmful_auras() if friendly else target.aura_manager.get_beneficial_auras()
         # Match by dispel type.
-        dispel_match = [aura for aura in auras if aura.get_dispel_type() == dispel_type]
+        auras_dispel_match = [aura for aura in auras if aura.get_dispel_type() == dispel_type]
         # Select N to remove given effect points.
-        to_remove_auras = sample(dispel_match, min(effect.get_effect_points(), len(dispel_match)))
+        auras_to_remove = sample(auras_dispel_match, min(effect.get_effect_points(), len(auras_dispel_match)))
         # Remove.
-        [target.aura_manager.remove_aura(aura) for aura in to_remove_auras]
+        [target.aura_manager.remove_aura(aura) for aura in auras_to_remove]
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
