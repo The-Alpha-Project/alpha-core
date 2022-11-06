@@ -195,9 +195,7 @@ class ObjectManager:
         # TODO - This method is a hackfix for force-updating single fields.
         #  Implement something like the following instead:
         # self.set_uint32(field_index, 0, force=true)
-
         MapManager.update_object(self, has_changes=True)
-        self.reset_fields_older_than(time.time())
 
     def _get_base_structure(self, update_type):
         return pack(

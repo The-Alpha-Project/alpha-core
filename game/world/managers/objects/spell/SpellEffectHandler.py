@@ -1,3 +1,4 @@
+from random import choice
 from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -120,7 +121,12 @@ class SpellEffectHandler:
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        dispel_type = effect.misc_value
+        friendly = not caster.can_attack_target(target)
+        # Remove harmful from friendly, beneficial from enemy.
+        auras = target.aura_manager.get_harmful_auras() if friendly else target.aura_manager.get_beneficial_auras()
+        if auras:
+            aura: AppliedAura = choice(auras)
+            target.aura_manager.remove_aura(aura)
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):

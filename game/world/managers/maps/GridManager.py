@@ -118,6 +118,13 @@ class GridManager:
                                                      has_inventory_changes=has_inventory_changes)
                     affected_cells.add(cell)
 
+        # At this point all player observers updated this world object, reset update fields bit masks.
+        now = time.time()
+        if has_changes:
+            world_object.reset_fields_older_than(now)
+        if has_inventory_changes:
+            world_object.inventory.reset_fields_older_than(now)
+
         return affected_cells
 
     def is_active_cell(self, cell_key):

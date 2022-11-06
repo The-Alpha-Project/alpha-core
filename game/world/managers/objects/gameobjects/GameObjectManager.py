@@ -416,7 +416,6 @@ class GameObjectManager(ObjectManager):
             # Check if this game object should be updated yet or not.
             if self.has_pending_updates():
                 MapManager.update_object(self, has_changes=True)
-                self.reset_fields_older_than(now)
 
         self.last_tick = now
 
