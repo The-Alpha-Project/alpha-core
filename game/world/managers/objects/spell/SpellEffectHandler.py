@@ -1,4 +1,4 @@
-from random import choice
+from random import sample
 from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -23,7 +23,7 @@ from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
     GameObjectStates
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UnitCodes import UnitFlags
 
 
 class SpellEffectHandler:
@@ -121,12 +121,16 @@ class SpellEffectHandler:
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
+        dispel_type = effect.misc_value
         friendly = not caster.can_attack_target(target)
         # Remove harmful from friendly, beneficial from enemy.
         auras = target.aura_manager.get_harmful_auras() if friendly else target.aura_manager.get_beneficial_auras()
-        if auras:
-            aura: AppliedAura = choice(auras)
-            target.aura_manager.remove_aura(aura)
+        # Match by dispel type.
+        dispel_match = [aura for aura in auras if aura.get_dispel_type() == dispel_type]
+        # Select N to remove given effect points.
+        to_remove_auras = sample(auras, min(effect.get_effect_points(), len(dispel_match)))
+        # Remove.
+        [target.aura_manager.remove_aura(aura) for aura in to_remove_auras]
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):

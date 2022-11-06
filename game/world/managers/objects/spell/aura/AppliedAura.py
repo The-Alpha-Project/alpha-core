@@ -48,6 +48,9 @@ class AppliedAura:
     def get_duration(self):
         return self.spell_effect.applied_aura_duration
 
+    def get_dispel_type(self):
+        return self.source_spell.spell_entry.custom_DisptelType
+
     def get_effect_points(self):
         return self.spell_effect.get_effect_points() * self.applied_stacks
 
