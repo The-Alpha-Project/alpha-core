@@ -555,6 +555,10 @@ class SpellManager:
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)
 
+        # Always make sure to set interrupted result if necessary.
+        if interrupted and cast_result != SpellCheckCastResult.SPELL_FAILED_INTERRUPTED:
+            cast_result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
+
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
