@@ -555,12 +555,6 @@ class SpellManager:
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)
 
-        # Send spell interrupted.
-        if interrupted:
-            data = pack('<QIB', self.caster.guid, casting_spell.spell_entry.ID, cast_result)
-            packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
-            MapManager.send_surrounding(packet, self.caster, include_self=True)
-
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
             self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
 
@@ -1477,15 +1471,21 @@ class SpellManager:
         # TODO CAST_SUCCESS_KEEP_TRACKING
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
-        if self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+
+        # Send spell failure.
+        if error != SpellCheckCastResult.SPELL_NO_ERROR:
+            data = pack('<QIB', self.caster.guid, spell_id, error)
+            packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
+            MapManager.send_surrounding(packet, self.caster, include_self=is_player)
+
+        if not is_player:
             charmer_or_summoner = self.caster.get_charmer_or_summoner()
             if charmer_or_summoner:
                 charmer_or_summoner.pet_manager.handle_cast_result(spell_id, error)
             return
 
-        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
-
+        # Only players receive cast results.
         if error == SpellCheckCastResult.SPELL_NO_ERROR:
             data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
         else:
