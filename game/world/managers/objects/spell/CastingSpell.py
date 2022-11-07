@@ -256,7 +256,6 @@ class CastingSpell:
             return False
 
         dispel_type = self.spell_entry.custom_DispelType
-        # 0.5.5: "Holy Word: Shield can now be dispelled. It is considered a Magic effect."
         school_immunity = self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
         return school_immunity or self.initial_target.has_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, dispel_type)
 
