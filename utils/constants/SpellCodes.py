@@ -568,6 +568,21 @@ class SpellCastFlags(IntEnum):
     CAST_FLAG_HAS_AMMO = 0x10  # Written when ammo info is provided
 
 
+class DispelType(IntEnum):
+    NONE = 0
+    MAGIC = 1
+    CURSE = 2
+    DISEASE = 3
+    POISON = 4
+    STEALTH = 5
+    INVISIBILITY = 6
+    ALL = 7
+    SPE_NPC_ONLY = 8
+
+    # Magic, Curse, Disease & Poisons.
+    MCDP_MASK = ((1 << MAGIC) | (1 << CURSE) | (1 << DISEASE) | (1 << POISON))
+
+
 class WorldTextFlags:
     NORMAL_DAMAGE = 0x0
     CRIT = 0x1

@@ -55,6 +55,12 @@ class GridManager:
         if has_changes or has_inventory_changes:
             self.update_players_surroundings(current_cell_key, world_object=world_object, has_changes=has_changes,
                                              has_inventory_changes=has_inventory_changes)
+            # At this point all player observers updated this world object, reset update fields bit masks.
+            now = time.time()
+            if has_changes:
+                world_object.reset_fields_older_than(now)
+            if has_inventory_changes:
+                world_object.inventory.reset_fields_older_than(now)
 
         # Notify cell changed if needed.
         if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:

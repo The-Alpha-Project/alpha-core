@@ -1595,10 +1595,6 @@ class PlayerManager(UnitManager):
             # Update system, propagate player changes to surrounding units.
             if self.online and has_changes or has_inventory_changes:
                 MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
-                if has_changes:
-                    self.reset_fields_older_than(now)
-                if has_inventory_changes:
-                    self.inventory.reset_fields_older_than(now)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not has_changes and not has_inventory_changes and self.pending_teleport_destination \
                     and not self.update_lock:

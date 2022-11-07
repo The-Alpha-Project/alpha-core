@@ -262,6 +262,16 @@ class AuraManager:
             auras.append(aura)
         return auras
 
+    def get_beneficial_auras(self):
+        return [self.active_auras[i] for i in
+                range(0, AuraSlots.AURA_SLOT_HARMFUL_AURA_START)
+                if i in self.active_auras]
+
+    def get_harmful_auras(self):
+        return [self.active_auras[i] for i in
+                range(AuraSlots.AURA_SLOT_HARMFUL_AURA_START, AuraSlots.AURA_SLOT_PASSIVE_AURA_START)
+                if i in self.active_auras]
+
     def get_similar_applied_auras(self, aura, accept_all_ranks=True, accept_all_sources=True) -> list[AppliedAura]:
         aura_spell_template = aura.source_spell.spell_entry
 

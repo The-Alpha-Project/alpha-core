@@ -1,6 +1,6 @@
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
-from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes
+from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes, DispelType
 
 
 class AppliedAura:
@@ -47,6 +47,10 @@ class AppliedAura:
 
     def get_duration(self):
         return self.spell_effect.applied_aura_duration
+
+    def get_dispel_mask(self):
+        dispel_type = self.source_spell.spell_entry.custom_DispelType
+        return 1 << dispel_type if dispel_type != DispelType.ALL else DispelType.MCDP_MASK
 
     def get_effect_points(self):
         return self.spell_effect.get_effect_points() * self.applied_stacks

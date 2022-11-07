@@ -1,3 +1,4 @@
+from random import sample
 from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -21,8 +22,8 @@ from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
     GameObjectStates
-from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
+from utils.constants.UnitCodes import UnitFlags
 
 
 class SpellEffectHandler:
@@ -114,6 +115,22 @@ class SpellEffectHandler:
             caster.leave_combat()
             # Set sanctuary state.
             caster.set_sanctuary(True, time_secs=1)
+
+    @staticmethod
+    def handle_dispel(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        friendly = not caster.can_attack_target(target)
+        dispel_mask = 1 << effect.misc_value if effect.misc_value != DispelType.ALL else DispelType.MCDP_MASK
+        # Retrieve either harmful or beneficial depending on target allegiance.
+        auras = target.aura_manager.get_harmful_auras() if friendly else target.aura_manager.get_beneficial_auras()
+        # Match by dispel mask if available (0 = No mask, use auras directly and randomly pick).
+        auras_dispel_match = [aura for aura in auras if aura.get_dispel_mask() & dispel_mask] if dispel_mask else auras
+        # Select N to remove given effect points.
+        auras_to_remove = sample(auras_dispel_match, min(effect.get_effect_points(), len(auras_dispel_match)))
+        # Remove auras.
+        [target.aura_manager.remove_aura(aura) for aura in auras_to_remove]
 
     @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
@@ -746,6 +763,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SANCTUARY: SpellEffectHandler.handle_sanctuary,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
+    SpellEffects.SPELL_EFFECT_DISPEL: SpellEffectHandler.handle_dispel,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
     SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
