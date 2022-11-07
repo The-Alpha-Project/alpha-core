@@ -532,6 +532,10 @@ class CastingSpell:
         if not self.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL:
             return
 
+        # Only players are affected by pushback.
+        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         # TODO Did pushback resistance exist?
         curr_time = time.time()
         remaining_cast_before_pushback = self.cast_end_timestamp - curr_time
