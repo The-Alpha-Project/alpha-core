@@ -2,7 +2,6 @@ from struct import pack
 from typing import Optional
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from database.world.WorldModels import NpcVendor
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.creature.vendors.VendorData import VendorData
