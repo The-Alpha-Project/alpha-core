@@ -1321,7 +1321,7 @@ begin not atomic
     -- 06/11/2022 1
 	-- 0.5.5: "Holy Word: Shield can now be dispelled. It is considered a Magic effect."
     if (select count(*) from applied_updates where id='061120221') = 0 then
-        UPDATE `spell` SET `custom_DispelType` = '0' WHERE ID IN (17, 592, 600, 6065, 6066, 3747);
+        UPDATE `Spell` SET `custom_DispelType` = '0' WHERE ID IN (17, 592, 600, 6065, 6066, 3747);
         INSERT INTO applied_updates VALUES ('061120221');
     end if;
 
