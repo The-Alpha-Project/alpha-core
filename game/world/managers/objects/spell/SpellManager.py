@@ -556,6 +556,7 @@ class SpellManager:
             self.handle_channel_end(casting_spell)
 
         # Always make sure to set interrupted result if necessary.
+        # Client interrupts animations/sounds for a given world object to observers upon unsuccessful casts.
         if interrupted and cast_result != SpellCheckCastResult.SPELL_FAILED_INTERRUPTED:
             cast_result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
 
