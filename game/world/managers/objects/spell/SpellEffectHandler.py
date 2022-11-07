@@ -125,7 +125,7 @@ class SpellEffectHandler:
         dispel_mask = 1 << effect.misc_value if effect.misc_value != DispelType.ALL else DispelType.MCDP_MASK
         # Retrieve either harmful or beneficial depending on target allegiance.
         auras = target.aura_manager.get_harmful_auras() if friendly else target.aura_manager.get_beneficial_auras()
-        # Match by dispel mask.
+        # Match by dispel mask if available (0 = No mask, use auras directly and randomly pick).
         auras_dispel_match = [aura for aura in auras if aura.get_dispel_mask() & dispel_mask] if dispel_mask else auras
         # Select N to remove given effect points.
         auras_to_remove = sample(auras_dispel_match, min(effect.get_effect_points(), len(auras_dispel_match)))

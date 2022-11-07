@@ -11,7 +11,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates
 
 if TYPE_CHECKING:
@@ -245,8 +245,9 @@ class CreatureAI:
                 if cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
 
-                    # Stop if ranged spell.
-                    if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
+                    # Stop if ranged spell or movement interrupt flag.
+                    if casting_spell.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT \
+                            or cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
                         self.creature.stop_movement()
 
                     # TODO: Run script if available.
