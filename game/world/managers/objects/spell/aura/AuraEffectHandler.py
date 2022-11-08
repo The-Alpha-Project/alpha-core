@@ -231,6 +231,18 @@ class AuraEffectHandler:
         effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
 
     @staticmethod
+    def handle_mod_pacify_silence(aura, effect_target, remove):
+        AuraEffectHandler.handle_mod_pacify(aura, effect_target, remove)
+        AuraEffectHandler.handle_mod_silence(aura, effect_target, remove)
+
+    @staticmethod
+    def handle_mod_silence(aura, effect_target, remove):
+        if remove:
+            effect_target.unit_state &= ~UnitStates.SILENCED
+        else:
+            effect_target.unit_state |= UnitStates.SILENCED
+
+    @staticmethod
     def handle_mod_pacify(aura, effect_target, remove):
         if remove:
             effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_PACIFIED
@@ -678,7 +690,9 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
     AuraTypes.SPELL_AURA_DAMAGE_SHIELD: AuraEffectHandler.handle_damage_shield,
+    AuraTypes.SPELL_AURA_MOD_SILENCE: AuraEffectHandler.handle_mod_silence,
     AuraTypes.SPELL_AURA_MOD_PACIFY: AuraEffectHandler.handle_mod_pacify,
+    AuraTypes.SPELL_AURA_MOD_PACIFY_SILENCE: AuraEffectHandler.handle_mod_pacify_silence,
     AuraTypes.SPELL_AURA_MOD_TAUNT: AuraEffectHandler.handle_taunt,
 
     # Immunity modifiers.

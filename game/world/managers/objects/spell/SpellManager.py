@@ -976,6 +976,12 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_PACIFIED)
                 return False
 
+            # Silenced.
+            if self.caster.unit_state & UnitStates.SILENCED and not casting_spell.source_item and \
+                    not casting_spell.triggered:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_SILENCED)
+                return False
+
             # Sitting.
             if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING and \
                     self.caster.stand_state != StandState.UNIT_STANDING:

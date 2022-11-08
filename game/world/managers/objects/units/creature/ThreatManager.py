@@ -7,7 +7,7 @@ from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
-from utils.constants.UnitCodes import CreatureReactStates, UnitStates
+from utils.constants.UnitCodes import CreatureReactStates, UnitStates, UnitFlags
 
 
 @dataclass
@@ -192,6 +192,8 @@ class ThreatManager:
         if unit == self.owner:
             return False
         elif unit.is_pet() or unit.is_evading:
+            return False
+        elif unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
         elif unit.unit_state & UnitStates.STUNNED:
             return False

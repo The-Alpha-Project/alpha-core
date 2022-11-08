@@ -194,6 +194,7 @@ class CreatureAI:
 
     def do_spell_list_cast(self):
         do_not_cast = False
+
         for creature_spell in self.creature_spells:
             cast_flags = creature_spell.cast_flags
             chance = creature_spell.chance

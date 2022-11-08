@@ -296,7 +296,7 @@ class UnitManager(ObjectManager):
 
     def attack_update(self, elapsed):
         # Don't update melee swing timers while casting or stunned.
-        if self.is_casting() or self.unit_state & UnitStates.STUNNED:
+        if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -306,7 +306,8 @@ class UnitManager(ObjectManager):
         self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
-        if self.unit_state & UnitStates.STUNNED or not self.combat_target:
+        if self.unit_state & UnitStates.STUNNED or not self.combat_target \
+                or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return
 
         swing_error = AttackSwingError.NONE
@@ -868,7 +869,7 @@ class UnitManager(ObjectManager):
                not self.unit_state & UnitStates.STUNNED
 
     def can_dodge(self, attacker_location=None):
-        return self.has_dodge_passive  and not self.spell_manager.is_casting() and \
+        return self.has_dodge_passive and not self.spell_manager.is_casting() and \
                not self.unit_state & UnitStates.STUNNED
 
     def enter_combat(self):

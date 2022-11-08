@@ -1409,7 +1409,7 @@ class PlayerManager(UnitManager):
         if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
             return False  # players can't dodge from behind.
 
-        return True  # TODO Stunned check
+        return True
 
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):
         # Charmer must be set here not in parent.
