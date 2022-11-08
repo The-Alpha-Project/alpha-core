@@ -243,9 +243,9 @@ class GridManager:
 
     def get_creature_spawn_by_id(self, spawn_id):
         for cell in set(self.cells.values()):
-            for id_, spawn in list(cell.creatures_spawns.items()):
-                if id_ == spawn_id:
-                    return spawn
+            spawn_found = cell.creatures_spawns.get(spawn_id)
+            if spawn_found:
+                return spawn_found
         return None
 
     def get_surrounding_creature_spawns(self, world_object):
