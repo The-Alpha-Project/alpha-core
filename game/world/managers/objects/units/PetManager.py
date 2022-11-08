@@ -330,13 +330,19 @@ class PetManager:
         movement_type = MovementTypes.IDLE
         # Check if this is a borrowed creature instance.
         if creature.spawn_id:
-            # This creature might be too far from its spawn upon detach, brute force the search.
-            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id, True)
+            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id)
+            # This creature might be too far from its spawn upon detach, search beyond bounds.
             if not spawn:
+                spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id, True)
+
+            # Creature spawn should be found already at this point.
+            if spawn:
+                if not spawn.restore_creature_instance(creature):
+                    Logger.error(f'Unable to restore creature from spawn id {creature.spawn_id} upon pet detach.')
+                movement_type = spawn.movement_type
+            # Still no spawn found? Something is wrong...
+            else:
                 Logger.error(f'Unable to locate SpawnCreature with id {creature.spawn_id} upon pet detach.')
-            elif not spawn.restore_creature_instance(creature):
-                Logger.error(f'Unable to locate un-borrow creature from spawn id {creature.spawn_id} upon pet detach.')
-            movement_type = spawn.movement_type
 
         self.active_pet = None
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))

@@ -241,12 +241,15 @@ class GridManager:
         else:
             return res[0]
 
-    def get_surrounding_unit_spawns(self, world_object, brute_force=False):
+    def get_surrounding_unit_spawns(self, world_object, out_of_bounds=False):
         spawns = {}
         location = world_object.location
-        # Search either near cells or beyond given brute_force flag.
-        cells = self.get_surrounding_cells_by_location(location.x, location.y, world_object.map_) \
-            if not brute_force else set(self.cells.values())
+        # Search either near cells or beyond as a fallback given out_of_bounds flag.
+        if not out_of_bounds:
+            cells = self.get_surrounding_cells_by_location(location.x, location.y, world_object.map_)
+        else:
+            cells = set(self.cells.values())
+
         for cell in cells:
             for spawn_id, spawn in list(cell.creatures_spawns.items()):
                 spawns[spawn_id] = spawn
@@ -301,8 +304,8 @@ class GridManager:
 
         return None
 
-    def get_surrounding_creature_spawn_by_spawn_id(self, world_object, spawn_id, brute_force=False):
-        surrounding_units_spawns = self.get_surrounding_unit_spawns(world_object, brute_force=brute_force)
+    def get_surrounding_creature_spawn_by_spawn_id(self, world_object, spawn_id, out_of_bounds=False):
+        surrounding_units_spawns = self.get_surrounding_unit_spawns(world_object, out_of_bounds=out_of_bounds)
         if spawn_id in surrounding_units_spawns:
             return surrounding_units_spawns[spawn_id]
         return None
