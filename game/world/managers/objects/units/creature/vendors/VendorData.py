@@ -53,11 +53,13 @@ class VendorData:
             else 0xFFFFFFFF if self.vendor_items[item_entry].maxcount <= 0 else self.vendor_items[item_entry].maxcount
 
     def get_vendor_items(self):
-        return [item for item_id, item in self.vendor_items.items() if self._update_item_availability(item_id)]
+        vendor_items = []
+        # Extract vendor items from the dictionary and set stock availability if needed.
+        for item_entry, item in self.vendor_items.items():
+            # Instead of having timers for limited items, we just check them upon vendor list request.
+            if self.is_limited_item_locked(item_entry) and self.limited_items[item_entry].can_unlock():
+                # Unlock, set original max count availability.
+                self.limited_items[item_entry].unlock(self.vendor_items[item_entry].maxcount)
+            vendor_items.append(item)
 
-    # Instead of having timers for limited items, we just check them upon vendor list request.
-    def _update_item_availability(self, item_entry):
-        if self.is_limited_item_locked(item_entry) and self.limited_items[item_entry].can_unlock():
-            # Unlock, set original max count availability.
-            self.limited_items[item_entry].unlock(self.vendor_items[item_entry].maxcount)
-        return True
+        return vendor_items
