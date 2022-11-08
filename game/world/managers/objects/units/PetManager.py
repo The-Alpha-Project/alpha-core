@@ -330,11 +330,11 @@ class PetManager:
         movement_type = MovementTypes.IDLE
         # Check if this is a borrowed creature instance.
         if creature.spawn_id:
-            charmer_or_summoner = creature.get_charmer_or_summoner()
-            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(charmer_or_summoner, creature.spawn_id)
+            # This creature might be too far from its spawn upon detach, brute force the search.
+            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id, True)
             if not spawn:
                 Logger.error(f'Unable to locate SpawnCreature with id {creature.spawn_id} upon pet detach.')
-            if not spawn.restore_creature_instance(creature):
+            elif not spawn.restore_creature_instance(creature):
                 Logger.error(f'Unable to locate un-borrow creature from spawn id {creature.spawn_id} upon pet detach.')
             movement_type = spawn.movement_type
 
