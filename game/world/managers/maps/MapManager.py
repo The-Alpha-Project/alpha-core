@@ -320,9 +320,10 @@ class MapManager:
 
     @staticmethod
     def get_grid_manager_by_map_id(map_id) -> Optional[GridManager]:
-        if map_id in MAPS:
+        try:
             return MAPS[map_id].grid_manager
-        return None
+        except (AttributeError, TypeError):
+            return None
 
     @staticmethod
     def _lerp(value1, value2, amount):
@@ -347,19 +348,19 @@ class MapManager:
             old_grid_manager = None
 
         grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
-        if grid_manager:
+        try:
             grid_manager.update_object(world_object, old_grid_manager, has_changes=has_changes,
                                        has_inventory_changes=has_inventory_changes)
-        else:
+        except AttributeError:
             Logger.warning(f'Warning, did not find grid_manager for map: {world_object.map_}')
 
     @staticmethod
     def spawn_object(world_object_spawn=None, world_object_instance=None):
         map_ = world_object_spawn.map_ if world_object_spawn else world_object_instance.map_
         grid_manager = MapManager.get_grid_manager_by_map_id(map_)
-        if grid_manager:
+        try:
             grid_manager.spawn_object(world_object_spawn, world_object_instance)
-        else:
+        except AttributeError:
             Logger.warning(f'Warning, did not find grid_manager for map: {map_}')
 
     @staticmethod
@@ -391,23 +392,29 @@ class MapManager:
             world_object, include_players)
 
     @staticmethod
-    def get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id, out_of_bounds=False):
+    def get_creature_spawn_by_id(map_id, spawn_id):
+        return MapManager.get_grid_manager_by_map_id(map_id).get_creature_spawn_by_id(spawn_id)
+
+    @staticmethod
+    def get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id):
         return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_creature_spawn_by_spawn_id(
-            world_object, spawn_id=spawn_id, out_of_bounds=out_of_bounds)
+            world_object, spawn_id)
 
     @staticmethod
     def get_surrounding_units_by_location(vector, target_map, range_, include_players=False):
         grid_mgr = MapManager.get_grid_manager_by_map_id(target_map)
-        if not grid_mgr:
+        try:
+            return grid_mgr.get_surrounding_units_by_location(vector, target_map, range_, include_players)
+        except AttributeError:
             return [{}, {}]
-        return grid_mgr.get_surrounding_units_by_location(vector, target_map, range_, include_players)
 
     @staticmethod
     def get_surrounding_players_by_location(vector, target_map, range_):
         grid_mgr = MapManager.get_grid_manager_by_map_id(target_map)
-        if not grid_mgr:
-            return {}
-        return grid_mgr.get_surrounding_players_by_location(vector, target_map, range_)
+        try:
+            return grid_mgr.get_surrounding_players_by_location(vector, target_map, range_)
+        except AttributeError:
+            return [{}, {}]
 
     @staticmethod
     def get_surrounding_gameobjects(world_object):
@@ -422,11 +429,6 @@ class MapManager:
     def get_surrounding_unit_by_guid(world_object, guid, include_players=False):
         return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_unit_by_guid(
             world_object, guid, include_players)
-
-    @staticmethod
-    def get_surrounding_unit_by_spawn_id(world_object, spawn_id):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_unit_by_spawn_id(
-            world_object, spawn_id)
 
     @staticmethod
     def get_surrounding_gameobject_by_guid(world_object, guid):

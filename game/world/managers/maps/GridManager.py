@@ -241,14 +241,17 @@ class GridManager:
         else:
             return res[0]
 
-    def get_surrounding_unit_spawns(self, world_object, out_of_bounds=False):
+    def get_creature_spawn_by_id(self, spawn_id):
+        for cell in set(self.cells.values()):
+            for id_, spawn in list(cell.creatures_spawns.items()):
+                if id_ == spawn_id:
+                    return spawn
+        return None
+
+    def get_surrounding_creature_spawns(self, world_object):
         spawns = {}
         location = world_object.location
-        # Search either near cells or beyond as a fallback given out_of_bounds flag.
-        if not out_of_bounds:
-            cells = self.get_surrounding_cells_by_location(location.x, location.y, world_object.map_)
-        else:
-            cells = set(self.cells.values())
+        cells = self.get_surrounding_cells_by_location(location.x, location.y, world_object.map_)
 
         for cell in cells:
             for spawn_id, spawn in list(cell.creatures_spawns.items()):
@@ -289,9 +292,10 @@ class GridManager:
 
     def get_surrounding_player_by_guid(self, world_object, guid):
         surrounding_players = self.get_surrounding_players(world_object)
-        if guid in surrounding_players:
+        try:
             return surrounding_players[guid]
-        return None
+        except KeyError:
+            return None
 
     def get_surrounding_unit_by_guid(self, world_object, guid, include_players=False):
         surrounding_units = self.get_surrounding_units(world_object, include_players)
@@ -299,28 +303,31 @@ class GridManager:
             return surrounding_units[0][guid]
 
         creature_dict = surrounding_units[1] if include_players else surrounding_units
-        if guid in creature_dict:
+        try:
             return creature_dict[guid]
+        except KeyError:
+            return None
 
-        return None
-
-    def get_surrounding_creature_spawn_by_spawn_id(self, world_object, spawn_id, out_of_bounds=False):
-        surrounding_units_spawns = self.get_surrounding_unit_spawns(world_object, out_of_bounds=out_of_bounds)
-        if spawn_id in surrounding_units_spawns:
+    def get_surrounding_creature_spawn_by_spawn_id(self, world_object, spawn_id):
+        surrounding_units_spawns = self.get_surrounding_creature_spawns(world_object)
+        try:
             return surrounding_units_spawns[spawn_id]
-        return None
+        except KeyError:
+            return None
 
     def get_surrounding_gameobject_by_guid(self, world_object, guid):
         surrounding_gameobjects = self.get_surrounding_gameobjects(world_object)
-        if guid in surrounding_gameobjects:
+        try:
             return surrounding_gameobjects[guid]
-        return None
+        except KeyError:
+            return None
 
     def get_surrounding_gameobject_by_spawn_id(self, world_object, spawn_id_):
         surrounding_gameobjects_spawns = self.get_surrounding_gameobjects_spawns(world_object)
-        if spawn_id_ in surrounding_gameobjects_spawns:
+        try:
             return surrounding_gameobjects_spawns[spawn_id_]
-        return None
+        except KeyError:
+            return None
 
     def get_create_cell(self, vector, map_) -> Cell:
         cell_key = GridManager.get_cell_key(vector.x, vector.y, map_)

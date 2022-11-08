@@ -331,9 +331,9 @@ class PetManager:
         # Check if this is a borrowed creature instance.
         if creature.spawn_id:
             spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id)
-            # This creature might be too far from its spawn upon detach, search beyond bounds.
+            # This creature might be too far from its spawn upon detach, search in all map cells.
             if not spawn:
-                spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id, True)
+                spawn = MapManager.get_creature_spawn_by_id(creature.map_, creature.spawn_id)
 
             # Creature spawn should be found already at this point.
             if spawn:
