@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
-from utils.constants.UnitCodes import CreatureReactStates, UnitStates, AIReactionStates
+from utils.constants.UnitCodes import CreatureReactStates, UnitStates, AIReactionStates, UnitFlags
 
 if TYPE_CHECKING:
     from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
@@ -67,8 +67,9 @@ class BasicCreatureAI(CreatureAI):
 
     def _is_ready_for_new_attack(self):
         return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0 \
-               and self._is_aggressive() and not self.creature.in_combat and not self.creature.is_evading and \
-               not self.creature.unit_state & UnitStates.STUNNED
+               and self._is_aggressive() and not self.creature.in_combat and not self.creature.is_evading \
+               and not self.creature.unit_state & UnitStates.STUNNED \
+               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
 
     def _is_aggressive(self):
         return self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE
