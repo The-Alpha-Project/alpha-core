@@ -322,7 +322,7 @@ class MapManager:
     def get_grid_manager_by_map_id(map_id) -> Optional[GridManager]:
         try:
             return MAPS[map_id].grid_manager
-        except (AttributeError, TypeError):
+        except (KeyError, AttributeError, TypeError):
             return None
 
     @staticmethod
