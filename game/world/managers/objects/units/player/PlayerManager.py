@@ -943,7 +943,7 @@ class PlayerManager(UnitManager):
         amount_bytes = b''
         total_amount = 0
         for amount in amounts:
-            # Adjust XP gaining rates using config
+            # Adjust XP gaining rates using config.
             amount = max(0, int(amount * config.Server.Settings.xp_rate))
 
             total_amount += amount
