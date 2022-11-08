@@ -944,7 +944,7 @@ class PlayerManager(UnitManager):
         total_amount = 0
         for amount in amounts:
             # Adjust XP gaining rates using config
-            amount = int(amount * config.Server.Settings.xp_rate)
+            amount = max(0, int(amount * config.Server.Settings.xp_rate))
 
             total_amount += amount
             amount_bytes += pack('<QI', self.guid, amount)

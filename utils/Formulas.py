@@ -28,7 +28,7 @@ class CreatureFormulas:
 
     @staticmethod
     def xp_reward(creature_level, player_level, is_elite=False):
-        if player_level == 60:
+        if player_level >= 60:
             return 0
 
         gray_level = PlayerFormulas.get_gray_level(player_level)
