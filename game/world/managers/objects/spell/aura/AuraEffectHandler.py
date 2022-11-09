@@ -6,7 +6,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
-from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
 from utils.constants.UpdateFields import UnitFields, PlayerFields
 
 
@@ -76,20 +76,31 @@ class AuraEffectHandler:
     def handle_periodic_mana_leech(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
-        power_type = aura.spell_effect.misc_value
         amount = aura.get_effect_points()
-        aura.caster.receive_power(amount, power_type, source=effect_target)
+
+        if effect_target.get_power_type_value(PowerTypes.TYPE_MANA) - amount < 0:
+            return
+
+        effect_target.receive_power(-amount, PowerTypes.TYPE_MANA)
+        aura.caster.receive_power(amount, PowerTypes.TYPE_MANA, source=effect_target)
 
     @staticmethod
     def handle_periodic_healing(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
+
         spell = aura.source_spell
         healing = aura.get_effect_points()
 
         # Health Funnel is a periodic healing spell, but should act as a leech from the pet owner.
-        source = aura.caster if effect_target.get_charmer_or_summoner() == aura.caster else None
-        aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True, source=source)
+        if effect_target.get_charmer_or_summoner() == aura.caster:
+            new_source_health = aura.caster.health - healing
+            if new_source_health <= 0:
+                aura.caster.spell_manager.remove_cast_by_id(spell.spell_entry.ID, interrupted=True)
+                return
+            aura.caster.set_health(new_source_health)
+
+        aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True)
 
     @staticmethod
     def handle_periodic_energize(aura, effect_target, remove):
@@ -528,7 +539,8 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
         amount = aura.get_effect_points()
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount, percentual=True)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount,
+                                                         percentual=True)
 
     @staticmethod
     def handle_mod_power_regen(aura, effect_target, remove):
