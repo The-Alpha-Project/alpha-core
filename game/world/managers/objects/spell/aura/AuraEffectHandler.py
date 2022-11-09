@@ -116,7 +116,6 @@ class AuraEffectHandler:
         aura.caster.receive_healing(damage, aura.caster)
         aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
 
-
     @staticmethod
     def handle_channel_death_item(aura, effect_target, remove):
         if effect_target.is_alive or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
