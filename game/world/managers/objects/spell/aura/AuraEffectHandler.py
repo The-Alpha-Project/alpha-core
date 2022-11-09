@@ -6,7 +6,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
-from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
+from utils.constants.UnitCodes import UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields, PlayerFields
 
 
