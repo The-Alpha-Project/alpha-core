@@ -1383,9 +1383,9 @@ class SpellManager:
                 if charges == 0:  # no charges left.
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
                     return False
+                item_id = casting_spell.source_item.item_template.entry
                 # Consumables have negative charges.
-                if self.caster.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1 \
-                        and charges < 0:
+                if charges < 0 and self.caster.inventory.get_item_count(item_id) < 1:
                     # Should never really happen but catch this case.
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)
                     return False
