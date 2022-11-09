@@ -115,6 +115,12 @@ class CastingSpell:
 
         return self.initial_target.get_type_id() == ObjectTypeIds.ID_PLAYER
 
+    def initial_target_is_pet(self):
+        if not self.initial_target_is_object():
+            return False
+
+        return self.initial_target.is_pet()
+
     def initial_target_is_item(self):
         if not self.initial_target_is_object():
             return False
