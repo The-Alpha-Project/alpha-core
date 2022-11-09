@@ -300,7 +300,7 @@ class SpellManager:
         if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
             return  # Spell is in delayed state, do nothing for now
 
-        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
+        self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_NO_ERROR)
         self.send_spell_go(casting_spell)
 
         if casting_spell.requires_combo_points():
@@ -561,7 +561,7 @@ class SpellManager:
             cast_result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
 
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
-            self.send_cast_result(casting_spell.spell_entry.ID, cast_result)
+            self.send_cast_result(casting_spell, cast_result)
 
         return True
 
@@ -935,7 +935,7 @@ class SpellManager:
 
     def validate_cast(self, casting_spell) -> bool:
         if self.is_on_cooldown(casting_spell.spell_entry):
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_READY)
             return False
 
         # Rough target type check for the client-provided target to avoid crashes.
@@ -944,7 +944,7 @@ class SpellManager:
                 not casting_spell.initial_target_is_item() or \
                 (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_SELF and
                  not casting_spell.initial_target_is_unit_or_player()):
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return False
 
         # Unlearned spell.
@@ -952,7 +952,7 @@ class SpellManager:
                 casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING and \
                 self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
                 (not casting_spell.spell_entry or casting_spell.spell_entry.ID not in self.spells):
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_KNOWN)
             return False
 
         # Caster unit-only state checks.
@@ -960,38 +960,38 @@ class SpellManager:
             # Dead.
             if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ALLOW_CAST_WHILE_DEAD and \
                     not self.caster.is_alive:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_CASTER_DEAD)
                 return False
 
             # Stunned, spell source is not item and cast is not triggered.
             if self.caster.unit_state & UnitStates.STUNNED and not casting_spell.source_item and \
                     not casting_spell.triggered:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_STUNNED)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_STUNNED)
                 return False
 
             # Pacified.
             if self.caster.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED and \
                     casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY and \
                     casting_spell.spell_entry.School == SpellSchools.SPELL_SCHOOL_NORMAL:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_PACIFIED)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_PACIFIED)
                 return False
 
             # Silenced.
             if self.caster.unit_state & UnitStates.SILENCED and not casting_spell.source_item and \
                     not casting_spell.triggered:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_SILENCED)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_SILENCED)
                 return False
 
             # Sitting.
             if not casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING and \
                     self.caster.stand_state != StandState.UNIT_STANDING:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOTSTANDING)
                 return False
 
             # Not stealthed but the spell requires it.
             if casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ONLY_STEALTHED and \
                     not self.caster.is_stealthed():
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ONLY_STEALTHED)
                 return False
 
         # Required nearby spell focus GO.
@@ -1004,8 +1004,8 @@ class SpellManager:
                         go.gobject_template.data0 == spell_focus_type and
                         self.caster.location.distance(go.location) <= go.gobject_template.data1
                         for go in surrounding_gos]):
-                self.send_cast_result(casting_spell.spell_entry.ID,
-                                      SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS, spell_focus_type)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_REQUIRES_SPELL_FOCUS,
+                                      spell_focus_type)
                 return False
 
         # Target validation.
@@ -1018,18 +1018,18 @@ class SpellManager:
             if validation_target and not self.caster.can_attack_target(validation_target):
                 # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
                 # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
         if not validation_target:
             result = SpellCheckCastResult.SPELL_FAILED_NOT_FISHABLE if casting_spell.is_fishing_spell() \
                 else SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS
-            self.send_cast_result(casting_spell.spell_entry.ID, result)
+            self.send_cast_result(casting_spell, result)
             return False
 
         if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive and not \
                 (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_DEAD):
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
         if casting_spell.initial_target_is_unit_or_player():  # Orientation checks.
@@ -1037,9 +1037,9 @@ class SpellManager:
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
                 if ExtendedSpellData.CastPositionRestrictions.is_from_behind(casting_spell.spell_entry.ID):
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NOT_BEHIND)
                 else:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT)
                 return False
 
         # Range validations. Skip for fishing as generated targets will always be valid.
@@ -1052,10 +1052,10 @@ class SpellManager:
                     distance = validation_target.location.distance(self.caster.location)
 
                 if distance > casting_spell.range_entry.RangeMax:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
                     return False
                 if distance < casting_spell.range_entry.RangeMin:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
                     return False
 
         # Item target checks.
@@ -1069,19 +1069,19 @@ class SpellManager:
                 item_subclass_mask = 1 << casting_spell.initial_target.item_template.subclass
                 if required_item_class != item_class or \
                         not required_item_subclass & item_subclass_mask:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                     return False
 
             # Validate item owner online status.
             item_owner = validation_target.get_owner_guid()
             if not item_owner or not WorldSessionStateHandler.find_player_by_guid(item_owner):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
         # Aura bounce check.
         if casting_spell.initial_target_is_unit_or_player():
             if not validation_target.aura_manager.are_spell_effects_applicable(casting_spell):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
                 return False
 
         # Creature type check.
@@ -1093,7 +1093,7 @@ class SpellManager:
                     validation_target.get_type_id() == ObjectTypeIds.ID_PLAYER \
                     else SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS
 
-                self.send_cast_result(casting_spell.spell_entry.ID, error)
+                self.send_cast_result(casting_spell, error)
                 return False
 
         # Effect-specific validation.
@@ -1108,13 +1108,12 @@ class SpellManager:
                 # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
                 #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
                 if casting_spell.initial_target.get_owner_guid() != casting_spell.spell_caster.guid:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
                     return False
 
             # Do not allow to enchant if it has an existent permanent enchantment.
             if EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
-                self.send_cast_result(casting_spell.spell_entry.ID,
-                                      SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
                 return False
 
         # Charm checks.
@@ -1122,71 +1121,74 @@ class SpellManager:
         charm_effect = casting_spell.get_charm_effect()
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and charm_effect:
             if not self.caster.can_attack_target(validation_target):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
             active_pet = self.caster.pet_manager.get_active_pet_info()
             if active_pet:
                 error = SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON if active_pet.permanent \
                     else SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_CHARM
-                self.send_cast_result(casting_spell.spell_entry.ID, error)
+                self.send_cast_result(casting_spell, error)
                 return False
 
             # Taming restrictions.
             if charm_effect.effect_type == SpellEffects.SPELL_EFFECT_TAME_CREATURE:
                 tame_result = self.caster.pet_manager.handle_tame_result(charm_effect, validation_target)
                 if tame_result != SpellCheckCastResult.SPELL_NO_ERROR:
-                    self.send_cast_result(casting_spell.spell_entry.ID, tame_result)
+                    self.send_cast_result(casting_spell, tame_result)
                     return False
             else:
                 # All charm effects have the level restriction in effect points.
                 # Taming is handled separately since it has its own opcode for results.
                 max_charm_level = charm_effect.get_effect_points()
                 if validation_target.level > max_charm_level:
-                    self.send_cast_result(casting_spell.spell_entry.ID,
-                                          SpellCheckCastResult.SPELL_FAILED_LEVEL_REQUIREMENT)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LEVEL_REQUIREMENT)
                     return False
 
         # Pickpocketing target validity check.
         if casting_spell.is_pickpocket_spell():
             if not self.caster.can_attack_target(validation_target):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_FRIENDLY)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_FRIENDLY)
                 return False
             # Patch 1.12.0 - Can now be used on targets that are in combat, as long as the rogue remains stealthed.
             if validation_target.in_combat:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_AFFECTING_COMBAT)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_AFFECTING_COMBAT)
                 return False
             if not validation_target.pickpocket_loot_manager:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
                 return False
 
         # Duel target check.
         if casting_spell.is_duel_spell():
+            # Duel cast attempt on a unit.
+            if validation_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
             if validation_target.duel_manager:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
                 return False
             if casting_spell.spell_caster.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
                 # There is no 'SPELL_FAILED_CANT_DUEL_WHILE_STEALTHED' in alpha, but this needs to be handled.
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
                 return False
 
         # Lock/chest checks.
         if casting_spell.is_unlocking_spell():
             # Already unlocked.
             if not validation_target.lock:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
                 return False
 
             # GameObject already in use. TODO: 'gameobject_requirement' table.
             if casting_spell.initial_target_is_gameobject() and \
                     (validation_target.is_active() or validation_target.has_flag(GameObjectFlags.IN_USE)):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_CHEST_IN_USE)
                 return False
 
             # Item already unlocked.
             if casting_spell.initial_target_is_item() and \
                     validation_target.has_flag(ItemDynFlags.ITEM_DYNFLAG_UNLOCKED):
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
                 return False
 
             # OPEN_LOCK spells can provide bonus skill.
@@ -1207,7 +1209,7 @@ class SpellManager:
                                                                                            used_item=casting_spell.source_item,
                                                                                            bonus_skill=bonus_skill)
                 if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
-                    self.send_cast_result(casting_spell.spell_entry.ID, unlock_result)
+                    self.send_cast_result(casting_spell, unlock_result)
                     return False
 
         # Special case of Ritual of Summoning.
@@ -1233,22 +1235,20 @@ class SpellManager:
         # Target validation
         target_guid = self.caster.current_selection
         if not target_guid:
-            self.send_cast_result(casting_spell.spell_entry.ID,
-                                  SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS)
             return False
 
         target_unit = WorldSessionStateHandler.find_player_by_guid(target_guid)
         if not target_unit:  # Couldn't find player with this guid - not a player.
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_PLAYER)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_PLAYER)
             return False
 
         if not target_unit.is_alive:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
         if not self.caster.group_manager or not self.caster.group_manager.is_party_member(target_guid):
-            self.send_cast_result(casting_spell.spell_entry.ID,
-                                  SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_IN_PARTY)
             return False  # Only party members can be summoned.
 
         if casting_spell.cast_state in [SpellState.SPELL_STATE_PREPARING, SpellState.SPELL_STATE_CASTING]:
@@ -1257,14 +1257,14 @@ class SpellManager:
             return True
 
         if not self.caster.channel_object:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
             return False
 
         channel_object = MapManager.get_surrounding_gameobject_by_guid(self.caster,
                                                                        self.caster.channel_object)
         if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL \
                 or channel_object.summoner is not self.caster:
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
             return False
 
         return True
@@ -1305,22 +1305,22 @@ class SpellManager:
         if has_health_cost:
             # Prevent dying from consuming health as resource.
             if power_cost == current_power:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_FIZZLE)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_FIZZLE)
                 return False
 
             # Health cost fail displays on client before server response, send empty error.
             elif power_cost > current_power:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_NO_ERROR)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_NO_ERROR)
                 return False
         else:
             # Doesn't have the correct power type.
             if power_cost and not has_correct_power and not ignore_wrong_power:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
                 return False
 
             # Doesn't have enough power. Check for correct power to properly ignore wrong power if necessary.
             if power_cost > current_power and has_correct_power:
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
                 return False
 
         # Player only checks
@@ -1331,7 +1331,7 @@ class SpellManager:
                     casting_spell.initial_target is not self.caster else casting_spell.targeted_unit_on_cast_start
 
                 if not combo_target or combo_target.guid != self.caster.combo_target or not self.caster.combo_points:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_COMBO_POINTS)
                     return False
 
             # Check if player has required reagents.
@@ -1340,7 +1340,7 @@ class SpellManager:
                     break
 
                 if self.caster.inventory.get_item_count(reagent_info) < count:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_REAGENTS)
                     return False
 
             # Check if player has required weapon and ammo.
@@ -1348,12 +1348,11 @@ class SpellManager:
                 required_weapon_mask = casting_spell.spell_entry.EquippedItemSubclass
                 equipped_weapon = self.caster.get_current_weapon_for_attack_type(casting_spell.spell_attack_type)
                 if not equipped_weapon:
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM)
                     return False
                 subclass_mask = 1 << equipped_weapon.item_template.subclass
                 if not required_weapon_mask & subclass_mask:
-                    self.send_cast_result(casting_spell.spell_entry.ID,
-                                          SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM_CLASS)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_EQUIPPED_ITEM_CLASS)
                     return False
 
                 required_ammo = equipped_weapon.item_template.ammo_type
@@ -1363,7 +1362,7 @@ class SpellManager:
                     if target_bag_slot == -1:
                         required_bag = ItemSubClasses.ITEM_SUBCLASS_QUIVER if \
                             required_ammo == ItemSubClasses.ITEM_SUBCLASS_ARROW else ItemSubClasses.ITEM_SUBCLASS_AMMO_POUCH
-                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO_POUCH,
+                        self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO_POUCH,
                                               misc_data=required_bag)
                         return False
 
@@ -1374,7 +1373,7 @@ class SpellManager:
                     # Also validate against casting_spell.used_ranged_attack_item,
                     # the initially selected ammo (inventory manipulation during casting)
                     if not target_ammo or target_ammo[-1] != casting_spell.used_ranged_attack_item:
-                        self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO,
+                        self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NEED_AMMO,
                                               misc_data=required_ammo)
                         return False
 
@@ -1382,20 +1381,20 @@ class SpellManager:
             if casting_spell.source_item and casting_spell.source_item.has_charges():
                 charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
                 if charges == 0:  # no charges left.
-                    self.send_cast_result(casting_spell.spell_entry.ID,
-                                          SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_CHARGES_REMAIN)
                     return False
-                if charges < 0 and \
-                        self.caster.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1:  # Consumables have negative charges.
-                    self.send_cast_result(casting_spell.spell_entry.ID,
-                                          SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)  # Should never really happen but catch this case.
+                # Consumables have negative charges.
+                if self.caster.inventory.get_item_count(casting_spell.source_item.item_template.entry) < 1 \
+                        and charges < 0:
+                    # Should never really happen but catch this case.
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_NOT_FOUND)
                     return False
 
             for tool in casting_spell.get_required_tools():
                 if not tool:
                     break
                 if not self.caster.inventory.get_first_item_by_entry(tool):
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TOTEMS)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TOTEMS)
                     return False
 
             # Check if player inventory has space left.
@@ -1407,7 +1406,7 @@ class SpellManager:
                 error = self.caster.inventory.can_store_item(item_template, count)
                 if error != InventoryError.BAG_OK:
                     self.caster.inventory.send_equip_error(error)
-                    self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
                     return False
 
         return True
@@ -1478,14 +1477,18 @@ class SpellManager:
                 new_charges = charges-1 if charges > 0 else charges+1
                 casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
 
-    def send_cast_result(self, spell_id, error, misc_data=-1):
+    def send_cast_result(self, casting_spell, error, misc_data=-1):
         # TODO CAST_SUCCESS_KEEP_TRACKING
         #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
 
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        spell_id = casting_spell.spell_entry.ID
 
-        # Send spell failure.
+        # Send spell failure only if this was an active spell.
         if error != SpellCheckCastResult.SPELL_NO_ERROR:
+            # Do not broadcast errors upon creature spell cast validate() failing.
+            if spell_id not in self.casting_spells and casting_spell.creature_spell:
+                return
             data = pack('<QIB', self.caster.guid, spell_id, error)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
             MapManager.send_surrounding(packet, self.caster, include_self=is_player)

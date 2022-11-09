@@ -197,6 +197,15 @@ class SpellEffectHandler:
         target.receive_power(amount, power_type)
 
     @staticmethod
+    def handle_health_leech(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        amount = effect.get_effect_points()
+        caster.apply_spell_damage(target, amount, casting_spell, is_periodic=True)
+        caster.receive_healing(amount, caster)
+
+    @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -765,6 +774,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
     SpellEffects.SPELL_EFFECT_DISPEL: SpellEffectHandler.handle_dispel,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
+    SpellEffects.SPELL_EFFECT_HEALTH_LEECH: SpellEffectHandler.handle_health_leech,
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
     SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
     SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item,

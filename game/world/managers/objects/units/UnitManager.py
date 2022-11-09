@@ -730,7 +730,7 @@ class UnitManager(ObjectManager):
         return True
 
     def receive_healing(self, amount, source=None):
-        if not self.is_alive:
+        if not self.is_alive or self.health == self.max_health:
             return False
 
         new_health = self.health + amount
@@ -756,6 +756,10 @@ class UnitManager(ObjectManager):
             self.set_focus(new_power)
         elif power_type == PowerTypes.TYPE_ENERGY:
             self.set_energy(new_power)
+
+        # Handle power leech transfer.
+        if source:
+            source.receive_power(-amount, power_type)
         return True
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
@@ -793,12 +797,24 @@ class UnitManager(ObjectManager):
         self.send_spell_cast_debug_info(damage_info, casting_spell)
         self.deal_damage(target, damage_info, is_periodic=is_periodic, casting_spell=casting_spell)
 
-    def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):
+    def apply_spell_healing(self, target, value, casting_spell, is_periodic=False, source=None):
         damage_info = casting_spell.get_cast_damage_info(self, target, value, absorb=0, healing=True)
         damage_info.spell_miss_reason = casting_spell.object_target_results[target.guid].result
 
         self.send_spell_cast_debug_info(damage_info, casting_spell)
-        target.receive_healing(value, self)
+
+        # Handle target is already at full health.
+        if not target.receive_healing(value, self):
+            return
+
+        # Handle health funnel.
+        if source:
+            new_health = source.health - value
+            if new_health <= 0:
+                source.die()
+                return
+            source.set_health(new_health)
+
         # From 0.5.4 Patch notes:
         #     "Healing over time generates hate."
         if casting_spell.generates_threat() and not is_periodic:
@@ -818,12 +834,13 @@ class UnitManager(ObjectManager):
     def send_spell_cast_debug_info(self, damage_info, casting_spell):
         is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         spell_debug_packet = damage_info.get_attacker_state_update_spell_info_packet()
+        target_is_player = damage_info.target.get_object_type()
         if not damage_info.hit_info & SpellHitFlags.HEALED:
             MapManager.send_surrounding(spell_debug_packet, self, include_self=is_player)
             damage_done_packet = damage_info.get_damage_done_packet()
             MapManager.send_surrounding(damage_done_packet, self, include_self=is_player)
         # Healing effects are displayed to the affected player only.
-        elif casting_spell.initial_target_is_player():
+        elif casting_spell.initial_target_is_player() and target_is_player:
             damage_info.target.enqueue_packet(spell_debug_packet)
 
     def set_current_target(self, guid):
@@ -948,7 +965,7 @@ class UnitManager(ObjectManager):
         pet_id = self.get_uint64(UnitFields.UNIT_FIELD_SUMMON)
         if pet_id:
             pet = MapManager.get_surrounding_unit_by_guid(self, pet_id, include_players=True)
-            return pet
+            return pet if pet.is_pet() else None
         return None
 
     # override

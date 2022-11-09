@@ -66,7 +66,6 @@ class EffectTargets:
         return {
             SpellImplicitTargets.TARGET_INITIAL: self.initial_target,  # Only accept in A.
             SpellImplicitTargets.TARGET_SELF: caster,
-            SpellImplicitTargets.TARGET_PET: caster.pet_manager.active_pet if not caster_is_gameobject and caster.pet_manager.active_pet else [],
             SpellImplicitTargets.TARGET_INNKEEPER_COORDINATES: caster.get_deathbind_coordinates() if target_is_player and caster_is_player else [],
             SpellImplicitTargets.TARGET_SELECTED_FRIEND: self.initial_target if target_is_friendly else [],
             SpellImplicitTargets.TARGET_SELECTED_GAMEOBJECT: self.initial_target if target_is_gameobject else [],
@@ -210,6 +209,11 @@ class EffectTargets:
     def resolve_master(casting_spell, target_effect):
         charmer_or_summoner = casting_spell.spell_caster.get_charmer_or_summoner()
         return charmer_or_summoner if charmer_or_summoner else []
+
+    @staticmethod
+    def resolve_pet(casting_spell, target_effect):
+        pet = casting_spell.spell_caster.get_pet()
+        return pet if pet else []
 
     @staticmethod
     def resolve_unit_near_caster(casting_spell, target_effect):
@@ -490,6 +494,7 @@ class EffectTargets:
 
 TARGET_RESOLVERS = {
     SpellImplicitTargets.TARGET_MASTER: EffectTargets.resolve_master,
+    SpellImplicitTargets.TARGET_PET: EffectTargets.resolve_pet,
     SpellImplicitTargets.TARGET_RANDOM_ENEMY_CHAIN_IN_AREA: EffectTargets.resolve_random_enemy_chain_in_area,
     SpellImplicitTargets.TARGET_UNIT_NEAR_CASTER: EffectTargets.resolve_unit_near_caster,
     SpellImplicitTargets.TARGET_AREAEFFECT_CUSTOM: EffectTargets.resolve_area_effect_custom,

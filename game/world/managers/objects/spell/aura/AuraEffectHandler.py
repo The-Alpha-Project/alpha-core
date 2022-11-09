@@ -3,9 +3,10 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
+from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
-from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
 from utils.constants.UpdateFields import UnitFields, PlayerFields
 
 
@@ -72,19 +73,28 @@ class AuraEffectHandler:
                                                         validate=False, triggered=True)
 
     @staticmethod
+    def handle_periodic_mana_leech(aura, effect_target, remove):
+        if not aura.is_past_next_period() or remove:
+            return
+        power_type = aura.spell_effect.misc_value
+        amount = aura.get_effect_points()
+        aura.caster.receive_power(amount, power_type, source=effect_target)
+
+    @staticmethod
     def handle_periodic_healing(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
         spell = aura.source_spell
         healing = aura.get_effect_points()
-        aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True)
+        # Handle spells like Health Funnel.
+        pet_owner = effect_target.get_charmer_or_summoner()
+        aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True, source=pet_owner)
 
     @staticmethod
     def handle_periodic_energize(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
         power_type = aura.spell_effect.misc_value
-
         amount = aura.get_effect_points()
         effect_target.receive_power(amount, power_type)
 
@@ -102,8 +112,34 @@ class AuraEffectHandler:
             return
         spell = aura.source_spell
         damage = aura.get_effect_points()
-        aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
         aura.caster.receive_healing(damage, aura.caster)
+        aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
+
+
+    @staticmethod
+    def handle_channel_death_item(aura, effect_target, remove):
+        if effect_target.is_alive or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(aura.spell_effect.item_type)
+        if not item_template:
+            aura.caster.inventory.send_equip_error(InventoryError.BAG_UNKNOWN_ITEM)
+            return
+
+        amount = aura.get_effect_points()
+        # Validate amount, at least 1 item should be created.
+        if amount < 1:
+            amount = 1
+        if amount > item_template.stackable:
+            amount = item_template.stackable
+
+        can_store_item = aura.caster.inventory.can_store_item(item_template, amount)
+        if can_store_item != InventoryError.BAG_OK:
+            aura.caster.inventory.send_equip_error(can_store_item)
+            return
+
+        # Add the item to player inventory.
+        aura.caster.inventory.add_item(item_template.entry, count=amount)
 
     # Proc effects are called each time the proc condition is met.
     @staticmethod
@@ -670,6 +706,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
     AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL: AuraEffectHandler.handle_periodic_trigger_spell,
     AuraTypes.SPELL_AURA_PERIODIC_HEAL: AuraEffectHandler.handle_periodic_healing,
+    AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH: AuraEffectHandler.handle_periodic_mana_leech,
     AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE: AuraEffectHandler.handle_periodic_energize,
     AuraTypes.SPELL_AURA_PERIODIC_DAMAGE: AuraEffectHandler.handle_periodic_damage,
     AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech,
@@ -694,6 +731,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_PACIFY: AuraEffectHandler.handle_mod_pacify,
     AuraTypes.SPELL_AURA_MOD_PACIFY_SILENCE: AuraEffectHandler.handle_mod_pacify_silence,
     AuraTypes.SPELL_AURA_MOD_TAUNT: AuraEffectHandler.handle_taunt,
+    AuraTypes.SPELL_AURA_CHANNEL_DEATH_ITEM: AuraEffectHandler.handle_channel_death_item,
 
     # Immunity modifiers.
     AuraTypes.SPELL_AURA_EFFECT_IMMUNITY: AuraEffectHandler.handle_effect_immunity,
