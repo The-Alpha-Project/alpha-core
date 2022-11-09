@@ -1160,8 +1160,12 @@ class SpellManager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
                 return False
 
-        # Duel target check.
+        # Duel target check
         if casting_spell.is_duel_spell():
+            # Duel cast attempt on a unit.
+            if validation_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
             if validation_target.duel_manager:
                 self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_TARGET_DUELING)
                 return False

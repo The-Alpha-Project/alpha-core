@@ -1675,8 +1675,10 @@ class PlayerManager(UnitManager):
             CorpseManager.spawn(self)
 
         if self.resurrect_data and not release_spirit:
-            self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location, is_instant=False,
-                          recovery=self.resurrect_data.recovery_percentage)
+            is_instant = self.resurrect_data.resurrect_map == self.map_ and \
+                         self.resurrect_data.resurrect_location == self.location
+            self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location,
+                          is_instant=is_instant, recovery=self.resurrect_data.recovery_percentage)
         else:
             deathbind_map, deathbind_location = self.get_deathbind_coordinates()
             self.teleport(deathbind_map, deathbind_location, recovery=1, is_instant=False)

@@ -20,7 +20,7 @@ from utils.Formulas import UnitFormulas, Distances
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, UnitStates
+    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, UnitStates, StandState
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -681,6 +681,7 @@ class CreatureManager(UnitManager):
             self.set_lootable(True)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
+        self.set_stand_state(StandState.UNIT_DEAD)
         return super().die(killer)
 
     def reward_kill_xp(self, player):
