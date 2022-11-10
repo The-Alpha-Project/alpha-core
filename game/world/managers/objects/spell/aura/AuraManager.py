@@ -135,12 +135,12 @@ class AuraManager:
                 self.remove_aura(aura)
                 continue
 
-            # Special case for stealth breaking.
-            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \
-                    cast_spell and not cast_spell.cast_breaks_stealth():
-                flag_cases[SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST] = None
-
             for flag, condition in flag_cases.items():
+                if flag == SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST and \
+                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \
+                        cast_spell and not cast_spell.cast_breaks_stealth():
+                    continue  # Skip cast interrupt for stealth spells for flagged spells.
+
                 if aura.interrupt_flags & flag and condition:
                     self.remove_aura(aura)
                     continue

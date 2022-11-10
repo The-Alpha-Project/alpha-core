@@ -311,6 +311,9 @@ class SpellManager:
                 not casting_spell.triggered:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
             self.caster.aura_manager.check_aura_interrupts(cast_spell=casting_spell)
 
+        self.set_on_cooldown(casting_spell)
+        self.consume_resources_for_cast(casting_spell)
+
         travel_times = self.calculate_impact_delays(casting_spell)
 
         if len(travel_times) != 0:
@@ -321,7 +324,6 @@ class SpellManager:
                 casting_spell.spell_impact_timestamps[guid] = curr_time + delay
 
             casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
-            self.consume_resources_for_cast(casting_spell)  # Remove resources
             return
 
         casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
@@ -334,9 +336,6 @@ class SpellManager:
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
                 self.remove_cast(casting_spell)
-
-        self.set_on_cooldown(casting_spell)
-        self.consume_resources_for_cast(casting_spell)  # Remove resources.
 
     def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False, update_index=-1,
                             partial_targets: Optional[list[int]] = None):
