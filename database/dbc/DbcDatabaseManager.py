@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from database.dbc.DbcModels import *
 from game.world.managers.objects.locks.LockHolder import LockHolder
 from utils.ConfigManager import *
+from utils.constants.SpellCodes import SpellImplicitTargets
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
@@ -129,8 +130,9 @@ class DbcDatabaseManager:
         def spell_get_trainer_spell_by_id(spell_id):
             for id_, spell in DbcDatabaseManager.SpellHolder.SPELLS.items():
                 triggers = [spell.EffectTriggerSpell_1, spell.EffectTriggerSpell_2, spell.EffectTriggerSpell_3]
-                if spell_id in triggers:
+                if spell_id in triggers and spell.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_INITIAL:
                     return spell
+            return None
 
         @staticmethod
         def spell_get_rank_by_spell(spell):

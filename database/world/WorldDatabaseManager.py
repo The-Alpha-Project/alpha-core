@@ -744,6 +744,7 @@ class WorldDatabaseManager(object):
         return res
 
     class TrainerSpellHolder:
+        TRAINER_TEMPLATES = []
         TRAINER_SPELLS: dict[tuple[int, int], TrainerTemplate] = {}
         # Custom constant value for talent trainer template id.
         # Use this value to retrieve talents from trainer_template.
@@ -753,6 +754,7 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_trainer_spell(trainer_spell: TrainerTemplate):
+            WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATES.append(trainer_spell)
             WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_spell.template_entry, trainer_spell.spell)] = trainer_spell
             # If this trainer template references a talent spell, load it in the corresponding table too.
             if trainer_spell.template_entry == WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID:
