@@ -14442,6 +14442,30 @@ begin not atomic
         UPDATE `creature_spells` SET `delayRepeatMin_1` = '60', `delayRepeatMax_1` = '70' WHERE (`entry` = '29510');
         insert into applied_updates values ('031120221');
     end if;
+	
+    -- 10/11/2022 1
+    -- Fix wrong curses training spells.
+    if (select count(*) from applied_updates where id='101120221') = 0 then
+        DELETE FROM `trainer_template` WHERE spell in (1031,1029,981,1015,729,1109,956);
+		
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Agony - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1296', '980', '200', '0', '0', '0', '0', '8');
+        -- Spell: Curse of Weakness - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1394', '1108', '1200', '0', '0', '0', '0', '14');
+        -- Spell: Curse of Tongues - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '5736', '1714', '3400', '0', '0', '0', '0', '22');
+        -- Spell: Curse of Weakness - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '6206', '6205', '5300', '0', '0', '0', '0', '24');
+        -- Spell: Curse of Weakness - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1393', '702', '80', '0', '0', '0', '0', '4');
+        -- Spell: Curse of Agony - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1297', '1014', '2600', '0', '0', '0', '0', '20');
+        -- Spell: Curse of Agony - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '6218', '6217', '11000', '0', '0', '0', '0', '32');
+
+        insert into applied_updates values ('101120221');
+    end if;
         
 end $
 delimiter ;

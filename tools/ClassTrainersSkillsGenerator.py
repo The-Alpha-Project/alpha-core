@@ -5,6 +5,7 @@ from database.dbc.DbcModels import Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldLoader import WorldLoader
 from utils.constants.MiscCodes import SkillCategories, TrainerTypes
+from utils.constants.SpellCodes import SpellImplicitTargets
 from utils.constants.UnitCodes import Races, Classes
 
 
@@ -152,6 +153,16 @@ class ClassTrainersSkillGenerator:
         WorldLoader.load_skills()
         WorldLoader.load_skill_line_abilities()
         WorldLoader.load_trainer_spells()
+
+        invalid_spells = set()
+        for trainer_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATES:
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell)
+            if not spell or spell.ImplicitTargetA_1 != SpellImplicitTargets.TARGET_INITIAL and trainer_spell.template_entry != 1000:  # Player talents.
+                invalid_spells.add(str(trainer_spell.spell))
+
+        if len(invalid_spells) > 0:
+            print(f"-- Invalid Training Spells.")
+            print(f"DELETE FROM `trainer_template` WHERE spell in ({','.join(invalid_spells)});")
 
         results = {}
         for rId, race in enumerate(Races):
