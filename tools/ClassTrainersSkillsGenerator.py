@@ -155,7 +155,7 @@ class ClassTrainersSkillGenerator:
         WorldLoader.load_trainer_spells()
 
         invalid_spells = set()
-        for trainer_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATES:
+        for trainer_spell in set(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS.values()):
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.spell)
             if not spell or spell.ImplicitTargetA_1 != SpellImplicitTargets.TARGET_INITIAL and trainer_spell.template_entry != 1000:  # Player talents.
                 invalid_spells.add(str(trainer_spell.spell))
