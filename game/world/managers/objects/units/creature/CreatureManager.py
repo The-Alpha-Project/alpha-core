@@ -13,7 +13,6 @@ from game.world.managers.objects.units.creature.CreaturePickPocketLootManager im
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.items.VirtualItemUtils import VirtualItemsUtils
 from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
-from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
@@ -60,7 +59,6 @@ class CreatureManager(UnitManager):
         self.last_random_movement = 0
         self.random_movement_wait_time = randint(1, 12)
         self.virtual_item_info = {}
-
         self.wander_distance = 0
         self.movement_type = MovementTypes.IDLE
         self.fully_loaded = False
@@ -726,19 +724,20 @@ class CreatureManager(UnitManager):
     # override
     def get_bytes_1(self):
         return ByteUtils.bytes_to_int(
-            0,  # visibility flags
+            self.sheath_state,  # sheath state
             self.shapeshift_form,  # shapeshift form
             self.npc_flags,  # npc flags
             self.stand_state  # stand state
         )
 
     # override
+    # This update field is unused and private in 0.5.3.
     def get_bytes_2(self):
         return ByteUtils.bytes_to_int(
             0,  # unknown
             0,  # pet flags
             0,  # misc flags
-            self.sheath_state  # sheath state
+            0,  # unknown
         )
 
     # override
@@ -792,9 +791,11 @@ class CreatureManager(UnitManager):
 
     # override
     def set_weapon_mode(self, weapon_mode):
+        if weapon_mode == self.sheath_state:
+            return
         super().set_weapon_mode(weapon_mode)
-        self.bytes_2 = self.get_bytes_2()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
+        self.bytes_1 = self.get_bytes_1()
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
     def set_stand_state(self, stand_state):

@@ -303,6 +303,10 @@ class UnitManager(ObjectManager):
         if self.has_offhand_weapon():
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
+        # make sure unit sheath state is set to normal for melee attacks.
+        if self.get_type_id() == ObjectTypeIds.ID_UNIT:
+            self.set_weapon_mode(WeaponMode.NORMALMODE)
+
         self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
