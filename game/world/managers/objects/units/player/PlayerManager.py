@@ -1046,7 +1046,7 @@ class PlayerManager(UnitManager):
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
                 self.set_health(self.max_health)
-                self.set_mana(self.max_power_1)
+                self.recharge_power()
 
                 if is_leveling_up:
                     data = pack(
@@ -1674,13 +1674,11 @@ class PlayerManager(UnitManager):
         # the % that players had in 0.5.3, so 100% is assumed.
         self.set_health(math.ceil(self.max_health * recovery_percentage))
         if self.power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(math.ceil(self.max_power_1 * recovery_percentage))
-        if self.power_type == PowerTypes.TYPE_RAGE:
-            self.set_rage(0)
-        if self.power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(0)
-        if self.power_type == PowerTypes.TYPE_ENERGY:
-            self.set_energy(self.max_power_4)
+            self.set_power_value(math.ceil(self.get_max_power_value() * recovery_percentage))
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
+            self.recharge_power()
+        else:  # Rage or focus.
+            self.set_power_value(0)
 
         super().respawn()
 

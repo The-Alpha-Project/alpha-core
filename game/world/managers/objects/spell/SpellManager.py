@@ -1304,7 +1304,7 @@ class SpellManager:
         has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
         power_cost = casting_spell.get_resource_cost()
         has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
-        current_power = self.caster.health if has_health_cost else self.caster.get_power_type_value()
+        current_power = self.caster.health if has_health_cost else self.caster.get_power_value()
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         # Items like scrolls or creatures need to be able to cast spells even if they lack the required power type.
         ignore_wrong_power = not is_player or casting_spell.source_item or casting_spell.triggered
@@ -1431,20 +1431,15 @@ class SpellManager:
         else:
             cost = casting_spell.get_resource_cost()
             # Note: resources are consumed after the cast, which means that the caster's power type can change.
-            # Pass the required power to get_power_type_value.
-            current_power = self.caster.health if power_type == PowerTypes.TYPE_HEALTH else self.caster.get_power_type_value(power_type)
+            # Pass the required power to get_power_value.
+            current_power = self.caster.health if power_type == PowerTypes.TYPE_HEALTH \
+                else self.caster.get_power_value(power_type)
             new_power = current_power - cost
 
-        if power_type == PowerTypes.TYPE_MANA:
-            self.caster.set_mana(new_power)
-        elif power_type == PowerTypes.TYPE_RAGE:
-            self.caster.set_rage(new_power)
-        elif power_type == PowerTypes.TYPE_FOCUS:
-            self.caster.set_focus(new_power)
-        elif power_type == PowerTypes.TYPE_ENERGY:
-            self.caster.set_energy(new_power)
-        elif power_type == PowerTypes.TYPE_HEALTH:
+        if power_type == PowerTypes.TYPE_HEALTH:
             self.caster.set_health(new_power)
+        else:
+            self.caster.set_power_value(new_power, power_type)
 
         if is_player and casting_spell.requires_combo_points():
             self.caster.remove_combo_points()
