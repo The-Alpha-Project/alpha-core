@@ -15,7 +15,7 @@ from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import PlayerFields
 
 import platform
@@ -518,6 +518,22 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def weaponmode(world_session, args):
+        try:
+            creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                               world_session.player_mgr.current_selection)
+            if creature:
+                weapon_mode = int(args)
+                if weapon_mode < 0 or weapon_mode > len(WeaponMode):
+                    return -1, 'invalid weapon mode.'
+                creature.set_weapon_mode(weapon_mode)
+                return 0, f'Weapon mode set to {WeaponMode(weapon_mode).name}'
+            else:
+                return -1, 'unable to locate creature.'
+        except:
+            return -1, 'please specify a valid weapon mode.'
+
+    @staticmethod
     def unit_flags(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         result = ''
@@ -756,6 +772,7 @@ GM_COMMAND_DEFINITIONS = {
     'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     'cinfo': [CommandManager.creature_info, 'get targeted creature info'],
     'unitflags': [CommandManager.unit_flags, 'get targeted unit unit flags status'],
+    'weaponmode': [CommandManager.weaponmode, 'Set targeted creature weaponmode mode'],
     'pinfo': [CommandManager.player_info, 'get targeted player info'],
     'goinfo': [CommandManager.gobject_info, 'get gameobject information near you'],
     'level': [CommandManager.level, 'set your level'],

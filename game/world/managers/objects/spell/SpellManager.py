@@ -278,6 +278,10 @@ class SpellManager:
             # If the spell uses a ranged weapon, draw it if needed.
             if casting_spell.is_ranged_weapon_attack():
                 self.caster.set_weapon_mode(WeaponMode.RANGEDMODE)
+            # Need to make sure creatures go back to melee if needed.
+            elif self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
+                self.caster.set_weapon_mode(WeaponMode.NORMALMODE)
+
             # If the spell uses a fishing pole, draw it if needed.
             if casting_spell.requires_fishing_pole():
                 self.caster.set_weapon_mode(WeaponMode.NORMALMODE)
