@@ -33,7 +33,7 @@ class AuraManager:
     def add_aura(self, aura):
         can_apply = self.can_apply_aura(aura) and self.remove_colliding_effects(aura)
         if not can_apply:
-            return
+            return -1
 
         # Application threat and negative aura application interrupts.
         if aura.harmful:
@@ -68,9 +68,13 @@ class AuraManager:
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target)
 
         self.write_aura_to_unit(aura, is_refresh=is_refresh)
+        return aura.index
 
     def update(self, timestamp):
         for aura in list(self.active_auras.values()):
+            if aura.spell_effect.area_aura_holder:
+                continue  # Area auras are updated by AreaAuraHolder.
+
             aura.update(timestamp)  # Update duration and handle periodic effects.
             if aura.has_duration() and aura.get_duration() <= 0:
                 self.remove_aura(aura)

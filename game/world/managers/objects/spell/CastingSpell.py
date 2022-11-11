@@ -7,6 +7,7 @@ from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTi
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.Stats import SpellStat
 from game.world.managers.objects.spell import ExtendedSpellData
@@ -48,6 +49,8 @@ class CastingSpell:
 
     spell_attack_type: int
     used_ranged_attack_item: ItemManager  # Ammo or thrown.
+
+    dynamic_object: Optional[DynamicObjectManager]
 
     def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False, creature_spell=None):
         self.spell_entry = spell

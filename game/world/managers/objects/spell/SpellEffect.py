@@ -7,6 +7,7 @@ from database.dbc.DbcModels import SpellRadius
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AURA_EFFECTS
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
+from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity
 
@@ -38,8 +39,10 @@ class SpellEffect:
 
     # Duration and periodic timing info for auras applied by this effect
     applied_aura_duration = -1
-    periodic_effect_ticks = []
+    periodic_effect_ticks: Optional[list[int]] = None  # None for distinct uninitialized state.
     last_update_timestamp = -1
+
+    area_aura_holder: Optional[AreaAuraHolder] = None
 
     def __init__(self, casting_spell, index):
         self.load_effect(casting_spell.spell_entry, index)
@@ -66,11 +69,18 @@ class SpellEffect:
 
     def is_past_next_period(self):
         # Also accept equal duration to properly handle last tick.
-        return len(self.periodic_effect_ticks) > 0 and self.periodic_effect_ticks[-1] >= self.applied_aura_duration
+        return self.periodic_effect_ticks is not None and \
+               len(self.periodic_effect_ticks) > 0 and self.periodic_effect_ticks[-1] >= self.applied_aura_duration
+
+    def has_periodic_ticks_remaining(self):
+        if not self.is_periodic() or not self.casting_spell.duration_entry:
+            return False
+
+        return self.periodic_effect_ticks is None or len(self.periodic_effect_ticks) > 0
 
     def generate_periodic_effect_ticks(self) -> list[int]:
         duration = self.casting_spell.get_duration()
-        if self.aura_period == 0:
+        if not self.is_periodic():
             return []
         period = self.aura_period
         tick_count = int(duration / self.aura_period)
@@ -81,10 +91,16 @@ class SpellEffect:
         return ticks
 
     def start_aura_duration(self, overwrite=False):
-        if not self.casting_spell.duration_entry or (len(self.periodic_effect_ticks) > 0 and not overwrite):
+        if not self.casting_spell.duration_entry or (self.periodic_effect_ticks is not None and not overwrite):
             return
         self.applied_aura_duration = self.casting_spell.get_duration()
-        self.last_update_timestamp = time.time()
+
+        # Match timestamps for channeled spells.
+        # This is necessary since slight processing delays can cause the last tick to be skipped otherwise
+        # due to the channel ending before the aura wearing off.
+        self.last_update_timestamp = time.time() if not self.casting_spell.is_channeled() else \
+            self.casting_spell.cast_start_timestamp
+
         if self.is_periodic():
             self.periodic_effect_ticks = self.generate_periodic_effect_ticks()
 

@@ -540,6 +540,7 @@ class SpellManager:
 
         if casting_spell.dynamic_object:
             casting_spell.dynamic_object.destroy()
+        [effect.area_aura_holder.destroy() for effect in casting_spell.get_effects() if effect.area_aura_holder]
 
         # Cancel auras applied by an active spell if the spell was interrupted.
         # If the cast finished normally, auras should wear off because of duration.
@@ -591,6 +592,8 @@ class SpellManager:
         for casting_spell in list(self.casting_spells):
             for effect in casting_spell.get_effects():
                 effect.targets.remove_object_from_targets(target_guid)
+                if effect.area_aura_holder:
+                    effect.area_aura_holder.remove_target(target_guid)
 
             # Interrupt handling
             if not casting_spell.initial_target_is_unit_or_player() or \
@@ -722,25 +725,18 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
     def handle_spell_effect_update(self, casting_spell, timestamp) -> bool:
-        is_finished = False
+        is_finished = True
         for effect in casting_spell.get_effects():
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
-            # Auras applied by channels can be independent of targets.
-            # Handle all channeled spells so that they don't require an AuraManager tick to update.
-
-            # Update ticks that expired during previous update (before updating aura duration).
-            effect.remove_old_periodic_effect_ticks()
-            if effect.is_periodic() and not len(effect.periodic_effect_ticks):
-                is_finished = True
-
-            # Update effect aura duration.
-            effect.update_effect_aura(timestamp)
+            if effect.has_periodic_ticks_remaining():
+                is_finished = False
 
             # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
+                effect.area_aura_holder.update(timestamp)
 
         return is_finished
 
