@@ -11,7 +11,7 @@ from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObje
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler
-from game.world.managers.objects.spell.aura.AuraManager import AppliedAura
+from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -286,14 +286,15 @@ class SpellEffectHandler:
         # For now, dynamic object only enable us to properly display area effects to clients.
         # Targeting and effect application is still done by 'handle_apply_area_aura'.
         if not casting_spell.dynamic_object:
-            DynamicObjectManager.spawn_from_casting_spell(casting_spell, effect)
+            DynamicObjectManager.spawn_from_spell_effect(effect)
 
         SpellEffectHandler.handle_apply_area_aura(casting_spell, effect, caster, target)
-        return
 
     @staticmethod
     def handle_apply_area_aura(casting_spell, effect, caster, target):  # Paladin auras, healing stream totem etc.
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
+        if not effect.area_aura_holder:
+            effect.area_aura_holder = AreaAuraHolder(effect)
 
         previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
         current_targets = effect.targets.resolved_targets_a
@@ -304,11 +305,10 @@ class SpellEffectHandler:
                            unit not in current_targets]  # Targets that moved out of the area.
 
         for target in new_targets:
-            new_aura = AppliedAura(caster, casting_spell, effect, target)
-            target.aura_manager.add_aura(new_aura)
+            effect.area_aura_holder.add_target(target)
 
         for target in missing_targets:
-            target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)
+            effect.area_aura_holder.remove_target(target)
 
     @staticmethod
     def handle_learn_spell(casting_spell, effect, caster, target):
