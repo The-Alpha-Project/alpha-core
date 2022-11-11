@@ -344,7 +344,7 @@ class EffectTargets:
             return units_in_range
 
         for unit in units:
-            if caster is unit or unit is charmer_or_summoner or unit is caster or unit is caster_pet or \
+            if caster is unit or unit is charmer_or_summoner or unit is caster_pet or \
                     not party_group.is_party_member(unit.guid) or \
                     caster.can_attack_target(unit):   # Dueling party members
                 continue
