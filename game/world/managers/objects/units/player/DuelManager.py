@@ -114,8 +114,10 @@ class DuelManager(object):
             if entry.player.combo_target:
                 entry.player.remove_combo_points()
             entry.player.enqueue_packet(packet)
-            # TODO If this is reached out of combat (only spellcasts, forfeit etc.),
-            #  threat between the players is never cleared.
+
+            # Make sure to clear threat in case players finish out of combat.
+            #  TODO This should be handled elsewhere.
+            entry.player.threat_manager.remove_unit_threat(entry.target)
             entry.player.leave_combat()
             self.build_update(entry.player)
 
