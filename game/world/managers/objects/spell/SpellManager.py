@@ -727,6 +727,8 @@ class SpellManager:
     def handle_spell_effect_update(self, casting_spell, timestamp) -> bool:
         is_finished = True
         for effect in casting_spell.get_effects():
+            # TODO Do other, non-area spell effects depend on any logic here?
+
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
