@@ -297,22 +297,18 @@ class UnitManager(ObjectManager):
     def attack_update(self, elapsed):
         # Don't update melee swing timers while casting or stunned.
         if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
-            return
+            return False
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
         if self.has_offhand_weapon():
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
-        # Make sure unit sheath state is set to normal for melee attacks.
-        if self.get_type_id() == ObjectTypeIds.ID_UNIT:
-            self.set_weapon_mode(WeaponMode.NORMALMODE)
-
-        self.update_melee_attacking_state()
+        return self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
         if self.unit_state & UnitStates.STUNNED or not self.combat_target \
                 or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
-            return
+            return False
 
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
@@ -1357,6 +1353,8 @@ class UnitManager(ObjectManager):
 
     def set_weapon_mode(self, weapon_mode):
         self.sheath_state = weapon_mode
+        self.bytes_1 = self.get_bytes_1()
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form

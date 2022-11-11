@@ -1433,12 +1433,6 @@ class PlayerManager(UnitManager):
         super().set_summoned_by(summoner, spell_id, subtype, remove=remove)
 
     # override
-    def set_weapon_mode(self, weapon_mode):
-        super().set_weapon_mode(weapon_mode)
-        self.bytes_1 = self.get_bytes_1()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-
-    # override
     def set_stand_state(self, stand_state):
         super().set_stand_state(stand_state)
         self.bytes_1 = self.get_bytes_1()

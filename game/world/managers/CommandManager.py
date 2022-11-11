@@ -524,7 +524,7 @@ class CommandManager(object):
                                                                world_session.player_mgr.current_selection)
             if creature:
                 weapon_mode = int(args)
-                if weapon_mode < 0 or weapon_mode > len(WeaponMode):
+                if weapon_mode < 0 or weapon_mode > WeaponMode.NUMMODES:
                     return -1, 'invalid weapon mode.'
                 creature.set_weapon_mode(weapon_mode)
                 return 0, f'Weapon mode set to {WeaponMode(weapon_mode).name}'

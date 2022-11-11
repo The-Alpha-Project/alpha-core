@@ -608,7 +608,12 @@ class CreatureManager(UnitManager):
         # Has a target, check if we need to attack or switch target.
         if target and self.combat_target != target:
             self.attack(target)
-        super().attack_update(elapsed)
+        if super().attack_update(elapsed):
+            # Make sure sheath state is set to normal for melee attacks.
+            if self.sheath_state != WeaponMode.NORMALMODE:
+                self.set_weapon_mode(WeaponMode.NORMALMODE)
+            return True
+        return False
 
     # override
     def receive_damage(self, damage_info, source=None, is_periodic=False, casting_spell=None):
@@ -788,14 +793,6 @@ class CreatureManager(UnitManager):
         self.object_ai = AIFactory.build_ai(self)
         self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, spell_id)
         super().set_summoned_by(summoner, subtype=subtype, remove=remove)
-
-    # override
-    def set_weapon_mode(self, weapon_mode):
-        if weapon_mode == self.sheath_state:
-            return
-        super().set_weapon_mode(weapon_mode)
-        self.bytes_1 = self.get_bytes_1()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
     def set_stand_state(self, stand_state):
