@@ -240,21 +240,22 @@ class CastingSpell:
     def has_spell_visual_pre_cast_kit(self):
         return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
-    def is_target_power_type_valid(self):
-        if not self.initial_target:
-            return False
-
+    def is_target_power_type_valid(self, target):
         if len(self._effects) == 0:
             return True
 
         for effect in self.get_effects():
-            if (effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_BURN
-                    or effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_DRAIN
-                    or effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH) \
-                    and effect.misc_value != self.initial_target.power_type:
+            if effect.effect_type not in \
+                    {SpellEffects.SPELL_EFFECT_POWER_BURN,
+                     SpellEffects.SPELL_EFFECT_POWER_DRAIN} and \
+                    effect.aura_type not in \
+                    {AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH,
+                     AuraTypes.SPELL_AURA_PERIODIC_MANA_FUNNEL}:
                 continue
-            return True
-        return False
+
+            if effect.misc_value != target.power_type:
+                return False
+        return True
 
     # TODO: Check 'IsImmuneToDamage' - VMaNGOS
     def is_target_immune_to_damage(self):

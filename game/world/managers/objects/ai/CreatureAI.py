@@ -316,10 +316,6 @@ class CreatureAI:
                     return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_BEHIND
                 return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT
 
-            # If the spell requires the target having a specific power type.
-            if not casting_spell.is_area_of_effect_spell() and not casting_spell.is_target_power_type_valid():
-                return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
-
             # No point in casting if target is immune.
             if target and target != self:
                 if not casting_spell.is_positive_spell() and casting_spell.is_target_immune_to_damage():

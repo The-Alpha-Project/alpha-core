@@ -1093,6 +1093,12 @@ class SpellManager:
 
         # Effect-specific validation.
 
+        # Target power type check (mana drain etc.)
+        if casting_spell.initial_target_is_unit_or_player() and \
+                not casting_spell.is_target_power_type_valid(validation_target):
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+            return False
+
         # Enchanting checks.
         if casting_spell.is_enchantment_spell():
             # TODO: We don't have EquippedItemInventoryTypeMask, so we have no way to validate inventory slots.
