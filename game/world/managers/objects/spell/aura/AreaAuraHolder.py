@@ -20,10 +20,11 @@ class AreaAuraHolder:
         if not self.effect.is_periodic():
             return
 
-        # Effect updates can cause a change in current targets on death - copy values for iteration.
+        # Effect updates/other events can cause a change in current targets - copy values for iteration.
         for target, aura_index in list(self.current_targets.values()):
             aura = target.aura_manager.get_aura_by_index(aura_index)
             if not aura:
+                self.current_targets.pop(target.guid)
                 continue
             AuraEffectHandler.handle_aura_effect_change(aura, target, remove=remove)
 
@@ -32,9 +33,13 @@ class AreaAuraHolder:
         aura_index = target.aura_manager.add_aura(new_aura)
         self.current_targets[target.guid] = (target, aura_index)
 
-    def remove_target(self, target):
+    def remove_target(self, target_guid):
+        target = self.current_targets.pop(target_guid, (None, -1))[0]
+        if not target:
+            return
+
+        # noinspection PyUnresolvedReferences
         target.aura_manager.cancel_auras_by_spell_id(self.effect.casting_spell.spell_entry.ID)
-        self.current_targets.pop(target.guid, None)
 
     def destroy(self):
         self.update_effect_on_targets(remove=True)
