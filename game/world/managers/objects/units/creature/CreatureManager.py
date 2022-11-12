@@ -779,6 +779,9 @@ class CreatureManager(UnitManager):
         self.faction = charmer.faction if not remove else self.creature_template.faction
         self.subtype = subtype
         self.object_ai = AIFactory.build_ai(self)
+        # Set/Remove player controlled flag.
+        if charmer.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.set_player_controlled(not remove)
         super().set_charmed_by(charmer, subtype=subtype, remove=remove)
 
     # override
@@ -792,6 +795,9 @@ class CreatureManager(UnitManager):
         self.subtype = subtype
         self.object_ai = AIFactory.build_ai(self)
         self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, spell_id)
+        # Set/Remove player controlled flag.
+        if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.set_player_controlled(not remove)
         super().set_summoned_by(summoner, subtype=subtype, remove=remove)
 
     # override

@@ -44,9 +44,6 @@ class CreatureBuilder:
         creature_instance.wander_distance = wander_distance
         creature_instance.movement_type = movement_type
 
-        if summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            creature_instance.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
-
         return creature_instance
 
     @staticmethod
