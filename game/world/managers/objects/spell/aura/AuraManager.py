@@ -343,10 +343,12 @@ class AuraManager:
         for aura in list(self.active_auras.values()):
             self.remove_aura(aura)
 
-    def cancel_auras_by_spell_id(self, spell_id):
+    def cancel_auras_by_spell_id(self, spell_id, source_restriction=None):
         auras = self.get_auras_by_spell_id(spell_id)
 
         for aura in auras:
+            if source_restriction and aura.caster is not source_restriction:
+                continue
             self.remove_aura(aura, canceled=True)
 
     def remove_aura_from_spell(self, casting_spell):
