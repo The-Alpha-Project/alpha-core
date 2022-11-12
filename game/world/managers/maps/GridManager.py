@@ -88,9 +88,9 @@ class GridManager:
         if update_players:
             # Pet creation should be instantly notified to player owner.
             if GuidUtils.extract_high_guid(world_object.guid) == HighGuid.HIGHGUID_PET:
-                charmer_or_summoner = world_object.get_charmer_or_summoner()
-                if charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                    charmer_or_summoner.update_known_world_objects(world_object=world_object)
+                summoner = world_object.get_charmer_or_summoner()
+                if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                    summoner.update_known_world_objects(world_object=world_object)
 
             self.update_players_surroundings(cell.key)
 
