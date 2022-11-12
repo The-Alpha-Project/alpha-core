@@ -76,6 +76,7 @@ class CreatureSpawn:
         self.creature_instance = CreatureBuilder.create(creature_template_id, creature_location, self.map_,
                                                         health_percent=self.health_percent,
                                                         mana_percent=self.mana_percent,
+                                                        addon=self.addon,
                                                         wander_distance=self.creature_spawn.wander_distance,
                                                         movement_type=self.creature_spawn.movement_type,
                                                         spawn_id=self.spawn_id)

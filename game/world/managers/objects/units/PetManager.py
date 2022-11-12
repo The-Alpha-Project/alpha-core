@@ -551,6 +551,12 @@ class PetManager:
                     return
 
         if is_permanent:
+            # Spawn permanent creature.
+            MapManager.spawn_object(world_object_instance=creature)
+            # Owner must be instantly notified about this.
+            if self.owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                self.owner.update_known_world_objects(world_object=creature)
+
             # Summoned by owner.
             creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
@@ -558,10 +564,6 @@ class PetManager:
         # Charmed by owner.
         creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
                                 movement_type=MovementTypes.IDLE)
-
-        # This is a permanent pet summoned by SPELL_EFFECT_SUMMON_PET, just spawn it.
-        if is_permanent:
-            MapManager.spawn_object(world_object_instance=creature)
 
     def _send_pet_spell_info(self):
         if not self.active_pet:

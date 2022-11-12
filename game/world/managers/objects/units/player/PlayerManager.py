@@ -396,7 +396,13 @@ class PlayerManager(UnitManager):
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
-    def update_known_world_objects(self, flush=False):
+    def update_known_world_objects(self, flush=False, world_object=None):
+
+        # Manage the case in which we just need to notify 1 object creation.
+        if world_object:
+            self._update_known_world_object(world_object)
+            return
+
         players, creatures, game_objects, corpses, dynamic_objects = \
             MapManager.get_surrounding_objects(self,
                                                [ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT,
@@ -413,97 +419,24 @@ class PlayerManager(UnitManager):
         active_objects = dict()
 
         # Surrounding players.
-        for guid, player in players.items():
-            if self.guid == guid:
-                continue
-
-            # Handle visibility/stealth.
-            if not self.can_detect_target(player)[0]:
-                self.known_stealth_units[guid] = (player, True)
-                continue
-            elif guid in self.known_stealth_units:
-                del self.known_stealth_units[guid]
-
-            active_objects[guid] = player
-            if guid not in self.known_objects or not self.known_objects[guid]:
-                # We don't know this player, notify self with its update packet.
-                self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
-                # Retrieve their inventory updates.
-                self.enqueue_packets(player.inventory.get_inventory_update_packets(self))
-                # Create packet.
-                self.enqueue_packet(player.generate_create_packet(requester=self))
-                # Get partial movement packet if any.
-                if player.movement_manager.unit_is_moving():
-                    packet = player.movement_manager.try_build_movement_packet(is_initial=False)
-                    if packet:
-                        self.enqueue_packet(packet)
-            self.known_objects[guid] = player
-
-        # Surrounding corpses.
-        for guid, corpse in corpses.items():
-            if self.guid != guid:
-                active_objects[guid] = corpse
-                if guid not in self.known_objects or not self.known_objects[guid]:
-                    # Create packet.
-                    self.enqueue_packet(corpse.generate_create_packet(requester=self))
-                self.known_objects[guid] = corpse
+        for player in players.values():
+            self._update_known_player(player, active_objects)
 
         # Surrounding creatures.
-        for guid, creature in creatures.items():
+        for creature in creatures.values():
+            self._update_known_creature(creature, active_objects)
 
-            # Handle visibility/stealth.
-            if not self.can_detect_target(creature)[0]:
-                self.known_stealth_units[guid] = (creature, True)
-                continue
-            elif guid in self.known_stealth_units:
-                del self.known_stealth_units[guid]
+        # Surrounding gameobjects.
+        for gobject in game_objects.values():
+            self._update_known_gameobject(gobject, active_objects)
 
-            active_objects[guid] = creature
-            if guid not in self.known_objects or not self.known_objects[guid]:
-                # We don't know this creature, notify self with its update packet.
-                self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
-                if creature.is_spawned:
-                    self.enqueue_packet(creature.generate_create_packet(requester=self))
-                    # Get partial movement packet if any.
-                    if creature.movement_manager.unit_is_moving():
-                        packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
-                        if packet:
-                            self.enqueue_packet(packet)
-                    # We only consider 'known' if its spawned, the details query is still sent.
-                    self.known_objects[guid] = creature
-                    # Add ourselves to creature known players.
-                    creature.known_players[self.guid] = self
-            # Player knows the creature but is not spawned anymore, destroy it for self.
-            elif guid in self.known_objects and not creature.is_spawned:
-                active_objects.pop(guid)
-
-        # Surrounding game objects.
-        for guid, gobject in game_objects.items():
-            active_objects[guid] = gobject
-            if guid not in self.known_objects or not self.known_objects[guid]:
-                # We don't know this game object, notify self with its update packet.
-                self.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject))
-                if gobject.is_spawned:
-                    self.enqueue_packet(gobject.generate_create_packet(requester=self))
-                    # We only consider 'known' if its spawned, the details query is still sent.
-                    self.known_objects[guid] = gobject
-                    # Add ourselves to gameobject known players.
-                    gobject.known_players[self.guid] = self
-            # Player knows the game object but is not spawned anymore, destroy it for self.
-            elif guid in self.known_objects and not gobject.is_spawned:
-                active_objects.pop(guid)
+        # Surrounding corpses.
+        for corpse in corpses.values():
+            self._update_known_corpse(corpse, active_objects)
 
         # Surrounding dynamic objects.
-        for guid, dynamic_objects in dynamic_objects.items():
-            active_objects[guid] = dynamic_objects
-            if guid not in self.known_objects or not self.known_objects[guid]:
-                if dynamic_objects.is_spawned:
-                    self.enqueue_packet(dynamic_objects.generate_create_packet(requester=self))
-                    # We only consider 'known' if its spawned, the details query is still sent.
-                    self.known_objects[guid] = dynamic_objects
-            # Player knows the dynamic object but is not spawned anymore, destroy it for self.
-            elif guid in self.known_objects and not dynamic_objects.is_spawned:
-                active_objects.pop(guid)
+        for dynamic_object in dynamic_objects.values():
+            self._update_known_dynobject(dynamic_object, active_objects)
 
         # World objects which are known but no longer active to self should be destroyed.
         for guid, known_object in list(self.known_objects.items()):
@@ -512,6 +445,107 @@ class PlayerManager(UnitManager):
 
         # Cleanup.
         active_objects.clear()
+
+    def _update_known_world_object(self, world_object):
+        active_objects = dict()
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self._update_known_player(world_object, active_objects)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+            self._update_known_creature(world_object, active_objects)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            self._update_known_gameobject(world_object, active_objects)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
+            self._update_known_corpse(world_object, active_objects)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
+            self._update_known_dynobject(world_object, active_objects)
+        return
+
+    def _update_known_dynobject(self, dynbject, active_objects):
+        active_objects[dynbject.guid] = dynbject
+        if dynbject.guid not in self.known_objects or not self.known_objects[dynbject.guid]:
+            if dynbject.is_spawned:
+                self.enqueue_packet(dynbject.generate_create_packet(requester=self))
+                # We only consider 'known' if its spawned, the details query is still sent.
+                self.known_objects[dynbject.guid] = dynbject
+        # Player knows the dynamic object but is not spawned anymore, destroy it for self.
+        elif dynbject.guid in self.known_objects and not dynbject.is_spawned:
+            active_objects.pop(dynbject.guid)
+
+    def _update_known_gameobject(self, gobject, active_objects: dict):
+        active_objects[gobject.guid] = gobject
+        if gobject.guid not in self.known_objects or not self.known_objects[gobject.guid]:
+            # We don't know this game object, notify self with its update packet.
+            self.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject))
+            if gobject.is_spawned:
+                self.enqueue_packet(gobject.generate_create_packet(requester=self))
+                # We only consider 'known' if its spawned, the details query is still sent.
+                self.known_objects[gobject.guid] = gobject
+                # Add ourselves to gameobject known players.
+                gobject.known_players[self.guid] = self
+        # Player knows the game object but is not spawned anymore, destroy it for self.
+        elif gobject.guid in self.known_objects and not gobject.is_spawned:
+            active_objects.pop(self.guid)
+
+    def _update_known_creature(self, creature, active_objects: dict):
+        # Handle visibility/stealth.
+        if not self.can_detect_target(creature)[0]:
+            self.known_stealth_units[creature.guid] = (creature, True)
+            return
+        elif creature.guid in self.known_stealth_units:
+            del self.known_stealth_units[creature.guid]
+
+        active_objects[creature.guid] = creature
+        if creature.guid not in self.known_objects or not self.known_objects[creature.guid]:
+            # We don't know this creature, notify self with its update packet.
+            self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
+            if creature.is_spawned:
+                self.enqueue_packet(creature.generate_create_packet(requester=self))
+                # Get partial movement packet if any.
+                if creature.movement_manager.unit_is_moving():
+                    packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
+                    if packet:
+                        self.enqueue_packet(packet)
+                # We only consider 'known' if its spawned, the details query is still sent.
+                self.known_objects[creature.guid] = creature
+                # Add ourselves to creature known players.
+                creature.known_players[self.guid] = self
+        # Player knows the creature but is not spawned anymore, destroy it for self.
+        elif creature.guid in self.known_objects and not creature.is_spawned:
+            active_objects.pop(creature.guid)
+
+    def _update_known_corpse(self, corpse, active_objects: dict):
+        if self.guid != corpse.guid:
+            active_objects[corpse.guid] = corpse
+            if corpse.guid not in self.known_objects or not self.known_objects[corpse.guid]:
+                # Create packet.
+                self.enqueue_packet(corpse.generate_create_packet(requester=self))
+            self.known_objects[corpse.guid] = corpse
+
+    def _update_known_player(self, player_mgr, active_objects: dict):
+        if self.guid == player_mgr.guid:
+            return
+
+        # Handle visibility/stealth.
+        if not self.can_detect_target(player_mgr)[0]:
+            self.known_stealth_units[player_mgr.guid] = (player_mgr, True)
+            return
+        elif player_mgr.guid in self.known_stealth_units:
+            del self.known_stealth_units[player_mgr.guid]
+
+        active_objects[player_mgr.guid] = player_mgr
+        if player_mgr.guid not in self.known_objects or not self.known_objects[player_mgr.guid]:
+            # We don't know this player, notify self with its update packet.
+            self.enqueue_packet(NameQueryHandler.get_query_details(player_mgr.player))
+            # Retrieve their inventory updates.
+            self.enqueue_packets(player_mgr.inventory.get_inventory_update_packets(self))
+            # Create packet.
+            self.enqueue_packet(player_mgr.generate_create_packet(requester=self))
+            # Get partial movement packet if any.
+            if player_mgr.movement_manager.unit_is_moving():
+                packet = player_mgr.movement_manager.try_build_movement_packet(is_initial=False)
+                if packet:
+                    self.enqueue_packet(packet)
+        self.known_objects[player_mgr.guid] = player_mgr
 
     def destroy_near_object(self, guid):
         implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
