@@ -25,7 +25,7 @@ class CorpseManager(ObjectManager):
 
         self.guid = self.generate_object_guid(CorpseManager.GUID_MANAGER.get_new_guid())
 
-        self.update_packet_factory.init_values(self.owner, CorpseFields)
+        self.update_packet_factory.init_values(self.owner.guid, CorpseFields)
 
     # override
     def initialize_field_values(self):
