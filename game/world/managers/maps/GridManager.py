@@ -6,8 +6,9 @@ import time
 
 from game.world.managers.maps.Cell import Cell
 from utils.ConfigManager import config
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, HighGuid
 
 TOLERANCE = 0.00001
 CELL_SIZE = config.Server.Settings.cell_size
@@ -85,6 +86,11 @@ class GridManager:
 
         # Notify surrounding players.
         if update_players:
+            # Pet creation should be instantly notified to its owner.
+            if GuidUtils.extract_high_guid(world_object.guid) == HighGuid.HIGHGUID_PET:
+                charmer_or_summoner = world_object.get_charmer_or_summoner()
+                charmer_or_summoner.update_known_world_objects(world_object=world_object)
+
             self.update_players_surroundings(cell.key)
 
     def activate_cells(self, cells: list[Cell]):

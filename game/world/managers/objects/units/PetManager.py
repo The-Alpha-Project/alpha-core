@@ -553,10 +553,6 @@ class PetManager:
         if is_permanent:
             # Spawn permanent creature.
             MapManager.spawn_object(world_object_instance=creature)
-            # Player owner must be instantly notified about this.
-            if self.owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                self.owner.update_known_world_objects(world_object=creature)
-
             # Summoned by owner.
             creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,

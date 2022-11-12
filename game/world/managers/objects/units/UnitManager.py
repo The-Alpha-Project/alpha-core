@@ -1525,4 +1525,6 @@ class UnitManager(ObjectManager):
 
     # override
     def generate_object_guid(self, low_guid):
+        if self.is_pet():
+            return low_guid | HighGuid.HIGHGUID_PET
         return low_guid | HighGuid.HIGHGUID_UNIT
