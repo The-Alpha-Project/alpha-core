@@ -78,9 +78,7 @@ class AuraEffectHandler:
             return
         amount = aura.get_effect_points()
 
-        if effect_target.get_power_type_value(PowerTypes.TYPE_MANA) - amount < 0:
-            return
-
+        amount = min(amount, effect_target.get_power_type_value(PowerTypes.TYPE_MANA))
         effect_target.receive_power(-amount, PowerTypes.TYPE_MANA)
         aura.caster.receive_power(amount, PowerTypes.TYPE_MANA, source=effect_target)
 
