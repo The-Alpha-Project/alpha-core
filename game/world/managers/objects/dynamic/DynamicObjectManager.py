@@ -22,7 +22,7 @@ class DynamicObjectManager(ObjectManager):
 
         self.guid = self.generate_object_guid(DynamicObjectManager.GUID_MANAGER.get_new_guid())
 
-        self.update_packet_factory.init_values(self.owner, DynamicObjectFields)
+        self.update_packet_factory.init_values(owner.guid, DynamicObjectFields)
 
     # override
     def initialize_field_values(self):
