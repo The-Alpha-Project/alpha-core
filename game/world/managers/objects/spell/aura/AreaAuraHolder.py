@@ -34,12 +34,13 @@ class AreaAuraHolder:
         self.current_targets[target.guid] = (target, aura_index)
 
     def remove_target(self, target_guid):
-        target = self.current_targets.pop(target_guid, (None, -1))[0]
+        target, aura_index = self.current_targets.pop(target_guid, (None, -1))[0]
         if not target:
             return
 
-        # noinspection PyUnresolvedReferences
-        target.aura_manager.cancel_auras_by_spell_id(self.effect.casting_spell.spell_entry.ID)
+        aura = target.aura_manager.get_aura_by_index(aura_index)
+        if aura:
+            target.aura_manager.remove_aura(aura)
 
     def destroy(self):
         self.update_effect_on_targets(remove=True)
