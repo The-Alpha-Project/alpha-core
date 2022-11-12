@@ -1161,7 +1161,8 @@ class SpellManager:
             if validation_target.in_combat:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_AFFECTING_COMBAT)
                 return False
-            if not validation_target.pickpocket_loot_manager:
+            if validation_target.get_type_id() != ObjectTypeIds.ID_UNIT or \
+                    not validation_target.pickpocket_loot_manager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_NO_POCKETS)
                 return False
 
