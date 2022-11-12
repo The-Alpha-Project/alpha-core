@@ -553,7 +553,7 @@ class PetManager:
         if is_permanent:
             # Spawn permanent creature.
             MapManager.spawn_object(world_object_instance=creature)
-            # Owner must be instantly notified about this.
+            # Player owner must be instantly notified about this.
             if self.owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 self.owner.update_known_world_objects(world_object=creature)
 
