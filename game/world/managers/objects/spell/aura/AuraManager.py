@@ -349,6 +349,14 @@ class AuraManager:
         for aura in auras:
             self.remove_aura(aura, canceled=True)
 
+    def remove_aura_from_spell(self, casting_spell):
+        effects = casting_spell.get_effects()
+        auras = []
+        for aura in list(self.active_auras.values()):
+            if aura.spell_effect in effects:
+                self.remove_aura(aura)
+        return auras
+
     def build_update(self):
         [self.write_aura_to_unit(aura, send_duration=False) for aura in list(self.active_auras.values())]
 
