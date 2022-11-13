@@ -90,7 +90,7 @@ class GridManager:
             if GuidUtils.extract_high_guid(world_object.guid) == HighGuid.HIGHGUID_PET:
                 summoner = world_object.get_charmer_or_summoner()
                 if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                    summoner.update_known_world_objects(world_object=world_object)
+                    summoner.update_known_world_object(world_object)
 
             self.update_players_surroundings(cell.key)
 

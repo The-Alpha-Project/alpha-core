@@ -396,13 +396,7 @@ class PlayerManager(UnitManager):
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
-    def update_known_world_objects(self, flush=False, world_object=None):
-
-        # Manage the case in which we just need to notify 1 object creation.
-        if world_object:
-            self._update_known_world_object(world_object)
-            return
-
+    def update_known_world_objects(self, flush=False):
         players, creatures, game_objects, corpses, dynamic_objects = \
             MapManager.get_surrounding_objects(self,
                                                [ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT,
@@ -446,7 +440,7 @@ class PlayerManager(UnitManager):
         # Cleanup.
         active_objects.clear()
 
-    def _update_known_world_object(self, world_object):
+    def update_known_world_object(self, world_object):
         active_objects = dict()
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self._update_known_player(world_object, active_objects)
@@ -458,7 +452,6 @@ class PlayerManager(UnitManager):
             self._update_known_corpse(world_object, active_objects)
         elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
             self._update_known_dynobject(world_object, active_objects)
-        return
 
     def _update_known_dynobject(self, dynbject, active_objects):
         active_objects[dynbject.guid] = dynbject
