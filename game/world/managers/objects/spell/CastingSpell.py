@@ -253,7 +253,7 @@ class CastingSpell:
                      AuraTypes.SPELL_AURA_PERIODIC_MANA_FUNNEL}:
                 continue
 
-            if effect.misc_value != target.power_type:
+            if effect.misc_value != target.power_type or not target.get_max_power_value():
                 return False
         return True
 

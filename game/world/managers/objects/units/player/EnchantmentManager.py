@@ -124,7 +124,8 @@ class EnchantmentManager(object):
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
             effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
             if effect_spell_value and self.unit_mgr.aura_manager.has_aura_by_spell_id(effect_spell_value):
-                self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
+                self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value,
+                                                                    source_restriction=self.unit_mgr)
 
     def _handle_equip_buffs(self, item, remove=False):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
@@ -134,7 +135,8 @@ class EnchantmentManager(object):
                 continue
 
             if remove:
-                self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value)
+                self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value,
+                                                                    source_restriction=self.unit_mgr)
                 enchantment.flush()
                 continue
 

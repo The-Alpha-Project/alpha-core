@@ -553,8 +553,7 @@ class SpellManager:
             for miss_info in casting_spell.object_target_results.values():  # Get the last effect application results.
                 if not miss_info.target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
                     continue
-                miss_info.target.aura_manager.cancel_auras_by_spell_id(
-                    casting_spell.spell_entry.ID)  # Cancel effects from this aura.
+                miss_info.target.aura_manager.remove_aura_from_spell(casting_spell)
 
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)

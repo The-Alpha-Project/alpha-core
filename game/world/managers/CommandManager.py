@@ -301,7 +301,8 @@ class CommandManager(object):
     @staticmethod
     def _unlearn_spell(world_session, spell_id):
         if world_session.player_mgr.spell_manager.unlearn_spell(spell_id):
-            world_session.player_mgr.aura_manager.cancel_auras_by_spell_id(spell_id)
+            world_session.player_mgr.aura_manager.cancel_auras_by_spell_id(spell_id,
+                                                                           source_restriction=world_session.player_mgr)
             return 0, 'Spell unlearned.'
         return -1, 'you do not know this spell yet.'
 
