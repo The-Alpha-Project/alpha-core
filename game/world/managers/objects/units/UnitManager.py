@@ -1114,6 +1114,13 @@ class UnitManager(ObjectManager):
         # Set faction, either original or summoner. (Restored on CreatureManager/PlayerManager)
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
+    def set_player_controlled(self, state):
+        if state:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+        else:
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
     def get_power_type_value(self, power_type=-1):
         if power_type == -1:
             power_type = self.power_type
@@ -1525,4 +1532,6 @@ class UnitManager(ObjectManager):
 
     # override
     def generate_object_guid(self, low_guid):
+        if self.is_pet():
+            return low_guid | HighGuid.HIGHGUID_PET
         return low_guid | HighGuid.HIGHGUID_UNIT
