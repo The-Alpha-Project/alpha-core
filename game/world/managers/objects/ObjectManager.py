@@ -374,6 +374,10 @@ class ObjectManager:
         return False
 
     # override
+    def is_sentry_totem(self):
+        return False
+
+    # override
     def get_pet(self):
         return None
 

@@ -544,6 +544,10 @@ class PlayerManager(UnitManager):
         implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
         known_object = self.known_objects.get(guid)
         if known_object:
+            # Do not destroy our sentry totem unless no longer spawned.
+            if known_object.is_sentry_totem() and known_object.get_charmer_or_summoner() == self \
+                    and known_object.is_spawned:
+                return
             del self.known_objects[guid]
             # Remove self from creature/go known players if needed.
             if known_object.get_type_id() in implements_known_players:
@@ -1218,7 +1222,7 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time)
-            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
@@ -1437,6 +1441,9 @@ class PlayerManager(UnitManager):
             return False  # players can't dodge from behind.
 
         return True
+
+    def set_farsight(self, guid):
+        self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid)
 
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):
         # Charmer must be set here not in parent.

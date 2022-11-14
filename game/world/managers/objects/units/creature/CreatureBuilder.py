@@ -2,7 +2,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeIds
-from utils.constants.UnitCodes import MovementTypes, UnitFlags
+from utils.constants.UnitCodes import MovementTypes, UnitFlags, CreatureStaticFlags
 
 
 class CreatureBuilder:
@@ -22,9 +22,7 @@ class CreatureBuilder:
         creature_instance = CreatureManager()
         creature_instance.spawn_id = spawn_id
         creature_instance.entry = creature_template.entry
-        creature_instance.summoner = summoner
-        creature_instance.subtype = subtype
-        creature_instance.guid = CreatureBuilder._get_guid(creature_instance)
+        creature_instance.guid = CreatureBuilder._get_guid(creature_instance, subtype)
         creature_instance.creature_template = creature_template
         creature_instance.mana_percent = mana_percent
         creature_instance.health_percent = health_percent
@@ -33,6 +31,8 @@ class CreatureBuilder:
         creature_instance.initialize_from_creature_template(creature_template)
 
         # Continue initialization, order above matters.
+        creature_instance.summoner = summoner
+        creature_instance.subtype = subtype
         creature_instance.faction = faction if faction else creature_template.faction
         creature_instance.location = location
         creature_instance.spawn_position = creature_instance.location.copy()
@@ -47,7 +47,7 @@ class CreatureBuilder:
         return creature_instance
 
     @staticmethod
-    def _get_guid(creature_instance):
-        if creature_instance.is_pet():
+    def _get_guid(creature_instance, subtype):
+        if subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET:
             return creature_instance.generate_object_guid(CreatureBuilder.PET_GUID_MANAGER.get_new_guid())
         return creature_instance.generate_object_guid(CreatureBuilder.UNIT_GUID_MANAGER.get_new_guid())

@@ -396,6 +396,10 @@ class MapManager:
         return MapManager.get_grid_manager_by_map_id(map_id).get_creature_spawn_by_id(spawn_id)
 
     @staticmethod
+    def get_unit_totem_by_totem_entry(unit, totem_entry):
+        return MapManager.get_grid_manager_by_map_id(unit.map_).get_unit_totem_by_totem_entry(unit, totem_entry)
+
+    @staticmethod
     def get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id):
         return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_creature_spawn_by_spawn_id(
             world_object, spawn_id)

@@ -180,7 +180,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.base_attack_time)
-            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
@@ -300,6 +300,9 @@ class CreatureManager(UnitManager):
 
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
+
+    def is_sentry_totem(self):
+        return self.is_totem() and self.creature_template.static_flags & CreatureStaticFlags.COMBAT_PING
 
     def can_have_target(self):
         return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET

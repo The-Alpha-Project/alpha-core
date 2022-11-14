@@ -255,6 +255,14 @@ class GridManager:
                 return spawn_found
         return None
 
+    def get_unit_totem_by_totem_entry(self, unit, totem_entry):
+        location = unit.location
+        cells = self.get_surrounding_cells_by_location(location.x, location.y, unit.map_)
+        for cell in cells:
+            for guid, creature in list(cell.creatures.items()):
+                if creature.entry == totem_entry and creature.summoner == unit:
+                    return creature
+
     def get_surrounding_creature_spawns(self, world_object):
         spawns = {}
         location = world_object.location

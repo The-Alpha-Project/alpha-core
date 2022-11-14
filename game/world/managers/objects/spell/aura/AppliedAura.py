@@ -1,4 +1,5 @@
 from game.world.managers.objects.spell import ExtendedSpellData
+from game.world.managers.objects.spell.aura.AuraEffectDummyHandler import AuraEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
 from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes, DispelType
 

@@ -325,6 +325,7 @@ class SpellEffectHandler:
         creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, summoner=caster,
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
+
         if not creature_manager:
             return
 
@@ -546,9 +547,10 @@ class SpellEffectHandler:
                     py = location.Y
                     pz = location.z
                 else:
-                    px = target.location.x
-                    py = target.location.y
-                    pz = target.location.z
+                    location = target if isinstance(target, Vector) else target.location
+                    px = location.x
+                    py = location.y
+                    pz = location.z
 
             # Spawn the summoned unit.
             creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_,

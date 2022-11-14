@@ -1,5 +1,6 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.spell.aura import AuraEffectDummyHandler
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
@@ -26,6 +27,14 @@ class AuraEffectHandler:
             return  # Only call proc effects when a proc happens.
 
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
+
+    @staticmethod
+    def handle_aura_dummy(aura, effect_target, remove):
+        if aura.source_spell.spell_entry.ID not in AuraEffectDummyHandler.DUMMY_AURA_EFFECTS:
+            Logger.warning(f'Unimplemented dummy aura effect for spell {aura.source_spell.spell_entry.ID}.')
+            return
+
+        AuraEffectDummyHandler.DUMMY_AURA_EFFECTS[aura.source_spell.spell_entry.ID](aura, effect_target, remove)
 
     @staticmethod
     def handle_shapeshift(aura, effect_target, remove):
@@ -712,6 +721,7 @@ class AuraEffectHandler:
 
 
 AURA_EFFECTS = {
+    AuraTypes.SPELL_AURA_DUMMY: AuraEffectHandler.handle_aura_dummy,
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
     AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL: AuraEffectHandler.handle_periodic_trigger_spell,
