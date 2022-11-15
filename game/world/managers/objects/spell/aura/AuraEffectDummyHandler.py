@@ -51,7 +51,7 @@ class AuraEffectDummyHandler:
         effect_target.set_stand_state(StandState.UNIT_SLEEPING)
         effect_target.play_emote(Emotes.SLEEP)
 
-    # TODO: This requires a 'Camera' object in order to circumvent
+    # TODO: This requires a 'Camera' object in order to route totem
     #  surrounding world objects packets to player when out of vision range.
     @staticmethod
     def handle_sentry_totem(aura, effect_target, remove):
@@ -60,9 +60,9 @@ class AuraEffectDummyHandler:
         totem_entry = aura.source_spell.spell_entry.EffectMiscValue_1
         totem = MapManager.get_unit_totem_by_totem_entry(aura.caster, totem_entry)
         if totem and not remove:
-            aura.caster.set_uint64(PlayerFields.PLAYER_FARSIGHT, totem.guid)
+            aura.caster.set_farsight(totem.guid)
         else:
-            aura.caster.set_uint64(PlayerFields.PLAYER_FARSIGHT, 0)
+            aura.caster.set_farsight(0)
 
 
 PERIODIC_DUMMY_AURAS = {
