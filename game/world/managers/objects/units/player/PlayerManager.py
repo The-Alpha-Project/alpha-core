@@ -1442,7 +1442,8 @@ class PlayerManager(UnitManager):
 
         return True
 
-    def set_farsight(self, guid):
+    def set_farsight(self, guid, world_object):
+        self.camera_object = world_object
         self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid)
 
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):

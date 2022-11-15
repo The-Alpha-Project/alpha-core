@@ -1,3 +1,4 @@
+from game.world.managers.maps.CameraHolder import CameraHolder
 from utils.constants.MiscCodes import ObjectTypeIds
 from threading import RLock
 
@@ -21,12 +22,17 @@ class Cell:
         # Spawns.
         self.creatures_spawns = dict()
         self.gameobject_spawns = dict()
+        # Cameras, either unit or dynamic object.
+        self.cameras = dict()
 
         if not key:
             self.key = f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:{self.map_}'
 
     def has_players(self):
         return len(self.players) > 0
+
+    def has_cameras(self):
+        return len(self.cameras) > 0
 
     def contains(self, world_object=None, vector=None, map_=None):
         if world_object:
@@ -38,6 +44,15 @@ class Cell:
                    self.min_y <= round(vector.y, 5) <= self.max_y and \
                    map_ == self.map_
         return False
+
+    def add_camera_object(self, camera_object, player_mgr):
+        if camera_object.guid not in self.cameras:
+            self.cameras[camera_object.guid] = CameraHolder(camera_object, set())
+        self.cameras[camera_object.guid].players.add(player_mgr)
+
+    def remove_camera_object(self, camera_object):
+        if camera_object.guid in self.cameras:
+            del self.cameras[camera_object.guid]
 
     def add_world_object_spawn(self, world_object_spawn):
         from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
@@ -107,14 +122,17 @@ class Cell:
             self.players.pop(world_object.guid, None)
         elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
             self.creatures.pop(world_object.guid, None)
+            self.remove_camera_object(world_object)
         elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.gameobjects.pop(world_object.guid, None)
         elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
             self.dynamic_objects.pop(world_object.guid, None)
+            self.remove_camera_object(world_object)
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
             self.corpses.pop(world_object.guid, None)
 
     def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
+        players_reached = set()
         for guid, player_mgr in list(self.players.items()):
             if player_mgr.online:
                 if not include_source and player_mgr.guid == source.guid:
@@ -126,12 +144,23 @@ class Cell:
                 # Never send messages to a player that does not know the source object.
                 if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
                     continue
+                players_reached.add(player_mgr.guid)
+                player_mgr.enqueue_packet(packet)
+
+        # Route packets to player through camera object.
+        for camera, player_mgrs in list(self.cameras):
+            for player_mgr in player_mgrs:
+                if player_mgr.guid in players_reached:
+                    continue
+                if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
+                    continue
                 player_mgr.enqueue_packet(packet)
 
     def send_all_in_range(self, packet, range_, source, include_source=True, exclude=None, use_ignore=False):
         if range_ <= 0:
             self.send_all(packet, source, exclude)
         else:
+            players_reached = set()
             for guid, player_mgr in list(self.players.items()):
                 if player_mgr.online and player_mgr.location.distance(source.location) <= range_:
                     if not include_source and player_mgr.guid == source.guid:
@@ -139,6 +168,16 @@ class Cell:
                     if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
                         continue
                     # Never send messages to a player that does not know the source object.
+                    if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
+                        continue
+                    players_reached.add(player_mgr.guid)
+                    player_mgr.enqueue_packet(packet)
+
+            # Route packets to player through camera object.
+            for camera, player_mgrs in list(self.cameras):
+                for player_mgr in player_mgrs:
+                    if player_mgr.guid in players_reached:
+                        continue
                     if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
                         continue
                     player_mgr.enqueue_packet(packet)

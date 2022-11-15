@@ -60,9 +60,9 @@ class AuraEffectDummyHandler:
         totem_entry = aura.source_spell.spell_entry.EffectMiscValue_1
         totem = MapManager.get_unit_totem_by_totem_entry(aura.caster, totem_entry)
         if totem and not remove:
-            aura.caster.set_farsight(totem.guid)
+            aura.caster.set_farsight(totem.guid, totem)
         else:
-            aura.caster.set_farsight(0)
+            aura.caster.set_farsight(0, None)
 
 
 PERIODIC_DUMMY_AURAS = {

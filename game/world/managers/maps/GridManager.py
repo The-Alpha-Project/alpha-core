@@ -142,7 +142,7 @@ class GridManager:
             for cell_key in list(self.active_cell_keys):
                 players_near = False
                 for cell in self.get_surrounding_cells_by_cell(self.cells[cell_key]):
-                    if cell.has_players():
+                    if cell.has_players() or cell.has_cameras():
                         players_near = True
                         break
 
@@ -223,7 +223,13 @@ class GridManager:
             if object_types[index] == ObjectTypeIds.ID_CORPSE:
                 corpse_index = index
 
-        for cell in self.get_surrounding_cells_by_object(world_object):
+        cells = self.get_surrounding_cells_by_object(world_object)
+        # If the player has a camera object, aggregate.
+        if world_object.camera_object:
+            print('Getting camera packets.')
+            cells.update(self.get_surrounding_cells_by_object(world_object.camera_object))
+
+        for cell in cells:
             if ObjectTypeIds.ID_PLAYER in object_types:
                 surrounding_objects[players_index] = {**surrounding_objects[players_index], **cell.players}
             if ObjectTypeIds.ID_UNIT in object_types:
