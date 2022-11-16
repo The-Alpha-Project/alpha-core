@@ -5,6 +5,7 @@ import math
 import time
 
 from game.world.managers.maps.Cell import Cell
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
@@ -223,11 +224,15 @@ class GridManager:
             if object_types[index] == ObjectTypeIds.ID_CORPSE:
                 corpse_index = index
 
+        # Original surrounding cells for requester.
         cells = self.get_surrounding_cells_by_object(world_object)
-        # If the player has a camera object, aggregate.
-        if world_object.camera_object:
-            print('Getting camera packets.')
-            cells.update(self.get_surrounding_cells_by_object(world_object.camera_object))
+
+        # Handle FarSight.
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            camera = FarSightManager.get_camera_for_player(world_object)
+            # If the player has a camera object, aggregate camera cells.
+            if camera:
+                cells.update(self.get_surrounding_cells_by_object(camera.world_object))
 
         for cell in cells:
             if ObjectTypeIds.ID_PLAYER in object_types:
@@ -391,6 +396,12 @@ class GridManager:
             now = time.time()
             for key in list(self.active_cell_keys):
                 self.cells[key].update_gameobjects(now)
+
+    def update_dynobjects(self):
+        with self.grid_lock:
+            now = time.time()
+            for key in list(self.active_cell_keys):
+                self.cells[key].update_dynobjects(now)
 
     def update_spawns(self):
         with self.grid_lock:

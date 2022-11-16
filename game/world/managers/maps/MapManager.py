@@ -455,6 +455,11 @@ class MapManager:
             map_.grid_manager.update_gameobjects()
 
     @staticmethod
+    def update_dynobjects():
+        for map_id, map_ in MAPS.items():
+            map_.grid_manager.update_dynobjects()
+
+    @staticmethod
     def update_spawns():
         for map_id, map_ in MAPS.items():
             map_.grid_manager.update_spawns()

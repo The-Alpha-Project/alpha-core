@@ -70,7 +70,6 @@ class ObjectManager:
         self.last_tick = 0
         self.movement_spline = None
         self.object_ai = None
-        self.camera_object = None
 
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager
@@ -151,6 +150,9 @@ class ObjectManager:
         data += self._get_movement_fields()
 
         return data
+
+    def is_active_object(self):
+        return False
 
     def get_name(self):
         return ''
@@ -372,10 +374,6 @@ class ObjectManager:
 
     # override
     def is_totem(self):
-        return False
-
-    # override
-    def is_sentry_totem(self):
         return False
 
     # override

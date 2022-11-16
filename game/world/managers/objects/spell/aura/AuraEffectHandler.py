@@ -1,11 +1,12 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.spell.aura import AuraEffectDummyHandler
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError
-from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
+from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags, ObjectTypeFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
 from utils.constants.UpdateFields import UnitFields, PlayerFields
@@ -27,6 +28,19 @@ class AuraEffectHandler:
             return  # Only call proc effects when a proc happens.
 
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
+
+    @staticmethod
+    def handle_bind_sight(aura, effect_target, remove):
+        if not effect_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        if remove:
+            FarSightManager.remove_camera(effect_target)
+            aura.caster.set_far_sight(0)
+            return
+
+        FarSightManager.add_camera(effect_target, aura.caster)
+        aura.caster.set_far_sight(effect_target.guid)
 
     @staticmethod
     def handle_aura_dummy(aura, effect_target, remove):
@@ -259,7 +273,7 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):
         # Player specific.
-        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if not remove and effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Don't stun if player is flying.
             if effect_target.pending_taxi_destination:
                 return
@@ -721,6 +735,7 @@ class AuraEffectHandler:
 
 
 AURA_EFFECTS = {
+    AuraTypes.SPELL_AURA_BIND_SIGHT: AuraEffectHandler.handle_bind_sight,
     AuraTypes.SPELL_AURA_DUMMY: AuraEffectHandler.handle_aura_dummy,
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,

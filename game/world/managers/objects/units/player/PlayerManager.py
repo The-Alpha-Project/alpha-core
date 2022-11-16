@@ -8,6 +8,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
@@ -544,10 +545,6 @@ class PlayerManager(UnitManager):
         implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
         known_object = self.known_objects.get(guid)
         if known_object:
-            # Do not destroy our sentry totem unless no longer spawned.
-            if known_object.is_sentry_totem() and known_object.get_charmer_or_summoner() == self \
-                    and known_object.is_spawned:
-                return
             del self.known_objects[guid]
             # Remove self from creature/go known players if needed.
             if known_object.get_type_id() in implements_known_players:
@@ -738,6 +735,10 @@ class PlayerManager(UnitManager):
         else:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
         self.enqueue_packet(PacketWriter.get_packet(opcode))
+
+    # override
+    def is_active_object(self):
+        return True
 
     # override
     def mount(self, mount_display_id):
@@ -1442,8 +1443,7 @@ class PlayerManager(UnitManager):
 
         return True
 
-    def set_farsight(self, guid, world_object):
-        self.camera_object = world_object
+    def set_far_sight(self, guid):
         self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid)
 
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):

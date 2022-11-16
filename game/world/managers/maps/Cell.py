@@ -1,4 +1,4 @@
-from game.world.managers.maps.CameraHolder import CameraHolder
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants.MiscCodes import ObjectTypeIds
 from threading import RLock
 
@@ -22,8 +22,6 @@ class Cell:
         # Spawns.
         self.creatures_spawns = dict()
         self.gameobject_spawns = dict()
-        # Cameras, either unit or dynamic object.
-        self.cameras = dict()
 
         if not key:
             self.key = f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:{self.map_}'
@@ -32,7 +30,7 @@ class Cell:
         return len(self.players) > 0
 
     def has_cameras(self):
-        return len(self.cameras) > 0
+        return FarSightManager.has_camera_in_cell(self)
 
     def contains(self, world_object=None, vector=None, map_=None):
         if world_object:
@@ -44,15 +42,6 @@ class Cell:
                    self.min_y <= round(vector.y, 5) <= self.max_y and \
                    map_ == self.map_
         return False
-
-    def add_camera_object(self, camera_object, player_mgr):
-        if camera_object.guid not in self.cameras:
-            self.cameras[camera_object.guid] = CameraHolder(camera_object, set())
-        self.cameras[camera_object.guid].players.add(player_mgr)
-
-    def remove_camera_object(self, camera_object):
-        if camera_object.guid in self.cameras:
-            del self.cameras[camera_object.guid]
 
     def add_world_object_spawn(self, world_object_spawn):
         from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
@@ -94,6 +83,12 @@ class Cell:
             for guid, gameobject in list(self.gameobjects.items()):
                 gameobject.update(now)
 
+    def update_dynobjects(self, now):
+        with self.cell_lock:
+            # Update dynobject instances.
+            for guid, dynobject in list(self.dynamic_objects.items()):
+                dynobject.update(now)
+
     def update_spawns(self, now):
         with self.cell_lock:
             # Update creatures spawn points.
@@ -111,25 +106,38 @@ class Cell:
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
     def update_players_surroundings(self, world_object=None, has_changes=False, has_inventory_changes=False):
+        affected_players = set()
         for player in list(self.players.values()):
-            if world_object:
-                player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
-            else:
-                player.update_known_objects_on_tick = True
+            affected_players.add(player.guid)
+            self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes)
+
+        for camera in FarSightManager.get_cell_cameras(self):
+            for player in camera.players.values():
+                if player.guid in affected_players:
+                    continue
+                self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes)
+
+    # noinspection PyMethodMayBeStatic
+    def _update_player_surroundings(self, player, world_object=None, has_changes=False, has_inventory_changes=False):
+        if world_object:
+            player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
+        else:
+            player.update_known_objects_on_tick = True
 
     def remove(self, world_object):
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.players.pop(world_object.guid, None)
         elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
             self.creatures.pop(world_object.guid, None)
-            self.remove_camera_object(world_object)
         elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.gameobjects.pop(world_object.guid, None)
         elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
             self.dynamic_objects.pop(world_object.guid, None)
-            self.remove_camera_object(world_object)
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
             self.corpses.pop(world_object.guid, None)
+
+        # If world object was a camera viewpoint, remove it.
+        FarSightManager.remove_camera(world_object)
 
     def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
         players_reached = set()
@@ -147,14 +155,9 @@ class Cell:
                 players_reached.add(player_mgr.guid)
                 player_mgr.enqueue_packet(packet)
 
-        # Route packets to player through camera object.
-        for camera, player_mgrs in list(self.cameras):
-            for player_mgr in player_mgrs:
-                if player_mgr.guid in players_reached:
-                    continue
-                if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
-                    continue
-                player_mgr.enqueue_packet(packet)
+        # If this cell has cameras, route packets.
+        for camera in FarSightManager.get_cell_cameras(self):
+            camera.broadcast_packet(packet, exclude=players_reached)
 
     def send_all_in_range(self, packet, range_, source, include_source=True, exclude=None, use_ignore=False):
         if range_ <= 0:
@@ -173,11 +176,6 @@ class Cell:
                     players_reached.add(player_mgr.guid)
                     player_mgr.enqueue_packet(packet)
 
-            # Route packets to player through camera object.
-            for camera, player_mgrs in list(self.cameras):
-                for player_mgr in player_mgrs:
-                    if player_mgr.guid in players_reached:
-                        continue
-                    if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
-                        continue
-                    player_mgr.enqueue_packet(packet)
+            # If this cell has cameras, route packets.
+            for camera in FarSightManager.get_cell_cameras(self):
+                camera.broadcast_packet(packet, exclude=players_reached)

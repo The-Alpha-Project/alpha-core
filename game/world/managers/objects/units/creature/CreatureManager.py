@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -301,8 +302,8 @@ class CreatureManager(UnitManager):
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
 
-    def is_sentry_totem(self):
-        return self.is_totem() and self.creature_template.static_flags & CreatureStaticFlags.COMBAT_PING
+    def has_combat_ping(self):
+        return self.creature_template.static_flags & CreatureStaticFlags.COMBAT_PING
 
     def can_have_target(self):
         return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
@@ -442,8 +443,10 @@ class CreatureManager(UnitManager):
 
         return auras
 
-    def has_observers(self):
-        return len(self.known_players) > 0
+    # override
+    # TODO: Quest active escort npc, other cases?
+    def is_active_object(self):
+        return len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self)
 
     def has_wander_type(self):
         return self.movement_type == MovementTypes.WANDER
@@ -554,7 +557,7 @@ class CreatureManager(UnitManager):
                     self.aura_manager.check_aura_interrupts(moved=True)
                     self.set_has_moved(False)
                 # Random Movement, if visible to players.
-                if self.has_observers():
+                if self.is_active_object():
                     self._perform_random_movement(now)
                 # Combat Movement.
                 self._perform_combat_movement()

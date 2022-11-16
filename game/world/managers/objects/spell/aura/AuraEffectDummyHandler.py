@@ -1,6 +1,7 @@
 from random import randint
 
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants.MiscCodes import Emotes, ObjectTypeIds, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import StandState
@@ -55,14 +56,13 @@ class AuraEffectDummyHandler:
     #  surrounding world objects packets to player when out of vision range.
     @staticmethod
     def handle_sentry_totem(aura, effect_target, remove):
-        if aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if remove or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
+
         totem_entry = aura.source_spell.spell_entry.EffectMiscValue_1
         totem = MapManager.get_unit_totem_by_totem_entry(aura.caster, totem_entry)
-        if totem and not remove:
-            aura.caster.set_farsight(totem.guid, totem)
-        else:
-            aura.caster.set_farsight(0, None)
+        FarSightManager.add_camera(totem, aura.caster)
+        aura.caster.set_far_sight(totem.guid)
 
 
 PERIODIC_DUMMY_AURAS = {

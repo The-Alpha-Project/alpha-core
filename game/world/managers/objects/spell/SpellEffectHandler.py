@@ -8,6 +8,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler
@@ -21,7 +22,7 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
-    GameObjectStates
+    GameObjectStates, DynamicObjectTypes
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
 from utils.constants.UnitCodes import UnitFlags
 
@@ -286,7 +287,7 @@ class SpellEffectHandler:
         # For now, dynamic object only enable us to properly display area effects to clients.
         # Targeting and effect application is still done by 'handle_apply_area_aura'.
         if not casting_spell.dynamic_object:
-            DynamicObjectManager.spawn_from_spell_effect(effect)
+            DynamicObjectManager.spawn_from_spell_effect(effect, DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
 
         SpellEffectHandler.handle_apply_area_aura(casting_spell, effect, caster, target)
 
@@ -644,6 +645,18 @@ class SpellEffectHandler:
         caster.send_loot(target.pickpocket_loot_manager)
 
     @staticmethod
+    def handle_add_farsight(casting_spell, effect, caster, target):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        duration = casting_spell.get_duration() / 1000
+        dyn_object = DynamicObjectManager.spawn_from_spell_effect(effect,
+                                                                  DynamicObjectTypes.DYNAMIC_OBJECT_FARSIGHT_FOCUS,
+                                                                  ttl=duration)
+        FarSightManager.add_camera(dyn_object, caster)
+        caster.set_far_sight(dyn_object.guid)
+
+    @staticmethod
     def handle_temporary_enchant(casting_spell, effect, caster, target):
         SpellEffectHandler.handle_permanent_enchant(casting_spell, effect, caster, target, True)
 
@@ -798,6 +811,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
+    SpellEffects.SPELL_EFFECT_ADD_FARSIGHT: SpellEffectHandler.handle_add_farsight,
     SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
     SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
     SpellEffects.SPELL_EFFECT_EXTRA_ATTACKS: SpellEffectHandler.handle_extra_attacks,
