@@ -828,6 +828,10 @@ class PlayerManager(UnitManager):
             # Notify surrounding units about fading stealth for proximity aggro.
             self._on_relocation()
 
+    def send_minimap_ping(self, guid, vector):
+        data = pack('<Q2f', guid, vector.x, vector.y)
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, data))
+
     def interrupt_looting(self):
         if self.loot_selection:
             self.send_loot_release(self.loot_selection)

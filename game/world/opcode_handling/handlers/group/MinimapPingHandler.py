@@ -9,6 +9,6 @@ class MinimapPingHandler(object):
             x, y = unpack('<2f', reader.data[:8])
 
             if world_session.player_mgr and world_session.player_mgr.group_manager:
-                world_session.player_mgr.group_manager.send_minimap_ping(world_session.player_mgr, x, y)
+                world_session.player_mgr.group_manager.send_minimap_ping(world_session.player_mgr.guid, x, y)
 
         return 0

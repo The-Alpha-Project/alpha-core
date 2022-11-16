@@ -299,6 +299,10 @@ class UnitManager(ObjectManager):
         if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
 
+        # Totem do not melee attack.
+        if self.is_totem():
+            return False
+
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
         if self.has_offhand_weapon():
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)

@@ -385,10 +385,8 @@ class GroupManager(object):
 
             player_mgr.enqueue_packet(packet)
 
-    def send_minimap_ping(self, player_mgr, x, y):
-        data = pack('<Q2f', player_mgr.guid, x, y)
-        packet = PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, data)
-        self.send_packet_to_members(packet)
+    def send_minimap_ping(self, guid, x, y):
+        self.send_packet_to_members(PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, pack('<Q2f', guid, x, y)))
 
     def flush(self):
         if self.group.group_id in GroupManager.GROUPS:

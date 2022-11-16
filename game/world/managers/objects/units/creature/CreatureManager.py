@@ -629,6 +629,12 @@ class CreatureManager(UnitManager):
         if not super().receive_damage(damage_info, source, is_periodic):
             return False
 
+        # Handle COMBAT_PING creature static flag.
+        if self.has_combat_ping() and not self.in_combat:
+            summoner = self.get_charmer_or_summoner()
+            if summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                summoner.send_minimap_ping(self.guid, self.location)
+
         # If creature's being attacked by another unit, automatically set combat target.
         not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
         if not_attacked_by_gameobject:
