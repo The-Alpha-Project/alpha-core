@@ -36,6 +36,8 @@ class Camera:
             current = player_mgr.get_uint64(PlayerFields.PLAYER_FARSIGHT)
             if current == self.world_object.guid:
                 player_mgr.set_far_sight(0)
+                # Upon returning to players own view, need to force the update the client is aware immediately.
+                player_mgr.force_fields_update()
             del self.players[player_mgr.guid]
 
     def flush(self):
