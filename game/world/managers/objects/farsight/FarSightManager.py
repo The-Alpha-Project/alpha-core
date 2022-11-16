@@ -8,23 +8,19 @@ class FarSightManager:
 
     @staticmethod
     def add_camera(world_object, player_mgr):
-        if world_object.guid not in CAMERAS_BY_SOURCE_OBJECT:
-            CAMERAS_BY_SOURCE_OBJECT[world_object.guid] = Camera(world_object)
-        if world_object.current_cell not in CAMERAS_BY_CELL:
-            CAMERAS_BY_CELL[world_object.current_cell] = set()
+        camera = FarSightManager._get_camera_by_object(world_object)
 
-        CAMERAS_BY_CELL[world_object.current_cell].add(CAMERAS_BY_SOURCE_OBJECT[world_object.guid])
-        CAMERAS_BY_SOURCE_OBJECT[world_object.guid].push_player(player_mgr)
+        if not camera:
+            camera = Camera(world_object)
+
+        camera.push_player(player_mgr)
+        FarSightManager._add_or_update_camera_by_source(world_object, camera)
+        FarSightManager._add_or_update_camera_by_cell(world_object.current_cell, camera)
 
     @staticmethod
     def remove_camera(world_object):
-        if world_object.guid in CAMERAS_BY_SOURCE_OBJECT:
-            CAMERAS_BY_SOURCE_OBJECT[world_object.guid].flush()
-            if world_object.current_cell in CAMERAS_BY_CELL:
-                CAMERAS_BY_CELL[world_object.current_cell].remove(CAMERAS_BY_SOURCE_OBJECT[world_object.guid])
-                if len(CAMERAS_BY_CELL[world_object.current_cell]) == 0:
-                    del CAMERAS_BY_CELL[world_object.current_cell]
-            del CAMERAS_BY_SOURCE_OBJECT[world_object.guid]
+        FarSightManager._remove_cell_camera(world_object)
+        FarSightManager._remove_source_camera(world_object)
 
     @staticmethod
     def object_is_camera_view_point(world_object):
@@ -52,3 +48,32 @@ class FarSightManager:
         for camera in cameras:
             camera.broadcast_packet(packet, exclude=exclude)
 
+    @staticmethod
+    def _get_camera_by_object(world_object):
+        return CAMERAS_BY_SOURCE_OBJECT[world_object.guid] if world_object.guid in CAMERAS_BY_SOURCE_OBJECT else None
+
+    @staticmethod
+    def _remove_cell_camera(world_object):
+        camera = FarSightManager._get_camera_by_object(world_object)
+        if camera and world_object.current_cell in CAMERAS_BY_CELL:
+            CAMERAS_BY_CELL[world_object.current_cell].remove(camera)
+            # If this cell no longer contains more cameras, destroy.
+            if len(CAMERAS_BY_CELL[world_object.current_cell]) == 0:
+                del CAMERAS_BY_CELL[world_object.current_cell]
+
+    @staticmethod
+    def _add_or_update_camera_by_source(world_object, camera):
+        CAMERAS_BY_SOURCE_OBJECT[world_object.guid] = camera
+
+    @staticmethod
+    def _remove_source_camera(world_object):
+        camera = FarSightManager._get_camera_by_object(world_object)
+        if camera and world_object.guid in CAMERAS_BY_SOURCE_OBJECT:
+            CAMERAS_BY_SOURCE_OBJECT[world_object.guid].flush()
+            del CAMERAS_BY_SOURCE_OBJECT[world_object.guid]
+
+    @staticmethod
+    def _add_or_update_camera_by_cell(cell_key, camera):
+        if cell_key not in CAMERAS_BY_CELL:
+            CAMERAS_BY_CELL[cell_key] = set()
+        CAMERAS_BY_CELL[cell_key].add(camera)
