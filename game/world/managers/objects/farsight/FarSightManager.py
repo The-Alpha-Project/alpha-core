@@ -62,10 +62,6 @@ class FarSightManager:
                 del CAMERAS_BY_CELL[world_object.current_cell]
 
     @staticmethod
-    def _add_or_update_camera_by_source(world_object, camera):
-        CAMERAS_BY_SOURCE_OBJECT[world_object.guid] = camera
-
-    @staticmethod
     def _remove_source_camera(world_object):
         camera = FarSightManager._get_camera_by_object(world_object)
         if camera and world_object.guid in CAMERAS_BY_SOURCE_OBJECT:
@@ -77,3 +73,7 @@ class FarSightManager:
         if cell_key not in CAMERAS_BY_CELL:
             CAMERAS_BY_CELL[cell_key] = set()
         CAMERAS_BY_CELL[cell_key].add(camera)
+
+    @staticmethod
+    def _add_or_update_camera_by_source(world_object, camera):
+        CAMERAS_BY_SOURCE_OBJECT[world_object.guid] = camera
