@@ -198,7 +198,6 @@ class UnitManager(ObjectManager):
         self._school_absorbs = {}
 
         self.has_moved = False
-        self.has_jumped = False
         self.has_turned = False
 
         self.stat_manager = StatManager(self)
@@ -1528,10 +1527,16 @@ class UnitManager(ObjectManager):
     def notify_moved_in_line_of_sight(self, target):
         pass
 
-    def set_has_moved(self, has_moved, has_jumped, has_turned):
-        self.has_moved = has_moved
-        self.has_jumped = has_jumped
-        self.has_turned = has_turned
+    def set_has_moved(self, has_moved, has_turned, flush=False):
+        # Only turn off once processed.
+        if flush:
+            self.has_moved = False
+            self.has_turned = False
+        else:  # Only turn ON.
+            if not self.has_moved and has_moved:
+                self.has_moved = has_moved
+            if not self.has_turned and has_turned:
+                self.has_turned = has_turned
 
     # override
     def get_type_mask(self):

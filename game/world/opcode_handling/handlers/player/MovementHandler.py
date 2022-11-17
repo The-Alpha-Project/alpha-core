@@ -37,9 +37,9 @@ class MovementHandler:
                 # If the player is not controlling another unit.
                 if not player_mgr.possessed_unit:
                     player_jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
-                    player_moved = flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK)
-                    player_turned = flags & MoveFlags.MOVEFLAG_TURN_MASK
-                    player_mgr.set_has_moved(has_moved=player_moved, has_jumped=player_jumped, has_turned=player_turned)
+                    player_moved = flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) != 0
+                    player_turned = flags & MoveFlags.MOVEFLAG_TURN_MASK != 0
+                    player_mgr.set_has_moved(has_moved=player_moved or player_jumped, has_turned=player_turned)
 
                     # Cancel looting if x,y,z changed.
                     if player_jumped or player_moved:

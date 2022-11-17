@@ -553,16 +553,14 @@ class CreatureManager(UnitManager):
                 self.update_sanctuary(elapsed)
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
-                if self.has_moved or self.has_jumped or self.has_turned:
+                if self.has_moved or self.has_turned:
                     # Relocate only if x,y changed.
                     if self.has_moved:
                         self._on_relocation()
                     # Check spell and aura move interrupts.
-                    self.spell_manager.check_spell_interrupts(moved=self.has_moved or self.has_jumped,
-                                                              turned=self.has_turned)
-                    self.aura_manager.check_aura_interrupts(moved=self.has_moved or self.has_jumped,
-                                                            turned=self.has_turned)
-                    self.set_has_moved(False, False, False)
+                    self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.set_has_moved(False, False, flush=True)
                 # Random Movement, if visible to players.
                 if self.is_active_object():
                     self._perform_random_movement(now)

@@ -1616,7 +1616,7 @@ class PlayerManager(UnitManager):
             has_inventory_changes = not self.inventory.update_locked and self.inventory.has_pending_updates()
 
             # Movement checks and group updates.
-            has_moved = self.has_moved or self.has_jumped or self.has_turned
+            has_moved = self.has_moved or self.has_turned
             if has_moved or has_changes:
                 # Update self stats and location to other party members.
                 if self.group_manager:
@@ -1624,15 +1624,13 @@ class PlayerManager(UnitManager):
                 # Player moved, notify surrounding units for proximity aggro.
                 if has_moved:
                     # Check spell and aura move interrupts.
-                    self.spell_manager.check_spell_interrupts(moved=self.has_moved or self.has_jumped,
-                                                              turned=self.has_turned)
-                    self.aura_manager.check_aura_interrupts(moved=self.has_moved or self.has_jumped,
-                                                            turned=self.has_turned)
+                    self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
                     # Relocate only if x,y changed.
                     if self.has_moved:
                         self._on_relocation()
                     # Reset flags.
-                    self.set_has_moved(False, False, False)
+                    self.set_has_moved(False, False, flush=True)
 
             # Update system, propagate player changes to surrounding units.
             if self.online and has_changes or has_inventory_changes:
