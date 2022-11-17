@@ -24,7 +24,8 @@ from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
     GameObjectStates, DynamicObjectTypes
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UpdateFields import UnitFields
 
 
 class SpellEffectHandler:
@@ -375,6 +376,23 @@ class SpellEffectHandler:
         MapManager.spawn_object(world_object_instance=gameobject)
 
     @staticmethod
+    def handle_summon_possessed(casting_spell, effect, caster, target):
+        creature_entry = effect.misc_value
+        if not creature_entry:
+            return
+
+        duration = casting_spell.get_duration() / 1000
+        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_, summoner=caster,
+                                                  spell_id=casting_spell.spell_entry.ID,
+                                                  faction=caster.faction, ttl=duration,
+                                                  level=caster.level,
+                                                  possessed=True,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+
+        MapManager.spawn_object(world_object_instance=creature_manager)
+        FarSightManager.add_camera(creature_manager, caster)
+
+    @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):
         # Restrictions implemented later:
         # 0.9: A failed [Ritual of Summoning] should no longer cost a soul shard.
@@ -654,7 +672,6 @@ class SpellEffectHandler:
                                                                   DynamicObjectTypes.DYNAMIC_OBJECT_FARSIGHT_FOCUS,
                                                                   ttl=duration)
         FarSightManager.add_camera(dyn_object, caster)
-        caster.set_far_sight(dyn_object.guid)
 
     @staticmethod
     def handle_temporary_enchant(casting_spell, effect, caster, target):
@@ -804,6 +821,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_OBJECT: SpellEffectHandler.handle_summon_object,
     SpellEffects.SPELL_EFFECT_SUMMON_PLAYER: SpellEffectHandler.handle_summon_player,
     SpellEffects.SPELL_EFFECT_CREATE_HOUSE: SpellEffectHandler.handle_summon_object,
+    SpellEffects.SPELL_EFFECT_SUMMON_POSSESSED: SpellEffectHandler.handle_summon_possessed,
     SpellEffects.SPELL_EFFECT_BIND: SpellEffectHandler.handle_bind,
     SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,

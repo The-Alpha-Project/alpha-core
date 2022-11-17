@@ -385,6 +385,10 @@ class ObjectManager:
         return False
 
     # override
+    def is_temp_summon(self):
+        return False
+
+    # override
     def is_unit_pet(self, unit):
         return False
 

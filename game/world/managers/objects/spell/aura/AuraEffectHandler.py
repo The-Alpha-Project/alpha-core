@@ -40,7 +40,6 @@ class AuraEffectHandler:
             return
 
         FarSightManager.add_camera(effect_target, aura.caster)
-        aura.caster.set_far_sight(effect_target.guid)
 
     @staticmethod
     def handle_aura_dummy(aura, effect_target, remove):

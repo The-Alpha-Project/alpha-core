@@ -8,7 +8,6 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
@@ -82,6 +81,7 @@ class PlayerManager(UnitManager):
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
         self.update_lock = False
+        self.possessed_unit = None
         self.known_objects = dict()
         self.known_items = dict()
         self.known_stealth_units = dict()
@@ -1616,14 +1616,23 @@ class PlayerManager(UnitManager):
             has_inventory_changes = not self.inventory.update_locked and self.inventory.has_pending_updates()
 
             # Movement checks and group updates.
-            if self.has_moved or has_changes:
+            has_moved = self.has_moved or self.has_jumped or self.has_turned
+            if has_moved or has_changes:
                 # Update self stats and location to other party members.
                 if self.group_manager:
                     self.group_manager.update_party_member_stats(elapsed, requester=self)
                 # Player moved, notify surrounding units for proximity aggro.
-                if self.has_moved:
-                    self._on_relocation()
-                    self.set_has_moved(False)
+                if has_moved:
+                    # Check spell and aura move interrupts.
+                    self.spell_manager.check_spell_interrupts(moved=self.has_moved or self.has_jumped,
+                                                              turned=self.has_turned)
+                    self.aura_manager.check_aura_interrupts(moved=self.has_moved or self.has_jumped,
+                                                            turned=self.has_turned)
+                    # Relocate only if x,y changed.
+                    if self.has_moved:
+                        self._on_relocation()
+                    # Reset flags.
+                    self.set_has_moved(False, False, False)
 
             # Update system, propagate player changes to surrounding units.
             if self.online and has_changes or has_inventory_changes:

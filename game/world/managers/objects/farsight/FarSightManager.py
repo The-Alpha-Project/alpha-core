@@ -16,6 +16,7 @@ class FarSightManager:
         camera.push_player(player_mgr)
         FarSightManager._add_or_update_camera_by_source(world_object, camera)
         FarSightManager._add_or_update_camera_by_cell(world_object.current_cell, camera)
+        player_mgr.set_far_sight(world_object.guid)
 
     @staticmethod
     def remove_camera(world_object):

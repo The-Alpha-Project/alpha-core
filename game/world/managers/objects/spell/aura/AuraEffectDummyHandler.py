@@ -2,10 +2,10 @@ from random import randint
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
+from utils.constants import CustomCodes
 from utils.constants.MiscCodes import Emotes, ObjectTypeIds, ObjectTypeFlags
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import StandState
-from utils.constants.UpdateFields import PlayerFields
 
 
 class AuraEffectDummyHandler:
@@ -16,6 +16,18 @@ class AuraEffectDummyHandler:
     @staticmethod
     def get_period(spell_id):
         return PERIODIC_DUMMY_AURAS[spell_id]
+
+    # TODO: Still need to figure how to cancel the channel if the units dies.
+    @staticmethod
+    def handle_kill_rogg_eye(aura, effect_target, remove):
+        if not remove:
+            return
+        if aura.caster.possessed_unit:
+            aura.caster.possessed_unit.set_charmed_by(aura.caster,
+                                                      CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
+                                                      remove=True)
+            aura.caster.possessed_unit.destroy()
+            aura.caster.possessed_unit = None
 
     @staticmethod
     def handle_party_fever(aura, effect_target, remove):
@@ -62,7 +74,6 @@ class AuraEffectDummyHandler:
         totem_entry = aura.source_spell.spell_entry.EffectMiscValue_1
         totem = MapManager.get_unit_totem_by_totem_entry(aura.caster, totem_entry)
         FarSightManager.add_camera(totem, aura.caster)
-        aura.caster.set_far_sight(totem.guid)
 
 
 PERIODIC_DUMMY_AURAS = {
@@ -70,6 +81,7 @@ PERIODIC_DUMMY_AURAS = {
 }
 
 DUMMY_AURA_EFFECTS = {
+    126:  AuraEffectDummyHandler.handle_kill_rogg_eye,
     6606: AuraEffectDummyHandler.handle_sleep,  # Self Visual - Sleep Until Cancelled
     6495: AuraEffectDummyHandler.handle_sentry_totem,
     6758: AuraEffectDummyHandler.handle_party_fever,  # Party Fever
