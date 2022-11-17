@@ -72,11 +72,20 @@ class Logger:
     # Additional methods
 
     @staticmethod
-    def progress(msg, current, total):
-        progress = int(current * 100 / total)
-        if progress % 5 == 0:
-            msg = f'{msg} ({int(current * 100 / total)}%)'
-            if current != total:
-                Logger.info(msg, end='\r')
-            else:
-                Logger.success(msg)
+    def progress(msg, current, total, scales=None):
+        if scales and current not in scales:
+            return
+        msg = f'{msg} ({int(current * 100 / total)}%)'
+        if current != total:
+            Logger.info(msg, end='\r')
+        else:
+            Logger.success(msg)
+
+    @staticmethod
+    def get_progress_scales(length, divisions=4):
+        scales = [0]
+        div = length / divisions
+        for i in range(divisions):
+            y = int(div * (i + 1))
+            scales.append(y)
+        return set(scales)
