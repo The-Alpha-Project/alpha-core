@@ -168,7 +168,8 @@ class StatManager(object):
             self.unit_mgr.base_hp = base_stats.basehp
             self.unit_mgr.base_mana = base_stats.basemana
 
-            self.base_stats[UnitStats.FOCUS_REGENERATION_PER_5] = 2
+            # Focus/energy values
+            self.base_stats[UnitStats.FOCUS_REGENERATION_PER_5] = 5
             self.base_stats[UnitStats.ENERGY_REGENERATION_PER_5] = 20
             self.base_stats[UnitStats.RAGE_REGENERATION_PER_5] = -50  # Rage decay out of combat.
         # Creatures.
