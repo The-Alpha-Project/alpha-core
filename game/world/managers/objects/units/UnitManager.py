@@ -1128,7 +1128,7 @@ class UnitManager(ObjectManager):
             return self.power_4
         return 0
 
-    def set_power_value(self, value, power_type=-1):
+    def set_power_value(self, value: int, power_type=-1):
         if power_type == -1:
             power_type = self.power_type
 
