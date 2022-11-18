@@ -605,21 +605,24 @@ class UnitManager(ObjectManager):
         if power_type not in {PowerTypes.TYPE_HEALTH, PowerTypes.TYPE_MANA} or \
             power_type == PowerTypes.TYPE_HEALTH and not self.in_combat or \
                 (power_type == PowerTypes.TYPE_MANA and self.mana_regen_timer >= 5):
-            regen_per_5 += self.stat_manager.get_total_stat(regen_stat)
+            regen_per_5 += self.stat_manager.get_total_stat(regen_stat, accept_negative=True)
 
         # Health regen from sitting.
         if power_type == PowerTypes.TYPE_HEALTH and not self.in_combat and self.is_sitting():
             regen_per_5 *= 4/3
 
-        # Rage decay modifier from Defensive Stance.
-        if power_type == PowerTypes.TYPE_RAGE and not self.in_combat and \
-                self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE):
-            # Defensive Stance (71) description says:
-            #     "A defensive stance that reduces rage decay when out of combat. [...]."
-            # There's no actual effect for this in the stance aura.
-            # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
-            # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
-            regen_per_5 *= 0.5
+        # Rage regen is set to the decay value in StatManager.
+        # Set rage regen to 0 while in combat.
+        if power_type == PowerTypes.TYPE_RAGE:
+            if self.in_combat:
+                regen_per_5 = 0
+            elif self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE):
+                # Defensive Stance (71) description says:
+                #     "A defensive stance that reduces rage decay when out of combat. [...]."
+                # There's no actual effect for this in the stance aura.
+                # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
+                # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
+                regen_per_5 *= 0.5
 
         regen_per_tick = regen_per_5 * 0.4  # Regen per 5 -> regen per 2 (per tick).
         if 0 < regen_per_tick < 1:

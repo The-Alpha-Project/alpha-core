@@ -170,7 +170,7 @@ class StatManager(object):
 
             self.base_stats[UnitStats.FOCUS_REGENERATION_PER_5] = 2
             self.base_stats[UnitStats.ENERGY_REGENERATION_PER_5] = 20
-            self.base_stats[UnitStats.RAGE_REGENERATION_PER_5] = -20  # Rage decay.
+            self.base_stats[UnitStats.RAGE_REGENERATION_PER_5] = -50  # Rage decay out of combat.
         # Creatures.
         else:
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
