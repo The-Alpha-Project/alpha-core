@@ -301,6 +301,12 @@ class SpellManager:
 
         casting_spell.resolve_target_info_for_effects()
 
+        # Reset mana regen timer on cast perform.
+        # Regen update will handle regen timer resets if a spell is casting,
+        # but instants reach perform without update.
+        if not casting_spell.triggered:
+            self.caster.mana_regen_timer = 0
+
         if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
             return  # Spell is in delayed state, do nothing for now
 
@@ -312,7 +318,7 @@ class SpellManager:
             casting_spell.spent_combo_points = self.caster.combo_points
 
         if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and \
-                not casting_spell.triggered:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
+                not casting_spell.triggered:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts.
             self.caster.aura_manager.check_aura_interrupts(cast_spell=casting_spell)
 
         self.set_on_cooldown(casting_spell)
@@ -911,13 +917,6 @@ class SpellManager:
     def is_on_cooldown(self, spell_entry) -> bool:
         return spell_entry.ID in self.cooldowns
 
-    def is_casting(self):
-        for spell in list(self.casting_spells):
-            if spell.cast_state == SpellState.SPELL_STATE_CASTING or \
-                    (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE):
-                return True
-        return False
-
     def is_casting_spell(self, spell_id):
         for spell in list(self.casting_spells):
             if spell.spell_entry.ID == spell_id and \
@@ -928,10 +927,18 @@ class SpellManager:
 
     def get_casting_spell(self):
         for spell in list(self.casting_spells):
-            if spell.cast_state == SpellState.SPELL_STATE_CASTING or \
+            if spell.triggered:
+                # Ignore triggered casts - they can have casting time but shouldn't affect other casts.
+                continue
+
+            if spell.cast_state != SpellState.SPELL_STATE_CASTING and not \
                     (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE):
-                return spell
+                continue
+            return spell
         return None
+
+    def is_casting(self):
+        return self.get_casting_spell() is not None
 
     def validate_cast(self, casting_spell) -> bool:
         if self.is_on_cooldown(casting_spell.spell_entry):

@@ -175,6 +175,7 @@ class UnitManager(ObjectManager):
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
         self.last_regen = 0
+        self.mana_regen_timer = 0
         self.regen_flags = RegenStatsFlags.NO_REGENERATION
 
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
@@ -551,6 +552,12 @@ class UnitManager(ObjectManager):
             self.set_power_value(0)
 
         self.last_regen += elapsed
+        self.mana_regen_timer = min(5, self.mana_regen_timer + elapsed)
+
+        # Mana regen disruption.
+        if self.spell_manager.get_casting_spell():
+            self.mana_regen_timer = 0
+
         # Every 2 seconds.
         if self.last_regen < 2:
             return
@@ -581,7 +588,6 @@ class UnitManager(ObjectManager):
             power_type != PowerTypes.TYPE_HEALTH else UnitStats.HEALTH_REGENERATION_PER_5
 
         # TODO It's unclear how mana regeneration should behave and how it should be affected by casting.
-        #  We are currently missing any logic related to casting and mana regen.
         # 0.12: Life Tap no longer interrupts mana regeneration.
         # 1.4.0:
         #  Mana regeneration is now disrupted when a spell has completed casting rather than at the start of casting.
@@ -592,16 +598,20 @@ class UnitManager(ObjectManager):
         # Always regen 1% base mana per second.
         regen_per_5 = self.base_mana * 0.05 if power_type == PowerTypes.TYPE_MANA else 0
 
-        # Apply regen bonuses from stats, but only out of combat for health and mana.
-        # Note that spells affecting mana regen are not affected by this restriction (only mp5 from spirit),
+        # Apply regen bonuses from stats.
+        # Apply mana regen bonus if the player hasn't cast for 5 seconds, and apply health regen bonus out of combat.
+        # Note that mana regen auras are not affected by this restriction (only mp5 from spirit),
         # as they're implemented as periodic energize effects instead.
-        if power_type not in {PowerTypes.TYPE_HEALTH, PowerTypes.TYPE_MANA} or not self.in_combat:
+        if power_type not in {PowerTypes.TYPE_HEALTH, PowerTypes.TYPE_MANA} or \
+            power_type == PowerTypes.TYPE_HEALTH and not self.in_combat or \
+                (power_type == PowerTypes.TYPE_MANA and self.mana_regen_timer >= 5):
             regen_per_5 += self.stat_manager.get_total_stat(regen_stat)
 
         # Health regen from sitting.
         if power_type == PowerTypes.TYPE_HEALTH and not self.in_combat and self.is_sitting():
             regen_per_5 *= 4/3
 
+        # Rage decay modifier from Defensive Stance.
         if power_type == PowerTypes.TYPE_RAGE and not self.in_combat and \
                 self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE):
             # Defensive Stance (71) description says:
