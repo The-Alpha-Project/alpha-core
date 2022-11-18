@@ -512,8 +512,8 @@ class StatManager(object):
         unit_class = self.unit_mgr.class_
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         spirit_regen = int(CLASS_BASE_REGEN_HEALTH[unit_class] + spirit * CLASS_SPIRIT_SCALING_HP5[unit_class])
-        # Values for spirit regen scaling are per second.
-        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = max(0, spirit_regen) * 5
+        # Values for spirit regen scaling are per tick.
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = max(0, spirit_regen) * 2.5
 
     def update_base_mana_regen(self):
         unit_class = self.unit_mgr.class_
@@ -523,7 +523,7 @@ class StatManager(object):
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         regen = CLASS_BASE_REGEN_MANA[unit_class] + spirit * CLASS_SPIRIT_SCALING_MANA[unit_class]
         # Values for mana regen scaling are per second.
-        self.base_stats[UnitStats.MANA_REGENERATION_PER_5] = regen * 5
+        self.base_stats[UnitStats.MANA_REGENERATION_PER_5] = regen * 2.5  # Values are per tick (* 5/2).
 
     def update_base_melee_critical_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
