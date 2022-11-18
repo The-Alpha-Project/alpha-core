@@ -521,7 +521,7 @@ class StatManager(object):
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         regen = CLASS_BASE_REGEN_MANA[unit_class] + spirit * CLASS_SPIRIT_SCALING_MANA[unit_class]
-        # Values for spirit regen scaling are per second.
+        # Values for mana regen scaling are per second.
         self.base_stats[UnitStats.MANA_REGENERATION_PER_5] = regen * 5
 
     def update_base_melee_critical_chance(self):
