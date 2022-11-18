@@ -391,8 +391,9 @@ class StatManager(object):
                 # Use weapon damage values for paw damage instead.
                 # VMaNGOS values.
 
-                # Base attack delay for the two forms.
-                attack_delay = 1000 if self.unit_mgr.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT) else 2500
+                # Base attack delay for both forms.
+                # Cat form provides a haste bonus in alpha - using the same attack delay for both.
+                attack_delay = 2500
 
                 self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = self.unit_mgr.level * 0.85 * (attack_delay / 1000)
                 self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
