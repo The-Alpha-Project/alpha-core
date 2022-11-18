@@ -547,7 +547,7 @@ class GroupManager(object):
             player_mgr.health if player_mgr else 0,
             player_mgr.max_health if player_mgr else 0,
             player_mgr.power_type if player_mgr else 0,
-            player_mgr.get_power_type_value() if player_mgr else 0,
+            player_mgr.get_power_value() if player_mgr else 0,
             player_mgr.get_max_power_value() if player_mgr else 0,
             player_mgr.level if player_mgr else character.level,
             player_mgr.map_ if player_mgr else character.map,
