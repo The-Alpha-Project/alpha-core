@@ -168,8 +168,10 @@ class StatManager(object):
             self.unit_mgr.base_hp = base_stats.basehp
             self.unit_mgr.base_mana = base_stats.basemana
 
-            # Focus/energy values
-            self.base_stats[UnitStats.FOCUS_REGENERATION_PER_5] = 5
+            # Focus/energy values are guessed.
+            self.base_stats[UnitStats.FOCUS_REGENERATION_PER_5] = 5  # 1 focus/sec
+            # Regenerating 4 Energy every 2 seconds instead of 20. This is a guess based on the cost of
+            # Sinister Strike in both 1.12 (45 Energy) and 0.5.3 (10 Energy). ((10 * 20) / 45 = 4.44)
             self.base_stats[UnitStats.ENERGY_REGENERATION_PER_5] = 20
             self.base_stats[UnitStats.RAGE_REGENERATION_PER_5] = -50  # Rage decay out of combat.
         # Creatures.
