@@ -64,8 +64,6 @@ class AuraEffectDummyHandler:
         effect_target.set_stand_state(StandState.UNIT_SLEEPING)
         effect_target.play_emote(Emotes.SLEEP)
 
-    # TODO: This requires a 'Camera' object in order to route totem
-    #  surrounding world objects packets to player when out of vision range.
     @staticmethod
     def handle_sentry_totem(aura, effect_target, remove):
         if remove or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
