@@ -74,7 +74,7 @@ begin not atomic
 	if (select count(*) from applied_updates where id='180520221') = 0 then
         ALTER TABLE `character_inventory` 
         ADD COLUMN `duration` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `item_flags`,
-        ADD COLUMN `enchantments` MEDIUMTEXT NOT NULL DEFAULT "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" AFTER `duration`;
+        ADD COLUMN `enchantments` MEDIUMTEXT NOT NULL AFTER `duration`;
 		insert into applied_updates values ('180520221');
     end if;
 
