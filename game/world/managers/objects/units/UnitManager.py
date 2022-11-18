@@ -602,18 +602,20 @@ class UnitManager(ObjectManager):
         if power_type == PowerTypes.TYPE_HEALTH and not self.in_combat and self.is_sitting():
             regen_per_5 *= 4/3
 
-        if power_type == PowerTypes.TYPE_RAGE and not self.in_combat:
-            regen_per_5 = -20  # Hardcode rage decay since there's no stat modifier for it.
-            if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE):
-                # Defensive Stance (71) description says:
-                #     "A defensive stance that reduces rage decay when out of combat. [...]."
-                # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
-                # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
-                regen_per_5 *= 0.5
+        if power_type == PowerTypes.TYPE_RAGE and not self.in_combat and \
+                self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE):
+            # Defensive Stance (71) description says:
+            #     "A defensive stance that reduces rage decay when out of combat. [...]."
+            # There's no actual effect for this in the stance aura.
+            # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
+            # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
+            regen_per_5 *= 0.5
 
         regen_per_tick = regen_per_5 * 0.4  # Regen per 5 -> regen per 2 (per tick).
         if 0 < regen_per_tick < 1:
-            regen_per_tick = 1  # Round up to 1, but account for negative/zero regen.
+            regen_per_tick = 1  # Round up to 1, but account for decay/zero regen.
+
+        self.receive_power(int(regen_per_tick), power_type)
 
     # Warrior Stances and Bear Form.
     # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
@@ -726,7 +728,7 @@ class UnitManager(ObjectManager):
         self.set_health(max(0, min(new_health, self.max_health)))
         return True
 
-    def receive_power(self, amount, power_type, source=None):
+    def receive_power(self, amount: int, power_type, source=None):
         if not self.is_alive:
             return False
 
