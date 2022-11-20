@@ -1626,7 +1626,7 @@ class PlayerManager(UnitManager):
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
-                    # Relocate only if x,y changed.
+                    # Relocate only if x, y changed.
                     if self.has_moved:
                         self._on_relocation()
                     # Reset flags.

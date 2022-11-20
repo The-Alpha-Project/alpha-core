@@ -554,7 +554,7 @@ class CreatureManager(UnitManager):
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
                 if self.has_moved or self.has_turned:
-                    # Relocate only if x,y changed.
+                    # Relocate only if x, y changed.
                     if self.has_moved:
                         self._on_relocation()
                     # Check spell and aura move interrupts.

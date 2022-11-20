@@ -19,7 +19,7 @@ class AuraEffectDummyHandler:
 
     # TODO: Still need to figure how to cancel the channel if the units dies.
     @staticmethod
-    def handle_kill_rogg_eye(aura, effect_target, remove):
+    def handle_killrogg_eye(aura, effect_target, remove):
         if not remove:
             return
         if aura.caster.possessed_unit:
@@ -79,9 +79,9 @@ PERIODIC_DUMMY_AURAS = {
 }
 
 DUMMY_AURA_EFFECTS = {
-    126:  AuraEffectDummyHandler.handle_kill_rogg_eye,
-    6606: AuraEffectDummyHandler.handle_sleep,  # Self Visual - Sleep Until Cancelled
+    126:  AuraEffectDummyHandler.handle_killrogg_eye,
+    6606: AuraEffectDummyHandler.handle_sleep,  # Self Visual - Sleep Until Cancelled.
     6495: AuraEffectDummyHandler.handle_sentry_totem,
-    6758: AuraEffectDummyHandler.handle_party_fever,  # Party Fever
-    7057: AuraEffectDummyHandler.handle_haunting_spirit,  # Haunting Spirit
+    6758: AuraEffectDummyHandler.handle_party_fever,  # Party Fever.
+    7057: AuraEffectDummyHandler.handle_haunting_spirit,  # Haunting Spirit.
 }

@@ -227,7 +227,7 @@ class GridManager:
         # Original surrounding cells for requester.
         cells = self.get_surrounding_cells_by_object(world_object)
 
-        # Handle FarSight.
+        # Handle Far Sight.
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             camera = FarSightManager.get_camera_for_player(world_object)
             # If the player has a camera object, aggregate camera cells.

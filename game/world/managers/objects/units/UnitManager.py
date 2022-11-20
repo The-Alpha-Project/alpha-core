@@ -301,7 +301,7 @@ class UnitManager(ObjectManager):
         if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
 
-        # Totem do not melee attack.
+        # Totems do not melee attack.
         if self.is_totem():
             return False
 

@@ -590,7 +590,7 @@ class SpellManager:
             if not remove_active:
                 if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT:
                     # Far Sight stuns the caster, but shouldn't interrupt the channel.
-                    # TODO this is kind of a hack .
+                    # TODO this is kind of a hack...
                     #  SPELL_ATTR_EX_FARSIGHT doesn't relate to the stun and is used by other perspective change spells.
                     continue
 
