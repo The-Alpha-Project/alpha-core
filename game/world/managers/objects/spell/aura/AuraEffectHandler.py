@@ -100,7 +100,7 @@ class AuraEffectHandler:
             return
         amount = aura.get_effect_points()
 
-        amount = min(amount, effect_target.get_power_type_value(PowerTypes.TYPE_MANA))
+        amount = min(amount, effect_target.get_power_value(PowerTypes.TYPE_MANA))
         effect_target.receive_power(-amount, PowerTypes.TYPE_MANA)
         aura.caster.receive_power(amount, PowerTypes.TYPE_MANA, source=effect_target)
 
@@ -568,7 +568,11 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.get_effect_points()
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.POWER_REGENERATION_PER_5, amount)
+
+        # This effect is only used for mana regen by deprecated food rejuvenation spells.
+        # Check provided power type regardless for consistency.
+        power_type = aura.spell_effect.misc_value
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.POWER_REGEN_START << power_type, amount)
 
     @staticmethod
     def handle_mod_skill(aura, effect_target, remove):
