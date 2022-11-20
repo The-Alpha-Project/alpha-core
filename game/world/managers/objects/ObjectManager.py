@@ -151,6 +151,9 @@ class ObjectManager:
 
         return data
 
+    def is_active_object(self):
+        return False
+
     def get_name(self):
         return ''
 
@@ -379,6 +382,10 @@ class ObjectManager:
 
     # override
     def is_pet(self):
+        return False
+
+    # override
+    def is_temp_summon(self):
         return False
 
     # override

@@ -5,6 +5,7 @@ import math
 import time
 
 from game.world.managers.maps.Cell import Cell
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
@@ -86,8 +87,8 @@ class GridManager:
 
         # Notify surrounding players.
         if update_players:
-            # Pet creation should be instantly notified to player owner.
-            if GuidUtils.extract_high_guid(world_object.guid) == HighGuid.HIGHGUID_PET:
+            # Pet/Temp summons creation should be instantly notified to player owner.
+            if world_object.is_temp_summon() or GuidUtils.extract_high_guid(world_object.guid) == HighGuid.HIGHGUID_PET:
                 summoner = world_object.get_charmer_or_summoner()
                 if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
                     summoner.update_known_world_object(world_object)
@@ -142,7 +143,7 @@ class GridManager:
             for cell_key in list(self.active_cell_keys):
                 players_near = False
                 for cell in self.get_surrounding_cells_by_cell(self.cells[cell_key]):
-                    if cell.has_players():
+                    if cell.has_players() or cell.has_cameras():
                         players_near = True
                         break
 
@@ -223,7 +224,17 @@ class GridManager:
             if object_types[index] == ObjectTypeIds.ID_CORPSE:
                 corpse_index = index
 
-        for cell in self.get_surrounding_cells_by_object(world_object):
+        # Original surrounding cells for requester.
+        cells = self.get_surrounding_cells_by_object(world_object)
+
+        # Handle FarSight.
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            camera = FarSightManager.get_camera_for_player(world_object)
+            # If the player has a camera object, aggregate camera cells.
+            if camera:
+                cells.update(self.get_surrounding_cells_by_object(camera.world_object))
+
+        for cell in cells:
             if ObjectTypeIds.ID_PLAYER in object_types:
                 surrounding_objects[players_index] = {**surrounding_objects[players_index], **cell.players}
             if ObjectTypeIds.ID_UNIT in object_types:
@@ -254,6 +265,14 @@ class GridManager:
             if spawn_found:
                 return spawn_found
         return None
+
+    def get_unit_totem_by_totem_entry(self, unit, totem_entry):
+        location = unit.location
+        cells = self.get_surrounding_cells_by_location(location.x, location.y, unit.map_)
+        for cell in cells:
+            for guid, creature in list(cell.creatures.items()):
+                if creature.entry == totem_entry and creature.summoner == unit:
+                    return creature
 
     def get_surrounding_creature_spawns(self, world_object):
         spawns = {}
@@ -377,6 +396,12 @@ class GridManager:
             now = time.time()
             for key in list(self.active_cell_keys):
                 self.cells[key].update_gameobjects(now)
+
+    def update_dynobjects(self):
+        with self.grid_lock:
+            now = time.time()
+            for key in list(self.active_cell_keys):
+                self.cells[key].update_dynobjects(now)
 
     def update_spawns(self):
         with self.grid_lock:

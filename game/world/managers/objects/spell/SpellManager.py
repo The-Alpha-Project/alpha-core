@@ -581,6 +581,13 @@ class SpellManager:
         for casting_spell in list(self.casting_spells):
             result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
 
+            if not remove_active:
+                if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT:
+                    # Far Sight stuns the caster, but shouldn't interrupt the channel.
+                    # TODO this is kind of a hack .
+                    #  SPELL_ATTR_EX_FARSIGHT doesn't relate to the stun and is used by other perspective change spells.
+                    continue
+
             # "Passive" casts like active area auras and delayed spells.
             if not casting_spell.is_channeled() and \
                     casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
@@ -735,7 +742,7 @@ class SpellManager:
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
-            if effect.has_periodic_ticks_remaining():
+            if not effect.is_periodic() or effect.has_periodic_ticks_remaining():
                 is_finished = False
 
             # Area spell effect update.

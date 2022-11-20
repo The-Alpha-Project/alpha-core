@@ -198,6 +198,7 @@ class UnitManager(ObjectManager):
         self._school_absorbs = {}
 
         self.has_moved = False
+        self.has_turned = False
 
         self.stat_manager = StatManager(self)
         self.aura_manager = AuraManager(self)
@@ -297,6 +298,10 @@ class UnitManager(ObjectManager):
     def attack_update(self, elapsed):
         # Don't update melee swing timers while casting or stunned.
         if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+            return False
+
+        # Totem do not melee attack.
+        if self.is_totem():
             return False
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -955,7 +960,14 @@ class UnitManager(ObjectManager):
         pet_id = self.get_uint64(UnitFields.UNIT_FIELD_SUMMON)
         if pet_id:
             pet = MapManager.get_surrounding_unit_by_guid(self, pet_id, include_players=True)
-            return pet if pet.is_pet() else None
+            return pet if pet and pet.is_pet() else None
+        return None
+
+    def get_possessed_unit(self):
+        possessed_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARM)
+        if possessed_id:
+            unit = MapManager.get_surrounding_unit_by_guid(self, possessed_id, include_players=True)
+            return unit if unit and unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED else None
         return None
 
     # override
@@ -1515,8 +1527,16 @@ class UnitManager(ObjectManager):
     def notify_moved_in_line_of_sight(self, target):
         pass
 
-    def set_has_moved(self, has_moved):
-        self.has_moved = has_moved
+    def set_has_moved(self, has_moved, has_turned, flush=False):
+        # Only turn off once processed.
+        if flush:
+            self.has_moved = False
+            self.has_turned = False
+        else:  # Only turn ON.
+            if not self.has_moved and has_moved:
+                self.has_moved = has_moved
+            if not self.has_turned and has_turned:
+                self.has_turned = has_turned
 
     # override
     def get_type_mask(self):
