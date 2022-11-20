@@ -86,12 +86,11 @@ class WorldLoader:
         gobject_templates = WorldDatabaseManager.gameobject_template_get_all()
         length = len(gobject_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for gobject_template in gobject_templates:
             WorldDatabaseManager.GameobjectTemplateHolder.load_gameobject_template(gobject_template)
             count += 1
-            Logger.progress('Loading gameobject templates...', count, length, scales=scales)
+            Logger.progress('Loading gameobject templates...', count, length)
 
         return length
 
@@ -100,14 +99,13 @@ class WorldLoader:
         gobject_spawns = WorldDatabaseManager.gameobject_get_all_spawns()
         length = len(gobject_spawns)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for gobject_spawn in gobject_spawns:
             gameobject_spawn = GameObjectSpawn(gobject_spawn)
             gameobject_spawn.spawn_gameobject()
             count += 1
 
-            Logger.progress('Loading gameobject spawns...', count, length, scales=scales)
+            Logger.progress('Loading gameobject spawns...', count, length)
 
         return length
 
@@ -116,13 +114,12 @@ class WorldLoader:
         gameobject_quest_starters = WorldDatabaseManager.gameobject_quest_starter_get_all()
         length = len(gameobject_quest_starters)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for gameobject_quest_starter in gameobject_quest_starters:
             WorldDatabaseManager.QuestRelationHolder.load_gameobject_starter_quest(gameobject_quest_starter)
 
             count += 1
-            Logger.progress('Loading gameobject quest starters...', count, length, scales=scales)
+            Logger.progress('Loading gameobject quest starters...', count, length)
 
         return length
 
@@ -131,13 +128,12 @@ class WorldLoader:
         gameobject_quest_finishers = WorldDatabaseManager.gameobject_quest_finisher_get_all()
         length = len(gameobject_quest_finishers)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for gameobject_quest_finisher in gameobject_quest_finishers:
             WorldDatabaseManager.QuestRelationHolder.load_gameobject_finisher_quest(gameobject_quest_finisher)
 
             count += 1
-            Logger.progress('Loading gameobject quest finishers...', count, length, scales=scales)
+            Logger.progress('Loading gameobject quest finishers...', count, length)
 
         return length
 
@@ -146,12 +142,11 @@ class WorldLoader:
         creature_equip_templates = WorldDatabaseManager.creature_equip_template_get_all()
         length = len(creature_equip_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_equip_template in creature_equip_templates:
             WorldDatabaseManager.CreatureEquipmentHolder.load_creature_equip_template(creature_equip_template)
             count += 1
-            Logger.progress('Loading creature equipment templates...', count, length, scales=scales)
+            Logger.progress('Loading creature equipment templates...', count, length)
 
         return length
 
@@ -160,13 +155,12 @@ class WorldLoader:
         creature_spawns = WorldDatabaseManager.creature_get_all_spawns()
         length = len(creature_spawns)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_spawn in creature_spawns:
             creature_spawn = CreatureSpawn(creature_spawn)
             creature_spawn.spawn_creature()
             count += 1
-            Logger.progress('Loading creature spawns...', count, length, scales=scales)
+            Logger.progress('Loading creature spawns...', count, length)
 
         return length
 
@@ -175,13 +169,12 @@ class WorldLoader:
         creature_on_kill_reputations = WorldDatabaseManager.creature_on_kill_reputation_get_all()
         length = len(creature_on_kill_reputations)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_on_kill_reputation in creature_on_kill_reputations:
             WorldDatabaseManager.CreatureOnKillReputationHolder.load_creature_on_kill_reputation(
                 creature_on_kill_reputation)
             count += 1
-            Logger.progress('Loading creature on kill reputations...', count, length, scales=scales)
+            Logger.progress('Loading creature on kill reputations...', count, length)
 
         return length
 
@@ -190,12 +183,11 @@ class WorldLoader:
         creature_spells = WorldDatabaseManager.creature_get_spell()
         length = len(creature_spells)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_spell in creature_spells:
             WorldDatabaseManager.CreatureSpellHolder.load_creature_spells(creature_spell)
             count += 1
-            Logger.progress('Loading creature spells...', count, length, scales=scales)
+            Logger.progress('Loading creature spells...', count, length)
 
         return length
 
@@ -204,12 +196,11 @@ class WorldLoader:
         creature_loot_templates = WorldDatabaseManager.creature_get_loot_templates()
         length = len(creature_loot_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for loot_template in creature_loot_templates:
             WorldDatabaseManager.CreatureLootTemplateHolder.load_creature_loot_template(loot_template)
             count += 1
-            Logger.progress('Loading creature loot templates...', count, length, scales=scales)
+            Logger.progress('Loading creature loot templates...', count, length)
 
         return length
 
@@ -218,12 +209,11 @@ class WorldLoader:
         skinning_loot_templates = WorldDatabaseManager.skinning_get_loot_templates()
         length = len(skinning_loot_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for loot_template in skinning_loot_templates:
             WorldDatabaseManager.SkinningLootTemplateHolder.load_skinning_loot_template(loot_template)
             count += 1
-            Logger.progress('Loading skinning loot templates...', count, length, scales=scales)
+            Logger.progress('Loading skinning loot templates...', count, length)
 
         return length
 
@@ -232,12 +222,11 @@ class WorldLoader:
         fishing_loot_templates = WorldDatabaseManager.fishing_get_loot_templates()
         length = len(fishing_loot_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for loot_template in fishing_loot_templates:
             WorldDatabaseManager.FishingLootTemplateHolder.load_fishing_loot_template(loot_template)
             count += 1
-            Logger.progress('Loading fishing loot templates...', count, length, scales=scales)
+            Logger.progress('Loading fishing loot templates...', count, length)
 
         return length
 
@@ -246,12 +235,11 @@ class WorldLoader:
         creature_templates = WorldDatabaseManager.creature_template_get_all()
         length = len(creature_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_template in creature_templates:
             WorldDatabaseManager.CreatureTemplateHolder.load_creature_template(creature_template)
             count += 1
-            Logger.progress('Loading creature templates...', count, length, scales=scales)
+            Logger.progress('Loading creature templates...', count, length)
 
         return length
 
@@ -260,12 +248,11 @@ class WorldLoader:
         gameobject_loot_templates = WorldDatabaseManager.gameobject_get_loot_templates()
         length = len(gameobject_loot_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for loot_template in gameobject_loot_templates:
             WorldDatabaseManager.GameObjectLootTemplateHolder.load_gameobject_loot_template(loot_template)
             count += 1
-            Logger.progress('Loading gameobject loot templates...', count, length, scales=scales)
+            Logger.progress('Loading gameobject loot templates...', count, length)
 
         return length
 
@@ -274,13 +261,12 @@ class WorldLoader:
         item_templates = WorldDatabaseManager.item_template_get_all()
         length = len(item_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for item_template in item_templates:
             WorldDatabaseManager.ItemTemplateHolder.load_item_template(item_template)
 
             count += 1
-            Logger.progress('Loading item templates...', count, length, scales=scales)
+            Logger.progress('Loading item templates...', count, length)
 
         return length
 
@@ -289,12 +275,11 @@ class WorldLoader:
         item_loot_templates = WorldDatabaseManager.item_get_loot_template()
         length = len(item_loot_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for item_loot_template in item_loot_templates:
             WorldDatabaseManager.ItemLootTemplateHolder.load_item_loot_template(item_loot_template)
             count += 1
-            Logger.progress('Loading item loot templates...', count, length, scales=scales)
+            Logger.progress('Loading item loot templates...', count, length)
 
         return length
 
@@ -303,12 +288,12 @@ class WorldLoader:
         pickpocketing_loot_templates = WorldDatabaseManager.pickpocketing_loot_template_get_all()
         length = len(pickpocketing_loot_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for pickpocketing_loot_template in pickpocketing_loot_templates:
-            WorldDatabaseManager.PickPocketingLootTemplateHolder.load_pickpocketing_loot_template(pickpocketing_loot_template)
+            WorldDatabaseManager.PickPocketingLootTemplateHolder.load_pickpocketing_loot_template(
+                pickpocketing_loot_template)
             count += 1
-            Logger.progress('Loading pickpocketing loot templates...', count, length, scales=scales)
+            Logger.progress('Loading pickpocketing loot templates...', count, length)
 
         return length
 
@@ -317,12 +302,11 @@ class WorldLoader:
         reference_loot_templates = WorldDatabaseManager.reference_loot_template_get_all()
         length = len(reference_loot_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for reference_loot_template in reference_loot_templates:
             WorldDatabaseManager.ReferenceLootTemplateHolder.load_reference_loot_template(reference_loot_template)
             count += 1
-            Logger.progress('Loading reference loot templates...', count, length, scales=scales)
+            Logger.progress('Loading reference loot templates...', count, length)
 
         return length
 
@@ -331,13 +315,12 @@ class WorldLoader:
         locks = DbcDatabaseManager.locks_get_all()
         length = len(locks)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for lock in locks:
             DbcDatabaseManager.LocksHolder.load_lock(lock)
 
             count += 1
-            Logger.progress('Loading locks...', count, length, scales=scales)
+            Logger.progress('Loading locks...', count, length)
 
         return length
 
@@ -346,13 +329,12 @@ class WorldLoader:
         factions = DbcDatabaseManager.faction_get_all()
         length = len(factions)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for faction in factions:
             DbcDatabaseManager.FactionHolder.load_faction(faction)
 
             count += 1
-            Logger.progress('Loading factions...', count, length, scales=scales)
+            Logger.progress('Loading factions...', count, length)
 
         return length
 
@@ -361,13 +343,12 @@ class WorldLoader:
         faction_templates = DbcDatabaseManager.faction_template_get_all()
         length = len(faction_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for faction_template in faction_templates:
             DbcDatabaseManager.FactionTemplateHolder.load_faction_template(faction_template)
 
             count += 1
-            Logger.progress('Loading faction templates...', count, length, scales=scales)
+            Logger.progress('Loading faction templates...', count, length)
 
         return length
 
@@ -376,13 +357,12 @@ class WorldLoader:
         quest_templates = WorldDatabaseManager.quest_template_get_all()
         length = len(quest_templates)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for quest_template in quest_templates:
             WorldDatabaseManager.QuestTemplateHolder.load_quest_template(quest_template)
 
             count += 1
-            Logger.progress('Loading quest templates...', count, length, scales=scales)
+            Logger.progress('Loading quest templates...', count, length)
 
         return length
 
@@ -391,13 +371,12 @@ class WorldLoader:
         spells: list[Spell] = DbcDatabaseManager.spell_get_all()
         length = len(spells)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for spell in spells:
             DbcDatabaseManager.SpellHolder.load_spell(spell)
 
             count += 1
-            Logger.progress('Loading spells...', count, length, scales=scales)
+            Logger.progress('Loading spells...', count, length)
 
         return length
 
@@ -406,13 +385,12 @@ class WorldLoader:
         spell_chains: list[SpellChain] = WorldDatabaseManager.spell_chain_get_all()
         length = len(spell_chains)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for spell_chain in spell_chains:
             WorldDatabaseManager.SpellChainHolder.load_spell_chain(spell_chain)
 
             count += 1
-            Logger.progress('Loading spell chains...', count, length, scales=scales)
+            Logger.progress('Loading spell chains...', count, length)
 
         return length
 
@@ -421,13 +399,12 @@ class WorldLoader:
         trainer_spells = WorldDatabaseManager.trainer_spell_get_all()
         length = len(trainer_spells)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for trainer_spell in trainer_spells:
             WorldDatabaseManager.TrainerSpellHolder.load_trainer_spell(trainer_spell)
 
             count += 1
-            Logger.progress('Loading trainer spells...', count, length, scales=scales)
+            Logger.progress('Loading trainer spells...', count, length)
 
         return length
 
@@ -436,13 +413,12 @@ class WorldLoader:
         skills = DbcDatabaseManager.skill_get_all()
         length = len(skills)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for skill in skills:
             DbcDatabaseManager.SkillHolder.load_skill(skill)
 
             count += 1
-            Logger.progress('Loading skill...', count, length, scales=scales)
+            Logger.progress('Loading skill...', count, length)
 
         return length
 
@@ -451,13 +427,12 @@ class WorldLoader:
         skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_all()
         length = len(skill_line_abilities)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for skill_line_ability in skill_line_abilities:
             DbcDatabaseManager.SkillLineAbilityHolder.load_skill_line_ability(skill_line_ability)
 
             count += 1
-            Logger.progress('Loading skill line abilities...', count, length, scales=scales)
+            Logger.progress('Loading skill line abilities...', count, length)
 
         return length
 
@@ -466,13 +441,12 @@ class WorldLoader:
         char_base_infos = DbcDatabaseManager.char_base_info_get_all()
         length = len(char_base_infos)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for char_base_info in char_base_infos:
             DbcDatabaseManager.CharBaseInfoHolder.load_base_info(char_base_info)
 
             count += 1
-            Logger.progress('Loading char base infos...', count, length, scales=scales)
+            Logger.progress('Loading char base infos...', count, length)
 
         return length
 
@@ -481,13 +455,12 @@ class WorldLoader:
         taxi_nodes = DbcDatabaseManager.taxi_nodes_get_all()
         length = len(taxi_nodes)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for taxi_node in taxi_nodes:
             DbcDatabaseManager.TaxiNodesHolder.load_taxi_node(taxi_node)
 
             count += 1
-            Logger.progress('Loading taxi nodes...', count, length, scales=scales)
+            Logger.progress('Loading taxi nodes...', count, length)
 
         return length
 
@@ -496,13 +469,12 @@ class WorldLoader:
         taxi_path_nodes = DbcDatabaseManager.taxi_path_nodes_get_all()
         length = len(taxi_path_nodes)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for taxi_path_node in taxi_path_nodes:
             DbcDatabaseManager.TaxiPathNodesHolder.load_taxi_path_node(taxi_path_node)
 
             count += 1
-            Logger.progress('Loading taxi path nodes...', count, length, scales=scales)
+            Logger.progress('Loading taxi path nodes...', count, length)
 
         return length
 
@@ -511,13 +483,12 @@ class WorldLoader:
         area_trigger_quest_relations = WorldDatabaseManager.area_trigger_quest_relations_get_all()
         length = len(area_trigger_quest_relations)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for area_trigger_relation in area_trigger_quest_relations:
             WorldDatabaseManager.QuestRelationHolder.load_area_trigger_quest_relation(area_trigger_relation)
 
             count += 1
-            Logger.progress('Loading area trigger quest relations...', count, length, scales=scales)
+            Logger.progress('Loading area trigger quest relations...', count, length)
 
         return length
 
@@ -526,13 +497,12 @@ class WorldLoader:
         creature_quest_starters = WorldDatabaseManager.creature_quest_starter_get_all()
         length = len(creature_quest_starters)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_quest_starter in creature_quest_starters:
             WorldDatabaseManager.QuestRelationHolder.load_creature_starter_quest(creature_quest_starter)
 
             count += 1
-            Logger.progress('Loading creature quest starters...', count, length, scales=scales)
+            Logger.progress('Loading creature quest starters...', count, length)
 
         return length
 
@@ -541,13 +511,12 @@ class WorldLoader:
         creature_quest_finishers = WorldDatabaseManager.creature_quest_finisher_get_all()
         length = len(creature_quest_finishers)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_quest_finisher in creature_quest_finishers:
             WorldDatabaseManager.QuestRelationHolder.load_creature_finisher_quest(creature_quest_finisher)
 
             count += 1
-            Logger.progress('Loading creature quest finishers...', count, length, scales=scales)
+            Logger.progress('Loading creature quest finishers...', count, length)
 
         return length
 
@@ -556,13 +525,12 @@ class WorldLoader:
         creature_display_infos = DbcDatabaseManager.creature_display_info_get_all()
         length = len(creature_display_infos)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_display_info in creature_display_infos:
             DbcDatabaseManager.CreatureDisplayInfoHolder.load_creature_display_info(creature_display_info)
 
             count += 1
-            Logger.progress('Loading creature display info...', count, length, scales=scales)
+            Logger.progress('Loading creature display info...', count, length)
 
         return length
 
@@ -571,13 +539,12 @@ class WorldLoader:
         creature_model_infos = WorldDatabaseManager.creature_model_info_get_all()
         length = len(creature_model_infos)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_model_info in creature_model_infos:
             WorldDatabaseManager.CreatureModelInfoHolder.load_creature_model_info(creature_model_info)
 
             count += 1
-            Logger.progress('Loading creature model info...', count, length, scales=scales)
+            Logger.progress('Loading creature model info...', count, length)
 
         return length
 
@@ -586,13 +553,12 @@ class WorldLoader:
         creature_families = DbcDatabaseManager.creature_family_get_all()
         length = len(creature_families)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for creature_family in creature_families:
             DbcDatabaseManager.CreatureFamilyHolder.load_creature_family(creature_family)
 
             count += 1
-            Logger.progress('Loading creature families...', count, length, scales=scales)
+            Logger.progress('Loading creature families...', count, length)
 
         return length
 
@@ -601,13 +567,12 @@ class WorldLoader:
         npc_gossips = WorldDatabaseManager.npc_gossip_get_all()
         length = len(npc_gossips)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for npc_gossip in npc_gossips:
             WorldDatabaseManager.QuestGossipHolder.load_npc_gossip(npc_gossip)
 
             count += 1
-            Logger.progress('Loading npc gossip...', count, length, scales=scales)
+            Logger.progress('Loading npc gossip...', count, length)
 
         return length
 
@@ -616,13 +581,12 @@ class WorldLoader:
         npc_texts = WorldDatabaseManager.npc_text_get_all()
         length = len(npc_texts)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for npc_text in npc_texts:
             WorldDatabaseManager.QuestGossipHolder.load_npc_text(npc_text)
 
             count += 1
-            Logger.progress('Loading npc gossip texts...', count, length, scales=scales)
+            Logger.progress('Loading npc gossip texts...', count, length)
 
         return length
 
@@ -633,13 +597,12 @@ class WorldLoader:
         groups = RealmDatabaseManager.group_get_all()
         length = len(groups)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for group in groups:
             GroupManager.load_group(group)
 
             count += 1
-            Logger.progress('Loading groups...', count, length, scales=scales)
+            Logger.progress('Loading groups...', count, length)
 
         return length
 
@@ -648,13 +611,12 @@ class WorldLoader:
         guilds = RealmDatabaseManager.guild_get_all()
         length = len(guilds)
         count = 0
-        scales = Logger.get_progress_scales(length)
 
         for guild in guilds:
             if guild.name not in GuildManager.GUILDS:
                 GuildManager.load_guild(guild)
 
                 count += 1
-                Logger.progress('Loading guilds...', count, length, scales=scales)
+                Logger.progress('Loading guilds...', count, length)
 
         return length
