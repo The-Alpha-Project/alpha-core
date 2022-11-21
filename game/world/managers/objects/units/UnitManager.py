@@ -750,6 +750,9 @@ class UnitManager(ObjectManager):
         if not self.is_alive:
             return False
 
+        if power_type == PowerTypes.TYPE_HEALTH:
+            return self.receive_healing(amount, source=source)
+
         if self.power_type != power_type:
             return False
 
@@ -1130,7 +1133,9 @@ class UnitManager(ObjectManager):
         if power_type == -1:
             power_type = self.power_type
 
-        if power_type == PowerTypes.TYPE_MANA:
+        if power_type == PowerTypes.TYPE_HEALTH:
+            return self.health
+        elif power_type == PowerTypes.TYPE_MANA:
             return self.power_1
         elif power_type == PowerTypes.TYPE_RAGE:
             return self.power_2
@@ -1161,7 +1166,9 @@ class UnitManager(ObjectManager):
         if power_type == -1:
             power_type = self.power_type
 
-        if power_type == PowerTypes.TYPE_MANA:
+        if power_type == PowerTypes.TYPE_HEALTH:
+            return self.max_health
+        elif power_type == PowerTypes.TYPE_MANA:
             return self.max_power_1
         elif power_type == PowerTypes.TYPE_RAGE:
             return self.max_power_2

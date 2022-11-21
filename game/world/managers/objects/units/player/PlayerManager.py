@@ -1522,8 +1522,9 @@ class PlayerManager(UnitManager):
         if not super().receive_healing(amount, source):
             return False
 
-        data = pack('<IQ', amount, source.guid)
-        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
+        if source:
+            data = pack('<IQ', amount, source.guid)
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
         return True
 
     def enqueue_packets(self, packets):
