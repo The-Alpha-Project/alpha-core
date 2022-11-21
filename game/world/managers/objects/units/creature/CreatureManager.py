@@ -373,8 +373,7 @@ class CreatureManager(UnitManager):
         self.aura_manager.remove_all_auras()
 
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
-            self.set_health(self.max_health)
-            self.recharge_power()
+            self.replenish_powers()
 
         # Pets should return to owner on evading, not to spawn position. This case at this moment only affects
         # creature summoned pets since player summoned pets will never enter this method.

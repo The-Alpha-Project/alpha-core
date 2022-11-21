@@ -1054,8 +1054,7 @@ class PlayerManager(UnitManager):
 
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
-                self.set_health(self.max_health)
-                self.recharge_power()
+                self.replenish_powers()
 
                 if is_leveling_up:
                     data = pack(
@@ -1522,8 +1521,9 @@ class PlayerManager(UnitManager):
         if not super().receive_healing(amount, source):
             return False
 
-        data = pack('<IQ', amount, source.guid)
-        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
+        if source:
+            data = pack('<IQ', amount, source.guid)
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
         return True
 
     def enqueue_packets(self, packets):
