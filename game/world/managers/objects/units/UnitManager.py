@@ -1195,6 +1195,13 @@ class UnitManager(ObjectManager):
         max_power = self.get_max_power_value()
         self.set_power_value(max_power)
 
+    def replenish_powers(self):
+        # Set health and mana/energy to max.
+        health = self.max_health
+        if self.power_type in {PowerTypes.TYPE_MANA, PowerTypes.TYPE_ENERGY}:
+            self.recharge_power()
+        self.set_health(health)
+
     def set_school_absorb(self, school_mask, aura_index, value, absorb=True):
         # Initialize if needed.
         if school_mask not in self._school_absorbs:

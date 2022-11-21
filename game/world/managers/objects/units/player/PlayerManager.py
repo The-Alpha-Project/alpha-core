@@ -1054,8 +1054,7 @@ class PlayerManager(UnitManager):
 
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
-                self.set_health(self.max_health)
-                self.recharge_power()
+                self.replenish_powers()
 
                 if is_leveling_up:
                     data = pack(
