@@ -27,9 +27,10 @@ class MovementHandler:
                 transport_guid, transport_x, transport_y, transport_z, transport_o, x, y, z, o, pitch, flags = \
                     unpack('<Q9fI', reader.data[:48])
 
-                # Hacky way to prevent random teleports when colliding with elevators
-                # Also acts as a rudimentary teleport cheat detection
-                if not player_mgr.pending_taxi_destination and player_mgr.location.distance(x=x, y=y, z=z) > 64:
+                # Hacky way to prevent random teleports when colliding with elevators.
+                # Also acts as a rudimentary teleport cheat detection.
+                if (not player_mgr.possessed_unit and not player_mgr.pending_taxi_destination
+                        and player_mgr.location.distance(x=x, y=y, z=z) > 64):
                     Logger.anticheat(f'Preventing desync from player {player_mgr.get_name()} ({player_mgr.guid}).')
                     player_mgr.teleport(player_mgr.map_, player_mgr.location, is_instant=True)
                     return 0
