@@ -174,7 +174,7 @@ class CreatureStaticFlags(IntEnum):
     NO_DEFENSE = 16384  # No defense to melee attacks?
     NO_SPELL_DEFENSE = 32768  # No defense to spell attacks?
     TABARD_VENDOR = 65536  # Flag carried by Tabard Vendor NPCS? Was later reused as "Raid Boss".
-    COMBAT_PING = 131072  # Seems to be only used by Sentry Totem NPC.
+    COMBAT_PING = 131072  # Seems to be only used by Sentry Totem NPC. Flashing circle on owner's minimap if attacked.
     AQUATIC = 262144  # Can only move in water.
     AMPHIBIOUS = 524288  # Can enter water and walk on terrain.
     NO_MELEE = 1048576  # Prevents melee, mostly used by totems.

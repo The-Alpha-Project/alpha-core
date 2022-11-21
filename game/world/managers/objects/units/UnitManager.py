@@ -175,6 +175,7 @@ class UnitManager(ObjectManager):
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
         self.last_regen = 0
+        self.mana_regen_timer = 0
         self.regen_flags = RegenStatsFlags.NO_REGENERATION
 
         self.attack_timers = {AttackTypes.BASE_ATTACK: 0,
@@ -198,6 +199,7 @@ class UnitManager(ObjectManager):
         self._school_absorbs = {}
 
         self.has_moved = False
+        self.has_turned = False
 
         self.stat_manager = StatManager(self)
         self.aura_manager = AuraManager(self)
@@ -297,6 +299,10 @@ class UnitManager(ObjectManager):
     def attack_update(self, elapsed):
         # Don't update melee swing timers while casting or stunned.
         if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+            return False
+
+        # Totems do not melee attack.
+        if self.is_totem():
             return False
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -543,89 +549,91 @@ class UnitManager(ObjectManager):
 
         # The check to set Focus to 0 on movement needs to be outside of the 2 seconds timer to avoid being able to move
         # without losing Focus on that 2 seconds window.
-        if self.power_type == PowerTypes.TYPE_FOCUS:
+        if self.power_type == PowerTypes.TYPE_FOCUS and self.has_moved and self.get_power_value():
             # https://web.archive.org/web/20040420191923/http://www.worldofwar.net/articles/gencon2003_2.php
             # While a Hunter is standing still, Focus gradually increases. The moment a Hunter moves,
             # Focus drops to zero to prevent kiting. (Blizzard seems to be very anti-kiting;
             # several other features to minimize kiting are in place as well.)
-            if self.has_moved:
-                if self.power_3 > 0:
-                    self.set_focus(0)
+            self.set_power_value(0)
 
         self.last_regen += elapsed
+        self.mana_regen_timer = min(5, self.mana_regen_timer + elapsed)
+
+        # Mana regen disruption.
+        if self.spell_manager.get_casting_spell():
+            self.mana_regen_timer = 0
+
         # Every 2 seconds.
-        if self.last_regen >= 2:
-            self.last_regen = 0
+        if self.last_regen < 2:
+            return
 
-            # Healing aura increases regeneration "by 2 every second", and base points equal to 10.
-            # Calculate 2/5 of hp5/mp5.
-            health_regen = self.stat_manager.get_total_stat(UnitStats.HEALTH_REGENERATION_PER_5) * 0.4
-            mana_regen = self.stat_manager.get_total_stat(UnitStats.POWER_REGENERATION_PER_5) * 0.4
+        self.last_regen = 0
+        self._power_regen_tick(PowerTypes.TYPE_HEALTH)
+        self._power_regen_tick(self.power_type)
 
-            # Health
-            if self.regen_flags & RegenStatsFlags.REGEN_FLAG_HEALTH:
-                if self.health < self.max_health and not self.in_combat:
-                    if health_regen < 1:
-                        health_regen = 1
+    def _power_regen_tick(self, power_type):
+        # Compare regen flags to power type.
+        regen_type_flag = RegenStatsFlags.REGEN_FLAG_HEALTH if power_type == PowerTypes.TYPE_HEALTH \
+            else RegenStatsFlags.REGEN_FLAG_POWER
 
-                    # Apply bonus if sitting.
-                    if self.is_sitting():
-                        health_regen += health_regen * 0.33
+        if not self.regen_flags & regen_type_flag:
+            return
 
-                    if self.health + health_regen >= self.max_health:
-                        self.set_health(self.max_health)
-                    elif self.health < self.max_health:
-                        self.set_health(self.health + int(health_regen))
+        if power_type == PowerTypes.TYPE_FOCUS and self.has_moved:
+            return  # Focus only generates when not moving.
 
-            # Powers
-            # Check if this unit should regenerate its powers.
-            if self.regen_flags & RegenStatsFlags.REGEN_FLAG_POWER:
-                # Mana
-                if self.power_type == PowerTypes.TYPE_MANA:
-                    if self.power_1 < self.max_power_1:
-                        if self.in_combat:
-                            # 1% per second (5% per 5 seconds)
-                            mana_regen = self.base_mana * 0.02
+        current_power = self.get_power_value(power_type)
+        if power_type == PowerTypes.TYPE_RAGE:
+            if current_power <= 0:
+                return  # Rage only decays.
+        elif current_power >= self.get_max_power_value(power_type):
+            return  # Other powers only generate.
 
-                        if mana_regen < 1:
-                            mana_regen = 1
+        regen_stat = UnitStats.POWER_REGEN_START << power_type if \
+            power_type != PowerTypes.TYPE_HEALTH else UnitStats.HEALTH_REGENERATION_PER_5
 
-                        if self.power_1 + mana_regen >= self.max_power_1:
-                            self.set_mana(self.max_power_1)
-                        elif self.power_1 < self.max_power_1:
-                            self.set_mana(self.power_1 + int(mana_regen))
-                # Focus
-                elif self.power_type == PowerTypes.TYPE_FOCUS:
-                    # Don't do anything if the unit is moving.
-                    if self.movement_flags & MoveFlags.MOVEFLAG_MOTION_MASK:
-                        return
+        # TODO It's unclear how mana regeneration should behave and how it should be affected by casting.
+        # 0.12: Life Tap no longer interrupts mana regeneration.
+        # 1.4.0:
+        #  Mana regeneration is now disrupted when a spell has completed casting rather than at the start of casting.
+        #  It will resume normally five seconds after the last spell cast.
+        #  This change increases the total time spent regenerating mana and
+        #  therefore increases the total contribution from Spirit for mana-based classes.
 
-                    if self.power_3 < self.max_power_3:
-                        # 1 Focus per second (2 every 2 seconds) is a guessed value based on the cost of spells.
-                        if self.power_3 + 2 >= self.max_power_3:
-                            self.set_focus(self.max_power_3)
-                        elif self.power_3 < self.max_power_3:
-                            self.set_focus(self.power_3 + 2)
-                # Energy
-                elif self.power_type == PowerTypes.TYPE_ENERGY:
-                    if self.power_4 < self.max_power_4:
-                        # Regenerating 5 Energy every 2 seconds instead of 20. This is a guess based on the cost of
-                        # Sinister Strike in both 1.12 (45 Energy) and 0.5.3 (10 Energy). ((10 * 20) / 45 = 4.44)
-                        if self.power_4 + 5 >= self.max_power_4:
-                            self.set_energy(self.max_power_4)
-                        elif self.power_4 < self.max_power_4:
-                            self.set_energy(self.power_4 + 5)
+        # Always regen 1% base mana per second.
+        regen_per_5 = self.base_mana * 0.05 if power_type == PowerTypes.TYPE_MANA else 0
 
-            # Rage decay
-            if self.power_type == PowerTypes.TYPE_RAGE:
-                if self.power_2 > 0:
-                    if not self.in_combat:
-                        # Defensive Stance (71) description says:
-                        #     "A defensive stance that reduces rage decay when out of combat. [...]."
-                        # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
-                        # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
-                        rage_decay_value = 10 if self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) else 20
-                        self.set_rage(self.power_2 - rage_decay_value)
+        # Apply regen bonuses from stats.
+        # Apply mana regen bonus if the player hasn't cast for 5 seconds, and apply health regen bonus out of combat.
+        # Note that mana regen auras are not affected by this restriction (only mp5 from spirit),
+        # as they're implemented as periodic energize effects instead.
+        if power_type not in {PowerTypes.TYPE_HEALTH, PowerTypes.TYPE_MANA} or \
+            power_type == PowerTypes.TYPE_HEALTH and not self.in_combat or \
+                (power_type == PowerTypes.TYPE_MANA and self.mana_regen_timer >= 5):
+            regen_per_5 += self.stat_manager.get_total_stat(regen_stat, accept_negative=True)
+
+        # Health regen from sitting.
+        if power_type == PowerTypes.TYPE_HEALTH and not self.in_combat and self.is_sitting():
+            regen_per_5 *= 4/3
+
+        # Rage regen is set to the decay value in StatManager.
+        # Set rage regen to 0 while in combat.
+        if power_type == PowerTypes.TYPE_RAGE:
+            if self.in_combat:
+                regen_per_5 = 0
+            elif self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE):
+                # Defensive Stance (71) description says:
+                #     "A defensive stance that reduces rage decay when out of combat. [...]."
+                # There's no actual effect for this in the stance aura.
+                # We assume the rage decay value is reduced by 50% when on Defensive Stance. We don't really
+                # know how much it should be reduced, but 50% seemed reasonable (1 point instead of 2).
+                regen_per_5 *= 0.5
+
+        regen_per_tick = regen_per_5 * 0.4  # Regen per 5 -> regen per 2 (per tick).
+        if 0 < regen_per_tick < 1:
+            regen_per_tick = 1  # Round up to 1, but account for decay/zero regen.
+
+        self.receive_power(int(regen_per_tick), power_type)
 
     # Warrior Stances and Bear Form.
     # Defensive Stance (71): "A defensive stance that reduces rage decay when out of combat.
@@ -634,15 +642,15 @@ class UnitManager(ObjectManager):
     # Berserker Stance (2458): "An aggressive stance. Generate rage when you strike an opponent."
     def generate_rage(self, damage_info, is_attacking=True):
         # Avoid regen if unit has no rage power type.
-        if self.get_type_id() == ObjectTypeIds.ID_UNIT:
-            if self.power_type != PowerTypes.TYPE_RAGE:
-                return
+        if self.power_type != PowerTypes.TYPE_RAGE:
+            return
 
         if not is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE) \
                 or is_attacking and self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE) \
                 or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BATTLESTANCE) \
                 or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR):
-            self.set_rage(self.power_2 + UnitFormulas.calculate_rage_regen(damage_info, is_attacking=is_attacking))
+            self.receive_power(UnitFormulas.calculate_rage_regen(damage_info, is_attacking=is_attacking),
+                               PowerTypes.TYPE_RAGE)
 
     # Implemented by PlayerManager
     def handle_combat_skill_gain(self, damage_info):
@@ -734,28 +742,18 @@ class UnitManager(ObjectManager):
             return False
 
         new_health = self.health + amount
-        if new_health > self.max_health:
-            self.set_health(self.max_health)
-        else:
-            self.set_health(new_health)
+        # Clamp to 0 - max health.
+        self.set_health(max(0, min(new_health, self.max_health)))
         return True
 
-    def receive_power(self, amount, power_type, source=None):
+    def receive_power(self, amount: int, power_type, source=None):
         if not self.is_alive:
             return False
 
         if self.power_type != power_type:
             return False
 
-        new_power = self.get_power_type_value() + amount
-        if power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(new_power)
-        elif power_type == PowerTypes.TYPE_RAGE:
-            self.set_rage(new_power)
-        elif power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(new_power)
-        elif power_type == PowerTypes.TYPE_ENERGY:
-            self.set_energy(new_power)
+        self.set_power_value(self.get_power_value() + amount)
         return True
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
@@ -955,7 +953,14 @@ class UnitManager(ObjectManager):
         pet_id = self.get_uint64(UnitFields.UNIT_FIELD_SUMMON)
         if pet_id:
             pet = MapManager.get_surrounding_unit_by_guid(self, pet_id, include_players=True)
-            return pet if pet.is_pet() else None
+            return pet if pet and pet.is_pet() else None
+        return None
+
+    def get_possessed_unit(self):
+        possessed_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARM)
+        if possessed_id:
+            unit = MapManager.get_surrounding_unit_by_guid(self, possessed_id, include_players=True)
+            return unit if unit and unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED else None
         return None
 
     # override
@@ -1121,7 +1126,7 @@ class UnitManager(ObjectManager):
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-    def get_power_type_value(self, power_type=-1):
+    def get_power_value(self, power_type=-1):
         if power_type == -1:
             power_type = self.power_type
 
@@ -1135,27 +1140,53 @@ class UnitManager(ObjectManager):
             return self.power_4
         return 0
 
-    def get_max_power_value(self):
-        if self.power_type == PowerTypes.TYPE_MANA:
+    def set_power_value(self, value: int, power_type=-1):
+        if power_type == -1:
+            power_type = self.power_type
+
+        value = max(0, min(value, self.get_max_power_value(power_type)))  # Clamp to 0 - max power.
+
+        if power_type == PowerTypes.TYPE_MANA:
+            self.power_1 = value
+        elif power_type == PowerTypes.TYPE_RAGE:
+            self.power_2 = value
+        elif power_type == PowerTypes.TYPE_FOCUS:
+            self.power_3 = value
+        elif power_type == PowerTypes.TYPE_ENERGY:
+            self.power_4 = value
+
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER1 + power_type, value)
+
+    def get_max_power_value(self, power_type=-1):
+        if power_type == -1:
+            power_type = self.power_type
+
+        if power_type == PowerTypes.TYPE_MANA:
             return self.max_power_1
-        elif self.power_type == PowerTypes.TYPE_RAGE:
+        elif power_type == PowerTypes.TYPE_RAGE:
             return self.max_power_2
-        elif self.power_type == PowerTypes.TYPE_FOCUS:
+        elif power_type == PowerTypes.TYPE_FOCUS:
             return self.max_power_3
-        elif self.power_type == PowerTypes.TYPE_ENERGY:
+        elif power_type == PowerTypes.TYPE_ENERGY:
             return self.max_power_4
         return 0
 
+    def set_max_power_value(self, value, power_type=-1):
+        if power_type == -1:
+            power_type = self.power_type
+
+        if power_type == PowerTypes.TYPE_MANA:
+            self.max_power_1 = value
+        elif power_type == PowerTypes.TYPE_RAGE:
+            self.max_power_2 = value
+        elif power_type == PowerTypes.TYPE_FOCUS:
+            self.max_power_3 = value
+        elif power_type == PowerTypes.TYPE_ENERGY:
+            self.max_power_4 = value
+
     def recharge_power(self):
         max_power = self.get_max_power_value()
-        if self.power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(max_power)
-        elif self.power_type == PowerTypes.TYPE_RAGE:
-            self.set_rage(max_power)
-        elif self.power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(max_power)
-        elif self.power_type == PowerTypes.TYPE_ENERGY:
-            self.set_energy(max_power)
+        self.set_power_value(max_power)
 
     def set_school_absorb(self, school_mask, aura_index, value, absorb=True):
         # Initialize if needed.
@@ -1255,30 +1286,6 @@ class UnitManager(ObjectManager):
     def set_max_health(self, health):
         self.max_health = health
         self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, health)
-
-    def set_mana(self, mana):
-        if mana < 0:
-            mana = 0
-        self.power_1 = min(mana, self.max_power_1)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
-
-    def set_rage(self, rage):
-        if rage < 0:
-            rage = 0
-        self.power_2 = min(rage, self.max_power_2)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER2, self.power_2)
-
-    def set_focus(self, focus):
-        if focus < 0:
-            focus = 0
-        self.power_3 = min(focus, self.max_power_3)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER3, self.power_3)
-
-    def set_energy(self, energy):
-        if energy < 0:
-            energy = 0
-        self.power_4 = min(energy, self.max_power_4)
-        self.set_uint32(UnitFields.UNIT_FIELD_POWER4, self.power_4)
 
     def set_max_mana(self, mana):
         self.max_power_1 = mana
@@ -1515,8 +1522,16 @@ class UnitManager(ObjectManager):
     def notify_moved_in_line_of_sight(self, target):
         pass
 
-    def set_has_moved(self, has_moved):
-        self.has_moved = has_moved
+    def set_has_moved(self, has_moved, has_turned, flush=False):
+        # Only turn off once processed.
+        if flush:
+            self.has_moved = False
+            self.has_turned = False
+        else:  # Only turn ON.
+            if not self.has_moved and has_moved:
+                self.has_moved = has_moved
+            if not self.has_turned and has_turned:
+                self.has_turned = has_turned
 
     # override
     def get_type_mask(self):

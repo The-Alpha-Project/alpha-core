@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -180,7 +181,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.base_attack_time)
-            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
@@ -290,6 +291,9 @@ class CreatureManager(UnitManager):
     def is_pet(self):
         return (self.summoner or self.charmer) and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
+    def is_temp_summon(self):
+        return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
+
     # override
     def is_unit_pet(self, unit):
         return self.is_pet() and self.get_charmer_or_summoner() == unit
@@ -300,6 +304,9 @@ class CreatureManager(UnitManager):
 
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
+
+    def has_combat_ping(self):
+        return self.creature_template.static_flags & CreatureStaticFlags.COMBAT_PING
 
     def can_have_target(self):
         return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
@@ -439,8 +446,10 @@ class CreatureManager(UnitManager):
 
         return auras
 
-    def has_observers(self):
-        return len(self.known_players) > 0
+    # override
+    # TODO: Quest active escort npc, other cases?
+    def is_active_object(self):
+        return len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self)
 
     def has_wander_type(self):
         return self.movement_type == MovementTypes.WANDER
@@ -459,7 +468,7 @@ class CreatureManager(UnitManager):
     #  switch to another target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
         # Avoid moving while casting, no combat target, evading, target already dead or self stunned.
-        if self.is_casting() or not self.combat_target or self.is_evading or not self.combat_target.is_alive or \
+        if self.is_casting() or self.is_totem() or not self.combat_target or self.is_evading or not self.combat_target.is_alive or \
                 self.unit_state & UnitStates.STUNNED:
             return
 
@@ -544,14 +553,16 @@ class CreatureManager(UnitManager):
                 self.update_sanctuary(elapsed)
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
-                if self.has_moved:
-                    self._on_relocation()
+                if self.has_moved or self.has_turned:
+                    # Relocate only if x, y changed.
+                    if self.has_moved:
+                        self._on_relocation()
                     # Check spell and aura move interrupts.
-                    self.spell_manager.check_spell_interrupts(moved=True)
-                    self.aura_manager.check_aura_interrupts(moved=True)
-                    self.set_has_moved(False)
+                    self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.set_has_moved(False, False, flush=True)
                 # Random Movement, if visible to players.
-                if self.has_observers():
+                if self.is_active_object():
                     self._perform_random_movement(now)
                 # Combat Movement.
                 self._perform_combat_movement()
@@ -622,6 +633,12 @@ class CreatureManager(UnitManager):
 
         if not super().receive_damage(damage_info, source, is_periodic):
             return False
+
+        # Handle COMBAT_PING creature static flag.
+        if self.has_combat_ping() and not self.in_combat:
+            summoner = self.get_charmer_or_summoner()
+            if summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                summoner.send_minimap_ping(self.guid, self.location)
 
         # If creature's being attacked by another unit, automatically set combat target.
         not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT

@@ -72,10 +72,10 @@ class Logger:
     # Additional methods
 
     @staticmethod
-    def progress(msg, current, total):
-        msg = f'{msg} {current}/{total} ({int(current * 100 / total)}%)'
-        if current != total:
-            if (int (current % 500) == 0):
+    def progress(msg, current, total, divisions=20):
+        msg = f'{msg} [{current}/{total}] ({int(current * 100 / total)}%)'
+        if current != total and divisions > 0:
+            if int(current % (total / divisions)) == 0:
                 Logger.info(msg, end='\r')
         else:
             Logger.success(msg)

@@ -81,6 +81,7 @@ class PlayerManager(UnitManager):
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
         self.update_lock = False
+        self.possessed_unit = None
         self.known_objects = dict()
         self.known_items = dict()
         self.known_stealth_units = dict()
@@ -736,6 +737,10 @@ class PlayerManager(UnitManager):
         self.enqueue_packet(PacketWriter.get_packet(opcode))
 
     # override
+    def is_active_object(self):
+        return True
+
+    # override
     def mount(self, mount_display_id):
         if super().mount(mount_display_id):
             # TODO: validate mount.
@@ -822,6 +827,10 @@ class PlayerManager(UnitManager):
         if not active:
             # Notify surrounding units about fading stealth for proximity aggro.
             self._on_relocation()
+
+    def send_minimap_ping(self, guid, vector):
+        data = pack('<Q2f', guid, vector.x, vector.y)
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, data))
 
     def interrupt_looting(self):
         if self.loot_selection:
@@ -1046,7 +1055,7 @@ class PlayerManager(UnitManager):
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
                 self.set_health(self.max_health)
-                self.set_mana(self.max_power_1)
+                self.recharge_power()
 
                 if is_leveling_up:
                     data = pack(
@@ -1218,7 +1227,7 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time)
-            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
@@ -1438,6 +1447,9 @@ class PlayerManager(UnitManager):
 
         return True
 
+    def set_far_sight(self, guid):
+        self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid)
+
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):
         # Charmer must be set here not in parent.
         self.charmer = charmer if not remove else None
@@ -1604,14 +1616,21 @@ class PlayerManager(UnitManager):
             has_inventory_changes = not self.inventory.update_locked and self.inventory.has_pending_updates()
 
             # Movement checks and group updates.
-            if self.has_moved or has_changes:
+            has_moved = self.has_moved or self.has_turned
+            if has_moved or has_changes:
                 # Update self stats and location to other party members.
                 if self.group_manager:
                     self.group_manager.update_party_member_stats(elapsed, requester=self)
                 # Player moved, notify surrounding units for proximity aggro.
-                if self.has_moved:
-                    self._on_relocation()
-                    self.set_has_moved(False)
+                if has_moved:
+                    # Check spell and aura move interrupts.
+                    self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    # Relocate only if x, y changed.
+                    if self.has_moved:
+                        self._on_relocation()
+                    # Reset flags.
+                    self.set_has_moved(False, False, flush=True)
 
             # Update system, propagate player changes to surrounding units.
             if self.online and has_changes or has_inventory_changes:
@@ -1674,13 +1693,11 @@ class PlayerManager(UnitManager):
         # the % that players had in 0.5.3, so 100% is assumed.
         self.set_health(math.ceil(self.max_health * recovery_percentage))
         if self.power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(math.ceil(self.max_power_1 * recovery_percentage))
-        if self.power_type == PowerTypes.TYPE_RAGE:
-            self.set_rage(0)
-        if self.power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(0)
-        if self.power_type == PowerTypes.TYPE_ENERGY:
-            self.set_energy(self.max_power_4)
+            self.set_power_value(math.ceil(self.get_max_power_value() * recovery_percentage))
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
+            self.recharge_power()
+        else:  # Rage or focus.
+            self.set_power_value(0)
 
         super().respawn()
 

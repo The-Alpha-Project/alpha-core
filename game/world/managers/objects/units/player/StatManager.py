@@ -64,7 +64,10 @@ class UnitStats(IntFlag):
     DAMAGE_TAKEN_SCHOOL = auto()
 
     HEALTH_REGENERATION_PER_5 = auto()
-    POWER_REGENERATION_PER_5 = auto()
+    MANA_REGENERATION_PER_5 = auto()
+    RAGE_REGENERATION_PER_5 = auto()
+    FOCUS_REGENERATION_PER_5 = auto()
+    ENERGY_REGENERATION_PER_5 = auto()
 
     ATTACK_SPEED = auto()
     THREAT_GENERATION = auto()
@@ -80,6 +83,7 @@ class UnitStats(IntFlag):
 
     ATTRIBUTE_START = STRENGTH
     RESISTANCE_START = RESISTANCE_PHYSICAL
+    POWER_REGEN_START = MANA_REGENERATION_PER_5
 
     ALL_ATTRIBUTES = STRENGTH | AGILITY | STAMINA | INTELLECT | SPIRIT
     # Exclude armor
@@ -163,6 +167,13 @@ class StatManager(object):
             self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_SPELL_CRITICAL_CHANCE / 100
             self.unit_mgr.base_hp = base_stats.basehp
             self.unit_mgr.base_mana = base_stats.basemana
+
+            # Focus/energy values are guessed.
+            self.base_stats[UnitStats.FOCUS_REGENERATION_PER_5] = 5  # 1 focus/sec
+            # Regenerating 4 Energy every 2 seconds instead of 20. This is a guess based on the cost of
+            # Sinister Strike in both 1.12 (45 Energy) and 0.5.3 (10 Energy). ((10 * 20) / 45 = 4.44)
+            self.base_stats[UnitStats.ENERGY_REGENERATION_PER_5] = 20
+            self.base_stats[UnitStats.RAGE_REGENERATION_PER_5] = -50  # Rage decay out of combat.
         # Creatures.
         else:
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
@@ -383,8 +394,9 @@ class StatManager(object):
                 # Use weapon damage values for paw damage instead.
                 # VMaNGOS values.
 
-                # Base attack delay for the two forms.
-                attack_delay = 1000 if self.unit_mgr.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT) else 2500
+                # Base attack delay for both forms.
+                # Cat form provides a haste bonus in alpha - using the same attack delay for both.
+                attack_delay = 2500
 
                 self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = self.unit_mgr.level * 0.85 * (attack_delay / 1000)
                 self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
@@ -494,7 +506,7 @@ class StatManager(object):
         if new_mana > 0:
             # Update current mana if the new total value is lower and mana is currently greater than the new total.
             if current_mana > new_mana < current_total_mana:
-                self.unit_mgr.set_mana(new_mana)
+                self.unit_mgr.set_power_value(new_mana)
             self.unit_mgr.set_max_mana(new_mana)
 
         return max(0, mana_diff)
@@ -502,7 +514,9 @@ class StatManager(object):
     def update_base_health_regen(self):
         unit_class = self.unit_mgr.class_
         spirit = self.get_total_stat(UnitStats.SPIRIT)
-        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = int(CLASS_BASE_REGEN_HEALTH[unit_class] + spirit * CLASS_SPIRIT_SCALING_HP5[unit_class])
+        spirit_regen = int(CLASS_BASE_REGEN_HEALTH[unit_class] + spirit * CLASS_SPIRIT_SCALING_HP5[unit_class])
+        # Values for spirit regen scaling are per tick.
+        self.base_stats[UnitStats.HEALTH_REGENERATION_PER_5] = max(0, spirit_regen) * 2.5
 
     def update_base_mana_regen(self):
         unit_class = self.unit_mgr.class_
@@ -511,7 +525,8 @@ class StatManager(object):
 
         spirit = self.get_total_stat(UnitStats.SPIRIT)
         regen = CLASS_BASE_REGEN_MANA[unit_class] + spirit * CLASS_SPIRIT_SCALING_MANA[unit_class]
-        self.base_stats[UnitStats.POWER_REGENERATION_PER_5] = int(regen / 2)
+        # Values for mana regen scaling are per second.
+        self.base_stats[UnitStats.MANA_REGENERATION_PER_5] = regen * 2.5  # Values are per tick (* 5/2).
 
     def update_base_melee_critical_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:

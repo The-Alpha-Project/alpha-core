@@ -1,8 +1,8 @@
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
-from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
-from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags, DynamicObjectTypes
+from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
 from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 
 
@@ -10,15 +10,16 @@ from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 class DynamicObjectManager(ObjectManager):
     GUID_MANAGER = GuidManager()
 
-    def __init__(self, owner, location, radius, effect, dynamic_type, **kwargs):
+    def __init__(self, owner, location, radius, effect, dynamic_type, ttl, **kwargs):
         super().__init__(**kwargs)
 
         self.owner = owner.guid
         self.map_ = owner.map_
-        self.location = location
+        self.location = location.copy()
         self.dynamic_type = dynamic_type
         self.spell_id = effect.casting_spell.spell_entry.ID
         self.radius = radius
+        self.ttl = ttl
 
         self.guid = self.generate_object_guid(DynamicObjectManager.GUID_MANAGER.get_new_guid())
 
@@ -44,15 +45,25 @@ class DynamicObjectManager(ObjectManager):
 
         self.initialized = True
 
+    def update(self, now):
+        if now > self.last_tick > 0:
+            elapsed = now - self.last_tick
+            if self.ttl > 0:
+                self.ttl = max(0, self.ttl - elapsed)
+                if self.ttl == 0:
+                    self.destroy()
+
+        self.last_tick = now
+
     @staticmethod
-    def spawn(summoner, location, radius, effect, dynamic_type):
+    def spawn(summoner, location, radius, effect, dynamic_type, ttl=-1):
         dynamic_object = DynamicObjectManager(owner=summoner, location=location, radius=radius, effect=effect,
-                                              dynamic_type=dynamic_type)
+                                              dynamic_type=dynamic_type, ttl=ttl)
         MapManager.update_object(dynamic_object)
         return dynamic_object
 
     @classmethod
-    def spawn_from_spell_effect(cls, effect):
+    def spawn_from_spell_effect(cls, effect, dynamic_type, ttl=-1):
         target = effect.casting_spell.initial_target
 
         # Target must be a vector.
@@ -61,8 +72,12 @@ class DynamicObjectManager(ObjectManager):
 
         effect.casting_spell.dynamic_object = DynamicObjectManager.spawn(effect.casting_spell.spell_caster,
                                                                          target, effect.get_radius(), effect,
-                                                                         DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
+                                                                         dynamic_type, ttl=ttl)
         return effect.casting_spell.dynamic_object
+
+    # override
+    def is_active_object(self):
+        return FarSightManager.object_is_camera_view_point(self)
 
     # override
     def get_type_mask(self):

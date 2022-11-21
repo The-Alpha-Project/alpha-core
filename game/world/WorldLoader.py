@@ -290,7 +290,8 @@ class WorldLoader:
         count = 0
 
         for pickpocketing_loot_template in pickpocketing_loot_templates:
-            WorldDatabaseManager.PickPocketingLootTemplateHolder.load_pickpocketing_loot_template(pickpocketing_loot_template)
+            WorldDatabaseManager.PickPocketingLootTemplateHolder.load_pickpocketing_loot_template(
+                pickpocketing_loot_template)
             count += 1
             Logger.progress('Loading pickpocketing loot templates...', count, length)
 

@@ -301,6 +301,12 @@ class SpellManager:
 
         casting_spell.resolve_target_info_for_effects()
 
+        # Reset mana regen timer on cast perform.
+        # Regen update will handle regen timer resets if a spell is casting,
+        # but instants reach perform without update.
+        if not casting_spell.triggered:
+            self.caster.mana_regen_timer = 0
+
         if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
             return  # Spell is in delayed state, do nothing for now
 
@@ -312,7 +318,7 @@ class SpellManager:
             casting_spell.spent_combo_points = self.caster.combo_points
 
         if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and \
-                not casting_spell.triggered:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts
+                not casting_spell.triggered:  # Triggered spells (ie. channel ticks) shouldn't interrupt other casts.
             self.caster.aura_manager.check_aura_interrupts(cast_spell=casting_spell)
 
         self.set_on_cooldown(casting_spell)
@@ -581,6 +587,13 @@ class SpellManager:
         for casting_spell in list(self.casting_spells):
             result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
 
+            if not remove_active:
+                if casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT:
+                    # Far Sight stuns the caster, but shouldn't interrupt the channel.
+                    # TODO this is kind of a hack...
+                    #  SPELL_ATTR_EX_FARSIGHT doesn't relate to the stun and is used by other perspective change spells.
+                    continue
+
             # "Passive" casts like active area auras and delayed spells.
             if not casting_spell.is_channeled() and \
                     casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
@@ -735,7 +748,7 @@ class SpellManager:
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
-            if effect.has_periodic_ticks_remaining():
+            if not effect.is_periodic() or effect.has_periodic_ticks_remaining():
                 is_finished = False
 
             # Area spell effect update.
@@ -911,13 +924,6 @@ class SpellManager:
     def is_on_cooldown(self, spell_entry) -> bool:
         return spell_entry.ID in self.cooldowns
 
-    def is_casting(self):
-        for spell in list(self.casting_spells):
-            if spell.cast_state == SpellState.SPELL_STATE_CASTING or \
-                    (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE):
-                return True
-        return False
-
     def is_casting_spell(self, spell_id):
         for spell in list(self.casting_spells):
             if spell.spell_entry.ID == spell_id and \
@@ -928,10 +934,18 @@ class SpellManager:
 
     def get_casting_spell(self):
         for spell in list(self.casting_spells):
-            if spell.cast_state == SpellState.SPELL_STATE_CASTING or \
+            if spell.triggered:
+                # Ignore triggered casts - they can have casting time but shouldn't affect other casts.
+                continue
+
+            if spell.cast_state != SpellState.SPELL_STATE_CASTING and not \
                     (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE):
-                return spell
+                continue
+            return spell
         return None
+
+    def is_casting(self):
+        return self.get_casting_spell() is not None
 
     def validate_cast(self, casting_spell) -> bool:
         if self.is_on_cooldown(casting_spell.spell_entry):
@@ -1304,7 +1318,7 @@ class SpellManager:
         has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
         power_cost = casting_spell.get_resource_cost()
         has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
-        current_power = self.caster.health if has_health_cost else self.caster.get_power_type_value()
+        current_power = self.caster.health if has_health_cost else self.caster.get_power_value()
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         # Items like scrolls or creatures need to be able to cast spells even if they lack the required power type.
         ignore_wrong_power = not is_player or casting_spell.source_item or casting_spell.triggered
@@ -1431,20 +1445,15 @@ class SpellManager:
         else:
             cost = casting_spell.get_resource_cost()
             # Note: resources are consumed after the cast, which means that the caster's power type can change.
-            # Pass the required power to get_power_type_value.
-            current_power = self.caster.health if power_type == PowerTypes.TYPE_HEALTH else self.caster.get_power_type_value(power_type)
+            # Pass the required power to get_power_value.
+            current_power = self.caster.health if power_type == PowerTypes.TYPE_HEALTH \
+                else self.caster.get_power_value(power_type)
             new_power = current_power - cost
 
-        if power_type == PowerTypes.TYPE_MANA:
-            self.caster.set_mana(new_power)
-        elif power_type == PowerTypes.TYPE_RAGE:
-            self.caster.set_rage(new_power)
-        elif power_type == PowerTypes.TYPE_FOCUS:
-            self.caster.set_focus(new_power)
-        elif power_type == PowerTypes.TYPE_ENERGY:
-            self.caster.set_energy(new_power)
-        elif power_type == PowerTypes.TYPE_HEALTH:
+        if power_type == PowerTypes.TYPE_HEALTH:
             self.caster.set_health(new_power)
+        else:
+            self.caster.set_power_value(new_power, power_type)
 
         if is_player and casting_spell.requires_combo_points():
             self.caster.remove_combo_points()
