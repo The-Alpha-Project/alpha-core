@@ -364,8 +364,8 @@ class MapManager:
             Logger.warning(f'Warning, did not find grid_manager for map: {map_}')
 
     @staticmethod
-    def remove_object(world_object):
-        MapManager.get_grid_manager_by_map_id(world_object.map_).remove_object(world_object)
+    def remove_object(world_object, destroy=True):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).remove_object(world_object, destroy=destroy)
 
     @staticmethod
     def send_surrounding(packet, world_object, include_self=True, exclude=None, use_ignore=False):

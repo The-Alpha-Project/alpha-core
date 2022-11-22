@@ -28,6 +28,26 @@ class FarSightManager:
         return world_object.guid in CAMERAS_BY_SOURCE_OBJECT
 
     @staticmethod
+    def get_camera_by_object(world_object):
+        camera = FarSightManager._get_camera_by_object(world_object)
+        return camera
+
+    @staticmethod
+    def update_camera_cell(world_object, cell):
+        camera = FarSightManager._get_camera_by_object(world_object)
+        # If the camera changed cells, update its placement.
+        if camera and camera.cell_key != cell.key:
+            # Remove existent camera from cell.
+            if camera.cell_key in CAMERAS_BY_CELL:
+                CAMERAS_BY_CELL[camera.cell_key].remove(camera)
+            # Create the new cell if needed.
+            if cell.key not in CAMERAS_BY_CELL:
+                CAMERAS_BY_CELL[cell.key] = set()
+            # Set the camera in the new cell.
+            CAMERAS_BY_CELL[cell.key].add(camera)
+            camera.cell_key = cell.key
+
+    @staticmethod
     def get_camera_for_player(player_mgr):
         for camera in list(CAMERAS_BY_SOURCE_OBJECT.values()):
             if camera.has_player(player_mgr):

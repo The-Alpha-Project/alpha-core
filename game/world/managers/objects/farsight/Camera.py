@@ -21,6 +21,10 @@ class Camera:
                 continue
             player_mgr.enqueue_packet(packet)
 
+    def update_camera_on_players(self):
+        for player_mgr in list(self.players.values()):
+            player_mgr.update_known_objects_on_tick = True
+
     def has_player(self, player_mgr):
         return player_mgr.guid in self.players
 
@@ -43,3 +47,4 @@ class Camera:
     def flush(self):
         for player_mgr in list(self.players.values()):
             self.pop_player(player_mgr)
+            player_mgr.update_known_objects_on_tick = True

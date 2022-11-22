@@ -78,6 +78,10 @@ class MovementHandler:
                 movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), movement_data)
                 MapManager.send_surrounding(movement_packet, unit_mover, include_self=False)
 
+                # If the player is not moving himself, update the moved unit in our grid system.
+                if unit_mover.guid != world_session.player_mgr.guid:
+                    MapManager.update_object(unit_mover)
+
             except (AttributeError, error):
                 Logger.error(f'Error while handling {reader.opcode_str()}, skipping. Data: {reader.data}')
 

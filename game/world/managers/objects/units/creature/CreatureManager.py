@@ -333,6 +333,12 @@ class CreatureManager(UnitManager):
         # Scan surrounding for enemies.
         self._on_relocation()
 
+    # override
+    def on_cell_change(self):
+        camera = FarSightManager.get_camera_by_object(self)
+        if camera:
+            camera.update_camera_on_players()
+
     def can_swim(self):
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
 
