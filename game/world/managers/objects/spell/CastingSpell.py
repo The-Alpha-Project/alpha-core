@@ -218,6 +218,9 @@ class CastingSpell:
     def is_channeled(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNELED
 
+    def is_far_sight(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FARSIGHT
+
     def generates_threat(self):
         return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
 
