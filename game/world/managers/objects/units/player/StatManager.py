@@ -275,11 +275,8 @@ class StatManager(object):
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.unit_mgr.skill_manager.build_update()
 
-        # Set health and power (if it's not Rage and Focus) to their max values.
         if replenish:
-            self.unit_mgr.set_health(self.unit_mgr.max_health)
-            if self.unit_mgr.power_type != PowerTypes.TYPE_RAGE and self.unit_mgr.power_type != PowerTypes.TYPE_FOCUS:
-                self.unit_mgr.recharge_power()
+            self.unit_mgr.replenish_powers()
 
         return hp_diff, mana_diff
 
