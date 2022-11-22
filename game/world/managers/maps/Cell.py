@@ -67,7 +67,7 @@ class Cell:
 
         camera = FarSightManager.get_camera_by_object(world_object)
         if camera:
-            FarSightManager.update_camera_cell(world_object, self)
+            FarSightManager.update_camera_cell_placement(world_object, self)
 
     def update_creatures(self, now):
         with self.cell_lock:

@@ -33,13 +33,16 @@ class FarSightManager:
         return camera
 
     @staticmethod
-    def update_camera_cell(world_object, cell):
+    def update_camera_cell_placement(world_object, cell):
         camera = FarSightManager._get_camera_by_object(world_object)
         # If the camera changed cells, update its placement.
         if camera and camera.cell_key != cell.key:
             # Remove existent camera from cell.
             if camera.cell_key in CAMERAS_BY_CELL:
                 CAMERAS_BY_CELL[camera.cell_key].remove(camera)
+                # Cell has no more cameras, remove cell entry.
+                if len(CAMERAS_BY_CELL[camera.cell_key]) == 0:
+                    del CAMERAS_BY_CELL[camera.cell_key]
             # Create the new cell if needed.
             if cell.key not in CAMERAS_BY_CELL:
                 CAMERAS_BY_CELL[cell.key] = set()
