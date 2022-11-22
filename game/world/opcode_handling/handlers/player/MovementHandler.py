@@ -35,15 +35,14 @@ class MovementHandler:
                     player_mgr.teleport(player_mgr.map_, player_mgr.location, is_instant=True)
                     return 0
 
+                unit_jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
+                unit_moved = flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) != 0
+                unit_turned = flags & MoveFlags.MOVEFLAG_TURN_MASK != 0
+
                 # If the player is not controlling another unit.
                 if not player_mgr.possessed_unit:
-                    player_jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
-                    player_moved = flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) != 0
-                    player_turned = flags & MoveFlags.MOVEFLAG_TURN_MASK != 0
-                    player_mgr.set_has_moved(has_moved=player_moved or player_jumped, has_turned=player_turned)
-
                     # Cancel looting if x,y,z changed.
-                    if player_jumped or player_moved:
+                    if unit_jumped or unit_moved:
                         player_mgr.interrupt_looting()
 
                     # Unpack spline mover if needed.
@@ -51,7 +50,7 @@ class MovementHandler:
                         player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(reader.data[48:])
 
                     # Stand up if player jumps while not standing.
-                    if player_jumped and player_mgr.stand_state != StandState.UNIT_DEAD and \
+                    if unit_jumped and player_mgr.stand_state != StandState.UNIT_DEAD and \
                             player_mgr.stand_state != StandState.UNIT_STANDING:
                         player_mgr.set_stand_state(StandState.UNIT_STANDING)
 
@@ -73,14 +72,12 @@ class MovementHandler:
                 unit_mover.pitch = pitch
                 unit_mover.movement_flags = flags
 
+                unit_mover.set_has_moved(has_moved=unit_moved or unit_jumped, has_turned=unit_turned)
+
                 # Broadcast player movement to surroundings.
                 movement_data = pack(f'<Q{len(reader.data)}s', unit_mover.guid, reader.data)
                 movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), movement_data)
                 MapManager.send_surrounding(movement_packet, unit_mover, include_self=False)
-
-                # If the player is not moving himself, update the moved unit in our grid system.
-                if unit_mover.guid != world_session.player_mgr.guid:
-                    MapManager.update_object(unit_mover)
 
             except (AttributeError, error):
                 Logger.error(f'Error while handling {reader.opcode_str()}, skipping. Data: {reader.data}')

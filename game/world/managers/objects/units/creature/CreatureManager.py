@@ -566,6 +566,7 @@ class CreatureManager(UnitManager):
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.set_has_moved(False, False, flush=True)
+                    MapManager.update_object(self)
                 # Random Movement, if visible to players.
                 if self.is_active_object():
                     self._perform_random_movement(now)
