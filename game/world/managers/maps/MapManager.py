@@ -9,6 +9,7 @@ from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 
@@ -364,8 +365,9 @@ class MapManager:
             Logger.warning(f'Warning, did not find grid_manager for map: {map_}')
 
     @staticmethod
-    def remove_object(world_object, destroy=True):
-        MapManager.get_grid_manager_by_map_id(world_object.map_).remove_object(world_object, destroy=destroy)
+    def remove_object(world_object):
+        MapManager.get_grid_manager_by_map_id(world_object.map_).remove_object(world_object)
+        FarSightManager.remove_camera(world_object)
 
     @staticmethod
     def send_surrounding(packet, world_object, include_self=True, exclude=None, use_ignore=False):

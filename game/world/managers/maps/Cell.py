@@ -128,7 +128,7 @@ class Cell:
         else:
             player.update_known_objects_on_tick = True
 
-    def remove(self, world_object, destroy=False):
+    def remove(self, world_object):
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.players.pop(world_object.guid, None)
         elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
@@ -139,10 +139,6 @@ class Cell:
             self.dynamic_objects.pop(world_object.guid, None)
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
             self.corpses.pop(world_object.guid, None)
-
-        # If not only switching cells, destroy its bound camera, if any.
-        if destroy:
-            FarSightManager.remove_camera(world_object)
 
     def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
         players_reached = set()

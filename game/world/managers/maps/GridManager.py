@@ -39,7 +39,7 @@ class GridManager:
         # Handle teleport between different maps.
         if old_grid_manager and old_grid_manager != self:
             # Remove from old location.
-            old_grid_manager.remove_object(world_object, destroy=True)
+            old_grid_manager.remove_object(world_object)
             # Add to new location.
             self.add_world_object(world_object)
         # Handle cell change within the same map.
@@ -107,12 +107,11 @@ class GridManager:
                 for creature in list(cell.creatures.values()):
                     self.active_cell_callback(creature)
 
-    # Remove a world_object from the current cell and notify players if needed.
-    # This can either be permanently removing an object, or object is switching cells.
-    def remove_object(self, world_object, update_players=True, destroy=False):
+    # Remove a world_object from its cell and notify surrounding players if required.
+    def remove_object(self, world_object, update_players=True):
         cell = self.cells.get(world_object.current_cell)
         if cell:
-            cell.remove(world_object, destroy=destroy)
+            cell.remove(world_object)
             # Notify surrounding players.
             if update_players:
                 self.update_players_surroundings(cell.key)
