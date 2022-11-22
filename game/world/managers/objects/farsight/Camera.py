@@ -49,8 +49,6 @@ class Camera:
         for player_mgr in list(self.players.values()):
             self.pop_player(player_mgr)
             player_mgr.update_known_objects_on_tick = True
-            if not player_mgr.spell_manager.is_casting():
-                continue
             spell = player_mgr.spell_manager.get_casting_spell()
-            if spell.is_far_sight() and spell.is_channeled():
+            if spell and spell.is_far_sight() and spell.is_channeled():
                 player_mgr.spell_manager.interrupt_casting_spell()
