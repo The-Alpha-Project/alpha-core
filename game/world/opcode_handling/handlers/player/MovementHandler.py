@@ -74,7 +74,7 @@ class MovementHandler:
 
                 unit_mover.set_has_moved(has_moved=unit_moved or unit_jumped, has_turned=unit_turned)
 
-                # Broadcast player movement to surroundings.
+                # Broadcast player/possessed unit movement to surroundings.
                 movement_data = pack(f'<Q{len(reader.data)}s', unit_mover.guid, reader.data)
                 movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), movement_data)
                 MapManager.send_surrounding(movement_packet, unit_mover, include_self=False)
