@@ -140,8 +140,8 @@ class Cell:
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
             self.corpses.pop(world_object.guid, None)
 
+        # If not only switching cells, destroy its bound camera, if any.
         if destroy:
-            # If world object was a camera viewpoint, remove it.
             FarSightManager.remove_camera(world_object)
 
     def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
