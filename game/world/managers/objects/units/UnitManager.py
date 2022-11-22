@@ -750,6 +750,9 @@ class UnitManager(ObjectManager):
         if not self.is_alive:
             return False
 
+        if power_type == PowerTypes.TYPE_HEALTH:
+            return self.receive_healing(amount, source=source)
+
         if self.power_type != power_type:
             return False
 
@@ -1130,7 +1133,9 @@ class UnitManager(ObjectManager):
         if power_type == -1:
             power_type = self.power_type
 
-        if power_type == PowerTypes.TYPE_MANA:
+        if power_type == PowerTypes.TYPE_HEALTH:
+            return self.health
+        elif power_type == PowerTypes.TYPE_MANA:
             return self.power_1
         elif power_type == PowerTypes.TYPE_RAGE:
             return self.power_2
@@ -1161,7 +1166,9 @@ class UnitManager(ObjectManager):
         if power_type == -1:
             power_type = self.power_type
 
-        if power_type == PowerTypes.TYPE_MANA:
+        if power_type == PowerTypes.TYPE_HEALTH:
+            return self.max_health
+        elif power_type == PowerTypes.TYPE_MANA:
             return self.max_power_1
         elif power_type == PowerTypes.TYPE_RAGE:
             return self.max_power_2
@@ -1187,6 +1194,13 @@ class UnitManager(ObjectManager):
     def recharge_power(self):
         max_power = self.get_max_power_value()
         self.set_power_value(max_power)
+
+    def replenish_powers(self):
+        # Set health and mana/energy to max.
+        health = self.max_health
+        if self.power_type in {PowerTypes.TYPE_MANA, PowerTypes.TYPE_ENERGY}:
+            self.recharge_power()
+        self.set_health(health)
 
     def set_school_absorb(self, school_mask, aura_index, value, absorb=True):
         # Initialize if needed.
