@@ -33,19 +33,22 @@ class EnchantmentManager(object):
                 self.set_item_enchantment(item, slot, entry, duration, charges)
 
     # TODO: Need to optimize item lookup or even move Enchantment updates to a new global thread.
-    def update(self, elapsed, force=False):
+    def update(self, elapsed):
         self.duration_timer_seconds += elapsed
-        if force or self.duration_timer_seconds >= 10:
+        if self.duration_timer_seconds >= 10:
             for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
-                for slot, enchantment in enumerate(item.enchantments):
-                    if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry:  # Temporary enchantments.
-                        new_duration = int(enchantment.duration - self.duration_timer_seconds)
-                        enchantment.duration = 0 if new_duration <= 0 else new_duration
-                        if not enchantment.duration and not enchantment.charges:
-                            # Remove.
-                            self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
-                            item.save()
+                self._update_item_enchantments(item)
             self.duration_timer_seconds = 0
+
+    def _update_item_enchantments(self, item):
+        for slot, enchantment in enumerate(item.enchantments):
+            if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry:  # Temporary enchantments.
+                new_duration = int(enchantment.duration - self.duration_timer_seconds)
+                enchantment.duration = 0 if new_duration <= 0 else new_duration
+                if not enchantment.duration and not enchantment.charges:
+                    # Remove.
+                    self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
+                    item.save()
 
     def apply_enchantments(self, load=False):
         for container_slot, container in list(self.unit_mgr.inventory.containers.items()):
@@ -121,7 +124,7 @@ class EnchantmentManager(object):
                     new_charges = max(0, charges - 1)
                     proc_item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot[0] * 3 + 2, new_charges)
                     proc_item.enchantments[enchantment_slot[0]].charges = new_charges
-                    self.update(0, force=True)
+                    self._update_item_enchantments(proc_item)
 
             # Some enchant procs use spells that have cast times.
             # Ignore cast time for these spells by overriding cast time info.
