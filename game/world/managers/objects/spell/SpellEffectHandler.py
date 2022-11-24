@@ -689,9 +689,11 @@ class SpellEffectHandler:
         charges = 0
 
         if is_temporary:
-            # Temporary enchantments from professions (enchanting) have a duration of 1h while others have 30min.
-            duration = 30 * 60 if not casting_spell.spell_entry.CastUI else 60 * 60
             charges = int(WorldDatabaseManager.spell_enchant_charges_get_by_spell(casting_spell.spell_entry.ID))
+            # If not ruled by charges, use duration.
+            if not charges:
+                # Temporary enchantments from professions (enchanting) have a duration of 1h while others have 30min.
+                duration = 30 * 60 if not casting_spell.spell_entry.CastUI else 60 * 60
 
         owner_player = WorldSessionStateHandler.find_player_by_guid(target.get_owner_guid())
         if not owner_player:

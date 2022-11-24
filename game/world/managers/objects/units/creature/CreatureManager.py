@@ -667,6 +667,10 @@ class CreatureManager(UnitManager):
         if not self.is_alive:
             return False
 
+        # Handle one shot kills leading to player remaining in combat.
+        if not self.threat_manager.has_aggro_from(killer):
+            self.threat_manager.add_threat(killer)
+
         # Notify pet AI about this kill.
         pet_or_killer_pet = self if self.is_pet() else killer.get_pet()
         if pet_or_killer_pet:
