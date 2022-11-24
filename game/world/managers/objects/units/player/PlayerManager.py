@@ -644,6 +644,8 @@ class PlayerManager(UnitManager):
             # while the screen is still present.
             # Remove to others.
             MapManager.remove_object(self)
+            # Remove the player's active pet.
+            self.pet_manager.detach_active_pet()
             # Destroy all objects known to self.
             self.update_known_world_objects(flush=True)
             # Flush known items/objects cache.
@@ -685,9 +687,6 @@ class PlayerManager(UnitManager):
             self.enchantment_manager.apply_enchantments()
             # Apply stat bonuses again.
             self.stat_manager.apply_bonuses()
-
-        # Remove the player's active pet.
-        self.pet_manager.detach_active_pet()
 
         # Remove taxi flying state, if any.
         if self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:

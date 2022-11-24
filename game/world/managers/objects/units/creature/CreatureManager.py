@@ -76,7 +76,7 @@ class CreatureManager(UnitManager):
         self.has_parry_passive = True
 
     # This can also be used to 'morph' the creature.
-    def initialize_from_creature_template(self, creature_template):
+    def initialize_from_creature_template(self, creature_template, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
         if not creature_template:
             return
 
@@ -104,7 +104,7 @@ class CreatureManager(UnitManager):
         self.creature_type = self.creature_template.type
         self.spell_list_id = self.creature_template.spell_list_id
         self.sheath_state = WeaponMode.NORMALMODE
-        self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
+        self.subtype = subtype
 
         if 0 < self.creature_template.rank < 4:
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
