@@ -50,6 +50,16 @@ class EnchantmentManager(object):
                     self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
                     item.save()
 
+    # noinspection PyMethodMayBeStatic
+    def _consume_item_charges(self, item, enchantment_slot, used_charges=1):
+        charges = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2)
+        if charges:
+            new_charges = max(0, charges - used_charges)
+            item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2, new_charges)
+            item.enchantments[enchantment_slot[0]].charges = new_charges
+            return True
+        return False
+
     def apply_enchantments(self, load=False):
         for container_slot, container in list(self.unit_mgr.inventory.containers.items()):
             if not container:
@@ -116,15 +126,10 @@ class EnchantmentManager(object):
             if not proc_item:
                 continue
 
-            # Check charges.
+            # Handle proc charges.
             enchantment_slot = [i for i, enchantment in enumerate(proc_item.enchantments) if enchantment.entry == entry]
-            if enchantment_slot:
-                charges = proc_item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot[0] * 3 + 2)
-                if charges:
-                    new_charges = max(0, charges - 1)
-                    proc_item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot[0] * 3 + 2, new_charges)
-                    proc_item.enchantments[enchantment_slot[0]].charges = new_charges
-                    self._update_item_enchantments(proc_item)
+            if enchantment_slot and self._consume_item_charges(proc_item, enchantment_slot[0]):
+                self._update_item_enchantments(proc_item)
 
             # Some enchant procs use spells that have cast times.
             # Ignore cast time for these spells by overriding cast time info.
