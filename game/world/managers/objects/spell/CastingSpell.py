@@ -95,10 +95,6 @@ class CastingSpell:
                                                                            self.range_entry.RangeMin,
                                                                            self.range_entry.RangeMax)
 
-        if self.targets_owner_pet():
-            pet = self.spell_caster.get_pet()
-            self.initial_target = pet if pet else self.initial_target
-
         self.cast_flags = SpellCastFlags.CAST_FLAG_NONE
 
         # Ammo needs to be resolved on initialization since it's needed for validation and spell cast packets.
@@ -313,7 +309,7 @@ class CastingSpell:
     def is_fishing_spell(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF_FISHING
 
-    def targets_owner_pet(self):
+    def has_pet_target(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_PET
 
     def is_pick_pocket_spell(self):

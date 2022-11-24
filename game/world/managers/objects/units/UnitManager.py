@@ -953,11 +953,7 @@ class UnitManager(ObjectManager):
         return False
 
     def get_pet(self):
-        pet_id = self.get_uint64(UnitFields.UNIT_FIELD_SUMMON)
-        if pet_id:
-            pet = MapManager.get_surrounding_unit_by_guid(self, pet_id, include_players=True)
-            return pet if pet and pet.is_pet() else None
-        return None
+        return self.pet_manager.active_pet.creature if self.pet_manager.active_pet else None
 
     def get_possessed_unit(self):
         possessed_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARM)
