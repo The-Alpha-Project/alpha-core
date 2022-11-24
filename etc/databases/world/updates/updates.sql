@@ -14468,10 +14468,9 @@ begin not atomic
     end if;
 
     -- 24/11/2022 1
-	-- Crippling Poison charges.
+    -- Crippling Poison charges.
     if (select count(*) from applied_updates where id='241120221') = 0 then	
-	    INSERT INTO `alpha_world`.`spell_enchant_charges` (`entry`, `charges`) VALUES ('3408', '1');
-		
+	    INSERT INTO `alpha_world`.`spell_enchant_charges` (`entry`, `charges`) VALUES ('3408', '1');		
 	    insert into applied_updates values ('241120221');
     end if;
         
