@@ -59,7 +59,7 @@ class TrainerUtils:
             # Required spell. Take override from database if available.
             req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
 
-            status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, player_mgr, fulfill_skill_reqs)
+            status = TrainerUtils.get_training_list_spell_status(spell.ID, req_level, preceded_spell, player_mgr, fulfill_skill_reqs)
             train_spell_bytes += TrainerUtils.get_spell_data(trainer_spell.spell, status, trainer_spell.spellcost,
                                                              trainer_spell.talentpointcost,
                                                              trainer_spell.skillpointcost, req_level,
@@ -97,16 +97,16 @@ class TrainerUtils:
         return data
 
     @staticmethod
-    def get_training_list_spell_status(spell, preceded_spell, player_mgr, fulfill_skill=True):
+    def get_training_list_spell_status(spell_id, spell_level, preceded_spell, player_mgr, fulfill_skill=True):
         if not fulfill_skill:
             status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
         else:
-            if spell.ID in player_mgr.spell_manager.spells:
+            if spell_id in player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_USED
             else:
                 if preceded_spell and preceded_spell not in player_mgr.spell_manager.spells:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
-                elif player_mgr.level >= spell.BaseLevel:
+                elif player_mgr.level >= spell_level:
                     status = TrainerServices.TRAINER_SERVICE_AVAILABLE
                 else:
                     status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
