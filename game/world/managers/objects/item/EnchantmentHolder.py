@@ -20,7 +20,7 @@ class EnchantmentHolder(object):
         self.charges = charges
 
         # Update enchantments data.
-        self.spell_item_enchantment_entry = DbcDatabaseManager.spell_get_item_enchantment(entry)
+        self.spell_item_enchantment_entry = None if not entry else DbcDatabaseManager.spell_get_item_enchantment(entry)
         if self.spell_item_enchantment_entry:
             self.effect = self.spell_item_enchantment_entry.Effect_1
             self.effect_points = self.spell_item_enchantment_entry.EffectPointsMin_1
@@ -32,6 +32,9 @@ class EnchantmentHolder(object):
         self.effect_points = 0
         self.effect_spell = 0
         self.aura_id = 0
+        self.entry = 0
+        self.duration = 0
+        self.charges = 0
 
     def has_enchantment_effect(self, enchantment_type: [ItemEnchantmentType]):
         return enchantment_type == self.effect

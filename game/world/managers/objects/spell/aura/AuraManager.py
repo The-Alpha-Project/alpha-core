@@ -131,7 +131,7 @@ class AuraManager:
         }
 
         for aura in list(self.active_auras.values()):
-            # Food buffs are not labeled and an interrupt for sitting does not exist.
+            # An interrupt for sitting does not exist.
             # Food/drink spells do claim that the player must remain seated.
             # In later versions an aurainterrupt exists for this purpose.
             if aura.source_spell.is_refreshment_spell() and changed_stand_state and \
