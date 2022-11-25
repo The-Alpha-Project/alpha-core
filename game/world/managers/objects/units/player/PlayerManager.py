@@ -591,9 +591,11 @@ class PlayerManager(UnitManager):
         if not MapManager.validate_teleport_destination(map_, location.x, location.y):
             return False
 
-        # Make sure to end duel before teleporting if this isn't an instant teleport (blink, chair use etc.)
-        if self.duel_manager and not is_instant:
-            self.duel_manager.force_duel_end(self)
+        # End duel and detach pet if this is a long-distance teleport.
+        if not is_instant:
+            self.pet_manager.detach_active_pet()
+            if self.duel_manager:
+                self.duel_manager.end_duel()
 
         # If unit is being moved by a spline, stop it.
         if self.movement_manager.unit_is_moving():
@@ -644,8 +646,6 @@ class PlayerManager(UnitManager):
             # while the screen is still present.
             # Remove to others.
             MapManager.remove_object(self)
-            # Remove player's active pet.
-            self.pet_manager.detach_active_pet()
             # Destroy all objects known to self.
             self.update_known_world_objects(flush=True)
             # Flush known items/objects cache.
