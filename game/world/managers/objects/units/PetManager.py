@@ -270,8 +270,6 @@ class PetManager:
         self._send_pet_spell_info()
 
     def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, permanent: bool) -> int:
-        # TODO: default name by beast_family - resolve id reference.
-
         pet = PetData(-1, creature_template.name, creature_template, self.owner.guid, level,
                       0, summon_spell_id, permanent=permanent)
 
