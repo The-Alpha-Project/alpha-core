@@ -33,7 +33,7 @@ class AuraManager:
     def add_aura(self, aura):
         can_apply = self.can_apply_aura(aura) and self.remove_colliding_effects(aura)
         if not can_apply:
-            return
+            return -1
 
         # Application threat and negative aura application interrupts.
         if aura.harmful:
@@ -68,9 +68,13 @@ class AuraManager:
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target)
 
         self.write_aura_to_unit(aura, is_refresh=is_refresh)
+        return aura.index
 
     def update(self, timestamp):
         for aura in list(self.active_auras.values()):
+            if aura.spell_effect.area_aura_holder:
+                continue  # Area auras are updated by AreaAuraHolder.
+
             aura.update(timestamp)  # Update duration and handle periodic effects.
             if aura.has_duration() and aura.get_duration() <= 0:
                 self.remove_aura(aura)
@@ -112,10 +116,10 @@ class AuraManager:
         return True
 
     def check_aura_interrupts(self, moved=False, turned=False, changed_stand_state=False, negative_aura_applied=False,
-                              received_damage=False, cast_spell: Optional[CastingSpell] = None):
+                              received_damage=False, enter_combat=False, cast_spell: Optional[CastingSpell] = None):
         # Add once movement information is passed to update.
         flag_cases = {
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: self.unit_mgr.in_combat,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: enter_combat,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: moved,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING: turned,
@@ -135,12 +139,12 @@ class AuraManager:
                 self.remove_aura(aura)
                 continue
 
-            # Special case for stealth breaking.
-            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \
-                    cast_spell and not cast_spell.cast_breaks_stealth():
-                flag_cases[SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST] = None
-
             for flag, condition in flag_cases.items():
+                if flag == SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST and \
+                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \
+                        cast_spell and not cast_spell.cast_breaks_stealth():
+                    continue  # Skip cast interrupt for stealth spells for flagged spells.
+
                 if aura.interrupt_flags & flag and condition:
                     self.remove_aura(aura)
                     continue
@@ -262,6 +266,16 @@ class AuraManager:
             auras.append(aura)
         return auras
 
+    def get_beneficial_auras(self):
+        return [self.active_auras[i] for i in
+                range(0, AuraSlots.AURA_SLOT_HARMFUL_AURA_START)
+                if i in self.active_auras]
+
+    def get_harmful_auras(self):
+        return [self.active_auras[i] for i in
+                range(AuraSlots.AURA_SLOT_HARMFUL_AURA_START, AuraSlots.AURA_SLOT_PASSIVE_AURA_START)
+                if i in self.active_auras]
+
     def get_similar_applied_auras(self, aura, accept_all_ranks=True, accept_all_sources=True) -> list[AppliedAura]:
         aura_spell_template = aura.source_spell.spell_entry
 
@@ -329,11 +343,21 @@ class AuraManager:
         for aura in list(self.active_auras.values()):
             self.remove_aura(aura)
 
-    def cancel_auras_by_spell_id(self, spell_id):
+    def cancel_auras_by_spell_id(self, spell_id, source_restriction=None):
         auras = self.get_auras_by_spell_id(spell_id)
 
         for aura in auras:
+            if source_restriction and aura.caster is not source_restriction:
+                continue
             self.remove_aura(aura, canceled=True)
+
+    def remove_aura_from_spell(self, casting_spell):
+        effects = casting_spell.get_effects()
+        auras = []
+        for aura in list(self.active_auras.values()):
+            if aura.spell_effect in effects:
+                self.remove_aura(aura)
+        return auras
 
     def build_update(self):
         [self.write_aura_to_unit(aura, send_duration=False) for aura in list(self.active_auras.values())]

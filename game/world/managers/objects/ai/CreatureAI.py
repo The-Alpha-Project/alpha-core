@@ -11,7 +11,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates
 
 if TYPE_CHECKING:
@@ -73,6 +73,9 @@ class CreatureAI:
         if ai_reaction == AIReactionStates.AI_REACT_ALERT:
             if self.last_alert_time > 0:
                 return False
+            # Stop creature movement if needed.
+            if self.creature.is_moving():
+                self.creature.stop_movement()
             self.last_alert_time = 10  # Seconds.
 
         data = pack('<QI', self.creature.guid, ai_reaction)
@@ -191,6 +194,7 @@ class CreatureAI:
 
     def do_spell_list_cast(self):
         do_not_cast = False
+
         for creature_spell in self.creature_spells:
             cast_flags = creature_spell.cast_flags
             chance = creature_spell.chance
@@ -242,8 +246,9 @@ class CreatureAI:
                 if cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
                     do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
 
-                    # Stop if ranged spell.
-                    if cast_flags & CastFlags.CF_MAIN_RANGED_SPELL and self.creature.is_moving():
+                    # Stop if ranged spell or movement interrupt flag.
+                    if casting_spell.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT \
+                            or cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
                         self.creature.stop_movement()
 
                     # TODO: Run script if available.
@@ -310,10 +315,6 @@ class CreatureAI:
                 if ExtendedSpellData.CastPositionRestrictions.is_from_behind(casting_spell.spell_entry.ID):
                     return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_BEHIND
                 return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT
-
-            # If the spell requires the target having a specific power type.
-            if not casting_spell.is_area_of_effect_spell() and not casting_spell.is_target_power_type_valid():
-                return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
 
             # No point in casting if target is immune.
             if target and target != self:

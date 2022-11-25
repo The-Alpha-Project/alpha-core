@@ -332,6 +332,8 @@ class PetManager:
             channel_spell = self.owner.get_int32(UnitFields.UNIT_CHANNEL_SPELL)
             if channel_spell:
                 spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(channel_spell)
+            elif pet_info.summon_spell_id:
+                spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(pet_info.summon_spell_id)
 
         is_permanent = self.get_active_pet_info().permanent
         pet_index = self.active_pet.pet_index
@@ -340,13 +342,19 @@ class PetManager:
         movement_type = MovementTypes.IDLE
         # Check if this is a borrowed creature instance.
         if creature.spawn_id:
-            charmer_or_summoner = creature.get_charmer_or_summoner()
-            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(charmer_or_summoner, creature.spawn_id)
+            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id)
+            # This creature might be too far from its spawn upon detach, search in all map cells.
             if not spawn:
+                spawn = MapManager.get_creature_spawn_by_id(creature.map_, creature.spawn_id)
+
+            # Creature spawn should be found already at this point.
+            if spawn:
+                if not spawn.restore_creature_instance(creature):
+                    Logger.error(f'Unable to restore creature from spawn id {creature.spawn_id} upon pet detach.')
+                movement_type = spawn.movement_type
+            # Still no spawn found? Something is wrong...
+            else:
                 Logger.error(f'Unable to locate SpawnCreature with id {creature.spawn_id} upon pet detach.')
-            if not spawn.restore_creature_instance(creature):
-                Logger.error(f'Unable to locate un-borrow creature from spawn id {creature.spawn_id} upon pet detach.')
-            movement_type = spawn.movement_type
 
         self.active_pet = None
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, pack('<Q', 0)))
@@ -374,8 +382,8 @@ class PetManager:
         if not creature.spawn_id:
             creature.destroy()
         # Check if the spell entry exists and if it generates threat.
-        elif spell_entry and creature.get_type_id() == ObjectTypeIds.ID_UNIT and spell_entry.AttributesEx \
-                and not spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT:
+        elif spell_entry and creature.get_type_id() == ObjectTypeIds.ID_UNIT and \
+                not spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT:
             # TODO: Proper threat value.
             creature.threat_manager.add_threat(self.owner)
 
@@ -559,6 +567,8 @@ class PetManager:
                     return
 
         if is_permanent:
+            # Spawn permanent creature.
+            MapManager.spawn_object(world_object_instance=creature)
             # Summoned by owner.
             creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
@@ -566,10 +576,6 @@ class PetManager:
         # Charmed by owner.
         creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
                                 movement_type=MovementTypes.IDLE)
-
-        # This is a permanent pet summoned by SPELL_EFFECT_SUMMON_PET, just spawn it.
-        if is_permanent:
-            MapManager.spawn_object(world_object_instance=creature)
 
     def _send_pet_spell_info(self):
         if not self.active_pet:

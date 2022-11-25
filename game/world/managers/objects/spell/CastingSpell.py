@@ -7,6 +7,7 @@ from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTi
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.item.Stats import SpellStat
 from game.world.managers.objects.spell import ExtendedSpellData
@@ -20,6 +21,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, Obj
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags
+from utils.constants.UpdateFields import UnitFields
 
 
 class CastingSpell:
@@ -47,6 +49,8 @@ class CastingSpell:
 
     spell_attack_type: int
     used_ranged_attack_item: ItemManager  # Ammo or thrown.
+
+    dynamic_object: Optional[DynamicObjectManager]
 
     def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False, creature_spell=None):
         self.spell_entry = spell
@@ -113,6 +117,12 @@ class CastingSpell:
             return False
 
         return self.initial_target.get_type_id() == ObjectTypeIds.ID_PLAYER
+
+    def initial_target_is_pet(self):
+        if not self.initial_target_is_object():
+            return False
+
+        return self.initial_target.is_pet()
 
     def initial_target_is_item(self):
         if not self.initial_target_is_object():
@@ -230,21 +240,22 @@ class CastingSpell:
     def has_spell_visual_pre_cast_kit(self):
         return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
-    def is_target_power_type_valid(self):
-        if not self.initial_target:
-            return False
-
+    def is_target_power_type_valid(self, target):
         if len(self._effects) == 0:
             return True
 
         for effect in self.get_effects():
-            if (effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_BURN
-                    or effect.effect_type == SpellEffects.SPELL_EFFECT_POWER_DRAIN
-                    or effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH) \
-                    and effect.misc_value != self.initial_target.power_type:
+            if effect.effect_type not in \
+                    {SpellEffects.SPELL_EFFECT_POWER_BURN,
+                     SpellEffects.SPELL_EFFECT_POWER_DRAIN} and \
+                    effect.aura_type not in \
+                    {AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH,
+                     AuraTypes.SPELL_AURA_PERIODIC_MANA_FUNNEL}:
                 continue
-            return True
-        return False
+
+            if effect.misc_value != target.power_type or not target.get_max_power_value():
+                return False
+        return True
 
     # TODO: Check 'IsImmuneToDamage' - VMaNGOS
     def is_target_immune_to_damage(self):
@@ -254,10 +265,9 @@ class CastingSpell:
         if not self.initial_target_is_unit_or_player():
             return False
 
-        # TODO SpellDispelType.dbc is in 0.5.3, but DispelType in Spell.dbc was added later (present in 0.5.5)
-        #   Is there another way to determine the dispel type for a spell?
-        # 0.5.5: "Holy Word: Shield can now be dispelled. It is considered a Magic effect."
-        return self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
+        dispel_type = self.spell_entry.custom_DispelType
+        school_immunity = self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
+        return school_immunity or self.initial_target.has_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, dispel_type)
 
     def is_target_immune_to_effects(self):
         if not self.initial_target_is_unit_or_player():
@@ -417,7 +427,8 @@ class CastingSpell:
         return self.spell_entry.EquippedItemSubclass & (1 << ItemSubClasses.ITEM_SUBCLASS_FISHING_POLE) != 0
 
     def requires_combo_points(self):
-        cp_att = SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS
+        cp_att = (SpellAttributesEx.SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS |
+                  SpellAttributesEx.SPELL_ATTR_EX_REQ_COMBO_POINTS)
         return self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
             self.spell_entry.AttributesEx & cp_att != 0
 
@@ -436,9 +447,18 @@ class CastingSpell:
         if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             skill = self.spell_caster.skill_manager.get_skill_value_for_spell_id(self.spell_entry.ID)
 
-        cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel * skill))
+        cast_time = int(max(self.cast_time_entry.Minimum, self.cast_time_entry.Base + self.cast_time_entry.PerLevel *
+                            skill))
 
-        if self.is_ranged_weapon_attack() and self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        caster_is_unit = self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+
+        if caster_is_unit and self.spell_entry.Attributes & (SpellAttributes.SPELL_ATTR_IS_ABILITY |
+                                                             SpellAttributes.SPELL_ATTR_TRADESPELL):
+            # TODO: This calculation should probably be out of 'base' cast time.
+            mod_cast_speed = self.spell_caster.get_uint32(UnitFields.UNIT_MOD_CAST_SPEED)
+            cast_time = int(cast_time * (1.0 + mod_cast_speed / 100.0))
+
+        if self.is_ranged_weapon_attack() and caster_is_unit:
             # Ranged attack tooltips are unfinished, so this is partially a guess.
             # All ranged attacks without delay seem to say "next ranged".
             # Ranged attacks with delay (cast time) say "attack speed + X (delay) sec".
@@ -521,6 +541,10 @@ class CastingSpell:
 
     def handle_partial_interrupt(self):
         if not self.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL:
+            return
+
+        # Only players are affected by pushback.
+        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         # TODO Did pushback resistance exist?

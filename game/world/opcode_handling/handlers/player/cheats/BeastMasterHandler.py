@@ -16,7 +16,7 @@ class CheatBeastMasterHandler(object):
             return res
 
         if not player_mgr.is_gm:
-            Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to give himself Beastmaster.')
+            Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to give himself Beastmaster.')
             return 0
 
         if len(reader.data) >= 1:  # Avoid handling empty beast master packet.

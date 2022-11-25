@@ -5,9 +5,11 @@ import math
 import time
 
 from game.world.managers.maps.Cell import Cell
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, HighGuid
 
 TOLERANCE = 0.00001
 CELL_SIZE = config.Server.Settings.cell_size
@@ -55,6 +57,12 @@ class GridManager:
         if has_changes or has_inventory_changes:
             self.update_players_surroundings(current_cell_key, world_object=world_object, has_changes=has_changes,
                                              has_inventory_changes=has_inventory_changes)
+            # At this point all player observers updated this world object, reset update fields bit masks.
+            now = time.time()
+            if has_changes:
+                world_object.reset_fields_older_than(now)
+            if has_inventory_changes:
+                world_object.inventory.reset_fields_older_than(now)
 
         # Notify cell changed if needed.
         if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:
@@ -79,6 +87,12 @@ class GridManager:
 
         # Notify surrounding players.
         if update_players:
+            # Pet/Temp summons creation should be instantly notified to player owner.
+            if world_object.is_temp_summon() or GuidUtils.extract_high_guid(world_object.guid) == HighGuid.HIGHGUID_PET:
+                summoner = world_object.get_charmer_or_summoner()
+                if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                    summoner.update_known_world_object(world_object)
+
             self.update_players_surroundings(cell.key)
 
     def activate_cells(self, cells: list[Cell]):
@@ -129,7 +143,7 @@ class GridManager:
             for cell_key in list(self.active_cell_keys):
                 players_near = False
                 for cell in self.get_surrounding_cells_by_cell(self.cells[cell_key]):
-                    if cell.has_players():
+                    if cell.has_players() or cell.has_cameras():
                         players_near = True
                         break
 
@@ -177,7 +191,7 @@ class GridManager:
     def send_surrounding(self, packet, world_object, include_self=True, exclude=None, use_ignore=False):
         if world_object.current_cell:
             for cell in self.get_surrounding_cells_by_object(world_object):
-                cell.send_all(packet, source=None if include_self else world_object, exclude=exclude, use_ignore=use_ignore)
+                cell.send_all(packet, world_object, include_source=include_self, exclude=exclude, use_ignore=use_ignore)
         # This player has no current cell, send the message directly.
         elif world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and include_self:
             world_object.enqueue_packet(packet)
@@ -210,7 +224,17 @@ class GridManager:
             if object_types[index] == ObjectTypeIds.ID_CORPSE:
                 corpse_index = index
 
-        for cell in self.get_surrounding_cells_by_object(world_object):
+        # Original surrounding cells for requester.
+        cells = self.get_surrounding_cells_by_object(world_object)
+
+        # Handle Far Sight.
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            camera = FarSightManager.get_camera_for_player(world_object)
+            # If the player has a camera object, aggregate camera cells.
+            if camera:
+                cells.update(self.get_surrounding_cells_by_object(camera.world_object))
+
+        for cell in cells:
             if ObjectTypeIds.ID_PLAYER in object_types:
                 surrounding_objects[players_index] = {**surrounding_objects[players_index], **cell.players}
             if ObjectTypeIds.ID_UNIT in object_types:
@@ -235,10 +259,27 @@ class GridManager:
         else:
             return res[0]
 
-    def get_surrounding_unit_spawns(self, world_object):
+    def get_creature_spawn_by_id(self, spawn_id):
+        for cell in set(self.cells.values()):
+            spawn_found = cell.creatures_spawns.get(spawn_id)
+            if spawn_found:
+                return spawn_found
+        return None
+
+    def get_unit_totem_by_totem_entry(self, unit, totem_entry):
+        location = unit.location
+        cells = self.get_surrounding_cells_by_location(location.x, location.y, unit.map_)
+        for cell in cells:
+            for guid, creature in list(cell.creatures.items()):
+                if creature.entry == totem_entry and creature.summoner == unit:
+                    return creature
+
+    def get_surrounding_creature_spawns(self, world_object):
         spawns = {}
         location = world_object.location
-        for cell in self.get_surrounding_cells_by_location(location.x, location.y, world_object.map_):
+        cells = self.get_surrounding_cells_by_location(location.x, location.y, world_object.map_)
+
+        for cell in cells:
             for spawn_id, spawn in list(cell.creatures_spawns.items()):
                 spawns[spawn_id] = spawn
         return spawns
@@ -277,9 +318,10 @@ class GridManager:
 
     def get_surrounding_player_by_guid(self, world_object, guid):
         surrounding_players = self.get_surrounding_players(world_object)
-        if guid in surrounding_players:
+        try:
             return surrounding_players[guid]
-        return None
+        except KeyError:
+            return None
 
     def get_surrounding_unit_by_guid(self, world_object, guid, include_players=False):
         surrounding_units = self.get_surrounding_units(world_object, include_players)
@@ -287,28 +329,31 @@ class GridManager:
             return surrounding_units[0][guid]
 
         creature_dict = surrounding_units[1] if include_players else surrounding_units
-        if guid in creature_dict:
+        try:
             return creature_dict[guid]
-
-        return None
+        except KeyError:
+            return None
 
     def get_surrounding_creature_spawn_by_spawn_id(self, world_object, spawn_id):
-        surrounding_units_spawns = self.get_surrounding_unit_spawns(world_object)
-        if spawn_id in surrounding_units_spawns:
+        surrounding_units_spawns = self.get_surrounding_creature_spawns(world_object)
+        try:
             return surrounding_units_spawns[spawn_id]
-        return None
+        except KeyError:
+            return None
 
     def get_surrounding_gameobject_by_guid(self, world_object, guid):
         surrounding_gameobjects = self.get_surrounding_gameobjects(world_object)
-        if guid in surrounding_gameobjects:
+        try:
             return surrounding_gameobjects[guid]
-        return None
+        except KeyError:
+            return None
 
     def get_surrounding_gameobject_by_spawn_id(self, world_object, spawn_id_):
         surrounding_gameobjects_spawns = self.get_surrounding_gameobjects_spawns(world_object)
-        if spawn_id_ in surrounding_gameobjects_spawns:
+        try:
             return surrounding_gameobjects_spawns[spawn_id_]
-        return None
+        except KeyError:
+            return None
 
     def get_create_cell(self, vector, map_) -> Cell:
         cell_key = GridManager.get_cell_key(vector.x, vector.y, map_)
@@ -351,6 +396,12 @@ class GridManager:
             now = time.time()
             for key in list(self.active_cell_keys):
                 self.cells[key].update_gameobjects(now)
+
+    def update_dynobjects(self):
+        with self.grid_lock:
+            now = time.time()
+            for key in list(self.active_cell_keys):
+                self.cells[key].update_dynobjects(now)
 
     def update_spawns(self):
         with self.grid_lock:

@@ -1,3 +1,4 @@
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants.MiscCodes import ObjectTypeIds
 from threading import RLock
 
@@ -27,6 +28,9 @@ class Cell:
 
     def has_players(self):
         return len(self.players) > 0
+
+    def has_cameras(self):
+        return FarSightManager.has_camera_in_cell(self)
 
     def contains(self, world_object=None, vector=None, map_=None):
         if world_object:
@@ -79,6 +83,12 @@ class Cell:
             for guid, gameobject in list(self.gameobjects.items()):
                 gameobject.update(now)
 
+    def update_dynobjects(self, now):
+        with self.cell_lock:
+            # Update dynobject instances.
+            for guid, dynobject in list(self.dynamic_objects.items()):
+                dynobject.update(now)
+
     def update_spawns(self, now):
         with self.cell_lock:
             # Update creatures spawn points.
@@ -96,11 +106,23 @@ class Cell:
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
     def update_players_surroundings(self, world_object=None, has_changes=False, has_inventory_changes=False):
+        affected_players = set()
         for player in list(self.players.values()):
-            if world_object:
-                player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
-            else:
-                player.update_known_world_objects()
+            affected_players.add(player.guid)
+            self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes)
+
+        for camera in FarSightManager.get_cell_cameras(self):
+            for player in camera.players.values():
+                if player.guid in affected_players:
+                    continue
+                self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes)
+
+    # noinspection PyMethodMayBeStatic
+    def _update_player_surroundings(self, player, world_object=None, has_changes=False, has_inventory_changes=False):
+        if world_object:
+            player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
+        else:
+            player.update_known_objects_on_tick = True
 
     def remove(self, world_object):
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -114,27 +136,46 @@ class Cell:
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
             self.corpses.pop(world_object.guid, None)
 
-    def send_all(self, packet, source=None, exclude=None, use_ignore=False):
+        # If world object was a camera viewpoint, remove it.
+        FarSightManager.remove_camera(world_object)
+
+    def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
+        players_reached = set()
         for guid, player_mgr in list(self.players.items()):
             if player_mgr.online:
-                if source and player_mgr.guid == source.guid:
+                if not include_source and player_mgr.guid == source.guid:
                     continue
                 if exclude and player_mgr.guid in exclude:
                     continue
                 if use_ignore and source and player_mgr.friends_manager.has_ignore(source.guid):
                     continue
-
+                # Never send messages to a player that does not know the source object.
+                if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
+                    continue
+                players_reached.add(player_mgr.guid)
                 player_mgr.enqueue_packet(packet)
 
-    def send_all_in_range(self, packet, range_, source, include_self=True, exclude=None, use_ignore=False):
+        # If this cell has cameras, route packets.
+        for camera in FarSightManager.get_cell_cameras(self):
+            camera.broadcast_packet(packet, exclude=players_reached)
+
+    def send_all_in_range(self, packet, range_, source, include_source=True, exclude=None, use_ignore=False):
         if range_ <= 0:
             self.send_all(packet, source, exclude)
         else:
+            players_reached = set()
             for guid, player_mgr in list(self.players.items()):
                 if player_mgr.online and player_mgr.location.distance(source.location) <= range_:
-                    if not include_self and player_mgr.guid == source.guid:
+                    if not include_source and player_mgr.guid == source.guid:
                         continue
                     if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
                         continue
-
+                    # Never send messages to a player that does not know the source object.
+                    if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
+                        continue
+                    players_reached.add(player_mgr.guid)
                     player_mgr.enqueue_packet(packet)
+
+            # If this cell has cameras, route packets.
+            for camera in FarSightManager.get_cell_cameras(self):
+                camera.broadcast_packet(packet, exclude=players_reached)

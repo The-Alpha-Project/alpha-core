@@ -148,7 +148,7 @@ class ChannelManager(object):
     def get_owner(channel, sender):
         if channel in ChannelManager.CHANNELS[sender.team]:
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.CHANNEL_OWNER,
-                                                        player_name=sender.player.name)
+                                                        player_name=sender.get_name())
             ChannelManager.send_to_player(sender, packet)
         else:
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.NOT_MEMBER)
@@ -202,7 +202,7 @@ class ChannelManager(object):
         if ChannelManager.default_checks(channel, sender, check_owner=True, check_moderator=True):
             if not ChannelManager._is_banned(channel, target_player):
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                            player_name=target_player.player.name)
+                                                            player_name=target_player.get_name())
                 ChannelManager.send_to_player(sender, packet)
             else:
                 packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.UNBANNED, target_player,
@@ -297,7 +297,7 @@ class ChannelManager(object):
             return False
         elif target_player and not ChannelManager._in_channel(channel, target_player):
             packet = ChannelManager.build_notify_packet(channel, ChannelNotifications.PLAYER_NOT_FOUND,
-                                                        player_name=target_player.player.name)
+                                                        player_name=target_player.get_name())
             ChannelManager.send_to_player(sender, packet)
         elif target_player and target_player == sender:  # Avoid self ban / kick
             return False

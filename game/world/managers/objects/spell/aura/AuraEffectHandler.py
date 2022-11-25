@@ -1,11 +1,14 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
+from game.world.managers.objects.spell.aura import AuraEffectDummyHandler
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
+from utils.constants.ItemCodes import InventoryError
+from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags, ObjectTypeFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
-from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
 from utils.constants.UpdateFields import UnitFields, PlayerFields
 
 
@@ -25,6 +28,26 @@ class AuraEffectHandler:
             return  # Only call proc effects when a proc happens.
 
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
+
+    @staticmethod
+    def handle_bind_sight(aura, effect_target, remove):
+        if not effect_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        if remove:
+            FarSightManager.remove_camera(effect_target)
+            aura.caster.set_far_sight(0)
+            return
+
+        FarSightManager.add_camera(effect_target, aura.caster)
+
+    @staticmethod
+    def handle_aura_dummy(aura, effect_target, remove):
+        if aura.source_spell.spell_entry.ID not in AuraEffectDummyHandler.DUMMY_AURA_EFFECTS:
+            Logger.warning(f'Unimplemented dummy aura effect for spell {aura.source_spell.spell_entry.ID}.')
+            return
+
+        AuraEffectDummyHandler.DUMMY_AURA_EFFECTS[aura.source_spell.spell_entry.ID](aura, effect_target, remove)
 
     @staticmethod
     def handle_shapeshift(aura, effect_target, remove):
@@ -72,11 +95,31 @@ class AuraEffectHandler:
                                                         validate=False, triggered=True)
 
     @staticmethod
+    def handle_periodic_mana_leech(aura, effect_target, remove):
+        if not aura.is_past_next_period() or remove:
+            return
+        amount = aura.get_effect_points()
+
+        amount = min(amount, effect_target.get_power_value(PowerTypes.TYPE_MANA))
+        effect_target.receive_power(-amount, PowerTypes.TYPE_MANA)
+        aura.caster.receive_power(amount, PowerTypes.TYPE_MANA, source=effect_target)
+
+    @staticmethod
     def handle_periodic_healing(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
+
         spell = aura.source_spell
         healing = aura.get_effect_points()
+
+        # Health Funnel is a periodic healing spell, but should act as a leech from the pet owner.
+        if effect_target.get_charmer_or_summoner() == aura.caster:
+            new_source_health = aura.caster.health - healing
+            if new_source_health <= 0:
+                aura.caster.spell_manager.remove_cast_by_id(spell.spell_entry.ID, interrupted=True)
+                return
+            aura.caster.set_health(new_source_health)
+
         aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True)
 
     @staticmethod
@@ -84,7 +127,6 @@ class AuraEffectHandler:
         if not aura.is_past_next_period() or remove:
             return
         power_type = aura.spell_effect.misc_value
-
         amount = aura.get_effect_points()
         effect_target.receive_power(amount, power_type)
 
@@ -102,8 +144,33 @@ class AuraEffectHandler:
             return
         spell = aura.source_spell
         damage = aura.get_effect_points()
-        aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
         aura.caster.receive_healing(damage, aura.caster)
+        aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
+
+    @staticmethod
+    def handle_channel_death_item(aura, effect_target, remove):
+        if effect_target.is_alive or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(aura.spell_effect.item_type)
+        if not item_template:
+            aura.caster.inventory.send_equip_error(InventoryError.BAG_UNKNOWN_ITEM)
+            return
+
+        amount = aura.get_effect_points()
+        # Validate amount, at least 1 item should be created.
+        if amount < 1:
+            amount = 1
+        if amount > item_template.stackable:
+            amount = item_template.stackable
+
+        can_store_item = aura.caster.inventory.can_store_item(item_template, amount)
+        if can_store_item != InventoryError.BAG_OK:
+            aura.caster.inventory.send_equip_error(can_store_item)
+            return
+
+        # Add the item to player inventory.
+        aura.caster.inventory.add_item(item_template.entry, count=amount)
 
     # Proc effects are called each time the proc condition is met.
     @staticmethod
@@ -205,7 +272,7 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):
         # Player specific.
-        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if not remove and effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Don't stun if player is flying.
             if effect_target.pending_taxi_destination:
                 return
@@ -229,6 +296,18 @@ class AuraEffectHandler:
             effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_DISABLE_ROTATE
 
         effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
+
+    @staticmethod
+    def handle_mod_pacify_silence(aura, effect_target, remove):
+        AuraEffectHandler.handle_mod_pacify(aura, effect_target, remove)
+        AuraEffectHandler.handle_mod_silence(aura, effect_target, remove)
+
+    @staticmethod
+    def handle_mod_silence(aura, effect_target, remove):
+        if remove:
+            effect_target.unit_state &= ~UnitStates.SILENCED
+        else:
+            effect_target.unit_state |= UnitStates.SILENCED
 
     @staticmethod
     def handle_mod_pacify(aura, effect_target, remove):
@@ -480,7 +559,8 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
             return
         amount = aura.get_effect_points()
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount, percentual=True)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HEALTH_REGENERATION_PER_5, amount,
+                                                         percentual=True)
 
     @staticmethod
     def handle_mod_power_regen(aura, effect_target, remove):
@@ -488,7 +568,11 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.get_effect_points()
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.POWER_REGENERATION_PER_5, amount)
+
+        # This effect is only used for mana regen by deprecated food rejuvenation spells.
+        # Check provided power type regardless for consistency.
+        power_type = aura.spell_effect.misc_value
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.POWER_REGEN_START << power_type, amount)
 
     @staticmethod
     def handle_mod_skill(aura, effect_target, remove):
@@ -654,10 +738,13 @@ class AuraEffectHandler:
 
 
 AURA_EFFECTS = {
+    AuraTypes.SPELL_AURA_BIND_SIGHT: AuraEffectHandler.handle_bind_sight,
+    AuraTypes.SPELL_AURA_DUMMY: AuraEffectHandler.handle_aura_dummy,
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
     AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL: AuraEffectHandler.handle_periodic_trigger_spell,
     AuraTypes.SPELL_AURA_PERIODIC_HEAL: AuraEffectHandler.handle_periodic_healing,
+    AuraTypes.SPELL_AURA_PERIODIC_MANA_LEECH: AuraEffectHandler.handle_periodic_mana_leech,
     AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE: AuraEffectHandler.handle_periodic_energize,
     AuraTypes.SPELL_AURA_PERIODIC_DAMAGE: AuraEffectHandler.handle_periodic_damage,
     AuraTypes.SPELL_AURA_PERIODIC_LEECH: AuraEffectHandler.handle_periodic_leech,
@@ -678,8 +765,11 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_WATER_BREATHING: AuraEffectHandler.handle_water_breathing,
     AuraTypes.SPELL_AURA_MOD_DISARM: AuraEffectHandler.handle_mod_disarm,
     AuraTypes.SPELL_AURA_DAMAGE_SHIELD: AuraEffectHandler.handle_damage_shield,
+    AuraTypes.SPELL_AURA_MOD_SILENCE: AuraEffectHandler.handle_mod_silence,
     AuraTypes.SPELL_AURA_MOD_PACIFY: AuraEffectHandler.handle_mod_pacify,
+    AuraTypes.SPELL_AURA_MOD_PACIFY_SILENCE: AuraEffectHandler.handle_mod_pacify_silence,
     AuraTypes.SPELL_AURA_MOD_TAUNT: AuraEffectHandler.handle_taunt,
+    AuraTypes.SPELL_AURA_CHANNEL_DEATH_ITEM: AuraEffectHandler.handle_channel_death_item,
 
     # Immunity modifiers.
     AuraTypes.SPELL_AURA_EFFECT_IMMUNITY: AuraEffectHandler.handle_effect_immunity,

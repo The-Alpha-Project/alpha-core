@@ -1,5 +1,4 @@
 import math
-from threading import RLock
 from dataclasses import dataclass
 
 from bitarray import bitarray
@@ -77,14 +76,16 @@ class PlayerManager(UnitManager):
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.player_lock = RLock()
         self.session = session
         self.pending_teleport_recovery_percentage = -1
         self.pending_teleport_destination = None
         self.pending_teleport_destination_map = -1
         self.update_lock = False
+        self.possessed_unit = None
         self.known_objects = dict()
         self.known_items = dict()
+        self.known_stealth_units = dict()
+        self.update_known_objects_on_tick = False
 
         self.player = player
         self.online = online
@@ -108,7 +109,8 @@ class PlayerManager(UnitManager):
         self.resurrect_data = None
         self.team = Teams.TEAM_NONE  # Set at set_player_variables().
         self.trade_data = None
-        self.last_swimming_check = 0
+        self.last_swimming_check_timer = 0
+        self.stealth_detect_timer = 0
         self.spirit_release_timer = 0
         self.logout_timer = -1
         self.pending_taxi_destination = None
@@ -359,7 +361,11 @@ class PlayerManager(UnitManager):
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).
     def update_world_object_on_me(self, world_object, has_changes=False, has_inventory_changes=False):
-        if world_object.guid in self.known_objects:
+        can_detect = self.can_detect_target(world_object)[0]
+        is_self = world_object.guid == self.guid
+
+        # We know the unit and can detect.
+        if world_object.guid in self.known_objects and can_detect:
             is_player = world_object.get_type_id() == ObjectTypeIds.ID_PLAYER
             # Check for inventory updates.
             if is_player and has_inventory_changes:
@@ -368,118 +374,172 @@ class PlayerManager(UnitManager):
             # Update self with known world object partial update packet.
             if has_changes:
                 self.enqueue_packet(world_object.generate_partial_packet(requester=self))
-        elif world_object.guid == self.guid:  # Self (Player)
+        elif is_self:  # Self (Player)
             # Update self inventory if needed.
             if has_inventory_changes:
                 self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
             # Send self a partial update if needed.
             if has_changes:
                 self.enqueue_packet(self.generate_partial_packet(requester=self))
+        # Stealth detection.
+        else:
+            # Unit is now visible.
+            if world_object.guid not in self.known_objects and can_detect \
+                    and world_object.guid in self.known_stealth_units:
+                self.known_stealth_units[world_object.guid] = (world_object, False)
+            # Unit went stealth.
+            elif world_object.guid in self.known_objects and not can_detect \
+                    and world_object.guid not in self.known_stealth_units:
+                # Update self with known world object partial update packet.
+                if has_changes:
+                    self.enqueue_packet(world_object.generate_partial_packet(requester=self))
+                self.known_stealth_units[world_object.guid] = (world_object, True)
 
     # Notify self with create / destroy / partial movement packets of world objects in range.
     # Range = This player current active cell plus its adjacent cells.
     def update_known_world_objects(self, flush=False):
-        with self.player_lock:
-            players, creatures, game_objects, corpses, dynamic_objects = \
-                MapManager.get_surrounding_objects(self,
-                                                   [ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT,
-                                                    ObjectTypeIds.ID_GAMEOBJECT, ObjectTypeIds.ID_CORPSE,
-                                                    ObjectTypeIds.ID_DYNAMICOBJECT])
+        players, creatures, game_objects, corpses, dynamic_objects = \
+            MapManager.get_surrounding_objects(self,
+                                               [ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT,
+                                                ObjectTypeIds.ID_GAMEOBJECT, ObjectTypeIds.ID_CORPSE,
+                                                ObjectTypeIds.ID_DYNAMICOBJECT])
 
-            # Destroy all known objects.
-            if flush:
-                for guid, known_object in list(self.known_objects.items()):
-                    self.destroy_near_object(guid)
-                return
-
-            # Which objects were found in self surroundings.
-            active_objects = dict()
-
-            # Surrounding players.
-            for guid, player in players.items():
-                if self.guid != guid:
-                    active_objects[guid] = player
-                    if guid not in self.known_objects or not self.known_objects[guid]:
-                        # We don't know this player, notify self with its update packet.
-                        self.enqueue_packet(NameQueryHandler.get_query_details(player.player))
-                        # Retrieve their inventory updates.
-                        self.enqueue_packets(player.inventory.get_inventory_update_packets(self))
-                        # Create packet.
-                        self.enqueue_packet(player.generate_create_packet(requester=self))
-                        # Get partial movement packet if any.
-                        if player.movement_manager.unit_is_moving():
-                            packet = player.movement_manager.try_build_movement_packet(is_initial=False)
-                            if packet:
-                                self.enqueue_packet(packet)
-                    self.known_objects[guid] = player
-
-            # Surrounding corpses.
-            for guid, corpse in corpses.items():
-                if self.guid != guid:
-                    active_objects[guid] = corpse
-                    if guid not in self.known_objects or not self.known_objects[guid]:
-                        # Create packet.
-                        self.enqueue_packet(corpse.generate_create_packet(requester=self))
-                    self.known_objects[guid] = corpse
-
-            # Surrounding creatures.
-            for guid, creature in creatures.items():
-                active_objects[guid] = creature
-                if guid not in self.known_objects or not self.known_objects[guid]:
-                    # We don't know this creature, notify self with its update packet.
-                    self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
-                    if creature.is_spawned:
-                        self.enqueue_packet(creature.generate_create_packet(requester=self))
-                        # Get partial movement packet if any.
-                        if creature.movement_manager.unit_is_moving():
-                            packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
-                            if packet:
-                                self.enqueue_packet(packet)
-                        # We only consider 'known' if its spawned, the details query is still sent.
-                        self.known_objects[guid] = creature
-                        # Add ourselves to creature known players.
-                        creature.known_players[self.guid] = self
-                        # Notify this creature of our presence, e.g. player just logged in or a creature spawns near.
-                        creature.notify_moved_in_line_of_sight(self)
-                # Player knows the creature but is not spawned anymore, destroy it for self.
-                elif guid in self.known_objects and not creature.is_spawned:
-                    active_objects.pop(guid)
-
-            # Surrounding game objects.
-            for guid, gobject in game_objects.items():
-                active_objects[guid] = gobject
-                if guid not in self.known_objects or not self.known_objects[guid]:
-                    # We don't know this game object, notify self with its update packet.
-                    self.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject))
-                    if gobject.is_spawned:
-                        self.enqueue_packet(gobject.generate_create_packet(requester=self))
-                        # We only consider 'known' if its spawned, the details query is still sent.
-                        self.known_objects[guid] = gobject
-                        # Add ourselves to gameobject known players.
-                        gobject.known_players[self.guid] = self
-                # Player knows the game object but is not spawned anymore, destroy it for self.
-                elif guid in self.known_objects and not gobject.is_spawned:
-                    active_objects.pop(guid)
-
-            # Surrounding dynamic objects.
-            for guid, dynamic_objects in dynamic_objects.items():
-                active_objects[guid] = dynamic_objects
-                if guid not in self.known_objects or not self.known_objects[guid]:
-                    if dynamic_objects.is_spawned:
-                        self.enqueue_packet(dynamic_objects.generate_create_packet(requester=self))
-                        # We only consider 'known' if its spawned, the details query is still sent.
-                        self.known_objects[guid] = dynamic_objects
-                # Player knows the dynamic object but is not spawned anymore, destroy it for self.
-                elif guid in self.known_objects and not dynamic_objects.is_spawned:
-                    active_objects.pop(guid)
-
-            # World objects which are known but no longer active to self should be destroyed.
+        # Destroy all known objects.
+        if flush:
             for guid, known_object in list(self.known_objects.items()):
-                if guid not in active_objects:
-                    self.destroy_near_object(guid)
+                self.destroy_near_object(guid)
+            return
 
-            # Cleanup.
-            active_objects.clear()
+        # Which objects were found in self surroundings.
+        active_objects = dict()
+
+        # Surrounding players.
+        for player in players.values():
+            self._update_known_player(player, active_objects)
+
+        # Surrounding creatures.
+        for creature in creatures.values():
+            self._update_known_creature(creature, active_objects)
+
+        # Surrounding gameobjects.
+        for gobject in game_objects.values():
+            self._update_known_gameobject(gobject, active_objects)
+
+        # Surrounding corpses.
+        for corpse in corpses.values():
+            self._update_known_corpse(corpse, active_objects)
+
+        # Surrounding dynamic objects.
+        for dynamic_object in dynamic_objects.values():
+            self._update_known_dynobject(dynamic_object, active_objects)
+
+        # World objects which are known but no longer active to self should be destroyed.
+        for guid, known_object in list(self.known_objects.items()):
+            if guid not in active_objects:
+                self.destroy_near_object(guid)
+
+        # Cleanup.
+        active_objects.clear()
+
+    def update_known_world_object(self, world_object):
+        active_objects = dict()
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self._update_known_player(world_object, active_objects)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+            self._update_known_creature(world_object, active_objects)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            self._update_known_gameobject(world_object, active_objects)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
+            self._update_known_corpse(world_object, active_objects)
+        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
+            self._update_known_dynobject(world_object, active_objects)
+
+    def _update_known_dynobject(self, dynbject, active_objects):
+        active_objects[dynbject.guid] = dynbject
+        if dynbject.guid not in self.known_objects or not self.known_objects[dynbject.guid]:
+            if dynbject.is_spawned:
+                self.enqueue_packet(dynbject.generate_create_packet(requester=self))
+                # We only consider 'known' if its spawned, the details query is still sent.
+                self.known_objects[dynbject.guid] = dynbject
+        # Player knows the dynamic object but is not spawned anymore, destroy it for self.
+        elif dynbject.guid in self.known_objects and not dynbject.is_spawned:
+            active_objects.pop(dynbject.guid)
+
+    def _update_known_gameobject(self, gobject, active_objects: dict):
+        active_objects[gobject.guid] = gobject
+        if gobject.guid not in self.known_objects or not self.known_objects[gobject.guid]:
+            # We don't know this game object, notify self with its update packet.
+            self.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject))
+            if gobject.is_spawned:
+                self.enqueue_packet(gobject.generate_create_packet(requester=self))
+                # We only consider 'known' if its spawned, the details query is still sent.
+                self.known_objects[gobject.guid] = gobject
+                # Add ourselves to gameobject known players.
+                gobject.known_players[self.guid] = self
+        # Player knows the game object but is not spawned anymore, destroy it for self.
+        elif gobject.guid in self.known_objects and not gobject.is_spawned:
+            active_objects.pop(self.guid)
+
+    def _update_known_creature(self, creature, active_objects: dict):
+        # Handle visibility/stealth.
+        if not self.can_detect_target(creature)[0]:
+            self.known_stealth_units[creature.guid] = (creature, True)
+            return
+        elif creature.guid in self.known_stealth_units:
+            del self.known_stealth_units[creature.guid]
+
+        active_objects[creature.guid] = creature
+        if creature.guid not in self.known_objects or not self.known_objects[creature.guid]:
+            # We don't know this creature, notify self with its update packet.
+            self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
+            if creature.is_spawned:
+                self.enqueue_packet(creature.generate_create_packet(requester=self))
+                # Get partial movement packet if any.
+                if creature.movement_manager.unit_is_moving():
+                    packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
+                    if packet:
+                        self.enqueue_packet(packet)
+                # We only consider 'known' if its spawned, the details query is still sent.
+                self.known_objects[creature.guid] = creature
+                # Add ourselves to creature known players.
+                creature.known_players[self.guid] = self
+        # Player knows the creature but is not spawned anymore, destroy it for self.
+        elif creature.guid in self.known_objects and not creature.is_spawned:
+            active_objects.pop(creature.guid)
+
+    def _update_known_corpse(self, corpse, active_objects: dict):
+        if self.guid != corpse.guid:
+            active_objects[corpse.guid] = corpse
+            if corpse.guid not in self.known_objects or not self.known_objects[corpse.guid]:
+                # Create packet.
+                self.enqueue_packet(corpse.generate_create_packet(requester=self))
+            self.known_objects[corpse.guid] = corpse
+
+    def _update_known_player(self, player_mgr, active_objects: dict):
+        if self.guid == player_mgr.guid:
+            return
+
+        # Handle visibility/stealth.
+        if not self.can_detect_target(player_mgr)[0]:
+            self.known_stealth_units[player_mgr.guid] = (player_mgr, True)
+            return
+        elif player_mgr.guid in self.known_stealth_units:
+            del self.known_stealth_units[player_mgr.guid]
+
+        active_objects[player_mgr.guid] = player_mgr
+        if player_mgr.guid not in self.known_objects or not self.known_objects[player_mgr.guid]:
+            # We don't know this player, notify self with its update packet.
+            self.enqueue_packet(NameQueryHandler.get_query_details(player_mgr.player))
+            # Retrieve their inventory updates.
+            self.enqueue_packets(player_mgr.inventory.get_inventory_update_packets(self))
+            # Create packet.
+            self.enqueue_packet(player_mgr.generate_create_packet(requester=self))
+            # Get partial movement packet if any.
+            if player_mgr.movement_manager.unit_is_moving():
+                packet = player_mgr.movement_manager.try_build_movement_packet(is_initial=False)
+                if packet:
+                    self.enqueue_packet(packet)
+        self.known_objects[player_mgr.guid] = player_mgr
 
     def destroy_near_object(self, guid):
         implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
@@ -531,8 +591,8 @@ class PlayerManager(UnitManager):
         if not MapManager.validate_teleport_destination(map_, location.x, location.y):
             return False
 
-        # Make sure to end duel before starting the teleport process.
-        if self.duel_manager:
+        # Make sure to end duel before teleporting if this isn't an instant teleport (blink, chair use etc.)
+        if self.duel_manager and not is_instant:
             self.duel_manager.force_duel_end(self)
 
         # If unit is being moved by a spline, stop it.
@@ -677,6 +737,10 @@ class PlayerManager(UnitManager):
         self.enqueue_packet(PacketWriter.get_packet(opcode))
 
     # override
+    def is_active_object(self):
+        return True
+
+    # override
     def mount(self, mount_display_id):
         if super().mount(mount_display_id):
             # TODO: validate mount.
@@ -763,6 +827,10 @@ class PlayerManager(UnitManager):
         if not active:
             # Notify surrounding units about fading stealth for proximity aggro.
             self._on_relocation()
+
+    def send_minimap_ping(self, guid, vector):
+        data = pack('<Q2f', guid, vector.x, vector.y)
+        self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, data))
 
     def interrupt_looting(self):
         if self.loot_selection:
@@ -911,8 +979,8 @@ class PlayerManager(UnitManager):
         amount_bytes = b''
         total_amount = 0
         for amount in amounts:
-            # Adjust XP gaining rates using config
-            amount = int(amount * config.Server.Settings.xp_rate)
+            # Adjust XP gaining rates using config.
+            amount = max(0, int(amount * config.Server.Settings.xp_rate))
 
             total_amount += amount
             amount_bytes += pack('<QI', self.guid, amount)
@@ -986,8 +1054,7 @@ class PlayerManager(UnitManager):
 
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
-                self.set_health(self.max_health)
-                self.set_mana(self.max_power_1)
+                self.replenish_powers()
 
                 if is_leveling_up:
                     data = pack(
@@ -1145,7 +1212,6 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER4, self.max_power_4)
             self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
             self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
-            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
             self.set_int32(UnitFields.UNIT_FIELD_STAT0, self.str)
             self.set_int32(UnitFields.UNIT_FIELD_STAT1, self.agi)
             self.set_int32(UnitFields.UNIT_FIELD_STAT2, self.sta)
@@ -1160,7 +1226,7 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time)
-            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
@@ -1183,11 +1249,12 @@ class PlayerManager(UnitManager):
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, self.resistance_buff_mods_negative_3)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative_4)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative_5)
+            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
+            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
+            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, 0)
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
             self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
-            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
             # Player fields.
             self.set_uint32(PlayerFields.PLAYER_FIELD_NUM_INV_SLOTS, self.num_inv_slots)
@@ -1377,7 +1444,10 @@ class PlayerManager(UnitManager):
         if attacker_location and not self.location.has_in_arc(attacker_location, math.pi):
             return False  # players can't dodge from behind.
 
-        return True  # TODO Stunned check
+        return True
+
+    def set_far_sight(self, guid):
+        self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid)
 
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):
         # Charmer must be set here not in parent.
@@ -1399,12 +1469,6 @@ class PlayerManager(UnitManager):
         if remove:
             self.set_player_variables()
         super().set_summoned_by(summoner, spell_id, subtype, remove=remove)
-
-    # override
-    def set_weapon_mode(self, weapon_mode):
-        super().set_weapon_mode(weapon_mode)
-        self.bytes_1 = self.get_bytes_1()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
     def set_stand_state(self, stand_state):
@@ -1457,8 +1521,9 @@ class PlayerManager(UnitManager):
         if not super().receive_healing(amount, source):
             return False
 
-        data = pack('<IQ', amount, source.guid)
-        self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
+        if source:
+            data = pack('<IQ', amount, source.guid)
+            self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYER, data))
         return True
 
     def enqueue_packets(self, packets):
@@ -1477,9 +1542,9 @@ class PlayerManager(UnitManager):
         if not self.is_alive:
             return
 
-        self.last_swimming_check += elapsed
-        if self.last_swimming_check >= 1:
-            self.last_swimming_check = 0
+        self.last_swimming_check_timer += elapsed
+        if self.last_swimming_check_timer >= 1:
+            self.last_swimming_check_timer = 0
             if self.is_swimming() and not self.liquid_information:
                 self.update_swimming_state(True)
             elif not self.is_swimming() and self.liquid_information:
@@ -1494,6 +1559,13 @@ class PlayerManager(UnitManager):
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
 
+            # Update known objects if needed.
+            if self.update_known_objects_on_tick:
+                self.update_known_objects_on_tick = False
+                self.update_known_world_objects()
+
+            # Stealth detect.
+            self.units_stealth_detection_check(elapsed)
             # Regeneration.
             self.regenerate(elapsed)
             # Attack update.
@@ -1544,22 +1616,25 @@ class PlayerManager(UnitManager):
             has_inventory_changes = not self.inventory.update_locked and self.inventory.has_pending_updates()
 
             # Movement checks and group updates.
-            if self.has_moved or has_changes:
+            has_moved = self.has_moved or self.has_turned
+            if has_moved or has_changes:
                 # Update self stats and location to other party members.
                 if self.group_manager:
                     self.group_manager.update_party_member_stats(elapsed, requester=self)
                 # Player moved, notify surrounding units for proximity aggro.
-                if self.has_moved:
-                    self._on_relocation()
-                    self.set_has_moved(False)
+                if has_moved:
+                    # Check spell and aura move interrupts.
+                    self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    # Relocate only if x, y changed.
+                    if self.has_moved:
+                        self._on_relocation()
+                    # Reset flags.
+                    self.set_has_moved(False, False, flush=True)
 
             # Update system, propagate player changes to surrounding units.
             if self.online and has_changes or has_inventory_changes:
                 MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
-                if has_changes:
-                    self.reset_fields_older_than(now)
-                if has_inventory_changes:
-                    self.inventory.reset_fields_older_than(now)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not has_changes and not has_inventory_changes and self.pending_teleport_destination \
                     and not self.update_lock:
@@ -1588,7 +1663,9 @@ class PlayerManager(UnitManager):
                 killer_pet.object_ai.killed_unit(self)
 
             # If this player is dueling and the death blow comes from the opponent just end duel and set HP to 1.
-            if self.duel_manager and self.duel_manager.is_player_involved(killer):
+            if self.duel_manager and self.duel_manager.is_unit_involved(killer):
+                if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
+                    killer = killer.get_charmer_or_summoner()  # Pet dealt killing blow - pass owner to duel manager.
                 self.duel_manager.end_duel(DuelWinner.DUEL_WINNER_KNOCKOUT, DuelComplete.DUEL_FINISHED, killer)
                 self.set_health(1)
                 return False
@@ -1616,13 +1693,11 @@ class PlayerManager(UnitManager):
         # the % that players had in 0.5.3, so 100% is assumed.
         self.set_health(math.ceil(self.max_health * recovery_percentage))
         if self.power_type == PowerTypes.TYPE_MANA:
-            self.set_mana(math.ceil(self.max_power_1 * recovery_percentage))
-        if self.power_type == PowerTypes.TYPE_RAGE:
-            self.set_rage(0)
-        if self.power_type == PowerTypes.TYPE_FOCUS:
-            self.set_focus(0)
-        if self.power_type == PowerTypes.TYPE_ENERGY:
-            self.set_energy(self.max_power_4)
+            self.set_power_value(math.ceil(self.get_max_power_value() * recovery_percentage))
+        elif self.power_type == PowerTypes.TYPE_ENERGY:
+            self.recharge_power()
+        else:  # Rage or focus.
+            self.set_power_value(0)
 
         super().respawn()
 
@@ -1638,11 +1713,17 @@ class PlayerManager(UnitManager):
             CorpseManager.spawn(self)
 
         if self.resurrect_data and not release_spirit:
-            self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location, is_instant=False,
-                          recovery=self.resurrect_data.recovery_percentage)
+            is_instant = self.resurrect_data.resurrect_map == self.map_ and \
+                         self.resurrect_data.resurrect_location == self.location
+            self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location,
+                          is_instant=is_instant, recovery=self.resurrect_data.recovery_percentage)
         else:
             deathbind_map, deathbind_location = self.get_deathbind_coordinates()
             self.teleport(deathbind_map, deathbind_location, recovery=1, is_instant=False)
+
+    # override
+    def get_name(self):
+        return self.player.name
 
     def get_player_bytes(self):
         return ByteUtils.bytes_to_int(
@@ -1691,6 +1772,42 @@ class PlayerManager(UnitManager):
     def get_damages(self):
         return self.damage
 
+    # override
+    def can_detect_target(self, target, distance=0):
+        # Party group.
+        if self.group_manager and self.group_manager.is_party_member(target.guid):
+            # Not dueling.
+            if not self.duel_manager or not self.duel_manager.is_unit_involved(target):
+                return True, False
+        return super().can_detect_target(target, distance)
+
+    def units_stealth_detection_check(self, elapsed):
+        if len(self.known_stealth_units) == 0:
+            return
+        self.stealth_detect_timer += elapsed
+        if self.stealth_detect_timer >= 1:  # Secs.
+            for guid, stealth_status in list(self.known_stealth_units.items()):
+                is_stealth = stealth_status[1]
+                unit = stealth_status[0]
+                can_detect = self.can_detect_target(unit)[0]
+                # Can detect and we had the object invisible.
+                if is_stealth and can_detect and guid in self.known_objects:
+                    # Unit is no longer stealth, pop.
+                    if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+                        del self.known_stealth_units[guid]
+                    self.update_known_objects_on_tick = True
+                # Unit is stealth but remains visible to us, should destroy.
+                elif is_stealth and not can_detect and guid in self.known_objects:
+                    self.update_known_objects_on_tick = True
+                # Unit is no longer stealth, can detect, and we don't know this unit, should create.
+                elif not is_stealth and can_detect and guid not in self.known_objects:
+                    # Unit is no longer stealth, pop.
+                    if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+                        del self.known_stealth_units[guid]
+                    self.update_known_objects_on_tick = True
+
+            self.stealth_detect_timer = 0
+
     def _on_relocation(self):
         for guid, unit in MapManager.get_surrounding_units(self).items():
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
@@ -1713,7 +1830,7 @@ class PlayerManager(UnitManager):
             return True
 
         # Return True if players are dueling.
-        if self.duel_manager and target is not self and self.duel_manager.is_player_involved(target):
+        if self.duel_manager and target is not self and self.duel_manager.is_unit_involved(target):
             return self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
 
         return False

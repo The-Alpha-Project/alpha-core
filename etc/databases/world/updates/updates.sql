@@ -14384,5 +14384,88 @@ begin not atomic
         UPDATE `creature_spells` SET `delayRepeatMin_1` = '120', `delayRepeatMax_1` = '180' WHERE (`entry` = '21800');
         insert into applied_updates values ('231020221');
     end if;	
+	
+    -- 28/10/2022 1
+    if (select count(*) from applied_updates where id='281020221') = 0 then
+        -- Trainer Template ID 23 - WARRIOR
+        -- Spell: Bows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('23', '3828', '264', '0', '0', '2', '0', '0', '0');
+        -- Trainer Template ID 26 - ROGUE
+        -- Spell: Bows
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('26', '3828', '264', '0', '0', '2', '0', '0', '0');
+        insert into applied_updates values ('281020221');
+    end if;
+
+    -- 28/10/2022 2
+    -- Change Several Display ID's
+    if (select count(*) from applied_updates where id='281020222') = 0 then
+        -- #411
+        UPDATE `creature_template` SET `display_id1`=115 WHERE  `entry`=1960;
+
+        -- #560
+        UPDATE `creature_template` SET `display_id1`=1540 WHERE  `entry`=3473;
+
+        -- #692
+        UPDATE `creature_template` SET `display_id1`=1139 WHERE  `entry`=2102;
+
+        -- #693
+        UPDATE `creature_template` SET `display_id1`=1643 WHERE  `entry`=4456;
+
+        -- #698
+        UPDATE `creature_template` SET `display_id1`=1046 WHERE  `entry`=2567;
+
+
+        -- Fix for Pull Request #691
+        -- Data entry error resulting in NPCs moved to wrong locations.
+        -- Rethgar Deathgate
+        UPDATE `spawns_creatures` SET
+        position_x=-473.619,
+        position_y=-2596.796,
+        position_z=103.912,
+        orientation=6.057
+        WHERE spawn_id=13950;
+
+        -- Sergra Darkthorn
+        UPDATE `spawns_creatures` SET
+        position_x=-441.497,
+        position_y=-2645.144,
+        position_z=96.075,
+        orientation=3.224
+        WHERE spawn_id=13167;
+
+        insert into applied_updates values ('281020222');
+    end if;
+    
+    -- 03/11/2022 1
+    -- Fix QuickShot repeat delay to 60/70 secs.
+    if (select count(*) from applied_updates where id='031120221') = 0 then
+        UPDATE `creature_spells` SET `delayRepeatMin_1` = '60', `delayRepeatMax_1` = '70' WHERE (`entry` = '29510');
+        insert into applied_updates values ('031120221');
+    end if;
+	
+    -- 10/11/2022 1
+    -- Fix wrong curses training spells.
+    if (select count(*) from applied_updates where id='101120221') = 0 then
+        DELETE FROM `trainer_template` WHERE spell in (1031,1029,981,1015,729,1109,956);
+		
+        -- Trainer Template ID 14 - WARLOCK
+        -- Spell: Curse of Agony - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1296', '980', '200', '0', '0', '0', '0', '8');
+        -- Spell: Curse of Weakness - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1394', '1108', '1200', '0', '0', '0', '0', '14');
+        -- Spell: Curse of Tongues - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '5736', '1714', '3400', '0', '0', '0', '0', '22');
+        -- Spell: Curse of Weakness - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '6206', '6205', '5300', '0', '0', '0', '0', '24');
+        -- Spell: Curse of Weakness - (Rank 1)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1393', '702', '80', '0', '0', '0', '0', '4');
+        -- Spell: Curse of Agony - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1297', '1014', '2600', '0', '0', '0', '0', '20');
+        -- Spell: Curse of Agony - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '6218', '6217', '11000', '0', '0', '0', '0', '32');
+
+        insert into applied_updates values ('101120221');
+    end if;
+        
 end $
 delimiter ;

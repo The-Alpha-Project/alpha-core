@@ -5,8 +5,10 @@ from typing import Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import SpellRadius
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.spell.aura.AuraEffectDummyHandler import AuraEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AURA_EFFECTS
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
+from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity
 
@@ -38,8 +40,10 @@ class SpellEffect:
 
     # Duration and periodic timing info for auras applied by this effect
     applied_aura_duration = -1
-    periodic_effect_ticks = []
+    periodic_effect_ticks: Optional[list[int]] = None  # None for distinct uninitialized state.
     last_update_timestamp = -1
+
+    area_aura_holder: Optional[AreaAuraHolder] = None
 
     def __init__(self, casting_spell, index):
         self.load_effect(casting_spell.spell_entry, index)
@@ -49,7 +53,7 @@ class SpellEffect:
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
         self.casting_spell = casting_spell
 
-        is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS
+        is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS or AuraEffectDummyHandler.is_periodic(casting_spell.spell_entry.ID)
         # Descriptions of periodic effects with a period of 0 either imply regeneration every 5s or say "per tick".
         self.aura_period = (self.aura_period if self.aura_period else 5000) if is_periodic else 0
 
@@ -66,25 +70,38 @@ class SpellEffect:
 
     def is_past_next_period(self):
         # Also accept equal duration to properly handle last tick.
-        return len(self.periodic_effect_ticks) > 0 and self.periodic_effect_ticks[-1] >= self.applied_aura_duration
+        return self.periodic_effect_ticks is not None and \
+               len(self.periodic_effect_ticks) > 0 and self.periodic_effect_ticks[-1] >= self.applied_aura_duration
+
+    def has_periodic_ticks_remaining(self):
+        if not self.is_periodic() or not self.casting_spell.duration_entry:
+            return False
+
+        return self.periodic_effect_ticks is None or len(self.periodic_effect_ticks) > 0
 
     def generate_periodic_effect_ticks(self) -> list[int]:
         duration = self.casting_spell.get_duration()
-        if self.aura_period == 0:
+        if not self.is_periodic():
             return []
-        period = self.aura_period
+
         tick_count = int(duration / self.aura_period)
 
         ticks = []
         for i in range(tick_count):
-            ticks.append(period * i)
+            ticks.append(self.aura_period * i)
         return ticks
 
     def start_aura_duration(self, overwrite=False):
-        if not self.casting_spell.duration_entry or (len(self.periodic_effect_ticks) > 0 and not overwrite):
+        if not self.casting_spell.duration_entry or (self.periodic_effect_ticks is not None and not overwrite):
             return
         self.applied_aura_duration = self.casting_spell.get_duration()
-        self.last_update_timestamp = time.time()
+
+        # Match timestamps for channeled spells.
+        # This is necessary since slight processing delays can cause the last tick to be skipped otherwise
+        # due to the channel ending before the aura wearing off.
+        self.last_update_timestamp = time.time() if not self.casting_spell.is_channeled() else \
+            self.casting_spell.cast_start_timestamp
+
         if self.is_periodic():
             self.periodic_effect_ticks = self.generate_periodic_effect_ticks()
 
@@ -164,5 +181,9 @@ class SpellEffect:
         self.item_type = eval(f'spell.EffectItemType_{index+1}')
         self.misc_value = eval(f'spell.EffectMiscValue_{index+1}')
         self.trigger_spell_id = eval(f'spell.EffectTriggerSpell_{index+1}')
+
+        # Handle dummy aura effects custom periods.
+        if not self.aura_period and AuraEffectDummyHandler.is_periodic(spell.ID):
+            self.aura_period = AuraEffectDummyHandler.get_period(spell.ID)
 
         self.effect_index = index

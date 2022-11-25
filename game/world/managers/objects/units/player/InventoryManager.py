@@ -54,7 +54,7 @@ class InventoryManager(object):
             if item_template:
                 if item_template.display_id > MAX_3368_ITEM_DISPLAY_ID and \
                         self.is_equipment_pos(item_instance.bag, item_instance.slot):
-                    Logger.error(f'Character {self.owner.player.name} has an equipped item ({item_template.entry} - {item_template.name}) '
+                    Logger.error(f'Character {self.owner.get_name()} has an equipped item ({item_template.entry} - {item_template.name}) '
                                  f'with out of bounds display_id ({item_template.display_id}), '
                                  f'deleting in order to prevent crashes.')
                     RealmDatabaseManager.character_inventory_delete(item_instance)

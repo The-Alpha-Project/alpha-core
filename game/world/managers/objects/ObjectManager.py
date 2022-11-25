@@ -151,6 +151,12 @@ class ObjectManager:
 
         return data
 
+    def is_active_object(self):
+        return False
+
+    def get_name(self):
+        return ''
+
     def get_display_id(self):
         return self.current_display_id
 
@@ -192,9 +198,7 @@ class ObjectManager:
         # TODO - This method is a hackfix for force-updating single fields.
         #  Implement something like the following instead:
         # self.set_uint32(field_index, 0, force=true)
-
         MapManager.update_object(self, has_changes=True)
-        self.reset_fields_older_than(time.time())
 
     def _get_base_structure(self, update_type):
         return pack(
@@ -378,6 +382,10 @@ class ObjectManager:
 
     # override
     def is_pet(self):
+        return False
+
+    # override
+    def is_temp_summon(self):
         return False
 
     # override

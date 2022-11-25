@@ -25,7 +25,7 @@ class RitualManager(object):
     def ritual_use(self, player_mgr):
         # Ritual should have a summoner.
         if not self.ritual_object.summoner:
-            Logger.warning(f'Player {player_mgr.player.name} tried to use Ritual with no summoner set.')
+            Logger.warning(f'Player {player_mgr.get_name()} tried to use Ritual with no summoner set.')
             player_mgr.spell_manager.send_cast_result(self.ritual_summon_spell_id,
                                                       SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
             return

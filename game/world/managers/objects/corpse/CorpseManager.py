@@ -15,6 +15,7 @@ class CorpseManager(ObjectManager):
         super().__init__(**kwargs)
 
         self.owner = owner
+        self.map_ = owner.map_
         self.guild_id = owner.guild_manager.guild.guild_id if owner.guild_manager else 0
         self.location = owner.location
         self.current_scale = owner.current_scale
@@ -24,7 +25,7 @@ class CorpseManager(ObjectManager):
 
         self.guid = self.generate_object_guid(CorpseManager.GUID_MANAGER.get_new_guid())
 
-        self.update_packet_factory.init_values(self.owner, CorpseFields)
+        self.update_packet_factory.init_values(self.owner.guid, CorpseFields)
 
     # override
     def initialize_field_values(self):

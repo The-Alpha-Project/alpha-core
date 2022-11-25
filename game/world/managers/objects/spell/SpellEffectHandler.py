@@ -1,3 +1,4 @@
+from random import sample
 from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -7,10 +8,11 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler
-from game.world.managers.objects.spell.aura.AuraManager import AppliedAura
+from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -20,9 +22,10 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
-    GameObjectStates
-from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask
+    GameObjectStates, DynamicObjectTypes
+from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
 from utils.constants.UnitCodes import UnitFlags, UnitStates
+from utils.constants.UpdateFields import UnitFields
 
 
 class SpellEffectHandler:
@@ -116,6 +119,22 @@ class SpellEffectHandler:
             caster.set_sanctuary(True, time_secs=1)
 
     @staticmethod
+    def handle_dispel(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        friendly = not caster.can_attack_target(target)
+        dispel_mask = 1 << effect.misc_value if effect.misc_value != DispelType.ALL else DispelType.MCDP_MASK
+        # Retrieve either harmful or beneficial depending on target allegiance.
+        auras = target.aura_manager.get_harmful_auras() if friendly else target.aura_manager.get_beneficial_auras()
+        # Match by dispel mask if available (0 = No mask, use auras directly and randomly pick).
+        auras_dispel_match = [aura for aura in auras if aura.get_dispel_mask() & dispel_mask] if dispel_mask else auras
+        # Select N to remove given effect points.
+        auras_to_remove = sample(auras_dispel_match, min(effect.get_effect_points(), len(auras_dispel_match)))
+        # Remove auras.
+        [target.aura_manager.remove_aura(aura) for aura in auras_to_remove]
+
+    @staticmethod
     def handle_aura_application(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -178,6 +197,15 @@ class SpellEffectHandler:
 
         amount = effect.get_effect_points()
         target.receive_power(amount, power_type)
+
+    @staticmethod
+    def handle_health_leech(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        amount = effect.get_effect_points()
+        caster.apply_spell_damage(target, amount, casting_spell, is_periodic=True)
+        caster.receive_healing(amount, caster)
 
     @staticmethod
     def handle_summon_mount(casting_spell, effect, caster, target):
@@ -260,14 +288,15 @@ class SpellEffectHandler:
         # For now, dynamic object only enable us to properly display area effects to clients.
         # Targeting and effect application is still done by 'handle_apply_area_aura'.
         if not casting_spell.dynamic_object:
-            DynamicObjectManager.spawn_from_casting_spell(casting_spell, effect)
+            DynamicObjectManager.spawn_from_spell_effect(effect, DynamicObjectTypes.DYNAMIC_OBJECT_AREA_SPELL)
 
         SpellEffectHandler.handle_apply_area_aura(casting_spell, effect, caster, target)
-        return
 
     @staticmethod
     def handle_apply_area_aura(casting_spell, effect, caster, target):  # Paladin auras, healing stream totem etc.
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
+        if not effect.area_aura_holder:
+            effect.area_aura_holder = AreaAuraHolder(effect)
 
         previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
         current_targets = effect.targets.resolved_targets_a
@@ -278,11 +307,10 @@ class SpellEffectHandler:
                            unit not in current_targets]  # Targets that moved out of the area.
 
         for target in new_targets:
-            new_aura = AppliedAura(caster, casting_spell, effect, target)
-            target.aura_manager.add_aura(new_aura)
+            effect.area_aura_holder.add_target(target)
 
         for target in missing_targets:
-            target.aura_manager.cancel_auras_by_spell_id(casting_spell.spell_entry.ID)
+            effect.area_aura_holder.remove_target(target)
 
     @staticmethod
     def handle_learn_spell(casting_spell, effect, caster, target):
@@ -299,6 +327,7 @@ class SpellEffectHandler:
         creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, summoner=caster,
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
+
         if not creature_manager:
             return
 
@@ -345,6 +374,23 @@ class SpellEffectHandler:
                                               spell_id=casting_spell.spell_entry.ID,
                                               faction=caster.faction, ttl=duration)
         MapManager.spawn_object(world_object_instance=gameobject)
+
+    @staticmethod
+    def handle_summon_possessed(casting_spell, effect, caster, target):
+        creature_entry = effect.misc_value
+        if not creature_entry:
+            return
+
+        duration = casting_spell.get_duration() / 1000
+        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_, summoner=caster,
+                                                  spell_id=casting_spell.spell_entry.ID,
+                                                  faction=caster.faction, ttl=duration,
+                                                  level=caster.level,
+                                                  possessed=True,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+
+        MapManager.spawn_object(world_object_instance=creature_manager)
+        FarSightManager.add_camera(creature_manager, caster)
 
     @staticmethod
     def handle_summon_player(casting_spell, effect, caster, target):
@@ -455,7 +501,7 @@ class SpellEffectHandler:
         # Terrain targeted leaps (ie. blink).
         if casting_spell.initial_target_is_terrain():
             leap_target.o = leaper.location.o
-            leaper.teleport(caster.map_, leap_target)
+            leaper.teleport(caster.map_, leap_target, is_instant=True)
             return
 
         # Unit-targeted leap (Charge/heroic leap).
@@ -520,9 +566,10 @@ class SpellEffectHandler:
                     py = location.Y
                     pz = location.z
                 else:
-                    px = target.location.x
-                    py = target.location.y
-                    pz = target.location.z
+                    location = target if isinstance(target, Vector) else target.location
+                    px = location.x
+                    py = location.y
+                    pz = location.z
 
             # Spawn the summoned unit.
             creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_,
@@ -604,6 +651,7 @@ class SpellEffectHandler:
         target.teleport(deathbind_map, deathbind_location)
 
     # TODO: Currently you always succeed.
+    #  This chance should be handled by Spell miss results.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -615,10 +663,20 @@ class SpellEffectHandler:
         caster.send_loot(target.pickpocket_loot_manager)
 
     @staticmethod
+    def handle_add_farsight(casting_spell, effect, caster, target):
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        duration = casting_spell.get_duration() / 1000
+        dyn_object = DynamicObjectManager.spawn_from_spell_effect(effect,
+                                                                  DynamicObjectTypes.DYNAMIC_OBJECT_FARSIGHT_FOCUS,
+                                                                  ttl=duration)
+        FarSightManager.add_camera(dyn_object, caster)
+
+    @staticmethod
     def handle_temporary_enchant(casting_spell, effect, caster, target):
         SpellEffectHandler.handle_permanent_enchant(casting_spell, effect, caster, target, True)
 
-    # TODO: Handle ITEM_ENCHANTMENT_TYPE, e.g. Damage, Stats modifiers, etc
     @staticmethod
     def handle_permanent_enchant(casting_spell, effect, caster, target, is_temporary=False):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -746,7 +804,9 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SANCTUARY: SpellEffectHandler.handle_sanctuary,
     SpellEffects.SPELL_EFFECT_DUEL: SpellEffectHandler.handle_request_duel,
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
+    SpellEffects.SPELL_EFFECT_DISPEL: SpellEffectHandler.handle_dispel,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
+    SpellEffects.SPELL_EFFECT_HEALTH_LEECH: SpellEffectHandler.handle_health_leech,
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
     SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
     SpellEffects.SPELL_EFFECT_CREATE_ITEM: SpellEffectHandler.handle_create_item,
@@ -761,6 +821,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_OBJECT: SpellEffectHandler.handle_summon_object,
     SpellEffects.SPELL_EFFECT_SUMMON_PLAYER: SpellEffectHandler.handle_summon_player,
     SpellEffects.SPELL_EFFECT_CREATE_HOUSE: SpellEffectHandler.handle_summon_object,
+    SpellEffects.SPELL_EFFECT_SUMMON_POSSESSED: SpellEffectHandler.handle_summon_possessed,
     SpellEffects.SPELL_EFFECT_BIND: SpellEffectHandler.handle_bind,
     SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
@@ -768,6 +829,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
+    SpellEffects.SPELL_EFFECT_ADD_FARSIGHT: SpellEffectHandler.handle_add_farsight,
     SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
     SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
     SpellEffects.SPELL_EFFECT_EXTRA_ATTACKS: SpellEffectHandler.handle_extra_attacks,

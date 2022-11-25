@@ -238,7 +238,8 @@ class GameObjectManager(ObjectManager):
     def _handle_use_ritual(self, player):
         self.ritual_manager.ritual_use(player)
 
-    def has_observers(self):
+    # override
+    def is_active_object(self):
         return len(self.known_players) > 0
 
     def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
@@ -402,7 +403,7 @@ class GameObjectManager(ObjectManager):
                 if not self._check_time_to_live(elapsed):
                     return  # Object destroyed.
 
-                if self.has_observers():
+                if self.is_active_object():
                     if self.trap_manager:
                         self.trap_manager.update(elapsed)
                     if self.fishing_node_manager:
@@ -416,7 +417,6 @@ class GameObjectManager(ObjectManager):
             # Check if this game object should be updated yet or not.
             if self.has_pending_updates():
                 MapManager.update_object(self, has_changes=True)
-                self.reset_fields_older_than(now)
 
         self.last_tick = now
 
@@ -431,6 +431,10 @@ class GameObjectManager(ObjectManager):
             f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}',
             f'Distance: {self.location.distance(requester.location) if requester else 0} yd'
         ]
+
+    # override
+    def get_name(self):
+        return self.gobject_template.name
 
     # override
     def get_type_mask(self):

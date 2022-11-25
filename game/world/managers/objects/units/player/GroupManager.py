@@ -209,7 +209,7 @@ class GroupManager(object):
                         disband_packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_DESTROYED)
                         member_player.enqueue_packet(disband_packet)
                     elif was_formed and member_player and not is_kicked:
-                        GroupManager.send_group_operation_result(member_player, PartyOperations.PARTY_OP_LEAVE, member_player.player.name,
+                        GroupManager.send_group_operation_result(member_player, PartyOperations.PARTY_OP_LEAVE, member_player.get_name(),
                                                                  PartyResults.ERR_PARTY_RESULT_OK)
 
                     if member_player and is_kicked and member.guid == player_guid:  # 'You have been removed from the group.' message
@@ -385,10 +385,8 @@ class GroupManager(object):
 
             player_mgr.enqueue_packet(packet)
 
-    def send_minimap_ping(self, player_mgr, x, y):
-        data = pack('<Q2f', player_mgr.guid, x, y)
-        packet = PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, data)
-        self.send_packet_to_members(packet)
+    def send_minimap_ping(self, guid, x, y):
+        self.send_packet_to_members(PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, pack('<Q2f', guid, x, y)))
 
     def flush(self):
         if self.group.group_id in GroupManager.GROUPS:
@@ -447,24 +445,24 @@ class GroupManager(object):
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):
         if player_mgr.is_hostile_to(target_player_mgr):
-            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PLAYER_WRONG_FACTION)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_PLAYER_WRONG_FACTION)
             return
 
         if target_player_mgr.friends_manager.has_ignore(player_mgr.guid):
-            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_IGNORING_YOU_S)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_IGNORING_YOU_S)
             return
 
         if target_player_mgr.group_manager and target_player_mgr.group_manager.is_party_formed():
-            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_ALREADY_IN_GROUP_S)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_ALREADY_IN_GROUP_S)
             return
 
         if player_mgr.group_manager:
             if player_mgr.group_manager.group.leader_guid != player_mgr.guid:
-                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_NOT_LEADER)
+                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_NOT_LEADER)
                 return
 
             if player_mgr.group_manager.is_full():
-                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_GROUP_FULL)
+                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_GROUP_FULL)
                 return
 
             if not player_mgr.group_manager.try_add_member(target_player_mgr, True):
@@ -476,7 +474,7 @@ class GroupManager(object):
                 return
 
         target_player_mgr.has_pending_group_invite = True
-        name_bytes = PacketWriter.string_to_bytes(player_mgr.player.name)
+        name_bytes = PacketWriter.string_to_bytes(player_mgr.get_name())
         data = pack(
             f'<{len(name_bytes)}s',
             name_bytes
@@ -485,7 +483,7 @@ class GroupManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_INVITE, data)
         target_player_mgr.enqueue_packet(packet)
 
-        GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.player.name, PartyResults.ERR_PARTY_RESULT_OK)
+        GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_PARTY_RESULT_OK)
 
     @staticmethod
     def send_group_operation_result(player, group_operation, name, result):
@@ -547,7 +545,7 @@ class GroupManager(object):
             player_mgr.health if player_mgr else 0,
             player_mgr.max_health if player_mgr else 0,
             player_mgr.power_type if player_mgr else 0,
-            player_mgr.get_power_type_value() if player_mgr else 0,
+            player_mgr.get_power_value() if player_mgr else 0,
             player_mgr.get_max_power_value() if player_mgr else 0,
             player_mgr.level if player_mgr else character.level,
             player_mgr.map_ if player_mgr else character.map,

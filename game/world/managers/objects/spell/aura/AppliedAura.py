@@ -1,6 +1,7 @@
 from game.world.managers.objects.spell import ExtendedSpellData
+from game.world.managers.objects.spell.aura.AuraEffectDummyHandler import AuraEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
-from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes
+from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes, DispelType
 
 
 class AppliedAura:
@@ -48,6 +49,10 @@ class AppliedAura:
     def get_duration(self):
         return self.spell_effect.applied_aura_duration
 
+    def get_dispel_mask(self):
+        dispel_type = self.source_spell.spell_entry.custom_DispelType
+        return 1 << dispel_type if dispel_type != DispelType.ALL else DispelType.MCDP_MASK
+
     def get_effect_points(self):
         return self.spell_effect.get_effect_points() * self.applied_stacks
 
@@ -55,15 +60,13 @@ class AppliedAura:
         return self.spell_effect.is_past_next_period()
 
     def update(self, timestamp):
-        # Don't manage active effects' duration/ticks here; both are handled by the caster's SpellManager instead.
-        # See SpellManager::handle_spell_effect_update for more information.
-        is_active = self.source_spell.cast_state == SpellState.SPELL_STATE_ACTIVE
+        if self.spell_effect.area_aura_holder:
+            return  # Area auras are managed by AreaAuraHolder.
 
-        if self.has_duration() and not is_active:
+        if self.has_duration():
             self.spell_effect.update_effect_aura(timestamp)
 
         if self.is_periodic():
             AuraEffectHandler.handle_aura_effect_change(self, self.target)
 
-        if not is_active:
-            self.spell_effect.remove_old_periodic_effect_ticks()
+        self.spell_effect.remove_old_periodic_effect_ticks()

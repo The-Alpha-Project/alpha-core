@@ -6,6 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
+from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -13,7 +14,6 @@ from game.world.managers.objects.units.creature.CreaturePickPocketLootManager im
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.items.VirtualItemUtils import VirtualItemsUtils
 from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
-from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
@@ -60,7 +60,6 @@ class CreatureManager(UnitManager):
         self.last_random_movement = 0
         self.random_movement_wait_time = randint(1, 12)
         self.virtual_item_info = {}
-
         self.wander_distance = 0
         self.movement_type = MovementTypes.IDLE
         self.fully_loaded = False
@@ -72,7 +71,6 @@ class CreatureManager(UnitManager):
         self.pickpocket_loot_manager = None
 
         # # All creatures can block, parry and dodge by default.
-        # # TODO: Checks for CREATURE_FLAG_EXTRA_NO_BLOCK and CREATURE_FLAG_EXTRA_NO_PARRY, for hit results.
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
@@ -120,7 +118,6 @@ class CreatureManager(UnitManager):
 
         self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
 
-        self.mod_cast_speed = 1
         self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
@@ -184,7 +181,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.base_attack_time)
-            self.set_int64(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
             self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
@@ -199,7 +196,7 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
-            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, self.mod_cast_speed)
+            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, 0)
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
             self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 
@@ -294,6 +291,9 @@ class CreatureManager(UnitManager):
     def is_pet(self):
         return (self.summoner or self.charmer) and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
+    def is_temp_summon(self):
+        return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
+
     # override
     def is_unit_pet(self, unit):
         return self.is_pet() and self.get_charmer_or_summoner() == unit
@@ -304,6 +304,9 @@ class CreatureManager(UnitManager):
 
     def is_totem(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
+
+    def has_combat_ping(self):
+        return self.creature_template.static_flags & CreatureStaticFlags.COMBAT_PING
 
     def can_have_target(self):
         return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_TARGET
@@ -370,8 +373,7 @@ class CreatureManager(UnitManager):
         self.aura_manager.remove_all_auras()
 
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
-            self.set_health(self.max_health)
-            self.recharge_power()
+            self.replenish_powers()
 
         # Pets should return to owner on evading, not to spawn position. This case at this moment only affects
         # creature summoned pets since player summoned pets will never enter this method.
@@ -443,8 +445,10 @@ class CreatureManager(UnitManager):
 
         return auras
 
-    def has_observers(self):
-        return len(self.known_players) > 0
+    # override
+    # TODO: Quest active escort npc, other cases?
+    def is_active_object(self):
+        return len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self)
 
     def has_wander_type(self):
         return self.movement_type == MovementTypes.WANDER
@@ -463,7 +467,7 @@ class CreatureManager(UnitManager):
     #  switch to another target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
         # Avoid moving while casting, no combat target, evading, target already dead or self stunned.
-        if self.is_casting() or not self.combat_target or self.is_evading or not self.combat_target.is_alive or \
+        if self.is_casting() or self.is_totem() or not self.combat_target or self.is_evading or not self.combat_target.is_alive or \
                 self.unit_state & UnitStates.STUNNED:
             return
 
@@ -548,14 +552,16 @@ class CreatureManager(UnitManager):
                 self.update_sanctuary(elapsed)
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
-                if self.has_moved:
-                    self._on_relocation()
+                if self.has_moved or self.has_turned:
+                    # Relocate only if x, y changed.
+                    if self.has_moved:
+                        self._on_relocation()
                     # Check spell and aura move interrupts.
-                    self.spell_manager.check_spell_interrupts(moved=True)
-                    self.aura_manager.check_aura_interrupts(moved=True)
-                    self.set_has_moved(False)
+                    self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+                    self.set_has_moved(False, False, flush=True)
                 # Random Movement, if visible to players.
-                if self.has_observers():
+                if self.is_active_object():
                     self._perform_random_movement(now)
                 # Combat Movement.
                 self._perform_combat_movement()
@@ -577,7 +583,6 @@ class CreatureManager(UnitManager):
             # Check if this creature object should be updated yet or not.
             if self.has_pending_updates():
                 MapManager.update_object(self, has_changes=True)
-                self.reset_fields_older_than(now)
 
         self.last_tick = now
 
@@ -606,8 +611,6 @@ class CreatureManager(UnitManager):
         if not self.combat_target:
             self.object_ai.attack_start(victim)
         super().attack(victim)
-        # Handle enter combat interrupts.
-        self.aura_manager.check_aura_interrupts()
 
     # override
     def attack_update(self, elapsed):
@@ -615,7 +618,12 @@ class CreatureManager(UnitManager):
         # Has a target, check if we need to attack or switch target.
         if target and self.combat_target != target:
             self.attack(target)
-        super().attack_update(elapsed)
+        if super().attack_update(elapsed):
+            # Make sure sheath state is set to normal for melee attacks.
+            if self.sheath_state != WeaponMode.NORMALMODE:
+                self.set_weapon_mode(WeaponMode.NORMALMODE)
+            return True
+        return False
 
     # override
     def receive_damage(self, damage_info, source=None, is_periodic=False, casting_spell=None):
@@ -624,6 +632,12 @@ class CreatureManager(UnitManager):
 
         if not super().receive_damage(damage_info, source, is_periodic):
             return False
+
+        # Handle COMBAT_PING creature static flag.
+        if self.has_combat_ping() and not self.in_combat:
+            summoner = self.get_charmer_or_summoner()
+            if summoner and summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                summoner.send_minimap_ping(self.guid, self.location)
 
         # If creature's being attacked by another unit, automatically set combat target.
         not_attacked_by_gameobject = source and source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT
@@ -716,6 +730,10 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
     # override
+    def get_name(self):
+        return self.creature_template.name
+
+    # override
     def get_bytes_0(self):
         return ByteUtils.bytes_to_int(
             self.power_type,  # power type
@@ -727,19 +745,20 @@ class CreatureManager(UnitManager):
     # override
     def get_bytes_1(self):
         return ByteUtils.bytes_to_int(
-            0,  # visibility flags
+            self.sheath_state,  # sheath state
             self.shapeshift_form,  # shapeshift form
             self.npc_flags,  # npc flags
             self.stand_state  # stand state
         )
 
     # override
+    # This update field is unused and private in 0.5.3.
     def get_bytes_2(self):
         return ByteUtils.bytes_to_int(
             0,  # unknown
             0,  # pet flags
             0,  # misc flags
-            self.sheath_state  # sheath state
+            0,  # unknown
         )
 
     # override
@@ -776,6 +795,9 @@ class CreatureManager(UnitManager):
         self.faction = charmer.faction if not remove else self.creature_template.faction
         self.subtype = subtype
         self.object_ai = AIFactory.build_ai(self)
+        # Set/remove player controlled flag.
+        if charmer.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.set_player_controlled(not remove)
         super().set_charmed_by(charmer, subtype=subtype, remove=remove)
 
     # override
@@ -789,13 +811,10 @@ class CreatureManager(UnitManager):
         self.subtype = subtype
         self.object_ai = AIFactory.build_ai(self)
         self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, spell_id)
+        # Set/remove player controlled flag.
+        if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.set_player_controlled(not remove)
         super().set_summoned_by(summoner, subtype=subtype, remove=remove)
-
-    # override
-    def set_weapon_mode(self, weapon_mode):
-        super().set_weapon_mode(weapon_mode)
-        self.bytes_2 = self.get_bytes_2()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
     # override
     def set_stand_state(self, stand_state):

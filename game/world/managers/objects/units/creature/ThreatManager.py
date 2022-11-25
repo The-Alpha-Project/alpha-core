@@ -7,7 +7,7 @@ from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
-from utils.constants.UnitCodes import CreatureReactStates
+from utils.constants.UnitCodes import CreatureReactStates, UnitStates, UnitFlags
 
 
 @dataclass
@@ -91,6 +91,14 @@ class ThreatManager:
 
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return False
+
+        # If the threat comes from a pet, owner should be added to this unit threat list.
+        charmer_or_summoner = source.get_charmer_or_summoner()
+        if charmer_or_summoner and not self.has_aggro_from(charmer_or_summoner):
+            # If the charmer/summoner is a player, set him in combat as well.
+            if charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                charmer_or_summoner.attack(self.owner)
+            self.add_threat(charmer_or_summoner)
 
         if threat < 0.0:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
@@ -179,11 +187,17 @@ class ThreatManager:
             for unit in helping_units:
                 unit.threat_manager.add_threat(source, threat, is_call_for_help=True)
 
-    # TODO: Missing faction template flags, charmed, pacified.
+    # 0.5.3 has no faction template flags.
     def unit_can_assist_help_call(self, unit, source):
         if unit == self.owner:
             return False
         elif unit.is_pet() or unit.is_evading:
+            return False
+        elif unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+            return False
+        elif unit.unit_state & UnitStates.STUNNED:
+            return False
+        elif self.owner.faction != unit.faction and self.owner.is_hostile_to(unit):
             return False
         elif not unit.can_attack_target(source) or not unit.is_hostile_to(source):
             return False

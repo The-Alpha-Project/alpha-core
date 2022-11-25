@@ -513,13 +513,8 @@ class WorldDatabaseManager(object):
     def creature_get_vendor_data(entry) -> [Optional[list[NpcVendor]], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendor).filter_by(entry=entry).order_by(NpcVendor.slot.asc()).all()
-        return res, world_db_session
-
-    @staticmethod
-    def creature_get_vendor_data_by_item(entry, item) -> [Optional[NpcVendor], scoped_session]:
-        world_db_session = SessionHolder()
-        res = world_db_session.query(NpcVendor).filter_by(entry=entry, item=item).first()
-        return res, world_db_session
+        world_db_session.close()
+        return res
 
     class CreatureEquipmentHolder:
         CREATURE_EQUIPMENT: [int, CreatureEquipTemplate] = {}

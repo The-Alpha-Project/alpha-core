@@ -13,9 +13,8 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
-from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import PlayerFields
 
 import platform
@@ -302,7 +301,8 @@ class CommandManager(object):
     @staticmethod
     def _unlearn_spell(world_session, spell_id):
         if world_session.player_mgr.spell_manager.unlearn_spell(spell_id):
-            world_session.player_mgr.aura_manager.cancel_auras_by_spell_id(spell_id)
+            world_session.player_mgr.aura_manager.cancel_auras_by_spell_id(spell_id,
+                                                                           source_restriction=world_session.player_mgr)
             return 0, 'Spell unlearned.'
         return -1, 'you do not know this spell yet.'
 
@@ -518,13 +518,28 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def weaponmode(world_session, args):
+        try:
+            creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                               world_session.player_mgr.current_selection)
+            if creature:
+                weapon_mode = int(args)
+                if weapon_mode < 0 or weapon_mode >= WeaponMode.NUMMODES:
+                    return -1, 'invalid weapon mode.'
+                creature.set_weapon_mode(weapon_mode)
+                return 0, f'Weapon mode set to {WeaponMode(weapon_mode).name}'
+            else:
+                return -1, 'unable to locate creature.'
+        except:
+            return -1, 'please specify a valid weapon mode.'
+
+    @staticmethod
     def unit_flags(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         result = ''
         if unit:
             flag_count = 0
-            name = unit.player.name if unit.get_type_id() == ObjectTypeIds.ID_PLAYER else unit.creature_template.name
-            result += f'Unit: {name}\n'
+            result += f'Unit: {unit.get_name()}\n'
             for flag in UnitFlags:
                 if unit.unit_flags & flag:
                     flag_count += 1
@@ -539,7 +554,7 @@ class CommandManager(object):
         creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
                                                            world_session.player_mgr.current_selection)
         if creature:
-            return 0, f'[{creature.creature_template.name}]\n' \
+            return 0, f'[{creature.get_name()}]\n' \
                       f'Spawn ID: {creature.spawn_id}\n' \
                       f'Guid: {creature.get_low_guid()}\n' \
                       f'Entry: {creature.creature_template.entry}\n' \
@@ -558,7 +573,7 @@ class CommandManager(object):
         player_mgr = CommandManager._target_or_self(world_session, only_players=True)
 
         if player_mgr:
-            return 0, f'[{player_mgr.player.name}] - Guid: {player_mgr.get_low_guid()}\n' \
+            return 0, f'[{player_mgr.get_name()}] - Guid: {player_mgr.get_low_guid()}\n' \
                       f'Account ID: {player_mgr.session.account_mgr.account.id}\n' \
                       f'Account name: {player_mgr.session.account_mgr.account.name}'
         return -1, 'error retrieving player info.'
@@ -576,7 +591,7 @@ class CommandManager(object):
                 if distance <= max_distance:
                     found_count += 1
                     ChatManager.send_system_message(world_session,
-                                                    f'[{gobject.gobject_template.name}]\n'
+                                                    f'[{gobject.get_name()}]\n'
                                                     f'Spawn ID: {gobject.spawn_id}\n'
                                                     f'Guid: {gobject.get_low_guid()}\n'
                                                     f'Entry: {gobject.gobject_template.entry}\n'
@@ -757,6 +772,7 @@ GM_COMMAND_DEFINITIONS = {
     'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     'cinfo': [CommandManager.creature_info, 'get targeted creature info'],
     'unitflags': [CommandManager.unit_flags, 'get targeted unit unit flags status'],
+    'weaponmode': [CommandManager.weaponmode, 'Set targeted creature weaponmode mode'],
     'pinfo': [CommandManager.player_info, 'get targeted player info'],
     'goinfo': [CommandManager.gobject_info, 'get gameobject information near you'],
     'level': [CommandManager.level, 'set your level'],

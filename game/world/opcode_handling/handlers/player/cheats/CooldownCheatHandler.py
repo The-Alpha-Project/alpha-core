@@ -15,7 +15,7 @@ class CooldownCheatHandler(object):
             return res
 
         if not player_mgr.is_gm:
-            Logger.anticheat(f'Player {player_mgr.player.name} ({player_mgr.guid}) tried to remove his cooldowns.')
+            Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to remove his cooldowns.')
             return 0
 
         # Clear server-side cooldowns.
