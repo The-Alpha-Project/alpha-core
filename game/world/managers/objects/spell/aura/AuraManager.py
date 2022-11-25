@@ -294,14 +294,12 @@ class AuraManager:
             applied_spell_entry = applied_aura.source_spell.spell_entry
 
             if applied_spell_entry.ID != aura_spell_template.ID:
-                continue
+                applied_aura_name = applied_spell_entry.Name_enUS
+                applied_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(applied_spell_entry)
 
-            applied_aura_name = applied_spell_entry.Name_enUS
-            applied_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(applied_spell_entry)
-
-            if applied_aura_name != new_aura_name or \
-                    (applied_aura_rank != new_aura_rank and not accept_all_ranks):
-                continue
+                if applied_aura_name != new_aura_name or \
+                        (applied_aura_rank != new_aura_rank and not accept_all_ranks):
+                    continue
 
             similar_auras.append(applied_aura)
 
