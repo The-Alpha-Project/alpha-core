@@ -595,8 +595,8 @@ class PetManager:
         # TODO Spell action buttons should be savable to preserve spellbook order and cast flags.
         data.append(spell_count)
         if spell_count:
-            data.extend([PetManager.get_action_button_for(spell) for spell in pet_info.spells])
-            signature += f'{spell_count}I'
+            data.extend([spell for spell in pet_info.spells])
+            signature += f'{spell_count}H'
 
         signature += 'B'
         data.append(0)  # TODO: Cooldown count.
