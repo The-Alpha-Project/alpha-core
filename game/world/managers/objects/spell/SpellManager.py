@@ -225,7 +225,7 @@ class SpellManager:
             if not casting_spell:
                 continue
 
-            if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here
+            if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here.
                 self.caster.set_stand_state(StandState.UNIT_SITTING)
 
             self.start_spell_cast(initialized_spell=casting_spell)
