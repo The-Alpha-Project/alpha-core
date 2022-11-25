@@ -644,7 +644,7 @@ class PlayerManager(UnitManager):
             # while the screen is still present.
             # Remove to others.
             MapManager.remove_object(self)
-            # Remove the player's active pet.
+            # Remove player's active pet.
             self.pet_manager.detach_active_pet()
             # Destroy all objects known to self.
             self.update_known_world_objects(flush=True)
