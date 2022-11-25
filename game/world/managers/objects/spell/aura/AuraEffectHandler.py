@@ -386,7 +386,7 @@ class AuraEffectHandler:
         if remove:
             aura.caster.pet_manager.detach_active_pet()
             return
-        aura.caster.pet_manager.add_pet_from_world(effect_target, aura.spell_id)
+        aura.caster.pet_manager.set_creature_as_pet(effect_target, aura.spell_id)
 
     @staticmethod
     def handle_taunt(aura, effect_target, remove):

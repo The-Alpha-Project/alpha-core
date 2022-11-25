@@ -236,15 +236,23 @@ class PetManager:
         if self.active_pet:
             self.get_active_pet_info().save()
 
-    def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int,
-                           pet_level=-1, pet_index=-1, is_permanent=False):
+    def set_creature_as_pet(self, creature: CreatureManager, summon_spell_id: int,
+                            pet_level=-1, pet_index=-1, is_permanent=False):
         if self.active_pet:
             return
 
         # Modify and link owner and creature.
-        self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent)
+        if is_permanent:
+            # Permanent pet summon.
+            creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
+                                     subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
+                                     movement_type=MovementTypes.IDLE)
+        else:
+            # Temporary charm.
+            creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
+                                    movement_type=MovementTypes.IDLE)
 
-        # Creature from world spawns.
+        self._handle_creature_spawn_detach(creature, is_permanent)
         creature.leave_combat()
 
         if pet_index == -1:
@@ -312,7 +320,8 @@ class PetManager:
 
         # Match summoner level if a creature ID is provided (warlock pets). Otherwise, set to the level in PetData.
         pet_level = self.owner.level if match_summoner_level else -1
-        self.add_pet_from_world(creature_manager, spell_id, pet_level=pet_level, pet_index=pet_index, is_permanent=True)
+        self.set_creature_as_pet(creature_manager, spell_id, pet_level=pet_level, pet_index=pet_index, is_permanent=True)
+        MapManager.spawn_object(world_object_instance=creature_manager)
 
     def remove_pet(self, pet_index):
         if self._get_pet_info(pet_index):
@@ -546,34 +555,25 @@ class PetManager:
 
         return self.pets[pet_index]
 
-    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False):
+    def _handle_creature_spawn_detach(self, creature: CreatureManager, is_permanent):
         # Creatures which are linked to a CreatureSpawn.
-        if creature.get_type_id() == ObjectTypeIds.ID_UNIT and creature.spawn_id:
-            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
-            if not spawn:
+        if creature.get_type_id() != ObjectTypeIds.ID_UNIT or not creature.spawn_id:
+            return
+
+        spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
+        if not spawn:
+            Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+            return
+        # Detach creature instance from spawn.
+        if is_permanent:
+            if not spawn.detach_creature_from_spawn(creature):
                 Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                 return
-            # Detach creature instance from spawn.
-            if is_permanent:
-                if not spawn.detach_creature_from_spawn(creature):
-                    Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
-                    return
-            # Borrow the creature instance.
-            elif not is_permanent:
-                if not spawn.lend_creature_instance(creature):
-                    Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
-                    return
-
-        if is_permanent:
-            # Spawn permanent creature.
-            MapManager.spawn_object(world_object_instance=creature)
-            # Summoned by owner.
-            creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
-                                     subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
-                                     movement_type=MovementTypes.IDLE)
-        # Charmed by owner.
-        creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
-                                movement_type=MovementTypes.IDLE)
+        # Borrow the creature instance.
+        elif not is_permanent:
+            if not spawn.lend_creature_instance(creature):
+                Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+                return
 
     def _send_pet_spell_info(self):
         if not self.active_pet:
