@@ -79,7 +79,7 @@ class FarSightManager:
     @staticmethod
     def _get_camera_by_object(world_object):
         with FarSightManager.LOCK:
-            return CAMERAS_BY_SOURCE_OBJECT[world_object.guid].get()
+            return CAMERAS_BY_SOURCE_OBJECT.get(world_object.guid)
 
     @staticmethod
     def _remove_cell_camera(world_object):
