@@ -335,6 +335,7 @@ class CreatureManager(UnitManager):
 
     # override
     def on_cell_change(self):
+        super().on_cell_change()
         camera = FarSightManager.get_camera_by_object(self)
         if camera:
             camera.update_camera_on_players()
