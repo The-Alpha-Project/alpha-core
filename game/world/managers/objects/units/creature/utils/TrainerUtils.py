@@ -56,10 +56,13 @@ class TrainerUtils:
                 skill_value = player_mgr.skill_manager.get_total_skill_value(trainer_spell.reqskill, no_bonus=True)
                 fulfill_skill_reqs = skill_value >= trainer_spell.reqskillvalue
 
+            # Required spell. Take override from database if available.
+            req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
+
             status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, player_mgr, fulfill_skill_reqs)
             train_spell_bytes += TrainerUtils.get_spell_data(trainer_spell.spell, status, trainer_spell.spellcost,
                                                              trainer_spell.talentpointcost,
-                                                             trainer_spell.skillpointcost, spell.BaseLevel,
+                                                             trainer_spell.skillpointcost, req_level,
                                                              trainer_spell.reqskill, trainer_spell.reqskillvalue,
                                                              skill_step, preceded_spell)
             train_spell_count += 1
