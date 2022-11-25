@@ -333,6 +333,12 @@ class CreatureManager(UnitManager):
         # Scan surrounding for enemies.
         self._on_relocation()
 
+    # override
+    def on_cell_change(self):
+        camera = FarSightManager.get_camera_by_object(self)
+        if camera:
+            camera.update_camera_on_players()
+
     def can_swim(self):
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
 
@@ -559,7 +565,6 @@ class CreatureManager(UnitManager):
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
-                    self.set_has_moved(False, False, flush=True)
                 # Random Movement, if visible to players.
                 if self.is_active_object():
                     self._perform_random_movement(now)
@@ -580,9 +585,12 @@ class CreatureManager(UnitManager):
             elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.
 
+            has_changes = self.has_pending_updates()
             # Check if this creature object should be updated yet or not.
-            if self.has_pending_updates():
-                MapManager.update_object(self, has_changes=True)
+            if has_changes or self.has_moved:
+                MapManager.update_object(self, has_changes=has_changes)
+                if self.has_moved:
+                    self.set_has_moved(False, False, flush=True)
 
         self.last_tick = now
 

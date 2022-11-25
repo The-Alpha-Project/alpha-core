@@ -107,7 +107,7 @@ class GridManager:
                 for creature in list(cell.creatures.values()):
                     self.active_cell_callback(creature)
 
-    # Destroy a world_object from others and remove it from its cell.
+    # Remove a world_object from its cell and notify surrounding players if required.
     def remove_object(self, world_object, update_players=True):
         cell = self.cells.get(world_object.current_cell)
         if cell:
