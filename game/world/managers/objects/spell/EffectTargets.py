@@ -11,7 +11,7 @@ from game.world.managers.objects.spell.ExtendedSpellData import SummonedObjectPo
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
-from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects
+from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, SpellTargetMask
 
 
 @dataclass
@@ -98,8 +98,18 @@ class EffectTargets:
         return target
 
     def can_target_friendly(self) -> bool:
-        return self.target_effect.implicit_target_a in FRIENDLY_IMPLICIT_TARGETS or \
-               self.target_effect.implicit_target_b in FRIENDLY_IMPLICIT_TARGETS
+        if self.target_effect.implicit_target_a in FRIENDLY_IMPLICIT_TARGETS or \
+               self.target_effect.implicit_target_b in FRIENDLY_IMPLICIT_TARGETS:
+            return True
+
+        # Spells with implicit target set to 0 can have both friendly and hostile targets.
+        # These spells include passives, testing spells and npc spells.
+        # However, in these cases the target mask seems to be enough to resolve target friendliness.
+        if self.target_effect.implicit_target_a == SpellImplicitTargets.TARGET_INITIAL and \
+                self.casting_spell.spell_entry.Targets & SpellTargetMask.ENEMIES:
+            return False
+
+        return True
 
     def resolve_targets(self):
         if not self.simple_targets:
