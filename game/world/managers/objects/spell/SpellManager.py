@@ -1026,14 +1026,14 @@ class SpellManager:
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring a unit target but being cast on self,
         # validate the spell against the caster's current unit selection instead or the caster pet.
-        if casting_spell.spell_target_mask == SpellTargetMask.SELF and \
-                casting_spell.requires_implicit_initial_unit_target():
-            validation_target = casting_spell.targeted_unit_on_cast_start
-            if validation_target and not self.caster.can_attack_target(validation_target):
-                # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
-                # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-                return False
+        if casting_spell.spell_target_mask == SpellTargetMask.SELF:
+            if casting_spell.requires_implicit_initial_unit_target():
+                validation_target = casting_spell.targeted_unit_on_cast_start
+                if validation_target and not self.caster.can_attack_target(validation_target):
+                    # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
+                    # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    return False
             elif casting_spell.has_pet_target():
                 validation_target = self.caster.get_pet()
 
