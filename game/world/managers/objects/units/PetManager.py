@@ -41,7 +41,7 @@ class PetData:
         self.react_state = PetReactState.REACT_DEFENSIVE
         self.command_state = PetCommandState.COMMAND_FOLLOW
 
-        self.spells = self._get_available_spells()
+        self.spells = []
 
         # TODO Not handling CMSG_PET_SET_ACTION yet.
         # TODO Use saved action bar once pet spellbook is working;
@@ -93,6 +93,7 @@ class PetData:
             mana=mana,
             happiness=0,  # TODO
             action_bar=pack('10I', *self.action_bar)
+            # TODO Pet spellbook persistence.
         )
 
         return character_pet
@@ -125,9 +126,17 @@ class PetData:
 
         self._level = level
         self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
-        self.spells = self._get_available_spells()
         self._experience = 0
         self.set_dirty()
+
+    def add_spell(self, spell_id) -> bool:
+        if spell_id in self.spells:
+            return False
+
+        self.spells.append(spell_id)
+        self.set_dirty()
+        return True
+
 
     def get_experience(self):
         return self._experience
@@ -139,24 +148,10 @@ class PetData:
     def _get_xp_to_next_level_for(level: int) -> int:
         return int(Formulas.PlayerFormulas.xp_to_level(level) / 4)
 
-    def _get_available_spells(self) -> list[int]:
+    def get_available_spells(self, ignore_level=False) -> list[int]:
         creature_family = self.creature_template.beast_family
         if not creature_family:
             return []
-
-        # TODO - vanilla pet spell data isn't compatible with alpha
-        #  Pet abilities are very different from what they are in vanilla based on the family SkillLines.
-        #  Beasts of the same family should probably have variation in their initial ability set like in vanilla.
-        #  Since using sniffed vanilla data isn't viable in this case,
-        #  we'll just instead assume (for now) that all beasts of the same family know the same abilities.
-
-        # In alpha, pet families have both their family-specific skill lines and pet talent skill lines.
-        # The world also has specific trainers for (almost) all existing pet families along with pet trainers.
-        # There's no data on what these trainers did currently.
-        # A reasonable assumption is that the pet trainers trained talents that are generic for all families,
-        # and the specific pet family trainers allowed training the pet's family-specific skills.
-        # This would also make sense with no pet stables, as otherwise the player would have to abandon their pet
-        # at some point to learn higher rank abilities.
 
         family_entry = DbcDatabaseManager.CreatureFamilyHolder.creature_family_get_by_id(creature_family)
         if not family_entry:
@@ -164,32 +159,24 @@ class PetData:
             # TODO Make these pets untamable?
             return []
 
-        skill_lines = [family_entry.SkillLine_1, family_entry.SkillLine_2]  # TODO 2 is pet talents or 0, ignore for now.
+        skill_lines = [family_entry.SkillLine_1, family_entry.SkillLine_2]  # Include talents for this check (if any).
 
-        if not skill_lines[0]:
-            return []
-
-        skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines([skill_lines[0]])
+        skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(skill_lines)
         if not skill_line_abilities:
             return []
 
-        # TODO Selecting spell ranks according to pet level for now.
-        # This should be replaced when pets can be trained.
-
         # Load spell info.
-        spell_info = [(line, DbcDatabaseManager.SpellHolder.spell_get_by_id(line.Spell)) for line in skill_line_abilities]
+        line_spells = [DbcDatabaseManager.SpellHolder.spell_get_by_id(line.Spell) for line in skill_line_abilities]
 
         # Filter spells by pet level.
-        spell_info = [info for info in spell_info if info[1].SpellLevel <= self._level]
-        filtered_spell_ids = [info[1].ID for info in spell_info]
+        # TODO This level isn't always correct. We should do a lookup on the teaching spell instead.
+        return [spell.ID for spell in line_spells if ignore_level or spell.SpellLevel <= self._level]
 
-        # Remove lower rank spells.
-        for line, spell in spell_info:
-            # Remove spell if a higher rank is available.
-            if line.SupercededBySpell in filtered_spell_ids:
-                filtered_spell_ids.remove(spell.ID)
+    def can_learn_spell(self, spell_id):
+        return spell_id in self.get_available_spells()
 
-        return filtered_spell_ids
+    def can_ever_learn_spell(self, spell_id):
+        return spell_id in self.get_available_spells(ignore_level=True)
 
     def get_default_action_bar_values(self) -> List[int]:
         pet_bar = [
@@ -237,9 +224,9 @@ class PetManager:
             self.get_active_pet_info().save()
 
     def set_creature_as_pet(self, creature: CreatureManager, summon_spell_id: int,
-                            pet_level=-1, pet_index=-1, is_permanent=False):
+                            pet_level=-1, pet_index=-1, is_permanent=False) -> Optional[ActivePet]:
         if self.active_pet:
-            return
+            return None
 
         # Modify and link owner and creature.
         if is_permanent:
@@ -267,6 +254,7 @@ class PetManager:
 
         self._set_active_pet(pet_index, creature)
         self.set_active_pet_level(pet_level)
+        return self.active_pet
 
     def _set_active_pet(self, pet_index: int, creature: CreatureManager):
         pet_info = self._get_pet_info(pet_index)
@@ -284,6 +272,29 @@ class PetManager:
         pet.save()
         self.pets.append(pet)
         return len(self.pets) - 1
+
+    def teach_active_pet_spell(self, spell_id, force=False, update=True) -> bool:
+        pet = self.get_active_pet_info()
+        if not pet or not pet.permanent:
+            return False
+
+        if not force and not pet.can_learn_spell(spell_id):
+            return False
+
+        if not pet.add_spell(spell_id):
+            return False
+
+        if update:
+            self._send_pet_spell_info()
+
+    def teach_active_pet_all_available_spells(self):
+        pet = self.get_active_pet_info()
+        if not pet:
+            return
+
+        update = any([self.teach_active_pet_spell(spell_id, update=False) for spell_id in pet.spells])
+        if update:
+            self._send_pet_spell_info()
 
     def summon_permanent_pet(self, spell_id, creature_id=0):
         if self.active_pet:
@@ -472,8 +483,6 @@ class PetManager:
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, pet_creature.level)
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, active_pet_info.next_level_xp)
 
-        # Update spells in case new ones were unlocked. TODO pet spells should be trained instead.
-        self._send_pet_spell_info()
         self._update_active_pet_stats()
 
     def get_active_pet_command_state(self):

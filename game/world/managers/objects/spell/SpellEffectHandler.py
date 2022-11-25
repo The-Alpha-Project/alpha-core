@@ -310,12 +310,29 @@ class SpellEffectHandler:
             effect.area_aura_holder.add_target(target)
 
         for target in missing_targets:
-            effect.area_aura_holder.remove_target(target)
+            effect.area_aura_holder.remove_target(target.guid)
 
     @staticmethod
     def handle_learn_spell(casting_spell, effect, caster, target):
         target_spell_id = effect.trigger_spell_id
-        target.spell_manager.learn_spell(target_spell_id)
+        if target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+            target.spell_manager.learn_spell(target_spell_id)
+            return
+
+        # Pet teaching.
+        summoner = target.get_charmer_or_summoner()
+        if summoner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        summoner.pet_manager.teach_active_pet_spell(target_spell_id)
+
+    @staticmethod
+    def handle_learn_pet_spell(casting_spell, effect, caster, target):
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        target_spell_id = effect.trigger_spell_id
+        target.pet_manager.teach_active_pet_spell(target_spell_id)
 
     @staticmethod
     def handle_summon_totem(casting_spell, effect, caster, target):
@@ -527,7 +544,11 @@ class SpellEffectHandler:
 
         # Taming will always result in the target becoming the caster's pet.
         # Pass ID 883 (Summon Pet) as the spell creating this unit since it's saved in the database.
-        caster.pet_manager.set_creature_as_pet(target, 883, is_permanent=True)
+        pet = caster.pet_manager.set_creature_as_pet(target, 883, is_permanent=True)
+        if pet:
+            # Since we have no data for what abilities pets had in the wild (or if it even varied in 0.5.3),
+            # learn all abilities the pet could have at its current level.
+            caster.pet_manager.teach_active_pet_all_available_spells()
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):
@@ -817,6 +838,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_OPEN_LOCK: SpellEffectHandler.handle_open_lock,
     SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM: SpellEffectHandler.handle_open_lock,
     SpellEffects.SPELL_EFFECT_LEARN_SPELL: SpellEffectHandler.handle_learn_spell,
+    SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL: SpellEffectHandler.handle_learn_pet_spell,
     SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA: SpellEffectHandler.handle_apply_area_aura,
     SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem,
     SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect,

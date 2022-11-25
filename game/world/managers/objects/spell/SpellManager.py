@@ -1146,6 +1146,34 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
                 return False
 
+        # Spell learning/teaching checks.
+        taught_spells = [effect.trigger_spell_id for effect in casting_spell.get_effects()
+                         if effect.effect_type in {SpellEffects.SPELL_EFFECT_LEARN_SPELL,
+                                                   SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL}]
+
+        if casting_spell.initial_target_is_unit_or_player() and taught_spells:
+            if validation_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                if any([spell in validation_target.spell_manager.spells for spell in taught_spells]):
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_SPELL_LEARNED)
+                    return False  # Spell already known.
+            else:
+                # Teaching a pet a spell.
+                pet = self.caster.pet_manager.get_active_pet_info()
+                if not pet or not pet.permanent:
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
+                    return False  # No pet (or temporary charm).
+
+                if any([spell in pet.spells for spell in taught_spells]):
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_SPELL_LEARNED)
+                    return False
+
+                if any([not pet.can_learn_spell(spell) for spell in taught_spells]):
+                    is_low_level = any([pet.can_ever_learn_spell(spell) for spell in taught_spells])
+                    reason = SpellCheckCastResult.SPELL_FAILED_SPELL_UNAVAILABLE if not is_low_level \
+                        else SpellCheckCastResult.SPELL_FAILED_LOWLEVEL
+                    self.send_cast_result(casting_spell, reason)
+                    return False  # Pet can't learn the teachable spell.
+
         # Charm checks.
 
         charm_effect = casting_spell.get_charm_effect()

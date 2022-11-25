@@ -54,7 +54,9 @@ class TalentManager(object):
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
 
             talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
-            status = TrainerUtils.get_training_list_spell_status(spell.ID, spell.BaseLevel, preceded_spell, self.player_mgr)
+            status = TrainerUtils.get_training_list_spell_status(spell, training_spell.spell, spell.BaseLevel,
+                                                                 preceded_spell, self.player_mgr)
+
             talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
                                                         talent_points_cost, 0,  # 0 Skill point cost.
                                                         spell.BaseLevel,
