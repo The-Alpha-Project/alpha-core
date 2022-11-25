@@ -916,13 +916,6 @@ class SpellTargetPosition(Base):
     target_orientation = Column(Float, nullable=False, server_default=text("0"))
 
 
-class SpellEnchantCharges(Base):
-    __tablename__ = 'spell_enchant_charges'
-
-    entry = Column(INTEGER(10), primary_key=True, nullable=False, server_default=text("0"))
-    charges = Column(INTEGER(10), primary_key=True, nullable=False, server_default=text("0"))
-
-
 class NpcVendor(Base):
     __tablename__ = 'npc_vendor'
 

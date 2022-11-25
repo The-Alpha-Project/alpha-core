@@ -266,9 +266,6 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
-        self.enter_combat()
-        victim.enter_combat()
-
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
@@ -881,6 +878,8 @@ class UnitManager(ObjectManager):
                not self.unit_state & UnitStates.STUNNED
 
     def enter_combat(self):
+        if self.in_combat:
+            return
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
@@ -953,11 +952,7 @@ class UnitManager(ObjectManager):
         return False
 
     def get_pet(self):
-        pet_id = self.get_uint64(UnitFields.UNIT_FIELD_SUMMON)
-        if pet_id:
-            pet = MapManager.get_surrounding_unit_by_guid(self, pet_id, include_players=True)
-            return pet if pet and pet.is_pet() else None
-        return None
+        return self.pet_manager.active_pet.creature if self.pet_manager.active_pet else None
 
     def get_possessed_unit(self):
         possessed_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARM)

@@ -33,20 +33,32 @@ class EnchantmentManager(object):
                 self.set_item_enchantment(item, slot, entry, duration, charges)
 
     # TODO: Need to optimize item lookup or even move Enchantment updates to a new global thread.
-    #  Handle charges.
     def update(self, elapsed):
         self.duration_timer_seconds += elapsed
         if self.duration_timer_seconds >= 10:
             for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
-                for slot, enchantment in enumerate(item.enchantments):
-                    if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry:  # Temporary enchantments.
-                        new_duration = int(enchantment.duration - self.duration_timer_seconds)
-                        enchantment.duration = 0 if new_duration <= 0 else new_duration
-                        if not enchantment.duration:
-                            # Remove.
-                            self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
-                            item.save()
+                self._update_item_enchantments(item)
             self.duration_timer_seconds = 0
+
+    def _update_item_enchantments(self, item):
+        for slot, enchantment in enumerate(item.enchantments):
+            if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry:  # Temporary enchantments.
+                new_duration = int(enchantment.duration - self.duration_timer_seconds)
+                enchantment.duration = 0 if new_duration <= 0 else new_duration
+                if not enchantment.duration and not enchantment.charges:
+                    # Remove.
+                    self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
+                    item.save()
+
+    # noinspection PyMethodMayBeStatic
+    def _consume_item_charges(self, item, enchantment_slot, used_charges=1):
+        charges = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2)
+        if charges:
+            new_charges = max(0, charges - used_charges)
+            item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2, new_charges)
+            item.enchantments[enchantment_slot[0]].charges = new_charges
+            return True
+        return False
 
     def apply_enchantments(self, load=False):
         for container_slot, container in list(self.unit_mgr.inventory.containers.items()):
@@ -66,13 +78,15 @@ class EnchantmentManager(object):
     def set_item_enchantment(self, item, slot, value, duration, charges, expired=False):
         remove = not item.is_equipped() or expired
 
-        item.enchantments[slot].update(value, duration, charges)
+        if not remove:
+            item.enchantments[slot].update(value, duration, charges)
+
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, charges)
 
         # Notify player with duration.
-        if slot != EnchantmentSlots.PERMANENT_SLOT:
+        if expired or duration:
             self.send_enchantments_durations(slot)
 
         self._handle_equip_buffs(item, remove=remove)
@@ -97,7 +111,7 @@ class EnchantmentManager(object):
         self._handle_equip_buffs(item, remove=was_removed)
 
     def handle_melee_attack_procs(self, damage_info):
-        for proc_enchant in self._applied_proc_enchants.values():
+        for entry, proc_enchant in list(self._applied_proc_enchants.items()):
             item_slot, proc_spell_id, proc_chance = proc_enchant
 
             # Skip weapon procs if disarmed.
@@ -107,6 +121,15 @@ class EnchantmentManager(object):
 
             if not self.unit_mgr.stat_manager.roll_proc_chance(proc_chance):
                 continue
+
+            proc_item = self.unit_mgr.inventory.get_item(InventorySlots.SLOT_INBACKPACK, item_slot)
+            if not proc_item:
+                continue
+
+            # Handle proc charges.
+            enchantment_slot = [i for i, enchantment in enumerate(proc_item.enchantments) if enchantment.entry == entry]
+            if enchantment_slot and self._consume_item_charges(proc_item, enchantment_slot[0]):
+                self._update_item_enchantments(proc_item)
 
             # Some enchant procs use spells that have cast times.
             # Ignore cast time for these spells by overriding cast time info.

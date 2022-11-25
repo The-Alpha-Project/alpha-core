@@ -20,7 +20,8 @@ from utils.constants.ItemCodes import ItemClasses, ItemSubClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
-    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags
+    AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags, \
+    SpellCategory
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -94,6 +95,7 @@ class CastingSpell:
             self.initial_target = MapManager.find_liquid_location_in_range(self.spell_caster,
                                                                            self.range_entry.RangeMin,
                                                                            self.range_entry.RangeMax)
+
         self.cast_flags = SpellCastFlags.CAST_FLAG_NONE
 
         # Ammo needs to be resolved on initialization since it's needed for validation and spell cast packets.
@@ -311,6 +313,9 @@ class CastingSpell:
     def is_fishing_spell(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF_FISHING
 
+    def has_pet_target(self):
+        return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_PET
+
     def is_pick_pocket_spell(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
 
@@ -362,21 +367,8 @@ class CastingSpell:
         return any(effect.effect_type == SpellEffects.SPELL_EFFECT_PICKPOCKET for effect in self.get_effects())
 
     def is_refreshment_spell(self):
-        spell_effect = self._effects[0]  # Food/drink effect should be first.
-        if not spell_effect:
-            return False
-
-        # Food/drink spells aren't labeled,
-        # but they need to be distinguished from other regeneration spells.
-        # All food spells have a period of 3000 and are castable while sitting.
-        # No other spells in 0.5.3 match this condition.
-
-        has_refreshment_period = spell_effect.aura_period == 3000
-        has_sitting_attribute = self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CASTABLE_WHILE_SITTING
-        is_regen_buff = spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_HEAL or \
-            spell_effect.aura_type == AuraTypes.SPELL_AURA_PERIODIC_ENERGIZE
-
-        return has_sitting_attribute and is_regen_buff and has_refreshment_period
+        return self.spell_entry.Category in \
+               {SpellCategory.SPELLCATEGORY_ITEM_FOOD, SpellCategory.SPELLCATEGORY_ITEM_DRINK}
 
     def is_overpower(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_ENABLE_AT_DODGE
