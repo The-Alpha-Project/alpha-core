@@ -21,6 +21,16 @@ class AuraDoseInfo:
         return AuraDoseInfo.DOSE_INFO.get(spell_id, 1)
 
 
+class EnchantmentChargesInfo:
+    CHARGES_INFO = {
+        3408: 1,  # Crippling Poison
+    }
+
+    @staticmethod
+    def get_charges(spell_id: int):
+        return EnchantmentChargesInfo.CHARGES_INFO[spell_id] if spell_id in EnchantmentChargesInfo.CHARGES_INFO else 0
+
+
 class ShapeshiftInfo:
     # Alliance / Default display_id, Horde display_id, Scale
     SHAPESHIFT_MODELS = {

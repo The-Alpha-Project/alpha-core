@@ -14466,6 +14466,12 @@ begin not atomic
 
         insert into applied_updates values ('101120221');
     end if;
+
+    -- 24/11/2022 1
+    if (select count(*) from applied_updates where id='241120221') = 0 then	
+	    DROP TABLE `alpha_world`.`spell_enchant_charges`;
+	    insert into applied_updates values ('241120221');
+    end if;
         
 end $
 delimiter ;

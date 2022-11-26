@@ -65,6 +65,10 @@ class Cell:
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
             self.corpses[world_object.guid] = world_object
 
+        camera = FarSightManager.get_camera_by_object(world_object)
+        if camera:
+            FarSightManager.update_camera_cell_placement(world_object, self)
+
     def update_creatures(self, now):
         with self.cell_lock:
             # Update creature instances.
@@ -135,9 +139,6 @@ class Cell:
             self.dynamic_objects.pop(world_object.guid, None)
         elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
             self.corpses.pop(world_object.guid, None)
-
-        # If world object was a camera viewpoint, remove it.
-        FarSightManager.remove_camera(world_object)
 
     def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
         players_reached = set()

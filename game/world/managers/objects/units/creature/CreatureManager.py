@@ -76,7 +76,7 @@ class CreatureManager(UnitManager):
         self.has_parry_passive = True
 
     # This can also be used to 'morph' the creature.
-    def initialize_from_creature_template(self, creature_template):
+    def initialize_from_creature_template(self, creature_template, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
         if not creature_template:
             return
 
@@ -104,7 +104,7 @@ class CreatureManager(UnitManager):
         self.creature_type = self.creature_template.type
         self.spell_list_id = self.creature_template.spell_list_id
         self.sheath_state = WeaponMode.NORMALMODE
-        self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
+        self.subtype = subtype
 
         if 0 < self.creature_template.rank < 4:
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -333,6 +333,13 @@ class CreatureManager(UnitManager):
         # Scan surrounding for enemies.
         self._on_relocation()
 
+    # override
+    def on_cell_change(self):
+        super().on_cell_change()
+        camera = FarSightManager.get_camera_by_object(self)
+        if camera:
+            camera.update_camera_on_players()
+
     def can_swim(self):
         return (self.static_flags & CreatureStaticFlags.AMPHIBIOUS) or (self.static_flags & CreatureStaticFlags.AQUATIC)
 
@@ -559,7 +566,6 @@ class CreatureManager(UnitManager):
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
-                    self.set_has_moved(False, False, flush=True)
                 # Random Movement, if visible to players.
                 if self.is_active_object():
                     self._perform_random_movement(now)
@@ -580,9 +586,12 @@ class CreatureManager(UnitManager):
             elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.
 
+            has_changes = self.has_pending_updates()
             # Check if this creature object should be updated yet or not.
-            if self.has_pending_updates():
-                MapManager.update_object(self, has_changes=True)
+            if has_changes or self.has_moved:
+                MapManager.update_object(self, has_changes=has_changes)
+                if self.has_moved:
+                    self.set_has_moved(False, False, flush=True)
 
         self.last_tick = now
 
@@ -666,6 +675,10 @@ class CreatureManager(UnitManager):
     def die(self, killer=None):
         if not self.is_alive:
             return False
+
+        # Handle one shot kills leading to player remaining in combat.
+        if not self.threat_manager.has_aggro_from(killer):
+            self.threat_manager.add_threat(killer)
 
         # Notify pet AI about this kill.
         pet_or_killer_pet = self if self.is_pet() else killer.get_pet()

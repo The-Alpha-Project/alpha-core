@@ -1,3 +1,4 @@
+from utils.constants.SpellCodes import SpellAttributesEx
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -21,6 +22,10 @@ class Camera:
                 continue
             player_mgr.enqueue_packet(packet)
 
+    def update_camera_on_players(self):
+        for player_mgr in list(self.players.values()):
+            player_mgr.update_known_objects_on_tick = True
+
     def has_player(self, player_mgr):
         return player_mgr.guid in self.players
 
@@ -43,3 +48,7 @@ class Camera:
     def flush(self):
         for player_mgr in list(self.players.values()):
             self.pop_player(player_mgr)
+            player_mgr.update_known_objects_on_tick = True
+            spell = player_mgr.spell_manager.get_casting_spell()
+            if spell and spell.is_far_sight() and spell.is_channeled():
+                player_mgr.spell_manager.interrupt_casting_spell()

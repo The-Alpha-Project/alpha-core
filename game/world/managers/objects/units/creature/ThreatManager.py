@@ -104,7 +104,7 @@ class ThreatManager:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
         if source is not self.owner:
-
+            self.owner.enter_combat()
             source_holder = self.holders.get(source.guid)
             # Update existent holder.
             if source_holder:

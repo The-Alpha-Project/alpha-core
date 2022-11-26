@@ -19,6 +19,8 @@ class CreatureBuilder:
 
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_instance = CreatureManager()
+        creature_instance.summoner = summoner
+        creature_instance.subtype = subtype
         creature_instance.spawn_id = spawn_id
         creature_instance.entry = creature_template.entry
         creature_instance.guid = CreatureBuilder._get_guid(creature_instance, subtype)
@@ -27,12 +29,10 @@ class CreatureBuilder:
         creature_instance.health_percent = health_percent
 
         # Initialize from creature template.
-        creature_instance.initialize_from_creature_template(creature_template)
+        creature_instance.initialize_from_creature_template(creature_template, subtype=subtype)
 
         # Continue initialization, order above matters.
         creature_instance.level = level if level != -1 else creature_instance.level
-        creature_instance.summoner = summoner
-        creature_instance.subtype = subtype
         creature_instance.faction = faction if faction else creature_template.faction
         creature_instance.location = location.copy()
         creature_instance.spawn_position = creature_instance.location.copy()
