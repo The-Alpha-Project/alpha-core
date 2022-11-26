@@ -96,17 +96,17 @@ class TrainerUtils:
     @staticmethod
     def get_training_list_spell_status(spell, preceded_spell, player_mgr, fulfill_skill=True):
         if not fulfill_skill:
-            status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+            status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE, 'FULLFILL'
         else:
             if spell.ID in player_mgr.spell_manager.spells:
-                status = TrainerServices.TRAINER_SERVICE_USED
+                status = TrainerServices.TRAINER_SERVICE_USED, 'NONE'
             else:
                 if preceded_spell and preceded_spell not in player_mgr.spell_manager.spells:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE, 'NEED_PREVIOUS_RANK'
                 elif player_mgr.level >= spell.BaseLevel:
-                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE
+                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE, 'TOO_HIGH_LVL'
                 else:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE, 'UNKNOWN'
         return status
 
     @staticmethod
