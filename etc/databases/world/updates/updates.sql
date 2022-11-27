@@ -14493,6 +14493,14 @@ begin not atomic
 
         insert into applied_updates values ('261120221');
     end if;
+
+    -- 26/11/2022 2
+    if (select count(*) from applied_updates where id='261120222') = 0 then
+        -- Apothecary Helbrim
+        UPDATE `spawns_creatures` SET `orientation` = 4.359 WHERE `spawn_id` = 13982;
+
+        insert into applied_updates values ('261120222');
+    end if;
         
 end $
 delimiter ;
