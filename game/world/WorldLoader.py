@@ -20,6 +20,9 @@ class WorldLoader:
         MapManager.initialize_maps()
         MapManager.initialize_area_tables()
 
+        if config.Server.Settings.use_nav_tiles:
+            WorldLoader.load_navigation()
+
         # Below order matters.
 
         WorldLoader.load_creature_templates()
@@ -80,6 +83,19 @@ class WorldLoader:
         WorldLoader.load_guilds()
 
     # World data holders
+
+    @staticmethod
+    def load_navigation():
+        maps = MapManager.get_maps()
+        length = len(maps)
+        count = 0
+
+        for _map in maps:
+            _map.build_navigation()
+            count += 1
+            Logger.progress('Loading navigation data...', count, length)
+
+        return length
 
     @staticmethod
     def load_gameobject_templates():
@@ -157,6 +173,8 @@ class WorldLoader:
         count = 0
 
         for creature_spawn in creature_spawns:
+            if creature_spawn.spawn_id != 80077:
+                continue
             creature_spawn = CreatureSpawn(creature_spawn)
             creature_spawn.spawn_creature()
             count += 1

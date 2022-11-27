@@ -470,8 +470,6 @@ class CreatureManager(UnitManager):
                     self.random_movement_wait_time = randint(1, 12)
                     self.last_random_movement = now
 
-    # TODO: All the evade calls should be probably handled by aggro manager, it should be able to decide if unit can
-    #  switch to another target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
         # Avoid moving while casting, no combat target, evading, target already dead or self stunned.
         if self.is_casting() or self.is_totem() or not self.combat_target or self.is_evading or not self.combat_target.is_alive or \
@@ -517,7 +515,7 @@ class CreatureManager(UnitManager):
             self.movement_manager.send_face_target(self.combat_target)
 
         combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
-                                                                           vector=self.location)
+                                                                           vector=self.location.copy())
         if not combat_location:
             return
 
@@ -528,6 +526,14 @@ class CreatureManager(UnitManager):
         # If already going to the correct spot, don't do anything.
         if len(self.movement_manager.pending_waypoints) > 0 \
                 and self.movement_manager.pending_waypoints[0].location == combat_location:
+            return
+
+        failed, in_place, path = MapManager.calculate_path(self.map_, self.location.copy(), combat_location)
+        if not failed and not in_place:
+            combat_location = path[0]
+            print(combat_location)
+        else:
+            print('Failed')
             return
 
         if self.is_on_water():

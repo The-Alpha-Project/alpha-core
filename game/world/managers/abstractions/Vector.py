@@ -43,7 +43,7 @@ class Vector(object):
             return default_z, False
         else:
             # Calculate destination Z, default Z if not possible.
-            return MapManager.calculate_z(map_id, x, y, default_z)
+            return MapManager.calculate_nav_z(map_id, x, y, default_z)
 
     def to_bytes(self, include_orientation=True):
         if include_orientation:
@@ -104,7 +104,7 @@ class Vector(object):
         factor = offset / general_distance
         x3 = self.x + factor * (vector.x - self.x)
         y3 = self.y + factor * (vector.y - self.y)
-        z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z))
+        z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z)
 
         return Vector(x3, y3, z3, z_locked=z_locked)
 

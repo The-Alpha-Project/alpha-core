@@ -40,7 +40,7 @@ class MovementManager:
             current_waypoint = self.pending_waypoints[0]
             if self.total_waypoint_timer >= current_waypoint.expected_timestamp:
                 new_position = current_waypoint.location
-                self.last_position = new_position
+                self.last_position = new_position.copy()
                 self.waypoint_timer = 0
                 self.pending_waypoints.pop(0)
             # Guess current position based on speed and time.
@@ -53,7 +53,7 @@ class MovementManager:
 
                 map_id = self.unit.map_
                 # Guess the unit new position.
-                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location,
+                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location.copy(),
                                                                        map_id=map_id)
             if new_position:
                 self.waypoint_timer = 0
@@ -257,7 +257,7 @@ class MovementManager:
 
         # Set spline and last position.
         self.unit.movement_spline = spline
-        self.last_position = self.unit.location
+        self.last_position = self.unit.location.copy()
 
         packet = self.try_build_movement_packet(waypoints=spline.points, is_initial=True)
         if packet:
