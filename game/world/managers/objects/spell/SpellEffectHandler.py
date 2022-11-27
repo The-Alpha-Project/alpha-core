@@ -310,7 +310,7 @@ class SpellEffectHandler:
             effect.area_aura_holder.add_target(target)
 
         for target in missing_targets:
-            effect.area_aura_holder.remove_target(target)
+            effect.area_aura_holder.remove_target(target.guid)
 
     @staticmethod
     def handle_learn_spell(casting_spell, effect, caster, target):
