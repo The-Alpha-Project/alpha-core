@@ -165,26 +165,29 @@ class MapManager:
         if not MapManager._check_nav_adt_load(map_id, x, y, adt_x, adt_y):
             return current_z, True
 
-        Logger.debug(f'Looking for path on ADT {adt_x},{adt_y}')
         z_values = MAPS[map_id].namigator.query_z(x, y)
 
         if len(z_values) == 0:
             Logger.warning(f'Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
             return current_z, True
 
-        Logger.debug('Namigator says:')
-        Logger.debug(f'Found {len(z_values)} Z values for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
-        for z in z_values:
-            Logger.debug(z)
-
         # We are only interested in the resulting Z near to the Z we know.
         z_values = sorted(z_values, key=lambda _z: abs(current_z - _z))
 
-        # Logger.debug(f'After Found {len(z_values)} Z values for Map {map_id} ADT [{adt_x}{adt_y}] X {x} Y {y}')
-        # for z in z_values:
-        #    Logger.debug(z)
-
         return z_values[0], False
+
+    # TODO: Ray?
+    @staticmethod
+    def los_check(source_object, target_object):
+        if source_object.map_ != target_object.map_:
+            return False
+
+        failed, in_place, path = MapManager.calculate_path(source_object.map_, source_object.location,
+                                                           target_object.location)
+        if failed:
+            return False
+
+        return len(path) == 1
 
     @staticmethod
     def calculate_path(map_id, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
@@ -202,13 +205,11 @@ class MapManager:
 
         # Check if loaded or unable to load.
         if not MapManager._check_nav_adt_load(map_id, start_vector.x, start_vector.y, source_adt_x, source_adt_y):
-            print('Not loaded1')
             return True, False, [end_vector]
 
         # Check if loaded or unable to load.
         if not MapManager._check_nav_adt_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y):
-            print('Not loaded2')
-            return True, False, [end_vector]
+             return True, False, [end_vector]
 
         # Calculate path.
         namigator = MAPS[map_id].namigator
@@ -216,7 +217,6 @@ class MapManager:
                                    end_vector.z)
 
         if len(path) == 0:
-            print('NO PATH!')
             return True, False, [end_vector]
 
         # Pop starting location, we already have that and WoW client seems to crash when sending
@@ -225,12 +225,10 @@ class MapManager:
 
         # Validate length again.
         if len(path) == 0:
-            print('NO PATH 2!')
             return True, False, [end_vector]
 
         from game.world.managers.abstractions.Vector import Vector
         vectors = [Vector(p[0], p[1], p[2]) for p in path]
-        Logger.debug(f'Namigator path length {len(path)}')
 
         return False, False if len(vectors) > 0 else True, vectors
 

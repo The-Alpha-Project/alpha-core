@@ -50,11 +50,9 @@ class MovementManager:
                 if self.is_player and self.unit.movement_spline and \
                         self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
                     return
-
-                map_id = self.unit.map_
                 # Guess the unit new position.
-                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location.copy(),
-                                                                       map_id=map_id)
+                new_position = self.last_position.get_point_in_between_movement(current_waypoint, guessed_distance)
+
             if new_position:
                 self.waypoint_timer = 0
                 self.last_position = new_position.copy()
@@ -62,13 +60,6 @@ class MovementManager:
                 self.unit.location.y = new_position.y
                 self.unit.location.z = new_position.z
                 self.unit.set_has_moved(has_moved=True, has_turned=False)
-
-                # TODO: Logic below should be removed once we have some kind of navmesh.
-                #  this temporarily allows units to return without getting stuck in walls forever.
-                # Append combat movements so this unit can use them to return to spawn point if evading.
-                if not self.is_player and self.unit.in_combat and not self.unit.is_evading and \
-                        not self.unit.is_pet():
-                    self.unit.evading_waypoints.append(new_position.copy())
 
                 if self.is_player and self.unit.pending_taxi_destination:
                     self.unit.taxi_manager.update_flight_state()
@@ -264,13 +255,14 @@ class MovementManager:
             MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
             self.should_update_waypoints = True
 
+    # TODO: FindRandomPointAroundCircle (Detour)
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
-        # TODO: Below check might not be needed once better path finding is implemented
-        # Don't move if we were unable to calculate new Z by using map files.
-        if random_point.z_locked:
+        failed, in_place, path = MapManager.calculate_path(self.unit.map_, start_position, random_point)
+        if failed or len(path) > 1:
             return
 
+        random_point = path[0]
         # Don't move if the destination is not an active cell.
         new_cell_coords = GridManager.get_cell_key(random_point.x, random_point.y, self.unit.map_)
         if self.unit.current_cell != new_cell_coords and not \

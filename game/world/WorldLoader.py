@@ -173,8 +173,6 @@ class WorldLoader:
         count = 0
 
         for creature_spawn in creature_spawns:
-            if creature_spawn.spawn_id != 80077:
-                continue
             creature_spawn = CreatureSpawn(creature_spawn)
             creature_spawn.spawn_creature()
             count += 1

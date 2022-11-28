@@ -171,7 +171,6 @@ class UnitManager(ObjectManager):
         self.is_alive = True
         self.in_combat = False
         self.is_evading = False
-        self.evading_waypoints = []
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
         self.last_regen = 0
@@ -1458,7 +1457,6 @@ class UnitManager(ObjectManager):
                 charmer_or_summoner.pet_manager.detach_active_pet()
 
         self.leave_combat()
-        self.evading_waypoints.clear()
         self.set_health(0)
 
         self.unit_flags |= UnitFlags.UNIT_MASK_DEAD

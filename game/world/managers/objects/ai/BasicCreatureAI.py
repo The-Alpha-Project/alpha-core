@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
@@ -47,6 +48,9 @@ class BasicCreatureAI(CreatureAI):
             if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
             if not can_detect_victim:
+                continue
+            # Basic LOS check.
+            if not MapManager.los_check(self.creature, victim):
                 continue
             # Attempt to begin attack, break upon succeeding.
             if self._start_proximity_aggro_attack(victim, target_is_player=True):
