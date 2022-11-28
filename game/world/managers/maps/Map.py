@@ -6,7 +6,7 @@ from game.world.managers.maps.GridManager import GridManager
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
-import pathfind
+from namigator import pathfind
 
 
 class MapType(IntEnum):
