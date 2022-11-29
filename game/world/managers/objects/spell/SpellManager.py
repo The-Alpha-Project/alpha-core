@@ -1047,7 +1047,7 @@ class SpellManager:
             # Basic effect harmfulness/attackability check for fully harmful spells.
             # The client checks this for player casts, but not pet casts.
             if not self.caster.can_attack_target(validation_target) and casting_spell.has_only_harmful_effects():
-                self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
 
@@ -1206,7 +1206,7 @@ class SpellManager:
         # Permanent pet summon check.
         if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET) and not \
                 len(self.caster.pet_manager.pets):
-            self.send_cast_result(casting_spell.spell_entry.ID, SpellCheckCastResult.SPELL_FAILED_NO_PET)
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
             return False
 
         # Pickpocketing target validity check.
