@@ -106,7 +106,7 @@ class TrainerUtils:
         if is_taught_to_pet and not pet_info:
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
-        target_spells = pet_info.get_spells() if is_taught_to_pet else player_mgr.spell_manager.spells
+        target_spells = pet_info.spells if is_taught_to_pet else player_mgr.spell_manager.spells
         if spell.ID in target_spells:
             return TrainerServices.TRAINER_SERVICE_USED
 

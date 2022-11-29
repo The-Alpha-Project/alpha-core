@@ -26,7 +26,7 @@ from utils.constants.UpdateFields import UnitFields
 class PetData:
     def __init__(self, pet_id: int, name: str, template: CreatureTemplate, owner_guid,
                  level: int, experience: int, summon_spell_id: int, permanent: bool,
-                 spell_buttons=None, action_bar=None):
+                 spells=None, action_bar=None):
         self.pet_id = pet_id
 
         self.name = name
@@ -42,7 +42,7 @@ class PetData:
         self.react_state = PetReactState.REACT_DEFENSIVE
         self.command_state = PetCommandState.COMMAND_FOLLOW
 
-        self.spell_buttons = spell_buttons if spell_buttons else []
+        self.spells = spells if spells else []
 
         self.action_bar = action_bar if action_bar else self.get_default_action_bar_values()
 
@@ -98,11 +98,11 @@ class PetData:
 
     def _get_character_pet_spells(self) -> List[CharacterPetSpell]:
         character_pet_spells = []
-        for spell_button in self.spell_buttons:
+        for spell in self.spells:
             character_pet_spells.append(CharacterPetSpell(
                 guid=self.owner_guid,
                 pet_id=self.pet_id,
-                spell_button=spell_button
+                spell_id=spell
             ))
 
         return character_pet_spells
@@ -138,26 +138,13 @@ class PetData:
         self._experience = 0
         self.set_dirty()
 
-    def has_spell(self, spell_id):
-        for known_spell_id in self.get_spells():
-            if known_spell_id == spell_id:
-                return True
-        return False
-
-    def get_spells(self):
-        return [spell_button & 0xFFFF for spell_button in self.spell_buttons if
-                spell_button & 0xFFFF > PetCommandState.COMMAND_DISMISS]
-
     def add_spell(self, spell_id) -> bool:
-        if self.has_spell(spell_id):
+        if spell_id in self.spells:
             return False
 
-        template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
-        castable = template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE
-        button = PetManager.get_action_button_for(spell_id, castable=castable)
-        self.spell_buttons.append(button)
+        self.spells.append(spell_id)
 
-        button = CharacterPetSpell(guid=self.owner_guid, pet_id=self.pet_id, spell_button=button)
+        button = CharacterPetSpell(guid=self.owner_guid, pet_id=self.pet_id, spell_id=spell_id)
         RealmDatabaseManager.character_add_pet_spell(button)
         return True
 
@@ -210,9 +197,15 @@ class PetData:
         spells_index = PetActionBarIndex.INDEX_SPELL_START
         max_spell_count = PetActionBarIndex.INDEX_REACT_START - spells_index
 
-        spell_buttons = self.spell_buttons.copy()
-        spell_buttons += [0] * (max_spell_count - len(spell_buttons))  # Always 4 spells, pad with 0.
-        pet_bar[spells_index:spells_index] = spell_buttons  # Insert spells to action bar.
+        spells = []
+        for spell_id in self.spells:
+            template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+                spells.append(spell_id)
+
+        spell_ids = [PetManager.get_action_button_for(spell) for spell in spells[:4]]
+        spell_ids += [0] * (max_spell_count - len(spell_ids))  # Always 4 spells, pad with 0.
+        pet_bar[spells_index:spells_index] = spell_ids  # Insert spells to action bar.
 
         return pet_bar
 
@@ -241,7 +234,7 @@ class PetManager:
                 character_pet.xp,
                 character_pet.created_by_spell,
                 permanent=True,
-                spell_buttons=[spell.spell_button for spell in spells],
+                spells=[spell.spell_id for spell in spells],
                 action_bar=list(unpack('10I', character_pet.action_bar))))
 
     def save(self):
@@ -493,14 +486,8 @@ class PetManager:
         if active_pet_unit.guid != pet_guid:
             return
 
-        action_in_slot = pet_data.action_bar[slot]
-        action_id = action_in_slot & 0xFFFF
-        if action == 0 and action_id < PetCommandState.COMMAND_DISMISS:
-            # Attempting to remove a command/react state button.
-            return
-
-        if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID - spell.
-            if not pet_data.has_spell(action_id):
+        if action & 0xFFFF > PetCommandState.COMMAND_DISMISS and action != 0:  # Highest action ID - spell.
+            if action & 0xFFFF not in pet_data.spells:
                 return
             action |= 0x80 << 24  # Add usable flag - client doesn't include this.
 
@@ -646,7 +633,7 @@ class PetManager:
         # This packet contains both the action bar of the pet and the spellbook entries.
 
         pet_info: PetData = self._get_pet_info(self.active_pet.pet_index)
-        spell_count = len(pet_info.spell_buttons) if pet_info.permanent else 0
+        spell_count = len(pet_info.spells) if pet_info.permanent else 0
 
         # Creature guid, time limit, react state (0 = passive, 1 = defensive, 2 = aggressive),
         # command state (0 = stay, 1 = follow, 2 = attack, 3 = dismiss),
@@ -658,7 +645,7 @@ class PetManager:
         # TODO Spell action buttons should be savable to preserve spellbook order and cast flags.
         data.append(spell_count)
         if spell_count:
-            data.extend(pet_info.get_spells())
+            data.extend(pet_info.spells)
             signature += f'{spell_count}H'
 
         signature += 'B'
@@ -666,7 +653,6 @@ class PetManager:
 
         packet = pack(signature, *data)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
-
 
     @staticmethod
     def get_action_button_for(spell_id: int, auto_cast: bool = False, castable: bool = True):
