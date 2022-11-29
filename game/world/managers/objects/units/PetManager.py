@@ -44,10 +44,7 @@ class PetData:
 
         self.spell_buttons = spell_buttons if spell_buttons else []
 
-        # TODO Not handling CMSG_PET_SET_ACTION yet.
-        # TODO Use saved action bar once pet spellbook is working;
-        # otherwise pets will be stuck with the spells they had when first summoned.
-        self.action_bar = self.get_default_action_bar_values()
+        self.action_bar = action_bar if action_bar else self.get_default_action_bar_values()
 
         self._dirty = pet_id == -1
 
@@ -148,7 +145,8 @@ class PetData:
         return False
 
     def get_spells(self):
-        return [PetManager.get_spell_from_action_button(spell_button) for spell_button in self.spell_buttons]
+        return [spell_button & 0xFFFF for spell_button in self.spell_buttons if
+                spell_button & 0xFFFF > PetCommandState.COMMAND_DISMISS]
 
     def add_spell(self, spell_id) -> bool:
         if self.has_spell(spell_id):
@@ -244,7 +242,7 @@ class PetManager:
                 character_pet.created_by_spell,
                 permanent=True,
                 spell_buttons=[spell.spell_button for spell in spells],
-                action_bar=unpack('10I', character_pet.action_bar)))
+                action_bar=list(unpack('10I', character_pet.action_bar))))
 
     def save(self):
         if self.active_pet:
@@ -313,6 +311,8 @@ class PetManager:
 
         if update:
             self._send_pet_spell_info()
+
+        return True
 
     def teach_active_pet_all_available_spells(self):
         pet = self.get_active_pet_info()
@@ -454,7 +454,6 @@ class PetManager:
         action_id = action & 0xFFFF
 
         active_pet_unit = self.active_pet.creature
-        # Single active pet assumed.
         if active_pet_unit.guid != pet_guid:
             return
 
@@ -481,6 +480,34 @@ class PetManager:
 
         else:
             self.get_active_pet_info().react_state = action_id
+
+    def handle_set_action(self, pet_guid, slot, action):
+        pet_data = self.get_active_pet_info()
+        if not pet_data:
+            return
+
+        if slot < 0 or slot >= len(pet_data.action_bar):
+            return
+
+        active_pet_unit = self.active_pet.creature
+        if active_pet_unit.guid != pet_guid:
+            return
+
+        action_in_slot = pet_data.action_bar[slot]
+        action_id = action_in_slot & 0xFFFF
+        if action == 0 and action_id < PetCommandState.COMMAND_DISMISS:
+            # Attempting to remove a command/react state button.
+            return
+
+        if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID - spell.
+            if not pet_data.has_spell(action_id):
+                return
+            action |= 0x80 << 24  # Add usable flag - client doesn't include this.
+
+        pet_data.action_bar[slot] = action
+        pet_data.set_dirty()
+
+        self._send_pet_spell_info()
 
     def add_active_pet_experience(self, experience: int):
         active_pet_info = self.get_active_pet_info()
@@ -626,7 +653,6 @@ class PetManager:
         # ??, Enabled (0x0 : 0x8)
         signature = f'<QI4B{PetActionBarIndex.INDEX_END}IB'
         data = [self.active_pet.creature.guid, 0, pet_info.react_state, pet_info.command_state, 0, 0]
-
         data.extend(pet_info.action_bar)
 
         # TODO Spell action buttons should be savable to preserve spellbook order and cast flags.
@@ -647,7 +673,3 @@ class PetManager:
         # All pet actions have |0x1.
         # Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
         return spell_id | ((0x1 | (0x40 if auto_cast else 0x0) | (0x80 if castable else 0x0)) << 24)
-
-    @staticmethod
-    def get_spell_from_action_button(action_button):
-        return action_button & ~((0x1 | 0x40 | 0x80) << 24)  # Remove flags.
