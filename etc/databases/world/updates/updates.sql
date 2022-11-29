@@ -14472,6 +14472,35 @@ begin not atomic
 	    DROP TABLE `alpha_world`.`spell_enchant_charges`;
 	    insert into applied_updates values ('241120221');
     end if;
+
+    -- 26/11/2022 1
+    if (select count(*) from applied_updates where id='261120221') = 0 then
+        -- Rethgar Deathgate
+        UPDATE `spawns_creatures` SET
+        position_x=-473.619,
+        position_y=-2596.796,
+        position_z=103.912,
+        orientation=6.057
+        WHERE spawn_id=13979;
+
+        -- Mahren Skyseer
+        UPDATE `spawns_creatures` SET
+        position_x=-1350.74,
+        position_y=-4048.38,
+        position_z=6.23952,
+        orientation=5.3058
+        WHERE spawn_id=13950;
+
+        insert into applied_updates values ('261120221');
+    end if;
+
+    -- 26/11/2022 2
+    if (select count(*) from applied_updates where id='261120222') = 0 then
+        -- Apothecary Helbrim
+        UPDATE `spawns_creatures` SET `orientation` = 4.359 WHERE `spawn_id` = 13982;
+
+        insert into applied_updates values ('261120222');
+    end if;
         
 end $
 delimiter ;
