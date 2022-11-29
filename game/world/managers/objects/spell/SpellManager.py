@@ -1049,10 +1049,6 @@ class SpellManager:
             return False
 
         if casting_spell.initial_target_is_unit_or_player():
-            # Line of sight.
-            if not MapManager.los_check(self.caster, validation_target):
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
-                return False
             # Orientation checks.
             target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
@@ -1063,21 +1059,26 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT)
                 return False
 
+        is_terrain = casting_spell.initial_target_is_terrain()
+        is_self = not is_terrain and self.caster == validation_target
         # Range validations. Skip for fishing as generated targets will always be valid.
-        if not casting_spell.is_fishing_spell() and not casting_spell.initial_target_is_item():
+        if not casting_spell.is_fishing_spell() and not casting_spell.initial_target_is_item() and not is_self:
             # Check if the caster is within range of the (world) target to cast the spell.
+            target_loc = validation_target if is_terrain else validation_target.location
             if casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
-                if casting_spell.initial_target_is_terrain():
-                    distance = validation_target.distance(self.caster.location)
-                else:
-                    distance = validation_target.location.distance(self.caster.location)
-
+                distance = self.caster.location.distance(target_loc)
                 if distance > casting_spell.range_entry.RangeMax:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_OUT_OF_RANGE)
                     return False
                 if distance < casting_spell.range_entry.RangeMin:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE)
                     return False
+            # Line of sight.
+            target_ray_vector = validation_target.get_ray_position() if not is_terrain \
+                else target_loc.get_ray_vector(is_terrain=True)
+            if not MapManager.los_check(self.caster.map_, self.caster.get_ray_position(), target_ray_vector):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
+                return False
 
         # Item target checks.
         if casting_spell.initial_target_is_item():

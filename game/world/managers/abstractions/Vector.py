@@ -45,6 +45,15 @@ class Vector(object):
             # Calculate destination Z, default Z if not possible.
             return MapManager.calculate_z(map_id, x, y, default_z)
 
+    # TODO: Find model height?
+    def get_ray_vector(self, world_object=None, is_terrain=False):
+        new_vector = self.copy()
+        if world_object:
+            new_vector.z += (1.0 * world_object.native_scale)
+        elif is_terrain:
+            new_vector.z += 1.0  # TODO: Namigator issue?
+        return new_vector
+
     def to_bytes(self, include_orientation=True):
         if include_orientation:
             return pack('<4f', self.x, self.y, self.z, self.o)

@@ -177,17 +177,10 @@ class MapManager:
         return z_values[0], False
 
     @staticmethod
-    def los_check(source_object, target_object):
-        if source_object.map_ != target_object.map_:
-            return False
-
+    def los_check(map_id, start_vector, end_vector):
         # If nav tiles disabled, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles:
             return False
-
-        map_id = source_object.map_
-        start_vector = source_object.location
-        end_vector = target_object.location
 
         # Calculate source adt coordinates for x,y.
         source_adt_x, source_adt_y, _, _ = MapManager.calculate_tile(start_vector.x, start_vector.y,
