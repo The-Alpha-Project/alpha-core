@@ -80,14 +80,18 @@ class AuraManager:
                 self.remove_aura(aura)
 
     def can_apply_aura(self, aura) -> bool:
+        # TODO Similar (stat mod?) harmful auras (2x. slows etc.) should not stack.
+        if aura.harmful:
+            return True
+
         if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                 len(self.get_auras_by_spell_id(aura.spell_id)) > 0:
             return False  # Don't apply same shapeshift effect if it already exists.
 
-        # Stronger effect applied.
-        similar_applied_auras = self.get_similar_applied_auras(aura, accept_all_ranks=True, accept_all_sources=False)
+        # Don't allow overwriting higher rank buffs.
+        similar_applied_auras = self.get_similar_applied_auras(aura, accept_all_ranks=True, accept_all_sources=True)
         if len(similar_applied_auras) > 0:
-            similar_applied = similar_applied_auras[0]  # Only one similar aura from one source can be applied.
+            similar_applied = similar_applied_auras[0]  # Only one similar buff can be applied.
             applied_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(similar_applied.source_spell.spell_entry)
             new_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(aura.source_spell.spell_entry)
             if applied_rank > new_rank:
@@ -107,7 +111,8 @@ class AuraManager:
 
                 return False
 
-            if spell_effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
+            if spell_effect.effect_type not in {SpellEffects.SPELL_EFFECT_APPLY_AURA,
+                                                SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA}:
                 continue
 
             aura = AppliedAura(casting_spell.spell_caster, casting_spell, spell_effect, self.unit_mgr)
@@ -200,43 +205,40 @@ class AuraManager:
             # If a mount aura would be applied but we dismount the unit, don't apply the new mount aura.
             return False
 
+        if aura.passive and not aura.source_spell.is_passive():
+            return True  # Skip active auras' passive effects. TODO exclusivity by aura effect type.
+
         aura_spell_template = aura.source_spell.spell_entry
 
         new_aura_name = aura_spell_template.Name_enUS
-        new_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(aura_spell_template)
-
-        aura_effect_index = aura.spell_effect.effect_index
         caster_guid = aura.caster.guid
 
         for applied_aura in list(self.active_auras.values()):
-            applied_spell_entry = applied_aura.source_spell.spell_entry
-            applied_aura_name = applied_spell_entry.Name_enUS
-            applied_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(applied_spell_entry)
-
-            # TODO Same effects but different spells (exclusivity groups)?
-
-            # Note: This method ignores the case of a weaker spell being applied, as that is handled in can_apply_aura.
-            is_similar_and_weaker = applied_aura.spell_effect.effect_index == aura_effect_index and \
-                applied_aura_name == new_aura_name and applied_aura_rank < new_aura_rank
-
-            are_exclusive_by_source = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id, applied_aura.spell_id)  # Paladin seals, warlock curses
-
-            # Source doesn't matter for unique auras.
-            is_unique = applied_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE or not aura.harmful  # Buffs are unique.
-            is_stacking = applied_aura.can_stack
-            is_same_but_different_aura_index = aura.spell_id == applied_aura.spell_id and aura.spell_effect.effect_index != applied_aura.spell_effect.effect_index
-
-            casters_are_same = applied_aura.caster.guid == caster_guid
-            if is_similar_and_weaker and (is_unique or casters_are_same and not is_stacking) or \
-                    are_exclusive_by_source and casters_are_same and not is_same_but_different_aura_index:
-                self.remove_aura(applied_aura)
-                continue
-
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
                 self.remove_aura(applied_aura)  # Player can only be in one shapeshift form.
                 continue
 
+            applied_spell_entry = applied_aura.source_spell.spell_entry
+            applied_aura_name = applied_spell_entry.Name_enUS
+
+            # Paladin seals, warlock curses etc.
+            has_group_restriction = ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(aura.spell_id,
+                                                                                                 applied_aura.spell_id)
+            is_similar = applied_aura.spell_id == aura.spell_id or new_aura_name == applied_aura_name
+            is_same_source = applied_aura.caster.guid == caster_guid
+
+            if not is_similar and not (has_group_restriction and is_same_source):
+                continue  # TODO Same effects but different spells (exclusivity groups)?
+
+            is_unique = applied_spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
+            is_stacking = applied_aura.can_stack
+
+            if is_unique or is_same_source or not aura.harmful and not (is_similar and is_stacking):
+                # Remove similar applied aura if it's unique, a buff or from the same caster.
+                # Ignore if this is a stacking buff; add_aura will just add a dose in that case.
+                # We can also ignore ranks here, as attempting to cast a lower rank buff will fail in validation.
+                self.remove_aura(applied_aura, canceled=True)
         return True
 
     def has_aura_by_spell_id(self, spell_id):
@@ -294,14 +296,12 @@ class AuraManager:
             applied_spell_entry = applied_aura.source_spell.spell_entry
 
             if applied_spell_entry.ID != aura_spell_template.ID:
-                continue
+                applied_aura_name = applied_spell_entry.Name_enUS
+                applied_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(applied_spell_entry)
 
-            applied_aura_name = applied_spell_entry.Name_enUS
-            applied_aura_rank = DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(applied_spell_entry)
-
-            if applied_aura_name != new_aura_name or \
-                    (applied_aura_rank != new_aura_rank and not accept_all_ranks):
-                continue
+                if applied_aura_name != new_aura_name or \
+                        (applied_aura_rank != new_aura_rank and not accept_all_ranks):
+                    continue
 
             similar_auras.append(applied_aura)
 
@@ -331,7 +331,7 @@ class AuraManager:
             return
         # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects.
         # Cancel cast on aura cancel, canceling the auras as well.
-        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, interrupted=canceled)
+        self.unit_mgr.spell_manager.remove_cast(aura.source_spell, interrupted=not canceled)
 
         # Some spells start cooldown on aura remove, handle that case here.
         if aura.source_spell.unlock_cooldown_on_trigger():
@@ -369,8 +369,12 @@ class AuraManager:
         for aura in auras:
             if not aura.passive:
                 is_passive = False
-            if aura.harmful or aura.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL:
-                can_remove = False  # Can't remove harmful auras.
+            is_area_aura = aura.spell_effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AURA,
+                                                             SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA}
+            if aura.harmful or \
+                    aura.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL or \
+                    (is_area_aura and aura.caster != self.unit_mgr):
+                can_remove = False
                 break
 
         if is_passive or not can_remove:
