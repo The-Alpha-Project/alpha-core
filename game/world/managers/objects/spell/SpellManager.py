@@ -638,7 +638,7 @@ class SpellManager:
 
             if ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(casting_spell.spell_entry.ID,
                                                                             current_cast.spell_entry.ID):  # Paladin auras.
-                self.remove_cast(casting_spell, interrupted=True)
+                self.remove_cast(casting_spell, interrupted=False)
                 continue
             if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
                 self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT, interrupted=True)
@@ -741,15 +741,15 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
     def handle_spell_effect_update(self, casting_spell, timestamp) -> bool:
-        is_finished = True
+        is_finished = False
         for effect in casting_spell.get_effects():
             # TODO Do other, non-area spell effects depend on any logic here?
 
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
-            if not effect.is_periodic() or effect.has_periodic_ticks_remaining():
-                is_finished = False
+            if effect.is_periodic() and not effect.has_periodic_ticks_remaining():
+                is_finished = True
 
             # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
