@@ -3,7 +3,7 @@ from typing import Optional, NamedTuple, List
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.realm.RealmModels import CharacterPet
+from database.realm.RealmModels import CharacterPet, CharacterPetSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
@@ -18,14 +18,15 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
-from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, SpellAttributesEx
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, SpellAttributesEx, SpellAttributes
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
 
 class PetData:
     def __init__(self, pet_id: int, name: str, template: CreatureTemplate, owner_guid,
-                 level: int, experience: int, summon_spell_id: int, permanent: bool, action_bar=None):
+                 level: int, experience: int, summon_spell_id: int, permanent: bool,
+                 spell_buttons=None, action_bar=None):
         self.pet_id = pet_id
 
         self.name = name
@@ -41,7 +42,7 @@ class PetData:
         self.react_state = PetReactState.REACT_DEFENSIVE
         self.command_state = PetCommandState.COMMAND_FOLLOW
 
-        self.spells = []
+        self.spell_buttons = spell_buttons if spell_buttons else []
 
         # TODO Not handling CMSG_PET_SET_ACTION yet.
         # TODO Use saved action bar once pet spellbook is working;
@@ -57,7 +58,7 @@ class PetData:
         health = -1 if not creature_instance else creature_instance.health
         mana = -1 if not creature_instance else creature_instance.power_1
 
-        character_pet = self._as_character_pet(health=health, mana=mana)
+        character_pet = self._get_character_pet(health=health, mana=mana)
 
         if self.pet_id == -1:
             RealmDatabaseManager.character_add_pet(character_pet)
@@ -70,7 +71,7 @@ class PetData:
     def set_dirty(self):
         self._dirty = True
 
-    def _as_character_pet(self, health=-1, mana=-1) -> CharacterPet:
+    def _get_character_pet(self, health=-1, mana=-1) -> CharacterPet:
         # TODO Stats probably shouldn't be directly from creature data.
         health = health if health != -1 else self.creature_template.health_max
         mana = mana if mana != -1 else self.creature_template.mana_max
@@ -97,6 +98,17 @@ class PetData:
         )
 
         return character_pet
+
+    def _get_character_pet_spells(self) -> List[CharacterPetSpell]:
+        character_pet_spells = []
+        for spell_button in self.spell_buttons:
+            character_pet_spells.append(CharacterPetSpell(
+                guid=self.owner_guid,
+                pet_id=self.pet_id,
+                spell_button=spell_button
+            ))
+
+        return character_pet_spells
 
     def add_experience(self, xp_amount: int) -> int:
         if not xp_amount:
@@ -129,14 +141,27 @@ class PetData:
         self._experience = 0
         self.set_dirty()
 
+    def has_spell(self, spell_id):
+        for known_spell_id in self.get_spells():
+            if known_spell_id == spell_id:
+                return True
+        return False
+
+    def get_spells(self):
+        return [PetManager.get_spell_from_action_button(spell_button) for spell_button in self.spell_buttons]
+
     def add_spell(self, spell_id) -> bool:
-        if spell_id in self.spells:
+        if self.has_spell(spell_id):
             return False
 
-        self.spells.append(spell_id)
-        self.set_dirty()
-        return True
+        template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+        castable = template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE
+        button = PetManager.get_action_button_for(spell_id, castable=castable)
+        self.spell_buttons.append(button)
 
+        button = CharacterPetSpell(guid=self.owner_guid, pet_id=self.pet_id, spell_button=button)
+        RealmDatabaseManager.character_add_pet_spell(button)
+        return True
 
     def get_experience(self):
         return self._experience
@@ -187,9 +212,9 @@ class PetData:
         spells_index = PetActionBarIndex.INDEX_SPELL_START
         max_spell_count = PetActionBarIndex.INDEX_REACT_START - spells_index
 
-        spell_ids = [PetManager.get_action_button_for(spell) for spell in self.spells[:4]]
-        spell_ids += [0] * (max_spell_count - len(spell_ids))  # Always 4 spells, pad with 0.
-        pet_bar[spells_index:spells_index] = spell_ids  # Insert spells to action bar.
+        spell_buttons = self.spell_buttons.copy()
+        spell_buttons += [0] * (max_spell_count - len(spell_buttons))  # Always 4 spells, pad with 0.
+        pet_bar[spells_index:spells_index] = spell_buttons  # Insert spells to action bar.
 
         return pet_bar
 
@@ -208,6 +233,7 @@ class PetManager:
     def load_pets(self):
         character_pets = RealmDatabaseManager.character_get_pets(self.owner.guid)
         for character_pet in character_pets:
+            spells = RealmDatabaseManager.character_get_pet_spells(self.owner.guid, character_pet.pet_id)
             self.pets.append(PetData(
                 character_pet.pet_id,
                 character_pet.name,
@@ -216,7 +242,8 @@ class PetManager:
                 character_pet.level,
                 character_pet.xp,
                 character_pet.created_by_spell,
-                True,
+                permanent=True,
+                spell_buttons=[spell.spell_button for spell in spells],
                 action_bar=unpack('10I', character_pet.action_bar)))
 
     def save(self):
@@ -292,7 +319,8 @@ class PetManager:
         if not pet:
             return
 
-        update = any([self.teach_active_pet_spell(spell_id, update=False) for spell_id in pet.spells])
+        spells = pet.get_available_spells()
+        update = any([self.teach_active_pet_spell(spell_id, update=False) for spell_id in spells])
         if update:
             self._send_pet_spell_info()
 
@@ -591,7 +619,7 @@ class PetManager:
         # This packet contains both the action bar of the pet and the spellbook entries.
 
         pet_info: PetData = self._get_pet_info(self.active_pet.pet_index)
-        spell_count = len(pet_info.spells) if pet_info.permanent else 0
+        spell_count = len(pet_info.spell_buttons) if pet_info.permanent else 0
 
         # Creature guid, time limit, react state (0 = passive, 1 = defensive, 2 = aggressive),
         # command state (0 = stay, 1 = follow, 2 = attack, 3 = dismiss),
@@ -604,7 +632,7 @@ class PetManager:
         # TODO Spell action buttons should be savable to preserve spellbook order and cast flags.
         data.append(spell_count)
         if spell_count:
-            data.extend([spell for spell in pet_info.spells])
+            data.extend(pet_info.get_spells())
             signature += f'{spell_count}H'
 
         signature += 'B'
@@ -615,7 +643,11 @@ class PetManager:
 
 
     @staticmethod
-    def get_action_button_for(spell_id: int, auto_cast: bool = True, castable: bool = True):
+    def get_action_button_for(spell_id: int, auto_cast: bool = False, castable: bool = True):
         # All pet actions have |0x1.
         # Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
         return spell_id | ((0x1 | (0x40 if auto_cast else 0x0) | (0x80 if castable else 0x0)) << 24)
+
+    @staticmethod
+    def get_spell_from_action_button(action_button):
+        return action_button & ~((0x1 | 0x40 | 0x80) << 24)  # Remove flags.

@@ -1163,7 +1163,7 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
                     return False  # No pet (or temporary charm).
 
-                if any([spell in pet.spells for spell in taught_spells]):
+                if any([spell in pet.get_spells() for spell in taught_spells]):
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_SPELL_LEARNED)
                     return False
 

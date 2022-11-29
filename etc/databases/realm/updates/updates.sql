@@ -126,5 +126,21 @@ begin not atomic
 
         insert into applied_updates values ('090820221');
     end if;
+
+    -- 29/11/2022 1
+    if (select count(*) from applied_updates where id='291120221') = 0 then
+        DROP TABLE IF EXISTS `character_pet_spells`;
+        CREATE TABLE `character_pet_spells` (
+        `guid` int(11) unsigned NOT NULL DEFAULT 0,
+        `pet_id` int(11) unsigned NOT NULL DEFAULT 0,
+        `spell_button` int(11) unsigned NOT NULL DEFAULT 0,
+         KEY `fk_character_pet_spells_characters1_idx` (`guid`),
+         KEY `fk_character_pet_spells_character_pets1_idx` (`pet_id`),
+         CONSTRAINT `fk_character_pet_spells_characters1_idx` FOREIGN KEY (`guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE,
+         CONSTRAINT `fk_character_pet_spells_character_pets1_idx` FOREIGN KEY (`pet_id`) REFERENCES `character_pets` (`pet_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+         PRIMARY KEY (`guid`,`spell_button`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        insert into applied_updates values ('291120221');
+    end if;
 end $
 delimiter ;

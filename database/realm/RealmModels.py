@@ -255,6 +255,17 @@ class CharacterPet(Base):
     owner = relationship('Character', lazy='joined')
 
 
+class CharacterPetSpell(Base):
+    __tablename__ = 'character_pet_spells'
+
+    guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, primary_key=True, server_default=text("'0'"))
+    pet_id = Column(ForeignKey('character_pets.pet_id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, primary_key=True, server_default=text("'0'"))
+    spell_button = Column(INTEGER(11), nullable=False, primary_key=True, server_default=text("'1'"))
+
+    character = relationship('Character', lazy='joined')
+    pet = relationship('CharacterPet', lazy='joined')
+
+
 class Guild(Base):
     __tablename__ = 'guild'
 
