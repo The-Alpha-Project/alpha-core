@@ -1048,7 +1048,12 @@ class SpellManager:
             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
             return False
 
-        if casting_spell.initial_target_is_unit_or_player():  # Orientation checks.
+        if casting_spell.initial_target_is_unit_or_player():
+            # Line of sight.
+            if not MapManager.los_check(self.caster, validation_target):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
+                return False
+            # Orientation checks.
             target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):

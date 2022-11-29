@@ -501,6 +501,7 @@ class CreatureManager(UnitManager):
         elif in_place:
             return
         else:
+            self.leave_combat()
             Logger.warning(f'Unable to find navigation path, map {self.map_} loc {self.location} end {combat_location}')
             return
 

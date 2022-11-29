@@ -176,18 +176,42 @@ class MapManager:
 
         return z_values[0], False
 
-    # TODO: Ray?
     @staticmethod
     def los_check(source_object, target_object):
         if source_object.map_ != target_object.map_:
             return False
 
-        failed, in_place, path = MapManager.calculate_path(source_object.map_, source_object.location,
-                                                           target_object.location)
-        if failed:
+        # If nav tiles disabled, return the end_vector as found.
+        if not config.Server.Settings.use_nav_tiles:
             return False
 
-        return len(path) == 1
+        map_id = source_object.map_
+        start_vector = source_object.location
+        end_vector = target_object.location
+
+        # Calculate source adt coordinates for x,y.
+        source_adt_x, source_adt_y, _, _ = MapManager.calculate_tile(start_vector.x, start_vector.y,
+                                                                     (RESOLUTION_ZMAP - 1))
+
+        # Calculate destination adt coordinates for x,y.
+        destination_adt_x, destination_adt_y, _, _ = MapManager.calculate_tile(end_vector.x, end_vector.y,
+                                                                               (RESOLUTION_ZMAP - 1))
+
+        # Check if loaded or unable to load, return True if this fails.
+        if not MapManager._check_nav_adt_load(map_id, start_vector.x, start_vector.y, source_adt_x, source_adt_y):
+            return True
+
+        # Check if loaded or unable to load, return True if this fails.
+        if not MapManager._check_nav_adt_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y):
+            return True
+
+        # Calculate path.
+        namigator = MAPS[map_id].namigator
+
+        los = namigator.line_of_sight(start_vector.x, start_vector.y, start_vector.z,
+                                      end_vector.x, end_vector.y, end_vector.z)
+
+        return los
 
     @staticmethod
     def calculate_path(map_id, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
@@ -209,12 +233,12 @@ class MapManager:
 
         # Check if loaded or unable to load.
         if not MapManager._check_nav_adt_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y):
-             return True, False, [end_vector]
+            return True, False, [end_vector]
 
         # Calculate path.
         namigator = MAPS[map_id].namigator
-        path = namigator.find_path(start_vector.x, start_vector.y, start_vector.z, end_vector.x, end_vector.y,
-                                   end_vector.z)
+        path = namigator.find_path(start_vector.x, start_vector.y, start_vector.z,
+                                   end_vector.x, end_vector.y, end_vector.z)
 
         if len(path) == 0:
             return True, False, [end_vector]
