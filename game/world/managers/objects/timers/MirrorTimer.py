@@ -2,6 +2,7 @@ from struct import pack
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import MirrorTimerTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import AuraTypes
 
 
 class MirrorTimer(object):
@@ -60,8 +61,8 @@ class MirrorTimer(object):
             return MirrorTimerTypes.FATIGUE.value
         return self.type.value
 
-    def set_water_breathing(self, state):
-        self.has_water_breathing = state
+    def update_water_breathing(self):
+        self.has_water_breathing = self.owner.aura_manager.get_auras_by_type(AuraTypes.SPELL_AURA_WATER_BREATHING)
         self.send_full_update()
 
     def send_full_update(self):
