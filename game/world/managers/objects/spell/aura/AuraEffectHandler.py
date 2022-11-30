@@ -9,7 +9,7 @@ from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags, ObjectTypeFlags
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
-from utils.constants.UpdateFields import UnitFields, PlayerFields
+from utils.constants.UpdateFields import UnitFields, PlayerFields, ObjectFields
 
 
 class AuraEffectHandler:
@@ -48,6 +48,15 @@ class AuraEffectHandler:
             return
 
         AuraEffectDummyHandler.DUMMY_AURA_EFFECTS[aura.source_spell.spell_entry.ID](aura, effect_target, remove)
+
+    @staticmethod
+    def handle_mod_scale(aura, effect_target, remove):
+        if not remove:
+            scale = effect_target.get_float(ObjectFields.OBJECT_FIELD_SCALE_X) * (100.0+aura.get_effect_points())/100.0
+            effect_target.set_scale(scale)
+        else:
+            scale = effect_target.get_float(ObjectFields.OBJECT_FIELD_SCALE_X) * 100.0/(100.0 + aura.get_effect_points())
+            effect_target.set_scale(scale)
 
     @staticmethod
     def handle_shapeshift(aura, effect_target, remove):
@@ -741,6 +750,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_BIND_SIGHT: AuraEffectHandler.handle_bind_sight,
     AuraTypes.SPELL_AURA_DUMMY: AuraEffectHandler.handle_aura_dummy,
     AuraTypes.SPELL_AURA_MOD_SHAPESHIFT: AuraEffectHandler.handle_shapeshift,
+    AuraTypes.SPELL_AURA_MOD_SCALE: AuraEffectHandler.handle_mod_scale,
     AuraTypes.SPELL_AURA_MOUNTED: AuraEffectHandler.handle_mounted,
     AuraTypes.SPELL_AURA_PERIODIC_TRIGGER_SPELL: AuraEffectHandler.handle_periodic_trigger_spell,
     AuraTypes.SPELL_AURA_PERIODIC_HEAL: AuraEffectHandler.handle_periodic_healing,
