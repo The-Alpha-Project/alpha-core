@@ -15,7 +15,8 @@ from utils.Logger import Logger
 try:
     from namigator import pathfind
     MapManager.NAMIGATOR_LOADED = True
-except:
+except ImportError:
+    pathfind = None
     pass
 
 
