@@ -49,7 +49,7 @@ class Vector(object):
     def get_ray_vector(self, world_object=None, is_terrain=False):
         new_vector = self.copy()
         if world_object:
-            new_vector.z += (1.0 * world_object.native_scale)
+            new_vector.z += (1.8 * world_object.native_scale)
         elif is_terrain:
             new_vector.z += 1.0  # TODO: Namigator issue?
         return new_vector
