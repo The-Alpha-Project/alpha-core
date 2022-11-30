@@ -255,7 +255,7 @@ class MapManager:
             return True, False, [end_vector]
 
         from game.world.managers.abstractions.Vector import Vector
-        vectors = [Vector(p[0], p[1], p[2]) for p in path]
+        vectors = [Vector(waypoint[0], waypoint[1], waypoint[2]) for waypoint in path]
 
         return False, False if len(vectors) > 0 else True, vectors
 
