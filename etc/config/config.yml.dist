@@ -49,7 +49,7 @@ Server:
         cell_size: 64  # Shouldn't be much bigger than 200
         console_mode: True  # Set it to False if you intend to run the server on background
         use_map_tiles: False  # If True, place 0.5.3 .map files extracted with https://github.com/The-Alpha-Project/MapTools inside 'etc/maps/'
-        use_nav_tiles: False
+        use_nav_tiles: False  # If True, place Linux or Windows libs inside './namigator'. https://github.com/namreeb/namigator/actions
         z_resolution: 256  # The resolution used when extracting maps
 
     General:

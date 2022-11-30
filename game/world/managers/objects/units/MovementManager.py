@@ -259,7 +259,7 @@ class MovementManager:
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
         failed, in_place, path = MapManager.calculate_path(self.unit.map_, start_position, random_point)
-        if failed or len(path) > 1:
+        if failed or len(path) > 2 or in_place:
             return
 
         random_point = path[0]

@@ -23,6 +23,9 @@ PENDING_LOAD_QUEUE = _queue.SimpleQueue()
 
 # noinspection PyBroadException
 class MapManager:
+    # Namigator.
+    NAMIGATOR_LOADED = False
+
     @staticmethod
     def initialize_maps():
         for map_id in MAP_LIST:
@@ -107,8 +110,8 @@ class MapManager:
                                 or not MAPS[map_id].tiles[adt_x + i][adt_y + j].initialized:
                             MAPS[map_id].tiles[adt_x + i][adt_y + j] = MapTile(map_id, adt_x + i, adt_y + j)
 
-        # Load this ADT.
-        if config.Server.Settings.use_nav_tiles:
+        # Load this ADT over namigator if nav tiles enabled and module is loaded.
+        if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED:
             MapManager._check_nav_adt_load(map_id, x, y, adt_x, adt_y)
 
         return True
@@ -150,8 +153,8 @@ class MapManager:
 
     @staticmethod
     def calculate_nav_z(map_id, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
-        # If nav tiles disabled, return the end_vector as found.
-        if not config.Server.Settings.use_nav_tiles:
+        # If nav tiles disabled or unable to load namigator, return current Z as locked.
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return current_z, True
 
         if map_id not in MAPS:
@@ -178,9 +181,12 @@ class MapManager:
 
     @staticmethod
     def los_check(map_id, start_vector, end_vector):
-        # If nav tiles disabled, return the end_vector as found.
-        if not config.Server.Settings.use_nav_tiles:
-            return False
+        # No nav tiles or unable to load namigator, can't check LoS.
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+            return True
+
+        if not MAPS[map_id].has_navigation():
+            return True
 
         # Calculate source adt coordinates for x,y.
         source_adt_x, source_adt_y, _, _ = MapManager.calculate_tile(start_vector.x, start_vector.y,
@@ -208,8 +214,12 @@ class MapManager:
 
     @staticmethod
     def calculate_path(map_id, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
-        # If nav tiles disabled, return the end_vector as found.
-        if not config.Server.Settings.use_nav_tiles:
+        # If nav tiles disabled or unable to load namigator, return the end_vector as found.
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+            return False, False, [end_vector]
+
+        # We don't have navs loaded for a given map, return end vector.
+        if not MAPS[map_id].has_navigation():
             return False, False, [end_vector]
 
         # Calculate source adt coordinates for x,y.

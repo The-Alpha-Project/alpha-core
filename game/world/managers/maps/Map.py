@@ -6,8 +6,6 @@ from game.world.managers.maps.GridManager import GridManager
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
-from namigator import pathfind
-
 
 class MapType(IntEnum):
     INSTANCE = 0
@@ -42,7 +40,7 @@ class Map:
         except:
             return False
 
-    def build_navigation(self):
+    def build_navigation(self, pathfind):
         try:
             nav_root_path = PathManager.get_navs_path()
             nav_map_path = PathManager.get_nav_map_path(self.name)
