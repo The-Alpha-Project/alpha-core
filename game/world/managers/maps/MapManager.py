@@ -213,6 +213,23 @@ class MapManager:
         return los
 
     @staticmethod
+    def can_reach_object(source_object, target_object):
+        if source_object.map_ != target_object.map_:
+            return False
+
+        # If nav tiles disabled or unable to load namigator, return as True.
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+            return True
+
+        # We don't have navs loaded for a given map, return True.
+        if not MAPS[source_object.map_id].has_navigation():
+            return True
+
+        failed, in_place, path = MapManager.calculate_path(source_object.map_, source_object.location,
+                                                           target_object.location)
+        return not failed
+
+    @staticmethod
     def calculate_path(map_id, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
         # If nav tiles disabled or unable to load namigator, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
