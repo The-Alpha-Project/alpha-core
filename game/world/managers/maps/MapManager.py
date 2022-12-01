@@ -333,7 +333,7 @@ class MapManager:
                 bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
                 calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
                 # If this Z is quite different, cascade into nav Z, if that also fails, current Z will be returned.
-                if math.fabs(current_z - calculated_z) > 1.5 and current_z:
+                if math.fabs(current_z - calculated_z) >= 1.0 and current_z:
                     return MapManager.calculate_nav_z(map_id, x, y, current_z)
                 return calculated_z, False
             except:
