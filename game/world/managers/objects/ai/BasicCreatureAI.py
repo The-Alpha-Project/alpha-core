@@ -43,6 +43,9 @@ class BasicCreatureAI(CreatureAI):
             victim_distance = victim.location.distance(self.creature.location)
             if victim_distance > detection_range:
                 continue
+            # Sanctuary.
+            if victim.unit_state & UnitStates.SANCTUARY:
+                return False
             # Check for stealth/invisibility.
             can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
             if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER:

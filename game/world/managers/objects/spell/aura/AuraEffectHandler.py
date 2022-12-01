@@ -248,8 +248,21 @@ class AuraEffectHandler:
         aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
 
     @staticmethod
+    # TODO: Spell MISS.
     def handle_feign_death(aura, effect_target, remove):
+        if not aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
         effect_target.mirror_timers_manager.feign_death = not remove
+        if not remove:
+            aura.caster.spell_manager.remove_casts()
+            duration = aura.source_spell.get_duration() / 1000
+            aura.caster.spell_manager.remove_unit_from_all_cast_targets(aura.caster.guid)
+            # Remove self from combat and attackers.
+            aura.caster.leave_combat()
+            # Set sanctuary state.
+            aura.caster.set_sanctuary(True, time_secs=duration)
+        else:
+            aura.caster.set_sanctuary(False)
 
     @staticmethod
     def handle_water_breathing(aura, effect_target, remove):
