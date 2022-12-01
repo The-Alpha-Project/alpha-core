@@ -69,6 +69,8 @@ class DynamicObjectManager(ObjectManager):
         # Target must be a vector.
         if isinstance(target, ObjectManager):
             target = target.location
+        else:
+            target = target.get_ray_vector(is_terrain=True)
 
         effect.casting_spell.dynamic_object = DynamicObjectManager.spawn(effect.casting_spell.spell_caster,
                                                                          target, effect.get_radius(), effect,

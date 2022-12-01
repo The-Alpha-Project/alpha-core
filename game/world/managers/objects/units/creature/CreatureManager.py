@@ -398,6 +398,10 @@ class CreatureManager(UnitManager):
 
         # Destroy instance if too far away from spawn or unable to acquire a valid path.
         if failed or self.location.distance(path[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
+            if failed:
+                Logger.warning(f'Unit: {self.get_name()}, Namigator was unable to provide a valid return home path:')
+                Logger.warning(f'Start: {self.location}')
+                Logger.warning(f'End: {self.spawn_position}')
             self.destroy()
         else:
             # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
