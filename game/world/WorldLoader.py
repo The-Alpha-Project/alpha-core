@@ -31,7 +31,7 @@ class WorldLoader:
         MapManager.initialize_area_tables()
 
         if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED:
-            Logger.success('[Namigator] module successfully loaded.')
+            Logger.success('[Namigator] Module successfully loaded.')
             WorldLoader.load_navigation()
         elif config.Server.Settings.use_nav_tiles:
             Logger.error('[Namigator] Unable to load module.')
