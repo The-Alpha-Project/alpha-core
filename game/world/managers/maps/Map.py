@@ -45,7 +45,7 @@ class Map:
             nav_root_path = PathManager.get_navs_path()
             nav_map_path = PathManager.get_nav_map_path(self.name)
             if not path.exists(nav_root_path) or not path.exists(nav_map_path):
-                Logger.warning(f'Unable to locate navigation data for map {self.name}')
+                Logger.warning(f'Unable to locate namigator data for map {self.name}')
                 return
             self.namigator = pathfind.Map(nav_root_path, f'{self.name}')
         except:
