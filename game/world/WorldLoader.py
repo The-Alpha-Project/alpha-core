@@ -12,12 +12,14 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 
 
-try:
-    from namigator import pathfind
-    MapManager.NAMIGATOR_LOADED = True
-except ImportError:
-    pathfind = None
-    pass
+# Attempt to load Namigator module if enabled.
+if config.Server.Settings.use_nav_tiles:
+    try:
+        from namigator import pathfind
+        MapManager.NAMIGATOR_LOADED = True
+    except ImportError:
+        pathfind = None
+        pass
 
 
 class WorldLoader:
@@ -29,6 +31,7 @@ class WorldLoader:
         MapManager.initialize_area_tables()
 
         if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED:
+            Logger.success('Namigator module successfully loaded.')
             WorldLoader.load_navigation()
         elif config.Server.Settings.use_nav_tiles:
             Logger.error('Unable to load namigator module.')
