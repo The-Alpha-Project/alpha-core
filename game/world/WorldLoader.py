@@ -31,10 +31,10 @@ class WorldLoader:
         MapManager.initialize_area_tables()
 
         if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED:
-            Logger.success('Namigator module successfully loaded.')
+            Logger.success('[Namigator] module successfully loaded.')
             WorldLoader.load_navigation()
         elif config.Server.Settings.use_nav_tiles:
-            Logger.error('Unable to load namigator module.')
+            Logger.error('[Namigator] Unable to load module.')
 
         # Below order matters.
 
@@ -106,7 +106,7 @@ class WorldLoader:
         for _map in maps:
             _map.build_navigation(pathfind=pathfind)
             count += 1
-            Logger.progress('Loading navigation data...', count, length)
+            Logger.progress('[Namigator] Loading navigation data...', count, length)
 
         return length
 

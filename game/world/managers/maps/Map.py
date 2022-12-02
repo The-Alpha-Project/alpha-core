@@ -33,7 +33,7 @@ class Map:
             if adt_key in self._loaded_adts:
                 return True
 
-            Logger.debug(f'Loading nav ADT {adt_x},{adt_y} for Map {self.name}')
+            Logger.debug(f'[Namigator] Loading nav ADT {adt_x},{adt_y} for Map {self.name}')
             self.namigator.load_adt_at(raw_x, raw_y)
             self._loaded_adts[adt_key] = True
             return True
@@ -45,7 +45,7 @@ class Map:
             nav_root_path = PathManager.get_navs_path()
             nav_map_path = PathManager.get_nav_map_path(self.name)
             if not path.exists(nav_root_path) or not path.exists(nav_map_path):
-                Logger.warning(f'Unable to locate namigator data for map {self.name}')
+                Logger.warning(f'[Namigator] Unable to locate data for map {self.name}')
                 return
             self.namigator = pathfind.Map(nav_root_path, f'{self.name}')
         except:

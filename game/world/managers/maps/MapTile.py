@@ -32,13 +32,14 @@ class MapTile(object):
         Logger.debug(f'[Maps] Loading map file: {filename}, Map:{self.cell_map} Tile:{self.cell_x},{self.cell_y}')
 
         if not path.exists(maps_path):
-            Logger.warning(f'Unable to locate map file: {filename}, Map:{self.cell_map} Tile:{self.cell_x},{self.cell_y}')
+            Logger.warning(f'[Maps] Unable to locate map file: {filename}, '
+                           f'Map:{self.cell_map} Tile:{self.cell_x},{self.cell_y}')
             return
         else:
             with open(maps_path, "rb") as map_tiles:
                 version = PacketReader.read_string(map_tiles.read(10), 0)
                 if version != MapTile.EXPECTED_VERSION:
-                    Logger.error(f'Unexpected map version. Expected "{MapTile.EXPECTED_VERSION}", found "{version}".')
+                    Logger.error(f'[Maps] Unexpected map version. Expected "{MapTile.EXPECTED_VERSION}", found "{version}".')
                     return
 
                 # Height Map
