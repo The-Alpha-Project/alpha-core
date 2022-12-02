@@ -68,7 +68,7 @@ class DynamicObjectManager(ObjectManager):
 
         # Target must be a vector.
         if isinstance(target, ObjectManager):
-            target = target.location
+            target = target.location.copy()
         else:
             target = target.get_ray_vector(is_terrain=True)
 
