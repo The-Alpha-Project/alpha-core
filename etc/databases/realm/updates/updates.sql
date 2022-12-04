@@ -142,5 +142,15 @@ begin not atomic
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
         insert into applied_updates values ('291120221');
     end if;
+
+    -- 04/12/2022 1
+	if (select count(*) from applied_updates where id='041220221') = 0 then
+        ALTER TABLE `character_pets`
+            DROP COLUMN `loyalty`,
+            DROP COLUMN `loyalty_points`,
+            DROP COLUMN `training_points`,
+            DROP COLUMN `happiness`;
+        insert into applied_updates values ('041220221');
+    end if;
 end $
 delimiter ;
