@@ -1050,7 +1050,6 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
-        if casting_spell.initial_target_is_unit_or_player():
             if not validation_target.is_alive and not \
                     (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_DEAD):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
