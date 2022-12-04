@@ -16,8 +16,10 @@ class Map:
     def __init__(self, map_id, active_cell_callback):
         self.map_ = DbcDatabaseManager.map_get_by_id(map_id)
         self.grid_manager = GridManager(map_id, active_cell_callback)
-        self.tiles = [[None for r in range(64)] for c in range(64)]
         self.name = self.map_.MapName_enUS
+        # TODO: Move map and nav navigation out of Map.
+        #  This data should only be loaded once when instancing is implemented.
+        self.tiles = [[None for r in range(64)] for c in range(64)]
         self.namigator = None
         self._loaded_adts = {}
 
