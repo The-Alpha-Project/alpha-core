@@ -24,7 +24,7 @@ from utils.constants.UpdateFields import UnitFields
 
 
 class PetData:
-    def __init__(self, pet_id: int, name: str, template: CreatureTemplate, owner_guid,
+    def __init__(self, pet_id: int, name: str, renamed: bool, template: CreatureTemplate, owner_guid,
                  level: int, experience: int, summon_spell_id: int, permanent: bool,
                  spells=None, action_bar=None):
         self.pet_id = pet_id
@@ -34,6 +34,7 @@ class PetData:
         self.owner_guid = owner_guid
         self.permanent = permanent
         self.summon_spell_id = summon_spell_id
+        self.renamed = renamed
 
         self._level = level
         self._experience = experience
@@ -65,6 +66,11 @@ class PetData:
 
         self._dirty = False
 
+    def delete(self):
+        if not self.permanent:
+            return
+        RealmDatabaseManager.character_delete_pet(self.pet_id)
+
     def set_dirty(self):
         self._dirty = True
 
@@ -83,7 +89,7 @@ class PetData:
             react_state=int(self.react_state),
             command_state=int(self.command_state),
             name=self.name,
-            renamed=0,  # TODO pet naming
+            renamed=int(self.renamed),
             health=health,
             mana=mana,
             action_bar=pack('10I', *self.action_bar)
@@ -132,6 +138,11 @@ class PetData:
         self._level = level
         self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
         self._experience = 0
+        self.set_dirty()
+
+    def set_name(self, name: str):
+        self.name = name
+        self.renamed = True
         self.set_dirty()
 
     def add_spell(self, spell_id) -> bool:
@@ -205,9 +216,8 @@ class PetData:
 
         return pet_bar
 
-    def match_owner_level(self):
-        # Permanent warlock pets (non-hunter) should always be the same level as the owner.
-        return self.permanent and self.summon_spell_id != PetManager.SUMMON_PET_SPELL_ID
+    def is_hunter_pet(self):
+        return self.permanent and self.summon_spell_id == PetManager.SUMMON_PET_SPELL_ID
 
 
 class ActivePet(NamedTuple):
@@ -230,6 +240,7 @@ class PetManager:
             self.pets.append(PetData(
                 character_pet.pet_id,
                 character_pet.name,
+                bool(character_pet.renamed),
                 WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(character_pet.creature_id),
                 self.owner.guid,
                 character_pet.level,
@@ -274,6 +285,13 @@ class PetManager:
 
         self._set_active_pet(pet_index, creature)
         self.set_active_pet_level(pet_level)
+
+        pet_info = self.get_active_pet_info()
+        if pet_info.is_hunter_pet():
+            creature.set_can_rename(not pet_info.renamed)
+            creature.set_can_abandon(True)
+        creature.get_name()
+
         return self.active_pet
 
     def _set_active_pet(self, pet_index: int, creature: CreatureManager):
@@ -286,7 +304,7 @@ class PetManager:
         self._send_pet_spell_info()
 
     def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, permanent: bool) -> int:
-        pet = PetData(-1, creature_template.name, creature_template, self.owner.guid, level,
+        pet = PetData(-1, creature_template.name, False, creature_template, self.owner.guid, level,
                       0, summon_spell_id, permanent=permanent)
 
         pet.save()
@@ -499,9 +517,26 @@ class PetManager:
 
         self._send_pet_spell_info()
 
+    def handle_pet_abandon(self, pet_guid):
+        pet = self.get_active_pet_info()
+        if not pet or pet_guid != self.active_pet.creature.guid:
+            return
+
+        pet_index = self.active_pet.pet_index
+        self.detach_active_pet()
+        self.remove_pet(pet_index)
+        pet.delete()
+
+    def handle_pet_rename(self, pet_guid, name):
+        pet = self.get_active_pet_info()
+        if not pet or pet_guid != self.active_pet.creature.guid or pet.renamed:
+            return
+
+        pet.set_name(name)
+
     def add_active_pet_experience(self, experience: int):
         pet = self.get_active_pet_info()
-        if not pet or self.owner.level <= pet.get_level() or pet.match_owner_level():
+        if not pet or self.owner.level <= pet.get_level() or not pet.is_hunter_pet():
             return
 
         level_gain = pet.add_experience(experience)
@@ -512,7 +547,7 @@ class PetManager:
 
     def handle_owner_level_change(self):
         pet = self.get_active_pet_info()
-        if not pet or not pet.match_owner_level() or self.owner.level == pet.get_level():
+        if not pet or pet.is_hunter_pet() or self.owner.level == pet.get_level():
             return
 
         self.set_active_pet_level(self.owner.level, replenish=True)
