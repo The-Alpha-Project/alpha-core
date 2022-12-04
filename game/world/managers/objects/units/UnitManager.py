@@ -1116,6 +1116,20 @@ class UnitManager(ObjectManager):
         # Set faction, either original or summoner. (Restored on CreatureManager/PlayerManager)
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
+    def set_can_abandon(self, state: bool):
+        if state:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_PET_CAN_ABANDON
+        else:
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_PET_CAN_ABANDON
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+    def set_can_rename(self, state: bool):
+        if state:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_PET_CAN_RENAME
+        else:
+            self.unit_flags &= ~UnitFlags.UNIT_FLAG_PET_CAN_RENAME
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
     def set_player_controlled(self, state):
         if state:
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED

@@ -201,12 +201,6 @@ class CreatureManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
             self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 
-            # Pet related
-            # TODO pet naming/pet number?
-            if self.is_pet():
-                self.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, int(time.time()))
-                self.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, 1)
-
             for slot, virtual_item in self.virtual_item_info.items():
                 self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_item.display_id)
                 self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item.info_packed)

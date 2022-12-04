@@ -567,6 +567,30 @@ class RealmDatabaseManager(object):
         realm_db_session.refresh(character_pet)
         realm_db_session.close()
 
+    @staticmethod
+    def character_delete_pet(pet_id):
+        realm_db_session = SessionHolder()
+        pet = realm_db_session.query(CharacterPet).filter_by(pet_id=pet_id).first()
+        if pet:
+            realm_db_session.delete(pet)
+            realm_db_session.flush()
+        realm_db_session.close()
+
+    @staticmethod
+    def character_get_pet_spells(guid, pet_id):
+        realm_db_session = SessionHolder()
+        spells = realm_db_session.query(CharacterPetSpell).filter_by(guid=guid, pet_id=pet_id).all()
+        realm_db_session.close()
+        return spells
+
+    @staticmethod
+    def character_add_pet_spell(pet_spell):
+        realm_db_session = SessionHolder()
+        realm_db_session.add(pet_spell)
+        realm_db_session.flush()
+        realm_db_session.refresh(pet_spell)
+        realm_db_session.close()
+
     # Ticket stuff
 
     @staticmethod
