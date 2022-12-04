@@ -763,6 +763,10 @@ class QuestManager(object):
             if not quest_item_starter or quest_item_starter.entry != req_src_item:
                 if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
                     return
+                # If the quest source item isn't required for the quest, remove it.
+                if quest_item_starter:
+                    self.player_mgr.inventory.remove_item(quest_item_starter.item_instance.bag,
+                                                          quest_item_starter.item_instance.slot)
 
         active_quest = self._create_db_quest_status(quest)
         active_quest.save(is_new=True)
