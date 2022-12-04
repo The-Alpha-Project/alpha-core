@@ -26,6 +26,7 @@ class Map:
     def has_navigation(self):
         return self.namigator is not None
 
+    # TODO: Namigator, give us a way to load by adt_x and adt_y without raw locations.
     def load_adt(self, raw_x, raw_y, adt_x, adt_y):
         try:
             if self.namigator is None:
@@ -36,7 +37,9 @@ class Map:
                 return True
 
             Logger.debug(f'[Namigator] Loading nav ADT {adt_x},{adt_y} for Map {self.name}')
-            self.namigator.load_adt_at(raw_x, raw_y)
+            n_adt_x, n_adt_y = self.namigator.load_adt_at(raw_x, raw_y)
+            if adt_x != n_adt_x or adt_y != n_adt_y:
+                Logger.warning(f'[Namigator] Loaded different ADT {n_adt_x},{n_adt_y} for Map {self.name}')
             self._loaded_adts[adt_key] = True
             return True
         except:
