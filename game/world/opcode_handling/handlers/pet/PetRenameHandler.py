@@ -9,7 +9,7 @@ class PetRenameHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader: PacketReader) -> int:
-        if len(reader.data) >= 8:  # Avoid handling empty friend delete packet.
+        if len(reader.data) >= 8:  # Avoid handling empty pet rename packet.
             pet_guid = unpack('<Q', reader.data[:8])[0]
             name = PacketReader.read_string(reader.data, 8)
             if not TextUtils.TextChecker.valid_text(name, is_name=True):
