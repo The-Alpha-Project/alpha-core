@@ -1051,6 +1051,8 @@ class PlayerManager(UnitManager):
                 self.skill_manager.update_skills_max_value()
                 self.skill_manager.build_update()
 
+                self.pet_manager.handle_owner_level_change()
+
                 self.stat_manager.init_stats()
                 hp_diff, mana_diff = self.stat_manager.apply_bonuses()
                 self.replenish_powers()

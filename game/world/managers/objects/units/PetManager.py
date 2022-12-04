@@ -82,14 +82,10 @@ class PetData:
             xp=self._experience,
             react_state=int(self.react_state),
             command_state=int(self.command_state),
-            loyalty=0,  # TODO Loyalty/training
-            loyalty_points=0,
-            training_points=0,
             name=self.name,
             renamed=0,  # TODO pet naming
             health=health,
             mana=mana,
-            happiness=0,  # TODO
             action_bar=pack('10I', *self.action_bar)
             # TODO Pet spellbook persistence.
         )
@@ -209,6 +205,10 @@ class PetData:
 
         return pet_bar
 
+    def match_owner_level(self):
+        # Permanent warlock pets (non-hunter) should always be the same level as the owner.
+        return self.permanent and self.summon_spell_id != PetManager.SUMMON_PET_SPELL_ID
+
 
 class ActivePet(NamedTuple):
     pet_index: int
@@ -216,6 +216,8 @@ class ActivePet(NamedTuple):
 
 
 class PetManager:
+    SUMMON_PET_SPELL_ID = 883
+
     def __init__(self, owner):
         self.owner = owner
         self.pets: list[PetData] = []
@@ -401,6 +403,7 @@ class PetManager:
         if is_permanent:
             pet_info.save(creature)
             # Summon Pet cooldown is locked by default - unlock on despawn.
+            # TODO more generic check with created_by_spell despawn?
             self.owner.spell_manager.unlock_spell_cooldown(pet_info.summon_spell_id)
         else:
             self.remove_pet(pet_index)
@@ -497,17 +500,24 @@ class PetManager:
         self._send_pet_spell_info()
 
     def add_active_pet_experience(self, experience: int):
-        active_pet_info = self.get_active_pet_info()
-        if not active_pet_info or self.owner.level <= active_pet_info.get_level():
+        pet = self.get_active_pet_info()
+        if not pet or self.owner.level <= pet.get_level() or pet.match_owner_level():
             return
 
-        level_gain = active_pet_info.add_experience(experience)
+        level_gain = pet.add_experience(experience)
         if not level_gain:
             return
 
-        self.set_active_pet_level()
+        self.set_active_pet_level(replenish=True)
 
-    def set_active_pet_level(self, level=-1):
+    def handle_owner_level_change(self):
+        pet = self.get_active_pet_info()
+        if not pet or not pet.match_owner_level() or self.owner.level == pet.get_level():
+            return
+
+        self.set_active_pet_level(self.owner.level, replenish=True)
+
+    def set_active_pet_level(self, level=-1, replenish=False):
         active_pet_info = self.get_active_pet_info()
         if not active_pet_info:
             return
@@ -526,6 +536,8 @@ class PetManager:
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, active_pet_info.next_level_xp)
 
         self._update_active_pet_stats()
+        if replenish:
+            pet_creature.replenish_powers()
 
     def get_active_pet_command_state(self):
         pet_info = self.get_active_pet_info()

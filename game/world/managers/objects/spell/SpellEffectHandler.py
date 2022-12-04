@@ -543,8 +543,9 @@ class SpellEffectHandler:
             return
 
         # Taming will always result in the target becoming the caster's pet.
-        # Pass ID 883 (Summon Pet) as the spell creating this unit since it's saved in the database.
-        pet = caster.pet_manager.set_creature_as_pet(target, 883, is_permanent=True)
+        # Pass summon pet ID as the spell creating this unit since it's saved in the database.
+        from game.world.managers.objects.units.PetManager import PetManager
+        pet = caster.pet_manager.set_creature_as_pet(target, PetManager.SUMMON_PET_SPELL_ID, is_permanent=True)
         if pet:
             # Since we have no data for what abilities pets had in the wild (or if it even varied in 0.5.3),
             # learn all abilities the pet could have at its current level.
