@@ -150,6 +150,7 @@ begin not atomic
             DROP COLUMN `loyalty_points`,
             DROP COLUMN `training_points`,
             DROP COLUMN `happiness`;
+	    ALTER TABLE `character_pets` CHANGE COLUMN `renamed` `rename_time` int(11) unsigned NOT NULL DEFAULT 0;
         insert into applied_updates values ('041220221');
     end if;
 end $

@@ -1,3 +1,4 @@
+import time
 from struct import pack, unpack
 from typing import Optional, NamedTuple, List
 
@@ -24,7 +25,7 @@ from utils.constants.UpdateFields import UnitFields
 
 
 class PetData:
-    def __init__(self, pet_id: int, name: str, renamed: bool, template: CreatureTemplate, owner_guid,
+    def __init__(self, pet_id: int, name: str, rename_time: int, template: CreatureTemplate, owner_guid,
                  level: int, experience: int, summon_spell_id: int, permanent: bool,
                  spells=None, action_bar=None):
         self.pet_id = pet_id
@@ -34,7 +35,7 @@ class PetData:
         self.owner_guid = owner_guid
         self.permanent = permanent
         self.summon_spell_id = summon_spell_id
-        self.renamed = renamed
+        self.rename_time = rename_time
 
         self._level = level
         self._experience = experience
@@ -89,7 +90,7 @@ class PetData:
             react_state=int(self.react_state),
             command_state=int(self.command_state),
             name=self.name,
-            renamed=int(self.renamed),
+            rename_time=self.rename_time,
             health=health,
             mana=mana,
             action_bar=pack('10I', *self.action_bar)
@@ -142,7 +143,7 @@ class PetData:
 
     def set_name(self, name: str):
         self.name = name
-        self.renamed = True
+        self.rename_time = int(time.time())
         self.set_dirty()
 
     def add_spell(self, spell_id) -> bool:
@@ -240,7 +241,7 @@ class PetManager:
             self.pets.append(PetData(
                 character_pet.pet_id,
                 character_pet.name,
-                bool(character_pet.renamed),
+                character_pet.rename_time,
                 WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(character_pet.creature_id),
                 self.owner.guid,
                 character_pet.level,
@@ -288,9 +289,10 @@ class PetManager:
 
         pet_info = self.get_active_pet_info()
         if pet_info.is_hunter_pet():
-            creature.set_can_rename(not pet_info.renamed)
+            creature.set_can_rename(pet_info.rename_time == 0)  # Only allow one rename.
             creature.set_can_abandon(True)
-        creature.get_name()
+            creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, pet_info.pet_id)
+            creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, pet_info.rename_time)
 
         return self.active_pet
 
@@ -304,7 +306,7 @@ class PetManager:
         self._send_pet_spell_info()
 
     def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, permanent: bool) -> int:
-        pet = PetData(-1, creature_template.name, False, creature_template, self.owner.guid, level,
+        pet = PetData(-1, creature_template.name, 0, creature_template, self.owner.guid, level,
                       0, summon_spell_id, permanent=permanent)
 
         pet.save()
@@ -529,10 +531,13 @@ class PetManager:
 
     def handle_pet_rename(self, pet_guid, name):
         pet = self.get_active_pet_info()
-        if not pet or pet_guid != self.active_pet.creature.guid or pet.renamed:
-            return
+        if not pet or pet_guid != self.active_pet.creature.guid or \
+                pet.rename_time or not pet.is_hunter_pet():
+            return  # Only allow renaming once, and only for hunter pets.
 
         pet.set_name(name)
+        self.active_pet.creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, pet.rename_time)
+        self.active_pet.creature.set_can_rename(False)
 
     def add_active_pet_experience(self, experience: int):
         pet = self.get_active_pet_info()
