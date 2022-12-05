@@ -14468,10 +14468,180 @@ begin not atomic
     end if;
 
     -- 24/11/2022 1
-    if (select count(*) from applied_updates where id='241120221') = 0 then	
+    if (select count(*) from applied_updates where id='241120221') = 0 then
 	    DROP TABLE `alpha_world`.`spell_enchant_charges`;
 	    insert into applied_updates values ('241120221');
     end if;
-        
+
+    -- 25/11/2022 1
+        if (select count(*) from applied_updates where id='251120221') = 0 then
+        -- Add pet talent entries
+        INSERT INTO trainer_template (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`,
+                                      `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES
+        (273, 6285, 6284, 10, 0, 0, 0, 0, 10),  -- Pet Hardiness 1-5. Level req/cost based off vanilla.
+        (273, 6291, 6287, 120, 0, 0, 0, 0, 12),
+        (273, 6292, 6288, 400, 0, 0, 0, 0, 18),
+        (273, 6293, 6289, 1400, 0, 0, 0, 0, 24),
+        (273, 6294, 6290, 1600, 0, 0, 0, 0, 30),
+        (273, 6313, 6312, 10, 0, 0, 0, 0, 10),  -- Pet Aggression 1-5.
+        (273, 6322, 6318, 120, 0, 0, 0, 0, 12),
+        (273, 6323, 6319, 400, 0, 0, 0, 0, 18),
+        (273, 6324, 6320, 1400, 0, 0, 0, 0, 24),
+        (273, 6325, 6321, 1600, 0, 0, 0, 0, 30),
+        (273, 6330, 6329, 10, 0, 0, 0, 0, 10),  -- Pet Recovery 1-5.
+        (273, 6339, 6335, 120, 0, 0, 0, 0, 12),
+        (273, 6340, 6336, 400, 0, 0, 0, 0, 18),
+        (273, 6341, 6337, 1400, 0, 0, 0, 0, 24),
+        (273, 6342, 6338, 1600, 0, 0, 0, 0, 30),
+        (273, 6449, 6448, 10, 0, 0, 0, 0, 10),  -- Pet Resistance 1-5.
+        (273, 6454, 6450, 120, 0, 0, 0, 0, 12),
+        (273, 6455, 6451, 400, 0, 0, 0, 0, 18),
+        (273, 6456, 6452, 1400, 0, 0, 0, 0, 24),
+        (273, 6457, 6453, 1600, 0, 0, 0, 0, 30);
+        insert into applied_updates values ('251120221');
+    end if;
+
+    -- 25/11/2022 2
+    if (select count(*) from applied_updates where id='251120222') = 0 then
+        -- Update pet trainers' trainer templates
+        UPDATE `creature_template` SET trainer_id = 0 WHERE entry = 4320;  -- Correct reused Binder npc trainer id.
+        -- Set custom trainer IDs for pet trainers. Order same as SkillLine.dbc.
+        -- Also remove vendor flag from demon trainers.
+        UPDATE `creature_template` SET npc_flags = 0x2 WHERE entry IN (5749, 5750, 5753, 5520);
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 274, trainer_type = 3 WHERE entry IN (2935, 5006, 5520, 5749, 5750, 5753);  -- Demon
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 275, trainer_type = 3 WHERE entry IN (5013, 2872, 2941, 3698, 4882);  -- Spider
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 276, trainer_type = 3 WHERE entry IN (4994, 2870, 2942, 4207);  -- Wolf
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 277, trainer_type = 3 WHERE entry IN (5003, 2878, 3699, 4153);  -- Cat
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 278, trainer_type = 3 WHERE entry IN (2881, 2938, 3701, 4206);  -- Bear
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 279, trainer_type = 3 WHERE entry IN (5002, 2880, 2939, 3697, 5118);  -- Boar
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 280, trainer_type = 3 WHERE entry IN (5005, 2876);  -- Crocodile
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 281, trainer_type = 3 WHERE entry IN (5001, 2940);  -- Carrion Bird
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 282, trainer_type = 3 WHERE entry IN (5004, 3623);  -- Crab (Crawler)
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 283, trainer_type = 3 WHERE entry IN (5008);  -- Gorilla
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 284, trainer_type = 3 WHERE entry IN (5009);  -- Horse
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 285, trainer_type = 3 WHERE entry IN (5011, 4621, 5508);  -- Raptor
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 286, trainer_type = 3 WHERE entry IN (5015, 5507);  -- Tallstrider
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 287, trainer_type = 3 WHERE entry IN (5012);  -- Scorpion
+        UPDATE `creature_template` SET npc_flags = npc_flags | 0x8, trainer_id = 288, trainer_type = 3 WHERE entry IN (5017, 3525, 4881);  -- Turtle
+        insert into applied_updates values ('251120222');
+    end if;
+
+    -- 25/11/2022 3
+    if (select count(*) from applied_updates where id='251120223') = 0 then
+        -- Pet trainer spells
+        -- Hunter spell levels from tooltips, costs from trainer spell cost patterns.
+
+        INSERT INTO trainer_template (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`,
+                                      `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES
+        (274, 7886, 3110, 10, 0, 0, 0, 0, 0),  -- Imp
+        (274, 7833, 7800, 2200, 0, 0, 0, 0, 0),
+        (274, 7834, 7801, 8100, 0, 0, 0, 0, 0),
+        (274, 7875, 7808, 15000, 0, 0, 0, 0, 0),
+        (274, 7874, 7807, 6700, 0, 0, 0, 0, 0),
+        (274, 7829, 7806, 1800, 0, 0, 0, 0, 0),
+        (274, 7873, 7805, 15000, 0, 0, 0, 0, 0),
+        (274, 7872, 7804, 2600, 0, 0, 0, 0, 0),
+        (274, 7835, 7802, 23000, 0, 0, 0, 0, 0),
+        (274, 7832, 7799, 200, 0, 0, 0, 0, 0),
+        (274, 7871, 6307, 100, 0, 0, 0, 0, 0),
+        (274, 4091, 2691, 100, 0, 0, 0, 0, 0),  -- Felhunter
+        (274, 7885, 7812, 1800, 0, 0, 0, 0, 0),  -- Voidwalker
+        (274, 7883, 7810, 6700, 0, 0, 0, 0, 0),
+        (274, 7884, 7811, 18000, 0, 0, 0, 0, 0),
+        (274, 7882, 7809, 2200, 0, 0, 0, 0, 0),
+        (274, 7881, 3716, 300, 0, 0, 0, 0, 0),
+        (274, 6362, 6360, 2600, 0, 0, 0, 0, 0),  -- Succubus
+        (274, 7877, 7815, 8100, 0, 0, 0, 0, 0),
+        (274, 7878, 7816, 15000, 0, 0, 0, 0, 0),
+        (274, 6359, 6358, 6700, 0, 0, 0, 0, 0),
+        (274, 7880, 7870, 8000, 0, 0, 0, 0, 0),
+        (274, 7876, 7814, 2600, 0, 0, 0, 0, 0),
+        (274, 7879, 7813, 15000, 0, 0, 0, 0, 0),
+        (275, 6025, 4425, 1200, 0, 0, 0, 0, 13),  -- Spider
+        (275, 6028, 4785, 23000, 0, 0, 0, 0, 37),
+        (275, 6029, 4804, 15000, 0, 0, 0, 0, 36),
+        (275, 6027, 4783, 8000, 0, 0, 0, 0, 30),
+        (275, 6026, 4782, 3400, 0, 0, 0, 0, 22),
+        (276, 6039, 4815, 1200, 0, 0, 0, 0, 13),  -- Wolf
+        (276, 6040, 4816, 15000, 0, 0, 0, 0, 36),
+        (276, 6579, 6577, 1200, 0, 0, 0, 0, 13),
+        (277, 5999, 4740, 1200, 0, 0, 0, 0, 13),  -- Cat
+        (277, 6000, 4741, 15000, 0, 0, 0, 0, 36),
+        (277, 6667, 6666, 1200, 0, 0, 0, 0, 13),
+        (278, 5994, 4715, 3400, 0, 0, 0, 0, 22),  -- Bear
+        (278, 5995, 4732, 15000, 0, 0, 0, 0, 36),
+        (278, 5993, 4731, 1200, 0, 0, 0, 0, 13),
+        (279, 5150, 4733, 1200, 0, 0, 0, 0, 13),  -- Boar
+        (279, 5949, 4734, 3400, 0, 0, 0, 0, 22),
+        (279, 5950, 4735, 15000, 0, 0, 0, 0, 36),
+        (280, 6008, 4750, 15000, 0, 0, 0, 0, 36),  -- Crocolisk
+        (280, 6583, 6582, 1200, 0, 0, 0, 0, 13),
+        (280, 6007, 4748, 3400, 0, 0, 0, 0, 22),
+        (281, 5996, 4736, 1200, 0, 0, 0, 0, 13),  -- Carrion Bird
+        (281, 5998, 4739, 15000, 0, 0, 0, 0, 36),
+        (281, 5997, 4737, 3400, 0, 0, 0, 0, 22),
+        (282, 6001, 4742, 1200, 0, 0, 0, 0, 13),  -- Crab
+        (282, 6006, 4747, 15000, 0, 0, 0, 0, 36),
+        (282, 6002, 4743, 3400, 0, 0, 0, 0, 21),
+        (282, 6003, 4744, 8100, 0, 0, 0, 0, 28),
+        (282, 6004, 4745, 15000, 0, 0, 0, 0, 36),
+        (282, 6005, 4746, 3400, 0, 0, 0, 0, 22),
+        (283, 6013, 4775, 3400, 0, 0, 0, 0, 22),  -- Gorilla
+        (283, 6012, 4774, 11000, 0, 0, 0, 0, 32),
+        (283, 6015, 4777, 15000, 0, 0, 0, 0, 36),
+        (283, 6011, 4773, 6700, 0, 0, 0, 0, 25),
+        (283, 6014, 4776, 8000, 0, 0, 0, 0, 29),
+        (283, 6009, 4771, 1200, 0, 0, 0, 0, 13),
+        (283, 6010, 4772, 2200, 0, 0, 0, 0, 18),
+        (284, 6017, 4766, 1200, 0, 0, 0, 0, 13),  -- Horse
+        (284, 6019, 4767, 15000, 0, 0, 0, 0, 36),
+        (285, 6021, 4769, 3400, 0, 0, 0, 0, 22),  -- Raptor
+        (285, 6022, 4770, 15000, 0, 0, 0, 0, 36),
+        (285, 6020, 4768, 1200, 0, 0, 0, 0, 13),
+        (286, 6030, 4806, 1200, 0, 0, 0, 0, 13),  -- Tallstrider
+        (286, 6031, 4807, 3400, 0, 0, 0, 0, 22),
+        (286, 6033, 4814, 15000, 0, 0, 0, 0, 36),
+        (286, 6032, 4808, 8100, 0, 0, 0, 0, 28),
+        (287, 6023, 5399, 1200, 0, 0, 0, 0, 13),  -- Scorpion
+        (287, 6540, 6539, 3400, 0, 0, 0, 0, 22),
+        (287, 6024, 5398, 15000, 0, 0, 0, 0, 36),
+        (288, 6038, 5383, 3400, 0, 0, 0, 0, 22),  -- Turtle
+        (288, 6034, 5378, 1200, 0, 0, 0, 0, 13),
+        (288, 6035, 5380, 2200, 0, 0, 0, 0, 18),
+        (288, 6036, 5381, 6700, 0, 0, 0, 0, 25),
+        (288, 6037, 5382, 11000, 0, 0, 0, 0, 32);
+        insert into applied_updates values ('251120223');
+    end if;
+
+
+    -- 26/11/2022 1
+    if (select count(*) from applied_updates where id='261120221') = 0 then
+        -- Rethgar Deathgate
+        UPDATE `spawns_creatures` SET
+        position_x=-473.619,
+        position_y=-2596.796,
+        position_z=103.912,
+        orientation=6.057
+        WHERE spawn_id=13979;
+
+        -- Mahren Skyseer
+        UPDATE `spawns_creatures` SET
+        position_x=-1350.74,
+        position_y=-4048.38,
+        position_z=6.23952,
+        orientation=5.3058
+        WHERE spawn_id=13950;
+
+        insert into applied_updates values ('261120221');
+    end if;
+
+    -- 26/11/2022 2
+    if (select count(*) from applied_updates where id='261120222') = 0 then
+        -- Apothecary Helbrim
+        UPDATE `spawns_creatures` SET `orientation` = 4.359 WHERE `spawn_id` = 13982;
+
+        insert into applied_updates values ('261120222');
+    end if;
+
 end $
 delimiter ;

@@ -85,7 +85,7 @@ class TrainerBuySpellHandler(object):
         spell_money_cost = trainer_spell.spellcost
         spell_skill_cost = trainer_spell.skillpointcost
 
-        fail_reason = None
+        fail_reason = -1
         anti_cheat = False
         if not unit.is_trainer() or not TrainerUtils.can_train(unit, player_mgr) or \
                 not TrainerUtils.trainer_has_spell(unit, training_spell_id):
@@ -95,6 +95,9 @@ class TrainerBuySpellHandler(object):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_MONEY
         elif spell_skill_cost > 0 and spell_skill_cost > player_mgr.skill_points:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
+        elif trainer_spell.reqlevel > player_mgr.level:
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+            anti_cheat = True
         elif trainer_spell.playerspell in player_mgr.spell_manager.spells:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
         elif not player_mgr.spell_manager.can_learn_spell(player_spell.ID):
@@ -103,9 +106,10 @@ class TrainerBuySpellHandler(object):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
 
-        if fail_reason:
+        if fail_reason != -1:
             if anti_cheat:
-                Logger.anticheat(f'Player {player_mgr.guid} tried to train spell {player_mgr} from NPC {unit.entry}.')
+                Logger.anticheat(f'Player {player_mgr.guid} tried to train spell {trainer_spell.playerspell} '
+                                 f'(entry {trainer_spell.template_entry}) from NPC {unit.entry}.')
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
             return
 

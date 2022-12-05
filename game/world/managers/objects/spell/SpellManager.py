@@ -638,7 +638,7 @@ class SpellManager:
 
             if ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(casting_spell.spell_entry.ID,
                                                                             current_cast.spell_entry.ID):  # Paladin auras.
-                self.remove_cast(casting_spell, interrupted=True)
+                self.remove_cast(casting_spell, interrupted=False)
                 continue
             if current_cast.casts_on_swing() and casting_spell.casts_on_swing() and casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
                 self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT, interrupted=True)
@@ -741,15 +741,15 @@ class SpellManager:
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
     def handle_spell_effect_update(self, casting_spell, timestamp) -> bool:
-        is_finished = True
+        is_finished = False
         for effect in casting_spell.get_effects():
             # TODO Do other, non-area spell effects depend on any logic here?
 
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
-            if not effect.is_periodic() or effect.has_periodic_ticks_remaining():
-                is_finished = False
+            if effect.is_periodic() and not effect.has_periodic_ticks_remaining():
+                is_finished = True
 
             # Area spell effect update.
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
@@ -1026,14 +1026,14 @@ class SpellManager:
         validation_target = casting_spell.initial_target
         # In the case of the spell requiring a unit target but being cast on self,
         # validate the spell against the caster's current unit selection instead or the caster pet.
-        if casting_spell.spell_target_mask == SpellTargetMask.SELF and \
-                casting_spell.requires_implicit_initial_unit_target():
-            validation_target = casting_spell.targeted_unit_on_cast_start
-            if validation_target and not self.caster.can_attack_target(validation_target):
-                # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
-                # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-                return False
+        if casting_spell.spell_target_mask == SpellTargetMask.SELF:
+            if casting_spell.requires_implicit_initial_unit_target():
+                validation_target = casting_spell.targeted_unit_on_cast_start
+                if validation_target and not self.caster.can_attack_target(validation_target):
+                    # All secondary initial unit targets are hostile. Unlike (nearly?) all other spells,
+                    # the target for arcane missiles is not validated by the client (script effect). Catch that case here.
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    return False
             elif casting_spell.has_pet_target():
                 validation_target = self.caster.get_pet()
 
@@ -1043,12 +1043,20 @@ class SpellManager:
             self.send_cast_result(casting_spell, result)
             return False
 
-        if casting_spell.initial_target_is_unit_or_player() and not validation_target.is_alive and not \
-                (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_DEAD):
-            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
-            return False
+        if casting_spell.initial_target_is_unit_or_player():
+            # Basic effect harmfulness/attackability check for fully harmful spells.
+            # The client checks this for player casts, but not pet casts.
+            if not self.caster.can_attack_target(validation_target) and casting_spell.has_only_harmful_effects():
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
 
-        if casting_spell.initial_target_is_unit_or_player():  # Orientation checks.
+
+            if not validation_target.is_alive and not \
+                    (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_DEAD):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
+                return False
+
+            # Orientation checks.
             target_is_facing_caster = validation_target.location.has_in_arc(self.caster.location, math.pi)
             if not ExtendedSpellData.CastPositionRestrictions.is_position_correct(casting_spell.spell_entry.ID,
                                                                                   target_is_facing_caster):
@@ -1138,6 +1146,34 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
                 return False
 
+        # Spell learning/teaching checks.
+        taught_spells = [effect.trigger_spell_id for effect in casting_spell.get_effects()
+                         if effect.effect_type in {SpellEffects.SPELL_EFFECT_LEARN_SPELL,
+                                                   SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL}]
+
+        if casting_spell.initial_target_is_unit_or_player() and taught_spells:
+            if validation_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                if any([spell in validation_target.spell_manager.spells for spell in taught_spells]):
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_SPELL_LEARNED)
+                    return False  # Spell already known.
+            else:
+                # Teaching a pet a spell.
+                pet = self.caster.pet_manager.get_active_pet_info()
+                if not pet or not pet.permanent:
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
+                    return False  # No pet (or temporary charm).
+
+                if any([spell in pet.spells for spell in taught_spells]):
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_SPELL_LEARNED)
+                    return False
+
+                if any([not pet.can_learn_spell(spell) for spell in taught_spells]):
+                    is_low_level = any([pet.can_ever_learn_spell(spell) for spell in taught_spells])
+                    reason = SpellCheckCastResult.SPELL_FAILED_SPELL_UNAVAILABLE if not is_low_level \
+                        else SpellCheckCastResult.SPELL_FAILED_LOWLEVEL
+                    self.send_cast_result(casting_spell, reason)
+                    return False  # Pet can't learn the teachable spell.
+
         # Charm checks.
 
         charm_effect = casting_spell.get_charm_effect()
@@ -1166,6 +1202,12 @@ class SpellManager:
                 if validation_target.level > max_charm_level:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LEVEL_REQUIREMENT)
                     return False
+
+        # Permanent pet summon check.
+        if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET) and not \
+                len(self.caster.pet_manager.pets):
+            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
+            return False
 
         # Pickpocketing target validity check.
         if casting_spell.is_pickpocket_spell():
