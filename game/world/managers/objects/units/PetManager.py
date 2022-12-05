@@ -1,9 +1,10 @@
+import time
 from struct import pack, unpack
 from typing import Optional, NamedTuple, List
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.realm.RealmModels import CharacterPet
+from database.realm.RealmModels import CharacterPet, CharacterPetSpell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
@@ -18,14 +19,15 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
-from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, SpellAttributesEx
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, SpellAttributesEx, SpellAttributes
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
 
 class PetData:
-    def __init__(self, pet_id: int, name: str, template: CreatureTemplate, owner_guid,
-                 level: int, experience: int, summon_spell_id: int, permanent: bool, action_bar=None):
+    def __init__(self, pet_id: int, name: str, rename_time: int, template: CreatureTemplate, owner_guid,
+                 level: int, experience: int, summon_spell_id: int, permanent: bool,
+                 spells=None, action_bar=None):
         self.pet_id = pet_id
 
         self.name = name
@@ -33,6 +35,7 @@ class PetData:
         self.owner_guid = owner_guid
         self.permanent = permanent
         self.summon_spell_id = summon_spell_id
+        self.rename_time = rename_time
 
         self._level = level
         self._experience = experience
@@ -41,12 +44,9 @@ class PetData:
         self.react_state = PetReactState.REACT_DEFENSIVE
         self.command_state = PetCommandState.COMMAND_FOLLOW
 
-        self.spells = self._get_available_spells()
+        self.spells = spells if spells else []
 
-        # TODO Not handling CMSG_PET_SET_ACTION yet.
-        # TODO Use saved action bar once pet spellbook is working;
-        # otherwise pets will be stuck with the spells they had when first summoned.
-        self.action_bar = self.get_default_action_bar_values()
+        self.action_bar = action_bar if action_bar else self.get_default_action_bar_values()
 
         self._dirty = pet_id == -1
 
@@ -57,7 +57,7 @@ class PetData:
         health = -1 if not creature_instance else creature_instance.health
         mana = -1 if not creature_instance else creature_instance.power_1
 
-        character_pet = self._as_character_pet(health=health, mana=mana)
+        character_pet = self._get_character_pet(health=health, mana=mana)
 
         if self.pet_id == -1:
             RealmDatabaseManager.character_add_pet(character_pet)
@@ -67,10 +67,15 @@ class PetData:
 
         self._dirty = False
 
+    def delete(self):
+        if not self.permanent:
+            return
+        RealmDatabaseManager.character_delete_pet(self.pet_id)
+
     def set_dirty(self):
         self._dirty = True
 
-    def _as_character_pet(self, health=-1, mana=-1) -> CharacterPet:
+    def _get_character_pet(self, health=-1, mana=-1) -> CharacterPet:
         # TODO Stats probably shouldn't be directly from creature data.
         health = health if health != -1 else self.creature_template.health_max
         mana = mana if mana != -1 else self.creature_template.mana_max
@@ -84,18 +89,26 @@ class PetData:
             xp=self._experience,
             react_state=int(self.react_state),
             command_state=int(self.command_state),
-            loyalty=0,  # TODO Loyalty/training
-            loyalty_points=0,
-            training_points=0,
             name=self.name,
-            renamed=0,  # TODO pet naming
+            rename_time=self.rename_time,
             health=health,
             mana=mana,
-            happiness=0,  # TODO
             action_bar=pack('10I', *self.action_bar)
+            # TODO Pet spellbook persistence.
         )
 
         return character_pet
+
+    def _get_character_pet_spells(self) -> List[CharacterPetSpell]:
+        character_pet_spells = []
+        for spell in self.spells:
+            character_pet_spells.append(CharacterPetSpell(
+                guid=self.owner_guid,
+                pet_id=self.pet_id,
+                spell_id=spell
+            ))
+
+        return character_pet_spells
 
     def add_experience(self, xp_amount: int) -> int:
         if not xp_amount:
@@ -125,9 +138,23 @@ class PetData:
 
         self._level = level
         self.next_level_xp = PetData._get_xp_to_next_level_for(self._level)
-        self.spells = self._get_available_spells()
         self._experience = 0
         self.set_dirty()
+
+    def set_name(self, name: str):
+        self.name = name
+        self.rename_time = int(time.time())
+        self.set_dirty()
+
+    def add_spell(self, spell_id) -> bool:
+        if spell_id in self.spells:
+            return False
+
+        self.spells.append(spell_id)
+
+        button = CharacterPetSpell(guid=self.owner_guid, pet_id=self.pet_id, spell_id=spell_id)
+        RealmDatabaseManager.character_add_pet_spell(button)
+        return True
 
     def get_experience(self):
         return self._experience
@@ -139,7 +166,7 @@ class PetData:
     def _get_xp_to_next_level_for(level: int) -> int:
         return int(Formulas.PlayerFormulas.xp_to_level(level) / 4)
 
-    def _get_available_spells(self) -> list[int]:
+    def get_available_spells(self, ignore_level=False) -> list[int]:
         creature_family = self.creature_template.beast_family
         if not creature_family:
             return []
@@ -150,32 +177,24 @@ class PetData:
             # TODO Make these pets untamable?
             return []
 
-        skill_lines = [family_entry.SkillLine_1, family_entry.SkillLine_2]  # TODO 2 is pet talents or 0, ignore for now.
+        skill_lines = [family_entry.SkillLine_1, family_entry.SkillLine_2]  # Include talents for this check (if any).
 
-        if not skill_lines[0]:
-            return []
-
-        skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines([skill_lines[0]])
+        skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(skill_lines)
         if not skill_line_abilities:
             return []
 
-        # TODO Selecting spell ranks according to pet level for now.
-        # This should be replaced when pets can be trained.
-
         # Load spell info.
-        spell_info = [(line, DbcDatabaseManager.SpellHolder.spell_get_by_id(line.Spell)) for line in skill_line_abilities]
+        line_spells = [DbcDatabaseManager.SpellHolder.spell_get_by_id(line.Spell) for line in skill_line_abilities]
 
         # Filter spells by pet level.
-        spell_info = [info for info in spell_info if info[1].SpellLevel <= self._level]
-        filtered_spell_ids = [info[1].ID for info in spell_info]
+        # TODO This level isn't always correct. We should do a lookup on the teaching spell instead.
+        return [spell.ID for spell in line_spells if ignore_level or spell.SpellLevel <= self._level]
 
-        # Remove lower rank spells.
-        for line, spell in spell_info:
-            # Remove spell if a higher rank is available.
-            if line.SupercededBySpell in filtered_spell_ids:
-                filtered_spell_ids.remove(spell.ID)
+    def can_learn_spell(self, spell_id):
+        return spell_id in self.get_available_spells()
 
-        return filtered_spell_ids
+    def can_ever_learn_spell(self, spell_id):
+        return spell_id in self.get_available_spells(ignore_level=True)
 
     def get_default_action_bar_values(self) -> List[int]:
         pet_bar = [
@@ -183,17 +202,23 @@ class PetData:
                 2 | (0x06 << 24), 1 | (0x06 << 24), 0 | (0x06 << 24)  # Aggressive, Defensive, Passive.
         ]
 
-        # All pet actions seem to have |0x1.
-        # Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
-
         spells_index = PetActionBarIndex.INDEX_SPELL_START
         max_spell_count = PetActionBarIndex.INDEX_REACT_START - spells_index
 
-        spell_ids = [spell | ((0x1 | 0x40 | 0x80) << 24) for spell in self.spells[:4]]
+        spells = []
+        for spell_id in self.spells:
+            template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+                spells.append(spell_id)
+
+        spell_ids = [PetManager.get_action_button_for(spell) for spell in spells[:4]]
         spell_ids += [0] * (max_spell_count - len(spell_ids))  # Always 4 spells, pad with 0.
         pet_bar[spells_index:spells_index] = spell_ids  # Insert spells to action bar.
 
         return pet_bar
+
+    def is_hunter_pet(self):
+        return self.permanent and self.summon_spell_id == PetManager.SUMMON_PET_SPELL_ID
 
 
 class ActivePet(NamedTuple):
@@ -202,6 +227,8 @@ class ActivePet(NamedTuple):
 
 
 class PetManager:
+    SUMMON_PET_SPELL_ID = 883
+
     def __init__(self, owner):
         self.owner = owner
         self.pets: list[PetData] = []
@@ -210,30 +237,41 @@ class PetManager:
     def load_pets(self):
         character_pets = RealmDatabaseManager.character_get_pets(self.owner.guid)
         for character_pet in character_pets:
+            spells = RealmDatabaseManager.character_get_pet_spells(self.owner.guid, character_pet.pet_id)
             self.pets.append(PetData(
                 character_pet.pet_id,
                 character_pet.name,
+                character_pet.rename_time,
                 WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(character_pet.creature_id),
                 self.owner.guid,
                 character_pet.level,
                 character_pet.xp,
                 character_pet.created_by_spell,
-                True,
-                action_bar=unpack('10I', character_pet.action_bar)))
+                permanent=True,
+                spells=[spell.spell_id for spell in spells],
+                action_bar=list(unpack('10I', character_pet.action_bar))))
 
     def save(self):
         if self.active_pet:
             self.get_active_pet_info().save()
 
-    def add_pet_from_world(self, creature: CreatureManager, summon_spell_id: int,
-                           pet_level=-1, pet_index=-1, is_permanent=False):
+    def set_creature_as_pet(self, creature: CreatureManager, summon_spell_id: int,
+                            pet_level=-1, pet_index=-1, is_permanent=False) -> Optional[ActivePet]:
         if self.active_pet:
-            return
+            return None
 
         # Modify and link owner and creature.
-        self._tame_creature(creature, summon_spell_id, is_permanent=is_permanent)
+        if is_permanent:
+            # Permanent pet summon.
+            creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
+                                     subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
+                                     movement_type=MovementTypes.IDLE)
+        else:
+            # Temporary charm.
+            creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
+                                    movement_type=MovementTypes.IDLE)
 
-        # Creature from world spawns.
+        self._handle_creature_spawn_detach(creature, is_permanent)
         creature.leave_combat()
 
         if pet_index == -1:
@@ -249,6 +287,15 @@ class PetManager:
         self._set_active_pet(pet_index, creature)
         self.set_active_pet_level(pet_level)
 
+        pet_info = self.get_active_pet_info()
+        if pet_info.is_hunter_pet():
+            creature.set_can_rename(pet_info.rename_time == 0)  # Only allow one rename.
+            creature.set_can_abandon(True)
+            creature.set_uint32(UnitFields.UNIT_FIELD_PETNUMBER, pet_info.pet_id)
+            creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, pet_info.rename_time)
+
+        return self.active_pet
+
     def _set_active_pet(self, pet_index: int, creature: CreatureManager):
         pet_info = self._get_pet_info(pet_index)
 
@@ -259,14 +306,38 @@ class PetManager:
         self._send_pet_spell_info()
 
     def add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, permanent: bool) -> int:
-        # TODO: default name by beast_family - resolve id reference.
-
-        pet = PetData(-1, creature_template.name, creature_template, self.owner.guid, level,
+        pet = PetData(-1, creature_template.name, 0, creature_template, self.owner.guid, level,
                       0, summon_spell_id, permanent=permanent)
 
         pet.save()
         self.pets.append(pet)
         return len(self.pets) - 1
+
+    def teach_active_pet_spell(self, spell_id, force=False, update=True) -> bool:
+        pet = self.get_active_pet_info()
+        if not pet or not pet.permanent:
+            return False
+
+        if not force and not pet.can_learn_spell(spell_id):
+            return False
+
+        if not pet.add_spell(spell_id):
+            return False
+
+        if update:
+            self._send_pet_spell_info()
+
+        return True
+
+    def teach_active_pet_all_available_spells(self):
+        pet = self.get_active_pet_info()
+        if not pet:
+            return
+
+        spells = pet.get_available_spells()
+        update = any([self.teach_active_pet_spell(spell_id, update=False) for spell_id in spells])
+        if update:
+            self._send_pet_spell_info()
 
     def summon_permanent_pet(self, spell_id, creature_id=0):
         if self.active_pet:
@@ -279,7 +350,8 @@ class PetManager:
         pet_index = -1
         if not creature_id:
             if not len(self.pets):
-                return  # TODO Catch in validate_cast.
+                return
+
             # TODO Assume permanent pet in slot 0 for now. This might (?) lead to some unexpected behavior.
             pet_index = 0
             creature_id = self.pets[pet_index].creature_template.entry
@@ -302,7 +374,8 @@ class PetManager:
 
         # Match summoner level if a creature ID is provided (warlock pets). Otherwise, set to the level in PetData.
         pet_level = self.owner.level if match_summoner_level else -1
-        self.add_pet_from_world(creature_manager, spell_id, pet_level=pet_level, pet_index=pet_index, is_permanent=True)
+        self.set_creature_as_pet(creature_manager, spell_id, pet_level=pet_level, pet_index=pet_index, is_permanent=True)
+        MapManager.spawn_object(world_object_instance=creature_manager)
 
     def remove_pet(self, pet_index):
         if self._get_pet_info(pet_index):
@@ -325,7 +398,7 @@ class PetManager:
 
         is_permanent = self.get_active_pet_info().permanent
         pet_index = self.active_pet.pet_index
-        self._update_active_pet_damage(reset=True)
+        self._update_active_pet_stats(reset=True)
 
         movement_type = MovementTypes.IDLE
         # Check if this is a borrowed creature instance.
@@ -350,6 +423,7 @@ class PetManager:
         if is_permanent:
             pet_info.save(creature)
             # Summon Pet cooldown is locked by default - unlock on despawn.
+            # TODO more generic check with created_by_spell despawn?
             self.owner.spell_manager.unlock_spell_cooldown(pet_info.summon_spell_id)
         else:
             self.remove_pet(pet_index)
@@ -396,7 +470,6 @@ class PetManager:
         action_id = action & 0xFFFF
 
         active_pet_unit = self.active_pet.creature
-        # Single active pet assumed.
         if active_pet_unit.guid != pet_guid:
             return
 
@@ -424,18 +497,67 @@ class PetManager:
         else:
             self.get_active_pet_info().react_state = action_id
 
-    def add_active_pet_experience(self, experience: int):
-        active_pet_info = self.get_active_pet_info()
-        if not active_pet_info or self.owner.level <= active_pet_info.get_level():
+    def handle_set_action(self, pet_guid, slot, action):
+        pet_data = self.get_active_pet_info()
+        if not pet_data:
             return
 
-        level_gain = active_pet_info.add_experience(experience)
+        if slot < 0 or slot >= len(pet_data.action_bar):
+            return
+
+        active_pet_unit = self.active_pet.creature
+        if active_pet_unit.guid != pet_guid:
+            return
+
+        if action & 0xFFFF > PetCommandState.COMMAND_DISMISS and action != 0:  # Highest action ID - spell.
+            if action & 0xFFFF not in pet_data.spells:
+                return
+            action |= 0x80 << 24  # Add usable flag - client doesn't include this.
+
+        pet_data.action_bar[slot] = action
+        pet_data.set_dirty()
+
+        self._send_pet_spell_info()
+
+    def handle_pet_abandon(self, pet_guid):
+        pet = self.get_active_pet_info()
+        if not pet or pet_guid != self.active_pet.creature.guid:
+            return
+
+        pet_index = self.active_pet.pet_index
+        self.detach_active_pet()
+        self.remove_pet(pet_index)
+        pet.delete()
+
+    def handle_pet_rename(self, pet_guid, name):
+        pet = self.get_active_pet_info()
+        if not pet or pet_guid != self.active_pet.creature.guid or \
+                pet.rename_time or not pet.is_hunter_pet():
+            return  # Only allow renaming once, and only for hunter pets.
+
+        pet.set_name(name)
+        self.active_pet.creature.set_uint32(UnitFields.UNIT_FIELD_PET_NAME_TIMESTAMP, pet.rename_time)
+        self.active_pet.creature.set_can_rename(False)
+
+    def add_active_pet_experience(self, experience: int):
+        pet = self.get_active_pet_info()
+        if not pet or self.owner.level <= pet.get_level() or not pet.is_hunter_pet():
+            return
+
+        level_gain = pet.add_experience(experience)
         if not level_gain:
             return
 
-        self.set_active_pet_level()
+        self.set_active_pet_level(replenish=True)
 
-    def set_active_pet_level(self, level=-1):
+    def handle_owner_level_change(self):
+        pet = self.get_active_pet_info()
+        if not pet or pet.is_hunter_pet() or self.owner.level == pet.get_level():
+            return
+
+        self.set_active_pet_level(self.owner.level, replenish=True)
+
+    def set_active_pet_level(self, level=-1, replenish=False):
         active_pet_info = self.get_active_pet_info()
         if not active_pet_info:
             return
@@ -453,9 +575,9 @@ class PetManager:
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, pet_creature.level)
         pet_creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, active_pet_info.next_level_xp)
 
-        # Update spells in case new ones were unlocked. TODO pet spells should be trained instead.
-        self._send_pet_spell_info()
-        self._update_active_pet_damage()
+        self._update_active_pet_stats()
+        if replenish:
+            pet_creature.replenish_powers()
 
     def get_active_pet_command_state(self):
         pet_info = self.get_active_pet_info()
@@ -483,9 +605,13 @@ class PetManager:
             self._send_tame_result(PetTameResult.TAME_TOO_MANY)
             return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
+        if not target.is_tameable():
+            self._send_tame_result(PetTameResult.TAME_NOT_TAMABLE)
+            return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
+
         return SpellCheckCastResult.SPELL_NO_ERROR
 
-    def _update_active_pet_damage(self, reset=False):
+    def _update_active_pet_stats(self, reset=False):
         active_pet_info = self.get_active_pet_info()
         if not active_pet_info:
             return
@@ -532,34 +658,25 @@ class PetManager:
 
         return self.pets[pet_index]
 
-    def _tame_creature(self, creature: CreatureManager, summon_spell_id: int, is_permanent=False):
+    def _handle_creature_spawn_detach(self, creature: CreatureManager, is_permanent):
         # Creatures which are linked to a CreatureSpawn.
-        if creature.get_type_id() == ObjectTypeIds.ID_UNIT and creature.spawn_id:
-            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
-            if not spawn:
+        if creature.get_type_id() != ObjectTypeIds.ID_UNIT or not creature.spawn_id:
+            return
+
+        spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
+        if not spawn:
+            Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+            return
+        # Detach creature instance from spawn.
+        if is_permanent:
+            if not spawn.detach_creature_from_spawn(creature):
                 Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
                 return
-            # Detach creature instance from spawn.
-            if is_permanent:
-                if not spawn.detach_creature_from_spawn(creature):
-                    Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
-                    return
-            # Borrow the creature instance.
-            elif not is_permanent:
-                if not spawn.lend_creature_instance(creature):
-                    Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
-                    return
-
-        if is_permanent:
-            # Spawn permanent creature.
-            MapManager.spawn_object(world_object_instance=creature)
-            # Summoned by owner.
-            creature.set_summoned_by(self.owner, spell_id=summon_spell_id,
-                                     subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
-                                     movement_type=MovementTypes.IDLE)
-        # Charmed by owner.
-        creature.set_charmed_by(self.owner, subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET,
-                                movement_type=MovementTypes.IDLE)
+        # Borrow the creature instance.
+        elif not is_permanent:
+            if not spawn.lend_creature_instance(creature):
+                Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
+                return
 
     def _send_pet_spell_info(self):
         if not self.active_pet:
@@ -567,18 +684,30 @@ class PetManager:
 
         # This packet contains both the action bar of the pet and the spellbook entries.
 
-        pet_info = self._get_pet_info(self.active_pet.pet_index)
+        pet_info: PetData = self._get_pet_info(self.active_pet.pet_index)
+        spell_count = len(pet_info.spells) if pet_info.permanent else 0
 
         # Creature guid, time limit, react state (0 = passive, 1 = defensive, 2 = aggressive),
         # command state (0 = stay, 1 = follow, 2 = attack, 3 = dismiss),
         # ??, Enabled (0x0 : 0x8)
-        signature = f'<QI4B{PetActionBarIndex.INDEX_END}I2B'
+        signature = f'<QI4B{PetActionBarIndex.INDEX_END}IB'
         data = [self.active_pet.creature.guid, 0, pet_info.react_state, pet_info.command_state, 0, 0]
-
         data.extend(pet_info.action_bar)
 
-        data.append(0)  # TODO: Spellbook entry count.
+        # TODO Spell action buttons should be savable to preserve spellbook order and cast flags.
+        data.append(spell_count)
+        if spell_count:
+            data.extend(pet_info.spells)
+            signature += f'{spell_count}H'
+
+        signature += 'B'
         data.append(0)  # TODO: Cooldown count.
 
         packet = pack(signature, *data)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_SPELLS, packet))
+
+    @staticmethod
+    def get_action_button_for(spell_id: int, auto_cast: bool = False, castable: bool = True):
+        # All pet actions have |0x1.
+        # Pet action bar flags: 0x40 for auto cast on, 0x80 for castable.
+        return spell_id | ((0x1 | (0x40 if auto_cast else 0x0) | (0x80 if castable else 0x0)) << 24)

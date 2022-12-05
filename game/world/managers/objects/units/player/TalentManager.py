@@ -54,9 +54,10 @@ class TalentManager(object):
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
 
             talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
-            status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, self.player_mgr)
+            status = TrainerUtils.get_training_list_spell_status(spell, training_spell.spell, spell.BaseLevel,
+                                                                 preceded_spell, self.player_mgr)
 
-            if status[0] == TrainerServices.TRAINER_SERVICE_UNAVAILABLE and status[1] == 'NEED_PREVIOUS_RANK':
+            if status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE and status[1] == 'NEED_PREVIOUS_RANK':
                 previous_previous_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(preceded_spell)
                 previous_previous_spell = 0 if not previous_previous_skill_line else previous_previous_skill_line.Spell
 
@@ -66,7 +67,7 @@ class TalentManager(object):
                     if previous_previous_status[0] == TrainerServices.TRAINER_SERVICE_UNAVAILABLE and previous_previous_status[1] == 'NEED_PREVIOUS_RANK':
                         continue
 
-            talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status[0], 0,  # 0 Money cost.
+            talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
                                                         talent_points_cost, 0,  # 0 Skill point cost.
                                                         spell.BaseLevel,
                                                         0, 0, 0,  # Required skill data, 0 for now.

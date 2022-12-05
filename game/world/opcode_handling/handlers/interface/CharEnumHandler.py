@@ -20,6 +20,8 @@ class CharEnumHandler(object):
     @staticmethod
     def get_char_packet(world_session, character):
         guild = RealmDatabaseManager.character_get_guild(character)
+        pet_info = CharEnumHandler._get_pet_info(character.guid)
+
         name_bytes = PacketWriter.string_to_bytes(character.name)
         char_fmt = f'<Q{len(name_bytes)}s9B2I3f4I'
         char_packet = pack(
@@ -41,9 +43,7 @@ class CharEnumHandler(object):
             character.position_y,
             character.position_z,
             guild.guild_id if guild else 0,
-            0,  # TODO: Handle PetDisplayInfo
-            0,  # TODO: Handle PetLevel
-            0  # TODO: Handle PetFamily,
+            *pet_info
         )
 
         for slot in range(InventorySlots.SLOT_HEAD, InventorySlots.SLOT_BAG2):
@@ -59,3 +59,18 @@ class CharEnumHandler(object):
             char_packet += pack('<IB', display_id, inventory_type)
 
         return char_packet
+
+    @staticmethod
+    def _get_pet_info(character_guid):
+        pets = RealmDatabaseManager.character_get_pets(character_guid)
+        pet = pets[0] if pets and len(pets) else None  # TODO Get active pet, not first.
+        if not pet:
+            return [0, 0, 0]
+
+        pet_creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(pet.creature_id)
+        # TODO tamed variant display id? Affects two tamable creatures (8933, 9696).
+        pet_display_id = pet_creature_template.display_id1
+        pet_level = pet.level
+        pet_family = pet_creature_template.beast_family
+
+        return [pet_display_id, pet_level, pet_family]

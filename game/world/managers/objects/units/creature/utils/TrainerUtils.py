@@ -56,10 +56,15 @@ class TrainerUtils:
                 skill_value = player_mgr.skill_manager.get_total_skill_value(trainer_spell.reqskill, no_bonus=True)
                 fulfill_skill_reqs = skill_value >= trainer_spell.reqskillvalue
 
-            status = TrainerUtils.get_training_list_spell_status(spell, preceded_spell, player_mgr, fulfill_skill_reqs)
+            # Required spell. Take override from database if available.
+            req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
+
+            status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell.spell, req_level,
+                                                                 preceded_spell, player_mgr, fulfill_skill_reqs)
+
             train_spell_bytes += TrainerUtils.get_spell_data(trainer_spell.spell, status, trainer_spell.spellcost,
                                                              trainer_spell.talentpointcost,
-                                                             trainer_spell.skillpointcost, spell.BaseLevel,
+                                                             trainer_spell.skillpointcost, req_level,
                                                              trainer_spell.reqskill, trainer_spell.reqskillvalue,
                                                              skill_step, preceded_spell)
             train_spell_count += 1
@@ -94,20 +99,25 @@ class TrainerUtils:
         return data
 
     @staticmethod
-    def get_training_list_spell_status(spell, preceded_spell, player_mgr, fulfill_skill=True):
-        if not fulfill_skill:
-            status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE, 'FULLFILL'
-        else:
-            if spell.ID in player_mgr.spell_manager.spells:
-                status = TrainerServices.TRAINER_SERVICE_USED, 'NONE'
-            else:
-                if preceded_spell and preceded_spell not in player_mgr.spell_manager.spells:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE, 'NEED_PREVIOUS_RANK'
-                elif player_mgr.level >= spell.BaseLevel:
-                    status = TrainerServices.TRAINER_SERVICE_AVAILABLE, 'TOO_HIGH_LVL'
-                else:
-                    status = TrainerServices.TRAINER_SERVICE_UNAVAILABLE, 'UNKNOWN'
-        return status
+    def get_training_list_spell_status(spell, trainer_spell_id, req_level, preceded_spell, player_mgr, fulfills_skill=True):
+        trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_id)
+        is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
+        pet_info = player_mgr.pet_manager.get_active_pet_info()
+        if is_taught_to_pet and not pet_info:
+            return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+
+        target_spells = pet_info.spells if is_taught_to_pet else player_mgr.spell_manager.spells
+        if spell.ID in target_spells:
+            return TrainerServices.TRAINER_SERVICE_USED
+
+        if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells):
+            return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+
+        if player_mgr.level >= req_level:
+            return TrainerServices.TRAINER_SERVICE_AVAILABLE
+
+        return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+
 
     @staticmethod
     def trainer_has_spell(creature_mgr, spell_id):
