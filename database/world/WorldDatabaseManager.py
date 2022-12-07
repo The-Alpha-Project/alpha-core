@@ -788,7 +788,7 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_id, spell_id)] \
                 if (trainer_id, spell_id) in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS else None
 
-        # Returns the actual usable spell that the player casts from the trainer spell entry.
+        # Returns the trainer spell that the trainer casts from the trainer spell entry.
         @staticmethod
         def trainer_spell_id_get_from_player_spell_id(trainer_id: int, player_spell_id: int) -> Optional[int]:
             for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
