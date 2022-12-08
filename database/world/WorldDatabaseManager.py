@@ -771,10 +771,10 @@ class WorldDatabaseManager(object):
             creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
                 trainer_entry_id)
             trainer_template_id = creature_template.trainer_id
-            return WorldDatabaseManager.TrainerSpellHolder.trainer_spell_get_by_trainer_id(creature_template.trainer_id)
+            return WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer_id(creature_template.trainer_id)
 
         @staticmethod
-        def trainer_spell_get_by_trainer_id(trainer_template_id: int) -> list[TrainerTemplate]:
+        def trainer_spells_get_by_trainer_id(trainer_template_id: int) -> list[TrainerTemplate]:
             trainer_spells: list[TrainerTemplate] = []
             for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
                 if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_template_id:
