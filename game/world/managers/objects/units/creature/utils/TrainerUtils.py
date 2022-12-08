@@ -158,7 +158,7 @@ class TrainerUtils:
                 return False
         # Non-mana users can only use resist magic talents.
         else:
-            if 'Resist' not in spell.Name:
+            if 'Resist' not in spell.Name_enUS:
                 return False
         return True
 
