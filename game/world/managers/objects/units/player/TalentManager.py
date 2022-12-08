@@ -51,10 +51,11 @@ class TalentManager(object):
                     continue
 
             # Checking magic talents to make sure class can use them. Temporary hardcoded solution, more DB changes needed.
+            # Skill 233 = Magic Talents
             if skill_line_ability.SkillLine == 233:
                 if not TrainerUtils.player_can_learn_magic_talent(training_spell, spell, self.player_mgr):
                     continue
-                
+
             # Search previous spell.
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
