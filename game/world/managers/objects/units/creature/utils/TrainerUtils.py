@@ -11,6 +11,7 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellEffects
+from utils.constants.UnitCodes import PowerTypes
 
 
 class TrainerUtils:
@@ -148,3 +149,16 @@ class TrainerUtils:
 
         # Mount, TradeSkill or Pet trainer.
         return True
+
+    @staticmethod
+    def player_can_learn_magic_talent(training_spell: TrainerTemplate, spell: Spell, player_mgr) -> bool:
+        # Mana users can use resists, and talents for skills their class can use (including wands.)
+        if player_mgr.power_type == PowerTypes.TYPE_MANA:
+            if not player_mgr.skill_manager.has_skill(training_spell.reqskill) and training_spell.reqskill != 0:
+                return False
+        # Non-mana users can only use resist magic talents.
+        else:
+            if 'Resist' not in spell.Name:
+                return False
+        return True
+
