@@ -29,7 +29,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def serve_realm(sck):
-        name_bytes = PacketWriter.string_to_bytes(config.Server.Connection.RealmServer.realm_name)
+        name_bytes = PacketWriter.string_to_bytes(RealmDatabaseManager.get_realm_name())
         forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
                                     config.Server.Connection.RealmProxy.host)
         address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.RealmProxy.port}')

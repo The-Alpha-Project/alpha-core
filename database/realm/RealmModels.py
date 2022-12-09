@@ -325,3 +325,12 @@ class GroupMember(Base):
 
     character = relationship('Character', lazy='joined')
     group = relationship('Group', lazy='joined')
+
+class Realmlist(Base):
+    __tablename__ = 'realmlist'
+    
+    realm_id = Column(INTEGER(11), autoincrement=True, nullable=False, primary_key=True)
+    realm_name = Column(String(255), nullable=False, server_default=text("'alphacore'"))
+    address = Column(String(11), nullable=False)
+    port = Column(INTEGER(4), nullable=False)
+    
