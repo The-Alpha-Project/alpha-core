@@ -62,18 +62,17 @@ class TalentManager(object):
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
                                                                  preceded_spell, self.player_mgr)
 
-            # If the spell is unavailable, check to see if its preceding spell is also unavailable and hide it from list if so (only show next rank in unavailable.)
-            if status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
-                previous_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(preceded_spell)
-                previous_spell = 0 if not previous_skill_line else previous_skill_line.Spell
+            # If the spell before this one exists and is unavailable, don't show this one. (We only want to show the first unavailable spell in a chain.)
+            if preceded_spell != 0:
+                preceded_preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(preceded_spell)
+                preceded_preceded_spell = 0 if not preceded_preceded_skill_line else preceded_preceded_skill_line.Spell
 
-                if previous_spell != 0:
-                    previous_spell_entry: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(previous_spell)
-                    previous_trainer_spell_id = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_id_get_from_player_spell_id(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, previous_spell)
-                    previous_trainer_spell = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_entry_get_by_trainer_and_spell(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, previous_trainer_spell_id)
-                    previous_status = TrainerUtils.get_training_list_spell_status(previous_spell_entry, previous_trainer_spell, previous_spell_entry.BaseLevel, previous_spell, self.player_mgr)
-                    if previous_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
-                        status = TrainerServices.TRAINER_SERVICE_NOT_SHOWN
+                preceded_spell_entry: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(preceded_spell)
+                preceded_trainer_spell_id = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_id_get_from_player_spell_id(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, preceded_spell)
+                preceded_trainer_spell = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_entry_get_by_trainer_and_spell(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, preceded_trainer_spell_id)
+                preceded_status = TrainerUtils.get_training_list_spell_status(preceded_spell_entry, preceded_trainer_spell, preceded_spell_entry.BaseLevel, preceded_preceded_spell, self.player_mgr)
+                if preceded_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
+                    status = TrainerServices.TRAINER_SERVICE_NOT_SHOWN
 
             talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
                                                         talent_points_cost, 0,  # 0 Skill point cost.
