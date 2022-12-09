@@ -1,5 +1,5 @@
 Version:
-    current: 3
+    current: 4
 
 Database:
     Connection:
@@ -29,6 +29,7 @@ Server:
 
     Settings:
         auto_create_accounts: True
+        auto_create_gm_accounts: False
         blizzlike_names: True  # If True, names won't have any restriction as it was back in the day
         xp_rate: 1.0
         # Debug level values (you can combine them as a mask):
