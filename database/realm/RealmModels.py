@@ -331,6 +331,6 @@ class Realmlist(Base):
     
     realm_id = Column(INTEGER(11), autoincrement=True, nullable=False, primary_key=True)
     realm_name = Column(String(255), nullable=False, server_default=text("alphacore"))
-    address = Column(String(11), nullable=False, server_default="0.0.0.0")
+    address = Column(String(15), nullable=False, server_default="0.0.0.0")
     port = Column(INTEGER(11), nullable=False, server_default="9090")
     

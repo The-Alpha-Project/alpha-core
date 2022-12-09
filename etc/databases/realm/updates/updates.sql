@@ -160,7 +160,7 @@ begin not atomic
     CREATE TABLE `realmlist` (
 	`realm_id` INT(11) NOT NULL AUTO_INCREMENT,
 	`realm_name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci',
-	`address` VARCHAR(11) NOT NULL DEFAULT '0.0.0.0' COLLATE 'latin1_swedish_ci',
+	`address` VARCHAR(15) NOT NULL DEFAULT '0.0.0.0' COLLATE 'latin1_swedish_ci',
 	`port` INT(11) NOT NULL DEFAULT '9090',
 	PRIMARY KEY (`realm_id`) USING BTREE
     )
