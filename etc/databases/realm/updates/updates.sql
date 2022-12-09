@@ -153,5 +153,25 @@ begin not atomic
 	    ALTER TABLE `character_pets` CHANGE COLUMN `renamed` `rename_time` int(11) unsigned NOT NULL DEFAULT 0;
         insert into applied_updates values ('041220221');
     end if;
+
+    -- 09/12/2022 1
+    if (select count(*) from applied_updates where id='091220221') = 0 then
+    DROP TABLE IF EXISTS `character_pet_spells`;
+    CREATE TABLE `realmlist` (
+	`realm_id` INT(11) NOT NULL AUTO_INCREMENT,
+	`realm_name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci',
+	`address` VARCHAR(11) NOT NULL DEFAULT '0.0.0.0' COLLATE 'latin1_swedish_ci',
+	`port` INT(11) NOT NULL DEFAULT '9090',
+	PRIMARY KEY (`realm_id`) USING BTREE
+    )
+    COLLATE='latin1_swedish_ci'
+    ENGINE=InnoDB
+    AUTO_INCREMENT=2
+    ;
+
+    INSERT INTO `realmlist` (`realm_name`) VALUES ('alphacore');
+
+    insert into applied_updates values ('091220221');
+    end if;
 end $
 delimiter ;
