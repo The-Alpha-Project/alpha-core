@@ -70,7 +70,9 @@ class TalentManager(object):
                 preceded_spell_entry: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(preceded_spell)
                 preceded_trainer_spell_id = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_id_get_from_player_spell_id(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, preceded_spell)
                 preceded_trainer_spell = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_entry_get_by_trainer_and_spell(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, preceded_trainer_spell_id)
-                preceded_status = TrainerUtils.get_training_list_spell_status(preceded_spell_entry, preceded_trainer_spell, preceded_spell_entry.BaseLevel, preceded_preceded_spell, self.player_mgr)
+                preceded_status = TrainerUtils.get_training_list_spell_status(preceded_spell_entry, preceded_trainer_spell, preceded_spell_entry.BaseLevel, 
+                                                                              preceded_preceded_spell, self.player_mgr)
+                                                                              
                 if preceded_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
                     status = TrainerServices.TRAINER_SERVICE_NOT_SHOWN
 
