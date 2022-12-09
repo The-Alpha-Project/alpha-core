@@ -14987,9 +14987,7 @@ begin not atomic
         REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4841, 4834, 0, 0, 0, 8, 1, 0);
         REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4833, 4832, 0, 0, 0, 8, 1, 0);
 
-
-        insert into applied_updates('081220221');
+        insert into applied_updates values ('081220221');
     end if;
-
 end $
 delimiter ;
