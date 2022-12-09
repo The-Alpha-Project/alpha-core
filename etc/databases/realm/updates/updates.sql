@@ -156,7 +156,7 @@ begin not atomic
 
     -- 09/12/2022 1
     if (select count(*) from applied_updates where id='091220221') = 0 then
-    DROP TABLE IF EXISTS `character_pet_spells`;
+    DROP TABLE IF EXISTS `realmlist`;
     CREATE TABLE `realmlist` (
 	`realm_id` INT(11) NOT NULL AUTO_INCREMENT,
 	`realm_name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci',
@@ -164,7 +164,6 @@ begin not atomic
 	`port` INT(11) NOT NULL DEFAULT '9090',
 	PRIMARY KEY (`realm_id`) USING BTREE
     )
-    COLLATE='latin1_swedish_ci'
     ENGINE=InnoDB
     AUTO_INCREMENT=2
     ;
