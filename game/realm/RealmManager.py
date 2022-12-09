@@ -34,7 +34,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
                                     RealmDatabaseManager.realm_get_host())
         address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{RealmDatabaseManager.realm_get_port()}')
 
-        # TODO: Should probably move realms to database at some point, instead of config.yml
+        # TODO: Update RealmDatabaseManager.realm_get_* to handle multiple realms?
         packet = pack(
             f'<B{len(name_bytes)}s{len(address_bytes)}sI',
             1,  # Number of realms
