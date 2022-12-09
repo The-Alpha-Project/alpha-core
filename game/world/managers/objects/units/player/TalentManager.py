@@ -49,8 +49,7 @@ class TalentManager(object):
                 if not self.player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
                     continue
 
-            # Checking magic talents to make sure class can use them. Temporary hardcoded solution, more DB changes needed.
-            # Skill 233 = Magic Talents
+            # Checking magic talents to make sure class can use them.
             if skill_line_ability.SkillLine == TalentSkillLines.MAGIC_TALENTS:
                 if not TrainerUtils.player_can_learn_magic_talent(training_spell, spell, self.player_mgr):
                     continue
