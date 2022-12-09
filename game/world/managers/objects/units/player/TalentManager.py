@@ -6,9 +6,8 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.constants.CustomCodes import TalentSkillLines
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
-from utils.constants.SpellCodes import SpellEffects
-from utils.constants.UnitCodes import PowerTypes
 
 
 class TalentManager(object):
@@ -52,7 +51,7 @@ class TalentManager(object):
 
             # Checking magic talents to make sure class can use them. Temporary hardcoded solution, more DB changes needed.
             # Skill 233 = Magic Talents
-            if skill_line_ability.SkillLine == 233:
+            if skill_line_ability.SkillLine == TalentSkillLines.MAGIC_TALENTS:
                 if not TrainerUtils.player_can_learn_magic_talent(training_spell, spell, self.player_mgr):
                     continue
 
@@ -64,7 +63,7 @@ class TalentManager(object):
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
                                                                  preceded_spell, self.player_mgr)
 
-            # If the spell is unavailable, check to see if its preceding spell is also unavailable and hide it from list if so (only show next rank in unavailable.) (Maybe should be moved to TrainerUtils.get_training_list_spell_status)
+            # If the spell is unavailable, check to see if its preceding spell is also unavailable and hide it from list if so (only show next rank in unavailable.)
             if status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
                 previous_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(preceded_spell)
                 previous_spell = 0 if not previous_skill_line else previous_skill_line.Spell

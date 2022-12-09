@@ -19,6 +19,13 @@ class Permits(IntEnum):
     PERMIT_BASE_NORMAL = 100
     PERMIT_BASE_SPECIAL = 200
 
+class TalentSkillLines(IntEnum):
+    NONE = 0
+    ATTRIBUTE_ENHANCEMENTS = 230
+    DEFENSIVE_TALENTS = 234
+    MAGIC_TALENTS = 233
+    SLAYER_TALENTS = 231
+    WEAPON_TALENTS = 222
 
 class PetSelectTargetReason:
     FAIL_DEFAULT = 0
