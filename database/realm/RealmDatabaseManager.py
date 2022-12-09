@@ -24,12 +24,26 @@ class RealmDatabaseManager(object):
     # Realm stuff
     
     @staticmethod
-    def get_realm_name():
+    def realm_get_name():
         realm_db_session = SessionHolder()
         realm = realm_db_session.query(Realmlist).filter_by(realm_id=1).first()
         realm_db_session.close()
         return realm.realm_name
               
+    @staticmethod
+    def realm_get_host():
+        realm_db_session = SessionHolder()
+        realm = realm_db_session.query(Realmlist).filter_by(realm_id=1).first()
+        realm_db_session.close()
+        return realm.address
+    
+    @staticmethod
+    def realm_get_port():
+        realm_db_session = SessionHolder()
+        realm = realm_db_session.query(Realmlist).filter_by(realm_id=1).first()
+        realm_db_session.close()
+        return realm.port
+    
     # Account stuff
 
     @staticmethod

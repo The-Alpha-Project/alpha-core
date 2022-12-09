@@ -29,10 +29,10 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def serve_realm(sck):
-        name_bytes = PacketWriter.string_to_bytes(RealmDatabaseManager.get_realm_name())
+        name_bytes = PacketWriter.string_to_bytes(RealmDatabaseManager.realm_get_name())
         forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
-                                    config.Server.Connection.RealmProxy.host)
-        address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.RealmProxy.port}')
+                                    RealmDatabaseManager.realm_get_host())
+        address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{RealmDatabaseManager.realm_get_port()}')
 
         # TODO: Should probably move realms to database at some point, instead of config.yml
         packet = pack(
@@ -96,8 +96,8 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         ThreadedProxyServer.allow_reuse_address = True
-        with ThreadedProxyServer((config.Server.Connection.RealmProxy.host,
-                                  config.Server.Connection.RealmProxy.port), ProxyServerSessionHandler) \
+        with ThreadedProxyServer((RealmDatabaseManager.realm_get_host(),
+                                  RealmDatabaseManager.realm_get_port()), ProxyServerSessionHandler) \
                 as proxy_instance:
             Logger.success(f'Proxy server started, listening on {proxy_instance.server_address[0]}:{proxy_instance.server_address[1]}')
             try:
