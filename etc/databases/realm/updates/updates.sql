@@ -159,13 +159,13 @@ begin not atomic
     DROP TABLE IF EXISTS `realmlist`;
     CREATE TABLE `realmlist` (
 	`realm_id` INT(11) NOT NULL AUTO_INCREMENT,
-	`realm_name` VARCHAR(255) NOT NULL DEFAULT '' COLLATE 'latin1_swedish_ci',
-	`address` VARCHAR(15) NOT NULL DEFAULT '0.0.0.0' COLLATE 'latin1_swedish_ci',
+	`realm_name` VARCHAR(255) NOT NULL DEFAULT '',
+	`address` VARCHAR(15) NOT NULL DEFAULT '0.0.0.0',
 	`port` INT(11) NOT NULL DEFAULT '9090',
 	PRIMARY KEY (`realm_id`) USING BTREE
     )
     ENGINE=InnoDB
-    AUTO_INCREMENT=2
+    AUTO_INCREMENT=1
     ;
 
     INSERT INTO `realmlist` (`realm_name`) VALUES ('alphacore');
