@@ -161,21 +161,21 @@ class TrainerUtils:
             if not player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
                 return False
 
-        # Checking magic talents to make sure class can use them.
-        if skill_line_ability.SkillLine == TalentSkillLines.MAGIC_TALENTS:
-            if not TrainerUtils.player_can_learn_magic_talent(training_spell, spell, player_mgr):
+        # Get player race/class masks.
+        race_mask = 1 << player_mgr.race - 1
+        class_mask = 1 << player_mgr.class_ - 1
+
+        # Get skill.
+        required_skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(training_spell.reqskill)
+
+        # Check player race/class masks with skill race/class masks.
+        # Exclude Resist talents as their skill race/class masks exclude some race/class combos and all players should be able to use them.
+        if required_skill:
+            skill_race_mask = required_skill.RaceMask
+            skill_class_mask = required_skill.ClassMask
+
+            if skill_race_mask and not race_mask & skill_race_mask:
+                return False
+            if skill_class_mask and not class_mask & skill_class_mask:
                 return False
         return True
-
-    @staticmethod
-    def player_can_learn_magic_talent(training_spell: TrainerTemplate, spell: Spell, player_mgr) -> bool:
-        # Mana users can use resists, and talents for skills their class can use (including wands.)
-        if player_mgr.power_type == PowerTypes.TYPE_MANA:
-            if not player_mgr.skill_manager.has_skill(training_spell.reqskill) and training_spell.reqskill != 0:
-                return False
-        # Non-mana users can only use resist magic talents.
-        else:
-            if 'Resist' not in spell.Name_enUS:
-                return False
-        return True
-
