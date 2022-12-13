@@ -2,12 +2,13 @@ from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import Spell
+from database.dbc.DbcModels import SkillLineAbility, Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import TrainerTemplate
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
+from utils.constants.CustomCodes import TalentSkillLines
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellEffects
@@ -148,6 +149,22 @@ class TrainerUtils:
             return creature_mgr.creature_template.trainer_class == player_mgr.player.class_
 
         # Mount, TradeSkill or Pet trainer.
+        return True
+
+    @staticmethod
+    def player_can_ever_learn_talent(training_spell: TrainerTemplate, spell: Spell, skill_line_ability: SkillLineAbility, player_mgr) -> bool:
+        spell_item_class = spell.EquippedItemClass
+        spell_item_subclass_mask = spell.EquippedItemSubclass
+        # Check for required proficiencies for this talent.
+        if spell_item_class != -1 and spell_item_subclass_mask != 1:
+            # Don't display talent if the player can never learn the proficiency needed.
+            if not player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
+                return False
+
+        # Checking magic talents to make sure class can use them.
+        if skill_line_ability.SkillLine == TalentSkillLines.MAGIC_TALENTS:
+            if not TrainerUtils.player_can_learn_magic_talent(training_spell, spell, player_mgr):
+                return False
         return True
 
     @staticmethod

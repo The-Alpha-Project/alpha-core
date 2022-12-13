@@ -6,7 +6,6 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.CustomCodes import TalentSkillLines
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 
 
@@ -41,18 +40,9 @@ class TalentManager(object):
             if not skill_line_ability:
                 continue
 
-            spell_item_class = spell.EquippedItemClass
-            spell_item_subclass_mask = spell.EquippedItemSubclass
-            # Check for required proficiencies for this talent.
-            if spell_item_class != -1 and spell_item_subclass_mask != 1:
-                # Don't display talent if the player can never learn the proficiency needed.
-                if not self.player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
-                    continue
-
-            # Checking magic talents to make sure class can use them.
-            if skill_line_ability.SkillLine == TalentSkillLines.MAGIC_TALENTS:
-                if not TrainerUtils.player_can_learn_magic_talent(training_spell, spell, self.player_mgr):
-                    continue
+            # Check item/skill requirements to see if player can ever learn talent.
+            if not TrainerUtils.player_can_ever_learn_talent(training_spell, spell, skill_line_ability, self.player_mgr):
+                continue
 
             # Search previous spell.
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
