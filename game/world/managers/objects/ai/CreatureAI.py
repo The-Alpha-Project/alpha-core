@@ -6,6 +6,7 @@ from struct import pack
 from typing import TYPE_CHECKING, Optional
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
@@ -295,11 +296,11 @@ class CreatureAI:
             return SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE
 
         # This spell should only be cast when we cannot get into melee range.
-        # TODO: Missing pathfinding to check for reachability.
-        #  We need to known which type of movement the unit is 'using', chase, spline, etc..
-        #  For now, if we are not in melee range and rooted or moving, return failed due moving.
-        if (cast_flags & CastFlags.CF_TARGET_UNREACHABLE and not self.creature.is_within_interactable_distance(target)) \
-                and (self.creature.unit_state & UnitStates.ROOTED or self.creature.is_moving()):
+        #  TODO: We need to known which type of movement the unit is 'using', chase, spline, etc..
+        if (cast_flags & CastFlags.CF_TARGET_UNREACHABLE and
+                (self.creature.is_within_interactable_distance(target)
+                 or self.creature.is_moving() or not (self.creature.unit_state & UnitStates.ROOTED)
+                 or not MapManager.can_reach_object(self.creature, target))):
             return SpellCheckCastResult.SPELL_FAILED_MOVING
 
         if not cast_flags & CastFlags.CF_FORCE_CAST:

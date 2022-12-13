@@ -676,6 +676,14 @@ class CommandManager(object):
         return 0, ''
 
     @staticmethod
+    def los(world_session, args):
+        unit = CommandManager._target_or_self(world_session)
+        los = MapManager.los_check(unit.map_, world_session.player_mgr.get_ray_position(), unit.get_ray_position())
+
+        return 0, f'Is in line of sight: {los}\nSource: {world_session.player_mgr.location}\nTarget: ' \
+                  f'{unit.location}\nMap: {unit.map_}'
+
+    @staticmethod
     def kick(world_session, args):
         player = CommandManager._target_or_self(world_session, only_players=True)
         if player:
@@ -778,6 +786,7 @@ GM_COMMAND_DEFINITIONS = {
     'level': [CommandManager.level, 'set your level'],
     'money': [CommandManager.money, 'give you money'],
     'die': [CommandManager.die, 'kill your target'],
+    'los': [CommandManager.los, 'check unit LoS'],
     'kick': [CommandManager.kick, 'kick your target from the server'],
     'worldoff': [CommandManager.worldoff, 'stop the world server'],
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],

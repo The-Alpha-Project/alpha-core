@@ -39,11 +39,19 @@ class Vector(object):
 
     @staticmethod
     def calculate_z(x, y, map_id, default_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
-        if map_id == -1 or not config.Server.Settings.use_map_tiles:
+        if map_id == -1 or (not config.Server.Settings.use_map_tiles and not config.Server.Settings.use_nav_tiles):
             return default_z, False
         else:
             # Calculate destination Z, default Z if not possible.
             return MapManager.calculate_z(map_id, x, y, default_z)
+
+    def get_ray_vector(self, world_object=None, is_terrain=False):
+        new_vector = self.copy()
+        if world_object:
+            new_vector.z += (1.8 * world_object.native_scale)  # TODO: Find model height?
+        elif is_terrain:
+            new_vector.z += 0.1  # TODO: Namigator floating point issue?
+        return new_vector
 
     def to_bytes(self, include_orientation=True):
         if include_orientation:
