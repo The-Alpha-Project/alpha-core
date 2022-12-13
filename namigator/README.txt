@@ -1,2 +1,2 @@
 Place Namigator Python bindings here.
-https://github.com/namreeb/namigator
+https://github.com/The-Alpha-Project/namigator
