@@ -12,6 +12,16 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 
 
+# Attempt to load Namigator module if enabled.
+if config.Server.Settings.use_nav_tiles:
+    try:
+        from namigator import pathfind
+        MapManager.NAMIGATOR_LOADED = True
+    except ImportError:
+        pathfind = None
+        pass
+
+
 class WorldLoader:
 
     @staticmethod
@@ -19,6 +29,12 @@ class WorldLoader:
         # Map tiles
         MapManager.initialize_maps()
         MapManager.initialize_area_tables()
+
+        if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED:
+            Logger.success('[Namigator] Module successfully loaded.')
+            WorldLoader.load_navigation()
+        elif config.Server.Settings.use_nav_tiles:
+            Logger.error('[Namigator] Unable to load module.')
 
         # Below order matters.
 
@@ -80,6 +96,19 @@ class WorldLoader:
         WorldLoader.load_guilds()
 
     # World data holders
+
+    @staticmethod
+    def load_navigation():
+        maps = MapManager.get_maps()
+        length = len(maps)
+        count = 0
+
+        for _map in maps:
+            _map.build_navigation(pathfind=pathfind)
+            count += 1
+            Logger.progress('[Namigator] Loading navigation data...', count, length)
+
+        return length
 
     @staticmethod
     def load_gameobject_templates():

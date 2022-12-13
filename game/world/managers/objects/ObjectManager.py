@@ -84,6 +84,9 @@ class ObjectManager:
     def __ne__(self, other):
         return not self == other
 
+    def get_ray_position(self):
+        return self.location.get_ray_vector(world_object=self)
+
     def has_pending_updates(self):
         return self.update_packet_factory.has_pending_updates()
 
