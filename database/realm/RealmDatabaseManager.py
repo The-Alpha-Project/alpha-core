@@ -46,10 +46,8 @@ class RealmDatabaseManager(object):
     @staticmethod
     def account_create(username, password, ip):
         realm_db_session = SessionHolder()
-        if not config.Server.Settings.auto_create_gm_accounts:
-            account = Account(name=username, password=password, ip=ip, gmlevel=0)
-        else:
-            account = Account(name=username, password=password, ip=ip, gmlevel=1)
+        account = Account(name=username, password=password, ip=ip,
+                          gmlevel=int(config.Server.Settings.auto_create_gm_accounts))
         realm_db_session.add(account)
         realm_db_session.flush()
         realm_db_session.refresh(account)

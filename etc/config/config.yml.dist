@@ -28,8 +28,8 @@ Server:
             port: 8100
 
     Settings:
-        auto_create_accounts: True
-        auto_create_gm_accounts: False
+        auto_create_accounts: True  # Automatically create an account the first time credentials are provided
+        auto_create_gm_accounts: False  # Give all new accounts GM permissions
         blizzlike_names: True  # If True, names won't have any restriction as it was back in the day
         xp_rate: 1.0
         # Debug level values (you can combine them as a mask):
