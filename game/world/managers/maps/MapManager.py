@@ -110,7 +110,7 @@ class MapManager:
                                 or not MAPS[map_id].tiles[adt_x + i][adt_y + j].initialized:
                             MAPS[map_id].tiles[adt_x + i][adt_y + j] = MapTile(map_id, adt_x + i, adt_y + j)
 
-        # Load this ADT over namigator if nav tiles enabled and module is loaded.
+        # Load this ADT over Namigator if nav tiles enabled and module is loaded.
         if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED:
             MapManager._check_nav_adt_load(map_id, x, y, adt_x, adt_y)
 
@@ -153,7 +153,7 @@ class MapManager:
 
     @staticmethod
     def calculate_nav_z(map_id, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map/nav files Z)
-        # If nav tiles disabled or unable to load namigator, return current Z as locked.
+        # If nav tiles disabled or unable to load Namigator, return current Z as locked.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return current_z, True
 
@@ -181,7 +181,7 @@ class MapManager:
 
     @staticmethod
     def los_check(map_id, start_vector, end_vector):
-        # No nav tiles or unable to load namigator, can't check LoS.
+        # No nav tiles or unable to load Namigator, can't check LoS.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return True
 
@@ -217,7 +217,7 @@ class MapManager:
         if source_object.map_ != target_object.map_:
             return False
 
-        # If nav tiles disabled or unable to load namigator, return as True.
+        # If nav tiles disabled or unable to load Namigator, return as True.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return True
 
@@ -231,7 +231,7 @@ class MapManager:
 
     @staticmethod
     def calculate_path(map_id, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
-        # If nav tiles disabled or unable to load namigator, return the end_vector as found.
+        # If nav tiles disabled or unable to load Namigator, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return False, False, [end_vector]
 
@@ -279,10 +279,10 @@ class MapManager:
     @staticmethod
     def compute_path_length(_path):
         result = 0
-        for i in range(1, len(_path)):
-            delta_x = _path[i - 1][0] - _path[i][0]
-            delta_y = _path[i - 1][1] - _path[i][1]
-            delta_z = _path[i - 1][2] - _path[i][2]
+        for i in range(len(_path)):
+            delta_x = _path[i][0] - _path[i + 1][0]
+            delta_y = _path[i][1] - _path[i + 1][1]
+            delta_z = _path[i][2] - _path[i + 1][2]
 
             result += delta_x * delta_x + delta_y * delta_y + delta_z * delta_z
 
