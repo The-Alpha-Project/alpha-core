@@ -54,7 +54,7 @@ Server:
         # If True, place *nix '.so' or Windows '.pyd' from Namigator inside './namigator'. (https://github.com/The-Alpha-Project/namigator)
         # Also, place extracted BHV and NAVS data inside 'etc/navs/'. They need to be extracted with the MapBuilder tool
         # of Namigator.
-        use_nav_tiles: False  
+        use_nav_tiles: False
         z_resolution: 256  # The resolution used when extracting maps
 
     General:
