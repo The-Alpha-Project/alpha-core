@@ -169,7 +169,6 @@ class TrainerUtils:
         required_skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(training_spell.reqskill)
 
         # Check player race/class masks with skill race/class masks.
-        # Exclude Resist talents as their skill race/class masks exclude some race/class combos and all players should be able to use them.
         if required_skill:
             skill_race_mask = required_skill.RaceMask
             skill_class_mask = required_skill.ClassMask
