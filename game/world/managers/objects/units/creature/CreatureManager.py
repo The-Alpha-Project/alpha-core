@@ -498,7 +498,7 @@ class CreatureManager(UnitManager):
             combat_location = path[0]
         elif in_place:
             return
-        # Unable to find a path while namigator is enabled, log warning and use combat location directly.
+        # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
         elif MapManager.NAMIGATOR_LOADED:
             Logger.warning(f'Unable to find navigation path, map {self.map_} loc {self.location} end {combat_location}')
 

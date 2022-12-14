@@ -26,7 +26,7 @@ class Map:
     def has_navigation(self):
         return self.namigator is not None
 
-    # TODO: Namigator, give us a way to load by adt_x and adt_y without raw locations.
+    # TODO: Namigator should give us a way to load by adt_x and adt_y without raw locations.
     def load_adt(self, raw_x, raw_y, adt_x, adt_y):
         try:
             if self.namigator is None:

@@ -52,7 +52,7 @@ class BasicCreatureAI(CreatureAI):
                 self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
             if not can_detect_victim:
                 continue
-            # Basic LOS check.
+            # Basic LoS check.
             if not MapManager.los_check(victim.map_, self.creature.get_ray_position(), victim.get_ray_position()):
                 continue
             # Attempt to begin attack, break upon succeeding.
