@@ -22,6 +22,9 @@ class BasicCreatureAI(CreatureAI):
         super().update_ai(elapsed)
         if not self.creature or not self.creature.combat_target:
             return
+        if self.creature.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER and self.creature.combat_target.beast_master:
+            self.creature.leave_combat()
+            return
 
         if self.has_spell_list():
             self.update_spell_list(elapsed)
