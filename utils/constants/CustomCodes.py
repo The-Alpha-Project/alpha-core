@@ -28,7 +28,6 @@ class PetSelectTargetReason:
     SUCCESS_OWNER_ATTACKER = 5
     SUCCESS_AGGRO_RANGE = 6
 
-
 # TODO: Replace by UnitCodes.UnitSummonType?
 class CreatureSubtype:
     SUBTYPE_GENERIC = 0

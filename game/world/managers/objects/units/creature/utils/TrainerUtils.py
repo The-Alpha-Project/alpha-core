@@ -8,7 +8,6 @@ from database.world.WorldModels import TrainerTemplate
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
-from utils.constants.CustomCodes import TalentSkillLines
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellEffects
