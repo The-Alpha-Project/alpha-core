@@ -47,7 +47,7 @@ class TalentManager(object):
             # Search previous spell.
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
-
+            
             talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
                                                                  preceded_spell, self.player_mgr)
@@ -62,9 +62,16 @@ class TalentManager(object):
                 preceded_trainer_spell = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_entry_get_by_trainer_and_spell(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, preceded_trainer_spell_id)
                 preceded_status = TrainerUtils.get_training_list_spell_status(preceded_spell_entry, preceded_trainer_spell, preceded_spell_entry.BaseLevel, 
                                                                               preceded_preceded_spell, self.player_mgr)
-                                                                              
+                                                                                                                                                            
                 if preceded_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
                     status = TrainerServices.TRAINER_SERVICE_NOT_SHOWN
+
+            # Get succeeded spell.
+            succeeded_spell = skill_line_ability.SupercededBySpell
+
+            # Only show spell in used if succeeding spell not used.
+            if succeeded_spell != 0 and succeeded_spell in self.player_mgr.spell_manager.spells:
+                status = TrainerServices.TRAINER_SERVICE_NOT_SHOWN
 
             talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
                                                         talent_points_cost, 0,  # 0 Skill point cost.
