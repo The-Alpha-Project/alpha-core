@@ -48,7 +48,7 @@ class TalentManager(object):
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
             
-            talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
+            talent_points_cost = training_spell.talentpointcost if training_spell.talentpointcost > 0 else TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
                                                                  preceded_spell, self.player_mgr)
 
