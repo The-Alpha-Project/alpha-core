@@ -289,6 +289,8 @@ class WorldServerSessionHandler:
         real_binding = server_socket.getsockname()
         Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
+        Logger.print_welcome_art()
+
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             # noinspection PyBroadException
             try:

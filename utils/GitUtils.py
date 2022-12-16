@@ -5,6 +5,7 @@ from utils.PathManager import PathManager
 
 class GitUtils:
     HEAD_FILE_NAME = 'HEAD'
+    CONFIG_FILE_NAME = 'config'
 
     @staticmethod
     def get_head_path():
@@ -13,6 +14,16 @@ class GitUtils:
                 # Contains e.g. ref: ref/heads/master if on "master".
                 git_head_data = str(git_head_file.read())
                 return git_head_data.split(' ')[1].strip()
+        except (FileNotFoundError, KeyError):
+            return None
+
+    @staticmethod
+    def get_current_fork():
+        try:
+            with open(path.join(PathManager.get_git_path(), GitUtils.CONFIG_FILE_NAME), 'r') as git_config_file:
+                git_config_data = str(git_config_file.read())
+                git_config_fork = git_config_data.split('https://github.com/')[1].split('.')[0]
+                return git_config_fork.strip()
         except (FileNotFoundError, KeyError):
             return None
 

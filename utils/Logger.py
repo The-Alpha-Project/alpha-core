@@ -5,6 +5,7 @@ from colorama import init
 from colorama import Fore, Style
 
 from utils.ConfigManager import config
+from utils.GitUtils import GitUtils
 
 
 class DebugColorLevel(Enum):
@@ -79,3 +80,16 @@ class Logger:
                 Logger.info(msg, end='\r')
         else:
             Logger.success(msg)
+
+    @staticmethod
+    def print_welcome_art():
+        print(f'{Fore.GREEN + Style.BRIGHT}                                                  ')
+        print(f'     _    _       _            ____               ')
+        print(f'    / \\  | |_ __ | |__   __ _ / ___|___  _ __ ___ ')
+        print(f'   / _ \\ | | \'_ \\| \'_ \\ / _` | |   / _ \\| \'__/ _ \\')
+        print(f'  / ___ \\| | |_) | | | | (_| | |__| (_) | | |  __/')
+        print(f' /_/   \\_\\_| .__/|_| |_|\\__,_|\\____\\___/|_|  \\___|')
+        print(f'           |_|                                    ')
+        print(f'                                                  {Style.RESET_ALL}')
+        print(f'{Fore.GREEN + Style.BRIGHT}Repo: {Fore.CYAN + Style.BRIGHT}{GitUtils.get_current_fork()}')
+        print(f'{Fore.GREEN + Style.BRIGHT}Commit: {Fore.YELLOW + Style.BRIGHT}[{GitUtils.get_current_branch()}]{Fore.CYAN + Style.BRIGHT} {GitUtils.get_current_commit_hash()}\n{Style.RESET_ALL}')

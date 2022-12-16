@@ -719,6 +719,9 @@ class CommandManager(object):
         server_uptime = timedelta(seconds=WorldManager.get_seconds_since_startup())
         message += f'Uptime: {server_uptime}.\n'
 
+        current_repo = GitUtils.get_current_fork()
+        message += f'Repo: {current_repo}.\n'
+
         current_commit_hash = GitUtils.get_current_commit_hash()
         current_branch = GitUtils.get_current_branch()
         message += f'Commit: [{current_branch}] {current_commit_hash}.'
