@@ -19,6 +19,7 @@ class Permits(IntEnum):
     PERMIT_BASE_NORMAL = 100
     PERMIT_BASE_SPECIAL = 200
 
+
 class PetSelectTargetReason:
     FAIL_DEFAULT = 0
     FAIL_NOT_ENABLED = 1
@@ -27,6 +28,7 @@ class PetSelectTargetReason:
     FAIL_RETURNING = 4
     SUCCESS_OWNER_ATTACKER = 5
     SUCCESS_AGGRO_RANGE = 6
+
 
 # TODO: Replace by UnitCodes.UnitSummonType?
 class CreatureSubtype:
