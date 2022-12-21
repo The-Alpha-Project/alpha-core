@@ -17,6 +17,7 @@ from game.world.managers.objects.units.creature.utils.CreatureUtils import Creat
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
+from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
@@ -384,53 +385,23 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        waypoints_to_spawn, z_locked = self._get_return_to_spawn_points()
-        self.evading_waypoints.clear()
+        failed, in_place, path = MapManager.calculate_path(self.map_, self.location, self.spawn_position)
 
-        # Despawn this creature if the last evade point is too far away from its current position.
-        if self.location.distance(waypoints_to_spawn[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
+        if in_place:
+            return
+
+        # Destroy instance if too far away from spawn or unable to acquire a valid path.
+        if failed or self.location.distance(path[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
+            if failed:
+                Logger.warning(f'Unit: {self.get_name()}, Namigator was unable to provide a valid return home path:')
+                Logger.warning(f'Start: {self.location}')
+                Logger.warning(f'End: {self.spawn_position}')
             self.destroy()
         else:
             # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
-            spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not z_locked else SplineFlags.SPLINEFLAG_FLYING
-            self.movement_manager.send_move_normal(waypoints_to_spawn, self.running_speed, spline_flag)
-
-    # TODO: Below return to spawn point logic should be removed once a navmesh is available.
-    def _get_return_to_spawn_points(self) -> tuple:  # [waypoints], z_locked bool
-        # No points, return just spawn point.
-        if len(self.evading_waypoints) == 0:
-            return [self.spawn_position], False
-
-        # Reverse the combat waypoints, so they point back to spawn location.
-        waypoints = [wp for wp in reversed(self.evading_waypoints)]
-        # Set self location to the latest known point.
-        self.location = waypoints[0].copy()
-        last_waypoint = self.location
-        # Distance we want between each waypoint.
-        d_factor = 3
-        # Try to use waypoints only for units that have invalid z calculations.
-        z_locked = False
-        distance_sum = 0
-        # Filter the waypoints by distance, remove those that are too close to each other.
-        for waypoint in list(waypoints):
-            # Check for protected z.
-            if not z_locked:
-                z, z_locked = MapManager.calculate_z(self.map_, waypoint.x, waypoint.y, waypoint.z)
-            distance_sum += last_waypoint.distance(waypoint)
-            if distance_sum < d_factor:
-                waypoints.remove(waypoint)
-            else:
-                distance_sum = 0
-            last_waypoint = waypoint
-
-        if z_locked:
-            # Make sure the last waypoints its self spawn position.
-            waypoints.append(self.spawn_position.copy())
-        else:
-            # This unit is probably outside a cave, do not use waypoints.
-            waypoints.clear()
-            waypoints.append(self.spawn_position)
-        return waypoints, z_locked
+            use_fly_spline = len(path) > 1
+            spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not use_fly_spline else SplineFlags.SPLINEFLAG_FLYING
+            self.movement_manager.send_move_normal(path, self.running_speed, spline_flag)
 
     def get_default_auras(self):
         auras = set()
@@ -464,8 +435,6 @@ class CreatureManager(UnitManager):
                     self.random_movement_wait_time = randint(1, 12)
                     self.last_random_movement = now
 
-    # TODO: All the evade calls should be probably handled by aggro manager, it should be able to decide if unit can
-    #  switch to another target from the Threat list or evade, or some other action.
     def _perform_combat_movement(self):
         # Avoid moving while casting, no combat target, evading, target already dead or self stunned.
         if self.is_casting() or self.is_totem() or not self.combat_target or self.is_evading or not self.combat_target.is_alive or \
@@ -511,18 +480,27 @@ class CreatureManager(UnitManager):
             self.movement_manager.send_face_target(self.combat_target)
 
         combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
-                                                                           vector=self.location)
+                                                                           vector=self.location.copy())
         if not combat_location:
             return
 
         # If target is within combat distance or already in combat location, don't move.
-        if target_distance <= combat_position_distance and self.location == combat_location:
+        if round(target_distance) <= round(combat_position_distance) or self.location == combat_location:
             return
 
         # If already going to the correct spot, don't do anything.
         if len(self.movement_manager.pending_waypoints) > 0 \
                 and self.movement_manager.pending_waypoints[0].location == combat_location:
             return
+
+        failed, in_place, path = MapManager.calculate_path(self.map_, self.location.copy(), combat_location)
+        if not failed and not in_place:
+            combat_location = path[0]
+        elif in_place:
+            return
+        # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
+        elif MapManager.NAMIGATOR_LOADED:
+            Logger.warning(f'Unable to find navigation path, map {self.map_} loc {self.location} end {combat_location}')
 
         if self.is_on_water():
             # Force destination Z to target Z.

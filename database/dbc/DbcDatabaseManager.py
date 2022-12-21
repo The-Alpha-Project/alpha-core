@@ -224,7 +224,7 @@ class DbcDatabaseManager:
             DbcDatabaseManager.SkillHolder.SKILLS[skill.ID] = skill
 
         @staticmethod
-        def skill_get_by_id(skill_id):
+        def skill_get_by_id(skill_id) -> Optional[SkillLine]:
             return DbcDatabaseManager.SkillHolder.SKILLS[skill_id] \
                 if skill_id in DbcDatabaseManager.SkillHolder.SKILLS else None
 

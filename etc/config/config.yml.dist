@@ -23,7 +23,8 @@ Server:
             port: 8100
 
     Settings:
-        auto_create_accounts: True
+        auto_create_accounts: True  # Automatically create an account the first time credentials are provided
+        auto_create_gm_accounts: False  # Give all new accounts GM permissions
         blizzlike_names: True  # If True, names won't have any restriction as it was back in the day
         xp_rate: 1.0
         # Debug level values (you can combine them as a mask):
@@ -44,6 +45,11 @@ Server:
         cell_size: 64  # Shouldn't be much bigger than 200
         console_mode: True  # Set it to False if you intend to run the server on background
         use_map_tiles: False  # If True, place 0.5.3 .map files extracted with https://github.com/The-Alpha-Project/MapTools inside 'etc/maps/'
+        # Nav tiles:
+        # If True, place *nix '.so' or Windows '.pyd' from Namigator inside './namigator'. (https://github.com/The-Alpha-Project/namigator)
+        # Also, place extracted BHV and NAVS data inside 'etc/navs/'. They need to be extracted with the MapBuilder tool
+        # of Namigator.
+        use_nav_tiles: False
         z_resolution: 256  # The resolution used when extracting maps
 
     General:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
@@ -42,11 +43,17 @@ class BasicCreatureAI(CreatureAI):
             victim_distance = victim.location.distance(self.creature.location)
             if victim_distance > detection_range:
                 continue
+            # Sanctuary.
+            if victim.unit_state & UnitStates.SANCTUARY:
+                return False
             # Check for stealth/invisibility.
             can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
             if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
             if not can_detect_victim:
+                continue
+            # Basic LoS check.
+            if not MapManager.los_check(victim.map_, self.creature.get_ray_position(), victim.get_ray_position()):
                 continue
             # Attempt to begin attack, break upon succeeding.
             if self._start_proximity_aggro_attack(victim, target_is_player=True):

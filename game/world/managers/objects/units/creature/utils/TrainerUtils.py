@@ -2,7 +2,7 @@ from struct import pack
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.dbc.DbcModels import Spell
+from database.dbc.DbcModels import SkillLineAbility, Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import TrainerTemplate
 from network.packet.PacketWriter import PacketWriter
@@ -11,6 +11,7 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellEffects
+from utils.constants.UnitCodes import PowerTypes
 
 
 class TrainerUtils:
@@ -59,7 +60,7 @@ class TrainerUtils:
             # Required spell. Take override from database if available.
             req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
 
-            status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell.spell, req_level,
+            status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level,
                                                                  preceded_spell, player_mgr, fulfill_skill_reqs)
 
             train_spell_bytes += TrainerUtils.get_spell_data(trainer_spell.spell, status, trainer_spell.spellcost,
@@ -99,8 +100,8 @@ class TrainerUtils:
         return data
 
     @staticmethod
-    def get_training_list_spell_status(spell, trainer_spell_id, req_level, preceded_spell, player_mgr, fulfills_skill=True):
-        trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_id)
+    def get_training_list_spell_status(spell, trainer_spell_template, req_level, preceded_spell, player_mgr, fulfills_skill=True):
+        trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
         pet_info = player_mgr.pet_manager.get_active_pet_info()
         if is_taught_to_pet and not pet_info:
@@ -110,7 +111,7 @@ class TrainerUtils:
         if spell.ID in target_spells:
             return TrainerServices.TRAINER_SERVICE_USED
 
-        if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells):
+        if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells) or (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) and trainer_spell_template.reqskill != 0):
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
         if player_mgr.level >= req_level:
@@ -147,4 +148,32 @@ class TrainerUtils:
             return creature_mgr.creature_template.trainer_class == player_mgr.player.class_
 
         # Mount, TradeSkill or Pet trainer.
+        return True
+
+    @staticmethod
+    def player_can_ever_learn_talent(training_spell: TrainerTemplate, spell: Spell, skill_line_ability: SkillLineAbility, player_mgr) -> bool:
+        spell_item_class = spell.EquippedItemClass
+        spell_item_subclass_mask = spell.EquippedItemSubclass
+        # Check for required proficiencies for this talent.
+        if spell_item_class != -1 and spell_item_subclass_mask != 1:
+            # Don't display talent if the player can never learn the proficiency needed.
+            if not player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
+                return False
+
+        # Get player race/class masks.
+        race_mask = 1 << player_mgr.race - 1
+        class_mask = 1 << player_mgr.class_ - 1
+
+        # Get skill.
+        required_skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(training_spell.reqskill)
+
+        # Check player race/class masks with skill race/class masks.
+        if required_skill:
+            skill_race_mask = required_skill.RaceMask
+            skill_class_mask = required_skill.ClassMask
+
+            if skill_race_mask and not race_mask & skill_race_mask:
+                return False
+            if skill_class_mask and not class_mask & skill_class_mask:
+                return False
         return True

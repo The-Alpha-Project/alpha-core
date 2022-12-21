@@ -6,6 +6,7 @@
 
 # Project files
 etc/config/config.yml
+etc/navs
 
 # virtualenv folder
 venv
@@ -22,5 +23,6 @@ venv
 **.bvh
 **.idx
 
-# python win libs
+# Compiled libs
 **.pyd
+**.so
