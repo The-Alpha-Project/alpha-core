@@ -52,7 +52,7 @@ class TalentManager(object):
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
                                                                  preceded_spell, self.player_mgr)
 
-            # If the spell before this one exists and is unavailable, don't show this one. (We only want to show the first unavailable spell in a chain.)
+            # If the spell before this one exists and is unavailable, don't show this one. (We only want to show the first unavailable spell in a chain).
             if preceded_spell != 0:
                 preceded_preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(preceded_spell)
                 preceded_preceded_spell = 0 if not preceded_preceded_skill_line else preceded_preceded_skill_line.Spell
