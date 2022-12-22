@@ -41,7 +41,7 @@ class AreaAuraHolder:
 
     def destroy(self):
         self.update_effect_on_targets(remove=True)
-        for target, aura_index in self.current_targets.values():
+        for target, aura_index in list(self.current_targets.values()):
             aura = target.aura_manager.get_aura_by_index(aura_index)
             target.aura_manager.remove_aura(aura)
         self.current_targets.clear()

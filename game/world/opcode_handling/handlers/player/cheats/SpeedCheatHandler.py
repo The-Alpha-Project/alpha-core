@@ -15,7 +15,7 @@ class SpeedCheatHandler(object):
 
         if not player_mgr.is_gm:
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to modify speed.')
-            return 0
+            return -1
 
         if len(reader.data) >= 52:  # Avoid handling empty speed cheat packet.
             speed = unpack('<f', reader.data[48:52])[0]

@@ -1082,7 +1082,7 @@ class PlayerManager(UnitManager):
         if not self.group_manager or only_self:
             return self.quest_manager.item_needed_by_quests(item_entry)
         else:
-            for member in self.group_manager.members.values():
+            for member in list(self.group_manager.members.values()):
                 player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
                 if player_mgr and player_mgr.quest_manager.item_needed_by_quests(item_entry):
                     return True

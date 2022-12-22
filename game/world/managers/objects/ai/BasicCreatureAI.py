@@ -37,7 +37,7 @@ class BasicCreatureAI(CreatureAI):
         if not self._is_ready_for_new_attack():
             return
         detection_range = self.creature.creature_template.detection_range
-        source_units = self.creature.known_players.values() if not units else units
+        source_units = list(self.creature.known_players.values()) if not units else units
         hostile_units = [unit for unit in source_units if self.creature.is_hostile_to(unit)]
         for victim in hostile_units:
             victim_distance = victim.location.distance(self.creature.location)

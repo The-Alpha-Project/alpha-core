@@ -451,7 +451,7 @@ class InventoryManager(object):
             self.get_backpack().sorted_slots[slot] = container
         self.containers[slot] = container
 
-        # Update items' bag slot field
+        # Update items' bag slot field.
         for item in self.containers[slot].sorted_slots.values():
             item.set_bag(slot.value)
         return True
