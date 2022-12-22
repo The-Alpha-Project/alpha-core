@@ -102,11 +102,11 @@ if __name__ == '__main__':
         if argv[-1] == "world":
             world_process.terminate()
             Logger.info('World process terminated.')
-            proxy_process.terminate()
-            Logger.info('Proxy process terminated.')
         if argv[-1] == "realm":
             login_process.terminate()
             Logger.info('Login process terminated.')
+            proxy_process.terminate()
+            Logger.info('Proxy process terminated.')
     else:
         world_process.terminate()
         Logger.info('World process terminated.')
