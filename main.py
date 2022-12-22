@@ -15,7 +15,7 @@ from utils.constants import EnvVars
 
 #Argument Parser
 parser = argparse.ArgumentParser(description="Alpha-Core help", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-l", help="Usage: -l login -l world", dest='launch', action='store_true')
+parser.add_argument("-l", help="Usage: -l realm -l world", dest='launch', action='store_true')
 args, unknown = parser.parse_known_args()
 
 def release_process(process):
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
         world_process.start()
     else:
-        if (argv[-1] == "login"):
+        if (argv[-1] == "realm"):
             login_process = context.Process(target=RealmManager.LoginServerSessionHandler.start)
             login_process.start()
         
@@ -104,7 +104,7 @@ if __name__ == '__main__':
             Logger.info('World process terminated.')
             proxy_process.terminate()
             Logger.info('Proxy process terminated.')
-        if argv[-1] == "login":
+        if argv[-1] == "realm":
             login_process.terminate()
             Logger.info('Login process terminated.')
     else:
@@ -121,7 +121,7 @@ if __name__ == '__main__':
     #These checks are needed to prevent an end of program crash with keyboard interrupt
     if argv[-1] == "world":
         release_process(world_process)
-    elif argv[-1] == "login":
+    elif argv[-1] == "realm":
         release_process(proxy_process)
         release_process(login_process)
     else:
