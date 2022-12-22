@@ -6,8 +6,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.constants.MiscCodes import TrainerTypes
-from utils.constants.SpellCodes import SpellEffects
+from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 
 
 class TalentManager(object):
@@ -41,26 +40,43 @@ class TalentManager(object):
             if not skill_line_ability:
                 continue
 
-            spell_item_class = spell.EquippedItemClass
-            spell_item_subclass_mask = spell.EquippedItemSubclass
-            # Check for required proficiencies for this talent.
-            if spell_item_class != -1 and spell_item_subclass_mask != 1:
-                # Don't display talent if the player can never learn the proficiency needed.
-                if not self.player_mgr.skill_manager.can_ever_use_equipment(spell_item_class, spell_item_subclass_mask):
-                    continue
+            # Check item/skill requirements to see if player can ever learn talent.
+            if not TrainerUtils.player_can_ever_learn_talent(training_spell, spell, skill_line_ability, self.player_mgr):
+                continue
 
             # Search previous spell.
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
-
-            talent_points_cost = TalentManager.get_talent_cost_by_id(training_spell.playerspell)
-            status = TrainerUtils.get_training_list_spell_status(spell, training_spell.spell, spell.BaseLevel,
+            
+            talent_points_cost = training_spell.talentpointcost if training_spell.talentpointcost > 0 else TalentManager.get_talent_cost_by_id(training_spell.playerspell)
+            status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
                                                                  preceded_spell, self.player_mgr)
+
+            # If the spell before this one exists and is unavailable, don't show this one. (We only want to show the first unavailable spell in a chain).
+            if preceded_spell != 0:
+                preceded_preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(preceded_spell)
+                preceded_preceded_spell = 0 if not preceded_preceded_skill_line else preceded_preceded_skill_line.Spell
+
+                preceded_spell_entry: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(preceded_spell)
+                preceded_trainer_spell_id = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_id_get_from_player_spell_id(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, preceded_spell)
+                preceded_trainer_spell = WorldDatabaseManager.TrainerSpellHolder.trainer_spell_entry_get_by_trainer_and_spell(WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID, preceded_trainer_spell_id)
+                preceded_status = TrainerUtils.get_training_list_spell_status(preceded_spell_entry, preceded_trainer_spell, preceded_spell_entry.BaseLevel, 
+                                                                              preceded_preceded_spell, self.player_mgr)
+                                                                                                                                                            
+                if preceded_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
+                    status = TrainerServices.TRAINER_SERVICE_NOT_SHOWN
+
+            # Get succeeded spell.
+            succeeded_spell = skill_line_ability.SupercededBySpell
+
+            # Only show spell in used if succeeding spell not used.
+            if succeeded_spell != 0 and succeeded_spell in self.player_mgr.spell_manager.spells:
+                status = TrainerServices.TRAINER_SERVICE_NOT_SHOWN
 
             talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
                                                         talent_points_cost, 0,  # 0 Skill point cost.
                                                         spell.BaseLevel,
-                                                        0, 0, 0,  # Required skill data, 0 for now.
+                                                        training_spell.reqskill, training_spell.reqskillvalue, 0,  # Required skill data.
                                                         preceded_spell)
             talent_count += 1
 
