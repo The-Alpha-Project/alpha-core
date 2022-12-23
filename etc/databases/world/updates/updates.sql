@@ -14993,10 +14993,10 @@ begin not atomic
         insert into applied_updates values ('081220221');
     end if;
 
-    -- 23/12/2022 1
-    -- TODO item - Hunter pet trainer update: issue #789
-    if (select count(*) from applied_updates where id='231220221') = 0 then
-		-- Jadenvis Seawatcher
+	-- 23/12/2022 1
+	-- TODO item - Hunter pet trainer update: issue #789
+	if (select count(*) from applied_updates where id='231220221') = 0 then
+    	-- Jadenvis Seawatcher
 		UPDATE `creature_template` SET `subname` = 'Crawler Trainer' WHERE `entry` = 3700;
 				
 		-- Claude Erksine
@@ -15034,8 +15034,87 @@ begin not atomic
 		-- Jackson Bayne
 		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2939;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2329, 0, -9523.457, -1245.146, 43.337, 4.476, 0, 0);
+			
+		-- Rebald Yorglun
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4621, 0, -3462.72, -1804.17, 25.5791, 5.890, 0, 0);
 				
-        insert into applied_updates values ('231220221');
+		-- Laer
+		UPDATE `creature_template` SET `subname` = 'Wolf Trainer', `npc_flags` = 8 WHERE `entry` = 3689;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3689, 1, -2481.16, -473.534, -8.74122, 4.88692, 0, 0);
+			
+		-- Zud
+		UPDATE `creature_template` SET `subname` = 'Scorpid Trainer', `npc_flags` = 8 WHERE `entry` = 3624;
+			
+		-- Tursk
+		UPDATE `creature_template` SET `subname` = 'Crawler Trainer', `display_id1` = 1139, `npc_flags` = 8 WHERE `entry` = 3623;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3623, 1, 268.598, -4724.62, 13.8037, 4.88692, 0, 0);
+			
+		-- Frank Ward
+		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2940;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2940, 0, -10156.5, 1199.53, 36.3752, 4.34587, 0, 0);
+			
+		-- Hurom Juggendolf
+		UPDATE `creature_template` SET `display_id1` = 115 WHERE `entry` = 2880;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2880, 0, -5619, -1529, 399.757, 0.934, 0, 0);
+			
+		-- Durdrek Karrin
+		UPDATE `creature_template` SET `display_id1` = 115 WHERE `entry` = 2881;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2881, 0, -5321.34, -1057.26, 393.347, 1.328, 0, 0);
+			
+		-- Kyln Longclaw
+		UPDATE `creature_template` SET `subname` = 'Boar Trainer' WHERE `entry` = 3697;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3697, 1, 9798.24, 987.919, 1313.82, 1.328, 0, 0);
+			
+		-- Whaldak Darkbenk
+		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2872;
+			
+		-- Lanie Reed
+		UPDATE `creature_template` SET `display_id1` = 2585 WHERE `entry` = 2941;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2941, 0, -9456.99, -1309.43, 45.0453, 0.959931, 0, 0);
+			
+		-- Kysandia
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4153, 1, 10127.844, 1536.695, 1322.288, 0.553, 0, 0);
+			
+		-- Talar
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4206, 1, 10673.6, 1923.97, 1336.1, 2.629, 0, 0);
+			
+		-- Henria Derth
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2585, 1, -5206.33, -479.098, 389.119, 2.21352, 0, 0);
+			
+		-- Bolyun
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3698, 1, 9917.74, 2195.93, 1327.95, 6.134, 0, 0);
+			
+		-- Frank Lasson
+		UPDATE `creature_template` SET `name` = 'Frank Lasson', `subname` = 'Spider Trainer', `npc_flags` = 8, `display_id1` = 428 WHERE `entry` = 4902;
+			
+		-- Kenna
+		UPDATE `creature_template` SET `name` = 'Kenna', `subname` = 'Crocilisk Pet Trainer', `npc_flags` = 8, `display_id1` = 2585 WHERE `entry` = 4901;
+			
+		-- Valyen
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4207, 1, 10126.3, 2541.87, 1317.63, 2.020, 0, 0);
+			
+		-- Ransin
+		UPDATE `creature_template` SET `subname` = 'Crab Trainer', `npc_flags` = 8, `display_id1` = 115 WHERE `entry` = 2943;
+			
+		-- Galthuk
+		UPDATE `creature_template` SET `subname` = 'Bear Trainer', `npc_flags` = 8, `display_id1` = 1139 WHERE `entry` = 4043;
+			
+		-- Grunenstur Balindom
+		UPDATE `spawns_creatures` SET `position_x` = -5267, `position_y` = -3059, `position_z` = 344.055, `orientation` = 2.604 WHERE `spawn_id` = 400043;
+			
+		-- Lanie Reed
+		UPDATE `spawns_creatures` SET `position_x` = -9456.990234, `position_y` = -1309.430054, `position_z` = 45.045300, `orientation` = 0.959931 WHERE `spawn_id` = 5597;
+			
+		-- Hurom Juggendolf
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3698, 0, -5619, -1529, 399.757, 0.934, 0, 0);
+			
+		-- Laer Stepperrunner
+		UPDATE `spawns_creatures` SET `position_x` = -2481.16, `position_y` = -473.534, `position_z` = -8.74122, `orientation` = 4.88692 WHERE `spawn_id` = 21574;
+			
+		-- Frank Ward
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2940, 0, -10156.5, 1199.53, 36.3752, 4.34587, 0, 0);
+			
+		insert into applied_updates values ('231220221');
     end if;
 end $
 delimiter ;
