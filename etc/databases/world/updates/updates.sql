@@ -14992,5 +14992,50 @@ begin not atomic
 
         insert into applied_updates values ('081220221');
     end if;
+
+    -- 23/12/2022 1
+    -- TODO item - Hunter pet trainer update: issue #789
+    if (select count(*) from applied_updates where id='231220221') = 0 then
+		-- Jadenvis Seawatcher
+		UPDATE `creature_template` SET `subname` = 'Crawler Trainer' WHERE `entry` = 3700;
+				
+		-- Claude Erksine
+		UPDATE `creature_template` SET `subname` = 'Bear Trainer', `display_id1` = 428 WHERE `entry` = 3545;
+				
+		-- Grokor
+		UPDATE `creature_template` SET `subname` = 'Boar Trainer', `display_id1` = 1139 WHERE `entry` = 3622;
+		UPDATE `spawns_creatures` SET `map` = 1, `position_x` = 1344.589, `position_y` = -4400.076, `position_z` = 28.504, `orientation` = 1.931 WHERE `spawn_id` = 34501;
+				
+		-- Harruk
+		UPDATE `creature_template` SET `subname` = 'Crocilisk Trainer', `display_id1` = 1139 WHERE `entry` = 3620;
+				
+		-- Rarck
+		UPDATE `creature_template` SET `subname` = 'Raptor Trainer', `display_id1` = 1139, `npc_flags` = 8 WHERE `entry` = 3625;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3625, 1, 402.803, -4595.875, 55.047, 5.718, 0, 0);
+				
+		-- kurll
+		UPDATE `creature_template` SET `subname` = 'Cat Trainer', `display_id1` = 1139, `npc_flags` = 8 WHERE `entry` = 3621;
+		UPDATE `spawns_creatures` SET `position_x` = -818.095, `position_y` = -4945.409, `position_z` = 21.415, `orientation` = 2.352 WHERE `spawn_id` = 35196;
+				
+		-- Bernie Heinstein
+		UPDATE `creature_template` SET `subname` = 'Spider Trainer', `npc_flags` = 8 WHERE `entry` = 3546;
+				
+		-- Alanndarian
+		UPDATE `creature_template` SET `subname` = 'Tallstrider Trainer', `npc_flags` = 8 WHERE `entry` = 3702;
+		UPDATE `spawns_creatures` SET `position_x` = 5075.978, `position_y` = 233.309, `position_z` = 28.396, `orientation` = 2.352 WHERE `spawn_entry1` = 3702;
+				
+		-- Karrina
+		UPDATE `creature_template` SET `subname` = 'Mekenda Bird Trainer', `display_id1` = 2585 WHERE `entry` = 2879;
+				
+		-- Harb TODO DISPLAY ID
+		UPDATE `creature_template` SET `subname` = 'Clawhoof Cat Trainer', `npc_flags` = 8 WHERE `entry` = 3685;
+		UPDATE `spawns_creatures` SET `position_x` = -2203.307, `position_y` = -474.070, `position_z` = -8.847, `orientation` = 1.984 WHERE `spawn_id` = 24779;
+		
+		-- Jackson Bayne
+		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2939;
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2329, 0, -9523.457, -1245.146, 43.337, 4.476, 0, 0);
+				
+        insert into applied_updates values ('231220221');
+    end if;
 end $
 delimiter ;
