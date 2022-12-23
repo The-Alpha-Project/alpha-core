@@ -14996,7 +14996,7 @@ begin not atomic
 	-- 23/12/2022 1
 	-- TODO item - Hunter pet trainer update: issue #789
 	if (select count(*) from applied_updates where id='231220221') = 0 then
-    	-- Jadenvis Seawatcher
+	    -- Jadenvis Seawatcher
 		UPDATE `creature_template` SET `subname` = 'Crawler Trainer' WHERE `entry` = 3700;
 				
 		-- Claude Erksine
@@ -15100,19 +15100,7 @@ begin not atomic
 		UPDATE `creature_template` SET `subname` = 'Bear Trainer', `npc_flags` = 8, `display_id1` = 1139 WHERE `entry` = 4043;
 			
 		-- Grunenstur Balindom
-		UPDATE `spawns_creatures` SET `position_x` = -5267, `position_y` = -3059, `position_z` = 344.055, `orientation` = 2.604 WHERE `spawn_id` = 400043;
-			
-		-- Lanie Reed
-		UPDATE `spawns_creatures` SET `position_x` = -9456.990234, `position_y` = -1309.430054, `position_z` = 45.045300, `orientation` = 0.959931 WHERE `spawn_id` = 5597;
-			
-		-- Hurom Juggendolf
-		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3698, 0, -5619, -1529, 399.757, 0.934, 0, 0);
-			
-		-- Laer Stepperrunner
-		UPDATE `spawns_creatures` SET `position_x` = -2481.16, `position_y` = -473.534, `position_z` = -8.74122, `orientation` = 4.88692 WHERE `spawn_id` = 21574;
-			
-		-- Frank Ward
-		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2940, 0, -10156.5, 1199.53, 36.3752, 4.34587, 0, 0);
+		UPDATE `spawns_creatures` SET `position_x` = -5267, `position_y` = -3059, `position_z` = 344.055, `orientation` = 2.604 WHERE `spawn_id` = 400043;						
 			
 		insert into applied_updates values ('231220221');
     end if;
