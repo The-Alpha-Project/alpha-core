@@ -15048,6 +15048,8 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=3891 WHERE `entry`=4314;
         UPDATE `spawns_creatures` SET `position_x`=2119.066, `position_y`=-4629.696, `position_z`=72.411, `orientation`=5.357, `map`=1 WHERE `spawn_id`=7444;
         UPDATE `creature_template` SET `display_id1`=1139, `subname`='Bear Trainer', `npc_flags`=8 WHERE `entry`=4043;
+        UPDATE `creature_template` SET `npc_flags`=8 WHERE `entry`=2803;
+
 
         insert into`applied_updates`values ('241220221');
     end if;
