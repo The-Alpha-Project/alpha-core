@@ -15098,10 +15098,7 @@ begin not atomic
 			
 		-- Galthuk
 		UPDATE `creature_template` SET `subname` = 'Bear Trainer', `npc_flags` = 8, `display_id1` = 1139 WHERE `entry` = 4043;
-			
-		-- Grunenstur Balindom
-		UPDATE `spawns_creatures` SET `position_x` = -5267, `position_y` = -3059, `position_z` = 344.055, `orientation` = 2.604 WHERE `spawn_id` = 400043;						
-			
+											
 		insert into applied_updates values ('231220221');
     end if;
 end $
