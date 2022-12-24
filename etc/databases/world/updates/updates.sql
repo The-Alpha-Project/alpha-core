@@ -15045,6 +15045,8 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=1343 WHERE `entry`=2953;
         UPDATE `spawns_creatures` SET `position_x`=10169.775, `position_y`=2589.653, `position_z`=1363.033, `orientation`=0.988, `map`=1 WHERE `spawn_id`=46472;
         UPDATE `spawns_creatures` SET `position_x`=10162.989, `position_y`=2596.256, `position_z`=1322.063, `orientation`=4.901, `map`=1 WHERE `spawn_id`=46903;
+        UPDATE `creature_template` SET `display_id1`=3891 WHERE `entry`=4314;
+
 
         insert into`applied_updates`values ('241220221');
     end if;
