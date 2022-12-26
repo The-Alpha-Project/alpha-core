@@ -1208,8 +1208,8 @@ class SpellManager:
                     return False
 
         # Permanent pet summon check.
-        if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET) and not \
-                len(self.caster.pet_manager.pets):
+        summon_pet_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_SUMMON_PET)
+        if summon_pet_effect and not summon_pet_effect.misc_value and not len(self.caster.pet_manager.pets):
             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
             return False
 

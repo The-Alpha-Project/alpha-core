@@ -116,7 +116,7 @@ class Cell:
             self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes)
 
         for camera in FarSightManager.get_cell_cameras(self):
-            for player in camera.players.values():
+            for player in list(camera.players.values()):
                 if player.guid in affected_players:
                     continue
                 self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes)

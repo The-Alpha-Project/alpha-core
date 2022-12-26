@@ -50,9 +50,9 @@ class DuelManager(object):
 
             data = pack('<2Q', arbiter.guid, requester.guid)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_REQUESTED, data)
-            requester.enqueue_packet(packet)  # 'You have requested a duel.' Message
+            requester.enqueue_packet(packet)  # 'You have requested a duel.' Message.
 
-            for entry in duel_manager.players.values():
+            for entry in list(duel_manager.players.values()):
                 entry.player.duel_manager = duel_manager
 
             return
@@ -72,7 +72,7 @@ class DuelManager(object):
 
     def start_duel(self):
         self.duel_state = DuelState.DUEL_STATE_STARTED
-        for entry in self.players.values():
+        for entry in list(self.players.values()):
             entry.duel_status = DuelStatus.DUEL_STATUS_INBOUNDS
             self.build_update(entry.player)
 
@@ -110,7 +110,7 @@ class DuelManager(object):
             MapManager.send_surrounding(packet, self.arbiter)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
-        for entry in self.players.values():
+        for entry in list(self.players.values()):
             if entry.player.combo_target:
                 entry.player.remove_combo_points()
             entry.player.enqueue_packet(packet)
@@ -131,7 +131,7 @@ class DuelManager(object):
         self.flush()
 
     def flush(self):
-        for duel_info in self.players.values():
+        for duel_info in list(self.players.values()):
             duel_info.player.duel_manager = None
 
         self.players.clear()
