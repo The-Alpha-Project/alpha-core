@@ -15012,6 +15012,7 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4714;
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4715;
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4716;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4717;
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4718;
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4719;
 
