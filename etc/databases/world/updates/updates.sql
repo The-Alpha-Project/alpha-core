@@ -15063,6 +15063,7 @@ begin not atomic
         -- These trainers do not have existing trainer ids; vmangos organizes trainers by creature entry id. So we have to make them up.
         -- Starting at 150 and going up from there.
         -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 2327;
         UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 2329;
         UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 2326;
         UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 6094;
