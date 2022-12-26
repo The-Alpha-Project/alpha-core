@@ -15020,8 +15020,9 @@ begin not atomic
     if (select count(*) from `applied_updates` where id='241220221') = 0 then
 
         UPDATE `spawns_creatures` SET `position_x`=-2266.092, `position_y`=-247.495, `position_z`=-9.426, `orientation`=1.378, `map`=1 WHERE `spawn_id`=24787;
-        UPDATE `creature_template` SET `subname`='Bird Trainer' WHERE `entry`=3690;
+        UPDATE `creature_template` SET `subname`='Bird Trainer' WHERE `entry`=3690;        
         UPDATE `spawns_creatures` SET `position_x`=-1340.278, `position_y`=197.572, `position_z`=60.458, `orientation`=4.198, `map`=1 WHERE `spawn_id`=24783;
+        UPDATE `creature_template` SET `subname`='Tallstrider Trainer' WHERE `entry`=3688;
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
         VALUES (1649, -9508.627, -1330.445, 44.092, 5.365, 0, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
         UPDATE `spawns_creatures` SET `position_x`=10341.012, `position_y`=2418.469, `position_z`=1336.664, `orientation`=2.615, `map`=1 WHERE `spawn_id`=39067;
