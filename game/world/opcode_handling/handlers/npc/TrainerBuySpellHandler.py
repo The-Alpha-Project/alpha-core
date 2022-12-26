@@ -6,7 +6,7 @@ from network.packet.PacketReader import PacketReader
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import TrainingFailReasons
+from utils.constants.MiscCodes import TrainerTypes, TrainingFailReasons
 from struct import unpack
 from network.packet.PacketWriter import *
 
@@ -120,6 +120,14 @@ class TrainerBuySpellHandler(object):
         if spell_skill_cost > 0:
             player_mgr.remove_skill_points(spell_skill_cost)
 
+        # If this is a profession trainer, check spells that should be learned on development skill train.
+        if creature_template.trainer_type == TrainerTypes.TRAINER_TYPE_TRADESKILLS:
+            default_spells = WorldDatabaseManager.DefaultProfessionSpellHolder.default_profession_spells_get_by_trainer_spell_id(training_spell_id)
+
+            if len(default_spells) > 0:
+                for profession_spell_entry in default_spells:
+                    player_mgr.spell_manager.learn_spell(profession_spell_entry.default_spell)
+        
         # Succeeded.
         unit.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.UNIT, validate=False)
         TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, trainer_guid, training_spell_id)

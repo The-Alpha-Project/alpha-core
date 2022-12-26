@@ -15036,5 +15036,59 @@ begin not atomic
 
         insert into applied_updates values ('221220221');
     end if;
+
+    -- 26/12/2022 1
+    if (select count(*) from applied_updates where id='261220221') = 0 then
+        -- Development skill default spells holder
+        CREATE TABLE `default_profession_spell` (
+            `trainer_spell` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `default_spell` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            UNIQUE INDEX `trainer_spell_default_spell` (`trainer_spell`, `default_spell`) USING BTREE
+        )
+        COLLATE='latin1_swedish_ci'
+        ENGINE=InnoDB;
+
+        -- Add 'linen bandage' as spell to be learned when 'apprentice physician' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3279, 3275);
+
+        -- Apprentice physician
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (150, 3279, 3273, 0, 0, 5, 0, 0, 1);
+        -- Heavy linen bandage
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (150, 3281, 3276, 0, 0, 1, 129, 20, 1);
+        -- Wool bandage
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (150, 3282, 3277, 0, 0, 1, 129, 30, 1);
+        -- Heavy wool bandage
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (150, 3283, 3278, 0, 0, 1, 129, 40, 1);
+
+        -- These trainers do not have existing trainer ids; vmangos organizes trainers by creature entry id. So we have to make them up.
+        -- Starting at 150 and going up from there.
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 2329;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 2326;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 6094;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 4211;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 5150;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 12939;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 3181;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 3373;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 2798;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 4591;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 12920;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 5759;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 5943;
+        UPDATE `creature_template` SET `trainer_id` = 150 WHERE `entry` = 5939;
+
+        -- Bandage item updates
+        -- Heavy linen bandage
+        UPDATE `item_template` SET `required_skill` = 129, `required_skill_rank` = 20 WHERE `entry` = 2581;
+        -- Wool bandage
+        UPDATE `item_template` SET `required_skill_rank` = 30 WHERE `entry` = 3530;
+        -- Heavy wool bandage
+        UPDATE `item_template` SET `required_skill_rank` = 40 WHERE `entry` = 3531;
+
+        insert into applied_updates values ('261220221');
+    end if;
 end $
 delimiter ;

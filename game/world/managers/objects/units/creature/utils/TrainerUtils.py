@@ -70,13 +70,15 @@ class TrainerUtils:
                                                              skill_step, preceded_spell)
             train_spell_count += 1
 
+        trainer_type: TrainerTypes = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_mgr.entry).trainer_type
+
         placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
         trainer_greeting = WorldDatabaseManager.get_npc_trainer_greeting(creature_mgr.entry)
         greeting_to_use = trainer_greeting.content_default if trainer_greeting else placeholder_greeting
         greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(player_mgr, greeting_to_use))
         greeting_bytes_packed = pack(f'<{len(greeting_bytes)}s', greeting_bytes)
 
-        data_header = pack('<Q2I', creature_mgr.guid, TrainerTypes.TRAINER_TYPE_GENERAL, train_spell_count)
+        data_header = pack('<Q2I', creature_mgr.guid, trainer_type, train_spell_count)
         data = data_header + train_spell_bytes + greeting_bytes_packed
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_TRAINER_LIST, data))
 

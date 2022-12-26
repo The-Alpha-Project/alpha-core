@@ -81,6 +81,7 @@ class WorldLoader:
         WorldLoader.load_area_trigger_quest_relations()
         WorldLoader.load_quests()
         WorldLoader.load_spell_chains()
+        WorldLoader.load_default_profession_spells()
         WorldLoader.load_trainer_spells()
         WorldLoader.load_skills()
         WorldLoader.load_skill_line_abilities()
@@ -420,6 +421,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading spell chains...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_default_profession_spells():
+        default_profession_spells = WorldDatabaseManager.default_profession_spell_get_all()
+        length = len(default_profession_spells)
+        count = 0
+
+        for profession_spell in default_profession_spells:
+            WorldDatabaseManager.DefaultProfessionSpellHolder.load_default_profession_spell(profession_spell)
+
+            count += 1
+            Logger.progress('Loading default profession spells...', count, length)
 
         return length
 
