@@ -145,6 +145,24 @@ class ObjectManager:
 
         return data
 
+    def get_heartbeat_packet(self):
+        data = pack(
+            '<2Q9fI',
+            self.guid,
+            self.transport_id,
+            self.transport.x,
+            self.transport.y,
+            self.transport.z,
+            self.transport.o,
+            self.location.x,
+            self.location.y,
+            self.location.z,
+            self.location.o,
+            self.pitch,
+            self.movement_flags,
+        )
+        return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
+
     def get_movement_update_packet(self):
         # Base structure.
         data = self._get_base_structure(UpdateTypes.MOVEMENT)
