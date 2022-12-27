@@ -159,8 +159,6 @@ class EnchantmentManager(object):
                 self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value,
                                                                     source_restriction=self.unit_mgr)
 
-    # TODO: Should not flush enchantment from items upon unequipped,
-    #  should probably just add 'active' flag if not expired in order to ignore buffs but keep item enchant state.
     def _handle_equip_buffs(self, item, remove=False):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
@@ -171,7 +169,6 @@ class EnchantmentManager(object):
             if remove:
                 self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value,
                                                                     source_restriction=self.unit_mgr)
-                enchantment.flush()
                 continue
 
             # Check if player already has the triggered aura active.
@@ -184,7 +181,6 @@ class EnchantmentManager(object):
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
             if remove:
                 self._applied_proc_enchants.pop(enchantment.entry, None)
-                enchantment.flush()
                 continue
 
             effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
@@ -193,11 +189,6 @@ class EnchantmentManager(object):
                 continue
 
             self._applied_proc_enchants[enchantment.entry] = (item.current_slot, effect_spell_value, proc_chance)
-
-        enchantment_type = ItemEnchantmentType.DAMAGE
-        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
-            if remove:
-                enchantment.flush()
 
         # Update stats upon add or removal.
         self.unit_mgr.stat_manager.apply_bonuses()
