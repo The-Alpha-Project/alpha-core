@@ -14992,5 +14992,49 @@ begin not atomic
 
         insert into applied_updates values ('081220221');
     end if;
+
+    -- 22/12/2022 1
+    -- TODO items - Display ID's
+    if (select count(*) from applied_updates where id='221220221') = 0 then
+        -- #802 Cursed Marine
+        UPDATE `creature_template` SET `display_id1`=3507 WHERE `entry`=1158;
+
+        -- #796 Rema Schneider
+        UPDATE `creature_template` SET `display_id1`=213 WHERE `entry`=1428;
+
+        -- #782 Varimathras
+        UPDATE `creature_template` SET `display_id1`=1468, `level_min`=100, `level_max`=100 WHERE `entry`=2425;
+
+        -- #773 Nagas
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4711;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4712;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4713;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4714;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4715;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4716;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4717;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4718;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4719;
+
+        -- #772 Flesh eating worms
+        UPDATE `creature_template` SET `display_id1`=4167 WHERE `entry`=2462;
+
+        -- #747 Sharlindra
+        UPDATE `creature_template` SET `display_id1`=915 WHERE `entry`=2227;
+
+        -- #746 Aelthalyste
+        UPDATE `creature_template` SET `display_id1`=915 WHERE `entry`=4606;
+
+        -- #745 Lavinia Crowe
+        UPDATE `creature_template` SET `display_id1`=146 WHERE `entry`=4616;
+
+        -- #744 Kaelystia
+        UPDATE `creature_template` SET `display_id1`=915, `scale`=1.0 WHERE `entry`=4566;
+
+        -- #721 Nissa Agamand
+        UPDATE `creature_template` SET `display_id1`=915, `scale`=1.0 WHERE `entry`=1655;
+
+        insert into applied_updates values ('221220221');
+    end if;
 end $
 delimiter ;
