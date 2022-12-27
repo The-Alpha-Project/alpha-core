@@ -15048,6 +15048,8 @@ begin not atomic
         COLLATE='latin1_swedish_ci'
         ENGINE=InnoDB;
 
+        -- First Aid
+
         -- Add 'linen bandage' as spell to be learned when 'apprentice physician' is learned.
         REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3279, 3275);
 
@@ -15088,6 +15090,52 @@ begin not atomic
         UPDATE `item_template` SET `required_skill_rank` = 30 WHERE `entry` = 3530;
         -- Heavy wool bandage
         UPDATE `item_template` SET `required_skill_rank` = 40 WHERE `entry` = 3531;
+
+        -- Cooking
+
+        -- Add 'Roasted Boar Meat' as spell to be learned when 'Apprentice cook' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2551, 2540);
+        -- Add 'Charred Wolf Meat' as spell to be learned when 'Apprentice cook' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2551, 2538);
+
+        -- Apprentice cook
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 2551, 2550, 0, 0, 5, 0, 0, 1);
+        -- Journeyman cook
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 3412, 3102, 0, 0, 5, 185, 75, 1);
+        -- Expert cook
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 2552, 3413, 0, 0, 5, 185, 150, 1);
+
+        -- Spiced wolf meat
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 2559, 2539, 0, 0, 1, 185, 45, 1);
+        -- Boiled clams
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 6502, 6499, 0, 0, 1, 185, 85, 1);
+        -- Coyote steak
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 2561, 2541, 0, 0, 1, 185, 85, 1);
+        -- Crab cake
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 2562, 2544, 0, 0, 1, 185, 110, 1);
+        -- Dry pork ribs
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 2563, 2546, 0, 0, 1, 185, 115, 1);
+        -- Goblin deviled clams
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (160, 6503, 6500, 0, 0, 1, 185, 160, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 4210;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 1355;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 4894;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 3087;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 5159;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 1699;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 2664;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 5482;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 1430;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 6286;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 3026;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 4552;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 1382;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 3067;
+        UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 3399;
 
         insert into applied_updates values ('261220221');
     end if;
