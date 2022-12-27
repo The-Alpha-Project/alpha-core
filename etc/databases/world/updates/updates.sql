@@ -15081,7 +15081,7 @@ begin not atomic
 
 	-- 27/12/2022 1
 	-- TODO item - Hunter pet trainer update: issue #789
-	if (select count(*) from applied_updates where id='231220221') = 0 then
+	if (select count(*) from applied_updates where id='271220221') = 0 then
 	    -- Jadenvis Seawatcher
 		UPDATE `creature_template` SET `subname` = 'Crawler Trainer' WHERE `entry` = 3700;
 				
@@ -15113,13 +15113,13 @@ begin not atomic
 		-- Karrina
 		UPDATE `creature_template` SET `subname` = 'Mekenda Bird Trainer', `display_id1` = 2585 WHERE `entry` = 2879;
 				
-		-- Harb TODO DISPLAY ID
-		UPDATE `creature_template` SET `subname` = 'Clawhoof Cat Trainer', `npc_flags` = 8 WHERE `entry` = 3685;
+		-- Harb
+		UPDATE `creature_template` SET `subname` = 'Cat Trainer', `display_id1` = 2578, `npc_flags` = 8 WHERE `entry` = 3685;
 		UPDATE `spawns_creatures` SET `position_x` = -2203.307, `position_y` = -474.070, `position_z` = -8.847, `orientation` = 1.984 WHERE `spawn_id` = 24779;
 		
 		-- Jackson Bayne
 		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2939;
-		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2329, 0, -9523.457, -1245.146, 43.337, 4.476, 0, 0);
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2939, 0, -9523.457, -1245.146, 43.337, 4.476, 0, 0);
 			
 		-- Rebald Yorglun
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4621, 0, -3462.72, -1804.17, 25.5791, 5.890, 0, 0);
@@ -15155,7 +15155,7 @@ begin not atomic
 		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2872;
 			
 		-- Lanie Reed
-		UPDATE `creature_template` SET `display_id1` = 2585 WHERE `entry` = 2941;
+		UPDATE `creature_template` SET `display_id1` = 2585, `npc_flags` = 8 WHERE `entry` = 2941;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2941, 0, -9456.99, -1309.43, 45.0453, 0.959931, 0, 0);
 			
 		-- Kysandia
@@ -15165,7 +15165,7 @@ begin not atomic
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4206, 1, 10673.6, 1923.97, 1336.1, 2.629, 0, 0);
 			
 		-- Henria Derth
-		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2585, 1, -5206.33, -479.098, 389.119, 2.21352, 0, 0);
+		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2870, 0, -5206.33, -479.098, 389.119, 2.21352, 0, 0);
 			
 		-- Bolyun
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3698, 1, 9917.74, 2195.93, 1327.95, 6.134, 0, 0);
@@ -15185,7 +15185,7 @@ begin not atomic
 		-- Galthuk
 		UPDATE `creature_template` SET `subname` = 'Bear Trainer', `npc_flags` = 8, `display_id1` = 1139 WHERE `entry` = 4043;
 											
-		insert into applied_updates values ('231220221');
+		insert into applied_updates values ('271220221');
     end if;
 end $
 delimiter ;
