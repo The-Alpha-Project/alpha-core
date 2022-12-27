@@ -81,8 +81,12 @@ class EnchantmentManager(object):
         current_value = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0)
         current_duration = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1)
         current_charges = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2)
-
         should_save = current_value != value or current_duration != duration or current_charges != charges
+
+        # Check for buffs changes only on items that can be equipped.
+        if item.item_template.inventory_type != InventoryTypes.NONE_EQUIP:
+            remove_equip_buff = expired or not item.is_equipped()
+            self._handle_equip_buffs(item, remove=remove_equip_buff)
 
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
@@ -91,11 +95,6 @@ class EnchantmentManager(object):
         # Notify player with duration.
         if expired or duration:
             self.send_enchantments_durations(slot)
-
-        # Check for buffs only on items that can be equipped.
-        if item.item_template.inventory_type != InventoryTypes.NONE_EQUIP:
-            remove_equip_buff = expired or not item.is_equipped()
-            self._handle_equip_buffs(item, remove=remove_equip_buff)
 
         if should_save:
             item.save()
