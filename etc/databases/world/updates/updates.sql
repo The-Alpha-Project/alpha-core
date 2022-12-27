@@ -15388,8 +15388,8 @@ begin not atomic
 
     -- 27/12/2022 1
     if (select count(*) from applied_updates where id='271220221') = 0 then
-        UPDATE `alpha_world`.`item_template` SET `buy_price` = '6' WHERE (`entry` = '2678');
-        UPDATE `alpha_world`.`item_template` SET `buy_price` = '6' WHERE (`entry` = '3371');
+        UPDATE `item_template` SET `buy_price` = '6' WHERE (`entry` = '2678');
+        UPDATE `item_template` SET `buy_price` = '6' WHERE (`entry` = '3371');
         insert into applied_updates values ('271220221');
     end if;
 end $
