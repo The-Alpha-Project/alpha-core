@@ -1455,6 +1455,8 @@ class PlayerManager(UnitManager):
 
     def set_far_sight(self, guid):
         self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid)
+        # Upon changing players view camera, need to force the update so client is aware immediately.
+        self.force_fields_update()
 
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):
         # Charmer must be set here not in parent.
