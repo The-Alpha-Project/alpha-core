@@ -659,11 +659,13 @@ class UnitManager(ObjectManager):
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
-    def calculate_spell_damage(self, base_damage, miss_reason, casting_spell, target, is_periodic=False):
-        damage_info = DamageInfoHolder(attacker=self, target=target, attack_type=casting_spell.get_attack_type(),
-                                       damage_school_mask=casting_spell.get_school_mask(),
-                                       spell_id=casting_spell.spell_entry.ID,
-                                       spell_school=casting_spell.spell_entry.School,
+    def calculate_spell_damage(self, base_damage, miss_reason, spell_effect, target):
+        spell = spell_effect.casting_spell
+
+        damage_info = DamageInfoHolder(attacker=self, target=target, attack_type=spell.get_attack_type(),
+                                       damage_school_mask=spell.get_school_mask(),
+                                       spell_id=spell.spell_entry.ID,
+                                       spell_school=spell.spell_entry.School,
                                        spell_miss_reason=miss_reason)
 
         subclass = 0
@@ -672,12 +674,21 @@ class UnitManager(ObjectManager):
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
-        spell_school = casting_spell.spell_entry.School
-        damage_info.base_damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school,
-                                                                             target, subclass)
+        spell_school = spell.spell_entry.School
+
+        if spell_effect.is_periodic():
+            # For periodic effects, add bonuses to the total damage, divide back into ticks and floor.
+            effect_ticks = int(spell.get_duration() / spell_effect.aura_period)
+            total_base_damage = base_damage * effect_ticks
+            total_damage = self.stat_manager.apply_bonuses_for_damage(total_base_damage, spell_school,
+                                                                      target, subclass)
+            damage_info.base_damage = int(total_damage / effect_ticks)
+        else:
+            damage_info.base_damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school,
+                                                                                 target, subclass)
 
         damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self, spell_school,
-                                                                                        is_periodic=is_periodic)
+                                                                                        is_periodic=spell_effect.is_periodic())
 
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.target_state = VictimStates.VS_IMMUNE
@@ -755,13 +766,15 @@ class UnitManager(ObjectManager):
         self.set_power_value(self.get_power_value() + amount)
         return True
 
-    def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
+    def apply_spell_damage(self, target, damage, spell_effect):
         # Skip if target is invalid or already dead.
         if not target or not target.is_alive:
             return False
 
-        if target.guid in casting_spell.object_target_results:
-            miss_reason = casting_spell.object_target_results[target.guid].result
+        spell = spell_effect.casting_spell
+
+        if target.guid in spell.object_target_results:
+            miss_reason = spell.object_target_results[target.guid].result
         else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
             miss_reason = SpellMissReason.MISS_REASON_NONE
 
@@ -775,20 +788,20 @@ class UnitManager(ObjectManager):
         # TODO This and evade should be written in spell target results instead.
         # Overwrite on immune.
         if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            if target.handle_immunity(self, SpellImmunity.IMMUNITY_DAMAGE, casting_spell.spell_entry.School,
-                                      casting_spell=casting_spell):
+            if target.handle_immunity(self, SpellImmunity.IMMUNITY_DAMAGE, spell.spell_entry.School,
+                                      casting_spell=spell):
                 miss_reason = SpellMissReason.MISS_REASON_IMMUNE
 
-        damage_info = self.calculate_spell_damage(damage, miss_reason, casting_spell, target, is_periodic=is_periodic)
+        damage_info = self.calculate_spell_damage(damage, miss_reason, spell_effect, target)
 
-        is_cast_on_swing = casting_spell.casts_on_swing()
+        is_cast_on_swing = spell.casts_on_swing()
         # TODO Should other spells give skill too?
-        if is_cast_on_swing or casting_spell.is_ranged_weapon_attack():
+        if is_cast_on_swing or spell.is_ranged_weapon_attack():
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        self.send_spell_cast_debug_info(damage_info, casting_spell)
-        self.deal_damage(target, damage_info, is_periodic=is_periodic, casting_spell=casting_spell)
+        self.send_spell_cast_debug_info(damage_info, spell)
+        self.deal_damage(target, damage_info, is_periodic=spell_effect.is_periodic, casting_spell=spell)
         return True
 
     def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):

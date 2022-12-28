@@ -145,7 +145,7 @@ class AuraEffectHandler:
             return
         spell = aura.source_spell
         damage = aura.get_effect_points()
-        aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
+        aura.caster.apply_spell_damage(effect_target, damage, aura.spell_effect)
 
     @staticmethod
     def handle_periodic_leech(aura, effect_target, remove):
@@ -154,7 +154,7 @@ class AuraEffectHandler:
         spell = aura.source_spell
         damage = aura.get_effect_points()
         aura.caster.receive_healing(damage, aura.caster)
-        aura.caster.apply_spell_damage(effect_target, damage, spell, is_periodic=True)
+        aura.caster.apply_spell_damage(effect_target, damage, aura.spell_effect)
 
     @staticmethod
     def handle_channel_death_item(aura, effect_target, remove):
@@ -245,7 +245,7 @@ class AuraEffectHandler:
             return
 
         damage = aura.get_effect_points()
-        aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
+        aura.target.apply_spell_damage(effect_target, damage, aura.spell_effect)
 
     @staticmethod
     # TODO: Spell MISS.
@@ -430,7 +430,7 @@ class AuraEffectHandler:
             return
 
         damage = aura.get_effect_points()
-        aura.target.apply_spell_damage(effect_target, damage, aura.source_spell)
+        aura.target.apply_spell_damage(effect_target, damage, aura.spell_effect)
 
     @staticmethod
     def handle_school_absorb(aura, effect_target, remove):
