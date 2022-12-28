@@ -15111,7 +15111,8 @@ begin not atomic
 		UPDATE `spawns_creatures` SET `position_x` = 5075.978, `position_y` = 233.309, `position_z` = 28.396, `orientation` = 2.352 WHERE `spawn_entry1` = 3702;
 				
 		-- Karrina
-		UPDATE `creature_template` SET `subname` = 'Mekenda Bird Trainer', `display_id1` = 2585 WHERE `entry` = 2879;
+		UPDATE `creature_template` SET `subname` = 'Bird Trainer', `display_id1` = 2585 WHERE `entry` = 2879;
+        UPDATE `spawns_creatures` SET `position_x` = -5623.49, `position_y` = -4342.49, `position_z` = 404.401, `orientation` = 1.631 WHERE `spawn_id` = 18402;
 				
 		-- Harb
 		UPDATE `creature_template` SET `subname` = 'Cat Trainer', `display_id1` = 2578, `npc_flags` = 8 WHERE `entry` = 3685;
@@ -15148,11 +15149,12 @@ begin not atomic
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2881, 0, -5321.34, -1057.26, 393.347, 1.328, 0, 0);
 			
 		-- Kyln Longclaw
-		UPDATE `creature_template` SET `subname` = 'Boar Trainer' WHERE `entry` = 3697;
+		UPDATE `creature_template` SET `subname` = 'Boar Trainer', `display_id1` = 1945 WHERE `entry` = 3697;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3697, 1, 9798.24, 987.919, 1313.82, 1.328, 0, 0);
 			
 		-- Whaldak Darkbenk
-		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2872;
+		UPDATE `creature_template` SET `name` = 'Whaldak Darkbenk', `display_id1` = 2584 WHERE `entry` = 2872;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2872, 0, -5860.4, -2618.87, 315.844, 5.231, 0, 0);
 			
 		-- Lanie Reed
 		UPDATE `creature_template` SET `display_id1` = 2585, `npc_flags` = 8 WHERE `entry` = 2941;
@@ -15172,6 +15174,7 @@ begin not atomic
 			
 		-- Frank Lasson
 		UPDATE `creature_template` SET `name` = 'Frank Lasson', `subname` = 'Spider Trainer', `npc_flags` = 8, `display_id1` = 428 WHERE `entry` = 4902;
+        UPDATE `spawns_creatures` SET `map` = 0,`position_x` = -11500.5, `position_y` = 1762.2, `position_z` = 2.05317, `orientation` = 4.215 WHERE `spawn_id` = 30681;
 			
 		-- Kenna
 		UPDATE `creature_template` SET `name` = 'Kenna', `subname` = 'Crocilisk Pet Trainer', `npc_flags` = 8, `display_id1` = 2585 WHERE `entry` = 4901;
@@ -15179,12 +15182,13 @@ begin not atomic
 		-- Valyen
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4207, 1, 10126.3, 2541.87, 1317.63, 2.020, 0, 0);
 			
-		-- Ransin
-		UPDATE `creature_template` SET `subname` = 'Crab Trainer', `npc_flags` = 8, `display_id1` = 115 WHERE `entry` = 2943;
-			
+		-- Ransin Donner
+		UPDATE `creature_template` SET `subname` = 'Crab Trainer', `npc_flags` = 8, `display_id1` = 428 WHERE `entry` = 2943;
+		UPDATE `spawns_creatures` SET `position_x` = -9545.16, `position_y` = -15.6298, `position_z` = 57.2866, `orientation` = 0.329 WHERE `spawn_id` = 1791;
+
 		-- Galthuk
 		UPDATE `creature_template` SET `subname` = 'Bear Trainer', `npc_flags` = 8, `display_id1` = 1139 WHERE `entry` = 4043;
-											
+									
 		insert into applied_updates values ('271220221');
     end if;
 
