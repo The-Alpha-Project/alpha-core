@@ -20,6 +20,7 @@ from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, UnitStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
@@ -263,7 +264,7 @@ class CreatureManager(UnitManager):
                     self.mount(self.addon.mount_display_id)
 
             # Cast default auras for this unit.
-            self.aura_manager.apply_default_auras()
+            self.apply_default_auras()
 
             # Stats.
             self.stat_manager.init_stats()
@@ -320,7 +321,7 @@ class CreatureManager(UnitManager):
         return self.location == self.spawn_position and not self.is_moving()
 
     def on_at_home(self):
-        self.aura_manager.apply_default_auras()
+        self.apply_default_auras()
         # Restore original location including orientation.
         self.location = self.spawn_position.copy()
         # Restore original spawn face position.
@@ -416,6 +417,10 @@ class CreatureManager(UnitManager):
                 auras.update({int(aura) for aura in str(self.addon.auras).split()})
 
         return auras
+
+    def apply_default_auras(self):
+        for aura in self.get_default_auras():
+            self.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
 
     # override
     # TODO: Quest active escort npc, other cases?
