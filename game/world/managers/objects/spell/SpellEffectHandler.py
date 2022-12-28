@@ -550,7 +550,7 @@ class SpellEffectHandler:
         if pet:
             # Since we have no data for what abilities pets had in the wild (or if it even varied in 0.5.3),
             # learn all abilities the pet could have at its current level.
-            caster.pet_manager.teach_active_pet_all_available_spells()
+            caster.pet_manager.initialize_active_pet_spells()
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):
