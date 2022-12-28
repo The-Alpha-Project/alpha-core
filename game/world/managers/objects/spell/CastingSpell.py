@@ -325,13 +325,6 @@ class CastingSpell:
                 return True
         return False
 
-    # TODO: need more checks.
-    #  Refer to 'IsPositiveEffect' in SpellEntry.cpp - VMaNGOS
-    def is_positive_spell(self):
-        if not self.initial_target_is_unit_or_player():
-            return False
-        return not self.spell_caster.can_attack_target(self.initial_target)
-
     def has_only_harmful_effects(self):
         return all([effect.is_harmful() for effect in self.get_effects()])
 
