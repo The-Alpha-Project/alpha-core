@@ -363,8 +363,8 @@ class AuraManager:
         for aura in auras:
             if not aura.passive:
                 is_passive = False
-            is_area_aura = aura.spell_effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AURA,
-                                                             SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA}
+            is_area_aura = aura.spell_effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA,
+                                                             SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA}
             if aura.harmful or \
                     aura.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL or \
                     (is_area_aura and aura.caster != self.unit_mgr):
