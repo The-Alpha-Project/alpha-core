@@ -698,16 +698,16 @@ class UnitManager(ObjectManager):
 
         return damage_info
 
-    def deal_damage(self, target, damage_info, casting_spell=None, aura=None, is_periodic=False):
+    def deal_damage(self, target, damage_info, casting_spell=None, is_periodic=False):
         if not target or not target.is_alive:
             return
 
         if target.is_evading:
             return
 
-        target.receive_damage(damage_info, source=self, casting_spell=casting_spell, aura=aura, is_periodic=is_periodic)
+        target.receive_damage(damage_info, source=self, casting_spell=casting_spell, is_periodic=is_periodic)
 
-    def receive_damage(self, damage_info, source=None, casting_spell=None, aura=None, is_periodic=False):
+    def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
         # This method will return whether or not the unit is suitable to keep receiving damage.
         if not self.is_alive:
             return False
@@ -732,8 +732,8 @@ class UnitManager(ObjectManager):
         # Spell and does not generate threat.
         elif casting_spell and not casting_spell.generates_threat():
             return True
-        # Lingering auras ticking dots should not modify threat table after leaving combat.
-        elif aura and is_periodic and aura.periodic_was_already_active() and not self.threat_manager.has_aggro_from(source):
+        # Aura ticking dots should not generate threat if out of combat. (Threat applied upon aura application)
+        elif is_periodic and not self.threat_manager.has_aggro_from(source):
             return True
 
         self.threat_manager.add_threat(source, damage_info.total_damage)
@@ -761,7 +761,7 @@ class UnitManager(ObjectManager):
         self.set_power_value(self.get_power_value() + amount)
         return True
 
-    def apply_spell_damage(self, target, damage, casting_spell, aura=None, is_periodic=False):
+    def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
         # Skip if target is invalid or already dead.
         if not target or not target.is_alive:
             return False
@@ -794,7 +794,7 @@ class UnitManager(ObjectManager):
             target.handle_combat_skill_gain(damage_info)
 
         self.send_spell_cast_debug_info(damage_info, casting_spell)
-        self.deal_damage(target, damage_info, casting_spell=casting_spell, aura=aura, is_periodic=is_periodic)
+        self.deal_damage(target, damage_info, casting_spell=casting_spell, is_periodic=is_periodic)
         return True
 
     def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):

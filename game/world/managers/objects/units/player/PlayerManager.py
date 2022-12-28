@@ -1519,12 +1519,11 @@ class PlayerManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
-    def receive_damage(self, damage_info, source=None, casting_spell=None, aura=None, is_periodic=False):
+    def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
         if self.is_god:
             return False
 
-        return super().receive_damage(damage_info, source, casting_spell=casting_spell,
-                                      aura=aura, is_periodic=is_periodic)
+        return super().receive_damage(damage_info, source, casting_spell=casting_spell, is_periodic=is_periodic)
 
     # override
     def receive_healing(self, amount, source=None):
