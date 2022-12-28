@@ -266,7 +266,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_water_breathing(aura, effect_target, remove):
-        effect_target.mirror_timers_manager.update_water_breathing()
+        effect_target.mirror_timers_manager.update_water_breathing(state=not remove)
 
     @staticmethod
     def handle_mod_disarm(aura, effect_target, remove):
