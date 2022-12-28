@@ -607,11 +607,12 @@ class CreatureManager(UnitManager):
         return False
 
     # override
-    def receive_damage(self, damage_info, source=None, is_periodic=False, casting_spell=None):
+    def receive_damage(self, damage_info, source=None, casting_spell=None, aura=None, is_periodic=False):
         if not self.is_spawned:
             return False
 
-        if not super().receive_damage(damage_info, source, is_periodic):
+        if not super().receive_damage(damage_info, source, casting_spell=casting_spell,
+                                      aura=aura, is_periodic=is_periodic):
             return False
 
         # Handle COMBAT_PING creature static flag.

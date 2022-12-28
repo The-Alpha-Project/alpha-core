@@ -41,6 +41,7 @@ class SpellEffect:
     # Duration and periodic timing info for auras applied by this effect
     applied_aura_duration = -1
     periodic_effect_ticks: Optional[list[int]] = None  # None for distinct uninitialized state.
+    periodic_total_ticks: int = -1
     last_update_timestamp = -1
 
     area_aura_holder: Optional[AreaAuraHolder] = None
@@ -73,6 +74,9 @@ class SpellEffect:
         return self.periodic_effect_ticks is not None and \
                len(self.periodic_effect_ticks) > 0 and self.periodic_effect_ticks[-1] >= self.applied_aura_duration
 
+    def periodic_was_already_active(self):
+        return self.has_periodic_ticks_remaining() and len(self.periodic_effect_ticks) < self.periodic_total_ticks
+
     def has_periodic_ticks_remaining(self):
         if not self.is_periodic() or not self.casting_spell.duration_entry:
             return False
@@ -104,6 +108,7 @@ class SpellEffect:
 
         if self.is_periodic():
             self.periodic_effect_ticks = self.generate_periodic_effect_ticks()
+            self.periodic_total_ticks = len(self.periodic_effect_ticks)
 
     def is_periodic(self):
         return self.aura_period != 0

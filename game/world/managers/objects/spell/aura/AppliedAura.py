@@ -1,7 +1,6 @@
 from game.world.managers.objects.spell import ExtendedSpellData
-from game.world.managers.objects.spell.aura.AuraEffectDummyHandler import AuraEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
-from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes, DispelType
+from utils.constants.SpellCodes import SpellEffects, DispelType
 
 
 class AppliedAura:
@@ -55,6 +54,9 @@ class AppliedAura:
 
     def get_effect_points(self):
         return self.spell_effect.get_effect_points() * self.applied_stacks
+
+    def periodic_was_already_active(self) -> bool:
+        return self.spell_effect.periodic_was_already_active()
 
     def is_past_next_period(self) -> bool:
         return self.spell_effect.is_past_next_period()
