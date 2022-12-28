@@ -15040,15 +15040,15 @@ begin not atomic
     -- 26/12/2022 1
     if (select count(*) from applied_updates where id='261220221') = 0 then
         -- Development skill default spells holder
+        DROP TABLE IF EXISTS `default_profession_spell`;
         CREATE TABLE `default_profession_spell` (
             `trainer_spell` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
             `default_spell` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
             UNIQUE INDEX `trainer_spell_default_spell` (`trainer_spell`, `default_spell`) USING BTREE
-        )
-        COLLATE='latin1_swedish_ci'
-        ENGINE=InnoDB;
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
         -- First Aid
+        -- Trainer ID: 150
 
         -- Add 'linen bandage' as spell to be learned when 'apprentice physician' is learned.
         REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3279, 3275);
@@ -15092,6 +15092,7 @@ begin not atomic
         UPDATE `item_template` SET `required_skill_rank` = 40 WHERE `entry` = 3531;
 
         -- Cooking
+        -- Trainer ID: 160
 
         -- Add 'Roasted Boar Meat' as spell to be learned when 'Apprentice cook' is learned.
         REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2551, 2540);
@@ -15136,6 +15137,46 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 1382;
         UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 3067;
         UPDATE `creature_template` SET `trainer_id` = 160 WHERE `entry` = 3399;
+
+        -- Herbalism
+        -- Trainer ID: 170
+
+        -- Add 'Find Herbs' as spell to be learned when 'Apprentice herbalism' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2372, 2383);
+
+        -- Apprentice herbalist
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (170, 2372, 2366, 0, 0, 5, 0, 0, 1);
+        -- Journeyman herbalist
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (170, 2373, 2368, 0, 0, 5, 182, 75, 1);
+        -- Expert herbalist
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (170, 3571, 3570, 0, 0, 5, 182, 150, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 5502;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 5566;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 1218;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 4204;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 3604;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 3965;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 5137;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 1473;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 812;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 1458;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 4898;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 3404;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 3185;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 3013;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 8146;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 4614;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 2114;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 2390;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 2856;
+
+        -- Neutral trainers
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 12025;
+        UPDATE `creature_template` SET `trainer_id` = 170 WHERE `entry` = 908;
 
         insert into applied_updates values ('261220221');
     end if;
