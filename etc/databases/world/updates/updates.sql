@@ -15599,9 +15599,6 @@ begin not atomic
         -- Taloned Swoop
         UPDATE `creature_template` SET `display_id1` = 388 WHERE `entry` = 2971;
 
-        -- Bristleback Shamans
-        UPDATE `creature_template` SET `display_id1` = 1254 WHERE `entry` = 2953;
-
         -- Mull Thunderhorn
         UPDATE `spawns_creatures` SET `position_x` = -2298.616, `position_y` = -505.560, `position_z` = -8.228, `orientation` = 4.294 WHERE `spawn_id` = 24799;
 
