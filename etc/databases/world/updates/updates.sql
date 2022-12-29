@@ -221,18 +221,18 @@ begin not atomic
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '4', '4', '743', '0');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '5', '3', '743', '0');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '4', '11', '3', '743', '0');
-        
+
         -- Dwarf Find Treasure action button placement.
         UPDATE `playercreateinfo_action` SET `button` = '74' WHERE (`race` = '3') and (`class` = '1') and (`button` = '75') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '2' WHERE (`race` = '3') and (`class` = '2') and (`button` = '3') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '2' WHERE (`race` = '3') and (`class` = '3') and (`button` = '4') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '4' WHERE (`race` = '3') and (`class` = '4') and (`button` = '5') and (`id` = '1');
         UPDATE `playercreateinfo_action` SET `button` = '3' WHERE (`race` = '3') and (`class` = '5') and (`button` = '4') and (`id` = '1');
-        
+
         -- Find Treasure for Dwarf Mages.
         INSERT INTO `playercreateinfo_spell` (`id`, `race`, `class`, `Spell`, `Note`) VALUES ('1505', '3', '8', '2481', 'Find Treasure');
         INSERT INTO `playercreateinfo_action` (`id`, `race`, `class`, `button`, `action`, `type`) VALUES ('1', '3', '8', '3', '2481', '0');
-        
+
         -- Remove all invalid spells.
         DELETE FROM `playercreateinfo_spell` WHERE `Spell` > 7913;
         DELETE FROM `playercreateinfo_action` WHERE `action` > 7913 AND `type` = 0;
@@ -505,14 +505,14 @@ begin not atomic
     -- 21/08/2022 2
     if (select count(*) from applied_updates where id='210820222') = 0 then
         -- DUSTWALLOW MARCH
-        
+
         -- Spider trainer
         INSERT INTO `spawns_creatures` VALUES (NULL, 4882, 0, 0, 0, 1, -3154.872, -2848.983, 34.454, 0.031, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
         UPDATE `creature_template`
         SET `name`="Om'kan", `display_id1`=1120
         WHERE `entry`=4882;
-        
+
         -- Turtle trainer
         INSERT INTO `spawns_creatures` VALUES (NULL, 4881, 0, 0, 0, 1, -3147.965, -2841.329, 34.646, 4.779, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
@@ -598,7 +598,7 @@ begin not atomic
 
         insert into applied_updates values ('210820222');
     end if;
-    
+
     -- 22/08/2022 1
     if (select count(*) from applied_updates where id='220820221') = 0 then
 
@@ -606,67 +606,67 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2718;
-        
+
         -- Dustbelcher Wyrmhunter
         UPDATE `creature_template`
         SET `display_id1`=1121
         WHERE `entry`=2716;
-        
+
         -- Dustbelcher Ogre mage
         UPDATE `creature_template`
         SET `display_id1`=326
         WHERE `entry`=2720;
-        
+
         -- Dustbelcher Ogre
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2701;
-        
+
         -- Dustbelcher Brute
         UPDATE `creature_template`
         SET `display_id1`=1120
         WHERE `entry`=2715;
-        
+
         -- Anathemus
         UPDATE `creature_template`
         SET `display_id1`=3216
         WHERE `entry`=2754;
-        
+
         -- Scorched Guardian
         UPDATE `creature_template`
         SET `display_id1`=2527
         WHERE `entry`=2726;
-        
+
         -- Starving Buzzard
         UPDATE `creature_template`
         SET `display_id1`=1105
         WHERE `entry`=2829;
-        
+
         -- Wargolem
         UPDATE `creature_template`
         SET `display_id1`=2695
         WHERE `entry`=2751;
-        
+
         -- Siege Golem
         UPDATE `creature_template`
         SET `display_id1`=2695
         WHERE `entry`=2749;
-        
+
         -- Rumbler
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2752;
-        
+
         -- Greater Rock Elemental
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2736;
-        
+
         -- Enraged Rock Elemental
         UPDATE `creature_template`
         SET `display_id1`=171
         WHERE `entry`=2791;
-        
+
         -- Galek
         UPDATE `creature_template`
         SET `display_id1`=1642
@@ -2770,42 +2770,42 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=3217
         WHERE `entry`=5359;
-        
+
         -- Holgar Stormaxe
         UPDATE `creature_template`
         SET `display_id1`=1906
         WHERE `entry`=4311;
-        
+
         -- Silithid Hive Drone
         UPDATE `creature_template`
         SET `display_id1`=2304
         WHERE `entry`=4133;
-        
+
         -- Devlin
         UPDATE `creature_template`
         SET `display_id1`=1245
         WHERE `entry`=1657;
-        
+
         -- Lethlas
         UPDATE `creature_template`
         SET `display_id1`=2930
         WHERE `entry`=5212;
-        
+
         -- Phantim
         UPDATE `creature_template`
         SET `display_id1`=2930
         WHERE `entry`=5314;
-        
+
         -- Thule Ravenclaw
         UPDATE `creature_template`
         SET `display_id1`=263
         WHERE `entry`=1947;
-        
+
         -- Silithid Grub
         UPDATE `creature_template`
         SET `display_id1`=641
         WHERE `entry`=3251;
-        
+
         insert into applied_updates values ('290820221');
     end if;
 
@@ -12505,17 +12505,17 @@ begin not atomic
         UPDATE `creature_template` SET `faction`=14 WHERE `faction` = 230;
 
         insert into applied_updates values ('030920221');
-    end if;    
-    
+    end if;
+
     -- 03/09/2022 2
     if (select count(*) from applied_updates where id='030920222') = 0 then
-        
+
         DROP TABLE IF EXISTS `npc_trainer_greeting`;
         CREATE TABLE `npc_trainer_greeting` (
           `entry` int(11) unsigned NOT NULL DEFAULT 0,
           `content_default` text NOT NULL,
           PRIMARY KEY (`entry`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;	
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
         INSERT INTO `npc_trainer_greeting` VALUES (198,'Hello, mage!  Ready for some training?'),(328,'Hello, mage!  Ready for some training?'),(331,'Hello, mage!  Ready for some training?'),(375,'Hello, priest!  Ready for some training?'),(376,'Hello, priest!  Ready for some training?'),(377,'Hello, priest!  Ready for some training?'),(459,'Hello, warlock! Ready for some training?'),(460,'Hello, warlock! Ready for some training?'),(461,'Hello, warlock! Ready for some training?'),(514,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(543,''),(812,'Searching for herbs requires both knowledge and instinct.'),(837,'Hello, priest!  Ready for some training?'),(895,'Hello, hunter!  Ready for some training?'),(906,'Hello, warlock! Ready for some training?'),(908,'Searching for herbs requires both knowledge and instinct.'),(911,'Hello, warrior!  Ready for some training?'),(912,'Hello, warrior!  Ready for some training?'),(913,'Hello, warrior!  Ready for some training?'),(914,'Hello, warrior!  Ready for some training?'),(915,'Hello, rogue!  Ready for some training?'),(916,'Hello, rogue!  Ready for some training?'),(917,'Hello, rogue!  Ready for some training?'),(918,'Hello, rogue!  Ready for some training?'),(925,'Hello, paladin!  Ready for some training?'),(926,'Hello, paladin!  Ready for some training?'),(927,'Hello, paladin!  Ready for some training?'),(928,'Hello, paladin!  Ready for some training?'),(944,'Hello, mage!  Ready for some training?'),(985,'Hello, warrior!  Ready for some training?'),(986,'Hello, shaman!  Ready for some training?'),(987,'Hello, hunter!  Ready for some training?'),(988,'Hello, warlock! Ready for some training?'),(1103,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(1215,'With alchemy you can turn found herbs into healing and other types of potions.'),(1218,'Searching for herbs requires both knowledge and instinct.'),(1226,'Hello, priest!  Ready for some training?'),(1228,'Hello, mage!  Ready for some training?'),(1229,'Hello, warrior!  Ready for some training?'),(1231,'Hello, hunter!  Ready for some training?'),(1232,'Hello, paladin!  Ready for some training?'),(1234,'Hello, rogue!  Ready for some training?'),(1241,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(1292,'It requires a steady hand to remove the leather from a slain beast.'),(1300,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(1317,'Enchanting is the art of improving existing items through magic. '),(1346,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(1355,'Can I teach you how to turn the meat you find on beasts into a feast?'),(1382,'Can I teach you how to turn the meat you find on beasts into a feast?'),(1385,'Greetings!  Can I teach you how to turn beast hides into armor?'),(1386,'With alchemy you can turn found herbs into healing and other types of potions.'),(1404,'Hello, hunter!  Ready for some training?'),(1411,'Hello, rogue!  Ready for some training?'),(1430,'Can I teach you how to turn the meat you find on beasts into a feast?'),(1458,'Searching for herbs requires both knowledge and instinct.'),(1470,'With alchemy you can turn found herbs into healing and other types of potions.'),(1473,'Searching for herbs requires both knowledge and instinct.'),(1632,'Greetings!  Can I teach you how to turn beast hides into armor?'),(1651,'I can teach you how to use a fishing pole to catch fish.'),(1676,'Engineering is very simple once you grasp the basics.'),(1680,'I can teach you how to use a fishing pole to catch fish.'),(1681,'You have not lived until you have dug deep into the earth.'),(1683,'I can teach you how to use a fishing pole to catch fish.'),(1699,'Can I teach you how to turn the meat you find on beasts into a feast?'),(1700,'I can teach you how to use a fishing pole to catch fish.'),(1701,'You have not lived until you have dug deep into the earth.'),(1702,'Engineering is very simple once you grasp the basics.'),(1703,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(1901,'Hello, warrior!  Ready for some training?'),(2114,'Searching for herbs requires both knowledge and instinct.'),(2119,'Hello, warrior!  Ready for some training?'),(2122,'Hello, rogue!  Ready for some training?'),(2123,'Hello, priest!  Ready for some training?'),(2124,'Hello, mage!  Ready for some training?'),(2126,'Hello, warlock! Ready for some training?'),(2127,'Hello, warlock! Ready for some training?'),(2128,'Hello, mage!  Ready for some training?'),(2129,'Hello, priest!  Ready for some training?'),(2130,'Hello, rogue!  Ready for some training?'),(2131,'Hello, warrior!  Ready for some training?'),(2132,'With alchemy you can turn found herbs into healing and other types of potions.'),(2326,'Here, let me show you how to bind those wounds....'),(2327,'Here, let me show you how to bind those wounds....'),(2329,'Here, let me show you how to bind those wounds....'),(2367,'I can teach you how to use a fishing pole to catch fish.'),(2390,'Searching for herbs requires both knowledge and instinct.'),(2391,'With alchemy you can turn found herbs into healing and other types of potions.'),(2399,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(2485,'Welcome!'),(2489,'Welcome!'),(2492,'Welcome!'),(2627,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(2704,''),(2798,'Here, let me show you how to bind those wounds....'),(2818,'Can I teach you how to turn the meat you find on beasts into a feast?'),(2834,'I can teach you how to use a fishing pole to catch fish.'),(2836,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(2837,'With alchemy you can turn found herbs into healing and other types of potions.'),(2855,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(2856,'Searching for herbs requires both knowledge and instinct.'),(2878,''),(2879,''),(2998,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(3001,'You have not lived until you have dug deep into the earth.'),(3004,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(3007,'Greetings!  Can I teach you how to turn beast hides into armor?'),(3009,'With alchemy you can turn found herbs into healing and other types of potions.'),(3011,'Enchanting is the art of improving existing items through magic. '),(3013,'Searching for herbs requires both knowledge and instinct.'),(3026,'Can I teach you how to turn the meat you find on beasts into a feast?'),(3028,'I can teach you how to use a fishing pole to catch fish.'),(3030,'Hello, shaman!  Ready for some training?'),(3031,'Hello, shaman!  Ready for some training?'),(3032,'Hello, shaman!  Ready for some training?'),(3033,'Hello, druid!  Ready for some training?'),(3034,'Hello, druid!  Ready for some training?'),(3036,'Hello, druid!  Ready for some training?'),(3038,'Hello, hunter!  Ready for some training?'),(3039,'Hello, hunter!  Ready for some training?'),(3040,'Hello, hunter!  Ready for some training?'),(3041,'Hello, warrior!  Ready for some training?'),(3042,'Hello, warrior!  Ready for some training?'),(3043,'Hello, warrior!  Ready for some training?'),(3044,'Hello, priest!  Ready for some training?'),(3045,'Hello, priest!  Ready for some training?'),(3046,'Hello, priest!  Ready for some training?'),(3047,'Hello, mage!  Ready for some training?'),(3048,'Hello, mage!  Ready for some training?'),(3049,'Hello, mage!  Ready for some training?'),(3059,'Hello, warrior!  Ready for some training?'),(3060,'Hello, druid!  Ready for some training?'),(3061,'Hello, hunter!  Ready for some training?'),(3062,'Hello, shaman!  Ready for some training?'),(3063,'Hello, warrior!  Ready for some training?'),(3064,'Hello, druid!  Ready for some training?'),(3065,'Hello, hunter!  Ready for some training?'),(3066,'Hello, shaman!  Ready for some training?'),(3067,'Can I teach you how to turn the meat you find on beasts into a feast?'),(3069,'Greetings!  Can I teach you how to turn beast hides into armor?'),(3087,'Can I teach you how to turn the meat you find on beasts into a feast?'),(3136,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(3137,'You have not lived until you have dug deep into the earth.'),(3153,'Hello, warrior!  Ready for some training?'),(3154,'Hello, hunter!  Ready for some training?'),(3155,'Hello, rogue!  Ready for some training?'),(3156,'Hello, warlock! Ready for some training?'),(3157,'Hello, shaman!  Ready for some training?'),(3169,'Hello, warrior!  Ready for some training?'),(3170,'Hello, rogue!  Ready for some training?'),(3171,'Hello, hunter!  Ready for some training?'),(3172,'Hello, warlock! Ready for some training?'),(3173,'Hello, shaman!  Ready for some training?'),(3174,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(3175,'You have not lived until you have dug deep into the earth.'),(3179,'I can teach you how to use a fishing pole to catch fish.'),(3181,'Here, let me show you how to bind those wounds....'),(3184,'With alchemy you can turn found herbs into healing and other types of potions.'),(3185,'Searching for herbs requires both knowledge and instinct.'),(3290,'Engineering is very simple once you grasp the basics.'),(3306,''),(3324,'Hello, warlock! Ready for some training?'),(3325,'Hello, warlock! Ready for some training?'),(3326,'Hello, warlock! Ready for some training?'),(3327,'Hello, rogue!  Ready for some training?'),(3328,'Hello, rogue!  Ready for some training?'),(3332,'I can teach you how to use a fishing pole to catch fish.'),(3344,'Hello, shaman!  Ready for some training?'),(3345,'Enchanting is the art of improving existing items through magic. '),(3347,'With alchemy you can turn found herbs into healing and other types of potions.'),(3352,'Hello, hunter!  Ready for some training?'),(3353,'Hello, warrior!  Ready for some training?'),(3354,'Hello, warrior!  Ready for some training?'),(3355,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(3357,'You have not lived until you have dug deep into the earth.'),(3363,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(3365,'Greetings!  Can I teach you how to turn beast hides into armor?'),(3373,'Here, let me show you how to bind those wounds....'),(3399,'Can I teach you how to turn the meat you find on beasts into a feast?'),(3401,'Hello, rogue!  Ready for some training?'),(3403,'Hello, shaman!  Ready for some training?'),(3404,'Searching for herbs requires both knowledge and instinct.'),(3406,'Hello, hunter!  Ready for some training?'),(3407,'Hello, hunter!  Ready for some training?'),(3408,'Hello, warrior!  Ready for some training?'),(3478,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(3484,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(3494,'Engineering is very simple once you grasp the basics.'),(3523,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(3545,''),(3549,'Greetings!  Can I teach you how to turn beast hides into armor?'),(3555,'You have not lived until you have dug deep into the earth.'),(3557,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(3593,'Hello, warrior!  Ready for some training?'),(3594,'Hello, rogue!  Ready for some training?'),(3595,'Hello, priest!  Ready for some training?'),(3596,'Hello, hunter!  Ready for some training?'),(3597,'Hello, druid!  Ready for some training?'),(3598,'Hello, warrior!  Ready for some training?'),(3599,'Hello, rogue!  Ready for some training?'),(3600,'Hello, priest!  Ready for some training?'),(3601,'Hello, hunter!  Ready for some training?'),(3602,'Hello, druid!  Ready for some training?'),(3603,'With alchemy you can turn found herbs into healing and other types of potions.'),(3604,'Searching for herbs requires both knowledge and instinct.'),(3605,'Greetings!  Can I teach you how to turn beast hides into armor?'),(3606,'Enchanting is the art of improving existing items through magic. '),(3607,'I can teach you how to use a fishing pole to catch fish.'),(3620,''),(3622,''),(3624,''),(3688,''),(3690,'Hello!  Can I teach you something?'),(3698,''),(3703,'Greetings!  Can I teach you how to turn beast hides into armor?'),(3704,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(3706,'Hello, priest!  Ready for some training?'),(3707,'Hello, priest!  Ready for some training?'),(3963,'Hello, hunter!  Ready for some training?'),(3964,'With alchemy you can turn found herbs into healing and other types of potions.'),(3965,'Searching for herbs requires both knowledge and instinct.'),(3967,'Greetings!  Can I teach you how to turn beast hides into armor?'),(4087,'Hello, warrior!  Ready for some training?'),(4089,'Hello, warrior!  Ready for some training?'),(4090,'Hello, priest!  Ready for some training?'),(4091,'Hello, priest!  Ready for some training?'),(4092,'Hello, priest!  Ready for some training?'),(4138,'Hello, hunter!  Ready for some training?'),(4146,'Hello, hunter!  Ready for some training?'),(4156,'I can teach you how to use a fishing pole to catch fish.'),(4159,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(4160,'With alchemy you can turn found herbs into healing and other types of potions.'),(4163,'Hello, rogue!  Ready for some training?'),(4165,'Welcome!'),(4193,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(4204,'Searching for herbs requires both knowledge and instinct.'),(4205,'Hello, hunter!  Ready for some training?'),(4210,'Can I teach you how to turn the meat you find on beasts into a feast?'),(4211,'Here, let me show you how to bind those wounds....'),(4212,'Greetings!  Can I teach you how to turn beast hides into armor?'),(4213,'Enchanting is the art of improving existing items through magic. '),(4214,'Hello, rogue!  Ready for some training?'),(4215,'Hello, rogue!  Ready for some training?'),(4217,'Hello, druid!  Ready for some training?'),(4218,'Hello, druid!  Ready for some training?'),(4219,'Hello, druid!  Ready for some training?'),(4254,'You have not lived until you have dug deep into the earth.'),(4258,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(4320,''),(4552,'Can I teach you how to turn the meat you find on beasts into a feast?'),(4563,'Hello, warlock! Ready for some training?'),(4564,'Hello, warlock! Ready for some training?'),(4565,'Hello, warlock! Ready for some training?'),(4566,'Hello, mage!  Ready for some training?'),(4567,'Hello, mage!  Ready for some training?'),(4568,'Hello, mage!  Ready for some training?'),(4573,'I can teach you how to use a fishing pole to catch fish.'),(4576,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(4578,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(4582,'Hello, rogue!  Ready for some training?'),(4583,'Hello, rogue!  Ready for some training?'),(4584,'Hello, rogue!  Ready for some training?'),(4588,'Greetings!  Can I teach you how to turn beast hides into armor?'),(4591,'Here, let me show you how to bind those wounds....'),(4593,'Hello, warrior!  Ready for some training?'),(4594,'Hello, warrior!  Ready for some training?'),(4595,'Hello, warrior!  Ready for some training?'),(4596,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(4598,'You have not lived until you have dug deep into the earth.'),(4606,'Hello, priest!  Ready for some training?'),(4607,'Hello, priest!  Ready for some training?'),(4608,'Hello, priest!  Ready for some training?'),(4611,'With alchemy you can turn found herbs into healing and other types of potions.'),(4614,'Searching for herbs requires both knowledge and instinct.'),(4616,'Enchanting is the art of improving existing items through magic. '),(4732,'Hello!  Can I teach you something?'),(4752,'Hello!  Can I teach you something?'),(4753,'Hello!  Can I teach you something?'),(4772,'Hello!  Can I teach you something?'),(4773,'Hello!  Can I teach you something?'),(4898,'Searching for herbs requires both knowledge and instinct.'),(4900,'With alchemy you can turn found herbs into healing and other types of potions.'),(5032,'With alchemy you can turn found herbs into healing and other types of potions.'),(5037,'Engineering is very simple once you grasp the basics.'),(5038,'Enchanting is the art of improving existing items through magic. '),(5040,'Greetings!  Can I teach you how to turn beast hides into armor?'),(5041,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(5113,'Hello, warrior!  Ready for some training?'),(5114,'Hello, warrior!  Ready for some training?'),(5115,'Hello, hunter!  Ready for some training?'),(5116,'Hello, hunter!  Ready for some training?'),(5117,'Hello, hunter!  Ready for some training?'),(5127,'Greetings!  Can I teach you how to turn beast hides into armor?'),(5137,'Searching for herbs requires both knowledge and instinct.'),(5141,'Hello, priest!  Ready for some training?'),(5142,'Hello, priest!  Ready for some training?'),(5143,'Hello, priest!  Ready for some training?'),(5144,'Hello, mage!  Ready for some training?'),(5145,'Hello, mage!  Ready for some training?'),(5146,'Hello, mage!  Ready for some training?'),(5147,'Hello, paladin!  Ready for some training?'),(5148,'Hello, paladin!  Ready for some training?'),(5149,'Hello, paladin!  Ready for some training?'),(5150,'Here, let me show you how to bind those wounds....'),(5153,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(5157,'Enchanting is the art of improving existing items through magic. '),(5159,'Can I teach you how to turn the meat you find on beasts into a feast?'),(5161,'I can teach you how to use a fishing pole to catch fish.'),(5164,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(5165,'Hello, rogue!  Ready for some training?'),(5166,'Hello, rogue!  Ready for some training?'),(5167,'Hello, rogue!  Ready for some training?'),(5171,'Hello, warlock! Ready for some training?'),(5172,'Hello, warlock! Ready for some training?'),(5173,'Hello, warlock! Ready for some training?'),(5174,'Engineering is very simple once you grasp the basics.'),(5177,'With alchemy you can turn found herbs into healing and other types of potions.'),(5392,'You have not lived until you have dug deep into the earth.'),(5479,'Hello, warrior!  Ready for some training?'),(5480,'Hello, warrior!  Ready for some training?'),(5482,'Can I teach you how to turn the meat you find on beasts into a feast?'),(5484,'Hello, priest!  Ready for some training?'),(5489,'Hello, priest!  Ready for some training?'),(5491,'Hello, paladin!  Ready for some training?'),(5492,'Hello, paladin!  Ready for some training?'),(5493,'I can teach you how to use a fishing pole to catch fish.'),(5495,'Hello, warlock! Ready for some training?'),(5496,'Hello, warlock! Ready for some training?'),(5497,'Hello, mage!  Ready for some training?'),(5498,'Hello, mage!  Ready for some training?'),(5499,'With alchemy you can turn found herbs into healing and other types of potions.'),(5501,'Hello, hunter!  Ready for some training?'),(5502,'Searching for herbs requires both knowledge and instinct.'),(5504,'Hello, druid!  Ready for some training?'),(5505,'Hello, druid!  Ready for some training?'),(5506,'Hello, druid!  Ready for some training?'),(5511,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(5513,'You have not lived until you have dug deep into the earth.'),(5515,'Hello, hunter!  Ready for some training?'),(5516,'Hello, hunter!  Ready for some training?'),(5517,'Hello, hunter!  Ready for some training?'),(5518,'Engineering is very simple once you grasp the basics.'),(5564,'Greetings!  Can I teach you how to turn beast hides into armor?'),(5566,'Searching for herbs requires both knowledge and instinct.'),(5612,'Hello, warlock! Ready for some training?'),(5690,'I can teach you how to use a fishing pole to catch fish.'),(5695,'Enchanting is the art of improving existing items through magic. '),(5759,'Here, let me show you how to bind those wounds....'),(5784,'Greetings!  Can I teach you how to turn beast hides into armor?'),(5880,'Hello, mage!  Ready for some training?'),(5882,'Hello, mage!  Ready for some training?'),(5883,'Hello, mage!  Ready for some training?'),(5884,'Hello, mage!  Ready for some training?'),(5885,'Hello, mage!  Ready for some training?'),(5938,'I can teach you how to use a fishing pole to catch fish.'),(5939,'Here, let me show you how to bind those wounds....'),(5941,'I can teach you how to use a fishing pole to catch fish.'),(5943,'Here, let me show you how to bind those wounds....'),(5957,'Welcome!'),(5958,'Welcome!'),(5994,'Hello, priest!  Ready for some training?'),(6014,'Hello, priest!  Ready for some training?'),(6018,'Hello, priest!  Ready for some training?'),(6094,'Here, let me show you how to bind those wounds....'),(6251,'Hello, warlock!  Ready for some training?'),(6286,'Can I teach you how to turn the meat you find on beasts into a feast?'),(6287,'It requires a steady hand to remove the leather from a slain beast.'),(6288,'It requires a steady hand to remove the leather from a slain beast.'),(6289,'It requires a steady hand to remove the leather from a slain beast.'),(6290,'It requires a steady hand to remove the leather from a slain beast.'),(6291,'It requires a steady hand to remove the leather from a slain beast.'),(6292,'It requires a steady hand to remove the leather from a slain beast.'),(6295,'It requires a steady hand to remove the leather from a slain beast.'),(6297,'You have not lived until you have dug deep into the earth.'),(6299,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(6306,'It requires a steady hand to remove the leather from a slain beast.'),(6387,'It requires a steady hand to remove the leather from a slain beast.'),(6707,'Hello, rogue!  Ready for some training?'),(7087,'It requires a steady hand to remove the leather from a slain beast.'),(7088,'It requires a steady hand to remove the leather from a slain beast.'),(7089,'It requires a steady hand to remove the leather from a slain beast.'),(7230,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(7231,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(7232,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(7311,'Hello, mage!  Ready for some training?'),(7312,'Hello, mage!  Ready for some training?'),(7315,'Hello, warrior!  Ready for some training?'),(7406,'Engineering is very simple once you grasp the basics.'),(7866,'Greetings! Can I teach you how to turn beast hides into armor?'),(7867,'Greetings! Can I teach you how to turn beast hides into armor?'),(7868,'Greetings! Can I teach you how to turn beast hides into armor?'),(7869,'Greetings! Can I teach you how to turn beast hides into armor?'),(7870,'Greetings! Can I teach you how to turn beast hides into armor?'),(7871,'Greetings! Can I teach you how to turn beast hides into armor?'),(7944,'Engineering is very simple once you grasp the basics.'),(7946,'I can teach you how to use a fishing pole to catch fish.'),(7948,'With alchemy you can turn found herbs into healing and other types of potions.'),(7949,'Enchanting is the art of improving existing items through magic. '),(7953,'Hello!  Can I teach you something?'),(7954,'Hello!  Can I teach you something?'),(8126,'Engineering is very simple once you grasp the basics.'),(8128,'You have not lived until you have dug deep into the earth.'),(8140,'Hello, paladin!  Ready for some training?'),(8141,'Hello, warrior!  Ready for some training?'),(8142,'Hello, druid!  Ready for some training?'),(8144,'It requires a steady hand to remove the leather from a slain beast.'),(8146,'Searching for herbs requires both knowledge and instinct.'),(8153,'Greetings!  Can I teach you how to turn beast hides into armor?'),(8306,'Can I teach you how to turn the meat you find on beasts into a feast?'),(8308,'Hello, hunter!  Ready for some training?'),(8736,'Engineering is very simple once you grasp the basics.'),(8738,'Engineering is very simple once you grasp the basics.'),(9465,'Hello, druid!  Ready for some training?'),(9584,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(10086,''),(10088,''),(10089,''),(10090,''),(10930,'Hello, hunter!  Ready for some training?'),(10993,'Engineering is very simple once you grasp the basics.'),(11017,'Engineering is very simple once you grasp the basics.'),(11025,'Engineering is very simple once you grasp the basics.'),(11031,'Engineering is very simple once you grasp the basics.'),(11037,'Engineering is very simple once you grasp the basics.'),(11048,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(11050,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(11051,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(11052,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(11072,'Enchanting is the art of improving existing items through magic. '),(11073,'Enchanting is the art of improving existing items through magic. '),(11074,'Enchanting is the art of improving existing items through magic. '),(11097,'Greetings!  Can I teach you how to turn beast hides into armor?'),(11098,'Greetings!  Can I teach you how to turn beast hides into armor?'),(11146,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(11177,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(11178,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(11397,'Hello, priest!  Ready for some training?'),(11401,'Hello, priest!  Ready for some training?'),(11406,'Hello, priest!  Ready for some training?'),(11557,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(11865,''),(11866,''),(11867,''),(11868,''),(11869,''),(11870,''),(12025,'Searching for herbs requires both knowledge and instinct.'),(12030,'It requires a steady hand to remove the leather from a slain beast.'),(12032,'I can teach you how to use a fishing pole to catch fish.'),(12042,'Hello, druid!  Ready for some training?'),(12961,'I can teach you how to use a fishing pole to catch fish.'),(13084,''),(13283,'Hello, rogue!  Ready for some training?'),(13417,'Hello, shaman!  Ready for some training?'),(14740,'I can teach you how to use a fishing pole to catch fish.'),(1246,'With alchemy you can turn found herbs into healing and other types of potions.'),(5500,'With alchemy you can turn found herbs into healing and other types of potions.'),(11041,'With alchemy you can turn found herbs into healing and other types of potions.'),(11042,'With alchemy you can turn found herbs into healing and other types of potions.'),(11044,'With alchemy you can turn found herbs into healing and other types of potions.'),(11046,'With alchemy you can turn found herbs into healing and other types of potions.'),(11047,'With alchemy you can turn found herbs into healing and other types of potions.'),(957,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(1383,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(4605,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(10266,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(10276,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(10277,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(10278,'Care to learn how to turn the ore that you find into weapons and metal armor?'),(2857,'Engineering is very simple once you grasp the basics.'),(3412,'Engineering is very simple once you grasp the basics.'),(4586,'Engineering is very simple once you grasp the basics.'),(11026,'Engineering is very simple once you grasp the basics.'),(11028,'Engineering is very simple once you grasp the basics.'),(11029,'Engineering is very simple once you grasp the basics.'),(223,'Greetings!  Can I teach you how to turn beast hides into armor?'),(1466,'Greetings!  Can I teach you how to turn beast hides into armor?'),(3008,'Greetings!  Can I teach you how to turn beast hides into armor?'),(5811,'Greetings!  Can I teach you how to turn beast hides into armor?'),(11081,'Greetings!  Can I teach you how to turn beast hides into armor?'),(11083,'Greetings!  Can I teach you how to turn beast hides into armor?'),(11084,'Greetings!  Can I teach you how to turn beast hides into armor?'),(11096,'Greetings!  Can I teach you how to turn beast hides into armor?'),(11049,'Greetings!  Can I teach you how to turn found cloth into cloth armor?'),(11065,'Enchanting is the art of improving existing items through magic.'),(11066,'Enchanting is the art of improving existing items through magic.'),(11067,'Enchanting is the art of improving existing items through magic.'),(11068,'Enchanting is the art of improving existing items through magic.'),(11070,'Enchanting is the art of improving existing items through magic.'),(11071,'Enchanting is the art of improving existing items through magic.');
 
@@ -12532,11 +12532,11 @@ begin not atomic
           `inte` smallint(5) unsigned NOT NULL,
           `spi` smallint(5) unsigned NOT NULL,
           PRIMARY KEY (`creature_entry`,`level`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;	
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
         INSERT INTO `pet_levelstats` VALUES (1,1,42,1,20,22,20,22,20,20),(1,2,55,1,21,23,21,23,20,20),(1,3,71,1,46,24,21,24,20,21),(1,4,86,1,82,25,22,25,21,21),(1,5,102,1,126,26,23,25,21,21),(1,6,120,1,180,27,24,26,21,22),(1,7,137,1,245,28,24,27,21,22),(1,8,156,1,322,29,25,28,22,22),(1,9,176,1,412,30,26,29,22,23),(1,10,198,1,518,31,26,30,22,23),(1,11,222,1,545,32,27,34,22,24),(1,12,247,1,580,33,28,38,23,25),(1,13,273,1,615,34,30,42,23,25),(1,14,300,1,650,35,31,46,23,27),(1,15,328,1,685,37,32,51,24,28),(1,16,356,1,721,38,33,55,25,29),(1,17,386,1,756,40,34,59,25,30),(1,18,417,1,791,42,36,63,25,30),(1,19,449,1,826,44,37,67,26,32),(1,20,484,1,861,45,39,72,27,33),(1,21,521,1,897,47,39,76,27,34),(1,22,562,1,932,49,40,80,27,35),(1,23,605,1,967,50,42,84,28,36),(1,24,651,1,1002,52,43,88,28,37),(1,25,699,1,1037,53,45,94,29,39),(1,26,750,1,1072,55,46,98,30,39),(1,27,800,1,1108,56,47,102,30,40),(1,28,853,1,1142,58,49,106,30,41),(1,29,905,1,1177,60,50,110,31,42),(1,30,955,1,1212,61,52,115,32,44),(1,31,1006,1,1247,63,53,120,32,44),(1,32,1057,1,1283,64,54,124,33,46),(1,33,1110,1,1317,66,56,128,33,46),(1,34,1163,1,1353,67,57,132,33,48),(1,35,1220,1,1387,69,59,138,35,49),(1,36,1277,1,1494,70,60,142,35,50),(1,37,1336,1,1607,72,61,146,35,52),(1,38,1395,1,1724,74,63,151,36,52),(1,39,1459,1,1849,76,64,155,36,54),(1,40,1524,1,1980,78,66,160,37,55),(1,41,1585,1,2117,81,68,165,38,56),(1,42,1651,1,2262,86,69,169,38,57),(1,43,1716,1,2414,91,71,174,39,58),(1,44,1782,1,2574,97,72,178,39,59),(1,45,1848,1,2742,102,74,184,40,61),(1,46,1919,1,2798,104,75,188,41,62),(1,47,1990,1,2853,106,77,193,41,63),(1,48,2062,1,2907,108,79,197,42,64),(1,49,2138,1,2963,110,80,202,42,66),(1,50,2215,1,3018,113,82,207,43,67),(1,51,2292,1,3072,115,84,212,44,68),(1,52,2371,1,3128,117,85,216,44,69),(1,53,2453,1,3183,119,87,221,45,70),(1,54,2533,1,3237,122,89,226,45,72),(1,55,2614,1,3292,124,91,231,47,73),(1,56,2699,1,3348,127,92,236,47,74),(1,57,2784,1,3402,129,94,241,48,76),(1,58,2871,1,3457,131,96,245,48,77),(1,59,2961,1,3512,134,98,250,49,78),(1,60,3052,1,3814,136,100,256,50,80),(416,60,920,1898,1163,122,27,128,264,197),(416,59,878,1824,1150,127,27,230,258,192),(416,58,862,1763,1125,125,27,224,250,189),(416,57,850,1714,1101,123,27,220,243,185),(416,56,846,1666,1091,121,27,215,236,181),(416,55,836,1620,1078,119,26,211,229,177),(416,54,820,1573,1055,115,26,207,222,172),(416,53,787,1527,1039,114,25,203,215,168),(416,52,764,1481,1013,112,24,198,208,165),(416,51,750,1435,996,109,22,194,202,161),(416,50,747,1391,983,107,22,190,194,158),(416,49,734,1347,964,105,22,186,188,155),(416,48,726,1320,946,102,22,181,184,152),(416,47,718,1294,928,100,22,177,181,151),(416,46,709,1267,910,98,22,173,177,149),(416,45,701,1240,884,96,21,169,174,148),(416,44,693,1214,853,91,21,164,170,146),(416,43,685,1187,808,87,20,160,167,145),(416,42,676,1103,756,81,20,156,163,144),(416,41,668,1063,694,77,20,152,160,143),(416,40,650,1026,639,74,20,147,156,142),(416,39,642,988,561,72,19,142,69,118),(416,38,634,952,549,70,19,139,68,115),(416,37,626,916,537,69,19,138,68,112),(416,36,617,879,525,67,19,137,66,110),(416,35,609,845,513,64,19,136,66,107),(416,34,601,793,501,63,19,135,65,104),(416,33,598,742,488,62,18,131,65,101),(416,32,590,720,476,60,17,127,64,98),(416,31,581,676,462,59,16,123,64,95),(416,30,579,648,449,57,16,118,63,92),(416,29,576,620,436,57,16,114,62,89),(416,28,574,592,424,55,15,110,62,86),(416,27,571,564,411,53,14,105,61,81),(416,26,569,534,399,52,13,101,60,78),(416,25,540,504,386,50,13,97,98,100),(416,24,520,476,373,49,13,93,97,95),(416,23,473,447,360,47,13,89,96,90),(416,22,449,420,346,46,13,84,95,86),(416,21,425,393,320,44,13,80,91,83),(416,20,403,377,303,42,13,67,87,78),(416,19,393,351,291,40,13,63,74,75),(416,18,362,314,278,39,13,59,70,70),(416,17,350,300,265,38,13,55,65,65),(416,16,329,275,253,36,13,52,62,56),(416,15,309,251,240,34,13,48,57,52),(416,14,299,227,228,33,13,44,54,47),(416,13,289,203,215,32,13,43,50,43),(416,12,250,180,203,31,12,36,41,39),(416,11,232,158,190,30,11,32,37,35),(416,10,223,147,180,29,10,29,33,31),(416,9,213,136,147,25,9,27,32,30),(416,8,204,125,117,23,8,25,31,29),(416,7,195,114,92,22,7,21,30,28),(416,6,186,103,68,20,7,16,29,27),(416,5,177,92,49,18,5,12,28,27),(416,4,168,81,33,17,5,8,27,26),(416,3,158,70,20,15,5,4,26,25),(416,2,149,59,20,21,5,2,25,24),(416,1,140,48,20,20,5,20,24,23),(417,60,2529,1874,2938,130,87,235,106,101),(417,59,2476,1824,2821,127,85,231,103,99),(417,58,2424,1763,2709,125,83,226,101,97),(417,57,2371,1714,2602,123,82,222,99,94),(417,56,2318,1666,2499,120,80,217,96,92),(417,55,2266,1620,2400,118,78,213,94,90),(417,54,2213,1573,2305,116,77,208,92,88),(417,53,2161,1527,2213,113,75,204,90,86),(417,52,2108,1481,2125,111,74,199,88,84),(417,51,2055,1435,2041,109,72,195,86,82),(417,50,2003,1391,1959,107,71,190,84,80),(417,49,1950,1347,1925,104,69,186,82,78),(417,48,1889,1320,1888,102,68,181,80,76),(417,47,1828,1294,1853,100,66,177,78,75),(417,46,1768,1267,1817,98,65,173,77,73),(417,45,1708,1240,1750,95,64,168,75,71),(417,44,1648,1214,1650,91,61,164,73,70),(417,43,1588,1187,1550,87,60,160,71,68),(417,42,1528,1103,1484,81,59,156,70,67),(417,41,1468,1063,1390,76,58,151,68,65),(417,40,1408,1026,1250,73,57,146,67,64),(417,39,1348,988,1048,71,56,142,68,62),(417,38,1288,952,1024,70,55,139,69,61),(417,37,1227,916,1001,68,54,138,70,60),(417,36,1167,879,977,67,53,138,72,58),(417,35,1107,845,953,65,52,137,73,57),(417,34,1047,793,929,63,50,135,76,56),(417,33,987,742,905,62,49,131,74,54),(417,32,921,720,882,60,47,127,73,53),(417,31,856,676,858,59,47,123,71,52),(417,30,800,648,834,57,46,118,69,51),(417,29,775,620,810,55,45,114,67,50),(417,28,740,592,786,54,44,110,65,49),(417,27,705,564,763,52,43,105,63,48),(417,26,678,543,739,51,42,101,61,47),(417,25,630,504,715,49,41,97,59,46),(417,24,595,476,691,47,40,93,57,45),(417,23,558,447,667,46,39,88,55,44),(417,22,528,423,644,44,38,84,53,43),(417,21,500,400,620,43,37,80,51,42),(417,20,471,377,596,41,36,75,49,41),(417,19,438,351,572,39,35,71,47,40),(417,18,392,314,548,38,34,67,45,39),(417,17,375,300,525,36,33,62,43,38),(417,16,343,275,501,35,32,58,41,37),(417,15,313,251,477,33,31,54,39,36),(417,14,284,227,453,31,30,50,37,35),(417,13,254,203,429,30,29,45,35,34),(417,12,225,180,406,28,28,41,33,33),(417,11,198,158,382,27,27,37,31,32),(417,10,184,147,358,25,26,34,29,31),(417,9,170,136,334,23,25,32,27,30),(417,8,156,125,310,22,24,29,25,29),(417,7,152,114,287,20,23,27,23,28),(417,6,129,103,263,19,22,24,21,27),(417,5,115,92,239,17,21,22,19,26),(417,4,101,81,215,15,20,19,17,25),(417,3,87,70,191,14,19,17,15,24),(417,2,73,59,168,12,18,14,13,23),(417,1,60,48,144,11,17,12,11,22),(1860,60,3419,1874,4745,129,85,249,70,150),(1860,59,3318,1824,4673,127,83,230,69,147),(1860,58,3222,1763,4579,125,82,224,68,144),(1860,57,3110,1714,4500,123,81,220,67,142),(1860,56,3006,1666,4428,121,80,215,66,139),(1860,55,2876,1620,4362,119,79,211,65,135),(1860,54,2840,1573,4302,115,76,207,64,133),(1860,53,2757,1527,4207,114,75,203,63,131),(1860,52,2661,1481,4136,112,74,198,62,128),(1860,51,2560,1435,4068,109,72,194,60,127),(1860,50,2527,1391,4013,107,71,190,59,123),(1860,49,2474,1347,3943,105,69,186,58,78),(1860,48,2436,1320,3868,102,68,181,57,76),(1860,47,2358,1294,3796,100,66,177,57,75),(1860,46,2349,1267,3722,98,65,173,57,73),(1860,45,2303,1240,3620,96,64,169,55,72),(1860,44,2290,1214,3463,91,61,164,54,71),(1860,43,2260,1187,3228,87,60,160,52,69),(1860,42,2215,1103,3034,81,59,156,51,67),(1860,41,2135,1063,2826,77,58,152,51,66),(1860,40,2052,1026,2675,74,57,147,50,64),(1860,39,1974,988,2496,72,56,142,49,62),(1860,38,1924,952,2331,70,55,139,49,61),(1860,37,1830,916,2246,69,53,138,48,59),(1860,36,1760,879,2150,67,52,137,47,58),(1860,35,1690,845,1911,64,51,136,46,57),(1860,34,1574,793,1861,63,50,135,46,56),(1860,33,1457,742,1812,62,49,131,45,54),(1860,32,1386,720,1766,60,47,127,43,53),(1860,31,1292,676,1715,59,47,123,42,52),(1860,30,1215,648,1667,57,46,118,41,51),(1860,29,1127,620,1619,57,44,114,40,49),(1860,28,1035,592,1572,55,43,110,39,48),(1860,27,968,564,1524,53,42,105,38,47),(1860,26,911,534,1474,52,41,101,37,46),(1860,25,854,504,1427,50,40,97,36,44),(1860,24,823,476,1378,49,39,93,35,43),(1860,23,746,447,1330,47,38,89,34,42),(1860,22,699,420,1282,46,36,84,33,41),(1860,21,653,393,1232,44,36,80,32,39),(1860,20,606,377,1165,42,35,67,31,49),(1860,19,566,351,1120,40,33,63,30,46),(1860,18,528,314,1068,39,33,59,28,38),(1860,17,490,300,1022,38,31,55,28,42),(1860,16,455,275,975,36,30,52,27,39),(1860,15,421,251,925,34,30,48,26,37),(1860,14,368,227,878,33,28,44,25,35),(1860,13,354,203,827,32,28,43,26,32),(1860,12,322,180,782,31,26,36,24,31),(1860,11,291,158,734,30,25,32,22,28),(1860,10,260,147,694,29,25,29,22,26),(1860,9,113,136,180,25,22,27,4,0),(1860,8,104,125,160,23,21,25,4,0),(1860,7,95,114,140,22,20,21,3,0),(1860,6,86,103,120,20,19,16,3,0),(1860,5,77,92,100,18,18,12,2,0),(1860,4,68,81,80,17,17,8,2,0),(1860,3,58,70,60,15,16,4,1,0),(1860,2,49,59,40,14,15,2,1,0),(1860,1,40,48,20,12,14,1,1,0),(1863,60,1709,1874,2261,130,87,232,106,98),(1863,59,1666,1824,2230,128,86,228,103,96),(1863,58,1623,1763,2189,125,84,224,101,94),(1863,57,1580,1714,2156,123,82,220,99,92),(1863,56,1536,1666,2113,121,80,215,96,90),(1863,55,1493,1620,2089,119,79,211,94,88),(1863,54,1450,1573,2056,116,77,207,92,87),(1863,53,1407,1527,2020,114,75,203,90,85),(1863,52,1364,1481,1984,112,74,198,88,83),(1863,51,1320,1435,1945,109,72,194,86,81),(1863,50,1277,1391,1912,107,71,190,84,80),(1863,49,1234,1347,1878,105,69,186,82,78),(1863,48,1196,1320,1843,102,68,181,80,76),(1863,47,1158,1294,1808,100,66,177,78,75),(1863,46,1119,1267,1773,98,65,173,77,73),(1863,45,1081,1240,1738,96,64,169,75,72),(1863,44,1043,1214,1670,91,61,164,74,71),(1863,43,1005,1187,1560,87,60,160,72,69),(1863,42,976,1103,1448,81,59,156,70,67),(1863,41,928,1063,1338,77,58,152,68,66),(1863,40,890,1026,1244,74,57,147,67,64),(1863,39,852,988,1163,72,56,142,68,62),(1863,38,814,952,1095,70,55,139,69,61),(1863,37,776,916,1038,69,53,138,70,59),(1863,36,737,879,990,67,52,137,72,58),(1863,35,699,845,950,63,51,136,73,57),(1863,34,661,793,908,64,50,135,76,56),(1863,33,728,742,884,62,49,131,74,54),(1863,32,680,720,862,60,47,127,73,53),(1863,31,631,676,838,59,47,123,71,52),(1863,30,599,648,815,57,46,118,69,51),(1863,29,566,620,791,57,44,114,67,49),(1863,28,534,592,768,55,43,110,65,48),(1863,27,501,564,745,53,42,105,63,47),(1863,26,469,534,721,52,41,101,62,46),(1863,25,440,504,699,50,40,97,60,44),(1863,24,400,476,675,49,39,93,57,43),(1863,23,373,447,652,47,38,89,56,42),(1863,22,349,420,628,46,36,84,54,41),(1863,21,325,393,604,44,36,80,53,39),(1863,20,303,377,563,42,35,67,31,49),(1863,19,293,351,550,40,33,72,29,39),(1863,18,262,314,510,39,32,67,24,38),(1863,17,250,300,460,37,31,63,20,37),(1863,16,229,275,400,36,30,59,16,36),(1863,15,209,251,360,34,29,55,14,35),(1863,14,189,227,320,33,28,50,11,35),(1863,13,169,203,280,31,27,46,9,34),(1863,12,150,180,240,29,26,42,8,33),(1863,11,132,158,220,28,25,38,6,32),(1863,10,123,147,200,26,23,33,5,31),(1863,9,113,136,180,25,22,29,4,31),(1863,8,104,125,160,23,21,25,4,30),(1863,7,95,114,140,22,20,21,3,29),(1863,6,86,103,120,20,19,16,3,29),(1863,5,77,92,100,18,18,12,2,28),(1863,4,68,81,80,17,17,8,2,27),(1863,3,58,70,60,15,16,4,1,27),(1863,2,49,59,40,14,15,2,1,26),(1863,1,40,48,20,12,14,1,1,25),(510,1,60,60,0,20,16,20,13,8),(510,2,73,73,0,21,17,21,14,10),(510,3,87,87,0,22,18,22,15,12),(510,4,101,101,0,23,19,23,16,14),(510,5,115,115,0,24,20,24,17,16),(510,6,129,129,0,25,21,25,18,18),(510,7,152,152,0,26,22,26,19,20),(510,8,156,156,0,27,23,27,20,22),(510,9,170,170,0,28,24,28,21,24),(510,10,184,184,0,29,25,29,22,26),(510,11,198,198,0,30,25,32,22,28),(510,12,225,225,0,31,26,36,24,31),(510,13,254,254,0,32,28,43,26,32),(510,14,284,254,0,33,28,44,25,35),(510,15,313,313,0,34,30,48,26,37),(510,16,343,343,0,36,30,52,27,39),(510,17,375,375,0,38,31,55,28,42),(510,18,392,392,0,39,33,59,28,44),(510,19,438,438,0,40,33,63,30,46),(510,20,471,471,0,42,35,67,31,49),(510,21,500,500,0,44,36,80,31,51),(510,22,528,528,0,46,36,84,32,53),(510,23,558,558,0,47,38,89,33,55),(510,24,595,595,0,49,39,83,34,58),(510,25,630,630,0,50,40,87,35,61),(510,26,678,678,0,52,41,91,36,62),(510,27,705,705,0,53,42,95,37,65),(510,28,740,740,0,55,43,99,38,67),(510,29,775,775,0,56,44,103,39,70),(510,30,800,800,0,58,46,107,40,72),(510,31,856,856,0,59,47,111,40,74),(510,32,921,921,0,61,48,115,41,77),(510,33,987,987,0,62,49,119,42,79),(510,34,1047,1047,0,63,51,123,43,82),(510,35,1107,1107,0,65,52,127,44,84),(510,36,1167,1167,0,66,53,131,45,87),(510,37,1227,1227,0,68,53,135,46,89),(510,38,1288,1288,0,70,55,139,47,91),(510,39,1348,1348,0,72,56,143,48,94),(510,40,1408,1408,0,74,58,148,49,97),(510,41,1468,1468,0,76,59,152,50,99),(510,42,1528,1528,0,81,59,156,51,102),(510,43,1588,1588,0,86,61,160,52,104),(510,44,1648,1648,0,89,62,164,53,107),(510,45,1708,1708,0,91,64,169,54,109),(510,46,1768,1768,0,94,65,173,55,112),(510,47,1828,1828,0,96,66,178,56,115),(510,48,1889,1889,0,99,68,182,57,117),(510,49,1950,1950,0,101,69,186,58,120),(510,50,2003,2003,0,104,71,191,59,123),(510,51,2055,2055,0,107,72,195,61,126),(510,52,2108,2108,0,109,73,199,62,128),(510,53,2161,2161,0,112,75,204,63,131),(510,54,2213,2213,0,114,76,208,64,134),(510,55,2266,2266,0,117,77,213,65,136),(510,56,2318,2318,0,119,79,217,66,139),(510,57,2371,2371,0,122,80,221,67,142),(510,58,2424,2425,0,124,82,226,68,144),(510,59,2476,2476,0,127,83,230,69,147),(510,60,2529,1874,0,129,85,234,70,150),(575,1,100,0,100,10,10,0,0,0),(575,2,100,0,100,10,10,0,0,0),(575,3,100,0,100,10,10,0,0,0),(575,4,100,0,100,10,10,0,0,0),(575,5,100,0,100,10,10,0,0,0),(575,6,100,0,100,10,10,0,0,0),(575,7,100,0,100,10,10,0,0,0),(575,8,100,0,100,10,10,0,0,0),(575,9,100,0,100,10,10,0,0,0),(575,10,100,0,100,10,10,0,0,0),(575,11,100,0,100,10,10,0,0,0),(575,12,100,0,100,10,10,0,0,0),(575,13,100,0,100,10,10,0,0,0),(575,14,100,0,100,10,10,0,0,0),(575,15,100,0,100,10,10,0,0,0),(575,16,100,0,100,10,10,0,0,0),(575,17,100,0,100,10,10,0,0,0),(575,18,100,0,100,10,10,0,0,0),(575,19,100,0,100,10,10,0,0,0),(575,20,100,0,100,10,10,0,0,0),(575,21,100,0,100,10,10,0,0,0),(575,22,100,0,100,10,10,0,0,0),(575,23,100,0,100,10,10,0,0,0),(575,24,100,0,100,10,10,0,0,0),(575,25,100,0,100,10,10,0,0,0),(575,26,100,0,100,10,10,0,0,0),(575,27,100,0,100,10,10,0,0,0),(575,28,100,0,100,10,10,0,0,0),(575,29,100,0,100,10,10,0,0,0),(575,30,100,0,100,10,10,0,0,0),(575,31,100,0,100,10,10,0,0,0),(575,32,100,0,100,10,10,0,0,0),(575,33,100,0,100,10,10,0,0,0),(575,34,100,0,100,10,10,0,0,0),(575,35,1400,0,50,10,10,0,0,0),(575,36,1700,0,50,10,10,0,0,0),(575,37,100,0,100,10,10,0,0,0),(575,38,100,0,100,10,10,0,0,0),(575,39,100,0,100,10,10,0,0,0),(575,40,100,0,100,10,10,0,0,0),(575,41,100,0,100,10,10,0,0,0),(575,42,100,0,100,10,10,0,0,0),(575,43,100,0,100,10,10,0,0,0),(575,44,100,0,100,10,10,0,0,0),(575,45,100,0,100,10,10,0,0,0),(575,46,100,0,100,10,10,0,0,0),(575,47,100,0,100,10,10,0,0,0),(575,48,100,0,100,10,10,0,0,0),(575,49,100,0,100,10,10,0,0,0),(575,50,100,0,100,10,10,0,0,0),(575,51,100,0,100,10,10,0,0,0),(575,52,100,0,100,10,10,0,0,0),(575,53,100,0,100,10,10,0,0,0),(575,54,100,0,100,10,10,0,0,0),(575,55,100,0,100,10,10,0,0,0),(575,56,100,0,100,10,10,0,0,0),(575,57,100,0,100,10,10,0,0,0),(575,58,100,0,100,10,10,0,0,0),(575,59,100,0,100,10,10,0,0,0),(575,60,100,0,100,10,10,0,0,0),(14385,1,48,80,10,20,16,13,20,8),(14385,2,105,106,67,22,17,14,21,9),(14385,3,162,132,124,24,18,15,22,10),(14385,4,219,158,181,26,19,16,23,11),(14385,5,276,184,238,28,20,17,24,12),(14385,6,333,210,295,30,21,18,25,13),(14385,7,390,236,352,32,22,19,26,14),(14385,8,447,262,409,34,23,20,27,15),(14385,9,504,288,466,36,24,21,28,16),(14385,10,561,314,523,38,25,22,29,17),(14385,11,618,340,580,40,26,23,30,18),(14385,12,675,366,637,42,27,24,31,19),(14385,13,732,392,694,44,28,25,32,20),(14385,14,789,418,751,46,29,26,33,21),(14385,15,846,444,808,48,30,27,34,22),(14385,16,903,470,865,50,31,28,35,23),(14385,17,960,496,922,52,32,29,36,24),(14385,18,1017,522,979,54,33,30,37,25),(14385,19,1074,548,1036,56,34,31,38,26),(14385,20,1131,574,1093,58,35,32,39,27),(14385,21,1188,600,1150,60,36,33,40,28),(14385,22,1245,626,1207,62,37,34,41,29),(14385,23,1302,652,1264,64,38,35,42,30),(14385,24,1359,678,1321,66,39,36,43,31),(14385,25,1416,704,1378,68,40,37,44,32),(14385,26,1473,730,1435,70,41,38,45,33),(14385,27,1530,756,1492,72,42,39,46,34),(14385,28,1587,782,1549,74,43,40,47,35),(14385,29,1644,808,1606,76,44,41,48,36),(14385,30,1701,834,1663,78,45,42,49,37),(14385,31,1758,860,1720,80,46,43,50,38),(14385,32,1815,886,1777,82,47,44,51,39),(14385,33,1872,912,1834,84,48,45,52,40),(14385,34,1929,938,1891,86,49,46,53,41),(14385,35,1986,964,1948,88,50,47,54,42),(14385,36,2043,990,2005,90,51,48,55,43),(14385,37,2100,1016,2062,92,52,49,56,44),(14385,38,2157,1042,2119,94,53,50,57,45),(14385,39,2214,1068,2176,96,54,51,58,46),(14385,40,2271,1094,2233,98,55,52,59,47),(14385,41,2328,1120,2290,100,56,53,60,48),(14385,42,2385,1146,2347,102,57,54,61,49),(14385,43,2442,1172,2404,104,58,55,62,50),(14385,44,2499,1198,2461,106,59,56,63,51),(14385,45,2556,1224,2518,108,60,57,64,52),(14385,46,2613,1250,2575,110,61,58,65,53),(14385,47,2670,1276,2632,112,62,59,66,54),(14385,48,2727,1302,2689,114,63,60,67,55),(14385,49,2784,1328,2746,116,64,61,68,56),(14385,50,2841,1354,2803,118,65,62,69,57),(14385,51,2898,1380,2860,120,66,63,70,58),(14385,52,2955,1406,2917,122,67,64,71,59),(14385,53,3012,1432,2974,124,68,65,72,60),(14385,54,3069,1458,3031,126,69,66,73,61),(14385,55,3126,1484,3088,128,70,67,74,62),(14385,56,3183,1510,3145,130,71,68,75,63),(14385,57,3240,1536,3202,132,72,69,76,64),(14385,58,3297,1562,3259,134,73,70,77,65),(14385,59,3354,1588,3316,136,74,71,78,66),(14385,60,3411,1614,3373,138,75,72,79,67),(3450,1,14,40,0,20,20,20,24,23),(3450,2,19,49,0,21,20,20,25,24),(3450,3,24,58,0,22,20,21,26,25),(3450,4,29,67,0,23,21,21,27,26),(3450,5,34,76,0,23,21,22,28,27),(3450,6,40,85,0,24,21,22,29,27),(3450,7,46,95,0,25,21,23,30,28),(3450,8,52,105,0,26,21,23,31,29),(3450,9,58,116,0,27,21,23,32,30),(3450,10,64,126,0,27,22,24,33,31),(3450,11,75,151,0,28,22,24,37,35),(3450,12,83,177,0,29,22,26,41,39),(3450,13,91,198,0,30,22,26,44,43),(3450,14,120,234,0,31,22,28,50,47),(3450,15,129,262,0,32,23,29,54,52),(3450,16,138,290,0,34,23,30,57,56),(3450,17,147,318,0,36,23,31,61,60),(3450,18,156,346,0,37,23,32,65,65),(3450,19,165,374,0,38,23,33,70,69),(3450,20,175,402,0,40,24,35,74,74),(3450,21,184,430,0,42,24,37,87,78),(3450,22,193,458,0,44,24,39,91,82),(3450,23,202,486,0,45,24,40,95,86),(3450,24,212,514,0,46,25,42,94,90),(3450,25,224,539,0,47,25,43,94,95),(3450,26,237,568,0,48,25,43,98,100),(3450,27,249,598,0,50,25,42,102,104),(3450,28,262,632,0,51,25,44,109,110),(3450,29,274,667,0,52,26,44,114,114),(3450,30,287,702,0,54,26,45,120,118),(3450,31,299,734,0,55,26,46,124,123),(3450,32,312,772,0,57,26,47,128,128),(3450,33,324,807,0,58,27,48,132,131),(3450,34,338,842,0,60,27,50,136,135),(3450,35,360,898,0,62,27,51,139,136),(3450,36,382,954,0,65,27,52,142,137),(3450,37,404,1010,0,67,27,54,146,138),(3450,38,427,1066,0,70,28,55,149,139),(3450,39,449,1122,0,73,28,56,153,141),(3450,40,471,1178,0,75,28,58,156,142),(3450,41,493,1234,0,78,28,59,160,143),(3450,42,516,1290,0,80,29,60,163,144),(3450,43,538,1346,0,83,29,62,167,145),(3450,44,560,1402,0,86,29,63,170,147),(3450,45,582,1458,0,88,29,64,174,148),(3450,46,605,1514,0,91,30,66,177,149),(3450,47,627,1570,0,93,30,67,181,151),(3450,48,649,1627,0,96,30,68,184,152),(3450,49,672,1685,0,99,31,70,188,155),(3450,50,694,1704,0,101,31,71,194,160),(3450,51,716,1723,0,103,31,72,201,170),(3450,52,738,1743,0,105,32,74,208,180),(3450,53,761,1762,0,107,32,75,215,190),(3450,54,783,1781,0,109,32,77,222,200),(3450,55,805,1801,0,111,33,78,229,210),(3450,56,827,1820,0,113,33,80,236,220),(3450,57,850,1839,0,115,33,81,243,230),(3450,58,872,1859,0,117,34,83,250,240),(3450,59,894,1878,0,120,34,84,257,250),(3450,60,917,1898,0,122,35,86,264,260),(8996,1,14,40,0,20,20,20,24,23),(8996,2,19,49,0,21,20,20,25,24),(8996,3,24,58,0,22,20,21,26,25),(8996,4,29,67,0,23,21,21,27,26),(8996,5,34,76,0,23,21,22,28,27),(8996,6,40,85,0,24,21,22,29,27),(8996,7,46,95,0,25,21,23,30,28),(8996,8,52,105,0,26,21,23,31,29),(8996,9,58,116,0,27,21,23,32,30),(8996,10,64,126,0,27,22,24,33,31),(8996,11,75,151,0,28,22,24,37,35),(8996,12,83,177,0,29,22,26,41,39),(8996,13,91,198,0,30,22,26,44,43),(8996,14,120,234,0,31,22,28,50,47),(8996,15,129,262,0,32,23,29,54,52),(8996,16,138,290,0,34,23,30,57,56),(8996,17,147,318,0,36,23,31,61,60),(8996,18,156,346,0,37,23,32,65,65),(8996,19,165,374,0,38,23,33,70,69),(8996,20,175,402,0,40,24,35,74,74),(8996,21,184,430,0,42,24,37,87,78),(8996,22,193,458,0,44,24,39,91,82),(8996,23,202,486,0,45,24,40,95,86),(8996,24,212,514,0,46,25,42,94,90),(8996,25,224,539,0,47,25,43,94,95),(8996,26,237,568,0,48,25,43,98,100),(8996,27,249,598,0,50,25,42,102,104),(8996,28,262,632,0,51,25,44,109,110),(8996,29,274,667,0,52,26,44,114,114),(8996,30,287,702,0,54,26,45,120,118),(8996,31,299,734,0,55,26,46,124,123),(8996,32,312,772,0,57,26,47,128,128),(8996,33,324,807,0,58,27,48,132,131),(8996,34,338,842,0,60,27,50,136,135),(8996,35,360,898,0,62,27,51,139,136),(8996,36,382,954,0,65,27,52,142,137),(8996,37,404,1010,0,67,27,54,146,138),(8996,38,427,1066,0,70,28,55,149,139),(8996,39,449,1122,0,73,28,56,153,141),(8996,40,471,1178,0,75,28,58,156,142),(8996,41,493,1234,0,78,28,59,160,143),(8996,42,516,1290,0,80,29,60,163,144),(8996,43,538,1346,0,83,29,62,167,145),(8996,44,560,1402,0,86,29,63,170,147),(8996,45,582,1458,0,88,29,64,174,148),(8996,46,605,1514,0,91,30,66,177,149),(8996,47,627,1570,0,93,30,67,181,151),(8996,48,649,1627,0,96,30,68,184,152),(8996,49,672,1685,0,99,31,70,188,155),(8996,50,694,1704,0,101,31,71,194,160),(8996,51,716,1723,0,103,31,72,201,170),(8996,52,738,1743,0,105,32,74,208,180),(8996,53,761,1762,0,107,32,75,215,190),(8996,54,783,1781,0,109,32,77,222,200),(8996,55,805,1801,0,111,33,78,229,210),(8996,56,827,1820,0,113,33,80,236,220),(8996,57,850,1839,0,115,33,81,243,230),(8996,58,872,1859,0,117,34,83,250,240),(8996,59,894,1878,0,120,34,84,257,250),(8996,60,917,1898,0,122,35,86,264,260),(10928,1,14,40,0,20,20,20,24,23),(10928,2,19,49,0,21,20,20,25,24),(10928,3,24,58,0,22,20,21,26,25),(10928,4,29,67,0,23,21,21,27,26),(10928,5,34,76,0,23,21,22,28,27),(10928,6,40,85,0,24,21,22,29,27),(10928,7,46,95,0,25,21,23,30,28),(10928,8,52,105,0,26,21,23,31,29),(10928,9,58,116,0,27,21,23,32,30),(10928,10,64,126,0,27,22,24,33,31),(10928,11,75,151,0,28,22,24,37,35),(10928,12,83,177,0,29,22,26,41,39),(10928,13,91,198,0,30,22,26,44,43),(10928,14,120,234,0,31,22,28,50,47),(10928,15,129,262,0,32,23,29,54,52),(10928,16,138,290,0,34,23,30,57,56),(10928,17,147,318,0,36,23,31,61,60),(10928,18,156,346,0,37,23,32,65,65),(10928,19,165,374,0,38,23,33,70,69),(10928,20,175,402,0,40,24,35,74,74),(10928,21,184,430,0,42,24,37,87,78),(10928,22,193,458,0,44,24,39,91,82),(10928,23,202,486,0,45,24,40,95,86),(10928,24,212,514,0,46,25,42,94,90),(10928,25,224,539,0,47,25,43,94,95),(10928,26,237,568,0,48,25,43,98,100),(10928,27,249,598,0,50,25,42,102,104),(10928,28,262,632,0,51,25,44,109,110),(10928,29,274,667,0,52,26,44,114,114),(10928,30,287,702,0,54,26,45,120,118),(10928,31,299,734,0,55,26,46,124,123),(10928,32,312,772,0,57,26,47,128,128),(10928,33,324,807,0,58,27,48,132,131),(10928,34,338,842,0,60,27,50,136,135),(10928,35,360,898,0,62,27,51,139,136),(10928,36,382,954,0,65,27,52,142,137),(10928,37,404,1010,0,67,27,54,146,138),(10928,38,427,1066,0,70,28,55,149,139),(10928,39,449,1122,0,73,28,56,153,141),(10928,40,471,1178,0,75,28,58,156,142),(10928,41,493,1234,0,78,28,59,160,143),(10928,42,516,1290,0,80,29,60,163,144),(10928,43,538,1346,0,83,29,62,167,145),(10928,44,560,1402,0,86,29,63,170,147),(10928,45,582,1458,0,88,29,64,174,148),(10928,46,605,1514,0,91,30,66,177,149),(10928,47,627,1570,0,93,30,67,181,151),(10928,48,649,1627,0,96,30,68,184,152),(10928,49,672,1685,0,99,31,70,188,155),(10928,50,694,1704,0,101,31,71,194,160),(10928,51,716,1723,0,103,31,72,201,170),(10928,52,738,1743,0,105,32,74,208,180),(10928,53,761,1762,0,107,32,75,215,190),(10928,54,783,1781,0,109,32,77,222,200),(10928,55,805,1801,0,111,33,78,229,210),(10928,56,827,1820,0,113,33,80,236,220),(10928,57,850,1839,0,115,33,81,243,230),(10928,58,872,1859,0,117,34,83,250,240),(10928,59,894,1878,0,120,34,84,257,250),(10928,60,917,1898,0,122,35,86,264,260),(12922,1,14,40,0,20,20,20,24,23),(12922,2,19,49,0,21,20,20,25,24),(12922,3,24,58,0,22,20,21,26,25),(12922,4,29,67,0,23,21,21,27,26),(12922,5,34,76,0,23,21,22,28,27),(12922,6,40,85,0,24,21,22,29,27),(12922,7,46,95,0,25,21,23,30,28),(12922,8,52,105,0,26,21,23,31,29),(12922,9,58,116,0,27,21,23,32,30),(12922,10,64,126,0,27,22,24,33,31),(12922,11,75,151,0,28,22,24,37,35),(12922,12,83,177,0,29,22,26,41,39),(12922,13,91,198,0,30,22,26,44,43),(12922,14,120,234,0,31,22,28,50,47),(12922,15,129,262,0,32,23,29,54,52),(12922,16,138,290,0,34,23,30,57,56),(12922,17,147,318,0,36,23,31,61,60),(12922,18,156,346,0,37,23,32,65,65),(12922,19,165,374,0,38,23,33,70,69),(12922,20,175,402,0,40,24,35,74,74),(12922,21,184,430,0,42,24,37,87,78),(12922,22,193,458,0,44,24,39,91,82),(12922,23,202,486,0,45,24,40,95,86),(12922,24,212,514,0,46,25,42,94,90),(12922,25,224,539,0,47,25,43,94,95),(12922,26,237,568,0,48,25,43,98,100),(12922,27,249,598,0,50,25,42,102,104),(12922,28,262,632,0,51,25,44,109,110),(12922,29,274,667,0,52,26,44,114,114),(12922,30,287,702,0,54,26,45,120,118),(12922,31,299,734,0,55,26,46,124,123),(12922,32,312,772,0,57,26,47,128,128),(12922,33,324,807,0,58,27,48,132,131),(12922,34,338,842,0,60,27,50,136,135),(12922,35,360,898,0,62,27,51,139,136),(12922,36,382,954,0,65,27,52,142,137),(12922,37,404,1010,0,67,27,54,146,138),(12922,38,427,1066,0,70,28,55,149,139),(12922,39,449,1122,0,73,28,56,153,141),(12922,40,471,1178,0,75,28,58,156,142),(12922,41,493,1234,0,78,28,59,160,143),(12922,42,516,1290,0,80,29,60,163,144),(12922,43,538,1346,0,83,29,62,167,145),(12922,44,560,1402,0,86,29,63,170,147),(12922,45,582,1458,0,88,29,64,174,148),(12922,46,605,1514,0,91,30,66,177,149),(12922,47,627,1570,0,93,30,67,181,151),(12922,48,649,1627,0,96,30,68,184,152),(12922,49,672,1685,0,99,31,70,188,155),(12922,50,694,1704,0,101,31,71,194,160),(12922,51,716,1723,0,103,31,72,201,170),(12922,52,738,1743,0,105,32,74,208,180),(12922,53,761,1762,0,107,32,75,215,190),(12922,54,783,1781,0,109,32,77,222,200),(12922,55,805,1801,0,111,33,78,229,210),(12922,56,827,1820,0,113,33,80,236,220),(12922,57,850,1839,0,115,33,81,243,230),(12922,58,872,1859,0,117,34,83,250,240),(12922,59,894,1878,0,120,34,84,257,250),(12922,60,917,1898,0,122,35,86,264,260),(8477,1,14,40,0,20,20,20,24,23),(8477,2,19,49,0,21,20,20,25,24),(8477,3,24,58,0,22,20,21,26,25),(8477,4,29,67,0,23,21,21,27,26),(8477,5,34,76,0,23,21,22,28,27),(8477,6,40,85,0,24,21,22,29,27),(8477,7,46,95,0,25,21,23,30,28),(8477,8,52,105,0,26,21,23,31,29),(8477,9,58,116,0,27,21,23,32,30),(8477,10,64,126,0,27,22,24,33,31),(8477,11,75,151,0,28,22,24,37,35),(8477,12,83,177,0,29,22,26,41,39),(8477,13,91,198,0,30,22,26,44,43),(8477,14,120,234,0,31,22,28,50,47),(8477,15,129,262,0,32,23,29,54,52),(8477,16,138,290,0,34,23,30,57,56),(8477,17,147,318,0,36,23,31,61,60),(8477,18,156,346,0,37,23,32,65,65),(8477,19,165,374,0,38,23,33,70,69),(8477,20,175,402,0,40,24,35,74,74),(8477,21,184,430,0,42,24,37,87,78),(8477,22,193,458,0,44,24,39,91,82),(8477,23,202,486,0,45,24,40,95,86),(8477,24,212,514,0,46,25,42,94,90),(8477,25,224,539,0,47,25,43,94,95),(8477,26,237,568,0,48,25,43,98,100),(8477,27,249,598,0,50,25,42,102,104),(8477,28,262,632,0,51,25,44,109,110),(8477,29,274,667,0,52,26,44,114,114),(8477,30,287,702,0,54,26,45,120,118),(8477,31,299,734,0,55,26,46,124,123),(8477,32,312,772,0,57,26,47,128,128),(8477,33,324,807,0,58,27,48,132,131),(8477,34,338,842,0,60,27,50,136,135),(8477,35,360,898,0,62,27,51,139,136),(8477,36,382,954,0,65,27,52,142,137),(8477,37,404,1010,0,67,27,54,146,138),(8477,38,427,1066,0,70,28,55,149,139),(8477,39,449,1122,0,73,28,56,153,141),(8477,40,471,1178,0,75,28,58,156,142),(8477,41,493,1234,0,78,28,59,160,143),(8477,42,516,1290,0,80,29,60,163,144),(8477,43,538,1346,0,83,29,62,167,145),(8477,44,560,1402,0,86,29,63,170,147),(8477,45,582,1458,0,88,29,64,174,148),(8477,46,605,1514,0,91,30,66,177,149),(8477,47,627,1570,0,93,30,67,181,151),(8477,48,649,1627,0,96,30,68,184,152),(8477,49,672,1685,0,99,31,70,188,155),(8477,50,694,1704,0,101,31,71,194,160),(8477,51,716,1723,0,103,31,72,201,170),(8477,52,738,1743,0,105,32,74,208,180),(8477,53,761,1762,0,107,32,75,215,190),(8477,54,783,1781,0,109,32,77,222,200),(8477,55,805,1801,0,111,33,78,229,210),(8477,56,827,1820,0,113,33,80,236,220),(8477,57,850,1839,0,115,33,81,243,230),(8477,58,872,1859,0,117,34,83,250,240),(8477,59,894,1878,0,120,34,84,257,250),(8477,60,917,1898,0,122,35,86,264,260),(10979,1,14,40,0,20,20,20,24,23),(10979,2,19,49,0,21,20,20,25,24),(10979,3,24,58,0,22,20,21,26,25),(10979,4,29,67,0,23,21,21,27,26),(10979,5,34,76,0,23,21,22,28,27),(10979,6,40,85,0,24,21,22,29,27),(10979,7,46,95,0,25,21,23,30,28),(10979,8,52,105,0,26,21,23,31,29),(10979,9,58,116,0,27,21,23,32,30),(10979,10,64,126,0,27,22,24,33,31),(10979,11,75,151,0,28,22,24,37,35),(10979,12,83,177,0,29,22,26,41,39),(10979,13,91,198,0,30,22,26,44,43),(10979,14,120,234,0,31,22,28,50,47),(10979,15,129,262,0,32,23,29,54,52),(10979,16,138,290,0,34,23,30,57,56),(10979,17,147,318,0,36,23,31,61,60),(10979,18,156,346,0,37,23,32,65,65),(10979,19,165,374,0,38,23,33,70,69),(10979,20,175,402,0,40,24,35,74,74),(10979,21,184,430,0,42,24,37,87,78),(10979,22,193,458,0,44,24,39,91,82),(10979,23,202,486,0,45,24,40,95,86),(10979,24,212,514,0,46,25,42,94,90),(10979,25,224,539,0,47,25,43,94,95),(10979,26,237,568,0,48,25,43,98,100),(10979,27,249,598,0,50,25,42,102,104),(10979,28,262,632,0,51,25,44,109,110),(10979,29,274,667,0,52,26,44,114,114),(10979,30,287,702,0,54,26,45,120,118),(10979,31,299,734,0,55,26,46,124,123),(10979,32,312,772,0,57,26,47,128,128),(10979,33,324,807,0,58,27,48,132,131),(10979,34,338,842,0,60,27,50,136,135),(10979,35,360,898,0,62,27,51,139,136),(10979,36,382,954,0,65,27,52,142,137),(10979,37,404,1010,0,67,27,54,146,138),(10979,38,427,1066,0,70,28,55,149,139),(10979,39,449,1122,0,73,28,56,153,141),(10979,40,471,1178,0,75,28,58,156,142),(10979,41,493,1234,0,78,28,59,160,143),(10979,42,516,1290,0,80,29,60,163,144),(10979,43,538,1346,0,83,29,62,167,145),(10979,44,560,1402,0,86,29,63,170,147),(10979,45,582,1458,0,88,29,64,174,148),(10979,46,605,1514,0,91,30,66,177,149),(10979,47,627,1570,0,93,30,67,181,151),(10979,48,649,1627,0,96,30,68,184,152),(10979,49,672,1685,0,99,31,70,188,155),(10979,50,694,1704,0,101,31,71,194,160),(10979,51,716,1723,0,103,31,72,201,170),(10979,52,738,1743,0,105,32,74,208,180),(10979,53,761,1762,0,107,32,75,215,190),(10979,54,783,1781,0,109,32,77,222,200),(10979,55,805,1801,0,111,33,78,229,210),(10979,56,827,1820,0,113,33,80,236,220),(10979,57,850,1839,0,115,33,81,243,230),(10979,58,872,1859,0,117,34,83,250,240),(10979,59,894,1878,0,120,34,84,257,250),(10979,60,917,1898,0,122,35,86,264,260),(15214,60,920,1898,1163,122,27,128,264,197),(15214,59,878,1824,1150,127,27,230,258,192),(15214,58,862,1763,1125,125,27,224,250,189),(15214,57,850,1714,1101,123,27,220,243,185),(15214,56,846,1666,1091,121,27,215,236,181),(15214,55,836,1620,1078,119,26,211,229,177),(15214,54,820,1573,1055,115,26,207,222,172),(15214,53,787,1527,1039,114,25,203,215,168),(15214,52,764,1481,1013,112,24,198,208,165),(15214,51,750,1435,996,109,22,194,202,161),(15214,50,747,1391,983,107,22,190,194,158),(15214,49,734,1347,964,105,22,186,188,155),(15214,48,726,1320,946,102,22,181,184,152),(15214,47,718,1294,928,100,22,177,181,151),(15214,46,709,1267,910,98,22,173,177,149),(15214,45,701,1240,884,96,21,169,174,148),(15214,44,693,1214,853,91,21,164,170,146),(15214,43,685,1187,808,87,20,160,167,145),(15214,42,676,1103,756,81,20,156,163,144),(15214,41,668,1063,694,77,20,152,160,143),(15214,40,650,1026,639,74,20,147,156,142),(15214,39,642,988,561,72,19,142,69,118),(15214,38,634,952,549,70,19,139,68,115),(15214,37,626,916,537,69,19,138,68,112),(15214,36,617,879,525,67,19,137,66,110),(15214,35,609,845,513,64,19,136,66,107),(15214,34,601,793,501,63,19,135,65,104),(15214,33,598,742,488,62,18,131,65,101),(15214,32,590,720,476,60,17,127,64,98),(15214,31,581,676,462,59,16,123,64,95),(15214,30,579,648,449,57,16,118,63,92),(15214,29,576,620,436,57,16,114,62,89),(15214,28,574,592,424,55,15,110,62,86),(15214,27,571,564,411,53,14,105,61,81),(15214,26,569,534,399,52,13,101,60,78),(15214,25,540,504,386,50,13,97,98,100),(15214,24,520,476,373,49,13,93,97,95),(15214,23,473,447,360,47,13,89,96,90),(15214,22,449,420,346,46,13,84,95,86),(15214,21,425,393,320,44,13,80,91,83),(15214,20,403,377,303,42,13,67,87,78),(15214,19,393,351,291,40,13,63,74,75),(15214,18,362,314,278,39,13,59,70,70),(15214,17,350,300,265,38,13,55,65,65),(15214,16,329,275,253,36,13,52,62,56),(15214,15,309,251,240,34,13,48,57,52),(15214,14,299,227,228,33,13,44,54,47),(15214,13,289,203,215,32,13,43,50,43),(15214,12,250,180,203,31,12,36,41,39),(15214,11,232,158,190,30,11,32,37,35),(15214,10,223,147,180,29,10,29,33,31),(15214,9,213,136,147,25,9,27,32,30),(15214,8,204,125,117,23,8,25,31,29),(15214,7,195,114,92,22,7,21,30,28),(15214,6,186,103,68,20,7,16,29,27),(15214,5,177,92,49,18,5,12,28,27),(15214,4,168,81,33,17,5,8,27,26),(15214,3,158,70,20,15,5,4,26,25),(15214,2,149,59,20,21,5,2,25,24),(15214,1,140,48,20,20,5,20,24,23),(6250,60,920,1898,1163,122,27,128,264,197),(6250,59,878,1824,1150,127,27,230,258,192),(6250,58,862,1763,1125,125,27,224,250,189),(6250,57,850,1714,1101,123,27,220,243,185),(6250,56,846,1666,1091,121,27,215,236,181),(6250,55,836,1620,1078,119,26,211,229,177),(6250,54,820,1573,1055,115,26,207,222,172),(6250,53,787,1527,1039,114,25,203,215,168),(6250,52,764,1481,1013,112,24,198,208,165),(6250,51,750,1435,996,109,22,194,202,161),(6250,50,747,1391,983,107,22,190,194,158),(6250,49,734,1347,964,105,22,186,188,155),(6250,48,726,1320,946,102,22,181,184,152),(6250,47,718,1294,928,100,22,177,181,151),(6250,46,709,1267,910,98,22,173,177,149),(6250,45,701,1240,884,96,21,169,174,148),(6250,44,693,1214,853,91,21,164,170,146),(6250,43,685,1187,808,87,20,160,167,145),(6250,42,676,1103,756,81,20,156,163,144),(6250,41,668,1063,694,77,20,152,160,143),(6250,40,650,1026,639,74,20,147,156,142),(6250,39,642,988,561,72,19,142,69,118),(6250,38,634,952,549,70,19,139,68,115),(6250,37,626,916,537,69,19,138,68,112),(6250,36,617,879,525,67,19,137,66,110),(6250,35,609,845,513,64,19,136,66,107),(6250,34,601,793,501,63,19,135,65,104),(6250,33,598,742,488,62,18,131,65,101),(6250,32,590,720,476,60,17,127,64,98),(6250,31,581,676,462,59,16,123,64,95),(6250,30,579,648,449,57,16,118,63,92),(6250,29,576,620,436,57,16,114,62,89),(6250,28,574,592,424,55,15,110,62,86),(6250,27,571,564,411,53,14,105,61,81),(6250,26,569,534,399,52,13,101,60,78),(6250,25,540,504,386,50,13,97,98,100),(6250,24,520,476,373,49,13,93,97,95),(6250,23,473,447,360,47,13,89,96,90),(6250,22,449,420,346,46,13,84,95,86),(6250,21,425,393,320,44,13,80,91,83),(6250,20,403,377,303,42,13,67,87,78),(6250,19,393,351,291,40,13,63,74,75),(6250,18,362,314,278,39,13,59,70,70),(6250,17,350,300,265,38,13,55,65,65),(6250,16,329,275,253,36,13,52,62,56),(6250,15,309,251,240,34,13,48,57,52),(6250,14,299,227,228,33,13,44,54,47),(6250,13,289,203,215,32,13,43,50,43),(6250,12,250,180,203,31,12,36,41,39),(6250,11,232,158,190,30,11,32,37,35),(6250,10,223,147,180,29,10,29,33,31),(6250,9,213,136,147,25,9,27,32,30),(6250,8,204,125,117,23,8,25,31,29),(6250,7,195,114,92,22,7,21,30,28),(6250,6,186,103,68,20,7,16,29,27),(6250,5,177,92,49,18,5,12,28,27),(6250,4,168,81,33,17,5,8,27,26),(6250,3,158,70,20,15,5,4,26,25),(6250,2,149,59,20,21,5,2,25,24),(6250,1,140,48,20,20,5,20,24,23),(5766,60,920,1898,1163,122,27,128,264,197),(5766,59,878,1824,1150,127,27,230,258,192),(5766,58,862,1763,1125,125,27,224,250,189),(5766,57,850,1714,1101,123,27,220,243,185),(5766,56,846,1666,1091,121,27,215,236,181),(5766,55,836,1620,1078,119,26,211,229,177),(5766,54,820,1573,1055,115,26,207,222,172),(5766,53,787,1527,1039,114,25,203,215,168),(5766,52,764,1481,1013,112,24,198,208,165),(5766,51,750,1435,996,109,22,194,202,161),(5766,50,747,1391,983,107,22,190,194,158),(5766,49,734,1347,964,105,22,186,188,155),(5766,48,726,1320,946,102,22,181,184,152),(5766,47,718,1294,928,100,22,177,181,151),(5766,46,709,1267,910,98,22,173,177,149),(5766,45,701,1240,884,96,21,169,174,148),(5766,44,693,1214,853,91,21,164,170,146),(5766,43,685,1187,808,87,20,160,167,145),(5766,42,676,1103,756,81,20,156,163,144),(5766,41,668,1063,694,77,20,152,160,143),(5766,40,650,1026,639,74,20,147,156,142),(5766,39,642,988,561,72,19,142,69,118),(5766,38,634,952,549,70,19,139,68,115),(5766,37,626,916,537,69,19,138,68,112),(5766,36,617,879,525,67,19,137,66,110),(5766,35,609,845,513,64,19,136,66,107),(5766,34,601,793,501,63,19,135,65,104),(5766,33,598,742,488,62,18,131,65,101),(5766,32,590,720,476,60,17,127,64,98),(5766,31,581,676,462,59,16,123,64,95),(5766,30,579,648,449,57,16,118,63,92),(5766,29,576,620,436,57,16,114,62,89),(5766,28,574,592,424,55,15,110,62,86),(5766,27,571,564,411,53,14,105,61,81),(5766,26,569,534,399,52,13,101,60,78),(5766,25,540,504,386,50,13,97,98,100),(5766,24,520,476,373,49,13,93,97,95),(5766,23,473,447,360,47,13,89,96,90),(5766,22,449,420,346,46,13,84,95,86),(5766,21,425,393,320,44,13,80,91,83),(5766,20,403,377,303,42,13,67,87,78),(5766,19,393,351,291,40,13,63,74,75),(5766,18,362,314,278,39,13,59,70,70),(5766,17,350,300,265,38,13,55,65,65),(5766,16,329,275,253,36,13,52,62,56),(5766,15,309,251,240,34,13,48,57,52),(5766,14,299,227,228,33,13,44,54,47),(5766,13,289,203,215,32,13,43,50,43),(5766,12,250,180,203,31,12,36,41,39),(5766,11,232,158,190,30,11,32,37,35),(5766,10,223,147,180,29,10,29,33,31),(5766,9,213,136,147,25,9,27,32,30),(5766,8,204,125,117,23,8,25,31,29),(5766,7,195,114,92,22,7,21,30,28),(5766,6,186,103,68,20,7,16,29,27),(5766,5,177,92,49,18,5,12,28,27),(5766,4,168,81,33,17,5,8,27,26),(5766,3,158,70,20,15,5,4,26,25),(5766,2,149,59,20,21,5,2,25,24),(5766,1,140,48,20,20,5,20,24,23),(5058,60,3909,3174,4635,130,87,270,118,98),(5058,59,3866,2924,4067,128,86,258,115,96),(5058,58,3723,2913,4006,125,84,255,113,94),(5058,57,3680,2814,3941,123,82,251,111,92),(5058,56,3536,2766,3878,120,79,248,108,89),(5058,55,3493,2620,3814,119,78,243,106,88),(5058,54,3350,2573,3752,116,77,238,104,87),(5058,53,3207,2527,3686,113,75,233,102,84),(5058,52,3164,2481,3624,112,74,228,100,82),(5058,51,2920,2435,3559,109,72,223,97,81),(5058,50,2877,2391,3494,107,71,219,95,80),(5058,49,1234,1347,1878,105,69,186,82,78),(5058,48,1196,1320,1843,102,68,181,80,76),(5058,47,1158,1294,1808,100,66,177,78,75),(5058,46,1119,1267,1773,98,65,173,77,73),(5058,45,1081,1240,1738,96,64,169,75,72),(5058,44,1043,1214,1670,91,61,164,74,71),(5058,43,1005,1187,1560,87,60,160,72,69),(5058,42,976,1103,1448,81,59,156,70,67),(5058,41,928,1063,1338,77,58,152,68,66),(5058,40,890,1026,1244,74,57,147,67,64),(5058,39,852,988,1163,72,56,142,68,62),(5058,38,814,952,1095,70,55,139,69,61),(5058,37,776,916,1038,69,53,138,70,59),(5058,36,737,879,990,67,52,137,72,58),(5058,35,699,845,950,63,51,136,73,57),(5058,34,661,793,908,64,50,135,76,56),(5058,33,728,742,884,62,49,131,74,54),(5058,32,680,720,862,60,47,127,73,53),(5058,31,631,676,838,59,47,123,71,52),(5058,30,599,648,815,57,46,118,69,51),(5058,29,566,620,791,57,44,114,67,49),(5058,28,534,592,768,55,43,110,65,48),(5058,27,501,564,745,53,42,105,63,47),(5058,26,469,534,721,52,41,101,62,46),(5058,25,440,504,699,50,40,97,60,44),(5058,24,400,476,675,49,39,93,57,43),(5058,23,373,447,652,47,38,89,56,42),(5058,22,349,420,628,46,36,84,54,41),(5058,21,325,393,604,44,36,80,53,39),(5058,20,303,377,563,42,35,67,31,49),(5058,19,293,351,550,40,33,72,29,39),(5058,18,262,314,510,39,32,67,24,38),(5058,17,250,300,460,37,31,63,20,37),(5058,16,229,275,400,36,30,59,16,36),(5058,15,209,251,360,34,29,55,14,35),(5058,14,189,227,320,33,28,50,11,35),(5058,13,169,203,280,31,27,46,9,34),(5058,12,150,180,240,29,26,42,8,33),(5058,11,132,158,220,28,25,38,6,32),(5058,10,123,147,200,26,23,33,5,31),(5058,9,113,136,180,25,22,29,4,31),(5058,8,104,125,160,23,21,25,4,30),(5058,7,95,114,140,22,20,21,3,29),(5058,6,86,103,120,20,19,16,3,29),(5058,5,77,92,100,18,18,12,2,28),(5058,4,68,81,80,17,17,8,2,27),(5058,3,58,70,60,15,16,4,1,27),(5058,2,49,59,40,14,15,2,1,26),(5058,1,40,48,20,12,14,1,1,25),(3939,60,920,1898,1163,122,27,128,264,197),(3939,59,878,1824,1150,127,27,230,258,192),(3939,58,862,1763,1125,125,27,224,250,189),(3939,57,850,1714,1101,123,27,220,243,185),(3939,56,846,1666,1091,121,27,215,236,181),(3939,55,836,1620,1078,119,26,211,229,177),(3939,54,820,1573,1055,115,26,207,222,172),(3939,53,787,1527,1039,114,25,203,215,168),(3939,52,764,1481,1013,112,24,198,208,165),(3939,51,750,1435,996,109,22,194,202,161),(3939,50,747,1391,983,107,22,190,194,158),(3939,49,734,1347,964,105,22,186,188,155),(3939,48,726,1320,946,102,22,181,184,152),(3939,47,718,1294,928,100,22,177,181,151),(3939,46,709,1267,910,98,22,173,177,149),(3939,45,701,1240,884,96,21,169,174,148),(3939,44,693,1214,853,91,21,164,170,146),(3939,43,685,1187,808,87,20,160,167,145),(3939,42,676,1103,756,81,20,156,163,144),(3939,41,668,1063,694,77,20,152,160,143),(3939,40,650,1026,639,74,20,147,156,142),(3939,39,642,988,561,72,19,142,69,118),(3939,38,634,952,549,70,19,139,68,115),(3939,37,626,916,537,69,19,138,68,112),(3939,36,617,879,525,67,19,137,66,110),(3939,35,609,845,513,64,19,136,66,107),(3939,34,601,793,501,63,19,135,65,104),(3939,33,598,742,488,62,18,131,65,101),(3939,32,590,720,476,60,17,127,64,98),(3939,31,581,676,462,59,16,123,64,95),(3939,30,579,648,449,57,16,118,63,92),(3939,29,576,620,436,57,16,114,62,89),(3939,28,574,592,424,55,15,110,62,86),(3939,27,571,564,411,53,14,105,61,81),(3939,26,569,534,399,52,13,101,60,78),(3939,25,540,504,386,50,13,97,98,100),(3939,24,520,476,373,49,13,93,97,95),(3939,23,473,447,360,47,13,89,96,90),(3939,22,449,420,346,46,13,84,95,86),(3939,21,425,393,320,44,13,80,91,83),(3939,20,403,377,303,42,13,67,87,78),(3939,19,393,351,291,40,13,63,74,75),(3939,18,362,314,278,39,13,59,70,70),(3939,17,350,300,265,38,13,55,65,65),(3939,16,329,275,253,36,13,52,62,56),(3939,15,309,251,240,34,13,48,57,52),(3939,14,299,227,228,33,13,44,54,47),(3939,13,289,203,215,32,13,43,50,43),(3939,12,250,180,203,31,12,36,41,39),(3939,11,232,158,190,30,11,32,37,35),(3939,10,223,147,180,29,10,29,33,31),(3939,9,213,136,147,25,9,27,32,30),(3939,8,204,125,117,23,8,25,31,29),(3939,7,195,114,92,22,7,21,30,28),(3939,6,186,103,68,20,7,16,29,27),(3939,5,177,92,49,18,5,12,28,27),(3939,4,168,81,33,17,5,8,27,26),(3939,3,158,70,20,15,5,4,26,25),(3939,2,149,59,20,21,5,2,25,24),(3939,1,140,48,20,20,5,20,24,23),(329,60,920,1898,1163,122,27,128,264,197),(329,59,878,1824,1150,127,27,230,258,192),(329,58,862,1763,1125,125,27,224,250,189),(329,57,850,1714,1101,123,27,220,243,185),(329,56,846,1666,1091,121,27,215,236,181),(329,55,836,1620,1078,119,26,211,229,177),(329,54,820,1573,1055,115,26,207,222,172),(329,53,787,1527,1039,114,25,203,215,168),(329,52,764,1481,1013,112,24,198,208,165),(329,51,750,1435,996,109,22,194,202,161),(329,50,747,1391,983,107,22,190,194,158),(329,49,734,1347,964,105,22,186,188,155),(329,48,726,1320,946,102,22,181,184,152),(329,47,718,1294,928,100,22,177,181,151),(329,46,709,1267,910,98,22,173,177,149),(329,45,701,1240,884,96,21,169,174,148),(329,44,693,1214,853,91,21,164,170,146),(329,43,685,1187,808,87,20,160,167,145),(329,42,676,1103,756,81,20,156,163,144),(329,41,668,1063,694,77,20,152,160,143),(329,40,650,1026,639,74,20,147,156,142),(329,39,642,988,561,72,19,142,69,118),(329,38,634,952,549,70,19,139,68,115),(329,37,626,916,537,69,19,138,68,112),(329,36,617,879,525,67,19,137,66,110),(329,35,609,845,513,64,19,136,66,107),(329,34,601,793,501,63,19,135,65,104),(329,33,598,742,488,62,18,131,65,101),(329,32,590,720,476,60,17,127,64,98),(329,31,581,676,462,59,16,123,64,95),(329,30,579,648,449,57,16,118,63,92),(329,29,576,620,436,57,16,114,62,89),(329,28,574,592,424,55,15,110,62,86),(329,27,571,564,411,53,14,105,61,81),(329,26,569,534,399,52,13,101,60,78),(329,25,540,504,386,50,13,97,98,100),(329,24,520,476,373,49,13,93,97,95),(329,23,473,447,360,47,13,89,96,90),(329,22,449,420,346,46,13,84,95,86),(329,21,425,393,320,44,13,80,91,83),(329,20,403,377,303,42,13,67,87,78),(329,19,393,351,291,40,13,63,74,75),(329,18,362,314,278,39,13,59,70,70),(329,17,350,300,265,38,13,55,65,65),(329,16,329,275,253,36,13,52,62,56),(329,15,309,251,240,34,13,48,57,52),(329,14,299,227,228,33,13,44,54,47),(329,13,289,203,215,32,13,43,50,43),(329,12,250,180,203,31,12,36,41,39),(329,11,232,158,190,30,11,32,37,35),(329,10,223,147,180,29,10,29,33,31),(329,9,213,136,147,25,9,27,32,30),(329,8,204,125,117,23,8,25,31,29),(329,7,195,114,92,22,7,21,30,28),(329,6,186,103,68,20,7,16,29,27),(329,5,177,92,49,18,5,12,28,27),(329,4,168,81,33,17,5,8,27,26),(329,3,158,70,20,15,5,4,26,25),(329,2,149,59,20,21,5,2,25,24),(329,1,140,48,20,20,5,20,24,23),(1,61,0,0,0,139,0,0,0,0),(1,62,0,0,0,142,0,0,0,0),(1,63,0,0,0,145,0,0,0,0);
-    
+
         insert into applied_updates values ('030920222');
     end if;
 
@@ -12569,10 +12569,10 @@ begin not atomic
         RENAME TABLE `gameobject_involvedrelation` TO `gameobject_quest_finisher`;
         RENAME TABLE `gameobject_questrelation` TO `gameobject_quest_starter`;
         RENAME TABLE `areatrigger_involvedrelation` TO `areatrigger_quest_relation`;
-       
+
         insert into applied_updates values ('170920221');
     end if;
-	
+
      -- 18/09/2022 1
     if (select count(*) from applied_updates where id='180920221') = 0 then
         -- HUMAN WARRIOR
@@ -13999,13 +13999,13 @@ begin not atomic
 
         insert into applied_updates values ('180920221');
     end if;
-	
+
     -- 24/09/2022 1
     if (select count(*) from applied_updates where id='240920221') = 0 then
         -- Fixes Wharfmaster Dizzywig placement.
         UPDATE `spawns_creatures` SET `position_z` = 0.039 WHERE (`spawn_id` = 14419);
         -- Fixes Quest - Zenn's Bidding
-        UPDATE `quest_template` SET `ReqCreatureOrGOCount1` = 0 WHERE (`entry` = 488); 
+        UPDATE `quest_template` SET `ReqCreatureOrGOCount1` = 0 WHERE (`entry` = 488);
 
         insert into applied_updates values ('240920221');
     end if;
@@ -14031,7 +14031,7 @@ begin not atomic
         INSERT INTO spawns_creatures VALUES (NULL, 2942, 0, 0, 0, 0, -9487.387, 42.313, 57.889, 3.477, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
         -- FIX spawns_creatures 223
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-5669.9599609375,
         position_y=-457.5539855957031,
         position_z=395.48870849609375,
@@ -14045,7 +14045,7 @@ begin not atomic
         INSERT INTO spawns_creatures VALUES (NULL, 5522, 0, 0, 0, 0, -8398.7734375, 648.2799682617188, 95.2513427734375, 0.08168182522058487, 300, 300, 0, 100, 0, 0, 0, 0, 0);
 
         -- FIX spawns_creatures 81393
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-9340.915,
         position_y=177.269,
         position_z=61.491,
@@ -14053,7 +14053,7 @@ begin not atomic
         WHERE spawn_id=81393;
 
         -- FIX spawns_creatures 81388
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-9338.215,
         position_y=179.913,
         position_z=61.491,
@@ -14061,7 +14061,7 @@ begin not atomic
         WHERE spawn_id=81388;
 
         -- FIX spawns_creatures 81394
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-9346.6044921875,
         position_y=180.0931396484375,
         position_z=61.49106216430664,
@@ -14069,7 +14069,7 @@ begin not atomic
         WHERE spawn_id=81394;
 
         -- FIX spawns_creatures 81389
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-9325.022,
         position_y=169.818,
         position_z=62.616,
@@ -14077,7 +14077,7 @@ begin not atomic
         WHERE spawn_id=81389;
 
         -- FIX spawns_creatures 81385
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-9327.1630859375,
         position_y=167.3548583984375,
         position_z=62.36800765991211,
@@ -14085,7 +14085,7 @@ begin not atomic
         WHERE spawn_id=81385;
 
         -- FIX spawns_creatures 253000
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-9328.7138671875,
         position_y=166.4746856689453,
         position_z=62.208248138427734,
@@ -14093,7 +14093,7 @@ begin not atomic
         WHERE spawn_id=253000;
 
         -- FIX spawns_creatures 81391
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-9335.6826171875,
         position_y=161.30809020996094,
         position_z=61.4175910949707,
@@ -14101,7 +14101,7 @@ begin not atomic
         WHERE spawn_id=81391;
 
         -- FIX spawns_creatures 81343
-        UPDATE spawns_creatures SET 
+        UPDATE spawns_creatures SET
         position_x=-9337.3515625,
         position_y=160.24195861816406,
         position_z=61.39207077026367,
@@ -14131,7 +14131,7 @@ begin not atomic
         SET `display_id1`=130
         WHERE `entry`=3470;
 
-        -- Lilith Nefara 
+        -- Lilith Nefara
         UPDATE `creature_template`
         SET `display_id1`=146
         WHERE `entry`=1946;
@@ -14174,7 +14174,7 @@ begin not atomic
         UPDATE `creature_template` SET `level_min` = 20 WHERE `entry` IN (3988, 3991);
         UPDATE `creature_template` SET `level_max` = 20 WHERE `entry` = 3989;
         UPDATE `creature_template` SET `level_max` = 21 WHERE `entry` IN (3988, 3991);
-        
+
         -- Creatures not spawned yet
         UPDATE `creature_template` SET `level_min` = 17 WHERE `entry` = 3990;
         UPDATE `creature_template` SET `level_max` = 18 WHERE `entry` = 3990;
@@ -14217,7 +14217,7 @@ begin not atomic
     if (select count(*) from applied_updates where id='201020221') = 0 then
         -- #657
         -- Mangletooth
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-418.259,
         position_y=-2571.113,
         position_z=98.980,
@@ -14225,7 +14225,7 @@ begin not atomic
         WHERE spawn_id=14345;
 
         -- Uthrok
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-430.250,
         position_y=-2690.008,
         position_z=99.653,
@@ -14233,7 +14233,7 @@ begin not atomic
         WHERE spawn_id=15103;
 
         -- Gazrog
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-431.779,
         position_y=-2638.041,
         position_z=95.985,
@@ -14241,7 +14241,7 @@ begin not atomic
         WHERE spawn_id=15029;
 
         -- Darsok Swiftdagger
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-404.915,
         position_y=-2649.898,
         position_z=145.825,
@@ -14249,7 +14249,7 @@ begin not atomic
         WHERE spawn_id=14415;
 
         -- Grub
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-417.593,
         position_y=-2657.668,
         position_z=96.031,
@@ -14257,7 +14257,7 @@ begin not atomic
         WHERE spawn_id=14390;
 
         -- Zargh
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-408.556,
         position_y=-2661.161,
         position_z=95.988,
@@ -14265,7 +14265,7 @@ begin not atomic
         WHERE spawn_id=15104;
 
         -- Rethgar Deathgate
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-473.619,
         position_y=-2596.796,
         position_z=103.912,
@@ -14273,7 +14273,7 @@ begin not atomic
         WHERE spawn_id=13950;
 
         -- Moorane Hearthgrain
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-390.703,
         position_y=-2707.016,
         position_z=99.232,
@@ -14281,7 +14281,7 @@ begin not atomic
         WHERE spawn_id=15091;
 
         -- Hula'mahi
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-420.274,
         position_y=-2625.528,
         position_z=95.657,
@@ -14289,7 +14289,7 @@ begin not atomic
         WHERE spawn_id=15108;
 
         -- Grenthar
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-413.143,
         position_y=-2620.501,
         position_z=95.998,
@@ -14297,7 +14297,7 @@ begin not atomic
         WHERE spawn_id=14347;
 
         -- Thork
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-430.731,
         position_y=-2568.288,
         position_z=96.689,
@@ -14305,7 +14305,7 @@ begin not atomic
         WHERE spawn_id=14344;
 
         -- Sergra Darkthorn
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=-441.497,
         position_y=-2645.144,
         position_z=96.075,
@@ -14314,7 +14314,7 @@ begin not atomic
 
         -- #664
         -- Kayneth Stillwind
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=2323.507,
         position_y=-2559.115,
         position_z=105.948,
@@ -14322,7 +14322,7 @@ begin not atomic
         WHERE spawn_id=32331;
 
         -- Cylania Rootstalker
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=2420.542,
         position_y=-2610.767,
         position_z=78.055,
@@ -14330,7 +14330,7 @@ begin not atomic
         WHERE spawn_id=32719;
 
         -- Harklan Moongrove
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=2360.490,
         position_y=-2661.508,
         position_z=82.097,
@@ -14360,7 +14360,7 @@ begin not atomic
         UPDATE `creature_template` SET `health_max`='2331' WHERE  `entry`=1715;
 
         -- Dextren Ward
-        UPDATE `spawns_creatures` SET 
+        UPDATE `spawns_creatures` SET
         position_x=69.028,
         position_y=-87.137,
         position_z=-33.940,
@@ -14377,14 +14377,14 @@ begin not atomic
 
         insert into applied_updates values ('201020221');
     end if;
-	
+
     -- 23/10/2022 1
     if (select count(*) from applied_updates where id='231020221') = 0 then
         -- Fix Sirens Call cooldown.
         UPDATE `creature_spells` SET `delayRepeatMin_1` = '120', `delayRepeatMax_1` = '180' WHERE (`entry` = '21800');
         insert into applied_updates values ('231020221');
-    end if;	
-	
+    end if;
+
     -- 28/10/2022 1
     if (select count(*) from applied_updates where id='281020221') = 0 then
         -- Trainer Template ID 23 - WARRIOR
@@ -14435,19 +14435,19 @@ begin not atomic
 
         insert into applied_updates values ('281020222');
     end if;
-    
+
     -- 03/11/2022 1
     -- Fix QuickShot repeat delay to 60/70 secs.
     if (select count(*) from applied_updates where id='031120221') = 0 then
         UPDATE `creature_spells` SET `delayRepeatMin_1` = '60', `delayRepeatMax_1` = '70' WHERE (`entry` = '29510');
         insert into applied_updates values ('031120221');
     end if;
-	
+
     -- 10/11/2022 1
     -- Fix wrong curses training spells.
     if (select count(*) from applied_updates where id='101120221') = 0 then
         DELETE FROM `trainer_template` WHERE spell in (1031,1029,981,1015,729,1109,956);
-		
+
         -- Trainer Template ID 14 - WARLOCK
         -- Spell: Curse of Agony - (Rank 1)
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('14', '1296', '980', '200', '0', '0', '0', '0', '8');
@@ -14643,6 +14643,356 @@ begin not atomic
         insert into applied_updates values ('261120222');
     end if;
 
+    -- 08/12/2022 1
+    if (select count(*) from applied_updates where id='081220221') = 0 then
+        -- Skill requirements for Magic Talents and Weapon Talents skill lines
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 1012, 601, 0, 25, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4288, 4287, 0, 40, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4926, 4924, 0, 25, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4925, 4923, 0, 20, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4922, 4921, 0, 15, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4903, 4902, 0, 40, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4901, 4900, 0, 25, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4899, 4897, 0, 40, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4898, 4896, 0, 25, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4291, 4289, 0, 25, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4292, 4290, 0, 40, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4295, 4293, 0, 25, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4296, 4294, 0, 40, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4299, 4297, 0, 25, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4300, 4298, 0, 40, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4337, 4334, 0, 10, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4343, 4335, 0, 15, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5983, 5972, 0, 25, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5982, 5971, 0, 20, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5980, 5970, 0, 15, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5989, 5979, 0, 40, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5988, 5977, 0, 35, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5987, 5976, 0, 30, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5986, 5975, 0, 25, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5985, 5974, 0, 20, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5984, 5973, 0, 15, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5981, 5969, 0, 10, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5965, 5958, 0, 40, 0, 176, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5964, 5957, 0, 35, 0, 176, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5963, 5956, 0, 30, 0, 176, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5962, 5955, 0, 25, 0, 176, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5961, 5954, 0, 20, 0, 176, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5960, 5953, 0, 15, 0, 176, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5959, 5952, 0, 10, 0, 176, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5764, 5758, 0, 40, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5762, 5757, 0, 25, 0, 226, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5780, 5756, 0, 30, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5779, 5755, 0, 25, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5778, 5754, 0, 20, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5777, 5753, 0, 15, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5776, 5752, 0, 10, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5775, 5751, 0, 5, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5774, 5750, 0, 50, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5773, 5749, 0, 45, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5772, 5748, 0, 40, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5771, 5747, 0, 35, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5770, 5746, 0, 30, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5769, 5745, 0, 25, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5767, 5744, 0, 20, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5766, 5743, 0, 15, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5765, 5742, 0, 10, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4920, 4918, 0, 25, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4919, 4917, 0, 20, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4916, 4915, 0, 15, 0, 45, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5725, 5717, 0, 25, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5724, 5716, 0, 20, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5722, 5715, 0, 15, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5664, 5643, 0, 30, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5663, 5642, 0, 25, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5662, 5641, 0, 20, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5661, 5640, 0, 15, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5660, 5639, 0, 10, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5659, 5638, 0, 5, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5658, 5637, 0, 50, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5657, 5636, 0, 45, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5656, 5635, 0, 40, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5655, 5634, 0, 35, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5654, 5633, 0, 30, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5653, 5632, 0, 25, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5652, 5631, 0, 20, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5651, 5630, 0, 15, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5650, 5626, 0, 10, 0, 46, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5596, 5587, 0, 25, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5595, 5586, 0, 20, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5594, 5585, 0, 15, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5564, 5554, 0, 30, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5563, 5553, 0, 25, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5562, 5552, 0, 20, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5561, 5551, 0, 15, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5560, 5550, 0, 10, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5559, 5549, 0, 5, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5558, 5548, 0, 50, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5557, 5547, 0, 25, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5556, 5546, 0, 20, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5555, 5545, 0, 15, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4333, 4330, 0, 40, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4332, 4329, 0, 30, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4331, 4328, 0, 20, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5539, 5354, 0, 30, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5538, 5353, 0, 25, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5537, 5352, 0, 20, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5536, 5351, 0, 15, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5535, 5350, 0, 10, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5534, 5349, 0, 5, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5533, 5348, 0, 50, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5542, 5529, 0, 25, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5541, 5528, 0, 20, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5540, 5527, 0, 15, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4431, 4429, 0, 40, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4430, 4428, 0, 30, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4427, 4426, 0, 20, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5522, 5513, 0, 30, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5521, 5433, 0, 25, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5520, 5432, 0, 20, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5519, 5431, 0, 15, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5518, 5430, 0, 10, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5517, 5429, 0, 5, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5516, 5428, 0, 50, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5526, 5511, 0, 25, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5525, 5510, 0, 20, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5524, 5509, 0, 15, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4313, 4309, 0, 40, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4311, 4308, 0, 30, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4310, 4307, 0, 20, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5494, 5453, 0, 25, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5493, 5452, 0, 20, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5492, 5451, 0, 15, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5491, 5450, 0, 10, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5490, 5449, 0, 5, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5489, 5448, 0, 50, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5498, 5483, 0, 25, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5497, 5482, 0, 20, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5496, 5481, 0, 15, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4306, 4303, 0, 40, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4305, 4302, 0, 30, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4304, 4301, 0, 20, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5479, 5468, 0, 25, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5478, 5467, 0, 20, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5477, 5466, 0, 15, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5469, 4417, 0, 40, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4424, 4416, 0, 30, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4415, 4414, 0, 20, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5475, 5345, 0, 25, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5474, 5344, 0, 20, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5473, 5343, 0, 15, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5472, 5342, 0, 10, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5471, 5341, 0, 5, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5470, 5340, 0, 50, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5462, 5360, 0, 25, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5461, 5359, 0, 20, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5460, 5358, 0, 15, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5459, 5357, 0, 10, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5458, 5356, 0, 5, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5457, 5355, 0, 50, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4423, 4421, 0, 25, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4422, 4420, 0, 20, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4419, 4418, 0, 15, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5465, 5456, 0, 40, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5464, 5455, 0, 30, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5463, 5454, 0, 20, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4344, 4336, 0, 20, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4345, 4338, 0, 25, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4346, 4339, 0, 30, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4347, 4340, 0, 35, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4348, 4341, 0, 40, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4349, 4342, 0, 45, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4383, 4382, 0, 10, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4391, 4384, 0, 15, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4392, 4385, 0, 20, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4393, 4386, 0, 25, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4394, 4387, 0, 30, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4395, 4388, 0, 35, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4396, 4389, 0, 40, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4397, 4390, 0, 45, 0, 173, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4367, 4366, 0, 10, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4375, 4368, 0, 15, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4376, 4369, 0, 20, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4377, 4370, 0, 25, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4378, 4371, 0, 30, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4379, 4372, 0, 35, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4380, 4373, 0, 40, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4381, 4374, 0, 45, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4358, 4350, 0, 10, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4359, 4351, 0, 15, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4360, 4352, 0, 20, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4361, 4353, 0, 25, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4362, 4354, 0, 30, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4363, 4355, 0, 35, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4364, 4356, 0, 40, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4365, 4357, 0, 45, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4399, 4398, 0, 25, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4401, 4400, 0, 40, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4403, 4402, 0, 25, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4404, 4405, 0, 40, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4407, 4406, 0, 25, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4409, 4408, 0, 40, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4411, 4410, 0, 25, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4413, 4412, 0, 40, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4434, 4433, 0, 20, 0, 0, 0, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4438, 4435, 0, 30, 0, 0, 0, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4439, 4437, 0, 40, 0, 0, 0, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4441, 4440, 0, 10, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4449, 4442, 0, 15, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4450, 4443, 0, 20, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4451, 4444, 0, 25, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4452, 4445, 0, 30, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4453, 4446, 0, 35, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4454, 4447, 0, 40, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4455, 4448, 0, 45, 0, 44, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4457, 4456, 0, 10, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4465, 4458, 0, 15, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4466, 4459, 0, 20, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4467, 4460, 0, 25, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4468, 4461, 0, 30, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4469, 4462, 0, 35, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4470, 4463, 0, 40, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4471, 4464, 0, 45, 0, 43, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4473, 4472, 0, 10, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4481, 4474, 0, 15, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4482, 4475, 0, 20, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4483, 4476, 0, 25, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4484, 4477, 0, 30, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4485, 4478, 0, 35, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4486, 4479, 0, 40, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4487, 4480, 0, 45, 0, 54, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4489, 4488, 0, 10, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4497, 4490, 0, 15, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4498, 4491, 0, 20, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4499, 4492, 0, 25, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4500, 4493, 0, 30, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4501, 4494, 0, 35, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4502, 4495, 0, 40, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4503, 4496, 0, 45, 0, 136, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4789, 4788, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4791, 4790, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4843, 4836, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4845, 4838, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4847, 4840, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4799, 4798, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4873, 4866, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4817, 2917, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4787, 4786, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4085, 2123, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4879, 4872, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4878, 4871, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4877, 4870, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4876, 4869, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4875, 4868, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4874, 4867, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4860, 4853, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4859, 4852, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4858, 4851, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4857, 4850, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4849, 4848, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4795, 4794, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4793, 4792, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4895, 4888, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4894, 4887, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4893, 4886, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4892, 4885, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4891, 4884, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4890, 4883, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4889, 4882, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4881, 4880, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4803, 4802, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4801, 4800, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4863, 4856, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4862, 4855, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4861, 4854, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6109, 6093, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6113, 6092, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6108, 6091, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6107, 6090, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6106, 6089, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6105, 6088, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6104, 6087, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6103, 6086, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6102, 6085, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6101, 6057, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6112, 6098, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6111, 6097, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6100, 6094, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6110, 6096, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6099, 6095, 0, 0, 0, 228, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5937, 5929, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5936, 5928, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5935, 5927, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5940, 5926, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5939, 5925, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5938, 5924, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5934, 5923, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5931, 5920, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5930, 5919, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5933, 5922, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5932, 5921, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5912, 5900, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5911, 5899, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5910, 5898, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5907, 5896, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5914, 5902, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5913, 5901, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5908, 5897, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5906, 5894, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5905, 5893, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5904, 5892, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5903, 5891, 0, 0, 0, 78, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5887, 5871, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5886, 5870, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5885, 5869, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5880, 5866, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5883, 5868, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5882, 5867, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5881, 5865, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5879, 5873, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5878, 5872, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5876, 5875, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5877, 5874, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5851, 5838, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5850, 5837, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5849, 5834, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5854, 5841, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5853, 5840, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5852, 5839, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5848, 5835, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5856, 5843, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5855, 5842, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5847, 5845, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5846, 5844, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5833, 5818, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5832, 5817, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5831, 5816, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5826, 5822, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5825, 5819, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5830, 5815, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5829, 5814, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5828, 5813, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5827, 5812, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5824, 5821, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5823, 5820, 0, 0, 0, 96, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4831, 4824, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4830, 4823, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4829, 4822, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4828, 4821, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4827, 4820, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4826, 4819, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4825, 4818, 0, 0, 0, 56, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4865, 4864, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4797, 4796, 0, 0, 0, 6, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4846, 4839, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4844, 4837, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4842, 4835, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4841, 4834, 0, 0, 0, 8, 1, 0);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4833, 4832, 0, 0, 0, 8, 1, 0);
+
+        insert into applied_updates values ('081220221');
+    end if;
+
     -- 22/12/2022 1
     -- TODO items - Display ID's
     if (select count(*) from applied_updates where id='221220221') = 0 then
@@ -14662,6 +15012,7 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4714;
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4715;
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4716;
+        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4717;
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4718;
         UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4719;
 
@@ -15034,555 +15385,118 @@ begin not atomic
 
         insert into applied_updates values ('251220221');
     end if;
-    
-     -- 22/12/2022 1
-    -- TODO items - Display ID's
-    if (select count(*) from applied_updates where id='221220221') = 0 then
-        -- #802 Cursed Marine
-        UPDATE `creature_template` SET `display_id1`=3507 WHERE `entry`=1158;
 
-        -- #796 Rema Schneider
-        UPDATE `creature_template` SET `display_id1`=213 WHERE `entry`=1428;
-
-        -- #782 Varimathras
-        UPDATE `creature_template` SET `display_id1`=1468, `level_min`=100, `level_max`=100 WHERE `entry`=2425;
-
-        -- #773 Nagas
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4711;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4712;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4713;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4714;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4715;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4716;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4717;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4718;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4719;
-
-        -- #772 Flesh eating worms
-        UPDATE `creature_template` SET `display_id1`=4167 WHERE `entry`=2462;
-
-        -- #747 Sharlindra
-        UPDATE `creature_template` SET `display_id1`=915 WHERE `entry`=2227;
-
-        -- #746 Aelthalyste
-        UPDATE `creature_template` SET `display_id1`=915 WHERE `entry`=4606;
-
-        -- #745 Lavinia Crowe
-        UPDATE `creature_template` SET `display_id1`=146 WHERE `entry`=4616;
-
-        -- #744 Kaelystia
-        UPDATE `creature_template` SET `display_id1`=915, `scale`=1.0 WHERE `entry`=4566;
-
-        -- #721 Nissa Agamand
-        UPDATE `creature_template` SET `display_id1`=915, `scale`=1.0 WHERE `entry`=1655;
-
-        insert into applied_updates values ('221220221');
-    end if;
-
-	-- 27/12/2022 1
+    -- 27/12/2022 1
 	-- TODO item - Hunter pet trainer update: issue #789
 	if (select count(*) from applied_updates where id='271220221') = 0 then
 	    -- Jadenvis Seawatcher
 		UPDATE `creature_template` SET `subname` = 'Crawler Trainer' WHERE `entry` = 3700;
-				
+
 		-- Claude Erksine
 		UPDATE `creature_template` SET `subname` = 'Bear Trainer', `display_id1` = 428 WHERE `entry` = 3545;
-				
+
 		-- Grokor
 		UPDATE `creature_template` SET `subname` = 'Boar Trainer', `display_id1` = 1139 WHERE `entry` = 3622;
 		UPDATE `spawns_creatures` SET `map` = 1, `position_x` = 1344.589, `position_y` = -4400.076, `position_z` = 28.504, `orientation` = 1.931 WHERE `spawn_id` = 34501;
-				
+
 		-- Harruk
 		UPDATE `creature_template` SET `subname` = 'Crocilisk Trainer', `display_id1` = 1139 WHERE `entry` = 3620;
-				
+
 		-- Rarck
 		UPDATE `creature_template` SET `subname` = 'Raptor Trainer', `display_id1` = 1139, `npc_flags` = 8 WHERE `entry` = 3625;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3625, 1, 402.803, -4595.875, 55.047, 5.718, 0, 0);
-				
+
 		-- kurll
 		UPDATE `creature_template` SET `subname` = 'Cat Trainer', `display_id1` = 1139, `npc_flags` = 8 WHERE `entry` = 3621;
 		UPDATE `spawns_creatures` SET `position_x` = -818.095, `position_y` = -4945.409, `position_z` = 21.415, `orientation` = 2.352 WHERE `spawn_id` = 35196;
-				
+
 		-- Bernie Heinstein
 		UPDATE `creature_template` SET `subname` = 'Spider Trainer', `npc_flags` = 8 WHERE `entry` = 3546;
-				
+
 		-- Alanndarian
 		UPDATE `creature_template` SET `subname` = 'Tallstrider Trainer', `npc_flags` = 8 WHERE `entry` = 3702;
 		UPDATE `spawns_creatures` SET `position_x` = 5075.978, `position_y` = 233.309, `position_z` = 28.396, `orientation` = 2.352 WHERE `spawn_entry1` = 3702;
-				
+
 		-- Karrina
 		UPDATE `creature_template` SET `subname` = 'Bird Trainer', `display_id1` = 2585 WHERE `entry` = 2879;
         UPDATE `spawns_creatures` SET `position_x` = -5623.49, `position_y` = -4342.49, `position_z` = 404.401, `orientation` = 1.631 WHERE `spawn_id` = 18402;
-				
+
 		-- Harb
 		UPDATE `creature_template` SET `subname` = 'Cat Trainer', `display_id1` = 2578, `npc_flags` = 8 WHERE `entry` = 3685;
 		UPDATE `spawns_creatures` SET `position_x` = -2203.307, `position_y` = -474.070, `position_z` = -8.847, `orientation` = 1.984 WHERE `spawn_id` = 24779;
-		
+
 		-- Jackson Bayne
 		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2939;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2939, 0, -9523.457, -1245.146, 43.337, 4.476, 0, 0);
-			
+
 		-- Rebald Yorglun
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4621, 0, -3462.72, -1804.17, 25.5791, 5.890, 0, 0);
-				
+
 		-- Laer
 		UPDATE `creature_template` SET `subname` = 'Wolf Trainer', `npc_flags` = 8 WHERE `entry` = 3689;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3689, 1, -2481.16, -473.534, -8.74122, 4.88692, 0, 0);
-			
+
 		-- Zud
 		UPDATE `creature_template` SET `subname` = 'Scorpid Trainer', `npc_flags` = 8 WHERE `entry` = 3624;
-			
+
 		-- Tursk
 		UPDATE `creature_template` SET `subname` = 'Crawler Trainer', `display_id1` = 1139, `npc_flags` = 8 WHERE `entry` = 3623;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3623, 1, 268.598, -4724.62, 13.8037, 4.88692, 0, 0);
-			
+
 		-- Frank Ward
 		UPDATE `creature_template` SET `display_id1` = 428 WHERE `entry` = 2940;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2940, 0, -10156.5, 1199.53, 36.3752, 4.34587, 0, 0);
-			
+
 		-- Hurom Juggendolf
 		UPDATE `creature_template` SET `display_id1` = 115 WHERE `entry` = 2880;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2880, 0, -5619, -1529, 399.757, 0.934, 0, 0);
-			
+
 		-- Durdrek Karrin
 		UPDATE `creature_template` SET `display_id1` = 115 WHERE `entry` = 2881;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2881, 0, -5321.34, -1057.26, 393.347, 1.328, 0, 0);
-			
+
 		-- Kyln Longclaw
 		UPDATE `creature_template` SET `subname` = 'Boar Trainer', `display_id1` = 1945 WHERE `entry` = 3697;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3697, 1, 9798.24, 987.919, 1313.82, 1.328, 0, 0);
-			
+
 		-- Whaldak Darkbenk
 		UPDATE `creature_template` SET `name` = 'Whaldak Darkbenk', `display_id1` = 2584 WHERE `entry` = 2872;
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2872, 0, -5860.4, -2618.87, 315.844, 5.231, 0, 0);
-			
+
 		-- Lanie Reed
 		UPDATE `creature_template` SET `display_id1` = 2585, `npc_flags` = 8 WHERE `entry` = 2941;
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2941, 0, -9456.99, -1309.43, 45.0453, 0.959931, 0, 0);
-			
+
 		-- Kysandia
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4153, 1, 10127.844, 1536.695, 1322.288, 0.553, 0, 0);
-			
+
 		-- Talar
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4206, 1, 10673.6, 1923.97, 1336.1, 2.629, 0, 0);
-			
+
 		-- Henria Derth
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (2870, 0, -5206.33, -479.098, 389.119, 2.21352, 0, 0);
-			
+
 		-- Bolyun
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3698, 1, 9917.74, 2195.93, 1327.95, 6.134, 0, 0);
-			
+
 		-- Frank Lasson
 		UPDATE `creature_template` SET `name` = 'Frank Lasson', `subname` = 'Spider Trainer', `npc_flags` = 8, `display_id1` = 428 WHERE `entry` = 4902;
         UPDATE `spawns_creatures` SET `map` = 0,`position_x` = -11500.5, `position_y` = 1762.2, `position_z` = 2.05317, `orientation` = 4.215 WHERE `spawn_id` = 30681;
-			
+
 		-- Kenna
 		UPDATE `creature_template` SET `name` = 'Kenna', `subname` = 'Crocilisk Pet Trainer', `npc_flags` = 8, `display_id1` = 2585 WHERE `entry` = 4901;
-			
+
 		-- Valyen
 		INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (4207, 1, 10126.3, 2541.87, 1317.63, 2.020, 0, 0);
-			
+
 		-- Ransin Donner
 		UPDATE `creature_template` SET `subname` = 'Crab Trainer', `npc_flags` = 8, `display_id1` = 428 WHERE `entry` = 2943;
 		UPDATE `spawns_creatures` SET `position_x` = -9545.16, `position_y` = -15.6298, `position_z` = 57.2866, `orientation` = 0.329 WHERE `spawn_id` = 1791;
 
 		-- Galthuk
 		UPDATE `creature_template` SET `subname` = 'Bear Trainer', `npc_flags` = 8, `display_id1` = 1139 WHERE `entry` = 4043;
-									
+
 		insert into applied_updates values ('271220221');
-    end if;
-
-    -- 22/12/2022 1
-    -- TODO items - Display ID's
-    if (select count(*) from applied_updates where id='221220221') = 0 then
-        -- #802 Cursed Marine
-        UPDATE `creature_template` SET `display_id1`=3507 WHERE `entry`=1158;
-
-        -- #796 Rema Schneider
-        UPDATE `creature_template` SET `display_id1`=213 WHERE `entry`=1428;
-
-        -- #782 Varimathras
-        UPDATE `creature_template` SET `display_id1`=1468, `level_min`=100, `level_max`=100 WHERE `entry`=2425;
-
-        -- #773 Nagas
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4711;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4712;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4713;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4714;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4715;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4716;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4717;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4718;
-        UPDATE `creature_template` SET `display_id1`=4036 WHERE `entry`=4719;
-
-        -- #772 Flesh eating worms
-        UPDATE `creature_template` SET `display_id1`=4167 WHERE `entry`=2462;
-
-        -- #747 Sharlindra
-        UPDATE `creature_template` SET `display_id1`=915 WHERE `entry`=2227;
-
-        -- #746 Aelthalyste
-        UPDATE `creature_template` SET `display_id1`=915 WHERE `entry`=4606;
-
-        -- #745 Lavinia Crowe
-        UPDATE `creature_template` SET `display_id1`=146 WHERE `entry`=4616;
-
-        -- #744 Kaelystia
-        UPDATE `creature_template` SET `display_id1`=915, `scale`=1.0 WHERE `entry`=4566;
-
-        -- #721 Nissa Agamand
-        UPDATE `creature_template` SET `display_id1`=915, `scale`=1.0 WHERE `entry`=1655;
-
-        insert into applied_updates values ('221220221');
-    end if;
-
-    -- 25/12/2022 1
-    if (select count(*) from applied_updates where id='251220221') = 0 then
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 1012, 601, 0, 25, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4288, 4287, 0, 40, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4926, 4924, 0, 25, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4925, 4923, 0, 20, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4922, 4921, 0, 15, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4903, 4902, 0, 40, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4901, 4900, 0, 25, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4899, 4897, 0, 40, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4898, 4896, 0, 25, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4291, 4289, 0, 25, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4292, 4290, 0, 40, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4295, 4293, 0, 25, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4296, 4294, 0, 40, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4299, 4297, 0, 25, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4300, 4298, 0, 40, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4337, 4334, 0, 10, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4343, 4335, 0, 15, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5983, 5972, 0, 25, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5982, 5971, 0, 20, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5980, 5970, 0, 15, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5989, 5979, 0, 40, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5988, 5977, 0, 35, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5987, 5976, 0, 30, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5986, 5975, 0, 25, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5985, 5974, 0, 20, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5984, 5973, 0, 15, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5981, 5969, 0, 10, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5965, 5958, 0, 40, 0, 176, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5964, 5957, 0, 35, 0, 176, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5963, 5956, 0, 30, 0, 176, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5962, 5955, 0, 25, 0, 176, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5961, 5954, 0, 20, 0, 176, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5960, 5953, 0, 15, 0, 176, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5959, 5952, 0, 10, 0, 176, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5764, 5758, 0, 40, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5762, 5757, 0, 25, 0, 226, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5780, 5756, 0, 80, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5779, 5755, 0, 75, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5778, 5754, 0, 70, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5777, 5753, 0, 65, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5776, 5752, 0, 60, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5775, 5751, 0, 55, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5774, 5750, 0, 50, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5773, 5749, 0, 45, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5772, 5748, 0, 40, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5771, 5747, 0, 35, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5770, 5746, 0, 30, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5769, 5745, 0, 25, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5767, 5744, 0, 20, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5766, 5743, 0, 15, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5765, 5742, 0, 10, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4920, 4918, 0, 25, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4919, 4917, 0, 20, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4916, 4915, 0, 15, 0, 45, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5725, 5717, 0, 25, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5724, 5716, 0, 20, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5722, 5715, 0, 15, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5664, 5643, 0, 80, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5663, 5642, 0, 75, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5662, 5641, 0, 70, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5661, 5640, 0, 65, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5660, 5639, 0, 60, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5659, 5638, 0, 55, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5658, 5637, 0, 50, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5657, 5636, 0, 45, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5656, 5635, 0, 40, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5655, 5634, 0, 35, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5654, 5633, 0, 30, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5653, 5632, 0, 25, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5652, 5631, 0, 20, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5651, 5630, 0, 15, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5650, 5626, 0, 10, 0, 46, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5596, 5587, 0, 25, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5595, 5586, 0, 20, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5594, 5585, 0, 15, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5564, 5554, 0, 80, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5563, 5553, 0, 75, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5562, 5552, 0, 70, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5561, 5551, 0, 65, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5560, 5550, 0, 60, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5559, 5549, 0, 55, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5558, 5548, 0, 50, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5557, 5547, 0, 25, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5556, 5546, 0, 20, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5555, 5545, 0, 15, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4333, 4330, 0, 40, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4332, 4329, 0, 30, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4331, 4328, 0, 20, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5539, 5354, 0, 80, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5538, 5353, 0, 75, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5537, 5352, 0, 70, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5536, 5351, 0, 65, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5535, 5350, 0, 60, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5534, 5349, 0, 55, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5533, 5348, 0, 50, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5542, 5529, 0, 25, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5541, 5528, 0, 20, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5540, 5527, 0, 15, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4431, 4429, 0, 40, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4430, 4428, 0, 30, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4427, 4426, 0, 20, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5522, 5513, 0, 80, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5521, 5433, 0, 75, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5520, 5432, 0, 70, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5519, 5431, 0, 65, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5518, 5430, 0, 60, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5517, 5429, 0, 55, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5516, 5428, 0, 50, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5526, 5511, 0, 25, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5525, 5510, 0, 20, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5524, 5509, 0, 15, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4313, 4309, 0, 40, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4311, 4308, 0, 30, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4310, 4307, 0, 20, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5494, 5453, 0, 75, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5493, 5452, 0, 70, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5492, 5451, 0, 65, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5491, 5450, 0, 60, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5490, 5449, 0, 55, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5489, 5448, 0, 50, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5498, 5483, 0, 25, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5497, 5482, 0, 20, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5496, 5481, 0, 15, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4306, 4303, 0, 40, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4305, 4302, 0, 30, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4304, 4301, 0, 20, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5479, 5468, 0, 25, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5478, 5467, 0, 20, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5477, 5466, 0, 15, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5469, 4417, 0, 40, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4424, 4416, 0, 30, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4415, 4414, 0, 20, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5475, 5345, 0, 75, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5474, 5344, 0, 70, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5473, 5343, 0, 65, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5472, 5342, 0, 60, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5471, 5341, 0, 55, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5470, 5340, 0, 50, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5462, 5360, 0, 75, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5461, 5359, 0, 70, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5460, 5358, 0, 65, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5459, 5357, 0, 60, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5458, 5356, 0, 55, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5457, 5355, 0, 50, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4423, 4421, 0, 25, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4422, 4420, 0, 20, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4419, 4418, 0, 15, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5465, 5456, 0, 40, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5464, 5455, 0, 30, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5463, 5454, 0, 20, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4344, 4336, 0, 20, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4345, 4338, 0, 25, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4346, 4339, 0, 30, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4347, 4340, 0, 35, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4348, 4341, 0, 40, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4349, 4342, 0, 45, 0, 44, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4383, 4382, 0, 10, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4391, 4384, 0, 15, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4392, 4385, 0, 20, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4393, 4386, 0, 25, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4394, 4387, 0, 30, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4395, 4388, 0, 35, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4396, 4389, 0, 40, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4397, 4390, 0, 45, 0, 173, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4367, 4366, 0, 10, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4375, 4368, 0, 15, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4376, 4369, 0, 20, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4377, 4370, 0, 25, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4378, 4371, 0, 30, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4379, 4372, 0, 35, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4380, 4373, 0, 40, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4381, 4374, 0, 45, 0, 54, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4358, 4350, 0, 10, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4359, 4351, 0, 15, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4360, 4352, 0, 20, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4361, 4353, 0, 25, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4362, 4354, 0, 30, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4363, 4355, 0, 35, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4364, 4356, 0, 40, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4365, 4357, 0, 45, 0, 43, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4399, 4398, 0, 25, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4401, 4400, 0, 40, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4403, 4402, 0, 25, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4404, 4405, 0, 40, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4407, 4406, 0, 25, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4409, 4408, 0, 40, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4411, 4410, 0, 25, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4413, 4412, 0, 40, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4434, 4433, 0, 20, 0, 0, 0, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4438, 4435, 0, 30, 0, 0, 0, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4439, 4437, 0, 40, 0, 0, 0, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4441, 4440, 0, 10, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4449, 4442, 0, 15, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4450, 4443, 0, 20, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4451, 4444, 0, 25, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4452, 4445, 0, 30, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4453, 4446, 0, 35, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4454, 4447, 0, 40, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4455, 4448, 0, 45, 0, 172, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4457, 4456, 0, 10, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4465, 4458, 0, 15, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4466, 4459, 0, 20, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4467, 4460, 0, 25, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4468, 4461, 0, 30, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4469, 4462, 0, 35, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4470, 4463, 0, 40, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4471, 4464, 0, 45, 0, 55, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4473, 4472, 0, 10, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4481, 4474, 0, 15, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4482, 4475, 0, 20, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4483, 4476, 0, 25, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4484, 4477, 0, 30, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4485, 4478, 0, 35, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4486, 4479, 0, 40, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4487, 4480, 0, 45, 0, 160, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4489, 4488, 0, 10, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4497, 4490, 0, 15, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4498, 4491, 0, 20, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4499, 4492, 0, 25, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4500, 4493, 0, 30, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4501, 4494, 0, 35, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4502, 4495, 0, 40, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4503, 4496, 0, 45, 0, 136, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4789, 4788, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4791, 4790, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4843, 4836, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4845, 4838, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4847, 4840, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4799, 4798, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4873, 4866, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4817, 2917, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4787, 4786, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4085, 2123, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4879, 4872, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4878, 4871, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4877, 4870, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4876, 4869, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4875, 4868, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4874, 4867, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4860, 4853, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4859, 4852, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4858, 4851, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4857, 4850, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4849, 4848, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4795, 4794, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4793, 4792, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4895, 4888, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4894, 4887, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4893, 4886, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4892, 4885, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4891, 4884, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4890, 4883, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4889, 4882, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4881, 4880, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4803, 4802, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4801, 4800, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4863, 4856, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4862, 4855, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4861, 4854, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6109, 6093, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6113, 6092, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6108, 6091, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6107, 6090, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6106, 6089, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6105, 6088, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6104, 6087, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6103, 6086, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6102, 6085, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6101, 6057, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6112, 6098, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6111, 6097, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6100, 6094, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6110, 6096, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 6099, 6095, 0, 0, 0, 228, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5937, 5929, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5936, 5928, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5935, 5927, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5940, 5926, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5939, 5925, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5938, 5924, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5934, 5923, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5931, 5920, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5930, 5919, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5933, 5922, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5932, 5921, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5912, 5900, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5911, 5899, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5910, 5898, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5907, 5896, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5914, 5902, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5913, 5901, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5908, 5897, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5906, 5894, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5905, 5893, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5904, 5892, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5903, 5891, 0, 0, 0, 78, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5887, 5871, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5886, 5870, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5885, 5869, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5880, 5866, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5883, 5868, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5882, 5867, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5881, 5865, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5879, 5873, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5878, 5872, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5876, 5875, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5877, 5874, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5851, 5838, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5850, 5837, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5849, 5834, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5854, 5841, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5853, 5840, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5852, 5839, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5848, 5835, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5856, 5843, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5855, 5842, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5847, 5845, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5846, 5844, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5833, 5818, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5832, 5817, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5831, 5816, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5826, 5822, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5825, 5819, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5830, 5815, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5829, 5814, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5828, 5813, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5827, 5812, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5824, 5821, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 5823, 5820, 0, 0, 0, 96, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4831, 4824, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4830, 4823, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4829, 4822, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4828, 4821, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4827, 4820, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4826, 4819, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4825, 4818, 0, 0, 0, 56, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4865, 4864, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4797, 4796, 0, 0, 0, 6, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4846, 4839, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4844, 4837, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4842, 4835, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4841, 4834, 0, 0, 0, 8, 1, 0);
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (1000, 4833, 4832, 0, 0, 0, 8, 1, 0);
-
-        insert into applied_updates values ('251220221');
     end if;
 end $
 delimiter ;
