@@ -15632,6 +15632,27 @@ begin not atomic
         -- Supervisor Fizsprocket
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3051, 1, -1766.033, -1193.097, 84.164, 6.259, 0, 0);
 
+        -- Bluffwatchers
+        UPDATE `creature_equip_template` SET `equipentry1` = 5289, `equipentry3` = 0 WHERE `entry` = 3084;
+
+        -- #718
+        -- The Hunt Begins
+        UPDATE `quest_template` SET `ReqItemCount1` = 4, `ReqItemCount2` = 4 WHERE `entry` = 747;
+
+        -- Sharing the land
+        UPDATE `quest_template` SET `RewOrReqMoney` = 135 WHERE `entry` = 745;
+
+        -- A humble task
+        UPDATE `quest_template` SET `RewOrReqMoney` = 0 WHERE `entry` = 752;
+
+        -- Water well cleansing quest chain
+        UPDATE `quest_template` SET `RequiredRaces` = 32 WHERE `entry` = 748;
+        UPDATE `quest_template` SET `RequiredRaces` = 32 WHERE `entry` = 754;
+        UPDATE `quest_template` SET `RequiredRaces` = 32 WHERE `entry` = 756;
+        UPDATE `quest_template` SET `RequiredRaces` = 32 WHERE `entry` = 758;
+        UPDATE `quest_template` SET `RequiredRaces` = 32 WHERE `entry` = 759;
+        UPDATE `quest_template` SET `RequiredRaces` = 32 WHERE `entry` = 760;
+
         insert into applied_updates values ('291220221');
     end if;
 end $
