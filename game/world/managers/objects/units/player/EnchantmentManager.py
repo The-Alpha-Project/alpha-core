@@ -4,7 +4,7 @@ from typing import Tuple, Dict
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots
+from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots, InventoryTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
@@ -48,7 +48,6 @@ class EnchantmentManager(object):
                 if not enchantment.duration and not enchantment.charges:
                     # Remove.
                     self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
-                    item.save()
 
     # noinspection PyMethodMayBeStatic
     def _consume_item_charges(self, item, enchantment_slot, used_charges=1):
@@ -76,10 +75,18 @@ class EnchantmentManager(object):
                                                   enchantment.charges)
 
     def set_item_enchantment(self, item, slot, value, duration, charges, expired=False):
-        remove = not item.is_equipped() or expired
-
-        if not remove:
+        if not expired:
             item.enchantments[slot].update(value, duration, charges)
+
+        current_value = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0)
+        current_duration = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1)
+        current_charges = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2)
+        should_save = current_value != value or current_duration != duration or current_charges != charges
+
+        # Check for buffs changes only on items that can be equipped.
+        if item.item_template.inventory_type != InventoryTypes.NONE_EQUIP:
+            remove_equip_buff = expired or not item.is_equipped()
+            self._handle_equip_buffs(item, remove=remove_equip_buff)
 
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0, value)
         item.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, duration)
@@ -89,7 +96,8 @@ class EnchantmentManager(object):
         if expired or duration:
             self.send_enchantments_durations(slot)
 
-        self._handle_equip_buffs(item, remove=remove)
+        if should_save:
+            item.save()
 
     # Notify the client with the enchantment duration.
     # Client keeps track of the time, there is no need for constant updates.
@@ -160,7 +168,6 @@ class EnchantmentManager(object):
             if remove:
                 self.unit_mgr.aura_manager.cancel_auras_by_spell_id(effect_spell_value,
                                                                     source_restriction=self.unit_mgr)
-                enchantment.flush()
                 continue
 
             # Check if player already has the triggered aura active.
@@ -173,7 +180,6 @@ class EnchantmentManager(object):
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
             if remove:
                 self._applied_proc_enchants.pop(enchantment.entry, None)
-                enchantment.flush()
                 continue
 
             effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
@@ -182,11 +188,6 @@ class EnchantmentManager(object):
                 continue
 
             self._applied_proc_enchants[enchantment.entry] = (item.current_slot, effect_spell_value, proc_chance)
-
-        enchantment_type = ItemEnchantmentType.DAMAGE
-        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
-            if remove:
-                enchantment.flush()
 
         # Update stats upon add or removal.
         self.unit_mgr.stat_manager.apply_bonuses()

@@ -57,8 +57,8 @@ class PetitionManager(object):
                     data = pack('<I', PetitionError.PETITION_SUCCESS)
                     packet = PacketWriter.get_packet(OpCode.SMSG_TURN_IN_PETITION_RESULTS, data)
                     player_mgr.enqueue_packet(packet)
-                    player_mgr.inventory.remove_item(PetitionManager.CHARTER_ENTRY, 1)
                     RealmDatabaseManager.guild_petition_destroy(petition)
+                    player_mgr.inventory.remove_items(PetitionManager.CHARTER_ENTRY, 1)
         else:
             PetitionManager.send_petition_sign_result(player_mgr, PetitionError.PETITION_UNKNOWN_ERROR)
 
