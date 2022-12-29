@@ -14,7 +14,7 @@ class PetitionTurnInHandler(object):
             if petition_item_guid > 0:
                 petition = PetitionManager.get_petition(petition_item_guid)
                 if not petition:
-                    Logger.error(f'Invalid guild petition turn in, guid {petition_item_guid}')
+                    Logger.error(f'Invalid guild petition turn in, guid {petition_item_guid}.')
                     return 0
                 PetitionManager.turn_in_petition(world_session.player_mgr, petition.owner_guid, petition)
 
