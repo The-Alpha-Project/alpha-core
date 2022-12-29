@@ -14994,7 +14994,7 @@ begin not atomic
     end if;
 
     -- BINDERS FIX CLOSE #790 #763
-    if (select count(*) from applied_updates where id='291220221') = 0 then
+    if (select count(*) from applied_updates where id='211220221') = 0 then
 
         UPDATE `spawns_creatures` SET `position_x`=-2358.995, `position_y`=-431.967, `position_z`=-6.933, `orientation`=2.318, `map`=1  WHERE `spawn_id`=400013;
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored` )  
@@ -15013,11 +15013,11 @@ begin not atomic
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
         VALUES (5098, -745.737, -527.905, 21.734, 4.140, 0, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
 
-        insert into applied_updates values ('291220221');
+        insert into applied_updates values ('211220221');
     end if;
 
     -- NPC FIX CLOSE  #780 #762 #803 #792 #791 #785 #784 #781 #779 #521 #794 #792
-    if (select count(*) from `applied_updates` where id='291220222') = 0 then
+    if (select count(*) from `applied_updates` where id='211220222') = 0 then
 
         UPDATE `spawns_creatures` SET `position_x`=-2266.092, `position_y`=-247.495, `position_z`=-9.426, `orientation`=1.378, `map`=1 WHERE `spawn_id`=24787;
         UPDATE `creature_template` SET `subname`='Bird Trainer', `display_id1`=2578 WHERE `entry`=3690;        
@@ -15051,11 +15051,11 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=1139, `subname`='Bear Trainer', `npc_flags`=8 WHERE `entry`=4043;
         UPDATE `creature_template` SET `npc_flags`=8 WHERE `entry`=2803;
 
-        insert into`applied_updates`values ('291220222');
+        insert into`applied_updates`values ('211220222');
     end if;
 
     -- CLOSE #820 #743
-    if (select count(*) from `applied_updates` where id='291220223') = 0 then
+    if (select count(*) from `applied_updates` where id='211220223') = 0 then
 
         UPDATE `spawns_creatures` SET `position_x`=-5437.667, `position_y`=-2447.379, `position_z`=89.63, `orientation`=1.956, `map`=1 WHERE `spawn_id`=400000;
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
@@ -15068,9 +15068,9 @@ begin not atomic
         UPDATE `creature_template` SET `display_id1`=2416 WHERE `entry`=4322;
         UPDATE `creature_template` SET `display_id1`=710 WHERE `entry`=3190;
 
-        insert into`applied_updates`values ('291220223');
+        insert into`applied_updates`values ('211220223');
     end if;
-    
+
     -- 22/12/2022 1
     -- TODO items - Display ID's
     if (select count(*) from applied_updates where id='221220221') = 0 then
