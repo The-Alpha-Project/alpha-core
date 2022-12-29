@@ -15576,5 +15576,37 @@ begin not atomic
 
 		insert into applied_updates values ('271220221');
     end if;
+
+    
+    -- 29/12/2022 1
+	-- TODO item - Mulgore Rework: issues #695, #718
+	if (select count(*) from applied_updates where id='291220221') = 0 then
+        -- #695
+        -- Seer Graytongue
+        UPDATE `spawns_creatures` SET `position_x` = -3503.857, `position_y` = -174.633, `position_z` = 101.986, `orientation` = 5.425 WHERE `spawn_id` = 26563;
+
+        -- Arra'chea
+        UPDATE `creature_template` SET `display_id1` = 1230 WHERE `entry` = 3058;
+
+        -- Skorn Whitecloud
+        UPDATE `spawns_creatures` SET `position_x` = -2395.825, `position_y` = -346.715, `position_z` = 0.457, `orientation` = 3.169 WHERE `spawn_id` = 26779;
+
+        -- Brave Strongbash
+        UPDATE `creature_equip_template` SET `equipentry3` = 1961 WHERE `entry` = 3215
+
+        -- Melor Stonehoof : PLACEHOLDER MODEL
+        UPDATE `creature_template` SET `display_id1` = 2578, `level` = 68 WHERE `entry` = 3441;
+
+        -- Taloned Swoop
+        UPDATE `creature_template` SET `display_id1` = 388 WHERE `entry` = 2971;
+
+        -- Bristleback Shamans
+        UPDATE `creature_template` SET `display_id1` = 1254 WHERE `entry` = 2953;
+
+        -- Mull Thunderhorn
+        UPDATE `spawns_creatures` SET `position_x` = -2298.616, `position_y` = -505.560, `position_z` = -8.228, `orientation` = 4.294 WHERE `spawn_id` = 24799;
+
+        insert into applied_updates values ('291220221');
+    end if;
 end $
 delimiter ;
