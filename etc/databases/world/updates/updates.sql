@@ -15590,11 +15590,11 @@ begin not atomic
         REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2581, 2657);
 
         -- Apprentice Mining
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 2581, 2575, 0, 0, 1, 0, 0, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 2581, 2575, 0, 0, 3, 0, 0, 1);
         -- Journeyman Mining
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 2582, 2576, 0, 0, 3, 186, 50, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 2582, 2576, 0, 0, 5, 186, 50, 1);
         -- Expert Mining
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3568, 3564, 0, 0, 5, 186, 125, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3568, 3564, 0, 0, 7, 186, 125, 1);
 
         -- Smelt Tin
         REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3313, 3304, 75, 0, 0, 186, 45, 1);
@@ -15627,6 +15627,80 @@ begin not atomic
 
         -- Neutral trainers
         UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 8128;
+
+        -- Alchemy
+        -- Trainer ID: 505
+
+        -- Add 'Minor Healing Potion' as spell to be learned when 'Apprentice Alchemy' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2275, 2330);
+        -- Add 'Elixir of Minor Defense' as spell to be learned when 'Apprentice Alchemy' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2275, 7183);
+        -- Add 'Elixir of Lion's Strength' as spell to be learned when 'Apprentice Alchemy' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2275, 2329);
+
+        -- Apprentice Alchemy
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 2275, 2259, 0, 0, 1, 0, 0, 1);
+        -- Journeyman Alchemy
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 2280, 3101, 0, 0, 3, 171, 50, 1);
+        -- Expert Alchemy
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3465, 3464, 0, 0, 5, 171, 125, 1);
+
+        -- Weak Troll's Blood Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3184, 3170, 90, 0, 0, 171, 55, 1);
+        -- Minor Mana Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 2339, 2331, 100, 0, 0, 171, 60, 1);
+        -- Minor Rejuvenation Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 2340, 2332, 115, 0, 0, 171, 65, 1);
+        -- Blacktail Oil
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 7838, 7836, 125, 0, 0, 171, 75, 1);
+        -- Lesser Healing Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 2341, 2337, 150, 0, 0, 171, 80, 1);
+        -- Swim Speed Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 7842, 7841, 200, 0, 0, 171, 125, 1);
+        -- Fire Oil
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 7839, 7837, 200, 0, 0, 171, 125, 1);
+        -- Elixir of Wisdom
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3179, 3171, 200, 0, 0, 171, 125, 1);
+        -- Healing Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3458, 3447, 215, 0, 0, 171, 135, 1);
+        -- Lesser Mana Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3181, 3173, 230, 0, 0, 171, 145, 1);
+        -- Strong Troll's Blood Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3185, 3176, 245, 0, 0, 171, 150, 1);
+        -- Elixir of Defense
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3186, 3177, 260, 0, 0, 171, 155, 1);
+        -- Elixir of Firepower
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 7846, 7845, 275, 0, 0, 171, 165, 1);
+        -- Greater Healing Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 7182, 7181, 300, 0, 0, 171, 180, 1);
+        -- Invisibility Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3459, 3448, 325, 0, 0, 171, 190, 1);
+        -- Mana Potion
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3461, 3452, 350, 0, 0, 171, 210, 1);
+        -- Frost Oil
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (505, 3463, 3454, 400, 0, 0, 171, 225, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 3184;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 3347;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 3009;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 2132;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 4611;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 2391;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 1386;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 1470;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 5177;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 1215;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 5499;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 3964;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 3603;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 4160;
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 7948;
+
+        -- Neutral trainers
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 2837;
 
         insert into applied_updates values ('261220221');
     end if;
