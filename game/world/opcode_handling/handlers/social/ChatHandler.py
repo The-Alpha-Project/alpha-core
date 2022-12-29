@@ -12,8 +12,6 @@ class ChatHandler(object):
     def handle(world_session, socket, reader):
         chat_type, lang = unpack('<2I', reader.data[:8])
         message = ''
-        guid = 0
-        chat_flags = 0
 
         # Return if no player
         if not world_session.player_mgr:
@@ -25,12 +23,11 @@ class ChatHandler(object):
 
         # Channel
         if chat_type == ChatMsgs.CHAT_MSG_CHANNEL:
-            channel = PacketReader.read_string(reader.data, 8).strip()
-            message = PacketReader.read_string(reader.data, 8 + len(channel)+1)
-            ChatManager.send_channel_message(world_session.player_mgr, channel, message, lang)
-
+            channel_name = PacketReader.read_string(reader.data, 8).strip()
+            message = PacketReader.read_string(reader.data, 8 + len(channel_name)+1)
+            ChatManager.send_channel_message(world_session.player_mgr, channel_name, message, lang)
         # Say, Yell, Emote
-        if chat_type == ChatMsgs.CHAT_MSG_SAY \
+        elif chat_type == ChatMsgs.CHAT_MSG_SAY \
                 or chat_type == ChatMsgs.CHAT_MSG_EMOTE \
                 or chat_type == ChatMsgs.CHAT_MSG_YELL:
             message = PacketReader.read_string(reader.data, 8)

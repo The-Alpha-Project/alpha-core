@@ -7,7 +7,7 @@ from game.world.managers.objects.units.player.guild.GuildManager import GuildMan
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, \
-    GuildTypeCommand
+    GuildTypeCommand, ChannelNotifications
 
 
 class ChatManager(object):
@@ -40,10 +40,16 @@ class ChatManager(object):
                                              world_session.player_mgr, range_, use_ignore=True)
 
     @staticmethod
-    def send_channel_message(sender, channel, message, lang):
+    def send_channel_message(sender, channel_name, message, lang):
+        channel = ChannelManager.get_channel(channel_name, sender)
+        # Check if channel exist.
+        if not channel:
+            packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
+            ChannelManager.send_to_player(sender, packet)
+            return 0
         packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, ChatMsgs.CHAT_MSG_CHANNEL,
-                                                 lang, channel=channel)
-        ChannelManager.broadcast_to_channel(sender, channel, packet)
+                                                 lang, channel=channel_name)
+        channel.broadcast_to_channel(sender, packet)
 
     @staticmethod
     def send_party(sender, message, lang):
