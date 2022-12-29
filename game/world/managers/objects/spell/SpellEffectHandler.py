@@ -693,6 +693,7 @@ class SpellEffectHandler:
         duration = casting_spell.get_duration() / 1000
         dyn_object = DynamicObjectManager.spawn_from_spell_effect(effect,
                                                                   DynamicObjectTypes.DYNAMIC_OBJECT_FARSIGHT_FOCUS,
+                                                                  orientation=caster.location.o,
                                                                   ttl=duration)
         FarSightManager.add_camera(dyn_object, caster)
 

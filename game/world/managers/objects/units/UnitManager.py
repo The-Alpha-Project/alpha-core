@@ -709,16 +709,16 @@ class UnitManager(ObjectManager):
 
         return damage_info
 
-    def deal_damage(self, target, damage_info, is_periodic=False, casting_spell=None):
+    def deal_damage(self, target, damage_info, casting_spell=None, is_periodic=False):
         if not target or not target.is_alive:
             return
 
         if target.is_evading:
             return
 
-        target.receive_damage(damage_info, source=self, is_periodic=is_periodic, casting_spell=casting_spell)
+        target.receive_damage(damage_info, source=self, casting_spell=casting_spell, is_periodic=is_periodic)
 
-    def receive_damage(self, damage_info, source=None, is_periodic=False, casting_spell=None):
+    def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
         # This method will return whether or not the unit is suitable to keep receiving damage.
         if not self.is_alive:
             return False
@@ -739,6 +739,12 @@ class UnitManager(ObjectManager):
         # No damage but source spell generates threat on miss.
         if casting_spell and damage_info.total_damage == 0 and casting_spell.generates_threat_on_miss():
             self.threat_manager.add_threat(source)
+            return True
+        # Spell and does not generate threat.
+        elif casting_spell and not casting_spell.generates_threat():
+            return True
+        # Aura ticking dots should not generate threat if out of combat. (Threat applied upon aura application)
+        elif is_periodic and not self.threat_manager.has_aggro_from(source):
             return True
 
         self.threat_manager.add_threat(source, damage_info.total_damage)
