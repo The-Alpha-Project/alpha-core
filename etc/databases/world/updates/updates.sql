@@ -15468,13 +15468,13 @@ begin not atomic
         -- Boiled clams
         REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 6502, 6499, 150, 0, 0, 185, 85, 1);
         -- Coyote steak
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2561, 2541, 150, 0, 1, 185, 85, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2561, 2541, 150, 0, 0, 185, 85, 1);
         -- Crab cake
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2562, 2544, 225, 0, 1, 185, 110, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2562, 2544, 225, 0, 0, 185, 110, 1);
         -- Dry pork ribs
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2563, 2546, 240, 0, 1, 185, 115, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2563, 2546, 240, 0, 0, 185, 115, 1);
         -- Goblin deviled clams
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 6503, 6500, 300, 0, 1, 185, 160, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 6503, 6500, 300, 0, 0, 185, 160, 1);
 
         -- Alliance trainers
         UPDATE `creature_template` SET `trainer_id` = 501 WHERE `entry` = 4210;
