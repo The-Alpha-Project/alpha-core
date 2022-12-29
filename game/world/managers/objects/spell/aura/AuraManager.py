@@ -268,6 +268,11 @@ class AuraManager:
             auras.append(aura)
         return auras
 
+    def get_active_auras(self):
+        return [self.active_auras[i] for i in
+                range(0, AuraSlots.AURA_SLOT_PASSIVE_AURA_START)
+                if i in self.active_auras]
+
     def get_beneficial_auras(self):
         return [self.active_auras[i] for i in
                 range(0, AuraSlots.AURA_SLOT_HARMFUL_AURA_START)

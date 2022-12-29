@@ -1,6 +1,8 @@
 from struct import pack
 
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.ConfigManager import config
+from utils.Logger import Logger
 from utils.constants.MiscCodes import ChannelNotifications, ChannelMemberFlags
 from utils.constants.UnitCodes import Teams
 
@@ -18,8 +20,12 @@ class Channel(object):
         self.banned: list = banned if banned else []
         self.muted: list = muted if muted else []
 
+    # Addon channels should always start with 'Addon' plus description. e.g. 'AddonAuras'.
     def is_addon(self):
-        return str.startswith(self.name, 'Addon')
+        if not config.Server.General.enable_addons_chat_api:
+            return False
+        name = self.name.lower()
+        return str.startswith(name, 'addon') and not name == 'addon'
 
     def members_count(self):
         return len(self.members)
@@ -370,6 +376,7 @@ class ChannelManager(object):
 
             # Handle addon channel.
             if channel.is_addon():
+                Logger.success(f'Registered addon channel [{channel_name}].')
                 ChannelManager.ADDON_CHANNELS[channel_name] = channel
             else:
                 ChannelManager.CHANNELS[player_mgr.team][channel_name] = channel
