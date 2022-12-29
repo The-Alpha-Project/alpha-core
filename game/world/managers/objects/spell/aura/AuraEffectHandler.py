@@ -150,7 +150,6 @@ class AuraEffectHandler:
     def handle_periodic_leech(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
-        spell = aura.source_spell
         damage = aura.get_effect_points()
         aura.caster.receive_healing(damage, aura.caster)
         aura.caster.apply_spell_damage(effect_target, damage, aura.spell_effect)
