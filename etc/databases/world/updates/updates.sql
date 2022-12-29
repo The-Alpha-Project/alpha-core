@@ -15577,7 +15577,6 @@ begin not atomic
 		insert into applied_updates values ('271220221');
     end if;
 
-    
     -- 29/12/2022 1
 	-- TODO item - Mulgore Rework: issues #695, #718
 	if (select count(*) from applied_updates where id='291220221') = 0 then
@@ -15623,6 +15622,15 @@ begin not atomic
         
         -- Palemane Tanners
         INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (2949, 'Mulgore - Palemane Tanners', 5176, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Mahnott Roughwound
+        UPDATE `creature_equip_template` SET `equipentry1` = 6224 WHERE `entry` = 3077;
+
+        -- Baine Bloodhoof
+        UPDATE `spawns_creatures` SET `position_x` = -2338.450, `position_y` = -399.795, `position_z` = -9.816, `orientation` = 3.752 WHERE `spawn_id` = 26613;
+
+        -- Supervisor Fizsprocket
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3051, 1, -1766.033, -1193.097, 84.164, 6.259, 0, 0);
 
         insert into applied_updates values ('291220221');
     end if;
