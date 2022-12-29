@@ -15592,10 +15592,10 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = -2395.825, `position_y` = -346.715, `position_z` = 0.457, `orientation` = 3.169 WHERE `spawn_id` = 26779;
 
         -- Brave Strongbash
-        UPDATE `creature_equip_template` SET `equipentry3` = 1961 WHERE `entry` = 3215
+        UPDATE `creature_equip_template` SET `equipentry3` = 1961 WHERE `entry` = 3215;
 
         -- Melor Stonehoof : PLACEHOLDER MODEL
-        UPDATE `creature_template` SET `display_id1` = 2578, `level` = 68 WHERE `entry` = 3441;
+        UPDATE `creature_template` SET `display_id1` = 2578, `level_min` = 68, `level_max` = 68 WHERE `entry` = 3441;
 
         -- Taloned Swoop
         UPDATE `creature_template` SET `display_id1` = 388 WHERE `entry` = 2971;
@@ -15605,6 +15605,24 @@ begin not atomic
 
         -- Mull Thunderhorn
         UPDATE `spawns_creatures` SET `position_x` = -2298.616, `position_y` = -505.560, `position_z` = -8.228, `orientation` = 4.294 WHERE `spawn_id` = 24799;
+
+        -- Flatland Cougars
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (3035, 'Mulgore - Flatland Cougar', 3247, 10, 30, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (3036, 'Mulgore - Flatland Prowler', 3247, 10, 30, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Prarie Wolves/Prarie Wolves Alpha spell: Threatening Growl
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (2958, 'Mulgore - Prarie Wolves', 5781, 10, 45, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (2959, 'Mulgore - Prarie Stalker', 5781, 10, 45, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (2960, 'Mulgore - Prarie Wolves Alpha', 5781, 10, 45, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Swoops spell: Swoop
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (2969, 'Mulgore - Wiry Swoop', 5708, 0, 5, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (2970, 'Mulgore - Swoop', 5708, 0, 5, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (2971, 'Mulgore - Taloned Swoop', 5708, 0, 5, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (4692, 'Decolace - Dread Swoop', 5708, 0, 5, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        
+        -- Palemane Tanners
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_2`, `castTarget_2`, `probability_3`, `castTarget_3`, `probability_4`, `castTarget_4`, `probability_5`, `castTarget_5`, `probability_6`, `castTarget_6`, `probability_7`, `castTarget_7`, `probability_8`, `castTarget_8`) VALUES (2949, 'Mulgore - Palemane Tanners', 5176, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
         insert into applied_updates values ('291220221');
     end if;
