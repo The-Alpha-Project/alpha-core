@@ -15388,6 +15388,7 @@ begin not atomic
 
         -- 26/12/2022 1
     if (select count(*) from applied_updates where id='261220221') = 0 then
+
         -- Development skill default spells holder
         DROP TABLE IF EXISTS `default_profession_spell`;
         CREATE TABLE `default_profession_spell` (
@@ -15396,6 +15397,13 @@ begin not atomic
             UNIQUE INDEX `trainer_spell_default_spell` (`trainer_spell`, `default_spell`) USING BTREE
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+        -- Prices:
+        -- Apprentice, Journeyman, Expert
+        -- Gathering: 3, 5, 7
+        -- Crafting: 1, 3, 5
+        -- Secondary: 1, 2, 3
+        -- Some secondary prices may have varied (ex. Fishing 1, 2, 3 and Cooking 2, 3, 4), but there is a limited amount of data available. Therefore, just going with 1, 2, 3 on all secondaries.
+
         -- First Aid
         -- Trainer ID: 500
 
@@ -15403,13 +15411,13 @@ begin not atomic
         REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3279, 3275);
 
         -- Apprentice physician
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (500, 3279, 3273, 0, 0, 5, 0, 0, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (500, 3279, 3273, 0, 0, 1, 0, 0, 1);
         -- Heavy linen bandage
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (500, 3281, 3276, 0, 0, 1, 129, 20, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (500, 3281, 3276, 50, 0, 0, 129, 20, 1);
         -- Wool bandage
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (500, 3282, 3277, 0, 0, 1, 129, 30, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (500, 3282, 3277, 75, 0, 0, 129, 30, 1);
         -- Heavy wool bandage
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (500, 3283, 3278, 0, 0, 1, 129, 40, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (500, 3283, 3278, 100, 0, 0, 129, 40, 1);
 
         -- These trainers do not have existing trainer ids; vmangos organizes trainers by creature entry id. So we have to make them up.
         -- Starting at 500 and going up from there.
@@ -15449,24 +15457,24 @@ begin not atomic
         REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2551, 2538);
 
         -- Apprentice cook
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2551, 2550, 0, 0, 5, 0, 0, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2551, 2550, 0, 0, 1, 0, 0, 1);
         -- Journeyman cook
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 3412, 3102, 0, 0, 5, 185, 75, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 3412, 3102, 0, 0, 2, 185, 50, 1);
         -- Expert cook
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2552, 3413, 0, 0, 5, 185, 150, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2552, 3413, 0, 0, 3, 185, 125, 1);
 
         -- Spiced wolf meat
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2559, 2539, 0, 0, 1, 185, 45, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2559, 2539, 75, 0, 0, 185, 45, 1);
         -- Boiled clams
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 6502, 6499, 0, 0, 1, 185, 85, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 6502, 6499, 150, 0, 0, 185, 85, 1);
         -- Coyote steak
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2561, 2541, 0, 0, 1, 185, 85, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2561, 2541, 150, 0, 1, 185, 85, 1);
         -- Crab cake
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2562, 2544, 0, 0, 1, 185, 110, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2562, 2544, 225, 0, 1, 185, 110, 1);
         -- Dry pork ribs
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2563, 2546, 0, 0, 1, 185, 115, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 2563, 2546, 240, 0, 1, 185, 115, 1);
         -- Goblin deviled clams
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 6503, 6500, 0, 0, 1, 185, 160, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (501, 6503, 6500, 300, 0, 1, 185, 160, 1);
 
         -- Alliance trainers
         UPDATE `creature_template` SET `trainer_id` = 501 WHERE `entry` = 4210;
@@ -15490,15 +15498,15 @@ begin not atomic
         -- Herbalism
         -- Trainer ID: 502
 
-        -- Add 'Find Herbs' as spell to be learned when 'Apprentice herbalism' is learned.
+        -- Add 'Find Herbs' as spell to be learned w`hen 'Apprentice herbalism' is learned.
         REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2372, 2383);
 
         -- Apprentice herbalist
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (502, 2372, 2366, 0, 0, 5, 0, 0, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (502, 2372, 2366, 0, 0, 3, 0, 0, 1);
         -- Journeyman herbalist
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (502, 2373, 2368, 0, 0, 5, 182, 75, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (502, 2373, 2368, 0, 0, 5, 182, 50, 1);
         -- Expert herbalist
-        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (502, 3571, 3570, 0, 0, 5, 182, 150, 1);
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (502, 3571, 3570, 0, 0, 7, 182, 125, 1);
 
         -- Alliance trainers
         UPDATE `creature_template` SET `trainer_id` = 502 WHERE `entry` = 5502;
@@ -15526,6 +15534,99 @@ begin not atomic
         -- Neutral trainers
         UPDATE `creature_template` SET `trainer_id` = 502 WHERE `entry` = 12025;
         UPDATE `creature_template` SET `trainer_id` = 502 WHERE `entry` = 908;
+
+        -- Fishing
+        -- Trainer ID: 503
+
+        -- Add 'Fishing Poles' as spell to be learned when 'Apprentice Fishing' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7733, 7738);
+
+        -- Apprentice Fishing
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (503, 7733, 7620, 0, 0, 1, 0, 0, 1);
+        -- Journeyman Fishing
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (503, 7734, 7731, 0, 0, 2, 356, 50, 1);
+        -- Expert Fishing
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (503, 7736, 7732, 0, 0, 3, 356, 125, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 3607;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 5493;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 4156;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 7946;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 2367;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 5161;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 3179;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 1651;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 1680;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 1700;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 3178;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 1683;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 4573;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 5690;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 3028;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 14740;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 12961;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 5748;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 3497;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 5941;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 12032;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 3332;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 5938;
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 2842;
+
+        -- Neutral trainers
+        UPDATE `creature_template` SET `trainer_id` = 503 WHERE `entry` = 2834;
+
+        -- Mining
+        -- Trainer ID: 504
+
+        -- Add 'Find Minerals' as spell to be learned when 'Apprentice Mining' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2581, 2580);
+        -- Add 'Smelting' as spell to be learned when 'Apprentice Mining' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2581, 2656);
+        -- Add 'Smelt Copper' as spell to be learned when 'Apprentice Mining' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2581, 2657);
+
+        -- Apprentice Mining
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 2581, 2575, 0, 0, 1, 0, 0, 1);
+        -- Journeyman Mining
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 2582, 2576, 0, 0, 3, 186, 50, 1);
+        -- Expert Mining
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3568, 3564, 0, 0, 5, 186, 125, 1);
+
+        -- Smelt Tin
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3313, 3304, 75, 0, 0, 186, 45, 1);
+        -- Smelt Bronze
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3314, 2659, 75, 0, 0, 186, 45, 1);
+        -- Smelt Iron
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3316, 3307, 125, 0, 0, 186, 95, 1);
+        -- Smelt Silver
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3317, 2658, 125, 0, 0, 186, 95, 1);
+        -- Smelt Gold
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3315, 3308, 175, 0, 0, 186, 120, 1);
+        -- Smelt Steel
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (504, 3596, 3569, 225, 0, 0, 186, 145, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 5513;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 4254;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 5392;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 1701;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 1681;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 3137;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 6297;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 3357;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 3175;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 3001;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 4598;
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 3555;
+
+        -- Neutral trainers
+        UPDATE `creature_template` SET `trainer_id` = 504 WHERE `entry` = 8128;
 
         insert into applied_updates values ('261220221');
     end if;
