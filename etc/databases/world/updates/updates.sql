@@ -14993,6 +14993,84 @@ begin not atomic
         insert into applied_updates values ('081220221');
     end if;
 
+    -- BINDERS FIX CLOSE #790 #763
+    if (select count(*) from applied_updates where id='211220221') = 0 then
+
+        UPDATE `spawns_creatures` SET `position_x`=-2358.995, `position_y`=-431.967, `position_z`=-6.933, `orientation`=2.318, `map`=1  WHERE `spawn_id`=400013;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored` )  
+        VALUES (3500, -481.16, -2667.08, 99, 0.701327, 1, 0,0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;    
+        UPDATE `creature_template` SET `subname`='Binder', `npc_flags`=16, `faction`=35 WHERE `entry`=3500;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (3303, -2933.143, -284.630, 53.918, 3.442, 1, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (4314, -161.224, -306.385, 7.652, 3.893, 1, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        UPDATE `creature_template` SET `display_id1`=3891, `subname`='Binder', `npc_flags`=16, `faction`=35 WHERE `entry`=4314;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (2302, 529.024, 1639.118, 126.978, 4.211, 0, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        UPDATE `creature_template` SET `name`='Aethalas Cromwell', `subname`='Binder', `npc_flags`=16, `faction`=35 WHERE `entry`=2302;
+        UPDATE `spawns_creatures` SET `position_x`=-10449.203, `position_y`=-3273.231, `position_z`=20.758, `orientation`=0.647, `map`=0  WHERE `spawn_id`=32245;
+        UPDATE `creature_template` SET `subname`='Binder', `npc_flags`=16, `faction`=35 WHERE `entry`=4312;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (5098, -745.737, -527.905, 21.734, 4.140, 0, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+
+        insert into applied_updates values ('211220221');
+    end if;
+
+    -- NPC FIX CLOSE  #780 #762 #803 #792 #791 #785 #784 #781 #779 #521 #794 #792
+    if (select count(*) from `applied_updates` where id='211220222') = 0 then
+
+        UPDATE `spawns_creatures` SET `position_x`=-2266.092, `position_y`=-247.495, `position_z`=-9.426, `orientation`=1.378, `map`=1 WHERE `spawn_id`=24787;
+        UPDATE `creature_template` SET `subname`='Bird Trainer', `display_id1`=2578 WHERE `entry`=3690;        
+        UPDATE `spawns_creatures` SET `position_x`=-1340.278, `position_y`=197.572, `position_z`=60.458, `orientation`=4.198, `map`=1 WHERE `spawn_id`=24783;
+        UPDATE `creature_template` SET `subname`='Tallstrider Trainer', `display_id1`=2578 WHERE `entry`=3688;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (1649, -9508.627, -1330.445, 44.092, 5.365, 0, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        UPDATE `spawns_creatures` SET `position_x`=10341.012, `position_y`=2418.469, `position_z`=1336.664, `orientation`=2.615, `map`=1 WHERE `spawn_id`=39067;
+        UPDATE `spawns_creatures` SET `position_x`=-1434.252, `position_y`=-47.729, `position_z`=156.87, `orientation`=5.512, `map`=1 WHERE `spawn_id`=39081;
+        UPDATE `creature_template` SET `npc_flags`=8, `subname`='Survival Trainer' WHERE `entry`=2806;
+        UPDATE `spawns_creatures` SET `position_x`=1970.614, `position_y`=-4310.182, `position_z`=23.863, `orientation`=3.911, `map`=1 WHERE `spawn_id`=29244;
+        UPDATE `creature_template` SET `npc_flags`=8, `subname`='Survival Trainer' WHERE `entry`=3411;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (3373, 1982.774, -4320.552, 23.9, 2.843, 1, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        UPDATE `creature_template` SET `subname`='Survival Trainer' WHERE `entry`=2802;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (4579, 1797.021, 94.379, -59.317, 2.549, 0, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        UPDATE `creature_template` SET `npc_flags`=8, `subname`='Survival Trainer', `name`='Alexander Lister' WHERE `entry`=4579;
+        UPDATE `spawns_creatures` SET `position_x`=-8743.837, `position_y`=968.184, `position_z`=99.247, `orientation`=5.010, `map`=0 WHERE `spawn_id`=39666;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (2833, 2253.463, -5346.571, 83.419, 1.744, 0, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        UPDATE `creature_template` SET `name`='[PH] Eastern Plaguelands - Gryphon Master', `subname`='Gryphon Master <Need Model>', `npc_flags`=4 WHERE `entry`=2833;
+        UPDATE `spawns_creatures` SET `position_x`=1885.894, `position_y`=-4698.11, `position_z`=61.377, `orientation`=0.883, `map`=1 WHERE `spawn_id`=6611;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (1182, -8495.915, 808.151, 96.683, 2.233, 0, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        UPDATE `creature_template` SET `display_id1`=1343 WHERE `entry`=2953;
+        UPDATE `spawns_creatures` SET `position_x`=10169.775, `position_y`=2589.653, `position_z`=1363.033, `orientation`=0.988, `map`=1 WHERE `spawn_id`=46472;
+        UPDATE `spawns_creatures` SET `position_x`=10162.989, `position_y`=2596.256, `position_z`=1322.063, `orientation`=4.901, `map`=1 WHERE `spawn_id`=46903;
+        UPDATE `creature_template` SET `display_id1`=3891 WHERE `entry`=4314;
+        UPDATE `spawns_creatures` SET `position_x`=2119.066, `position_y`=-4629.696, `position_z`=72.411, `orientation`=5.357, `map`=1 WHERE `spawn_id`=7444;
+        UPDATE `creature_template` SET `display_id1`=1139, `subname`='Bear Trainer', `npc_flags`=8 WHERE `entry`=4043;
+        UPDATE `creature_template` SET `npc_flags`=8 WHERE `entry`=2803;
+
+        insert into`applied_updates`values ('211220222');
+    end if;
+
+    -- CLOSE #820 #743
+    if (select count(*) from `applied_updates` where id='211220223') = 0 then
+
+        UPDATE `spawns_creatures` SET `position_x`=-5437.667, `position_y`=-2447.379, `position_z`=89.63, `orientation`=1.956, `map`=1 WHERE `spawn_id`=400000;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (3305, -634.063, -4249.99, 38.5527, 6.15, 1, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (4322, 6428.376, 481.312, 7.727, 0.928, 1, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (4340, 2714.156, -458.781, 108.624, 1.724, 1, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+        UPDATE `creature_template` SET `subname`='Binder', `npc_flags`=16, `faction`=35 WHERE `entry`=3305;    
+        UPDATE `creature_template` SET `display_id1`=2416 WHERE `entry`=4322;
+        UPDATE `creature_template` SET `display_id1`=710 WHERE `entry`=3190;
+
+        insert into`applied_updates`values ('211220223');
+    end if;
+
     -- 22/12/2022 1
     -- TODO items - Display ID's
     if (select count(*) from applied_updates where id='221220221') = 0 then
