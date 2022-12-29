@@ -15385,27 +15385,5 @@ begin not atomic
 
         insert into applied_updates values ('251220221');
     end if;
-
-    -- 27/12/2022 1
-    if (select count(*) from applied_updates where id='271220221') = 0 then
-        UPDATE `item_template` SET `buy_count` = '1' WHERE (`entry` = '2678');
-        UPDATE `item_template` SET `buy_count` = '1' WHERE (`entry` = '3371');
-		
-		-- Fixes #826
-		-- Trainer Template ID 17 - DRUID
-		-- Spell: Parry
-		INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '3128', '3127', '10', '0', '0', '0', '0', '1');
-		-- Trainer Template ID 17 - DRUID
-		-- Spell: Bear Form - (Rank 1)
-		INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5488', '5487', '2600', '0', '0', '0', '0', '20');
-		-- Trainer Template ID 17 - DRUID
-		-- Spell: Aquatic Form - (Rank 1)
-		INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '1446', '1066', '8000', '0', '0', '0', '0', '30');
-		-- Trainer Template ID 17 - DRUID
-		-- Spell: Growl - (Rank 1)
-		INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '6796', '6795', '2600', '0', '0', '0', '0', '20');
-		
-        insert into applied_updates values ('271220221');
-    end if;
 end $
 delimiter ;
