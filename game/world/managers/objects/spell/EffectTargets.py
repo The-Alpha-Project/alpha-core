@@ -105,11 +105,11 @@ class EffectTargets:
         # Spells with implicit target set to 0 can have both friendly and hostile targets.
         # These spells include passives, testing spells and npc spells.
         # However, in these cases the target mask seems to be enough to resolve target friendliness.
-        if self.target_effect.implicit_target_a == SpellImplicitTargets.TARGET_INITIAL and \
+        if self.target_effect.implicit_target_a == SpellImplicitTargets.TARGET_INITIAL and not \
                 self.casting_spell.spell_entry.Targets & SpellTargetMask.ENEMIES:
-            return False
+            return True
 
-        return True
+        return False
 
     def resolve_targets(self):
         if not self.simple_targets:
@@ -350,7 +350,7 @@ class EffectTargets:
         if caster_pet and caster.location.distance(caster_pet.location) < distance:
             units_in_range.append(caster_pet)
 
-        if not caster_is_player or not party_group:
+        if not party_group:
             return units_in_range
 
         for unit in units:

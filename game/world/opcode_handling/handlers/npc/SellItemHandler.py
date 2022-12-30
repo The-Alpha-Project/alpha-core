@@ -52,5 +52,6 @@ class SellItemHandler(object):
                 else:
                     world_session.player_mgr.inventory.remove_item(container_slot, slot)
 
-                world_session.player_mgr.mod_money(price * sell_amount)
+                unitary_price = int(max(1, item.item_template.sell_price / item.item_template.buy_count))
+                world_session.player_mgr.mod_money(unitary_price * sell_amount)
         return 0
