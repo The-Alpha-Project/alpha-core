@@ -42,7 +42,7 @@ class GroupManager(object):
             return False
         return True
 
-    # When player sends an invite, a GroupManager is created, that doesnt mean the party actually exists until
+    # When player sends an invite, a GroupManager is created, that doesn't mean the party actually exists until
     # the other player accepts the invitation.
     def is_party_formed(self):
         return len(self.members) > 1
