@@ -65,8 +65,8 @@ class ChatAddonManager:
         return AddonErrorCodes.SUCCESS, res
 
     @staticmethod
-    def _send_error(channel, player_mgr, code):
-        packet = ChatAddonManager._get_message_packet(player_mgr.guid, ChatFlags.CHAT_TAG_NONE, str(code),
+    def _send_error(channel, player_mgr, code: AddonErrorCodes):
+        packet = ChatAddonManager._get_message_packet(player_mgr.guid, ChatFlags.CHAT_TAG_NONE, str(code.value),
                                                       ChatMsgs.CHAT_MSG_CHANNEL, Languages.LANG_UNIVERSAL,
                                                       channel=channel.name)
         player_mgr.enqueue_packet(packet)
