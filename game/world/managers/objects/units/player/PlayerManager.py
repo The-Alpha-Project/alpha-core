@@ -1455,6 +1455,8 @@ class PlayerManager(UnitManager):
 
     def set_far_sight(self, guid):
         self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid)
+        # Upon changing players view camera, need to force the update so client is aware immediately.
+        self.force_fields_update()
 
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):
         # Charmer must be set here not in parent.
@@ -1517,11 +1519,11 @@ class PlayerManager(UnitManager):
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target)
 
     # override
-    def receive_damage(self, damage_info, source=None, is_periodic=False, casting_spell=None):
+    def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
         if self.is_god:
             return False
 
-        return super().receive_damage(damage_info, source, is_periodic=False)
+        return super().receive_damage(damage_info, source, casting_spell=casting_spell, is_periodic=is_periodic)
 
     # override
     def receive_healing(self, amount, source=None):
