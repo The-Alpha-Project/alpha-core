@@ -70,6 +70,13 @@ class AuraEffectHandler:
 
         faction = aura.target.team if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER else 0
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
+        passive_spell_ids = ExtendedSpellData.ShapeshiftInfo.get_passive_spell_ids(form)
+
+        # If form requires passives which player does not know yet, learn them.
+        if not remove and passive_spell_ids:
+            for spell_id in passive_spell_ids:
+                if spell_id not in aura.caster.spell_manager.spells:
+                    aura.caster.spell_manager.learn_spell(spell_id)
 
         # Shapeshifting can affect current power type and stats (druid shapeshift powers/attack values).
         effect_target.spell_manager.update_shapeshift_passives()
