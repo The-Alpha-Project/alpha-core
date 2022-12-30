@@ -1,7 +1,7 @@
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.aura.AuraEffectDummyHandler import AuraEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
-from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes, DispelType
+from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes, DispelType, SpellAttributesEx
 
 
 class AppliedAura:
@@ -42,6 +42,9 @@ class AppliedAura:
 
     def is_passive(self) -> bool:
         return self.passive
+
+    def displays_in_aura_bar(self):
+        return not self.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_DONT_DISPLAY_IN_AURA_BAR
 
     def is_periodic(self) -> bool:
         return self.spell_effect.is_periodic()

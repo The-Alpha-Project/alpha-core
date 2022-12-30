@@ -50,9 +50,8 @@ class ChatAddonManager:
         unit_id = 'player' if unit and unit.guid == player_mgr.guid or not unit else 'target'
         auras_information = []
         if unit:
-            # TODO: Ignore auras like 'Battle Stance', which flag/property should we check?
             for aura in unit.aura_manager.get_active_auras():
-                if aura.passive:
+                if aura.passive or not aura.displays_in_aura_bar():
                     continue
                 name = aura.source_spell.spell_entry.Name_enUS
                 texture = aura.source_spell.spell_entry.SpellIconID
