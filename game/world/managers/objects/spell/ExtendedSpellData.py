@@ -32,19 +32,6 @@ class EnchantmentChargesInfo:
 
 
 class ShapeshiftInfo:
-    # Passive spells that should be applied upon shapeshift.
-    SHAPESHIFT_PASSIVE_SPELLS = {
-        ShapeshiftForms.SHAPESHIFT_FORM_CAT: {3025},  # Increases attack speed.
-        ShapeshiftForms.SHAPESHIFT_FORM_TREE: {3122, 5420},  # Resistances, stats, speed.
-        ShapeshiftForms.SHAPESHIFT_FORM_FLYING: {5419},  # Increases speed.
-        ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: {5421},  # Increases swim speed.
-        ShapeshiftForms.SHAPESHIFT_FORM_BEAR: {1178},  # Increases armor, hit points.
-        # TODO: Warrior stances also have secondary passives but no shapeshiftmask which ends up in
-        #   'update_shapeshift_passives' not removing the passives when switching stances.
-        #  ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE: {7376},  # Increases defense.
-        #  ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE: {7381}  # Increases attack speed, reduces defense.
-    }
-
     # Alliance / Default display_id, Horde display_id, Scale
     SHAPESHIFT_MODELS = {
         ShapeshiftForms.SHAPESHIFT_FORM_CAT: (892, 892, 0.8),
@@ -77,12 +64,6 @@ class ShapeshiftInfo:
         info = ShapeshiftInfo.SHAPESHIFT_MODELS.get(form)
         # For creatures default to Alliance form for now.
         return (info[1], info[2]) if faction == Teams.TEAM_HORDE else (info[0], info[2])
-
-    @staticmethod
-    def get_passive_spell_ids(form: ShapeshiftForms):
-        if form not in ShapeshiftInfo.SHAPESHIFT_PASSIVE_SPELLS:
-            return 0
-        return ShapeshiftInfo.SHAPESHIFT_PASSIVE_SPELLS.get(form)
 
 
 class AuraSourceRestrictions:
