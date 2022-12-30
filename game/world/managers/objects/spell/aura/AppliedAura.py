@@ -1,7 +1,6 @@
 from game.world.managers.objects.spell import ExtendedSpellData
-from game.world.managers.objects.spell.aura.AuraEffectDummyHandler import AuraEffectDummyHandler
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
-from utils.constants.SpellCodes import SpellEffects, SpellState, SpellAttributes, DispelType
+from utils.constants.SpellCodes import SpellEffects, DispelType
 
 
 class AppliedAura:
@@ -37,16 +36,21 @@ class AppliedAura:
 
         self.index = -1  # Set on application
 
-    def has_duration(self) -> bool:
-        return self.get_duration() != -1
-
     def is_passive(self) -> bool:
         return self.passive
 
     def is_periodic(self) -> bool:
         return self.spell_effect.is_periodic()
 
+    def has_duration(self) -> bool:
+        return self.get_duration() != -1
+
     def get_duration(self):
+        if self.source_spell.get_duration() == -1:
+            # Infinite duration aura.
+            # Don't compare to applied_aura_duration as it's still set for periodic effects.
+            return -1
+
         return self.spell_effect.applied_aura_duration
 
     def get_dispel_mask(self):

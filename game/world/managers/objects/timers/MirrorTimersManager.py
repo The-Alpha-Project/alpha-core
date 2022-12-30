@@ -18,8 +18,8 @@ class MirrorTimersManager(object):
         self.timers[MirrorTimerTypes.FATIGUE] = MirrorTimer(self.owner, MirrorTimerTypes.FATIGUE, 1, 60)
         self.timers[MirrorTimerTypes.FEIGNDEATH] = MirrorTimer(self.owner, MirrorTimerTypes.FEIGNDEATH, 1, 300)
 
-    def update_water_breathing(self):
-        self.timers[MirrorTimerTypes.BREATH].update_water_breathing()
+    def update_water_breathing(self, state):
+        self.timers[MirrorTimerTypes.BREATH].update_water_breathing(state)
 
     def stop_all(self):
         for timer in self.timers.values():

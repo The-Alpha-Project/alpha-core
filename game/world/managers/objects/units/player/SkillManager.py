@@ -18,7 +18,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
 from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockType
 from utils.constants.OpCodes import OpCode
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects, SpellAttributes
 from utils.constants.UpdateFields import PlayerFields
 
 
@@ -511,6 +511,16 @@ class SkillManager(object):
                 return spell
 
         return None
+
+    def get_passive_spells_for_skill_id(self, skill_id):
+        skill_line_spells = DbcDatabaseManager.SkillLineAbilityHolder.spells_get_by_skill_id(skill_id)
+        passive_spells = []
+        for spell_id in skill_line_spells:
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if spell and spell.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
+                passive_spells.append(spell)
+
+        return passive_spells
 
     def get_skill_info_for_spell_id(self, spell_id):
         race = self.player_mgr.race
