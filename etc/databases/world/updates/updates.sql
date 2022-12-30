@@ -15780,9 +15780,136 @@ begin not atomic
         -- Neutral trainers
         UPDATE `creature_template` SET `trainer_id` = 505 WHERE `entry` = 2837;
 
+        -- Blacksmithing
+        -- Trainer ID: 506
+
+        -- Add 'Rough Sharpening Stone' as spell to be learned when 'Apprentice Blacksmith' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2020, 2660);
+        -- Add 'Rough Weightstone' as spell to be learned when 'Apprentice Blacksmith' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2020, 3115);
+        -- Add 'Copper Bracers' as spell to be learned when 'Apprentice Blacksmith' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2020, 2663);
+
+        -- Apprentice Blacksmithing
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2020, 2018, 0, 0, 1, 0, 0, 1);
+        -- Journeyman Blacksmithing
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2021, 3100, 0, 0, 3, 164, 50, 1);
+        -- Expert Blacksmithing
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3539, 3538, 0, 0, 5, 164, 125, 1);
+
+        -- Rough Grinding Stone
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3341, 3320, 50, 0, 0, 164, 40, 1);
+        -- Copper Chain Pants
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2743, 2662, 75, 0, 0, 164, 45 , 1);
+        -- Copper Mace
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2754, 2737, 75, 0, 0, 164, 50 , 1);
+        -- Copper Chain Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3340, 3319, 100, 0, 0, 164, 55 , 1);
+        -- Copper Axe
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2755, 2738, 100, 0, 0, 164, 55 , 1);
+        -- Copper Shortsword
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2756, 2739, 100, 0, 0, 164, 60 , 1);
+        -- Coarse Sharpening Stone
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2746, 2665, 100, 0, 0, 164, 60 , 1);
+        -- Copper Battle Axe
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3299, 3293, 125, 0, 0, 164, 70 , 1);
+        -- Coarse Weightstone
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3118, 3116, 125, 0, 0, 164, 70 , 1);
+        -- Copper Chain Belt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2744, 2661, 125, 0, 0, 164, 70 , 1);
+        -- Runed Copper Gauntlets
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3342, 3323, 150, 0, 0, 164, 75 , 1);
+        -- Runed Copper Pants
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3343, 3324, 150, 0, 0, 164, 80 , 1);
+        -- Tiny Bronze Key
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 6472, 6470, 200, 0, 0, 164, 95 , 1);
+        -- Coarse Grinding Stone
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3344, 3326, 200, 0, 0, 164, 95 , 1);
+        -- Silver Rod
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 7820, 7818, 200, 0, 0, 164, 100, 1);
+        -- Heavy Copper Maul
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 7409, 7408, 200, 0, 0, 164, 100, 1);
+        -- Thick War Axe
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3300, 3294, 225, 0, 0, 164, 105, 1);
+        -- Runed Copper Belt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2747, 2666, 225, 0, 0, 164, 105, 1);
+        -- Runed Copper Bracers
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2745, 2664, 225, 0, 0, 164, 110, 1);
+        -- Rough Bronze Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 7819, 7817, 250, 0, 0, 164, 120, 1);
+        -- Heavy Sharpening Stone
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2752, 2674, 250, 0, 0, 164, 120, 1);
+        -- Heavy Copper Broadsword
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3298, 3292, 275, 0, 0, 164, 130, 1);
+        -- Rough Bronze Shoulders
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3345, 3328, 300, 0, 0, 164, 135, 1);
+        -- Big Bronze Knife
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3516, 3491, 300, 0, 0, 164, 140, 1);
+        -- Rough Bronze Leggings
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2749, 2668, 300, 0, 0, 164, 140, 1);
+        -- Rough Bronze Cuirass
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2750, 2670, 300, 0, 0, 164, 140, 1);
+        -- Pearl Handled Dagger
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 6520, 6517, 325, 0, 0, 164, 145, 1);
+        -- Tiny Iron Key
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 6473, 6471, 325, 0, 0, 164, 145, 1);
+        -- Heavy Weightstone
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3119, 3117, 325, 0, 0, 164, 145, 1);
+        -- Bronze Mace
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2757, 2740, 325, 0, 0, 164, 145, 1);
+        -- Patterned Bronze Bracers
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2751, 2672, 325, 0, 0, 164, 145, 1);
+        -- Bronze Axe
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2758, 2741, 325, 0, 0, 164, 150, 1);
+        -- Silvered Bronze Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3346, 3331, 350, 0, 0, 164, 155, 1);
+        -- Bronze Shortsword
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2759, 2742, 350, 0, 0, 164, 155, 1);
+        -- Silvered Bronze Gauntlets
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3347, 3333, 350, 0, 0, 164, 160, 1);
+        -- Heavy Bronze Mace
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3301, 3296, 375, 0, 0, 164, 165, 1);
+        -- Heavy Grinding Stone
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3348, 3337, 375, 0, 0, 164, 170, 1);
+        -- Silver Scale Breastplate
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 2753, 2675, 375, 0, 0, 164, 170, 1);
+        -- Green Iron Leggings
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3524, 3506, 400, 0, 0, 164, 175, 1);
+        -- Green Iron Bracers
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3521, 3501, 425, 0, 0, 164, 185, 1);
+        -- Green Iron Helm
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3522, 3502, 425, 0, 0, 164, 190, 1);
+        -- Solid Iron Maul
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3518, 3494, 425, 0, 0, 164, 190, 1);
+        -- Hardened Iron Shortsword
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3517, 3492, 450, 0, 0, 164, 195, 1);
+        -- Green Iron Hauberk
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3525, 3508, 450, 0, 0, 164, 200, 1);
+        -- Golden Scale Bracers
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 7225, 7223, 475, 0, 0, 164, 205, 1);
+        -- Moonsteel Broadsword
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3519, 3496, 500, 0, 0, 164, 215, 1);
+        -- Massive Iron Axe
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (506, 3520, 3498, 500, 0, 0, 164, 220, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 4258;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 3136;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 514;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 1241;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 5511;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 6299;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 3174;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 4596;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 2998;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 3355;
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 3478;
+
         insert into applied_updates values ('261220221');
     end if;
-    
+
     -- 27/12/2022 1
 	-- TODO item - Hunter pet trainer update: issue #789
 	if (select count(*) from applied_updates where id='271220221') = 0 then
