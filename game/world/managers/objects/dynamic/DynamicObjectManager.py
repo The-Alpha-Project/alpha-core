@@ -13,6 +13,7 @@ class DynamicObjectManager(ObjectManager):
     def __init__(self, owner, location, radius, effect, dynamic_type, ttl, **kwargs):
         super().__init__(**kwargs)
 
+        self.summoner = owner
         self.owner = owner.guid
         self.map_ = owner.map_
         self.location = location.copy()
@@ -59,11 +60,11 @@ class DynamicObjectManager(ObjectManager):
     def spawn(summoner, location, radius, effect, dynamic_type, ttl=-1):
         dynamic_object = DynamicObjectManager(owner=summoner, location=location, radius=radius, effect=effect,
                                               dynamic_type=dynamic_type, ttl=ttl)
-        MapManager.update_object(dynamic_object)
+        MapManager.spawn_object(world_object_instance=dynamic_object)
         return dynamic_object
 
     @classmethod
-    def spawn_from_spell_effect(cls, effect, dynamic_type, ttl=-1):
+    def spawn_from_spell_effect(cls, effect, dynamic_type, orientation=0, ttl=-1):
         target = effect.casting_spell.initial_target
 
         # Target must be a vector.
@@ -72,10 +73,22 @@ class DynamicObjectManager(ObjectManager):
         else:
             target = target.get_ray_vector(is_terrain=True)
 
+        if orientation:
+            target.o = orientation
+
         effect.casting_spell.dynamic_object = DynamicObjectManager.spawn(effect.casting_spell.spell_caster,
                                                                          target, effect.get_radius(), effect,
                                                                          dynamic_type, ttl=ttl)
         return effect.casting_spell.dynamic_object
+
+    # override
+    def get_charmer_or_summoner(self, include_self=False):
+        charmer_or_summoner = self.charmer if self.charmer else self.summoner if self.summoner else None
+        return charmer_or_summoner if charmer_or_summoner else self if include_self else None
+
+    # override
+    def is_temp_summon(self):
+        return True
 
     # override
     def is_active_object(self):
