@@ -453,7 +453,10 @@ class ChannelManager(object):
             return
         if channel.members_count() == 0:
             channel.flush()
-            ChannelManager.CHANNELS[player_mgr.team].pop(channel.name)
+            if channel.is_addon():
+                ChannelManager.ADDON_CHANNELS.pop(channel.name)
+            else:
+                ChannelManager.CHANNELS[player_mgr.team].pop(channel.name)
 
     @staticmethod
     def send_channel_members_list(channel, sender):
@@ -466,7 +469,7 @@ class ChannelManager(object):
 
     @staticmethod
     def leave_all_channels(player_mgr, logout=False):
-        for channel_name, channel in list(ChannelManager.CHANNELS[player_mgr.team].items()):
+        for channel in ChannelManager.get_all_channels(player_mgr):
             if not channel.player_in_channel(player_mgr):
                 continue
             ChannelManager.leave_channel(player_mgr, channel, logout=logout)
@@ -491,6 +494,15 @@ class ChannelManager(object):
             data += pack('<2B', flags[0], flags[1])
 
         return PacketWriter.get_packet(OpCode.SMSG_CHANNEL_NOTIFY, data)
+
+    @staticmethod
+    def get_all_channels(player_mgr):
+        channels = []
+        for channel_name, channel in list(ChannelManager.CHANNELS[player_mgr.team].items()):
+            channels.append(channel)
+        for channel in list(ChannelManager.ADDON_CHANNELS.values()):
+            channels.append(channel)
+        return channels
 
     @staticmethod
     def get_channel(channel_name, player_mgr):
