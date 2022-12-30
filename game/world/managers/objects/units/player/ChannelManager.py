@@ -466,10 +466,10 @@ class ChannelManager(object):
 
     @staticmethod
     def leave_all_channels(player_mgr, logout=False):
-        for channel in list(ChannelManager.CHANNELS[player_mgr.team].values()):
+        for channel_name, channel in list(ChannelManager.CHANNELS[player_mgr.team].items()):
             if not channel.player_in_channel(player_mgr):
                 continue
-            ChannelManager.leave_channel(player_mgr, channel.name.capitalize(), logout=logout)
+            ChannelManager.leave_channel(player_mgr, channel, logout=logout)
 
     @staticmethod
     def send_to_player(player_mgr, packet):
