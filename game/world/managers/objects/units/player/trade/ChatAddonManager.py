@@ -23,7 +23,7 @@ class ChatAddonManager:
         args = message[terminator_index:].strip()
 
         if command not in ADDON_COMMAND_DEFINITIONS:
-            ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_FUNCTION)
+            ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_FUNCTION, '')
             return
 
         code, res, unit_id = ADDON_COMMAND_DEFINITIONS[command](player_mgr, args)
