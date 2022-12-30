@@ -350,7 +350,7 @@ class EffectTargets:
         if caster_pet and caster.location.distance(caster_pet.location) < distance:
             units_in_range.append(caster_pet)
 
-        if not caster_is_player or not party_group:
+        if not party_group:
             return units_in_range
 
         for unit in units:

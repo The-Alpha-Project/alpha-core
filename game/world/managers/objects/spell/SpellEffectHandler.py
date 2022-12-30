@@ -55,7 +55,7 @@ class SpellEffectHandler:
             return
 
         damage = effect.get_effect_points()
-        caster.apply_spell_damage(target, damage, casting_spell)
+        caster.apply_spell_damage(target, damage, effect)
 
     @staticmethod
     def handle_heal(casting_spell, effect, caster, target):
@@ -100,7 +100,7 @@ class SpellEffectHandler:
                 casting_spell.requires_combo_points():
             damage_bonus *= casting_spell.spent_combo_points
 
-        caster.apply_spell_damage(target, weapon_damage + damage_bonus, casting_spell)
+        caster.apply_spell_damage(target, weapon_damage + damage_bonus, effect)
 
     @staticmethod
     def handle_add_combo_points(casting_spell, effect, caster, target):
@@ -205,7 +205,7 @@ class SpellEffectHandler:
             return
 
         amount = effect.get_effect_points()
-        caster.apply_spell_damage(target, amount, casting_spell, is_periodic=True)
+        caster.apply_spell_damage(target, amount, effect)
         caster.receive_healing(amount, caster)
 
     @staticmethod
@@ -550,7 +550,7 @@ class SpellEffectHandler:
         if pet:
             # Since we have no data for what abilities pets had in the wild (or if it even varied in 0.5.3),
             # learn all abilities the pet could have at its current level.
-            caster.pet_manager.teach_active_pet_all_available_spells()
+            caster.pet_manager.initialize_active_pet_spells()
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):
