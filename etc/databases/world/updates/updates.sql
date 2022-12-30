@@ -15602,6 +15602,9 @@ begin not atomic
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
         VALUES (3699, 10603.142, 1935.351, 1323.638, 4.944, 1, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
 
+        -- Zudd
+        UPDATE `spawns_creatures` SET `position_x`=447.48, `position_y`=-4487.652, `position_z`=50.238, `orientation`=2.528, `map`=1 WHERE `spawn_id`=667;
+
         -- Placeholder display_id for NE trainers
         UPDATE `creature_template` SET `display_id1`=1946 WHERE `entry`=3699;
         UPDATE `creature_template` SET `display_id1`=1945 WHERE `entry`=3701;
