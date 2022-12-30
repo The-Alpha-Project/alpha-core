@@ -93,6 +93,9 @@ class SpellManager:
         if not character_skill and skill and not self.caster.skill_manager.has_skill(skill.ID):
             if not self.caster.skill_manager.add_skill(skill.ID):
                 return False
+            # Check if this skill line has passive spells.
+            for passive_spell in self.caster.skill_manager.get_passive_spells_for_skill_id(skill.ID):
+                self.learn_spell(passive_spell.ID)
 
         # Check if this skill requires a 'cast ui' spell. e.g. Poisons frame.
         if skill:
