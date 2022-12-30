@@ -166,7 +166,7 @@ class PetData:
     def _get_xp_to_next_level_for(level: int) -> int:
         return int(Formulas.PlayerFormulas.xp_to_level(level) / 4)
 
-    def get_available_spells(self, ignore_level=False) -> list[int]:
+    def get_available_spells(self, ignore_level=False, level_override=-1) -> list[int]:
         creature_family = self.creature_template.beast_family
         if not creature_family:
             return []
@@ -187,8 +187,9 @@ class PetData:
         line_spells = [DbcDatabaseManager.SpellHolder.spell_get_by_id(line.Spell) for line in skill_line_abilities]
 
         # Filter spells by pet level.
+        level = level_override if level_override != -1 else self._level
         # TODO This level isn't always correct. We should do a lookup on the teaching spell instead.
-        return [spell.ID for spell in line_spells if ignore_level or spell.SpellLevel <= self._level]
+        return [spell.ID for spell in line_spells if ignore_level or spell.SpellLevel <= level]
 
     def can_learn_spell(self, spell_id):
         return spell_id in self.get_available_spells()
@@ -207,6 +208,10 @@ class PetData:
 
         spells = []
         for spell_id in self.spells:
+            line_entry = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_by_spell(spell_id)[0]
+            if line_entry.SupercededBySpell in self.spells:
+                continue  # Only place highest ranks on action bar.
+
             template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
                 spells.append(spell_id)
@@ -329,23 +334,24 @@ class PetManager:
 
         return True
 
-    def teach_active_pet_all_available_spells(self):
+    def initialize_active_pet_spells(self, level_override=-1):
         pet = self.get_active_pet_info()
         if not pet:
             return
 
-        spells = pet.get_available_spells()
+        spells = pet.get_available_spells(level_override=level_override)
         update = any([self.teach_active_pet_spell(spell_id, update=False) for spell_id in spells])
         if update:
+            pet.action_bar = pet.get_default_action_bar_values()
             self._send_pet_spell_info()
+            pet.set_dirty()
 
     def summon_permanent_pet(self, spell_id, creature_id=0):
         if self.active_pet:
             return
 
         # If a creature ID isn't provided, the pet to summon is the player's only pet (hunters).
-        # In this case, the pet ignores the summoner's levels and levels up independently.
-        match_summoner_level = creature_id != 0
+        is_warlock_pet = creature_id != 0
 
         pet_index = -1
         if not creature_id:
@@ -372,9 +378,17 @@ class PetManager:
                                                   spell_id=spell_id,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
 
-        # Match summoner level if a creature ID is provided (warlock pets). Otherwise, set to the level in PetData.
-        pet_level = self.owner.level if match_summoner_level else -1
-        self.set_creature_as_pet(creature_manager, spell_id, pet_level=pet_level, pet_index=pet_index, is_permanent=True)
+        # Match summoner level for warlock pets. Otherwise, set to the level in PetData.
+        pet_level = self.owner.level if is_warlock_pet else -1
+        if not self.set_creature_as_pet(creature_manager, spell_id, pet_level=pet_level,
+                                        pet_index=pet_index, is_permanent=True):
+            return
+
+        # On initial warlock pet summon, teach available spells according to the summon spell's level.
+        if is_warlock_pet and pet_index == -1:
+            spell_level = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id).SpellLevel
+            self.initialize_active_pet_spells(spell_level)
+
         MapManager.spawn_object(world_object_instance=creature_manager)
 
     def remove_pet(self, pet_index):

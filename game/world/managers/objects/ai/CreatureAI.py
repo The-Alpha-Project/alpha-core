@@ -238,7 +238,7 @@ class CreatureAI:
                                                                                  spell_target_mask,
                                                                                  validate=True,
                                                                                  creature_spell=creature_spell)
-                # Invalid spell perhaps.
+                # Initial spell validation failed.
                 if not casting_spell:
                     continue
 
@@ -258,9 +258,6 @@ class CreatureAI:
 
                     # Trigger the cast.
                     self.creature.spell_manager.start_spell_cast(initialized_spell=casting_spell)
-                elif cast_result == SpellCheckCastResult.SPELL_FAILED_NOPATH \
-                        or cast_result == SpellCheckCastResult.SPELL_FAILED_SPELL_IN_PROGRESS:
-                    continue
                 elif cast_result == SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN:
                     # Chance roll failed, so we set a new random cooldown.
                     self.creature.spell_manager.set_on_cooldown(casting_spell)
@@ -318,9 +315,8 @@ class CreatureAI:
                 return SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT
 
             # No point in casting if target is immune.
-            if target and target != self:
-                if not casting_spell.is_positive_spell() and casting_spell.is_target_immune_to_damage():
-                    return SpellCheckCastResult.SPELL_FAILED_ERROR
+            if casting_spell.has_only_harmful_effects() and casting_spell.is_target_immune_to_effects():
+                return SpellCheckCastResult.SPELL_FAILED_ERROR
 
             # Mind control abilities can't be used with just 1 attacker or mob will reset.
             if self.creature.threat_manager.get_targets_count() == 1 and casting_spell.get_charm_effect():
@@ -330,9 +326,7 @@ class CreatureAI:
         if cast_flags & CastFlags.CF_INTERRUPT_PREVIOUS and target.spell_manager.is_casting():
             self.creature.spell_manager.remove_colliding_casts(casting_spell)
 
-        # Roll chance to cast from script (must be after cast checks, this is why its here)
-        # TODO: Should be checked after spell_manager do all the proper validations.
-        #  Refer to prepare() in Spell.cpp - VMaNGOS
+        # Roll chance to cast from script after all checks have passed.
         if chance:
             if not chance > randint(0, 99):
                 return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN

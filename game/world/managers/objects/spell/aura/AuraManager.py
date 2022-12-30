@@ -24,12 +24,6 @@ class AuraManager:
         aura = AppliedAura(caster, casting_spell, spell_effect, self.unit_mgr)
         self.add_aura(aura)
 
-    def apply_default_auras(self):
-        # Apply default auras for creatures.
-        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
-            for aura in self.unit_mgr.get_default_auras():
-                self.unit_mgr.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
-
     def add_aura(self, aura):
         can_apply = self.can_apply_aura(aura) and self.remove_colliding_effects(aura)
         if not can_apply:
@@ -374,8 +368,8 @@ class AuraManager:
         for aura in auras:
             if not aura.passive:
                 is_passive = False
-            is_area_aura = aura.spell_effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AURA,
-                                                             SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA}
+            is_area_aura = aura.spell_effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA,
+                                                             SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA}
             if aura.harmful or \
                     aura.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_CANT_CANCEL or \
                     (is_area_aura and aura.caster != self.unit_mgr):
