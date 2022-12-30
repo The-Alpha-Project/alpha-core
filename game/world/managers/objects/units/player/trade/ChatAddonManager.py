@@ -26,10 +26,10 @@ class ChatAddonManager:
             ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_FUNCTION)
             return
 
-        code, res = ADDON_COMMAND_DEFINITIONS[command](player_mgr, args)
+        code, res, unit_id = ADDON_COMMAND_DEFINITIONS[command](player_mgr, args)
 
         if code < AddonErrorCodes.SUCCESS:
-            ChatAddonManager._send_error(channel, player_mgr, code)
+            ChatAddonManager._send_error(channel, player_mgr, code, unit_id)
             return
 
         lines = list(filter((0).__ne__, res.rsplit('\n')))
@@ -60,13 +60,14 @@ class ChatAddonManager:
                 auras_information.append(f'{unit_id},{name},{harmful},{texture},{remaining}')
 
         if not auras_information:
-            return AddonErrorCodes.NO_DATA, ''
+            return AddonErrorCodes.NO_DATA, '', unit_id
         res = f'{len(auras_information)}\n' + str.join('\n', auras_information)
-        return AddonErrorCodes.SUCCESS, res
+        return AddonErrorCodes.SUCCESS, res, unit_id
 
     @staticmethod
-    def _send_error(channel, player_mgr, code: AddonErrorCodes):
-        packet = ChatAddonManager._get_message_packet(player_mgr.guid, ChatFlags.CHAT_TAG_NONE, str(code.value),
+    def _send_error(channel, player_mgr, code: AddonErrorCodes, unit_id):
+        error = f'{str(code.value)}, {unit_id}'
+        packet = ChatAddonManager._get_message_packet(player_mgr.guid, ChatFlags.CHAT_TAG_NONE, error,
                                                       ChatMsgs.CHAT_MSG_CHANNEL, Languages.LANG_UNIVERSAL,
                                                       channel=channel.name)
         player_mgr.enqueue_packet(packet)
