@@ -47,6 +47,14 @@ class GroupManager(object):
     def is_party_formed(self):
         return len(self.members) > 1
 
+    # TODO, check if ordering becomes an issue cause of using dictionary for members.
+    def get_member_at(self, index):
+        for idx, member in enumerate(list(self.members.keys())):
+            if index == idx:
+                player_mgr = WorldSessionStateHandler.find_player_by_guid(member)
+                return player_mgr if player_mgr else None
+        return None
+
     def try_add_member(self, player_mgr, invite):
         # Check if we have space.
         if self.is_full():
