@@ -35,6 +35,7 @@ class ChatAddonManager:
 
     @staticmethod
     def process_addon_request(channel, player_mgr, message: str):
+        args = None
         try:
             terminator_index = message.find(' ') if ' ' in message else len(message)
 
@@ -65,7 +66,8 @@ class ChatAddonManager:
             # Send reply.
             player_mgr.enqueue_packets(packets)
         except:
-            ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_REQUEST, 'player')
+            target = 'player' if not args else args[0]
+            ChatAddonManager._send_error(channel, player_mgr, AddonErrorCodes.INVALID_REQUEST, target)
             Logger.warning('Invalid addon request.')
 
     @staticmethod
