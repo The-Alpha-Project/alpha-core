@@ -811,5 +811,6 @@ class RealmDatabaseManager(object):
     def guild_petition_destroy(petition):
         realm_db_session = SessionHolder()
         realm_db_session.delete(petition)
+        realm_db_session.refresh(petition)
         realm_db_session.flush()
         realm_db_session.close()
