@@ -311,9 +311,6 @@ class PlayerManager(UnitManager):
 
         MapManager.remove_object(self)
 
-        if self.group_manager:
-            self.group_manager.send_update()
-
         self.friends_manager.send_offline_notification()
         self.session.save_character()
 
@@ -545,19 +542,24 @@ class PlayerManager(UnitManager):
         implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
         known_object = self.known_objects.get(guid)
         if known_object:
+            is_player = known_object.get_type_id() == ObjectTypeIds.ID_PLAYER
             del self.known_objects[guid]
             # Remove self from creature/go known players if needed.
             if known_object.get_type_id() in implements_known_players:
                 if self.guid in known_object.known_players:
                     del known_object.known_players[self.guid]
             # Destroy other player items for self.
-            if known_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if is_player:
                 destroy_packets = known_object.inventory.get_inventory_destroy_packets(requester=self)
                 for guid in destroy_packets.keys():
                     self.known_items.pop(guid, None)
                 self.enqueue_packets(destroy_packets.values())
             # Destroy world object from self.
             self.enqueue_packet(known_object.get_destroy_packet())
+            # Destroyed a player which is in our party, update party stats.
+            if is_player and self.group_manager and self.group_manager.is_party_member(known_object.guid):
+                self.group_manager.send_update()
+
             return True
         return False
 
