@@ -237,9 +237,10 @@ class WorldServerSessionHandler:
         corpses_update_scheduler.start()
 
         # MapManager tile loading.
-        world_session_thread = threading.Thread(target=MapManager.initialize_pending_adt_tiles)
-        world_session_thread.daemon = True
-        world_session_thread.start()
+        tile_loading_scheduler = BackgroundScheduler()
+        tile_loading_scheduler._daemon = True
+        tile_loading_scheduler.add_job(MapManager.initialize_pending_tiles, 'interval', seconds=1.0, max_instances=4)
+        tile_loading_scheduler.start()
 
         # Creature updates.
         creature_update_scheduler = BackgroundScheduler()

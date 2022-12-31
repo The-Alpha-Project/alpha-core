@@ -8,7 +8,7 @@ from random import choice
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
+from game.world.managers.maps.Constants import ADT_SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
@@ -80,8 +80,8 @@ class MapManager:
             if not path.exists(nav_root_path) or not path.exists(nav_map_path):
                 Logger.warning(f'[Namigator] Skip {map_.name} ID {map_.id}, no data.')
                 return
-            Logger.success(f'[Namigator] Successfully loaded for map {map_.name}')
             MAPS_NAMIGATOR[map_.id] = pathfind.Map(nav_root_path, f'{map_.name}')
+            Logger.success(f'[Namigator] Successfully loaded for map {map_.name}')
             MapManager.NAMIGATOR_LOADED = True
         except ImportError:
             Logger.error('[Namigator] Unable to load module.')
@@ -133,8 +133,7 @@ class MapManager:
             return
 
         with QUEUE_LOCK:
-            adt_x = MapManager.get_tile_x(raw_x)
-            adt_y = MapManager.get_tile_y(raw_y)
+            adt_x, adt_y = MapManager.get_tile(raw_x, raw_y)
 
             adt_key = f'{map_id},{adt_x},{adt_y}'
             if adt_key in PENDING_TILE_INITIALIZATION:
@@ -143,13 +142,6 @@ class MapManager:
             PENDING_TILE_INITIALIZATION[adt_key] = True
             to_load_data = f'{map_id},{raw_x},{raw_y}'
             PENDING_TILE_INITIALIZATION_QUEUE.put(to_load_data)
-
-    @staticmethod
-    def initialize_pending_adt_tiles():
-        while True:
-            key = PENDING_TILE_INITIALIZATION_QUEUE.get(block=True, timeout=None)
-            map_id, x, y = str(key).rsplit(',')
-            MapManager.initialize_tile(int(map_id), float(x), float(y))
 
     @staticmethod
     def load_map_adt_tiles():
@@ -167,6 +159,13 @@ class MapManager:
                     Logger.progress('Loading map tiles...', count, length)
 
         return True
+
+    @staticmethod
+    def initialize_pending_tiles():
+        if not PENDING_TILE_INITIALIZATION_QUEUE.empty():
+            key = PENDING_TILE_INITIALIZATION_QUEUE.get()
+            map_id, x, y = str(key).rsplit(',')
+            MapManager.initialize_tile(int(map_id), float(x), float(y))
 
     @staticmethod
     def initialize_tile(map_id, x, y):
@@ -191,31 +190,31 @@ class MapManager:
 
     @staticmethod
     def get_tile(x, y):
-        tile_x = int(32.0 - MapManager.validate_map_coord(x) / SIZE)
-        tile_y = int(32.0 - MapManager.validate_map_coord(y) / SIZE)
+        tile_x = int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)
+        tile_y = int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)
         return [tile_x, tile_y]
 
     @staticmethod
     def get_tile_x(x):
-        tile_x = int(32.0 - MapManager.validate_map_coord(x) / SIZE)
+        tile_x = int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)
         return tile_x
 
     @staticmethod
     def get_tile_y(y):
-        tile_y = int(32.0 - MapManager.validate_map_coord(y) / SIZE)
+        tile_y = int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)
         return tile_y
 
     @staticmethod
     def get_submap_tile_x(x):
         tile_x = int((RESOLUTION_ZMAP - 1) * (
-                32.0 - MapManager.validate_map_coord(x) / SIZE - int(32.0 - MapManager.validate_map_coord(x) / SIZE)))
+                32.0 - MapManager.validate_map_coord(x) / ADT_SIZE - int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)))
 
         return tile_x
 
     @staticmethod
     def get_submap_tile_y(y):
         tile_y = int((RESOLUTION_ZMAP - 1) * (
-                32.0 - MapManager.validate_map_coord(y) / SIZE - int(32.0 - MapManager.validate_map_coord(y) / SIZE)))
+                32.0 - MapManager.validate_map_coord(y) / ADT_SIZE - int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)))
 
         return tile_y
 
@@ -241,7 +240,7 @@ class MapManager:
         if not MapManager._check_tile_load(map_id, x, y, adt_x, adt_y):
             return current_z, True
 
-        z_values = MAPS_NAMIGATOR[map_id].query_z(x, y)
+        z_values = MAPS_NAMIGATOR[map_id].query_z(float(x), float(y))
 
         if len(z_values) == 0:
             Logger.warning(f'Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
@@ -398,8 +397,8 @@ class MapManager:
                 return current_z, False
 
             try:
-                x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / SIZE) - map_tile_x) - tile_local_x
-                y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / SIZE) - map_tile_y) - tile_local_y
+                x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - map_tile_x) - tile_local_x
+                y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / ADT_SIZE) - map_tile_y) - tile_local_y
                 val_1 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y)
                 val_2 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y)
                 top_height = MapManager._lerp(val_1, val_2, x_normalized)
@@ -503,10 +502,10 @@ class MapManager:
     def calculate_tile(x, y, resolution):
         x = MapManager.validate_map_coord(x)
         y = MapManager.validate_map_coord(y)
-        map_tile_x = int(32.0 - (x / SIZE))
-        map_tile_y = int(32.0 - (y / SIZE))
-        tile_local_x = int(resolution * (32.0 - (x / SIZE) - map_tile_x))
-        tile_local_y = int(resolution * (32.0 - (y / SIZE) - map_tile_y))
+        map_tile_x = int(32.0 - (x / ADT_SIZE))
+        map_tile_y = int(32.0 - (y / ADT_SIZE))
+        tile_local_x = int(resolution * (32.0 - (x / ADT_SIZE) - map_tile_x))
+        tile_local_y = int(resolution * (32.0 - (y / ADT_SIZE) - map_tile_y))
         return map_tile_x, map_tile_y, tile_local_x, tile_local_y
 
     @staticmethod
@@ -529,10 +528,10 @@ class MapManager:
 
     @staticmethod
     def validate_map_coord(coord):
-        if coord > 32.0 * SIZE:
-            return 32.0 * SIZE
-        elif coord < -32.0 * SIZE:
-            return -32 * SIZE
+        if coord > 32.0 * ADT_SIZE:
+            return 32.0 * ADT_SIZE
+        elif coord < -32.0 * ADT_SIZE:
+            return -32 * ADT_SIZE
         else:
             return coord
 
