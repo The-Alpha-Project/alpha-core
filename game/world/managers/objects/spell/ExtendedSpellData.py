@@ -43,6 +43,17 @@ class ShapeshiftInfo:
         ShapeshiftForms.SHAPESHIFT_FORM_GHOSTWOLF: (1164, 1164, 0.8)  # Guessed, the normal Ghost Wolf didn't exist yet.
     }
 
+    # Passive spells that should be applied upon shapeshift.
+    SHAPESHIFT_PASSIVE_SPELLS = {
+        ShapeshiftForms.SHAPESHIFT_FORM_CAT: {3025},  # Increases attack speed.
+        ShapeshiftForms.SHAPESHIFT_FORM_TREE: {3122, 5420},  # Resistances, stats, speed.
+        ShapeshiftForms.SHAPESHIFT_FORM_FLYING: {5419},  # Increases speed.
+        ShapeshiftForms.SHAPESHIFT_FORM_AQUATIC: {5421},  # Increases swim speed.
+        ShapeshiftForms.SHAPESHIFT_FORM_BEAR: {1178},  # Increases armor, hit points.
+        ShapeshiftForms.SHAPESHIFT_FORM_DEFENSIVESTANCE: {7376},  # Increases defense.
+        ShapeshiftForms.SHAPESHIFT_FORM_BERSERKERSTANCE: {7381}  # Increases attack speed, reduces defense.
+    }
+
     SHAPESHIFT_POWER_TYPES = {
         ShapeshiftForms.SHAPESHIFT_FORM_CAT: PowerTypes.TYPE_ENERGY,
         ShapeshiftForms.SHAPESHIFT_FORM_BEAR: PowerTypes.TYPE_RAGE,
