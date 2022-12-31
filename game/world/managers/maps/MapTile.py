@@ -23,6 +23,26 @@ class MapTile(object):
         self.z_height_map = [[0 for r in range(RESOLUTION_ZMAP)] for c in range(RESOLUTION_ZMAP)]
         self.load()
 
+    # TODO: Namigator should give us a way to load by adt_x and adt_y without raw locations.
+    def load_adt(self, raw_x, raw_y, adt_x, adt_y):
+        try:
+            if self.namigator is None:
+                return False
+
+            adt_key = f'{adt_x},{adt_y}'
+            if adt_key in self._loaded_adts:
+                return True
+
+            Logger.debug(f'[Namigator] Loading nav ADT {adt_x},{adt_y} for Map {self.name}')
+            n_adt_x, n_adt_y = self.namigator.load_adt_at(raw_x, raw_y)
+            # Notice, namigator has inverted coordinates.
+            if adt_x != n_adt_y or adt_y != n_adt_x:
+                Logger.warning(f'[Namigator] Loaded different ADT {n_adt_x},{n_adt_y} for Map {self.name}')
+            self._loaded_adts[adt_key] = True
+            return True
+        except:
+            return False
+
     def load(self):
         # Set as initialized to avoid another load() call from another thread.
         self.initialized = True

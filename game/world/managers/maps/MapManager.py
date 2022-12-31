@@ -1,5 +1,7 @@
 import traceback
 import math
+from os import path
+
 import _queue
 from random import choice
 from typing import Optional
@@ -12,9 +14,16 @@ from game.world.managers.maps.MapTile import MapTile
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
+from utils.PathManager import PathManager
 
 MAPS: dict[int, Map] = {}
 MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
+# Holds .map files tiles information per Map.
+MAPS_TILES = dict[int, [[None for r in range(64)] for c in range(64)]]
+# Holds namigator instances per Map.
+MAP_NAMIGATOR: dict[int, object] = dict()
+# Holds maps which have no navigation data in alpha.
+MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90, 109, 129}
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 PENDING_LOAD = {}
@@ -25,11 +34,45 @@ PENDING_LOAD_QUEUE = _queue.SimpleQueue()
 class MapManager:
     # Namigator.
     NAMIGATOR_LOADED = False
+    NAMIGATOR_FAILED = False
 
     @staticmethod
     def initialize_maps():
         for map_id in MAP_LIST:
             MAPS[map_id] = Map(map_id, MapManager.on_cell_turn_active)
+            if config.Server.Settings.use_nav_tiles:
+                MapManager.build_map_namigator(MAPS[map_id])
+
+    @staticmethod
+    def map_has_navigation(map_id):
+        return map_id in MAP_NAMIGATOR
+
+    @staticmethod
+    def build_map_namigator(map_):
+        if MapManager.NAMIGATOR_FAILED or map_.id in MAP_NAMIGATOR or not config.Server.Settings.use_nav_tiles:
+            return
+
+        if map_.id in MAPS_NO_NAVIGATION:
+            return
+
+        # Attempt to load Namigator module if enabled.
+        if config.Server.Settings.use_nav_tiles and not MapManager.NAMIGATOR_FAILED:
+            try:
+                from namigator import pathfind
+                nav_root_path = PathManager.get_navs_path()
+                nav_map_path = PathManager.get_nav_map_path(map_.name)
+                if not path.exists(nav_root_path) or not path.exists(nav_map_path):
+                    Logger.warning(f'[Namigator] Skip {map_.name} ID {map_.id}, no data.')
+                    return
+                Logger.success(f'[Namigator] Successfully loaded for map {map_.name}')
+                MAP_NAMIGATOR[map_.id] = pathfind.Map(nav_root_path, f'{map_.name}')
+                MapManager.NAMIGATOR_LOADED = True
+            except ImportError:
+                Logger.error('[Namigator] Unable to load module.')
+                MapManager.NAMIGATOR_FAILED = True
+                pathfind = None  # Required.
+                Logger.error(traceback.format_exc())
+                return
 
     @staticmethod
     def get_maps():

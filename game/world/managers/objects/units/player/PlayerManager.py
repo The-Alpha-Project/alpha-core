@@ -706,12 +706,11 @@ class PlayerManager(UnitManager):
         # Get us in a new cell.
         MapManager.update_object(self)
 
-        # Notify movement data to surrounding players when teleporting within the same map (for example when using
-        # Charge).
-        # TODO: Can we somehow send MSG_MOVE_HEARTBEAT instead?
+        # Notify movement data to surrounding players when teleporting within the same map
+        # (for example when using Charge)
         if not changed_map:
-            movement_packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_packet())
-            MapManager.send_surrounding(movement_packet, self, False)
+            heart_beat_packet = self.get_heartbeat_packet(movement_flag=MoveFlags.MOVEFLAG_MOVED)
+            MapManager.send_surrounding(heart_beat_packet, self, False)
 
         # TODO: Wrap pending teleport data in a new holder object?
         self.pending_teleport_recovery_percentage = -1

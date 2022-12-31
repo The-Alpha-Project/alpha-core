@@ -145,7 +145,7 @@ class ObjectManager:
 
         return data
 
-    def get_heartbeat_packet(self):
+    def get_heartbeat_packet(self, movement_flag=None):
         data = pack(
             '<2Q9fI',
             self.guid,
@@ -159,7 +159,7 @@ class ObjectManager:
             self.location.z,
             self.location.o,
             self.pitch,
-            self.movement_flags,
+            movement_flag if movement_flag else self.movement_flags,
         )
         return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
 
