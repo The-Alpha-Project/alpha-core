@@ -38,6 +38,9 @@ class MapTile(object):
             return None
         return self.area_information[cell_x][cell_y]
 
+    def get_z_at(self, cell_x, cell_y):
+        return self.z_height_map[cell_x][cell_y]
+
     def is_initialized(self):
         return self.initialized
 
