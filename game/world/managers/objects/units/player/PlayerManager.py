@@ -557,6 +557,7 @@ class PlayerManager(UnitManager):
             # Destroy world object from self.
             self.enqueue_packet(known_object.get_destroy_packet())
             # Destroyed a player which is in our party, update party stats.
+            # We do this here because we need to make sure client no longer knows the player object if it went offline.
             if is_player and self.group_manager and self.group_manager.is_party_member(known_object.guid):
                 self.group_manager.send_update()
 
