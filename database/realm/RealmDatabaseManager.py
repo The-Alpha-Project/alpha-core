@@ -661,11 +661,25 @@ class RealmDatabaseManager(object):
         return groups
 
     @staticmethod
+    def group_by_id(group_id):
+        realm_db_session = SessionHolder()
+        group = realm_db_session.query(Group).filter_by(group_id=group_id).first()
+        realm_db_session.close()
+        return group
+
+    @staticmethod
     def group_get_members(group):
         realm_db_session = SessionHolder()
         group_members = realm_db_session.query(GroupMember).filter_by(group_id=group.group_id).all()
         realm_db_session.close()
         return group_members
+
+    @staticmethod
+    def group_get_by_character_guid(guid):
+        realm_db_session = SessionHolder()
+        group_member = realm_db_session.query(GroupMember).filter_by(guid=guid).first()
+        realm_db_session.close()
+        return group_member.group if group_member else None
 
     @staticmethod
     def group_update(group):
