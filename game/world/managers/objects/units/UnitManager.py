@@ -807,7 +807,7 @@ class UnitManager(ObjectManager):
             target.handle_combat_skill_gain(damage_info)
 
         self.send_spell_cast_debug_info(damage_info, spell)
-        self.deal_damage(target, damage_info, is_periodic=spell_effect.is_periodic, casting_spell=spell)
+        self.deal_damage(target, damage_info, is_periodic=spell_effect.is_periodic(), casting_spell=spell)
         return True
 
     def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):
@@ -1416,11 +1416,6 @@ class UnitManager(ObjectManager):
 
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form
-
-    def form_matches_mask(self, shapeshift_mask):
-        if not self.shapeshift_form:
-            return False
-        return (1 << (self.shapeshift_form - 1)) & shapeshift_mask
 
     def is_in_feral_form(self):
         return self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_BEAR) or self.has_form(ShapeshiftForms.SHAPESHIFT_FORM_CAT)
