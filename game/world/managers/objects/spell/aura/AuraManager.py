@@ -199,8 +199,8 @@ class AuraManager:
             # If a mount aura would be applied but we dismount the unit, don't apply the new mount aura.
             return False
 
-        if aura.passive and not aura.source_spell.is_passive():
-            return True  # Skip active auras' passive effects. TODO exclusivity by aura effect type.
+        # TODO Exclusivity by aura effect type.
+        #  Some spells with similar effects shouldn't be stackable.
 
         aura_spell_template = aura.source_spell.spell_entry
 
@@ -211,6 +211,10 @@ class AuraManager:
             if applied_aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT and \
                     aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_SHAPESHIFT:
                 self.remove_aura(applied_aura)  # Player can only be in one shapeshift form.
+                continue
+
+            # Skip auras from the same spell cast (i.e. passive aura components).
+            if aura.source_spell is applied_aura.source_spell:
                 continue
 
             applied_spell_entry = applied_aura.source_spell.spell_entry
