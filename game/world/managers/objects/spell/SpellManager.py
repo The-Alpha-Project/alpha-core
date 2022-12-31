@@ -1028,8 +1028,10 @@ class SpellManager:
             self.send_cast_result(casting_spell, result)
             return False
 
-        if casting_spell.initial_target_is_unit_or_player():
+        if casting_spell.initial_target_is_unit_or_player() and not \
+                (casting_spell.is_area_of_effect_spell() and validation_target is self.caster):
             # Basic effect harmfulness/attackability check for fully harmful spells.
+            # For unit-targeted AoE spells, skip validation for self casts.
             # The client checks this for player casts, but not pet casts.
             if not self.caster.can_attack_target(validation_target) and casting_spell.has_only_harmful_effects():
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
