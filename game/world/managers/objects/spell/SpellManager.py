@@ -93,9 +93,6 @@ class SpellManager:
         if not character_skill and skill and not self.caster.skill_manager.has_skill(skill.ID):
             if not self.caster.skill_manager.add_skill(skill.ID):
                 return False
-            # Check if this skill line has passive spells.
-            for passive_spell in self.caster.skill_manager.get_passive_spells_for_skill_id(skill.ID):
-                self.learn_spell(passive_spell.ID)
 
         # Check if this skill requires a 'cast ui' spell. e.g. Poisons frame.
         if skill:
@@ -184,21 +181,6 @@ class SpellManager:
                                           validate=False)
         spell.resolve_target_info_for_effects()
         self.apply_spell_effects(spell)
-
-    def update_shapeshift_passives(self):
-        for spell_id in self.spells.keys():
-            # Skip inactive spells.
-            if not self.spells[spell_id].active:
-                continue
-            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
-            req_form = spell_template.ShapeshiftMask
-            if not req_form or not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
-                continue
-
-            if self.caster.form_matches_mask(req_form):
-                self.apply_passive_spell_effects(spell_template)
-            else:
-                self.caster.aura_manager.cancel_auras_by_spell_id(spell_id)
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.caster.guid)

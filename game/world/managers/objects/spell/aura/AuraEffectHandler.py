@@ -72,8 +72,18 @@ class AuraEffectHandler:
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
 
         # Shapeshifting can affect current power type and stats (druid shapeshift powers/attack values).
-        effect_target.spell_manager.update_shapeshift_passives()
         effect_target.update_power_type()
+
+        # Apply passives associated with this shapeshift.
+        passive_spell_ids = ExtendedSpellData.ShapeshiftInfo.SHAPESHIFT_PASSIVE_SPELLS.get(aura.spell_effect.misc_value, {})
+        if passive_spell_ids:
+            for passive_spell_id in passive_spell_ids:
+                if not remove:
+                    passive_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(passive_spell_id)
+                    effect_target.spell_manager.apply_passive_spell_effects(passive_spell)
+                else:
+                    effect_target.aura_manager.cancel_auras_by_spell_id(passive_spell_id)
+
         effect_target.stat_manager.apply_bonuses()
 
         if remove or not model_info[0]:
