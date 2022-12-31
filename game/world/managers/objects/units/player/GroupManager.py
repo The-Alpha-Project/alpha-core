@@ -219,8 +219,8 @@ class GroupManager(object):
                     elif was_formed and member_player and not is_kicked:
                         GroupManager.send_group_operation_result(member_player, PartyOperations.PARTY_OP_LEAVE, member_player.get_name(),
                                                                  PartyResults.ERR_PARTY_RESULT_OK)
-                    # 'You have been removed from the group.' message.
-                    if member_player and is_kicked and member.guid == player_guid:
+
+                    if member_player and is_kicked and member.guid == player_guid:  # 'You have been removed from the group.' message
                         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_UNINVITE)
                         member_player.enqueue_packet(packet)
 
@@ -228,8 +228,6 @@ class GroupManager(object):
             self.flush()
         else:
             self.send_update()
-
-        return disband
 
     def un_invite_player(self, player_guid, target_player_guid):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(player_guid)
