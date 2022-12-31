@@ -1,5 +1,6 @@
 import traceback
 import math
+from multiprocessing import RLock
 from os import path
 
 import _queue
@@ -26,8 +27,9 @@ MAPS_NAMIGATOR: dict[int, object] = dict()
 MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90, 109, 129}
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
-PENDING_LOAD = {}
-PENDING_LOAD_QUEUE = _queue.SimpleQueue()
+PENDING_TILE_INITIALIZATION = {}
+PENDING_TILE_INITIALIZATION_QUEUE = _queue.SimpleQueue()
+QUEUE_LOCK = RLock()
 
 
 # noinspection PyBroadException
@@ -112,7 +114,7 @@ class MapManager:
 
     @staticmethod
     def on_cell_turn_active(world_object):
-        MapManager.enqueue_adt_tile_load(world_object.map_, world_object.location.x, world_object.location.y)
+        MapManager.enqueue_adt_tile_initialization(world_object.map_, world_object.location.x, world_object.location.y)
 
     @staticmethod
     def validate_maps():
@@ -125,25 +127,26 @@ class MapManager:
         return True
 
     @staticmethod
-    def enqueue_adt_tile_load(map_id, raw_x, raw_y):
+    def enqueue_adt_tile_initialization(map_id, raw_x, raw_y):
         if not config.Server.Settings.use_map_tiles:
             return
 
-        x = MapManager.get_tile_x(raw_x)
-        y = MapManager.get_tile_y(raw_y)
+        with QUEUE_LOCK:
+            adt_x = MapManager.get_tile_x(raw_x)
+            adt_y = MapManager.get_tile_y(raw_y)
 
-        adt_key = f'{map_id},{x},{y}'
-        if adt_key in PENDING_LOAD:
-            return
+            adt_key = f'{map_id},{adt_x},{adt_y}'
+            if adt_key in PENDING_TILE_INITIALIZATION:
+                return
 
-        to_load_data = f'{map_id},{raw_x},{raw_y}'
-        PENDING_LOAD[adt_key] = True
-        PENDING_LOAD_QUEUE.put(to_load_data)
+            PENDING_TILE_INITIALIZATION[adt_key] = True
+            to_load_data = f'{map_id},{raw_x},{raw_y}'
+            PENDING_TILE_INITIALIZATION_QUEUE.put(to_load_data)
 
     @staticmethod
     def initialize_pending_adt_tiles():
         while True:
-            key = PENDING_LOAD_QUEUE.get(block=True, timeout=None)
+            key = PENDING_TILE_INITIALIZATION_QUEUE.get(block=True, timeout=None)
             map_id, x, y = str(key).rsplit(',')
             MapManager.initialize_tile(int(map_id), float(x), float(y))
 
@@ -178,9 +181,10 @@ class MapManager:
         for i in range(-1, 1):
             for j in range(-1, 1):
                 if -1 < adt_x + i < 64 and -1 < adt_y + j < 64:
-                    # Avoid loading tiles information if we already did.
-                    if not MAPS_TILES[map_id][adt_x][adt_y].initialized:
-                        MAPS_TILES[map_id][adt_x][adt_y].initialize(namigator)
+                    if MAPS_TILES[map_id][adt_x + i][adt_y + j].initialized:
+                        continue
+                    Logger.debug(f'Loading ADT tile for coordinates {adt_x + i},{adt_y + j}')
+                    MAPS_TILES[map_id][adt_x + i][adt_y + j].initialize(namigator)
 
         return True
 
@@ -487,7 +491,7 @@ class MapManager:
                     return True
                 elif not tile.is_loading() and not tile.is_initialized():
                     print('Begin Loading')
-                    MapManager.enqueue_adt_tile_load(map_id, location_x, location_y)
+                    MapManager.enqueue_adt_tile_initialization(map_id, location_x, location_y)
             except:
                 Logger.error(traceback.format_exc())
                 Logger.error(f'Error retrieving tile information for the following position: '
