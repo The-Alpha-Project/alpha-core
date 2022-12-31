@@ -49,7 +49,7 @@ class MapManager:
 
     @staticmethod
     def initialize_namigator():
-        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+        if not config.Server.Settings.use_nav_tiles or MapManager.NAMIGATOR_FAILED:
             return
         length = len(MAP_LIST)
         count = 0
@@ -491,7 +491,6 @@ class MapManager:
                 if tile.is_ready() and tile.can_use():
                     return True
                 elif not tile.is_loading() and not tile.is_initialized():
-                    print('Begin Loading')
                     MapManager.enqueue_adt_tile_initialization(map_id, location_x, location_y)
             except:
                 Logger.error(traceback.format_exc())
