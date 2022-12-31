@@ -18,7 +18,9 @@ class WorldLoader:
     def load_data():
         # Map tiles
         MapManager.initialize_maps()
+        MapManager.initialize_namigator()
         MapManager.initialize_area_tables()
+        MapManager.load_map_adt_tiles()
 
         # Below order matters.
 

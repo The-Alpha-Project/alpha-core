@@ -237,7 +237,7 @@ class WorldServerSessionHandler:
         corpses_update_scheduler.start()
 
         # MapManager tile loading.
-        world_session_thread = threading.Thread(target=MapManager.load_pending_tiles)
+        world_session_thread = threading.Thread(target=MapManager.initialize_pending_adt_tiles)
         world_session_thread.daemon = True
         world_session_thread.start()
 

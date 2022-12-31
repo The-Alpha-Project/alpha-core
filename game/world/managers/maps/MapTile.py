@@ -5,6 +5,7 @@ from game.world.managers.maps.AreaInformation import AreaInformation
 from game.world.managers.maps.Constants import RESOLUTION_ZMAP, RESOLUTION_LIQUIDS, RESOLUTION_AREA_INFO
 from game.world.managers.maps.LiquidInformation import LiquidInformation
 from network.packet.PacketReader import PacketReader
+from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
@@ -12,55 +13,82 @@ from utils.PathManager import PathManager
 class MapTile(object):
     EXPECTED_VERSION = 'ACMAP_1.40'
 
-    def __init__(self, map_id, tile_x, tile_y):
+    def __init__(self, map_id, adt_x, adt_y):
         self.initialized = False
-        self.is_valid = False
-        self.cell_x = tile_x
-        self.cell_y = tile_y
+        self.ready = False
+        self.has_maps = False
+        self.has_navigation = False
+        self.adt_x = adt_x
+        self.adt_y = adt_y
         self.cell_map = map_id
-        self.area_information = [[None for r in range(RESOLUTION_AREA_INFO)] for c in range(RESOLUTION_AREA_INFO)]
-        self.liquid_information = [[None for r in range(RESOLUTION_LIQUIDS)] for c in range(RESOLUTION_LIQUIDS)]
-        self.z_height_map = [[0 for r in range(RESOLUTION_ZMAP)] for c in range(RESOLUTION_ZMAP)]
-        self.load()
+        self.area_information = None
+        self.liquid_information = None
+        self.z_height_map = None
 
-    # TODO: Namigator should give us a way to load by adt_x and adt_y without raw locations.
-    def load_adt(self, raw_x, raw_y, adt_x, adt_y):
+    def can_use(self):
+        return self.initialized and self.ready and (self.has_maps or self.has_navigation)
+
+    def get_liquids_at(self, cell_x, cell_y):
+        if not self.has_maps or not self.liquid_information:
+            return None
+        return self.liquid_information[cell_x][cell_y]
+
+    def get_area_at(self, cell_x, cell_y):
+        if not self.has_maps or not self.area_information:
+            return None
+        return self.area_information[cell_x][cell_y]
+
+    def is_initialized(self):
+        return self.initialized
+
+    def is_ready(self):
+        return self.ready
+
+    def is_loading(self):
+        return self.initialized and not self.ready
+
+    def initialize(self, namigator):
+        if self.initialized:
+            return
+        # Set as initialized to avoid another load() call from another thread.
+        self.initialized = True
+        self.has_maps = self.load_maps_data()
+        self.has_navigation = self.load_namigator_data(namigator)
+        self.ready = True
+
+    def load_namigator_data(self, namigator):
+        if not config.Server.Settings.use_nav_tiles or not namigator:
+            return False
         try:
-            if self.namigator is None:
-                return False
-
-            adt_key = f'{adt_x},{adt_y}'
-            if adt_key in self._loaded_adts:
-                return True
-
-            Logger.debug(f'[Namigator] Loading nav ADT {adt_x},{adt_y} for Map {self.name}')
-            n_adt_x, n_adt_y = self.namigator.load_adt_at(raw_x, raw_y)
+            Logger.debug(f'[Namigator] Loading nav ADT, Map:{self.cell_map} Tile:{self.adt_x},{self.adt_y}')
             # Notice, namigator has inverted coordinates.
-            if adt_x != n_adt_y or adt_y != n_adt_x:
-                Logger.warning(f'[Namigator] Loaded different ADT {n_adt_x},{n_adt_y} for Map {self.name}')
-            self._loaded_adts[adt_key] = True
+            namigator.load_adt(self.adt_y, self.adt_x)
+            self.has_navigation = True
             return True
         except:
             return False
 
-    def load(self):
-        # Set as initialized to avoid another load() call from another thread.
-        self.initialized = True
-
-        filename = f'{self.cell_map:03}{self.cell_x:02}{self.cell_y:02}.map'
+    def load_maps_data(self):
+        if not config.Server.Settings.use_map_tiles:
+            return False
+        filename = f'{self.cell_map:03}{self.adt_x:02}{self.adt_y:02}.map'
         maps_path = PathManager.get_map_file_path(filename)
-        Logger.debug(f'[Maps] Loading map file: {filename}, Map:{self.cell_map} Tile:{self.cell_x},{self.cell_y}')
+        Logger.debug(f'[Maps] Loading map file: {filename}, Map:{self.cell_map} Tile:{self.adt_x},{self.adt_y}')
 
         if not path.exists(maps_path):
             Logger.warning(f'[Maps] Unable to locate map file: {filename}, '
-                           f'Map:{self.cell_map} Tile:{self.cell_x},{self.cell_y}')
-            return
+                           f'Map:{self.cell_map} Tile:{self.adt_x},{self.adt_y}')
+            return False
         else:
+            self.area_information = [[None for r in range(RESOLUTION_AREA_INFO)] for c in range(RESOLUTION_AREA_INFO)]
+            self.liquid_information = [[None for r in range(RESOLUTION_LIQUIDS)] for c in range(RESOLUTION_LIQUIDS)]
+            self.z_height_map = [[0 for r in range(RESOLUTION_ZMAP)] for c in range(RESOLUTION_ZMAP)]
+
             with open(maps_path, "rb") as map_tiles:
                 version = PacketReader.read_string(map_tiles.read(10), 0)
                 if version != MapTile.EXPECTED_VERSION:
                     Logger.error(f'[Maps] Unexpected map version. Expected "{MapTile.EXPECTED_VERSION}", found "{version}".')
-                    return
+                    return False
 
                 # Height Map
                 for x in range(RESOLUTION_ZMAP):
@@ -90,9 +118,7 @@ class MapTile(object):
                         height = unpack('<f', map_tiles.read(4))[0]
                         # noinspection PyTypeChecker
                         self.liquid_information[x][y] = LiquidInformation(liquid_type, height)
-
-        # This is a valid tile, set as loaded.
-        self.is_valid = True
+        return True
 
     @staticmethod
     def validate_version():
