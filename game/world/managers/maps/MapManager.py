@@ -12,6 +12,7 @@ from game.world.managers.maps.Constants import SIZE, RESOLUTION_ZMAP, RESOLUTION
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.Map import Map
 from game.world.managers.maps.MapTile import MapTile
+from game.world.managers.maps.Namigator import Namigator
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -22,7 +23,7 @@ MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
 # Holds .map files tiles information per Map.
 MAPS_TILES = dict()
 # Holds namigator instances per Map.
-MAPS_NAMIGATOR: dict[int, object] = dict()
+MAPS_NAMIGATOR: dict[int, Namigator] = dict()
 # Holds maps which have no navigation data in alpha.
 MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90, 109, 129}
 AREAS = {}
@@ -294,11 +295,11 @@ class MapManager:
             return True
 
         # We don't have navs loaded for a given map, return True.
-        if not MAPS[source_object.map_id].has_navigation():
+        if source_object.map_ not in MAPS_NAMIGATOR:
             return True
 
-        failed, in_place, path = MapManager.calculate_path(source_object.map_, source_object.location,
-                                                           target_object.location)
+        failed, in_place, navigation_path = MapManager.calculate_path(source_object.map_, source_object.location,
+                                                                      target_object.location)
         return not failed
 
     @staticmethod
@@ -377,7 +378,7 @@ class MapManager:
         if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
             return False
 
-        return MAPS[map_id].tiles[map_tile_x][map_tile_y] is not None
+        return True
 
     @staticmethod
     def calculate_z_for_object(world_object):
@@ -525,7 +526,7 @@ class MapManager:
             map_tile_y = int(map_tile_y - 1)
             map_tile_local_y = int(-map_tile_local_y - 1)
 
-        return MAPS[map_id].tiles[map_tile_x][map_tile_y].z_height_map[map_tile_local_x][map_tile_local_y]
+        return MAPS_TILES[map_id][map_tile_x][map_tile_y].get_z_at(map_tile_local_x, map_tile_local_y)
 
     @staticmethod
     def validate_map_coord(coord):
