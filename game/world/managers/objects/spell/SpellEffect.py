@@ -38,8 +38,8 @@ class SpellEffect:
 
     _harmful: Optional[bool] = None
 
-    # Duration and periodic timing info for auras applied by this effect
-    applied_aura_duration = -1
+    # Duration and periodic timing info for auras applied by this effect.
+    applied_aura_duration = -1  # Period timer in the case of an infinite periodic effect.
     periodic_effect_ticks: Optional[list[int]] = None  # None for distinct uninitialized state.
     last_update_timestamp = -1
 
@@ -65,6 +65,13 @@ class SpellEffect:
         self.last_update_timestamp = timestamp
 
     def remove_old_periodic_effect_ticks(self):
+        # Periodic effects with an infinite duration only have one tick internally.
+        if self.casting_spell.get_duration() == -1:
+            # Reset aura duration when the tick is reached.
+            if self.is_past_next_period():
+                self.applied_aura_duration = self.aura_period
+            return
+
         while self.is_past_next_period():
             self.periodic_effect_ticks.pop()
 
@@ -79,12 +86,16 @@ class SpellEffect:
 
         return self.periodic_effect_ticks is None or len(self.periodic_effect_ticks) > 0
 
-    def generate_periodic_effect_ticks(self) -> list[int]:
+    def generate_periodic_effect_ticks(self) -> Optional[list[int]]:
         duration = self.casting_spell.get_duration()
         if not self.is_periodic():
             return []
 
-        tick_count = int(duration / self.aura_period)
+
+        if duration == -1:
+            tick_count = 1  # Generate first tick for infinite duration spells.
+        else:
+            tick_count = int(duration / self.aura_period)
 
         ticks = []
         for i in range(tick_count):
@@ -94,7 +105,12 @@ class SpellEffect:
     def start_aura_duration(self, overwrite=False):
         if not self.casting_spell.duration_entry or (self.periodic_effect_ticks is not None and not overwrite):
             return
+
         self.applied_aura_duration = self.casting_spell.get_duration()
+        if self.applied_aura_duration == -1:
+            # For periodic effects with infinite duration,
+            # we'll use the aura duration to track the remaining period instead.
+            self.applied_aura_duration = self.aura_period
 
         # Match timestamps for channeled spells.
         # This is necessary since slight processing delays can cause the last tick to be skipped otherwise
