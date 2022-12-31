@@ -21,7 +21,7 @@ MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
 # Holds .map files tiles information per Map.
 MAPS_TILES = dict()
 # Holds namigator instances per Map.
-MAP_NAMIGATOR: dict[int, object] = dict()
+MAPS_NAMIGATOR: dict[int, object] = dict()
 # Holds maps which have no navigation data in alpha.
 MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90, 109, 129}
 AREAS = {}
@@ -32,7 +32,6 @@ PENDING_LOAD_QUEUE = _queue.SimpleQueue()
 
 # noinspection PyBroadException
 class MapManager:
-    # Namigator.
     NAMIGATOR_LOADED = False
     NAMIGATOR_FAILED = False
 
@@ -47,7 +46,7 @@ class MapManager:
 
     @staticmethod
     def initialize_namigator():
-        if not config.Server.Settings.use_nav_tiles:
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return
         length = len(MAP_LIST)
         count = 0
@@ -58,34 +57,35 @@ class MapManager:
 
     @staticmethod
     def map_has_navigation(map_id):
-        return map_id in MAP_NAMIGATOR
+        return map_id in MAPS_NAMIGATOR
 
     @staticmethod
     def build_map_namigator(map_):
-        if MapManager.NAMIGATOR_FAILED or map_.id in MAP_NAMIGATOR or not config.Server.Settings.use_nav_tiles:
+        if MapManager.NAMIGATOR_FAILED or map_.id in MAPS_NAMIGATOR or not config.Server.Settings.use_nav_tiles:
             return
 
         if map_.id in MAPS_NO_NAVIGATION:
             return
 
         # Attempt to load Namigator module if enabled.
-        if config.Server.Settings.use_nav_tiles and not MapManager.NAMIGATOR_FAILED:
-            try:
-                from namigator import pathfind
-                nav_root_path = PathManager.get_navs_path()
-                nav_map_path = PathManager.get_nav_map_path(map_.name)
-                if not path.exists(nav_root_path) or not path.exists(nav_map_path):
-                    Logger.warning(f'[Namigator] Skip {map_.name} ID {map_.id}, no data.')
-                    return
-                Logger.success(f'[Namigator] Successfully loaded for map {map_.name}')
-                MAP_NAMIGATOR[map_.id] = pathfind.Map(nav_root_path, f'{map_.name}')
-                MapManager.NAMIGATOR_LOADED = True
-            except ImportError:
-                Logger.error('[Namigator] Unable to load module.')
-                MapManager.NAMIGATOR_FAILED = True
-                pathfind = None  # Required.
-                Logger.error(traceback.format_exc())
+        if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_FAILED:
+            return
+        try:
+            from namigator import pathfind
+            nav_root_path = PathManager.get_navs_path()
+            nav_map_path = PathManager.get_nav_map_path(map_.name)
+            if not path.exists(nav_root_path) or not path.exists(nav_map_path):
+                Logger.warning(f'[Namigator] Skip {map_.name} ID {map_.id}, no data.')
                 return
+            Logger.success(f'[Namigator] Successfully loaded for map {map_.name}')
+            MAPS_NAMIGATOR[map_.id] = pathfind.Map(nav_root_path, f'{map_.name}')
+            MapManager.NAMIGATOR_LOADED = True
+        except ImportError:
+            Logger.error('[Namigator] Unable to load module.')
+            MapManager.NAMIGATOR_FAILED = True
+            pathfind = None  # Required.
+            Logger.error(traceback.format_exc())
+            return
 
     @staticmethod
     def get_maps():
@@ -173,7 +173,7 @@ class MapManager:
         adt_y = MapManager.get_tile_y(y)
 
         # Map namigator instance, if available.
-        namigator = MAP_NAMIGATOR[map_id] if map_id in MAP_NAMIGATOR and MapManager.NAMIGATOR_LOADED else None
+        namigator = MAPS_NAMIGATOR[map_id] if map_id in MAPS_NAMIGATOR and MapManager.NAMIGATOR_LOADED else None
 
         for i in range(-1, 1):
             for j in range(-1, 1):
@@ -228,7 +228,7 @@ class MapManager:
         if map_id not in MAPS:
             return current_z, True
 
-        if map_id not in MAP_NAMIGATOR:
+        if map_id not in MAPS_NAMIGATOR:
             return current_z, True
 
         adt_x, adt_y = MapManager.get_tile(x, y)
@@ -236,7 +236,7 @@ class MapManager:
         if not MapManager._check_tile_load(map_id, x, y, adt_x, adt_y):
             return current_z, True
 
-        z_values = MAP_NAMIGATOR[map_id].query_z(x, y)
+        z_values = MAPS_NAMIGATOR[map_id].query_z(x, y)
 
         if len(z_values) == 0:
             Logger.warning(f'Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
@@ -253,7 +253,7 @@ class MapManager:
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return True
 
-        if map_id not in MAP_NAMIGATOR:
+        if map_id not in MAPS_NAMIGATOR:
             return True
 
         # Calculate source adt coordinates for x,y.
@@ -273,7 +273,7 @@ class MapManager:
             return True
 
         # Calculate path.
-        namigator = MAP_NAMIGATOR[map_id]
+        namigator = MAPS_NAMIGATOR[map_id]
 
         los = namigator.line_of_sight(start_vector.x, start_vector.y, start_vector.z,
                                       end_vector.x, end_vector.y, end_vector.z)
@@ -304,7 +304,7 @@ class MapManager:
             return False, False, [end_vector]
 
         # We don't have navs loaded for a given map, return end vector.
-        if map_id not in MAP_NAMIGATOR:
+        if map_id not in MAPS_NAMIGATOR:
             return False, False, [end_vector]
 
         # Calculate source adt coordinates for x,y.
@@ -324,7 +324,7 @@ class MapManager:
             return True, False, [end_vector]
 
         # Calculate path.
-        namigator = MAP_NAMIGATOR[map_id]
+        namigator = MAPS_NAMIGATOR[map_id]
         navigation_path = namigator.find_path(start_vector.x, start_vector.y, start_vector.z,
                                               end_vector.x, end_vector.y, end_vector.z)
 
