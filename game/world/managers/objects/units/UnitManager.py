@@ -698,7 +698,7 @@ class UnitManager(ObjectManager):
         #     "Critical hits with ranged weapons now do 100% extra damage."
         # We assume that ranged crits dealt 50% increased damage instead of 100%. The other option could be 200% but
         # 50% sounds more logical.
-        if damage_info.hit_info & SpellHitFlags.CRIT:
+        if damage_info.hit_info & SpellHitFlags.CRIT and not spell_effect.is_periodic():
             is_ranged = damage_info.attack_type == AttackTypes.RANGED_ATTACK
             crit_multiplier = 1.50 if is_ranged else 2.0
             damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
@@ -736,8 +736,7 @@ class UnitManager(ObjectManager):
             self.generate_rage(damage_info, is_attacking=False)
 
         # TODO: Threat calculation.
-        # No damage but source spell generates threat on miss.
-        if casting_spell and damage_info.total_damage == 0 and casting_spell.generates_threat_on_miss():
+        if casting_spell and damage_info.total_damage == 0:
             self.threat_manager.add_threat(source)
             return True
         # Spell and does not generate threat.
