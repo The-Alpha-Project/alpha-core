@@ -226,7 +226,7 @@ class CastingSpell:
     def generates_threat(self):
         return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
 
-    def generates_threat_on_miss(self):
+    def generates_threat_only_on_miss(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_THREAT_ON_MISS
 
     def requires_implicit_initial_unit_target(self):
