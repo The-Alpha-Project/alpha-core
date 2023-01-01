@@ -659,7 +659,7 @@ class StatManager(object):
         gain = self.get_total_stat(UnitStats.INTELLECT) * 0.0002
         return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in VMaNGOS)
 
-    def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0):
+    def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0) -> HitInfo:
         # TODO Based on vanilla calculations.
         # Evading, return miss and handle on calling method.
         if self.unit_mgr.is_evading:
@@ -684,12 +684,12 @@ class StatManager(object):
         base_miss = 0.05 + dual_wield_penalty
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # 0.04% Bonus against players when the defender has a higher combat rating,
-            # 0.02% Bonus when the attacker has a higher combat rating.
+            # 0.02% Penalty when the attacker has a higher combat rating.
             miss_chance = base_miss + rating_difference * 0.0004 if rating_difference > 0 else base_miss + rating_difference * 0.0002
         else:
-            #  0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
+            #  2% + 0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
             miss_chance = base_miss + rating_difference * 0.001 if rating_difference <= 10 \
-                else base_miss + 1 + (rating_difference - 10) * 0.004
+                else base_miss + 0.02 + (rating_difference - 10) * 0.004
 
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
