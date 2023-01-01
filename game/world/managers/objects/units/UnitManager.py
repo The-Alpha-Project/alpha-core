@@ -423,7 +423,7 @@ class UnitManager(ObjectManager):
          for unit in [damage_info.attacker, damage_info.target]]
 
     def calculate_melee_damage(self, victim, attack_type):
-        dual_wield_penalty = 0.19 if self.has_offhand_weapon() else 0
+        dual_wield_penalty = 0.19 if self.has_offhand_weapon() and attack_type != AttackTypes.RANGED_ATTACK else 0
 
         damage_info = DamageInfoHolder(attacker=self, target=victim,
                                        attack_type=attack_type,
