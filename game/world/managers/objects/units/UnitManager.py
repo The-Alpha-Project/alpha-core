@@ -807,7 +807,7 @@ class UnitManager(ObjectManager):
             target.handle_combat_skill_gain(damage_info)
 
         self.send_spell_cast_debug_info(damage_info, spell)
-        self.deal_damage(target, damage_info, is_periodic=spell_effect.is_periodic, casting_spell=spell)
+        self.deal_damage(target, damage_info, is_periodic=spell_effect.is_periodic(), casting_spell=spell)
         return True
 
     def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):
