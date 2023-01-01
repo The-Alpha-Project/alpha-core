@@ -760,8 +760,8 @@ class StatManager(object):
         if not caster.can_attack_target(self.unit_mgr):
             return SpellMissReason.MISS_REASON_NONE, hit_flags
 
-        # Use base attack formulas for physical spells.
-        if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL:
+        # Use base attack formulas for melee/ranged spells.
+        if casting_spell.casts_on_swing() or casting_spell.casts_on_ranged_attack():
             # Note that dual wield penalty is not applied to spells.
             result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type())
             if result_info & HitInfo.PARRY:
