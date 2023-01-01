@@ -689,7 +689,8 @@ class StatManager(object):
             miss_chance += rating_difference * 0.0004 if rating_difference > 0 else rating_difference * 0.0002
         else:
             #  2% + 0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
-            miss_chance += rating_difference * 0.001 if rating_difference <= 10 else 0.02 + rating_difference * 0.004
+            miss_chance += rating_difference * 0.001 if rating_difference <= 10 else \
+                0.02 + (rating_difference - 10) * 0.004
 
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
