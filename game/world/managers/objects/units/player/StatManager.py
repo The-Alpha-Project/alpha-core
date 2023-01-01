@@ -9,7 +9,7 @@ from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
-from utils.constants.SpellCodes import SpellSchools, ShapeshiftForms, SpellImmunity, SpellHitFlags
+from utils.constants.SpellCodes import SpellSchools, SpellImmunity, SpellHitFlags, SpellMissReason
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags
 
 
@@ -659,7 +659,7 @@ class StatManager(object):
         gain = self.get_total_stat(UnitStats.INTELLECT) * 0.0002
         return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in VMaNGOS)
 
-    def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0) -> HitInfo:
+    def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0.0) -> HitInfo:
         # TODO Based on vanilla calculations.
         # Evading, return miss and handle on calling method.
         if self.unit_mgr.is_evading:
@@ -682,14 +682,14 @@ class StatManager(object):
         rating_difference = self._get_combat_rating_difference(attacker.level, attack_rating)
 
         base_miss = 0.05 + dual_wield_penalty
+        miss_chance = base_miss
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # 0.04% Bonus against players when the defender has a higher combat rating,
             # 0.02% Penalty when the attacker has a higher combat rating.
-            miss_chance = base_miss + rating_difference * 0.0004 if rating_difference > 0 else base_miss + rating_difference * 0.0002
+            miss_chance += rating_difference * 0.0004 if rating_difference > 0 else rating_difference * 0.0002
         else:
             #  2% + 0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
-            miss_chance = base_miss + rating_difference * 0.001 if rating_difference <= 10 \
-                else base_miss + 0.02 + (rating_difference - 10) * 0.004
+            miss_chance += rating_difference * 0.001 if rating_difference <= 10 else 0.02 + rating_difference * 0.004
 
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
@@ -740,19 +740,91 @@ class StatManager(object):
         
         return hit_info
 
-    def get_spell_attack_result_against_self(self, attacker, spell_school: SpellSchools, is_periodic=False):
-        if is_periodic:
-            return SpellHitFlags.DAMAGE
+    def get_spell_miss_result_against_self(self, casting_spell) -> (SpellMissReason, SpellHitFlags):
+        hit_flags = SpellHitFlags.NONE
 
-        is_normal_school = spell_school == SpellSchools.SPELL_SCHOOL_NORMAL
-        critical_type = UnitStats.CRITICAL if is_normal_school else UnitStats.SPELL_CRITICAL
-        attacker_critical_chance = attacker.stat_manager.get_total_stat(critical_type, accept_float=True)
+        if self.unit_mgr.is_evading:
+            return SpellMissReason.MISS_REASON_EVADED, hit_flags
+
+        # TODO Move spell immunity handling here?
+
+        spell_school = casting_spell.spell_entry.School
+        caster = casting_spell.spell_caster
+
+        critical_type = UnitStats.CRITICAL if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL else UnitStats.SPELL_CRITICAL
+        crit_chance = caster.stat_manager.get_total_stat(critical_type, accept_float=True)
+        if random.random() < crit_chance:
+            hit_flags |= SpellHitFlags.CRIT
+
+        # Spells cast on friendly targets should always hit.
+        if not caster.can_attack_target(self.unit_mgr):
+            return SpellMissReason.MISS_REASON_NONE, hit_flags
+
+        # Use base attack formulas for physical spells.
+        if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL:
+            # Note that dual wield penalty is not applied to spells.
+            result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type())
+            if result_info & HitInfo.PARRY:
+                miss_reason = SpellMissReason.MISS_REASON_PARRIED
+            elif result_info & HitInfo.DODGE:
+                miss_reason = SpellMissReason.MISS_REASON_DODGED
+            elif result_info & HitInfo.BLOCK:
+                miss_reason = SpellMissReason.MISS_REASON_BLOCKED
+            elif result_info & HitInfo.MISS:
+                miss_reason = SpellMissReason.MISS_REASON_PHYSICAL
+            else:
+                miss_reason = SpellMissReason.MISS_REASON_NONE
+            return miss_reason, hit_flags
+
+        # Non-physical spells.
+        # TODO Using melee formulas with spell skill level for now.
+
+        # Miss chance.
+        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            _, skill, _ = caster.skill_manager.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
+            skill_value = caster.skill_manager.get_total_skill_value(skill)
+        else:
+            skill_value = -1
+
+        rating_difference = self._get_combat_rating_difference(caster.level, skill_value)
+
+        base_miss = 0.05
+        miss_chance = base_miss
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            # 0.04% Bonus against players when the defender has a higher combat rating,
+            # 0.02% Penalty when the attacker has a higher combat rating.
+            miss_chance += rating_difference * 0.0004 if rating_difference > 0 else rating_difference * 0.0002
+        else:
+            #  2% + 0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
+            miss_chance += rating_difference * 0.001 if rating_difference <= 10 else 0.02 + rating_difference * 0.004
 
         roll = random.random()
-        if roll < attacker_critical_chance:
-            return SpellHitFlags.CRIT
+        if roll < miss_chance:
+            return SpellMissReason.MISS_REASON_PHYSICAL, hit_flags
 
-        return SpellHitFlags.DAMAGE
+        # (Full) resist chance.
+        # TODO Research is needed on how resist mechanics worked in alpha.
+        # 0.7 patch notes:
+        # "Players and some creatures now have the ability to resist damage from offensive spells and abilities
+        # based on their total resistance, their level and the level of the person or creature causing the damage."
+        # Assuming based on this that partial resistance didn't exist.
+
+        # Formulas grabbed selectively from VManGOS. See SpellCaster::GetSpellResistChance.
+        resist_type = UnitStats.RESISTANCE_START + spell_school
+        defender_resistance = self.get_total_stat(resist_type)
+        resist_chance = defender_resistance * (0.15 / self.unit_mgr.level)
+
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            # Innate resistance of creatures. Using vanilla formula of 60 level cap.
+            resist_chance += ((self.unit_mgr.level - caster.level) * self.unit_mgr.level) / 63
+
+        resist_chance = max(0, min(resist_chance, 0.75))
+
+        roll = random.random()
+        if roll < resist_chance:
+            return SpellMissReason.MISS_REASON_RESIST, hit_flags
+
+        return SpellMissReason.MISS_REASON_NONE, hit_flags
 
     def update_base_weapon_attributes(self, attack_type=0):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:

@@ -687,8 +687,8 @@ class UnitManager(ObjectManager):
             damage_info.base_damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school,
                                                                                  target, subclass)
 
-        damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self, spell_school,
-                                                                                        is_periodic=spell_effect.is_periodic())
+        spell_miss_info = spell.object_target_results[target.guid]
+        damage_info.hit_info = spell_miss_info.flags
 
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.target_state = VictimStates.VS_IMMUNE
