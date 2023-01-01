@@ -230,6 +230,13 @@ class WorldServerSessionHandler:
                                         max_instances=1)
         player_update_scheduler.start()
 
+        # Player updates.
+        player_update_known_object_scheduler = BackgroundScheduler()
+        player_update_known_object_scheduler._daemon = True
+        player_update_known_object_scheduler.add_job(WorldSessionStateHandler.update_known_players_objects, 'interval',
+                                                     seconds=1, max_instances=1)
+        player_update_known_object_scheduler.start()
+
         # Corpses updates.
         corpses_update_scheduler = BackgroundScheduler()
         corpses_update_scheduler._daemon = True

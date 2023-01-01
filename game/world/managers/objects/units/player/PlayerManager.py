@@ -1567,11 +1567,6 @@ class PlayerManager(UnitManager):
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
 
-            # Update known objects if needed.
-            if self.update_known_objects_on_tick:
-                self.update_known_objects_on_tick = False
-                self.update_known_world_objects()
-
             # Stealth detect.
             self.units_stealth_detection_check(elapsed)
             # Regeneration.
