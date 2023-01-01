@@ -776,52 +776,53 @@ class StatManager(object):
                 miss_reason = SpellMissReason.MISS_REASON_NONE
             return miss_reason, hit_flags
 
-        # Non-physical spells.
-        # TODO Using melee formulas with spell skill level for now.
+        # Non-physical spell resist chance.
 
-        # Miss chance.
-        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            _, skill, _ = caster.skill_manager.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
-            skill_value = caster.skill_manager.get_total_skill_value(skill)
-        else:
-            skill_value = -1
-
-        rating_difference = self._get_combat_rating_difference(caster.level, skill_value)
-
-        base_miss = 0.05
-        miss_chance = base_miss
-        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            # 0.04% Bonus against players when the defender has a higher combat rating,
-            # 0.02% Penalty when the attacker has a higher combat rating.
-            miss_chance += rating_difference * 0.0004 if rating_difference > 0 else rating_difference * 0.0002
-        else:
-            #  2% + 0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
-            miss_chance += rating_difference * 0.001 if rating_difference <= 10 else 0.02 + rating_difference * 0.004
-
-        roll = random.random()
-        if roll < miss_chance:
-            return SpellMissReason.MISS_REASON_PHYSICAL, hit_flags
-
-        # (Full) resist chance.
         # TODO Research is needed on how resist mechanics worked in alpha.
         # 0.7 patch notes:
         # "Players and some creatures now have the ability to resist damage from offensive spells and abilities
         # based on their total resistance, their level and the level of the person or creature causing the damage."
         # Assuming based on this that partial resistance didn't exist.
 
-        # Formulas grabbed selectively from VManGOS. See SpellCaster::GetSpellResistChance.
-        resist_type = UnitStats.RESISTANCE_START + spell_school
-        defender_resistance = self.get_total_stat(resist_type)
-        resist_chance = defender_resistance * (0.15 / self.unit_mgr.level)
+        # The below formulas are guesses. They're based on both partial and full resist formulas from VMaNGOS,
+        # applied in a way that seems to make sense for our use case.
 
-        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            # Innate resistance of creatures. Using vanilla formula of 60 level cap.
-            resist_chance += ((self.unit_mgr.level - caster.level) * self.unit_mgr.level) / 63
+        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            _, skill, _ = caster.skill_manager.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
+            skill_value = caster.skill_manager.get_total_skill_value(skill.ID)
+        else:
+            skill_value = caster.level * 5
 
-        resist_chance = max(0, min(resist_chance, 0.75))
+        # Base spell miss chance from SpellCaster::MagicSpellHitChance.
+        # Modified to use spell school skill rating instead of unit levels for the attacker.
+        rating_difference = self.unit_mgr.level * 5 - skill_value
+        rating_mod = rating_difference / 5 / 100
+
+        miss_chance = 0.04
+        level_penalty = 7 if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER else 11
+
+        miss_chance += rating_mod if rating_difference < 15 else \
+            0.02 + (rating_mod - 0.02) * level_penalty
+
+        # Resistance application.
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            # Use resistance for players.
+            # Our values for creatures are most likely wrong for alpha and are not applied.
+            resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START + spell_school)
+        else:
+            # Calculate resistance for creatures.
+            # This is the formula for innate resistance used for partial resists in VMaNGOS
+            # (SpellCaster::GetSpellResistChance)
+            resist_mod = (8 * rating_difference * skill_value) / 5 / 28
+
+        resist_mod *= max(0.0, min(0.75, 0.15 / (skill_value / 5)))
+
+        # Final application of resist mod (SpellCaster::MagicSpellHitChance, reversed for hit->miss).
+        if resist_mod:
+            miss_chance = 1 - (1 - miss_chance) * (1 - resist_mod)
 
         roll = random.random()
-        if roll < resist_chance:
+        if roll < miss_chance:
             return SpellMissReason.MISS_REASON_RESIST, hit_flags
 
         return SpellMissReason.MISS_REASON_NONE, hit_flags
