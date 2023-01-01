@@ -621,7 +621,9 @@ class SkillManager(object):
             if self.get_total_skill_value(req_skill) < req_skill_value:
                 return InventoryError.BAG_SKILL_MISMATCH
 
-        if item_class not in {ItemClasses.ITEM_CLASS_WEAPON, ItemClasses.ITEM_CLASS_ARMOR}:
+        if item_class not in {ItemClasses.ITEM_CLASS_WEAPON, ItemClasses.ITEM_CLASS_ARMOR} or \
+                item_class == ItemClasses.ITEM_CLASS_WEAPON and \
+                item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON:
             return InventoryError.BAG_OK  # No proficiency needed for misc. equipment.
 
         if item_class not in self.proficiencies:
