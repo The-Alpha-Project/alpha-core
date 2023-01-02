@@ -788,10 +788,13 @@ class StatManager(object):
         # The below formulas are guesses. They're based on both partial and full resist formulas from VMaNGOS,
         # applied in a way that seems to make sense for our use case.
 
+        skill_value = -1
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             _, skill, _ = caster.skill_manager.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
-            skill_value = caster.skill_manager.get_total_skill_value(skill.ID)
-        else:
+            # Use skill level if one exists for the spell, otherwise fall back to max possible skill.
+            skill_value = caster.skill_manager.get_total_skill_value(skill.ID) if skill else -1
+
+        if skill_value == -1:
             skill_value = caster.level * 5
 
         # Base spell miss chance from SpellCaster::MagicSpellHitChance.
@@ -812,7 +815,8 @@ class StatManager(object):
             resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START + spell_school)
         else:
             # Calculate resistance for creatures.
-            # This is the formula for innate resistance used for partial resists in VMaNGOS
+            # This is the formula for innate resistance used for partial resists in VMaNGOS,
+            # with level adjusted 63->28.
             # (SpellCaster::GetSpellResistChance)
             resist_mod = (8 * rating_difference * skill_value) / 5 / 28
 
