@@ -447,7 +447,8 @@ class UnitManager(ObjectManager):
         if victim.is_evading:
             damage_info.target_state = VictimStates.VS_EVADE
         elif damage_info.hit_info & HitInfo.MISS:
-            damage_info.base_damage = damage_info.total_damage = 0
+            damage_info.hit_info &= ~HitInfo.SUCCESS
+            damage_info.total_damage = 0
         elif damage_info.hit_info & HitInfo.ABSORBED:
             # Immune.
             if not damage_info.absorb:
