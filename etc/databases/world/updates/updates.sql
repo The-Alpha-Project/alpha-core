@@ -15907,6 +15907,116 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 3355;
         UPDATE `creature_template` SET `trainer_id` = 506 WHERE `entry` = 3478;
 
+        -- Tailoring
+        -- Trainer ID: 507
+
+        -- Add 'Bolt of Linen Cloth' as spell to be learned when 'Apprentice Tailor' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3911, 2963);
+        -- Add 'Linen Cloak' as spell to be learned when 'Apprentice Tailor' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3911, 2387);
+        -- Add 'Bolt of Wool Cloth' as spell to be learned when 'Journeyman Tailor' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3912, 2964);
+        -- Add 'Bolt of Silk Cloth' as spell to be learned when 'Journeyman Tailor' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3912, 3839);
+
+        -- Apprentice Tailoring
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3911, 3908, 0, 0, 1, 0, 0, 1);
+        -- Journeyman Tailoring
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3912, 3909, 0, 0, 3, 197, 50, 1);
+        -- Expert Tailoring
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3913, 3910, 0, 0, 5, 197, 125, 1);
+
+        -- Brown Linen Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3917, 3915, 50, 0, 0, 197, 35, 1);
+        -- White Linen Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2415, 2393, 50, 0, 0, 197, 35, 1);
+        -- Brown Linen Vest
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2996, 2385, 75, 0, 0, 197, 45, 1);
+        -- Brown Linen Pants
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3916, 3914, 100, 0, 0, 197, 55, 1);
+        -- White Linen Robe
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 7627, 7624, 100, 0, 0, 197, 55, 1);
+        -- Brown Linen Robe
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 7626, 7623, 100, 0, 0, 197, 55, 1);
+        -- Heavy Linen Gloves
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3876, 3840, 125, 0, 0, 197, 60, 1);
+        -- Blue Linen Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2416, 2394, 125, 0, 0, 197, 65, 1);
+        -- Red Linen Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2414, 2392, 125, 0, 0, 197, 65, 1);
+        -- Linen Bag
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3783, 3755, 150, 0, 0, 197, 70, 1);
+        -- Green Linen Bracers
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3877, 3841, 175, 0, 0, 197, 85, 1);
+        -- Reinforced Linen Cape
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2419, 2397, 175, 0, 0, 197, 85, 1);
+        -- Linen Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2967, 2386, 200, 0, 0, 197, 90, 1);
+        -- Soft-soled Linen Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3880, 3845, 225, 0, 0, 197, 100, 1);
+        -- Handstitched Linen Britches
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3878, 3842, 200, 0, 0, 197, 95, 1);
+        -- Woolen Cape
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2423, 2402, 200, 0, 0, 197, 95, 1);
+        -- Green Linen Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2418, 2396, 200, 0, 0, 197, 95, 1);
+        -- Barbaric Linen Vest
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2417, 2395, 200, 0, 0, 197, 95, 1);
+        -- Soft-soled Linen Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3880, 3845, 225, 0, 0, 197, 100, 1);
+        -- Woolen Bag
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3785, 3757, 225, 0, 0, 197, 100, 1);
+        -- Heavy Woolen Gloves
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3879, 3843, 225, 0, 0, 197, 105, 1);
+        -- Green Woolen Vest
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2421, 2399, 225, 0, 0, 197, 105, 1);
+        -- Pearl Clasped Cloak
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 6522, 6521, 250, 0, 0, 197, 110, 1);
+        -- Woolen Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2422, 2401, 250, 0, 0, 197, 115, 1);
+        -- Gray Woolen Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 2424, 2406, 275, 0, 0, 197, 120, 1);
+        -- Heavy Woolen Pants
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3882, 3850, 300, 0, 0, 197, 130, 1);
+        -- Double-stitched Woolen Shoulder
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3881, 3848, 300, 0, 0, 197, 130, 1);
+        -- Stylish Red Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3890, 3866, 300, 0, 0, 197, 130, 1);
+        -- Bright Yellow Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3891, 3869, 325, 0, 0, 197, 140, 1);
+        -- Spidersilk Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3886, 3855, 325, 0, 0, 197, 145, 1);
+        -- Gloves of Meditation
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3884, 3852, 350, 0, 0, 197, 150, 1);
+        -- Enchanted Silk Gloves
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3885, 3854, 375, 0, 0, 197, 165, 1);
+        -- Wispy Silk Boots
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3888, 3859, 400, 0, 0, 197, 170, 1);
+        -- Small Silk Pack
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3814, 3813, 400, 0, 0, 197, 170, 1);
+        -- Formal White Shirt
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3893, 3871, 400, 0, 0, 197, 175, 1);
+        -- Bolt of Mageweave
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3875, 3865, 425, 0, 0, 197, 180, 1);
+        -- Long Silken Cloak
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (507, 3889, 3861, 475, 0, 0, 197, 205, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 5153;
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 4159;
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 11052;
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 1346;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 3363;
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 3004;
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 2399;
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 4576;
+
+        -- Neutral trainers
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 2627;
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 11557;
+
         insert into applied_updates values ('261220221');
     end if;
 
