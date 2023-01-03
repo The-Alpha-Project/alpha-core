@@ -16,7 +16,7 @@ class ChannelKickHandler(object):
         player_name = '' if has_player else PacketReader.read_string(reader.data, offset, 0).strip()[:-1]
 
         channel = ChannelManager.get_channel(channel_name, world_session.player_mgr)
-        # Check if channel exist.
+        # Check if channel exists.
         if not channel:
             packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(world_session.player_mgr, packet)

@@ -43,7 +43,7 @@ class ChatManager(object):
     @staticmethod
     def send_channel_message(sender, channel_name, message, lang):
         channel = ChannelManager.get_channel(channel_name, sender)
-        # Check if channel exist.
+        # Check if channel exists.
         if not channel:
             packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(sender, packet)

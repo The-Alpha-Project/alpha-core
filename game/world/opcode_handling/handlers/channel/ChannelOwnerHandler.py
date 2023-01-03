@@ -12,7 +12,7 @@ class ChannelOwnerHandler(object):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
 
         channel = ChannelManager.get_channel(channel_name, world_session.player_mgr)
-        # Check if channel exist.
+        # Check if channel exists.
         if not channel:
             packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(world_session.player_mgr, packet)
@@ -30,7 +30,7 @@ class ChannelOwnerHandler(object):
         target_player_mgr = WorldSessionStateHandler.find_player_by_name(player_name)
 
         channel = ChannelManager.get_channel(channel_name, world_session.player_mgr)
-        # Check if channel exist.
+        # Check if channel exists.
         if not channel:
             packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(world_session.player_mgr, packet)

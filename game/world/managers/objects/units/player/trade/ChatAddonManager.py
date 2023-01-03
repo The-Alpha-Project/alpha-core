@@ -105,7 +105,8 @@ class ChatAddonManager:
         unit = None
 
         if not unit_id:
-            unit = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection, include_players=True)
+            unit = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection,
+                                                           include_players=True)
             unit = player_mgr if not unit else unit
             unit_id = 'player' if unit and unit.guid == player_mgr.guid or not unit else 'target'
             error_code = AddonErrorCodes.SUCCESS if unit is not None else AddonErrorCodes.INVALID_TARGET
@@ -118,7 +119,8 @@ class ChatAddonManager:
                 if player_mgr.combat_target and player_mgr.current_selection == player_mgr.combat_target.guid:
                     unit = player_mgr.combat_target
                 else:
-                    unit = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection, include_players=True)
+                    unit = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection,
+                                                                   include_players=True)
                 error_code = AddonErrorCodes.SUCCESS if unit is not None else AddonErrorCodes.INVALID_TARGET
             elif 'party' in unit_id:
                 if not player_mgr.group_manager or not player_mgr.group_manager.is_party_formed():
@@ -126,7 +128,8 @@ class ChatAddonManager:
                 else:
                     index = int(unit_id[-1])
                     unit = player_mgr.group_manager.get_member_at(index)
-                    error_code = AddonErrorCodes.SUCCESS if unit is not None else AddonErrorCodes.EMPTY_OFFLINE_GROUP_SLOT
+                    error_code = (AddonErrorCodes.SUCCESS if unit is not None else
+                                  AddonErrorCodes.EMPTY_OFFLINE_GROUP_SLOT)
 
         if not unit:
             Logger.warning(f'Unable to locate unit for unit_id {unit_id}.')
@@ -159,6 +162,3 @@ class ChatAddonManager:
 ADDON_COMMAND_DEFINITIONS = {
     'getunitauras': ChatAddonManager.get_unit_auras
 }
-
-
-

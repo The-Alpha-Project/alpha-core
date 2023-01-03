@@ -25,7 +25,7 @@ class Channel(object):
         if not config.Server.General.enable_addons_chat_api:
             return False
         name = self.name.lower()
-        return str.startswith(name, 'addon') and not name == 'addon'
+        return str.startswith(name, '_addon') and not name == '_addon'
 
     def members_count(self):
         return len(self.members)
@@ -374,7 +374,7 @@ class ChannelManager(object):
                     announce=True,
                     moderators=[player_mgr])
 
-            # Handle addon channel.
+            # Handle AddOn channel.
             if channel.is_addon():
                 Logger.success(f'Registered addon channel [{channel_name}].')
                 ChannelManager.ADDON_CHANNELS[channel_name] = channel

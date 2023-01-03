@@ -13,7 +13,7 @@ class ChannelPasswordHandler(object):
         password = '' if skip_pass else PacketReader.read_string(reader.data, offset, 0).strip()
 
         channel = ChannelManager.get_channel(channel_name, world_session.player_mgr)
-        # Check if channel exist.
+        # Check if channel exists.
         if not channel:
             packet = ChannelManager.build_notify_packet(channel_name, ChannelNotifications.NOT_MEMBER)
             ChannelManager.send_to_player(world_session.player_mgr, packet)
