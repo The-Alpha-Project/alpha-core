@@ -332,7 +332,7 @@ class SkillManager(object):
 
     def set_skill(self, skill_id, current_value, max_value=-1):
         if skill_id not in self.skills:
-            return
+            return False
 
         skill = self.skills[skill_id]
         skill.value = current_value
@@ -341,6 +341,7 @@ class SkillManager(object):
             skill.max = max_value
 
         RealmDatabaseManager.character_update_skill(skill)
+        return True
 
     def update_skills_max_value(self):
         for skill_id, skill in self.skills.items():
