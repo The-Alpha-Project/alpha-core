@@ -16041,7 +16041,7 @@ begin not atomic
         -- Add 'Enchant Bracers - Minor Agility' as spell to be learned when 'Journeyman Enchanting' is learned.
         REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7415, 7779);
         -- Add 'Runed Silver Rod' as spell to be learned when 'Expert Enchanting' is learned.
-        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7414, 7795);
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7416, 7795);
 
         -- Apprentice Enchanting
         REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7414, 7411, 0, 0, 1, 0, 0, 1);
