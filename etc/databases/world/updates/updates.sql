@@ -14469,7 +14469,7 @@ begin not atomic
 
     -- 24/11/2022 1
     if (select count(*) from applied_updates where id='241120221') = 0 then
-	    DROP TABLE `alpha_world`.`spell_enchant_charges`;
+	    DROP TABLE `spell_enchant_charges`;
 	    insert into applied_updates values ('241120221');
     end if;
 
