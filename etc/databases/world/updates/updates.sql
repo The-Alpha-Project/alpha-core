@@ -15464,7 +15464,7 @@ begin not atomic
         insert into applied_updates values ('251220221');
     end if;
 
-        -- 26/12/2022 1
+    -- 26/12/2022 1
     if (select count(*) from applied_updates where id='261220221') = 0 then
 
         -- Development skill default spells holder
@@ -16274,7 +16274,7 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 10993;
 
         -- Fix demon trainers
-        UPDATE `creature_template` SET `trainer_class` = 9 WHERE entry (2935, 5006, 5520, 5749, 5750, 5753);
+        UPDATE `creature_template` SET `trainer_class` = 9 WHERE entry IN (2935, 5006, 5520, 5749, 5750, 5753);
 
         insert into applied_updates values ('261220221');
     end if;
