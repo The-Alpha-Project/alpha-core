@@ -698,6 +698,26 @@ class SpellEffectHandler:
         FarSightManager.add_camera(dyn_object, caster)
 
     @staticmethod
+    def handle_skill_step(casting_spell, effect, caster, target):
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        step = effect.get_effect_points()
+        if step < 0:
+            return
+        
+        skill_max = (step * 5)
+        skill_id = casting_spell.spell_entry.EffectMiscValue_2
+        if skill_id <= 0:
+            return
+        
+        if not target.skill_manager.has_skill(skill_id):
+            target.skill_manager.add_skill(skill_id)
+
+        target.skill_manager.set_skill(skill_id, max(1, target.skill_manager.get_total_skill_value(skill_id)), skill_max)
+        target.skill_manager.build_update()
+
+    @staticmethod
     def handle_temporary_enchant(casting_spell, effect, caster, target):
         SpellEffectHandler.handle_permanent_enchant(casting_spell, effect, caster, target, True)
 
@@ -854,6 +874,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
     SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
+    SpellEffects.SPELL_EFFECT_SKILL_STEP: SpellEffectHandler.handle_skill_step,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
     SpellEffects.SPELL_EFFECT_ADD_FARSIGHT: SpellEffectHandler.handle_add_farsight,
