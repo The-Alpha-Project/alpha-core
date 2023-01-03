@@ -286,21 +286,6 @@ class SpellManager:
 
         casting_spell.resolve_target_info_for_effects()
 
-        if casting_spell.casts_on_swing():
-            # TODO Hackfix for melee spell miss results.
-            # The client seems to expect damage info before spell_go for these spells (checked by attributes & 0x404).
-            # We get around this (?) partially by not sending spell information with SMSG_DAMAGE_DONE (get_damage_done_packet).
-            # This hackfix introduces a bug where the previous combat target is displayed as the target of this result.
-            target = casting_spell.initial_target
-            miss_result = casting_spell.object_target_results[target.guid]
-            if miss_result.result != SpellMissReason.MISS_REASON_NONE:
-                dummy_dmg_info = DamageInfoHolder(attacker=self.caster, target=target,
-                                                  attack_type=casting_spell.get_attack_type(),
-                                                  spell_miss_reason=miss_result.result,
-                                                  hit_info=HitInfo.DEFERRED_LOGGING,
-                                                  spell_id=casting_spell.spell_entry.ID)
-                self.caster.send_attack_state_update(dummy_dmg_info)
-
         # Reset mana regen timer on cast perform.
         # Regen update will handle regen timer resets if a spell is casting,
         # but instants reach perform without update.
