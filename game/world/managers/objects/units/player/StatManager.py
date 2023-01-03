@@ -764,6 +764,7 @@ class StatManager(object):
         # Use base attack formulas for next melee swing and ranged spells.
         if casting_spell.casts_on_swing() or casting_spell.casts_on_ranged_attack():
             # Note that dual wield penalty is not applied to spells.
+            # TODO Consider skill for the spell-specific category instead of weapon skill?
             result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type())
             if result_info & HitInfo.PARRY:
                 miss_reason = SpellMissReason.MISS_REASON_PARRIED
