@@ -1,4 +1,4 @@
-# Interface
+# Interface implemented in C++.
 class Namigator:
 
     def query_z(self, x, y):
