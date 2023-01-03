@@ -1,4 +1,3 @@
-import time
 from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -9,7 +8,7 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, UnitReaction, UnitFlags, UnitStates
 from utils.constants.UpdateFields \
@@ -145,7 +144,8 @@ class ObjectManager:
 
         return data
 
-    def get_heartbeat_packet(self, movement_flag=None):
+    def get_heartbeat_packet(self):
+        movement_flags = self.movement_flags | MoveFlags.MOVEFLAG_MOVED
         data = pack(
             '<2Q9fI',
             self.guid,
@@ -159,7 +159,7 @@ class ObjectManager:
             self.location.z,
             self.location.o,
             self.pitch,
-            movement_flag if movement_flag else self.movement_flags,
+            movement_flags,
         )
         return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
 
@@ -375,7 +375,7 @@ class ObjectManager:
         pass
 
     # override
-    def is_on_water(self):
+    def is_over_water(self):
         liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
                                                                self.location.z)
         map_z = MapManager.calculate_z_for_object(self)[0]
@@ -385,7 +385,8 @@ class ObjectManager:
     def is_under_water(self):
         liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
                                                                self.location.z)
-        return liquid_information and self.location.z + (self.current_scale * 2) < liquid_information.height
+
+        return liquid_information and self.location.z + (self.current_scale * 1.8) < liquid_information.height
 
     # override
     def is_in_deep_water(self):

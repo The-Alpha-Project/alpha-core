@@ -709,7 +709,7 @@ class PlayerManager(UnitManager):
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)
         if not changed_map:
-            heart_beat_packet = self.get_heartbeat_packet(movement_flag=MoveFlags.MOVEFLAG_MOVED)
+            heart_beat_packet = self.get_heartbeat_packet()
             MapManager.send_surrounding(heart_beat_packet, self, False)
 
         # TODO: Wrap pending teleport data in a new holder object?
@@ -1167,7 +1167,7 @@ class PlayerManager(UnitManager):
         return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING and self.is_alive
 
     # override
-    def is_on_water(self):
+    def is_over_water(self):
         self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
         return self.liquid_information and self.liquid_information.height > self.location.z
 
