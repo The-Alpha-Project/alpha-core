@@ -16273,6 +16273,9 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 3494;
         UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 10993;
 
+        -- Fix demon trainers
+        UPDATE `creature_template` SET `trainer_class` = 9 WHERE entry (2935, 5006, 5520, 5749, 5750, 5753);
+
         insert into applied_updates values ('261220221');
     end if;
 
