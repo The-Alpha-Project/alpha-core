@@ -127,7 +127,7 @@ class MovementManager:
 
         waypoints_data = b''
         waypoints_length = len(waypoints)
-        last_waypoint = self.unit.location
+        last_waypoint = self.unit.location.copy()
         total_distance = 0
         total_time = 0
         current_id = 0

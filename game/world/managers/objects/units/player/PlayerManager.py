@@ -709,12 +709,11 @@ class PlayerManager(UnitManager):
         # Get us in a new cell.
         MapManager.update_object(self)
 
-        # Notify movement data to surrounding players when teleporting within the same map (for example when using
-        # Charge).
-        # TODO: Can we somehow send MSG_MOVE_HEARTBEAT instead?
+        # Notify movement data to surrounding players when teleporting within the same map
+        # (for example when using Charge)
         if not changed_map:
-            movement_packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_packet())
-            MapManager.send_surrounding(movement_packet, self, False)
+            heart_beat_packet = self.get_heartbeat_packet()
+            MapManager.send_surrounding(heart_beat_packet, self, False)
 
         # TODO: Wrap pending teleport data in a new holder object?
         self.pending_teleport_recovery_percentage = -1
@@ -1171,7 +1170,7 @@ class PlayerManager(UnitManager):
         return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING and self.is_alive
 
     # override
-    def is_on_water(self):
+    def is_over_water(self):
         self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
         return self.liquid_information and self.liquid_information.height > self.location.z
 
@@ -1570,11 +1569,6 @@ class PlayerManager(UnitManager):
             # Update played time.
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
-
-            # Update known objects if needed.
-            if self.update_known_objects_on_tick:
-                self.update_known_objects_on_tick = False
-                self.update_known_world_objects()
 
             # Stealth detect.
             self.units_stealth_detection_check(elapsed)

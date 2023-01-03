@@ -9,7 +9,6 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState
-from utils.constants.UpdateFields import UnitFields
 
 
 class MovementHandler:

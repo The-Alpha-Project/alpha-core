@@ -24,8 +24,7 @@ from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
     GameObjectStates, DynamicObjectTypes
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
-from utils.constants.UnitCodes import UnitFlags, UnitStates
-from utils.constants.UpdateFields import UnitFields
+from utils.constants.UnitCodes import UnitFlags
 
 
 class SpellEffectHandler:
