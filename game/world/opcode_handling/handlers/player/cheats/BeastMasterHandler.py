@@ -22,6 +22,10 @@ class CheatBeastMasterHandler(object):
         if len(reader.data) >= 1:  # Avoid handling empty beast master packet.
             # Client sends `0` if you type `beastmaster off`, and `1` if you type `beastmaster`.
             player_mgr.beast_master = unpack('<B', reader.data[:1])[0] >= 1
+            if player_mgr.beast_master:
+                # Set sanctuary state.
+                player_mgr.set_sanctuary(True, time_secs=1)
+
         ChatManager.send_system_message(world_session, f'Beastmaster '
                                                        f'{"enabled" if player_mgr.beast_master else "disabled"}')
 

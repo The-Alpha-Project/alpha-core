@@ -832,7 +832,12 @@ class PlayerManager(UnitManager):
     # override
     def set_sanctuary(self, active, time_secs=0):
         super().set_sanctuary(active, time_secs)
-        if not active:
+        if active:
+            self.spell_manager.remove_casts()
+            self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
+            # Remove self from combat and attackers.
+            self.leave_combat()
+        else:
             self._on_relocation()
 
     def send_minimap_ping(self, guid, vector):
