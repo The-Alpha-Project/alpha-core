@@ -16191,6 +16191,130 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 3007;
         UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 11098;
 
+        -- Engineering
+        -- Trainer ID: 510
+
+        -- Add 'Rough Blasting Powder' as spell to be learned when 'Apprentice Engineer' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (4039, 3918);
+        -- Add 'Silver Contact (Makes 5)' as spell to be learned when 'Journeyman Engineer' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (4040, 3973);
+
+        -- Apprentice Engineering
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4039, 4036, 0, 0, 1, 0, 0, 1);
+        -- Journeyman Engineering
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4040, 4037, 0, 0, 3, 202, 50, 1);
+        -- Expert Engineering
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4041, 4038, 0, 0, 5, 202, 125, 1);
+
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3981, 3919, 50, 0, 0, 202, 25, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3982, 3920, 50, 0, 0, 202, 25, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3984, 3922, 75, 0, 0, 202, 45, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 7431, 7430, 125, 0, 0, 202, 65, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3985, 3923, 150, 0, 0, 202, 75, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3986, 3924, 150, 0, 0, 202, 75, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3987, 3925, 150, 0, 0, 202, 75, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3992, 3929, 150, 0, 0, 202, 80, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3993, 3930, 150, 0, 0, 202, 80, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3994, 3931, 150, 0, 0, 202, 80, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3988, 3977, 175, 0, 0, 202, 85, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3991, 3926, 175, 0, 0, 202, 90, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3995, 3932, 225, 0, 0, 202, 110, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 6442, 6441, 250, 0, 0, 202, 120, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3997, 3934, 275, 0, 0, 202, 125, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3998, 3936, 275, 0, 0, 202, 130, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 3999, 3937, 275, 0, 0, 202, 130, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4000, 3938, 275, 0, 0, 202, 130, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4001, 3978, 300, 0, 0, 202, 135, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4002, 3939, 325, 0, 0, 202, 145, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4003, 3941, 325, 0, 0, 202, 145, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4005, 3942, 325, 0, 0, 202, 150, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4006, 3945, 325, 0, 0, 202, 150, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4007, 3946, 325, 0, 0, 202, 150, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4008, 3947, 325, 0, 0, 202, 150, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4009, 3949, 350, 0, 0, 202, 155, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 6459, 6458, 350, 0, 0, 202, 160, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4010, 3950, 375, 0, 0, 202, 165, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4011, 3952, 375, 0, 0, 202, 165, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4012, 3953, 375, 0, 0, 202, 170, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4013, 3955, 400, 0, 0, 202, 175, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4014, 3956, 400, 0, 0, 202, 175, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4015, 3957, 400, 0, 0, 202, 180, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4016, 3958, 425, 0, 0, 202, 185, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4017, 3961, 450, 0, 0, 202, 195, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4018, 3962, 450, 0, 0, 202, 200, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4019, 3963, 450, 0, 0, 202, 200, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4021, 3979, 475, 0, 0, 202, 205, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4022, 3965, 475, 0, 0, 202, 210, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4023, 3967, 500, 0, 0, 202, 215, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4024, 3969, 525, 0, 0, 202, 225, 1);
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (510, 4025, 3971, 525, 0, 0, 202, 225, 1);
+
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 5174;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 1702;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 3290;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 11026;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 11028;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 11037;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 5518;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 11029;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 11017;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 2857;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 4586;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 11025;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 3412;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 11031;
+
+        -- Neutral trainers
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 8736;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 3494;
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 10993;
+
         insert into applied_updates values ('261220221');
     end if;
 
