@@ -16017,6 +16017,76 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 2627;
         UPDATE `creature_template` SET `trainer_id` = 507 WHERE `entry` = 11557;
 
+        -- Enchanting
+        -- Trainer ID: 508
+
+        -- Add 'Imbue Chest - Minor Absorb' as spell to be learned when 'Apprentice Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7414, 7426);
+        -- Add 'Imbue Bracers - Minor Deflect' as spell to be learned when 'Apprentice Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7414, 7428);
+        -- Add 'Runed Copper Rod' as spell to be learned when 'Apprentice Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7414, 7421);
+        -- Add 'Enchant Bracers - Minor Health' as spell to be learned when 'Apprentice Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7414, 7418);
+        -- Add 'Imbue Cloak - Minor Resistance' as spell to be learned when 'Apprentice Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7414, 7439);
+        -- Add 'Imbue Chest - Lesser Absorb' as spell to be learned when 'Journeyman Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7415, 7448);
+        -- Add 'Enchant Cloak - Minor Resist' as spell to be learned when 'Journeyman Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7415, 7454);
+        -- Add 'Imbue Bracers - Minor Wisdom' as spell to be learned when 'Journeyman Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7415, 7769);
+        -- Add 'Imbue Chest - Absorb' as spell to be learned when 'Journeyman Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7415, 7855);
+        -- Add 'Enchant Bracers - Minor Agility' as spell to be learned when 'Journeyman Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7415, 7779);
+        -- Add 'Runed Silver Rod' as spell to be learned when 'Expert Enchanting' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (7414, 7795);
+
+        -- Apprentice Enchanting
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7414, 7411, 0, 0, 1, 0, 0, 1);
+        -- Journeyman Enchanting
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7415, 7412, 0, 0, 3, 333, 50, 1);
+        -- Expert Enchanting
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7416, 7413, 0, 0, 5, 333, 125, 1);
+
+        -- Enchant Chest - Minor Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7422, 7420, 50, 0, 0, 333, 35, 1);
+        -- Enchant Bracer - Minor Stamina
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7459, 7457, 225, 0, 0, 333, 105, 1);
+        -- Imbue Chest - Lesser Spirit
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7854, 7853, 225, 0, 0, 333, 110, 1);
+        -- Enchant Chest - Lesser Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7749, 7748, 225, 0, 0, 333, 110, 1);
+        -- Enchant Runed Silver Rod
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7797, 7795, 275, 0, 0, 333, 125, 1);
+        -- Enchant 2H Weapon - Minor Impact
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7746, 7745, 275, 0, 0, 333, 125, 1);
+        -- Enchant Weapon - Striking
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7789, 7788, 275, 0, 0, 333, 125, 1);
+        -- Imbue Cloak - Lesser Protection
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7866, 7865, 275, 0, 0, 333, 130, 1);
+        -- Enchant Chest - Health
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7858, 7857, 300, 0, 0, 333, 140, 1);
+        -- Enchant Cloak - Lesser Fire Resistance
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (508, 7862, 7861, 325, 0, 0, 333, 145, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 3606;
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 1317;
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 5157;
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 7949;
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 11072;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 3345;
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 4616;
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 11071;
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 11074;
+
+        -- Neutral trainers
+        UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 11073;
+
         insert into applied_updates values ('261220221');
     end if;
 
