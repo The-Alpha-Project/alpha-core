@@ -131,9 +131,6 @@ class ChatAddonManager:
                     error_code = (AddonErrorCodes.SUCCESS if unit is not None else
                                   AddonErrorCodes.EMPTY_OFFLINE_GROUP_SLOT)
 
-        if not unit:
-            Logger.warning(f'Unable to locate unit for unit_id {unit_id}.')
-
         return error_code, unit if unit else None, unit_id
 
     @staticmethod
