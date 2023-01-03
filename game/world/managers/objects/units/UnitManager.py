@@ -387,8 +387,6 @@ class UnitManager(ObjectManager):
         if not victim or not self.is_alive or not victim.is_alive or victim.unit_state & UnitStates.SANCTUARY:
             return
 
-        damage_info = self.calculate_melee_damage(victim, attack_type)
-
         if attack_type == AttackTypes.BASE_ATTACK:
             # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
@@ -401,6 +399,8 @@ class UnitManager(ObjectManager):
                                                spell_id=melee_spell.spell_entry.ID, hit_info=HitInfo.DEFERRED_LOGGING)
                 self.send_attack_state_update(damage_info)
                 return
+
+        damage_info = self.calculate_melee_damage(victim, attack_type)
 
         if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
