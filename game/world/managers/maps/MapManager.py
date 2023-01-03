@@ -243,7 +243,7 @@ class MapManager:
         z_values = MAPS_NAMIGATOR[map_id].query_z(float(x), float(y))
 
         if len(z_values) == 0:
-            Logger.warning(f'Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
+            Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
             return current_z, True
 
         # We are only interested in the resulting Z near to the Z we know.
@@ -406,7 +406,7 @@ class MapManager:
                 val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y + 1)
                 bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
                 calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
-                # If this Z is quite different, cascade into nav Z, if that also fails, current Z will be returned.
+                # If maps Z is quite different, cascade into nav Z, if that also fails, current Z will be returned.
                 if math.fabs(current_z - calculated_z) >= 1.0 and current_z:
                     return MapManager.calculate_nav_z(map_id, x, y, current_z)
                 return calculated_z, False
