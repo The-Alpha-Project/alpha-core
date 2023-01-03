@@ -1,3 +1,4 @@
+from enum import IntEnum
 from os import path
 from struct import unpack
 
@@ -8,6 +9,12 @@ from network.packet.PacketReader import PacketReader
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.PathManager import PathManager
+
+
+class MapTileStates(IntEnum):
+    READY = 0
+    LOADING = 1
+    UNUSABLE = 2
 
 
 class MapTile(object):

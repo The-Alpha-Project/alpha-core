@@ -11,7 +11,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.Constants import ADT_SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.Map import Map
-from game.world.managers.maps.MapTile import MapTile
+from game.world.managers.maps.MapTile import MapTile, MapTileStates
 from game.world.managers.maps.Namigator import Namigator
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
@@ -237,7 +237,7 @@ class MapManager:
 
         adt_x, adt_y = MapManager.get_tile(x, y)
         # Check if we need to load adt.
-        if not MapManager._check_tile_load(map_id, x, y, adt_x, adt_y):
+        if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
             return current_z, True
 
         z_values = MAPS_NAMIGATOR[map_id].query_z(float(x), float(y))
@@ -269,11 +269,11 @@ class MapManager:
                                                                                (RESOLUTION_ZMAP - 1))
 
         # Check if loaded or unable to load, return True if this fails.
-        if not MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x, source_adt_y):
+        if MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x, source_adt_y) != MapTileStates.READY:
             return True
 
         # Check if loaded or unable to load, return True if this fails.
-        if not MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y):
+        if MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y) != MapTileStates.READY:
             return True
 
         # Calculate path.
@@ -320,11 +320,11 @@ class MapManager:
                                                                                (RESOLUTION_ZMAP - 1))
 
         # Check if loaded or unable to load.
-        if not MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x, source_adt_y):
+        if MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x, source_adt_y) != MapTileStates.READY:
             return True, False, [end_vector]
 
         # Check if loaded or unable to load.
-        if not MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y):
+        if MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y) != MapTileStates.READY:
             return True, False, [end_vector]
 
         # Calculate path.
@@ -374,7 +374,7 @@ class MapManager:
             return True
 
         map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
-        if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
+        if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) == MapTileStates.UNUSABLE:
             return False
 
         return True
@@ -393,7 +393,7 @@ class MapManager:
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
 
             # No tile data available or busy loading.
-            if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
+            if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
                 return current_z, False
 
             try:
@@ -423,7 +423,7 @@ class MapManager:
             resolution = RESOLUTION_AREA_INFO - 1
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, resolution)
 
-            if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
+            if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
                 return None
             tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
             area_information = tile.get_area_at(tile_local_x, tile_local_y)
@@ -437,7 +437,7 @@ class MapManager:
         try:
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
 
-            if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
+            if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
                 return None
 
             tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
@@ -475,28 +475,35 @@ class MapManager:
     @staticmethod
     def _validate_liquid_tile(map_id, x, y):
         map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
-        if not MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y):
+        if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
             return False
         return True
 
     @staticmethod
     def _check_tile_load(map_id, location_x, location_y, map_tile_x, map_tile_y):
         # Check if the map is valid first.
-        if map_id not in MAPS:
+        if map_id not in MAPS or map_id not in MAPS_TILES:
             Logger.warning(f'Wrong map, {map_id} not found.')
         else:
             try:
                 tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
                 if tile.is_ready() and tile.can_use():
-                    return True
+                    return MapTileStates.READY
+                # Loaded but has no maps or navs data.
+                elif tile.is_ready() and not tile.can_use():
+                    return MapTileStates.UNUSABLE
                 elif not tile.is_loading() and not tile.is_initialized():
                     MapManager.enqueue_adt_tile_initialization(map_id, location_x, location_y)
+                    return MapTileStates.LOADING
+                # Initialized but still loading.
+                elif tile.is_loading():
+                    return MapTileStates.LOADING
             except:
                 Logger.error(traceback.format_exc())
                 Logger.error(f'Error retrieving tile information for the following position: '
                              f'Map ID: {map_id}, X: {location_x}, Y: {location_y}, '
                              f'Tile X: {map_tile_x}, Tile Y: {map_tile_y}.')
-        return False
+        return MapTileStates.UNUSABLE
 
     @staticmethod
     def calculate_tile(x, y, resolution):
