@@ -38,7 +38,6 @@ class ChatAddonManager:
         args = None
         try:
             terminator_index = message.find(' ') if ' ' in message else len(message)
-
             command = message[0:terminator_index].strip().lower()
             args = message[terminator_index:].strip()
 
@@ -115,7 +114,11 @@ class ChatAddonManager:
                 unit = player_mgr
                 error_code = AddonErrorCodes.SUCCESS
             elif unit_id == TARGET:
-                unit = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection, include_players=True)
+                # Skip target search if we have the current selection guid as combat target.
+                if player_mgr.combat_target and player_mgr.current_selection == player_mgr.combat_target.guid:
+                    unit = player_mgr.combat_target
+                else:
+                    unit = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection, include_players=True)
                 error_code = AddonErrorCodes.SUCCESS if unit is not None else AddonErrorCodes.INVALID_TARGET
             elif 'party' in unit_id:
                 if not player_mgr.group_manager or not player_mgr.group_manager.is_party_formed():
@@ -124,6 +127,9 @@ class ChatAddonManager:
                     index = int(unit_id[-1])
                     unit = player_mgr.group_manager.get_member_at(index)
                     error_code = AddonErrorCodes.SUCCESS if unit is not None else AddonErrorCodes.EMPTY_OFFLINE_GROUP_SLOT
+
+        if not unit:
+            Logger.warning(f'Unable to locate unit for unit_id {unit_id}.')
 
         return error_code, unit if unit else None, unit_id
 
