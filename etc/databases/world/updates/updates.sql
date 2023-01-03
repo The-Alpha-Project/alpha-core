@@ -16087,6 +16087,110 @@ begin not atomic
         -- Neutral trainers
         UPDATE `creature_template` SET `trainer_id` = 508 WHERE `entry` = 11073;
 
+        -- Leatherworking
+        -- Trainer ID: 509
+
+        -- Add 'Light Leather' as spell to be learned when 'Apprentice Leatherworking' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2155, 2881);
+        -- Add 'Light Armor Kit' as spell to be learned when 'Apprentice Leatherworking' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2155, 2152);
+        -- Add 'Handstitched Leather Boots' as spell to be learned when 'Apprentice Leatherworking' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2155, 2149);
+        -- Add 'Handstitched Leather Vest' as spell to be learned when 'Apprentice Leatherworking' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2155, 7126);
+        -- Add 'Handstitched Leather Pants' as spell to be learned when 'Journeyman Leatherworking' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (2154, 2153);
+        -- Add 'Dark Leather Gloves' as spell to be learned when 'Expert Leatherworking' is learned.
+        REPLACE INTO `default_profession_spell` (`trainer_spell`, `default_spell`) VALUES (3812, 3765);
+
+        -- Apprentice Leatherworking
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2155, 2108, 0, 0, 1, 0, 0, 1);
+        -- Journeyman Leatherworking
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2154, 3104, 0, 0, 3, 165, 50, 1);
+        -- Expert Leatherworking
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3812, 3811, 0, 0, 5, 165, 125, 1);
+
+        -- [Handstiched Leather Belt]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3782, 3753, 150, 0, 0, 165, 75, 1);
+        -- [Cured Light Hide]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3821, 3816, 150, 0, 0, 165, 75, 1);
+        -- [Embossed Leather Vest]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2883, 2160, 175, 0, 0, 165, 85, 1);
+        -- [Embossed Leather Pants]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3786, 3759, 200, 0, 0, 165, 100, 1);
+        -- [Embossed Leather Gloves]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3784, 3756, 200, 0, 0, 165, 100, 1);
+        -- [Embossed Leather Boots]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2177, 2161, 200, 0, 0, 165, 100, 1);
+        -- [Embossed Leather Cloak]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2178, 2162, 200, 0, 0, 165, 100, 1);
+        -- [Fine Leather Belt]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3789, 3763, 250, 0, 0, 165, 115, 1);
+        -- [Fine Leather Tunic]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3788, 3761, 250, 0, 0, 165, 120, 1);
+        -- [Cured Medium Hide]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3819, 3817, 250, 0, 0, 165, 120, 1);
+        -- [Fine Leather Cloak]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2886, 2159, 250, 0, 0, 165, 120, 1);
+        -- [Medium Armor Kit]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2884, 2165, 250, 0, 0, 165, 120, 1);
+        -- [Dark Leather Boots]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2181, 2167, 275, 0, 0, 165, 125, 1);
+        -- [Dark Leather Belt]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3792, 3766, 275, 0, 0, 165, 130, 1);
+        -- [Dark Leather Cloak]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2179, 2168, 300, 0, 0, 165, 135, 1);
+        -- [Dark Leather Pants]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 7146, 7135, 300, 0, 0, 165, 140, 1);
+        -- [Toughened Leather Vest]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 2180, 2166, 325, 0, 0, 165, 150, 1);
+        -- [Toughened Leather Gloves]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3794, 3770, 350, 0, 0, 165, 160, 1);
+        -- [Heavy Armor Kit]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3781, 3780, 375, 0, 0, 165, 165, 1);
+        -- [Cured Heavy Hide]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3820, 3818, 375, 0, 0, 165, 165, 1);
+        -- [Green Leather Armor]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3796, 3772, 400, 0, 0, 165, 175, 1);
+        -- [Guardian Pants]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 7148, 7147, 400, 0, 0, 165, 180, 1);
+        -- [Green Leather Belt]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3795, 3774, 400, 0, 0, 165, 180, 1);
+        -- [Raptor Hide Harness]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 4099, 4096, 425, 0, 0, 165, 185, 1);
+        -- [Raptor Hide Belt]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 4098, 4097, 425, 0, 0, 165, 185, 1);
+        -- [Barbaric Shoulders]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 7152, 7151, 450, 0, 0, 165, 195, 1);
+        -- [Barbaric Harness]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 6662, 6661, 450, 0, 0, 165, 195, 1);
+        -- [Green Leather Bracers]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3797, 3776, 450, 0, 0, 165, 200, 1);
+        -- [Gem Studded Leather Belt]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 3798, 3778, 475, 0, 0, 165, 205, 1);
+        -- [Guardian Gloves]
+        REPLACE INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (509, 7157, 7156, 475, 0, 0, 165, 210, 1);
+
+        -- Alliance trainers
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 1632;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 11096;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 3605;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 3967;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 5127;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 4212;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 11097;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 5564;
+
+        -- Horde trainers
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 3365;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 1385;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 7869;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 3549;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 4588;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 3069;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 3007;
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE `entry` = 11098;
+
         insert into applied_updates values ('261220221');
     end if;
 
