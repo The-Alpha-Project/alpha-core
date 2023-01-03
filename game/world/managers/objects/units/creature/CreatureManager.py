@@ -461,6 +461,7 @@ class CreatureManager(UnitManager):
         spawn_distance = self.location.distance(self.spawn_position)
         target_distance = self.location.distance(self.combat_target.location)
         combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
+        target_under_water = self.combat_target.is_under_water()
 
         if not self.is_pet():
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
@@ -481,8 +482,7 @@ class CreatureManager(UnitManager):
                 if not self.can_swim():
                     self.threat_manager.remove_unit_threat(self.combat_target)
                     return
-            else:
-                if not self.can_exit_water():
+                if not self.can_exit_water() and not target_under_water:
                     self.threat_manager.remove_unit_threat(self.combat_target)
                     return
 
@@ -504,7 +504,7 @@ class CreatureManager(UnitManager):
                 return
 
         # Use direct combat location if target is over water.
-        if not self.combat_target.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+        if not target_under_water:
             failed, in_place, path = MapManager.calculate_path(self.map_, self.location.copy(), combat_location)
             if not failed and not in_place:
                 combat_location = path[0]
