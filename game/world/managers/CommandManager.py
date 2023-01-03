@@ -379,10 +379,16 @@ class CommandManager(object):
             skill_id, skill_value = args.split()
             skill_id = int(skill_id)
             skill_value = int(skill_value)
+            skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
+            if not skill:
+                return -1, 'Invalid skill.'
             if skill_value <= 0:
                 return -1, 'Skill value must be greater than 0.'
+
             if not world_session.player_mgr.skill_manager.set_skill(skill_id, skill_value):
-                return -1, 'Invalid skill.'
+                return -1, "You haven't learned that skill."
+
+            world_session.player_mgr.skill_manager.build_update()
             return 0, 'Skill set.'
         except ValueError:
             return -1, 'Please specify the skill ID and new value.'
