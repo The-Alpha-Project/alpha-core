@@ -112,10 +112,6 @@ class SpellEffectHandler:
     @staticmethod
     def handle_sanctuary(casting_spell, effect, caster, target):
         if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            caster.spell_manager.remove_casts()
-            caster.spell_manager.remove_unit_from_all_cast_targets(caster.guid)
-            # Remove self from combat and attackers.
-            caster.leave_combat()
             # Set sanctuary state.
             caster.set_sanctuary(True, time_secs=1)
 
