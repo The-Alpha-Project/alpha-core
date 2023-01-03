@@ -551,7 +551,7 @@ class SpellManager:
 
         # Always make sure to set interrupted result if necessary.
         # Client interrupts animations/sounds for a given world object to observers upon unsuccessful casts.
-        if interrupted and cast_result != SpellCheckCastResult.SPELL_FAILED_INTERRUPTED:
+        if interrupted:
             cast_result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
 
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
@@ -587,7 +587,7 @@ class SpellManager:
                     continue
                 result = SpellCheckCastResult.SPELL_NO_ERROR  # Don't send interrupted error for active/delayed spells
 
-            self.remove_cast(casting_spell, result, interrupted=True)
+            self.remove_cast(casting_spell, result, interrupted=result != SpellCheckCastResult.SPELL_NO_ERROR)
 
     def remove_unit_from_all_cast_targets(self, target_guid):
         for casting_spell in list(self.casting_spells):
@@ -607,12 +607,12 @@ class SpellManager:
             if target_guid in casting_spell.object_target_results:  # Only target of this spell.
                 result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
                 # Don't send interrupted error for finished/active/delayed spells.
-                if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED or not casting_spell.is_channeled() \
-                        and casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
-                        casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
+                if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED or \
+                        not casting_spell.is_channeled() and casting_spell.cast_state in \
+                        {SpellState.SPELL_STATE_ACTIVE, SpellState.SPELL_STATE_DELAYED}:
                     result = SpellCheckCastResult.SPELL_NO_ERROR
 
-                self.remove_cast(casting_spell, result, interrupted=True)
+                self.remove_cast(casting_spell, result, interrupted=result != SpellCheckCastResult.SPELL_NO_ERROR)
                 return
 
     def remove_colliding_casts(self, current_cast):
@@ -1028,8 +1028,10 @@ class SpellManager:
             self.send_cast_result(casting_spell, result)
             return False
 
-        if casting_spell.initial_target_is_unit_or_player():
+        if casting_spell.initial_target_is_unit_or_player() and not \
+                (casting_spell.is_area_of_effect_spell() and validation_target is self.caster):
             # Basic effect harmfulness/attackability check for fully harmful spells.
+            # For unit-targeted AoE spells, skip validation for self casts.
             # The client checks this for player casts, but not pet casts.
             if not self.caster.can_attack_target(validation_target) and casting_spell.has_only_harmful_effects():
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
