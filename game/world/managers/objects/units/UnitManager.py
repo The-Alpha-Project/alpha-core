@@ -387,15 +387,20 @@ class UnitManager(ObjectManager):
         if not victim or not self.is_alive or not victim.is_alive or victim.unit_state & UnitStates.SANCTUARY:
             return
 
+        damage_info = self.calculate_melee_damage(victim, attack_type)
+
         if attack_type == AttackTypes.BASE_ATTACK:
             # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
                 self.execute_extra_attacks()
 
-            if self.spell_manager.cast_queued_melee_ability(attack_type):
-                return  # Melee ability replaces regular attack.
-
-        damage_info = self.calculate_melee_damage(victim, attack_type)
+            melee_spell = self.spell_manager.get_queued_melee_ability()
+            if melee_spell and self.spell_manager.cast_queued_melee_ability(attack_type):
+                # Send attack update with deferred logging to display the cast in combat log/floating text.
+                damage_info = DamageInfoHolder(attacker=self, target=victim,
+                                               spell_id=melee_spell.spell_entry.ID, hit_info=HitInfo.DEFERRED_LOGGING)
+                self.send_attack_state_update(damage_info)
+                return
 
         if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
@@ -690,6 +695,9 @@ class UnitManager(ObjectManager):
         spell_miss_info = spell.object_target_results[target.guid]
         damage_info.hit_info = spell_miss_info.flags
 
+        if spell.casts_on_swing():
+            damage_info.hit_info |= HitInfo.DEFERRED_LOGGING
+
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.target_state = VictimStates.VS_IMMUNE
             return damage_info
@@ -804,6 +812,10 @@ class UnitManager(ObjectManager):
         if is_cast_on_swing or spell.is_ranged_weapon_attack():
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
+
+        if damage_info.hit_info & HitInfo.DEFERRED_LOGGING:
+            # Spells with deferred logging aren't logged until an attack state update is sent with this flag.
+            self.send_attack_state_update(damage_info)
 
         self.send_spell_cast_debug_info(damage_info, spell)
         self.deal_damage(target, damage_info, is_periodic=spell_effect.is_periodic(), casting_spell=spell)
