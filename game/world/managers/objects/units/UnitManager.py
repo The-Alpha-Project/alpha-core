@@ -414,6 +414,7 @@ class UnitManager(ObjectManager):
             self.extra_attacks = 0
 
         self.send_attack_state_update(damage_info)
+        self.deal_damage(damage_info.target, damage_info)
 
     def execute_extra_attacks(self):
         while self.extra_attacks > 0:
@@ -511,9 +512,6 @@ class UnitManager(ObjectManager):
         is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         attack_state_packet = damage_info.get_attacker_state_update_packet()
         MapManager.send_surrounding(attack_state_packet, self, include_self=is_player)
-
-        # Damage effects
-        self.deal_damage(damage_info.target, damage_info)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
                                      used_ammo: Optional[ItemManager] = None, apply_bonuses=True):
