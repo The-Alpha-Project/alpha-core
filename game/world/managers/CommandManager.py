@@ -843,7 +843,6 @@ GM_COMMAND_DEFINITIONS = {
     'die': [CommandManager.die, 'kill your target'],
     'los': [CommandManager.los, 'check unit LoS'],
     'kick': [CommandManager.kick, 'kick your target from the server'],
-    'worldoff': [CommandManager.worldoff, 'stop the world server'],
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
     'alltaxis': [CommandManager.alltaxis, 'discover all flightpaths'],
     'squest': [CommandManager.squest, 'search quests'],
@@ -853,4 +852,5 @@ GM_COMMAND_DEFINITIONS = {
 DEV_COMMAND_DEFINITIONS = {
     'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
     'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
+    'worldoff': [CommandManager.worldoff, 'stop the world server'],
 }
