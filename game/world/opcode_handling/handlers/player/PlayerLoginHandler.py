@@ -35,7 +35,7 @@ class PlayerLoginHandler(object):
             WorldSessionStateHandler.push_active_player_session(world_session)
 
         # Disabled race & class checks (only if not a GM).
-        if not player_mgr.is_gm:
+        if not world_session.account_mgr.is_gm():
             disabled_race_mask = config.Server.General.disabled_race_mask
             disabled = disabled_race_mask & player_mgr.race_mask == player_mgr.race_mask
 

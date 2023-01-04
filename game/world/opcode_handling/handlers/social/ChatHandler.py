@@ -13,20 +13,20 @@ class ChatHandler(object):
         chat_type, lang = unpack('<2I', reader.data[:8])
         message = ''
 
-        # Return if no player
+        # Return if no player.
         if not world_session.player_mgr:
             return 0
 
-        # Override language to universal for GMs
-        if world_session.player_mgr.is_gm:
+        # Override language to universal for GMs.
+        if world_session.account_mgr.is_gm():
             lang = Languages.LANG_UNIVERSAL
 
-        # Channel
+        # Channel.
         if chat_type == ChatMsgs.CHAT_MSG_CHANNEL:
             channel_name = PacketReader.read_string(reader.data, 8).strip()
             message = PacketReader.read_string(reader.data, 8 + len(channel_name)+1)
             ChatManager.send_channel_message(world_session.player_mgr, channel_name, message, lang)
-        # Say, Yell, Emote
+        # Say, Yell, Emote.
         elif chat_type == ChatMsgs.CHAT_MSG_SAY \
                 or chat_type == ChatMsgs.CHAT_MSG_EMOTE \
                 or chat_type == ChatMsgs.CHAT_MSG_YELL:
@@ -34,11 +34,11 @@ class ChatHandler(object):
             guid = world_session.player_mgr.guid
             chat_flags = world_session.player_mgr.chat_flags
 
-            # Only send message if it's not a command
+            # Only send message if it's not a command.
             if not ChatHandler.check_if_command(world_session, message):
                 ChatManager.send_chat_message(world_session, guid, chat_flags, message, chat_type, lang,
                                               ChatHandler.get_range_by_type(chat_type))
-        # Whisper
+        # Whisper.
         elif chat_type == ChatMsgs.CHAT_MSG_WHISPER:
             target_name = PacketReader.read_string(reader.data, 8).strip()
             target_player_mgr = WorldSessionStateHandler.find_player_by_name(target_name)
@@ -47,19 +47,19 @@ class ChatHandler(object):
                 return 0
             message = PacketReader.read_string(reader.data, 8 + len(target_name)+1)
             if not ChatHandler.check_if_command(world_session, message):
-                # Always whisper in universal language when speaking with a GM
-                if target_player_mgr.is_gm:
+                # Always whisper in universal language when speaking with a GM.
+                if target_player_mgr.session.account_mgr.is_gm():
                     lang = Languages.LANG_UNIVERSAL
 
                 ChatManager.send_whisper(world_session.player_mgr, target_player_mgr, message, lang)
             return 0
-        # Party
+        # Party.
         elif chat_type == ChatMsgs.CHAT_MSG_PARTY:
             if not ChatHandler.check_if_command(world_session, message):
                 message = PacketReader.read_string(reader.data, 8)
                 ChatManager.send_party(world_session.player_mgr, message, lang)
             return 0
-        # Guild
+        # Guild.
         elif chat_type == ChatMsgs.CHAT_MSG_GUILD or chat_type == ChatMsgs.CHAT_MSG_OFFICER:
             if not ChatHandler.check_if_command(world_session, message):
                 message = PacketReader.read_string(reader.data, 8)

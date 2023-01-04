@@ -152,10 +152,7 @@ class PlayerManager(UnitManager):
 
             # GM checks
             self.is_god = False
-            self.is_gm = self.session.account_mgr.account.gmlevel > 0
-            self.is_dev = self.session.account_mgr.account.gmlevel > 1
-            
-            if self.is_gm:
+            if self.session.account_mgr.is_gm():
                 self.set_gm()
 
             # Cheat flags.
@@ -1032,7 +1029,7 @@ class PlayerManager(UnitManager):
 
     def mod_level(self, level):
         if level != self.level:
-            max_level = 255 if self.is_gm else config.Unit.Player.Defaults.max_level
+            max_level = 255 if self.session.account_mgr.is_gm() else config.Unit.Player.Defaults.max_level
             if 0 < level <= max_level:
                 # Check if the new level is higher than the current one or not.
                 is_leveling_up = level > self.level

@@ -142,7 +142,7 @@ class TrainerUtils:
         if not creature_mgr.is_trainer():
             return False
 
-        if not creature_mgr.is_within_interactable_distance(player_mgr) and not player_mgr.is_gm:
+        if not creature_mgr.is_within_interactable_distance(player_mgr) and not player_mgr.session.account_mgr.is_gm():
             return False
 
         # If expecting a specific class, check if they match.

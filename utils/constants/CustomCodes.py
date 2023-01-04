@@ -20,7 +20,7 @@ class Permits(IntEnum):
     PERMIT_BASE_SPECIAL = 200
 
 
-class PetSelectTargetReason:
+class PetSelectTargetReason(IntEnum):
     FAIL_DEFAULT = 0
     FAIL_NOT_ENABLED = 1
     FAIL_PASSIVE = 2
@@ -31,8 +31,14 @@ class PetSelectTargetReason:
 
 
 # TODO: Replace by UnitCodes.UnitSummonType?
-class CreatureSubtype:
+class CreatureSubtype(IntEnum):
     SUBTYPE_GENERIC = 0
     SUBTYPE_PET = 1
     SUBTYPE_TOTEM = 2
     SUBTYPE_TEMP_SUMMON = 3
+
+
+class AccountSecurityLevel(IntEnum):
+    PLAYER = 0
+    GM = 1
+    DEV = 2

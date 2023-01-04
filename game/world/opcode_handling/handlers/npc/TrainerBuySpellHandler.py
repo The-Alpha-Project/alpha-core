@@ -102,7 +102,7 @@ class TrainerBuySpellHandler(object):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
         elif not player_mgr.spell_manager.can_learn_spell(player_spell.ID):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-        elif not player_mgr.is_gm and not unit.is_within_interactable_distance(player_mgr):
+        elif not world_session.account_mgr.is_gm() and not unit.is_within_interactable_distance(player_mgr):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
 

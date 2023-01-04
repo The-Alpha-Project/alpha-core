@@ -35,9 +35,9 @@ class CommandManager(object):
 
         if command in PLAYER_COMMAND_DEFINITIONS:
             command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
-        elif command in GM_COMMAND_DEFINITIONS and world_session.player_mgr.is_gm:
+        elif command in GM_COMMAND_DEFINITIONS and world_session.account_mgr.is_gm():
             command_func = GM_COMMAND_DEFINITIONS[command][0]
-        elif command in DEV_COMMAND_DEFINITIONS and world_session.player_mgr.is_dev:
+        elif command in DEV_COMMAND_DEFINITIONS and world_session.account_mgr.is_dev():
             command_func = DEV_COMMAND_DEFINITIONS[command][0]
         else:
             ChatManager.send_system_message(world_session, 'Command not found, type .help for help.')
@@ -74,7 +74,7 @@ class CommandManager(object):
         total_number = 0
 
         # If player is Dev, send Dev commands first.
-        if world_session.player_mgr.is_dev:
+        if world_session.account_mgr.is_dev():
             total_number += len(DEV_COMMAND_DEFINITIONS)
             ChatManager.send_system_message(world_session, '|cFFFFFFFF[Dev Commands]|r')
             for command in DEV_COMMAND_DEFINITIONS:
@@ -83,7 +83,7 @@ class CommandManager(object):
             ChatManager.send_system_message(world_session, '\n')
 
         # If player is GM, send GM commands first.
-        if world_session.player_mgr.is_gm:
+        if world_session.account_mgr.is_gm():
             total_number += len(GM_COMMAND_DEFINITIONS)
             ChatManager.send_system_message(world_session, '|cFFFFFFFF[GM Commands]|r')
             for command in GM_COMMAND_DEFINITIONS:

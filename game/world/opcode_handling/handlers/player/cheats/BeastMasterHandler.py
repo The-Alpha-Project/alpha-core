@@ -15,7 +15,7 @@ class CheatBeastMasterHandler(object):
         if not player_mgr:
             return res
 
-        if not player_mgr.is_gm:
+        if not world_session.account_mgr.is_gm():
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to give himself Beastmaster.')
             return 0
 

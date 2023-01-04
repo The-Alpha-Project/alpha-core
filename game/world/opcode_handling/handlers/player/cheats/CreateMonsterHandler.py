@@ -10,6 +10,7 @@ from utils.Logger import Logger
 from network.packet.PacketReader import *
 from utils.constants import CustomCodes
 
+
 class CreateMonsterHandler(object):
 
     @staticmethod
@@ -19,7 +20,7 @@ class CreateMonsterHandler(object):
         if not player_mgr:
             return res
 
-        if not player_mgr.is_dev:
+        if not world_session.account_mgr.is_gm():
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried create monster.')
             return 0
 

@@ -13,7 +13,7 @@ class AreaTriggerHandler(object):
             trigger_id = unpack('<I', reader.data[:4])[0]
             location = WorldDatabaseManager.area_trigger_teleport_get_by_id(trigger_id)
             if location:
-                if world_session.player_mgr.level >= location.required_level or world_session.player_mgr.is_gm:
+                if world_session.player_mgr.level >= location.required_level or world_session.account_mgr.is_gm():
                     world_session.player_mgr.teleport(location.target_map, Vector(location.target_position_x,
                                                                                   location.target_position_y,
                                                                                   location.target_position_z,
