@@ -18,7 +18,7 @@ class PetAI(CreatureAI):
             self.allies = ()
             self.update_allies()
 
-            self.has_melee = self.creature.static_flags & CreatureStaticFlags.NO_MELEE != 0
+            self.has_melee = self.creature.has_melee()
 
             # TODO Current pet behavior is quite temporary.
             # Pets are still controlled by the existing combat behavior in CreatureManager,

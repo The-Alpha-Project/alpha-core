@@ -297,8 +297,8 @@ class UnitManager(ObjectManager):
         if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
 
-        # Totems do not melee attack.
-        if self.is_totem():
+        # Some creatures do not have melee capability.
+        if not self.has_melee():
             return False
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -1424,6 +1424,10 @@ class UnitManager(ObjectManager):
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
+
+    # Implemented by CreatureManager
+    def has_melee(self):
+        return True
 
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form

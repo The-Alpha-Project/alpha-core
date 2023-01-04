@@ -283,6 +283,9 @@ class CreatureManager(UnitManager):
     def is_critter(self):
         return self.creature_template.type == CreatureTypes.AMBIENT
 
+    def has_melee(self):
+        return not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
+
     def is_pet(self):
         return (self.summoner or self.charmer) and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
