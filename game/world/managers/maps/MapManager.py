@@ -434,6 +434,8 @@ class MapManager:
 
     @staticmethod
     def get_liquid_information(map_id, x, y, z, ignore_z=False):
+        if not config.Server.Settings.use_map_tiles:
+            return None
         try:
             map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
 
@@ -442,6 +444,8 @@ class MapManager:
 
             tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
             liquids = tile.get_liquids_at(tile_local_x, tile_local_y)
+            if not liquids:
+                Logger.warning(f'Unable to retrieve liquid information.')
             return liquids if liquids and liquids.height > z else liquids if liquids and ignore_z else None
         except:
             Logger.error(traceback.format_exc())
