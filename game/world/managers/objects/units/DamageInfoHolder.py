@@ -53,8 +53,7 @@ class DamageInfoHolder:
             flags &= ~(WorldTextFlags.NORMAL_DAMAGE | WorldTextFlags.CRIT)
             flags |= WorldTextFlags.MISS_ABSORBED
 
-        # Spell ID (0 allows client to display damage from dots and cast on swing spells).
-        data = pack('<Q2IiIQ', self.target.guid, self.total_damage, self.base_damage, flags, 0, self.attacker.guid)
+        data = pack('<Q2IiIQ', self.target.guid, self.total_damage, self.base_damage, flags, self.spell_id, self.attacker.guid)
         return PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, data)
 
     def get_attacker_state_update_spell_info_packet(self):
@@ -82,7 +81,7 @@ class DamageInfoHolder:
                     self.absorb,
                     self.target_state,
                     self.resist,
-                    0, 0,
+                    0, self.spell_id,
                     self.proc_victim_spell)
         return PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATE, data)
 

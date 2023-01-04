@@ -362,11 +362,19 @@ class SpellManager:
                 if target.guid not in casting_spell.object_target_results:
                     continue
                 info = casting_spell.object_target_results[target.guid]
-                # TODO deflection handling? Swap target/caster for now
-                if info.result == SpellMissReason.MISS_REASON_DEFLECTED:
-                    SpellEffectHandler.apply_effect(casting_spell, effect, info.target, casting_spell.spell_caster)
-                elif info.result == SpellMissReason.MISS_REASON_NONE:
-                    SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, info.target)
+
+                spell_target = target
+                spell_caster = casting_spell.spell_caster
+                # Swap target/caster on reflect. TODO actual reflect handling - this flag is never set.
+                if info.flags & SpellHitFlags.REFLECTED:
+                    spell_target = casting_spell.spell_caster
+                    spell_caster = target
+
+                if info.result == SpellMissReason.MISS_REASON_NONE:
+                    SpellEffectHandler.apply_effect(casting_spell, effect, spell_caster, spell_target)
+                elif target.get_type_id() == ObjectTypeIds.ID_UNIT and casting_spell.generates_threat() and \
+                        casting_spell.spell_caster.can_attack_target(target):  # Add threat for failed hostile casts.
+                    target.threat_manager.add_threat(casting_spell.spell_caster)
 
             if len(object_targets) > 0:
                 continue  # Prefer unit target for handling (don't attempt to resolve other target types for one effect if unit targets aren't empty)
@@ -413,7 +421,7 @@ class SpellManager:
         melee_ability.spell_attack_type = attack_type
 
         melee_ability.cast_state = SpellState.SPELL_STATE_CASTING
-        self.perform_spell_cast(melee_ability, False)
+        self.perform_spell_cast(melee_ability, validate=False)
         return True
 
     def get_queued_melee_ability(self) -> Optional[CastingSpell]:
@@ -544,7 +552,7 @@ class SpellManager:
             for miss_info in casting_spell.object_target_results.values():  # Get the last effect application results.
                 if not miss_info.target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
                     continue
-                miss_info.target.aura_manager.remove_aura_from_spell(casting_spell)
+                miss_info.target.aura_manager.remove_auras_from_spell(casting_spell)
 
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)

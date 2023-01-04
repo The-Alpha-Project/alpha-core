@@ -668,8 +668,6 @@ class SpellEffectHandler:
         deathbind_map, deathbind_location = target.get_deathbind_coordinates()
         target.teleport(deathbind_map, deathbind_location)
 
-    # TODO: Currently you always succeed.
-    #  This chance should be handled by Spell miss results.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:

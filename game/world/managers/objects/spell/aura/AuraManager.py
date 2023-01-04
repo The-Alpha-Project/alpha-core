@@ -130,6 +130,9 @@ class AuraManager:
         }
 
         for aura in list(self.active_auras.values()):
+            if aura.passive:
+                continue  # Skip secondary components of active auras. No passive spells have aura interrupts.
+
             # An interrupt for sitting does not exist.
             # Food/drink spells do claim that the player must remain seated.
             # In later versions an aurainterrupt exists for this purpose.
@@ -332,6 +335,10 @@ class AuraManager:
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target, remove=True)
         if not self.active_auras.pop(aura.index, None):
             return
+
+        # Cancel other effects of this aura.
+        self.remove_auras_from_spell(aura.source_spell)
+
         # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects.
         # Cancel cast on aura cancel, canceling the auras as well.
         self.unit_mgr.spell_manager.remove_cast(aura.source_spell, interrupted=not canceled)
@@ -354,13 +361,10 @@ class AuraManager:
                 continue
             self.remove_aura(aura, canceled=True)
 
-    def remove_aura_from_spell(self, casting_spell):
-        effects = casting_spell.get_effects()
-        auras = []
+    def remove_auras_from_spell(self, casting_spell):
         for aura in list(self.active_auras.values()):
-            if aura.spell_effect in effects:
+            if aura.source_spell is casting_spell:
                 self.remove_aura(aura)
-        return auras
 
     def build_update(self):
         [self.write_aura_to_unit(aura, send_duration=False) for aura in list(self.active_auras.values())]

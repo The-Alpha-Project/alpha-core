@@ -332,7 +332,7 @@ class SkillManager(object):
 
     def set_skill(self, skill_id, current_value, max_value=-1):
         if skill_id not in self.skills:
-            return
+            return False
 
         skill = self.skills[skill_id]
         skill.value = current_value
@@ -341,6 +341,7 @@ class SkillManager(object):
             skill.max = max_value
 
         RealmDatabaseManager.character_update_skill(skill)
+        return True
 
     def update_skills_max_value(self):
         for skill_id, skill in self.skills.items():
@@ -353,54 +354,6 @@ class SkillManager(object):
             self.set_skill(skill_id, skill.value, new_max)
 
         self.build_update()
-
-    def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
-        # Vanilla formulae.
-        equipped_weapon = self.player_mgr.get_current_weapon_for_attack_type(attack_type)
-
-        if not equipped_weapon:
-            if self.player_mgr.is_in_feral_form():
-                return False  # Feral form attacks don't use a weapon.
-
-            skill_id = self.get_skill_id_for_weapon(None)
-        else:
-            skill_id = self.get_skill_id_for_weapon(equipped_weapon.item_template)
-
-        if skill_id == -1:
-            return False
-
-        skill = self.skills.get(skill_id, None)
-        if not skill:
-            return False
-
-        current_unmodified_skill = skill.value
-        maximum_skill = self.get_max_rank(skill_id)
-
-        if current_unmodified_skill >= maximum_skill:
-            return False
-
-        # Magic values from VMaNGOS.
-        if maximum_skill * 0.9 > current_unmodified_skill:
-            chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
-        else:
-            level_modifier = self.get_max_rank(skill_id, level=config.Unit.Player.Defaults.max_level) / maximum_skill
-
-            chance = (0.5 - 0.0168966 * current_unmodified_skill * level_modifier + 0.0152069 * maximum_skill * level_modifier) / 100
-
-            skill_diff_from_max = maximum_skill - current_unmodified_skill
-            if skill_diff_from_max <= 3:
-                chance *= (0.5 / (4 - skill_diff_from_max))
-
-        # Can't find information in patch notes on intellect affecting skill gain, but it's implemented in VMaNGOS.
-        chance += self.player_mgr.stat_manager.get_intellect_stat_gain_chance_bonus()
-
-        if random.random() > chance:
-            return False
-
-        # TODO Skill gain config value?
-        self.set_skill(skill_id, current_unmodified_skill + 1)
-        self.build_update()
-        return True
 
     def handle_defense_skill_gain_chance(self, damage_info):
         # Vanilla formula.
@@ -437,7 +390,23 @@ class SkillManager(object):
 
         return True
 
-    # TODO: gain chance, skills mechanics, etc.
+    def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
+        # Vanilla formulae.
+        equipped_weapon = self.player_mgr.get_current_weapon_for_attack_type(attack_type)
+
+        if not equipped_weapon:
+            if self.player_mgr.is_in_feral_form():
+                return False  # Feral form attacks don't use a weapon.
+
+            skill_id = self.get_skill_id_for_weapon(None)
+        else:
+            skill_id = self.get_skill_id_for_weapon(equipped_weapon.item_template)
+
+        if skill_id == -1:
+            return False
+
+        self.handle_offense_skill_gain_chance(skill_id)
+
     def handle_spell_cast_skill_gain(self, spell_id):
         if not spell_id:
             return False
@@ -449,10 +418,42 @@ class SkillManager(object):
             # Character doesn't have the required skill or the related skill is a profession.
             return False
 
-        roll = random.randint(1, 100)
-        if roll < 75:
-            self.set_skill(skill.ID, character_skill.value + 1)
-            self.build_update()
+        self.handle_offense_skill_gain_chance(skill.ID)
+
+    def handle_offense_skill_gain_chance(self, skill_id):
+        # Melee skill gain formula.
+        skill = self.skills.get(skill_id, None)
+        if not skill:
+            return False
+
+        current_unmodified_skill = skill.value
+        maximum_skill = self.get_max_rank(skill_id)
+
+        if current_unmodified_skill >= maximum_skill:
+            return False
+
+        # Magic values from VMaNGOS.
+        if maximum_skill * 0.9 > current_unmodified_skill:
+            chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
+        else:
+            level_modifier = self.get_max_rank(skill_id, level=config.Unit.Player.Defaults.max_level) / maximum_skill
+
+            chance = (0.5 - 0.0168966 * current_unmodified_skill * level_modifier + 0.0152069 * maximum_skill * level_modifier) / 100
+
+            skill_diff_from_max = maximum_skill - current_unmodified_skill
+            if skill_diff_from_max <= 3:
+                chance *= (0.5 / (4 - skill_diff_from_max))
+
+        # Can't find information in patch notes on intellect affecting skill gain, but it's implemented in VMaNGOS.
+        chance += self.player_mgr.stat_manager.get_intellect_stat_gain_chance_bonus()
+
+        if random.random() > chance:
+            return False
+
+        # TODO Skill gain config value?
+        self.set_skill(skill_id, current_unmodified_skill + 1)
+        self.build_update()
+        return True
 
     def handle_profession_skill_gain(self, spell_id):
         skill_gain_factor = 1
@@ -621,7 +622,9 @@ class SkillManager(object):
             if self.get_total_skill_value(req_skill) < req_skill_value:
                 return InventoryError.BAG_SKILL_MISMATCH
 
-        if item_class not in {ItemClasses.ITEM_CLASS_WEAPON, ItemClasses.ITEM_CLASS_ARMOR}:
+        if item_class not in {ItemClasses.ITEM_CLASS_WEAPON, ItemClasses.ITEM_CLASS_ARMOR} or \
+                item_class == ItemClasses.ITEM_CLASS_WEAPON and \
+                item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_MISC_WEAPON:
             return InventoryError.BAG_OK  # No proficiency needed for misc. equipment.
 
         if item_class not in self.proficiencies:

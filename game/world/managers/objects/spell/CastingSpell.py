@@ -226,7 +226,7 @@ class CastingSpell:
     def generates_threat(self):
         return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
 
-    def generates_threat_on_miss(self):
+    def generates_threat_only_on_miss(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_THREAT_ON_MISS
 
     def requires_implicit_initial_unit_target(self):
@@ -382,10 +382,11 @@ class CastingSpell:
         return None
 
     def unlock_cooldown_on_trigger(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE == SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_DISABLED_WHILE_ACTIVE
 
     def casts_on_swing(self):
-        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 == SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1
+        return self.spell_entry.Attributes & \
+               (SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 | SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_2)
 
     def casts_on_ranged_attack(self):
         # Quick Shot has a negative base cast time (-1000000), which will resolve to 0 in get_base_cast_time().
