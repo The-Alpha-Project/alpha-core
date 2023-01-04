@@ -1164,7 +1164,11 @@ class PlayerManager(UnitManager):
 
     def update_swimming_state(self, state):
         if state:
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+                                                                        self.location.z)
+            if not self.liquid_information:
+                Logger.warning(f'Unable to retrieve liquids information. Map {self.map_} X {self.location.x} Y '
+                               f'{self.location.y}')
         else:
             self.liquid_information = None
 
