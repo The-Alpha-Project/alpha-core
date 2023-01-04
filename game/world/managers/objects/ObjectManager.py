@@ -378,6 +378,8 @@ class ObjectManager:
     def is_over_water(self):
         liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
                                                                self.location.z)
+        if not liquid_information:
+            return False
         map_z = MapManager.calculate_z_for_object(self)[0]
         return liquid_information and map_z < liquid_information.height
 
