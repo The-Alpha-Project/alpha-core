@@ -12,7 +12,7 @@ from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHand
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, SpellTargetMask, \
-    SpellHitFlags
+    SpellHitFlags, SpellMissInfo
 
 
 @dataclass
@@ -138,6 +138,8 @@ class EffectTargets:
             if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
                 result = target.stat_manager.get_spell_miss_result_against_self(self.casting_spell)
                 target_info[target.guid] = TargetMissInfo(target, *result)
+            else:
+                target_info[target.guid] = TargetMissInfo(target, SpellMissInfo.SPELL_MISS_NONE, SpellHitFlags.NONE)
         return target_info
 
     def get_resolved_effect_targets_by_type(self, _type) -> list[Union[ObjectManager, Vector]]:
