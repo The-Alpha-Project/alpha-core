@@ -16452,6 +16452,15 @@ begin not atomic
 
         insert into applied_updates values ('291220222');
     end if;
+	
+	-- 03/01/2023 1
+    if (select count(*) from applied_updates where id='030120231') = 0 then
+        -- Make Flesh Eaters selectable.
+        UPDATE `creature_template` SET `static_flags` = '26624' WHERE (`entry` = '3');
 
+        -- Hunter Pet trainers.
+        UPDATE `creature_template` SET `trainer_class` = '3' WHERE entry IN (2935, 5006, 5520, 5749, 5750, 5753, 5013, 2872, 2941, 3698, 4882, 4994, 2870, 2942, 4207, 5003, 2878, 3699, 4153, 2881, 2938, 3701, 4206, 5002, 2880, 2939, 3697, 5118, 5005, 2876, 5001, 2940, 5004, 3623, 5008, 5009, 5011, 4621, 5508, 5015, 5507, 5012, 5017, 3525, 4881);
+        insert into applied_updates values ('030120231');
+    end if;
 end $
 delimiter ;
