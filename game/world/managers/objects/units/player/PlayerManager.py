@@ -153,6 +153,8 @@ class PlayerManager(UnitManager):
             # GM checks
             self.is_god = False
             self.is_gm = self.session.account_mgr.account.gmlevel > 0
+            self.is_dev = self.session.account_mgr.account.gmlevel > 1
+            
             if self.is_gm:
                 self.set_gm()
 

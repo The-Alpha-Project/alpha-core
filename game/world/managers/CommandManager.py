@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import CreatureTemplate
 from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
@@ -10,9 +11,11 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
+from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
+from utils.constants import CustomCodes
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import PlayerFields
@@ -34,6 +37,8 @@ class CommandManager(object):
             command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
         elif command in GM_COMMAND_DEFINITIONS and world_session.player_mgr.is_gm:
             command_func = GM_COMMAND_DEFINITIONS[command][0]
+        elif command in DEV_COMMAND_DEFINITIONS and world_session.player_mgr.is_dev:
+            command_func = DEV_COMMAND_DEFINITIONS[command][0]
         else:
             ChatManager.send_system_message(world_session, 'Command not found, type .help for help.')
             return
@@ -67,6 +72,15 @@ class CommandManager(object):
     @staticmethod
     def help(world_session, args):
         total_number = 0
+
+        # If player is Dev, send Dev commands first.
+        if world_session.player_mgr.is_dev:
+            total_number += len(DEV_COMMAND_DEFINITIONS)
+            ChatManager.send_system_message(world_session, '|cFFFFFFFF[Dev Commands]|r')
+            for command in DEV_COMMAND_DEFINITIONS:
+                ChatManager.send_system_message(world_session, f'|cFF00FFFF{command}|r: '
+                                                               f'{DEV_COMMAND_DEFINITIONS[command][1]}')
+            ChatManager.send_system_message(world_session, '\n')
 
         # If player is GM, send GM commands first.
         if world_session.player_mgr.is_gm:
@@ -746,6 +760,47 @@ class CommandManager(object):
         return 0, message
 
     @staticmethod
+    def createmonster(world_session, args):
+        try:
+            creature_entry = int(args)
+            creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
+            creature_instance = CreatureBuilder.create(creature_entry, Vector(world_session.player_mgr.location.x, world_session.player_mgr.location.y, world_session.player_mgr.location.z, world_session.player_mgr.location.o), 
+                                                        world_session.player_mgr.map_, summoner=None, faction=creature_template.faction if creature_template else world_session.player_mgr.faction,
+                                                        ttl=0, spell_id=0, 
+                                                        subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
+
+            if not creature_instance:
+                return -1, f'creature entry {creature_entry} not found'
+            else:
+                MapManager.spawn_object(world_object_instance=creature_instance)
+        except (IndexError, ValueError):
+            return -1, 'please specify a valid creature entry.'
+
+        return 0, ''
+
+    @staticmethod
+    def destroymonster(world_session, args):
+        try:
+            creature_guid = int(args) if args else 0
+
+            if not creature_guid or creature_guid == 0:
+                creature_instance = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                                            world_session.player_mgr.current_selection)
+            else:
+                creature_instance = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                                            creature_guid)
+
+            if not creature_instance:
+                return -1, f'creature not found'
+            else:
+                MapManager.remove_object(creature_instance)
+
+        except (IndexError, ValueError):
+            return -1, 'please select a valid creature.'
+
+        return 0, ''
+
+    @staticmethod
     def pwdchange(world_session, args):
         try:
             old_password, new_password, confirmation_password = args.split()
@@ -809,9 +864,14 @@ GM_COMMAND_DEFINITIONS = {
     'die': [CommandManager.die, 'kill your target'],
     'los': [CommandManager.los, 'check unit LoS'],
     'kick': [CommandManager.kick, 'kick your target from the server'],
-    'worldoff': [CommandManager.worldoff, 'stop the world server'],
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
     'alltaxis': [CommandManager.alltaxis, 'discover all flightpaths'],
     'squest': [CommandManager.squest, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log']
+}
+
+DEV_COMMAND_DEFINITIONS = {
+    'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
+    'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
+    'worldoff': [CommandManager.worldoff, 'stop the world server'],
 }
