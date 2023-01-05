@@ -129,6 +129,7 @@ class TrainerBuySpellHandler(object):
             # Check spell status, fail if spell should be unavailable.
             if verify_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
                 fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+                TrainerUtils.send_trainer_list(unit, world_session.player_mgr)
 
         if fail_reason != -1:
             if anti_cheat:
