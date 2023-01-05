@@ -15599,15 +15599,41 @@ begin not atomic
         insert into applied_updates values ('291220221');
     end if;
 
-    -- 29/12/2022 2
+    -- 05/01/2023 1
+    if (select count(*) from applied_updates where id='050120231') = 0 then
+        -- Alchemy apprentices
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE entry IN (4609, 2132, 5500, 1246);
+
+        -- Blacksmithing/Weaponsmithing apprentices
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE entry IN (2116, 2135, 1383, 957, 2117, 2136, 1698);
+
+        -- Cooking apprentices
+        UPDATE `creature_template` SET `trainer_id` = 501 WHERE entry IN (5081);
+
+        -- Engineering apprentices
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE entry IN (2857, 3412, 4586);
+
+        -- Herbalism apprentices
+        UPDATE `creature_template` SET `trainer_id` = 502 WHERE entry IN (2114);
+
+        -- Leatherworking apprentices
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE entry IN (1466, 3008, 223);
+
+        -- Tailoring apprentices
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE entry IN (1300, 2855, 1703, 5567);
+
+        insert into applied_updates values ('050120231');
+    end if;
+
+    -- 05/01/2023 1
 	-- TODO item - Mulgore Rework: issues #695, #718
-	if (select count(*) from applied_updates where id='291220222') = 0 then
+	if (select count(*) from applied_updates where id='050120231') = 0 then
         -- #695
         -- Seer Graytongue
         UPDATE `spawns_creatures` SET `position_x` = -3503.857, `position_y` = -174.633, `position_z` = 101.986, `orientation` = 5.425 WHERE `spawn_id` = 26563;
 
         -- Arra'chea
-        UPDATE `creature_template` SET `display_id1` = 1230 WHERE `entry` = 3058;
+        UPDATE `creature_template` SET `display_id1` = 1231 WHERE `entry` = 3058;
 
         -- Skorn Whitecloud
         UPDATE `spawns_creatures` SET `position_x` = -2395.825, `position_y` = -346.715, `position_z` = 0.457, `orientation` = 3.169 WHERE `spawn_id` = 26779;
@@ -15672,7 +15698,7 @@ begin not atomic
         UPDATE `quest_template` SET `RequiredRaces` = 32 WHERE `entry` = 759;
         UPDATE `quest_template` SET `RequiredRaces` = 32 WHERE `entry` = 760;
 
-        insert into applied_updates values ('291220222');
+        insert into applied_updates values ('050120231');
     end if;
 end $
 delimiter ;
