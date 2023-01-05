@@ -53,7 +53,8 @@ class UnitStats(IntFlag):
 
     CRITICAL = auto()
     SPELL_CRITICAL = auto()
-    SPELL_CRITICAL_MODS = auto()
+    SPELL_ITEM_CRITICAL_MODS = auto()
+    SPELL_ITEM_GLOBAL_CRITICAL_MODS = auto()
     SPELL_CASTING_SPEED_NON_STACKING = auto()
     SCHOOL_CRITICAL = auto()
     SCHOOL_POWER_COST = auto()
@@ -724,13 +725,17 @@ class StatManager(object):
 
         attacker_critical_chance = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
 
-        # Check for spell crit mods for item subclasses.
+        # Check for spell crit mods for item class/subclass.
         if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and attack_weapon:
+            # ItemSubClass specific.
             item_subclass_mask = 1 << attack_weapon.item_template.subclass
-            attacker_critical_chance += attacker.stat_manager.get_total_stat(UnitStats.SPELL_CRITICAL_MODS,
+            attacker_critical_chance += attacker.stat_manager.get_total_stat(UnitStats.SPELL_ITEM_CRITICAL_MODS,
                                                                              misc_value=item_subclass_mask,
                                                                              accept_float=True,
                                                                              misc_value_is_mask=True)
+            # General main, off, ranged. ItemClass -1.
+            attacker_critical_chance += attacker.stat_manager.get_total_stat(UnitStats.SPELL_ITEM_GLOBAL_CRITICAL_MODS,
+                                                                             accept_float=True)
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Player: +- 0.04% for each rating difference.

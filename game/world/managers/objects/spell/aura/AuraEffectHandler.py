@@ -622,17 +622,23 @@ class AuraEffectHandler:
         amount = aura.get_effect_points()
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.MANA, amount)
 
-    # TODO, handle ItemClass -1 (All melee attacks). (e.g. Melee Finesse 4433, Recklessness 1719, etc)
     @staticmethod
     def handle_spell_crit_percent(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
 
-        item_subclass_mask = aura.source_spell.spell_entry.EquippedItemSubclass
-        amount = aura.get_effect_points() / 100
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_CRITICAL_MODS,
-                                                         amount=amount, misc_value=item_subclass_mask)
+        # Any item, affects main, off and ranged.
+        if aura.source_spell.spell_entry.EquippedItemClass == -1:
+            amount = aura.get_effect_points() / 100
+            effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_ITEM_GLOBAL_CRITICAL_MODS,
+                                                             amount=amount)
+        # ItemSubClass specific.
+        else:
+            item_subclass_mask = aura.source_spell.spell_entry.EquippedItemSubclass
+            amount = aura.get_effect_points() / 100
+            effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_ITEM_CRITICAL_MODS,
+                                                             amount=amount, misc_value=item_subclass_mask)
 
     @staticmethod
     def handle_mod_school_crit_chance(aura, effect_target, remove):
