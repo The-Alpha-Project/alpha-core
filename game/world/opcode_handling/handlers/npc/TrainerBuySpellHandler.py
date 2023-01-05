@@ -45,7 +45,7 @@ class TrainerBuySpellHandler(object):
             return
 
         talent_cost = player_mgr.talent_manager.get_talent_cost_by_id(spell_id)
-        fail_reason = None
+        fail_reason = -1
         if talent_cost > player_mgr.talent_points:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
         elif spell_id in player_mgr.spell_manager.spells:
@@ -53,8 +53,34 @@ class TrainerBuySpellHandler(object):
         elif not player_mgr.spell_manager.can_learn_spell(spell_id):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
 
-        if fail_reason:
+        # Get data required to verify spell status.
+        trainer_templates = WorldDatabaseManager.TrainerSpellHolder.TALENTS
+
+        trainer_spell = None
+        for t_template in trainer_templates:
+            if t_template.spell == training_spell_id:
+                trainer_spell = t_template
+                break
+
+        spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.playerspell)
+        preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
+        preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
+        req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+                spell.ID, player_mgr.race, player_mgr.class_)
+
+        # Get talent status again to verify that client check was correct.
+        verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, preceded_spell, player_mgr)
+
+        # Check talent status, fail if spell should be unavailable.
+        if verify_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE or not \
+                TrainerUtils.player_can_ever_learn_talent(trainer_spell, spell, skill_line_ability, player_mgr):
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+            player_mgr.talent_manager.send_talent_list()
+
+        if fail_reason != -1:
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
+            return
         else:
             player_mgr.remove_talent_points(talent_cost)
             player_mgr.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.SELF,
