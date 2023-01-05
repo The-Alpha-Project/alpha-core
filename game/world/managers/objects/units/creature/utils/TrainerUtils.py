@@ -5,6 +5,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import SkillLineAbility, Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import TrainerTemplate
+from game.world.managers.objects.item.ItemManager import ItemManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.TextUtils import GameTextFormatter
@@ -35,12 +36,21 @@ class TrainerUtils:
             Logger.warning(f'send_trainer_list called from NPC {creature_mgr.entry} but no trainer spells found!')
             return
 
+        trainer_type: TrainerTypes = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
+            creature_mgr.entry).trainer_type
+
+        item_templates = []
         # trainer_spell: The spell the trainer uses to teach the player.
         for trainer_spell in trainer_ability_list:
             player_spell_id = trainer_spell.playerspell
             spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(player_spell_id)
             if not spell:
                 continue
+
+            if spell.EffectItemType_1:
+                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(spell.EffectItemType_1)
+                if item_template:
+                    item_templates.append(item_template)
 
             # Search previous spell.
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
@@ -70,13 +80,20 @@ class TrainerUtils:
                                                              skill_step, preceded_spell)
             train_spell_count += 1
 
-        trainer_type: TrainerTypes = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_mgr.entry).trainer_type
-
         placeholder_greeting: str = f'Hello, $c!  Ready for some training?'
         trainer_greeting = WorldDatabaseManager.get_npc_trainer_greeting(creature_mgr.entry)
         greeting_to_use = trainer_greeting.content_default if trainer_greeting else placeholder_greeting
         greeting_bytes = PacketWriter.string_to_bytes(GameTextFormatter.format(player_mgr, greeting_to_use))
         greeting_bytes_packed = pack(f'<{len(greeting_bytes)}s', greeting_bytes)
+
+        # Send item query details first if needed. (Needs to be SMSG_ITEM_QUERY_SINGLE_RESPONSE)
+        if item_templates:
+            packets = []
+            for item_template in item_templates:
+                query_data = ItemManager.generate_query_details_data(item_template)
+                query_packet = PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, query_data)
+                packets.append(query_packet)
+            player_mgr.enqueue_packets(packets)
 
         data_header = pack('<Q2I', creature_mgr.guid, trainer_type, train_spell_count)
         data = data_header + train_spell_bytes + greeting_bytes_packed
@@ -107,7 +124,7 @@ class TrainerUtils:
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
         pet_info = player_mgr.pet_manager.get_active_pet_info()
         if is_taught_to_pet and not pet_info:
-            return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
+            return TrainerServices.TRAINER_SERVICE_NO_PET
 
         target_spells = pet_info.spells if is_taught_to_pet else player_mgr.spell_manager.spells
         if spell.ID in target_spells:
