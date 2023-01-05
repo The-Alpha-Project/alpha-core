@@ -766,7 +766,7 @@ class StatManager(object):
         critical_type = UnitStats.CRITICAL if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL else UnitStats.SPELL_CRITICAL
         crit_chance = caster.stat_manager.get_total_stat(critical_type, accept_float=True)
 
-        # If using Spell critical, check if school critical enhancements exist.
+        # If using base SPELL_CRITICAL, check if school critical enhancements exist.
         if critical_type != UnitStats.CRITICAL:
             crit_chance += caster.stat_manager.get_total_stat(UnitStats.SCHOOL_CRITICAL, misc_value=spell_school,
                                                               accept_float=True, misc_value_is_mask=True)
