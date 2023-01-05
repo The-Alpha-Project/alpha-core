@@ -119,7 +119,7 @@ class TrainerUtils:
         return data
 
     @staticmethod
-    def get_training_list_spell_status(spell, trainer_spell_template, req_level, preceded_spell, player_mgr, fulfills_skill=True):
+    def get_training_list_spell_status(spell: Spell, trainer_spell_template: TrainerTemplate, req_level: int, preceded_spell: int, player_mgr, fulfills_skill: bool =True):
         trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
         pet_info = player_mgr.pet_manager.get_active_pet_info()
@@ -130,7 +130,9 @@ class TrainerUtils:
         if spell.ID in target_spells:
             return TrainerServices.TRAINER_SERVICE_USED
 
-        if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells) or (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) and trainer_spell_template.reqskill != 0):
+        # target.skill_manager.get_total_skill_value(skill_id)
+        if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells) or trainer_spell_template.reqskill != 0 \
+                and (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) or player_mgr.skill_manager.get_total_skill_value(trainer_spell_template.reqskill) < trainer_spell_template.reqskillvalue):
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
         if player_mgr.level >= req_level:
