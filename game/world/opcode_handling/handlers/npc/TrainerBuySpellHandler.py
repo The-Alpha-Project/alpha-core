@@ -29,7 +29,7 @@ class TrainerBuySpellHandler(object):
                 TrainerBuySpellHandler.handle_player_buy_spell(player_mgr, training_spell_id)
             # NPC Trainer.
             else:
-                TrainerBuySpellHandler.handle_trainer_buy_spell(player_mgr, trainer_guid, training_spell_id)
+                TrainerBuySpellHandler.handle_trainer_buy_spell(world_session, player_mgr, trainer_guid, training_spell_id)
 
         return 0
 
@@ -60,8 +60,8 @@ class TrainerBuySpellHandler(object):
             TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, player_mgr.guid, training_spell_id)
 
     @staticmethod
-    def handle_trainer_buy_spell(player_mgr, trainer_guid, training_spell_id):
-        unit = MapManager.get_surrounding_unit_by_guid(player_mgr, trainer_guid)
+    def handle_trainer_buy_spell(world_session, trainer_guid, training_spell_id):
+        unit = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, trainer_guid)
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(unit.entry)
         trainer_templates = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(creature_template.entry)
 
@@ -73,13 +73,13 @@ class TrainerBuySpellHandler(object):
 
         if not trainer_spell:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
+            TrainerBuySpellHandler.send_trainer_buy_fail(world_session.player_mgr, trainer_guid, training_spell_id, fail_reason)
             return
 
         player_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.playerspell)
         if not player_spell:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
+            TrainerBuySpellHandler.send_trainer_buy_fail(world_session.player_mgr, trainer_guid, training_spell_id, fail_reason)
             return
 
         spell_money_cost = trainer_spell.spellcost
@@ -87,38 +87,38 @@ class TrainerBuySpellHandler(object):
 
         fail_reason = -1
         anti_cheat = False
-        if not unit.is_trainer() or not TrainerUtils.can_train(unit, player_mgr) or \
+        if not unit.is_trainer() or not TrainerUtils.can_train(unit, world_session.player_mgr) or \
                 not TrainerUtils.trainer_has_spell(unit, training_spell_id):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
-        elif spell_money_cost > 0 and spell_money_cost > player_mgr.coinage:
+        elif spell_money_cost > 0 and spell_money_cost > world_session.player_mgr.coinage:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_MONEY
-        elif spell_skill_cost > 0 and spell_skill_cost > player_mgr.skill_points:
+        elif spell_skill_cost > 0 and spell_skill_cost > world_session.player_mgr.skill_points:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
-        elif trainer_spell.reqlevel > player_mgr.level:
+        elif trainer_spell.reqlevel > world_session.player_mgr.level:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
-        elif trainer_spell.playerspell in player_mgr.spell_manager.spells:
+        elif trainer_spell.playerspell in world_session.player_mgr.spell_manager.spells:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-        elif not player_mgr.spell_manager.can_learn_spell(player_spell.ID):
+        elif not world_session.player_mgr.spell_manager.can_learn_spell(player_spell.ID):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-        elif not world_session.account_mgr.is_gm() and not unit.is_within_interactable_distance(player_mgr):
+        elif not world_session.account_mgr.is_gm() and not unit.is_within_interactable_distance(world_session.player_mgr):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
 
         if fail_reason != -1:
             if anti_cheat:
-                Logger.anticheat(f'Player {player_mgr.guid} tried to train spell {trainer_spell.playerspell} '
+                Logger.anticheat(f'Player {world_session.player_mgr.guid} tried to train spell {trainer_spell.playerspell} '
                                  f'(entry {trainer_spell.template_entry}) from NPC {unit.entry}.')
-            TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, trainer_guid, training_spell_id, fail_reason)
+            TrainerBuySpellHandler.send_trainer_buy_fail(world_session.player_mgr, trainer_guid, training_spell_id, fail_reason)
             return
 
         if spell_money_cost > 0:
-            player_mgr.mod_money(-spell_money_cost)
+            world_session.player_mgr.mod_money(-spell_money_cost)
 
         # Some trainer spells cost SP in alpha - class trainers trained weapon skills, which cost skill points.
         if spell_skill_cost > 0:
-            player_mgr.remove_skill_points(spell_skill_cost)
+            world_session.player_mgr.remove_skill_points(spell_skill_cost)
 
         # If this is a profession trainer, check spells that should be learned on development skill train.
         if creature_template.trainer_type == TrainerTypes.TRAINER_TYPE_TRADESKILLS:
@@ -126,11 +126,11 @@ class TrainerBuySpellHandler(object):
 
             if len(default_spells) > 0:
                 for profession_spell_entry in default_spells:
-                    player_mgr.spell_manager.learn_spell(profession_spell_entry.default_spell)
+                    world_session.player_mgr.spell_manager.learn_spell(profession_spell_entry.default_spell)
         
         # Succeeded.
-        unit.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.UNIT, validate=False)
-        TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, trainer_guid, training_spell_id)
+        unit.spell_manager.handle_cast_attempt(training_spell_id, world_session.player_mgr, SpellTargetMask.UNIT, validate=False)
+        TrainerBuySpellHandler.send_trainer_buy_succeeded(world_session.player_mgr, trainer_guid, training_spell_id)
 
     @staticmethod
     def send_trainer_buy_fail(player_mgr, trainer_guid: int, spell_id: int, reason: TrainingFailReasons):
