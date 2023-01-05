@@ -297,8 +297,8 @@ class UnitManager(ObjectManager):
         if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
 
-        # Totems do not melee attack.
-        if self.is_totem():
+        # Some creatures do not have melee capability.
+        if not self.has_melee():
             return False
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -392,8 +392,13 @@ class UnitManager(ObjectManager):
             if not extra and self.extra_attacks > 0:
                 self.execute_extra_attacks()
 
-            if self.spell_manager.cast_queued_melee_ability(attack_type):
-                return  # Melee ability replaces regular attack.
+            melee_spell = self.spell_manager.get_queued_melee_ability()
+            if melee_spell and self.spell_manager.cast_queued_melee_ability(attack_type):
+                # Send attack update with deferred logging to display the cast in combat log/floating text.
+                damage_info = DamageInfoHolder(attacker=self, target=victim,
+                                               spell_id=melee_spell.spell_entry.ID, hit_info=HitInfo.DEFERRED_LOGGING)
+                self.send_attack_state_update(damage_info)
+                return
 
         damage_info = self.calculate_melee_damage(victim, attack_type)
 
@@ -409,6 +414,7 @@ class UnitManager(ObjectManager):
             self.extra_attacks = 0
 
         self.send_attack_state_update(damage_info)
+        self.deal_damage(damage_info.target, damage_info)
 
     def execute_extra_attacks(self):
         while self.extra_attacks > 0:
@@ -423,7 +429,7 @@ class UnitManager(ObjectManager):
          for unit in [damage_info.attacker, damage_info.target]]
 
     def calculate_melee_damage(self, victim, attack_type):
-        dual_wield_penalty = 0.19 if self.has_offhand_weapon() else 0
+        dual_wield_penalty = 0.19 if self.has_offhand_weapon() and attack_type != AttackTypes.RANGED_ATTACK else 0
 
         damage_info = DamageInfoHolder(attacker=self, target=victim,
                                        attack_type=attack_type,
@@ -506,9 +512,6 @@ class UnitManager(ObjectManager):
         is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         attack_state_packet = damage_info.get_attacker_state_update_packet()
         MapManager.send_surrounding(attack_state_packet, self, include_self=is_player)
-
-        # Damage effects
-        self.deal_damage(damage_info.target, damage_info)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
                                      used_ammo: Optional[ItemManager] = None, apply_bonuses=True):
@@ -687,8 +690,11 @@ class UnitManager(ObjectManager):
             damage_info.base_damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school,
                                                                                  target, subclass)
 
-        damage_info.hit_info = target.stat_manager.get_spell_attack_result_against_self(self, spell_school,
-                                                                                        is_periodic=spell_effect.is_periodic())
+        spell_miss_info = spell.object_target_results[target.guid]
+        damage_info.hit_info = spell_miss_info.flags
+
+        if spell.casts_on_swing():
+            damage_info.hit_info |= HitInfo.DEFERRED_LOGGING
 
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.target_state = VictimStates.VS_IMMUNE
@@ -698,7 +704,7 @@ class UnitManager(ObjectManager):
         #     "Critical hits with ranged weapons now do 100% extra damage."
         # We assume that ranged crits dealt 50% increased damage instead of 100%. The other option could be 200% but
         # 50% sounds more logical.
-        if damage_info.hit_info & SpellHitFlags.CRIT:
+        if damage_info.hit_info & SpellHitFlags.CRIT and not spell_effect.is_periodic():
             is_ranged = damage_info.attack_type == AttackTypes.RANGED_ATTACK
             crit_multiplier = 1.50 if is_ranged else 2.0
             damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
@@ -736,8 +742,7 @@ class UnitManager(ObjectManager):
             self.generate_rage(damage_info, is_attacking=False)
 
         # TODO: Threat calculation.
-        # No damage but source spell generates threat on miss.
-        if casting_spell and damage_info.total_damage == 0 and casting_spell.generates_threat_on_miss():
+        if casting_spell and damage_info.total_damage == 0:
             self.threat_manager.add_threat(source)
             return True
         # Spell and does not generate threat.
@@ -805,6 +810,10 @@ class UnitManager(ObjectManager):
         if is_cast_on_swing or spell.is_ranged_weapon_attack():
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
+
+        if damage_info.hit_info & HitInfo.DEFERRED_LOGGING:
+            # Spells with deferred logging aren't logged until an attack state update is sent with this flag.
+            self.send_attack_state_update(damage_info)
 
         self.send_spell_cast_debug_info(damage_info, spell)
         self.deal_damage(target, damage_info, is_periodic=spell_effect.is_periodic(), casting_spell=spell)
@@ -1413,6 +1422,10 @@ class UnitManager(ObjectManager):
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
+
+    # Implemented by CreatureManager
+    def has_melee(self):
+        return True
 
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form

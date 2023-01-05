@@ -1,5 +1,5 @@
 Version:
-    current: 4
+    current: 5
 
 Database:
     Connection:
@@ -60,6 +60,7 @@ Server:
     General:
         # Message of the day
         motd: Welcome to the Friends and Family Alpha!
+        enable_addons_chat_api: False  # CUSTOM: Allow addons to use the chat system for data requests.
         disabled_race_mask: 0  # Blizzlike 0.5.3: 239
         disabled_class_mask: 0  # Blizzlike 0.5.3: 1102
 

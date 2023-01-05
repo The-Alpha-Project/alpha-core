@@ -24,8 +24,7 @@ from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClas
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
     GameObjectStates, DynamicObjectTypes
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
-from utils.constants.UnitCodes import UnitFlags, UnitStates
-from utils.constants.UpdateFields import UnitFields
+from utils.constants.UnitCodes import UnitFlags
 
 
 class SpellEffectHandler:
@@ -112,10 +111,6 @@ class SpellEffectHandler:
     @staticmethod
     def handle_sanctuary(casting_spell, effect, caster, target):
         if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            caster.spell_manager.remove_casts()
-            caster.spell_manager.remove_unit_from_all_cast_targets(caster.guid)
-            # Remove self from combat and attackers.
-            caster.leave_combat()
             # Set sanctuary state.
             caster.set_sanctuary(True, time_secs=1)
 
@@ -673,8 +668,6 @@ class SpellEffectHandler:
         deathbind_map, deathbind_location = target.get_deathbind_coordinates()
         target.teleport(deathbind_map, deathbind_location)
 
-    # TODO: Currently you always succeed.
-    #  This chance should be handled by Spell miss results.
     @staticmethod
     def handle_pick_pocket(casting_spell, effect, caster, target):
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -696,6 +689,26 @@ class SpellEffectHandler:
                                                                   orientation=caster.location.o,
                                                                   ttl=duration)
         FarSightManager.add_camera(dyn_object, caster)
+
+    @staticmethod
+    def handle_skill_step(casting_spell, effect, caster, target):
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        step = effect.get_effect_points()
+        if step < 0:
+            return
+        
+        skill_max = (step * 5)
+        skill_id = casting_spell.spell_entry.EffectMiscValue_2
+        if skill_id <= 0:
+            return
+        
+        if not target.skill_manager.has_skill(skill_id):
+            target.skill_manager.add_skill(skill_id)
+
+        target.skill_manager.set_skill(skill_id, max(1, target.skill_manager.get_total_skill_value(skill_id)), skill_max)
+        target.skill_manager.build_update()
 
     @staticmethod
     def handle_temporary_enchant(casting_spell, effect, caster, target):
@@ -854,6 +867,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
     SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
+    SpellEffects.SPELL_EFFECT_SKILL_STEP: SpellEffectHandler.handle_skill_step,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
     SpellEffects.SPELL_EFFECT_ADD_FARSIGHT: SpellEffectHandler.handle_add_farsight,

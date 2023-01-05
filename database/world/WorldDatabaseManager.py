@@ -743,6 +743,30 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    class DefaultProfessionSpellHolder:
+        DEFAULT_PROFESSION_SPELLS: dict[tuple[int, int], DefaultProfessionSpell] = {}
+        DEFAULT_PROFESSION_SPELL_BY_TRAINER_SPELL: dict[int, int] = {}
+        
+        @staticmethod
+        def load_default_profession_spell(default_profession_spell: DefaultProfessionSpell):
+            WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[(default_profession_spell.trainer_spell, default_profession_spell.default_spell)] = default_profession_spell
+
+        @staticmethod
+        def default_profession_spells_get_by_trainer_spell_id(trainer_spell_id: int) -> list[DefaultProfessionSpell]:
+            default_profession_spells: list[DefaultProfessionSpell] = []
+            for profession_spell in WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS:
+                if WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[profession_spell].trainer_spell == trainer_spell_id:
+                    default_profession_spells.append(WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[profession_spell])
+
+            return default_profession_spells
+
+    @staticmethod
+    def default_profession_spell_get_all() -> list[DefaultProfessionSpell]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(DefaultProfessionSpell).all()
+        world_db_session.close()
+        return res
+
     class TrainerSpellHolder:
         TRAINER_SPELLS: dict[tuple[int, int], TrainerTemplate] = {}
         # Custom constant value for talent trainer template id.

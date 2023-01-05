@@ -9,6 +9,8 @@ from game.world.opcode_handling.handlers.pet.PetActionHandler import PetActionHa
 from game.world.opcode_handling.handlers.player.PvPPortHandler import PvPPortHandler
 from game.world.opcode_handling.handlers.player.ResurrectResponseHandler import ResurrectResponseHandler
 from game.world.opcode_handling.handlers.player.cheats.BeastMasterHandler import CheatBeastMasterHandler
+from game.world.opcode_handling.handlers.player.cheats.CreateMonsterHandler import CreateMonsterHandler
+from game.world.opcode_handling.handlers.player.cheats.DestroyMonsterHandler import DestroyMonsterHandler
 from game.world.opcode_handling.handlers.player.cheats.RechargeHandler import RechargeHandler
 from game.world.opcode_handling.handlers.player.cheats.CreateItemHandler import CreateItemHandler
 from game.world.opcode_handling.handlers.channel.ChannelAnnounceHandler import ChannelAnnounceHandler
@@ -321,6 +323,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_TAXIENABLEALLNODES: TaxiEnableAllNodesHandler.handle,
     OpCode.CMSG_TAXICLEARALLNODES: TaxiClearAllNodesHandler.handle,
     OpCode.CMSG_LEARN_SPELL: LearnSpellCheatHandler.handle,
+    OpCode.CMSG_CREATEMONSTER: CreateMonsterHandler.handle,
+    OpCode.CMSG_DESTROYMONSTER: DestroyMonsterHandler.handle,
     OpCode.CMSG_COOLDOWN_CHEAT: CooldownCheatHandler.handle,
     OpCode.CMSG_CREATEITEM: CreateItemHandler.handle,
     OpCode.CMSG_RECHARGE: RechargeHandler.handle,

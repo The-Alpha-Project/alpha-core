@@ -11,13 +11,15 @@ from game.world.managers.objects.spell.ExtendedSpellData import SummonedObjectPo
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
-from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, SpellTargetMask
+from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, SpellTargetMask, \
+    SpellHitFlags, SpellMissInfo
 
 
 @dataclass
 class TargetMissInfo:
     target: ObjectManager
     result: SpellMissReason
+    flags: SpellHitFlags
 
 
 class EffectTargets:
@@ -133,8 +135,11 @@ class EffectTargets:
         targets = self.get_resolved_effect_targets_by_type(ObjectManager)
         target_info = {}
         for target in targets:
-            if isinstance(target, ObjectManager):
-                target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE)  # TODO Misses etc.
+            if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+                result = target.stat_manager.get_spell_miss_result_against_self(self.casting_spell)
+                target_info[target.guid] = TargetMissInfo(target, *result)
+            else:
+                target_info[target.guid] = TargetMissInfo(target, SpellMissReason.MISS_REASON_NONE, SpellHitFlags.NONE)
         return target_info
 
     def get_resolved_effect_targets_by_type(self, _type) -> list[Union[ObjectManager, Vector]]:

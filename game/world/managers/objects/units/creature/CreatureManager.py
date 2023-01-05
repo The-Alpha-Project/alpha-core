@@ -1,5 +1,4 @@
 import math
-import time
 from random import randint
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -19,7 +18,7 @@ from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, UnitStates
@@ -284,6 +283,9 @@ class CreatureManager(UnitManager):
     def is_critter(self):
         return self.creature_template.type == CreatureTypes.AMBIENT
 
+    def has_melee(self):
+        return not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
+
     def is_pet(self):
         return (self.summoner or self.charmer) and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
 
@@ -440,6 +442,13 @@ class CreatureManager(UnitManager):
                     self.random_movement_wait_time = randint(1, 12)
                     self.last_random_movement = now
 
+    # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
+    #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
+    #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
+    #  couldn't swim before patch 1.3.0:
+    #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
+    #   - Most humanoids NPCs have gained the ability to swim.
+    #  This might only refer to creatures not having swimming animations.
     def _perform_combat_movement(self):
         # Avoid moving while casting, no combat target, evading, target already dead or self stunned.
         if self.is_casting() or self.is_totem() or not self.combat_target or self.is_evading or not self.combat_target.is_alive or \
@@ -449,20 +458,21 @@ class CreatureManager(UnitManager):
         # Check if target is player and is online.
         target_is_player = self.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER
         if target_is_player and not self.combat_target.online:
-            self.leave_combat()
+            self.threat_manager.remove_unit_threat(self.combat_target)
             return
 
         spawn_distance = self.location.distance(self.spawn_position)
         target_distance = self.location.distance(self.combat_target.location)
         combat_position_distance = UnitFormulas.combat_distance(self, self.combat_target)
+        target_under_water = self.combat_target.is_under_water()
 
         if not self.is_pet():
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
             # From 0.5.4 patch notes:
             #     "Creature pursuit is now timer based rather than distance based."
-            if spawn_distance > Distances.CREATURE_EVADE_DISTANCE  \
+            if spawn_distance > Distances.CREATURE_EVADE_DISTANCE \
                     or target_distance > Distances.CREATURE_EVADE_DISTANCE:
-                self.leave_combat()
+                self.threat_manager.remove_unit_threat(self.combat_target)
                 return
 
             # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
@@ -471,51 +481,43 @@ class CreatureManager(UnitManager):
             #  couldn't swim before patch 1.3.0:
             #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
             #   - Most humanoids NPCs have gained the ability to swim.
-            if self.is_on_water():
+            if self.is_under_water():
                 if not self.can_swim():
-                    self.leave_combat()
+                    self.threat_manager.remove_unit_threat(self.combat_target)
                     return
-            else:
-                if not self.can_exit_water():
-                    self.leave_combat()
+                if not self.can_exit_water() and not target_under_water:
+                    self.threat_manager.remove_unit_threat(self.combat_target)
                     return
 
         # If this creature is not facing the attacker, update its orientation.
         if not self.location.has_in_arc(self.combat_target.location, math.pi):
             self.movement_manager.send_face_target(self.combat_target)
 
-        combat_location = self.combat_target.location.get_point_in_between(combat_position_distance,
-                                                                           vector=self.location.copy())
+        combat_location = self.combat_target.location.get_point_in_between_movement(self, combat_position_distance)
         if not combat_location:
             return
 
-        # If target is within combat distance or already in combat location, don't move.
+        # Target is within combat distance or already in combat location, don't move.
         if round(target_distance) <= round(combat_position_distance) or self.location == combat_location:
             return
 
-        # If already going to the correct spot, don't do anything.
-        if len(self.movement_manager.pending_waypoints) > 0 \
-                and self.movement_manager.pending_waypoints[0].location == combat_location:
-            return
+        if len(self.movement_manager.pending_waypoints) > 0:
+            # Not underwater , avoid moving due floating point precision.
+            if self.movement_manager.pending_waypoints[0].location.distance(combat_location) < 0.1:
+                return
 
-        failed, in_place, path = MapManager.calculate_path(self.map_, self.location.copy(), combat_location)
-        if not failed and not in_place:
-            combat_location = path[0]
-        elif in_place:
-            return
-        # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
-        elif MapManager.NAMIGATOR_LOADED:
-            Logger.warning(f'Unable to find navigation path, map {self.map_} loc {self.location} end {combat_location}')
+        # Use direct combat location if target is over water.
+        if not target_under_water:
+            failed, in_place, path = MapManager.calculate_path(self.map_, self.location.copy(), combat_location)
+            if not failed and not in_place:
+                combat_location = path[0]
+            elif in_place:
+                return
+            # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
+            elif MapManager.NAMIGATOR_LOADED:
+                Logger.warning(f'Unable to find navigation path, map {self.map_} loc {self.location} end {combat_location}')
 
-        if self.is_on_water():
-            # Force destination Z to target Z.
-            combat_location.z = self.combat_target.location.z
-            # TODO: Find how to actually trigger swim animation and which spline flag to use.
-            #  VMaNGOS uses UNIT_FLAG_USE_SWIM_ANIMATION, we don't have that.
-            self.movement_manager.send_move_normal([combat_location], self.swim_speed, SplineFlags.SPLINEFLAG_FLYING)
-        else:
-            self.movement_manager.send_move_normal([combat_location], self.running_speed,
-                                                   SplineFlags.SPLINEFLAG_RUNMODE)
+        self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # override
     def update(self, now):
@@ -540,6 +542,7 @@ class CreatureManager(UnitManager):
                     # Relocate only if x, y changed.
                     if self.has_moved:
                         self._on_relocation()
+                        self.set_has_moved(False, False, flush=True)
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
@@ -565,10 +568,8 @@ class CreatureManager(UnitManager):
 
             has_changes = self.has_pending_updates()
             # Check if this creature object should be updated yet or not.
-            if has_changes or self.has_moved:
+            if has_changes:
                 MapManager.update_object(self, has_changes=has_changes)
-                if self.has_moved:
-                    self.set_has_moved(False, False, flush=True)
 
         self.last_tick = now
 
@@ -759,7 +760,20 @@ class CreatureManager(UnitManager):
         )
 
     def _on_relocation(self):
+        self._update_swimming_state()
         self.object_ai.movement_inform()
+
+    # Automatically set/remove swimming move flag on units.
+    def _update_swimming_state(self):
+        if not self.combat_target:
+            return
+        is_under_water = self.is_under_water()
+        if is_under_water and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+            self.movement_flags |= MoveFlags.MOVEFLAG_SWIMMING
+            MapManager.send_surrounding(self.get_heartbeat_packet(), self)
+        elif not is_under_water and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+            self.movement_flags &= ~MoveFlags.MOVEFLAG_SWIMMING
+            MapManager.send_surrounding(self.get_heartbeat_packet(), self)
 
     # override
     def notify_moved_in_line_of_sight(self, target):

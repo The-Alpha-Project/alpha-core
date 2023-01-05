@@ -77,8 +77,8 @@ class ThreatManager:
             # Remove from unit casts if needed.
             if not self.owner.is_alive:
                 unit.spell_manager.remove_unit_from_all_cast_targets(self.owner.guid)
-            if not unit.threat_manager.has_aggro():
-                unit.leave_combat()
+            if unit.threat_manager.has_aggro_from(self.owner):
+                unit.threat_manager.remove_unit_threat(self.owner)
 
         if not self.has_aggro():
             self.owner.leave_combat()

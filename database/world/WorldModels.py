@@ -873,6 +873,11 @@ class ItemLootTemplate(Base):
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'1'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
+class DefaultProfessionSpell(Base):
+    __tablename__ = 'default_profession_spell'
+    
+    trainer_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
+    default_spell = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
 
 class TrainerTemplate(Base):
     __tablename__ = 'trainer_template'

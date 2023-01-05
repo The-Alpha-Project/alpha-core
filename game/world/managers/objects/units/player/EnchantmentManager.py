@@ -55,7 +55,7 @@ class EnchantmentManager(object):
         if charges:
             new_charges = max(0, charges - used_charges)
             item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2, new_charges)
-            item.enchantments[enchantment_slot[0]].charges = new_charges
+            item.enchantments[enchantment_slot].charges = new_charges
             return True
         return False
 
@@ -145,6 +145,10 @@ class EnchantmentManager(object):
             if spell_template:
                 spell = self.unit_mgr.spell_manager.try_initialize_spell(spell_template, damage_info.target,
                                                                          SpellTargetMask.UNIT, triggered=True)
+                # Unable to validate spell cast.
+                if not spell:
+                    Logger.warning(f'Unable to validate proc enchantment spell {spell_template.ID}.')
+                    continue
                 spell.cast_time_entry = None
                 self.unit_mgr.spell_manager.start_spell_cast(initialized_spell=spell)
             else:

@@ -152,8 +152,7 @@ class PlayerManager(UnitManager):
 
             # GM checks
             self.is_god = False
-            self.is_gm = self.session.account_mgr.account.gmlevel > 0
-            if self.is_gm:
+            if self.session.account_mgr.is_gm():
                 self.set_gm()
 
             # Cheat flags.
@@ -709,12 +708,11 @@ class PlayerManager(UnitManager):
         # Get us in a new cell.
         MapManager.update_object(self)
 
-        # Notify movement data to surrounding players when teleporting within the same map (for example when using
-        # Charge).
-        # TODO: Can we somehow send MSG_MOVE_HEARTBEAT instead?
+        # Notify movement data to surrounding players when teleporting within the same map
+        # (for example when using Charge)
         if not changed_map:
-            movement_packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_packet())
-            MapManager.send_surrounding(movement_packet, self, False)
+            heart_beat_packet = self.get_heartbeat_packet()
+            MapManager.send_surrounding(heart_beat_packet, self, False)
 
         # TODO: Wrap pending teleport data in a new holder object?
         self.pending_teleport_recovery_percentage = -1
@@ -833,7 +831,12 @@ class PlayerManager(UnitManager):
     # override
     def set_sanctuary(self, active, time_secs=0):
         super().set_sanctuary(active, time_secs)
-        if not active:
+        if active:
+            self.spell_manager.remove_casts()
+            self.spell_manager.remove_unit_from_all_cast_targets(self.guid)
+            # Remove self from combat and attackers.
+            self.leave_combat()
+        else:
             self._on_relocation()
 
     def send_minimap_ping(self, guid, vector):
@@ -1026,7 +1029,7 @@ class PlayerManager(UnitManager):
 
     def mod_level(self, level):
         if level != self.level:
-            max_level = 255 if self.is_gm else config.Unit.Player.Defaults.max_level
+            max_level = 255 if self.session.account_mgr.is_gm() else config.Unit.Player.Defaults.max_level
             if 0 < level <= max_level:
                 # Check if the new level is higher than the current one or not.
                 is_leveling_up = level > self.level
@@ -1161,9 +1164,11 @@ class PlayerManager(UnitManager):
 
     def update_swimming_state(self, state):
         if state:
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+                                                                        self.location.z)
             if not self.liquid_information:
-                Logger.warning(f'Unable to retrieve liquid information.')
+                Logger.warning(f'Unable to retrieve liquids information. Map {self.map_} X {self.location.x} Y '
+                               f'{self.location.y}')
         else:
             self.liquid_information = None
 
@@ -1171,7 +1176,7 @@ class PlayerManager(UnitManager):
         return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING and self.is_alive
 
     # override
-    def is_on_water(self):
+    def is_over_water(self):
         self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
         return self.liquid_information and self.liquid_information.height > self.location.z
 
@@ -1570,11 +1575,6 @@ class PlayerManager(UnitManager):
             # Update played time.
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
-
-            # Update known objects if needed.
-            if self.update_known_objects_on_tick:
-                self.update_known_objects_on_tick = False
-                self.update_known_world_objects()
 
             # Stealth detect.
             self.units_stealth_detection_check(elapsed)

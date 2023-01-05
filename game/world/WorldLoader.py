@@ -12,29 +12,15 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 
 
-# Attempt to load Namigator module if enabled.
-if config.Server.Settings.use_nav_tiles:
-    try:
-        from namigator import pathfind
-        MapManager.NAMIGATOR_LOADED = True
-    except ImportError:
-        pathfind = None
-        pass
-
-
 class WorldLoader:
 
     @staticmethod
     def load_data():
         # Map tiles
         MapManager.initialize_maps()
+        MapManager.initialize_namigator()
         MapManager.initialize_area_tables()
-
-        if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_LOADED:
-            Logger.success('[Namigator] Module successfully loaded.')
-            WorldLoader.load_navigation()
-        elif config.Server.Settings.use_nav_tiles:
-            Logger.error('[Namigator] Unable to load module.')
+        MapManager.load_map_adt_tiles()
 
         # Below order matters.
 
@@ -81,6 +67,7 @@ class WorldLoader:
         WorldLoader.load_area_trigger_quest_relations()
         WorldLoader.load_quests()
         WorldLoader.load_spell_chains()
+        WorldLoader.load_default_profession_spells()
         WorldLoader.load_trainer_spells()
         WorldLoader.load_skills()
         WorldLoader.load_skill_line_abilities()
@@ -96,19 +83,6 @@ class WorldLoader:
         WorldLoader.load_guilds()
 
     # World data holders
-
-    @staticmethod
-    def load_navigation():
-        maps = MapManager.get_maps()
-        length = len(maps)
-        count = 0
-
-        for _map in maps:
-            _map.build_navigation(pathfind=pathfind)
-            count += 1
-            Logger.progress('[Namigator] Loading navigation data...', count, length)
-
-        return length
 
     @staticmethod
     def load_gameobject_templates():
@@ -420,6 +394,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading spell chains...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_default_profession_spells():
+        default_profession_spells = WorldDatabaseManager.default_profession_spell_get_all()
+        length = len(default_profession_spells)
+        count = 0
+
+        for profession_spell in default_profession_spells:
+            WorldDatabaseManager.DefaultProfessionSpellHolder.load_default_profession_spell(profession_spell)
+
+            count += 1
+            Logger.progress('Loading default profession spells...', count, length)
 
         return length
 

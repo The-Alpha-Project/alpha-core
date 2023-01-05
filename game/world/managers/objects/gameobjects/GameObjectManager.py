@@ -242,23 +242,24 @@ class GameObjectManager(ObjectManager):
     def is_active_object(self):
         return len(self.known_players) > 0
 
-    def apply_spell_damage(self, target, damage, casting_spell, is_periodic=False):
+    def apply_spell_damage(self, target, damage, spell_effect, is_periodic=False):
         # Skip if target is invalid or already dead.
         if not target or not target.is_alive:
             return
 
-        damage_info = casting_spell.get_cast_damage_info(self, target, damage, absorb=0)
-        damage_info.spell_miss_reason = casting_spell.object_target_results[target.guid].result
+        spell = spell_effect.casting_spell
+        damage_info = spell.get_cast_damage_info(self, target, damage, absorb=0)
+        damage_info.spell_miss_reason = spell.object_target_results[target.guid].result
 
-        target.send_spell_cast_debug_info(damage_info, casting_spell)
-        target.receive_damage(damage_info, self, casting_spell=casting_spell, is_periodic=is_periodic)
+        target.send_spell_cast_debug_info(damage_info, spell)
+        target.receive_damage(damage_info, self, casting_spell=spell, is_periodic=is_periodic)
 
         # Send environmental damage log packet to the affected player.
         if self.gobject_template.type == GameObjectTypes.TYPE_TRAP and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             data = pack(
                 '<Q2I',
                 target.guid,
-                casting_spell.spell_entry.School,
+                spell.spell_entry.School,
                 damage
             )
             target.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ENVIRONMENTALDAMAGELOG, data))

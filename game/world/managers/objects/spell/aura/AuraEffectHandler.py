@@ -262,11 +262,7 @@ class AuraEffectHandler:
             return
         effect_target.mirror_timers_manager.feign_death = not remove
         if not remove:
-            aura.caster.spell_manager.remove_casts()
             duration = aura.source_spell.get_duration() / 1000
-            aura.caster.spell_manager.remove_unit_from_all_cast_targets(aura.caster.guid)
-            # Remove self from combat and attackers.
-            aura.caster.leave_combat()
             # Set sanctuary state.
             aura.caster.set_sanctuary(True, time_secs=duration)
         else:

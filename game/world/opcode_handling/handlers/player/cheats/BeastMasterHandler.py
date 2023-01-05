@@ -15,13 +15,16 @@ class CheatBeastMasterHandler(object):
         if not player_mgr:
             return res
 
-        if not player_mgr.is_gm:
+        if not world_session.account_mgr.is_gm():
             Logger.anticheat(f'Player {player_mgr.get_name()} ({player_mgr.guid}) tried to give himself Beastmaster.')
             return 0
 
         if len(reader.data) >= 1:  # Avoid handling empty beast master packet.
             # Client sends `0` if you type `beastmaster off`, and `1` if you type `beastmaster`.
             player_mgr.beast_master = unpack('<B', reader.data[:1])[0] >= 1
+            # Set sanctuary state.
+            player_mgr.set_sanctuary(player_mgr.beast_master, time_secs=1)
+
         ChatManager.send_system_message(world_session, f'Beastmaster '
                                                        f'{"enabled" if player_mgr.beast_master else "disabled"}')
 
