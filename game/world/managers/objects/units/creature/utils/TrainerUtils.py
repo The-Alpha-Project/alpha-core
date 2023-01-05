@@ -36,8 +36,8 @@ class TrainerUtils:
             Logger.warning(f'send_trainer_list called from NPC {creature_mgr.entry} but no trainer spells found!')
             return
 
-        trainer_type: TrainerTypes = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
-            creature_mgr.entry).trainer_type
+        trainer_type: TrainerTypes = TrainerTypes(WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
+            creature_mgr.entry).trainer_type)
 
         item_templates = []
         # trainer_spell: The spell the trainer uses to teach the player.
@@ -48,12 +48,14 @@ class TrainerUtils:
                 continue
 
             if spell.EffectItemType_1:
-                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(spell.EffectItemType_1)
+                item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(
+                    spell.EffectItemType_1)
                 if item_template:
                     item_templates.append(item_template)
 
             # Search previous spell.
-            preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
+            preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(
+                spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
 
             # Skill step.
@@ -119,7 +121,8 @@ class TrainerUtils:
         return data
 
     @staticmethod
-    def get_training_list_spell_status(spell: Spell, trainer_spell_template: TrainerTemplate, req_level: int, preceded_spell: int, player_mgr, fulfills_skill: bool =True):
+    def get_training_list_spell_status(spell: Spell, trainer_spell_template: TrainerTemplate, req_level: int,
+                                       preceded_spell: int, player_mgr, fulfills_skill: bool = True):
         trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
         pet_info = player_mgr.pet_manager.get_active_pet_info()
@@ -131,15 +134,17 @@ class TrainerUtils:
             return TrainerServices.TRAINER_SERVICE_USED
 
         # target.skill_manager.get_total_skill_value(skill_id)
-        if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells) or trainer_spell_template.reqskill != 0 \
-                and (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) or player_mgr.skill_manager.get_total_skill_value(trainer_spell_template.reqskill) < trainer_spell_template.reqskillvalue):
+        if (not fulfills_skill or (preceded_spell and preceded_spell not in target_spells) or
+            trainer_spell_template.reqskill != 0) \
+                and ((not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill)
+                      or player_mgr.skill_manager.get_total_skill_value(trainer_spell_template.reqskill)
+                      < trainer_spell_template.reqskillvalue)):
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
         if player_mgr.level >= req_level:
             return TrainerServices.TRAINER_SERVICE_AVAILABLE
 
         return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
-
 
     @staticmethod
     def trainer_has_spell(creature_mgr, spell_id):
@@ -172,7 +177,8 @@ class TrainerUtils:
         return True
 
     @staticmethod
-    def player_can_ever_learn_talent(training_spell: TrainerTemplate, spell: Spell, skill_line_ability: SkillLineAbility, player_mgr) -> bool:
+    def player_can_ever_learn_talent(training_spell: TrainerTemplate, spell: Spell,
+                                     skill_line_ability: SkillLineAbility, player_mgr) -> bool:
         spell_item_class = spell.EquippedItemClass
         spell_item_subclass_mask = spell.EquippedItemSubclass
         # Check for required proficiencies for this talent.
