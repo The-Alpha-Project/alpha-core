@@ -727,7 +727,7 @@ class QuestManager(object):
         data += pack('<I', quest.RewOrReqMoney if quest.RewOrReqMoney >= 0 else -quest.RewOrReqMoney)
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_OFFER_REWARD, data))
 
-    def handle_accept_quest(self, quest_id, quest_giver_guid, shared=False):
+    def handle_accept_quest(self, quest_id, quest_giver_guid, shared=False, quest_giver=None, is_item=False):
         if quest_id in self.active_quests:
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ALREADY_ON)
             return
@@ -736,8 +736,9 @@ class QuestManager(object):
             self.send_cant_take_quest_response(QuestFailedReasons.QUEST_ONLY_ONE_TIMED)
             return
 
-        quest_item_starter = None
-        if quest_giver_guid:
+        quest_item_starter = None if not is_item else quest_giver
+        # Look for unit quest giver if it was not provided.
+        if quest_giver_guid and not quest_giver:
             quest_giver = None
             high_guid = GuidUtils.extract_high_guid(quest_giver_guid)
 

@@ -17,15 +17,19 @@ class QuestGiverStatusHandler(object):
 
         if len(reader.data) >= 8:  # Avoid handling empty quest giver status packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            high_guid = GuidUtils.extract_high_guid(guid)
 
             quest_giver = None
-            if high_guid == HighGuid.HIGHGUID_UNIT:
-                quest_giver = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
-            elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                quest_giver = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
-            elif high_guid == HighGuid.HIGHGUID_ITEM:
-                quest_giver = player_mgr.inventory.get_item_by_guid(guid)
+            # Use player known objects first.
+            if guid in player_mgr.known_objects:
+                quest_giver = player_mgr.known_objects[guid]
+            else:
+                high_guid = GuidUtils.extract_high_guid(guid)
+                if high_guid == HighGuid.HIGHGUID_ITEM:
+                    quest_giver = player_mgr.inventory.get_item_by_guid(guid)
+                elif high_guid == HighGuid.HIGHGUID_UNIT:
+                    quest_giver = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
+                elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
+                    quest_giver = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
 
             if not quest_giver:
                 Logger.error(f'Error in {reader.opcode_str()}, could not find quest giver with guid of: {guid}')
