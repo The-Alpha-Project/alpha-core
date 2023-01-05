@@ -1,16 +1,22 @@
 from struct import unpack
 
 from game.world.managers.abstractions.Vector import Vector
+from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
-from utils.constants.UnitCodes import SplineFlags
+from utils.constants.UnitCodes import SplineFlags, UnitFlags
 
 
 class WorldTeleportHandler(object):
 
     @staticmethod
     def handle(world_session, socket, reader):
+        # Validate world session.
+        player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
+        if not player_mgr:
+            return res
+
         # Don't teleport if player is in the middle of a flight.
-        if world_session.player_mgr.movement_spline and world_session.player_mgr.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
+        if player_mgr.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             return 0
 
         if world_session.account_mgr.is_gm():

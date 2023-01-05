@@ -8,11 +8,12 @@ from random import choice
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.Constants import ADT_SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
+from game.world.managers.maps.InstancesManager import InstancesManager
+from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
 from game.world.managers.maps.GridManager import GridManager
-from game.world.managers.maps.Map import Map
+from game.world.managers.maps.Map import Map, MapType
 from game.world.managers.maps.MapTile import MapTile, MapTileStates
-from game.world.managers.maps.Namigator import Namigator
+from game.world.managers.maps.helpers.Namigator import Namigator
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -26,6 +27,8 @@ MAPS_TILES = dict()
 MAPS_NAMIGATOR: dict[int, Namigator] = dict()
 # Holds maps which have no navigation data in alpha.
 MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90, 109, 129}
+
+INSTANCES_MANAGER = InstancesManager()
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
 PENDING_TILE_INITIALIZATION = {}
@@ -39,13 +42,15 @@ class MapManager:
     NAMIGATOR_FAILED = False
 
     @staticmethod
-    def initialize_maps():
-        length = len(MAP_LIST)
-        count = 0
+    def initialize_world_maps():
         for map_id in MAP_LIST:
-            count += 1
+            dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
+            # Initialize common and pvp maps.
+            if dbc_map.IsInMap != MapType.COMMON and dbc_map.PVP != 1:
+                continue
             MAPS[map_id] = Map(map_id, MapManager.on_cell_turn_active)
-            Logger.progress('Loading maps...', count, length)
+            MAPS[map_id].initialize()
+        Logger.success(f'Loading {len(MAPS)} maps...')
 
     @staticmethod
     def initialize_namigator():
@@ -57,10 +62,6 @@ class MapManager:
             count += 1
             MapManager.build_map_namigator(MAPS[map_id])
             Logger.progress('Loading map namigator...', count, length)
-
-    @staticmethod
-    def map_has_navigation(map_id):
-        return map_id in MAPS_NAMIGATOR
 
     @staticmethod
     def build_map_namigator(map_):
@@ -93,6 +94,12 @@ class MapManager:
     @staticmethod
     def get_maps():
         return list(MAPS.values())
+
+    @staticmethod
+    def get_instance_map(instance_token):
+        if instance_token.instance_id not in MAPS:
+            MAPS[instance_token.instance_id] = Map(instance_token.map_id, MapManager.on_cell_turn_active)
+        return MAPS[instance_token.instance_id]
 
     @staticmethod
     def initialize_area_tables():

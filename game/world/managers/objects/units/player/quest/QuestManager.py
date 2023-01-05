@@ -1057,7 +1057,7 @@ class QuestManager(object):
                 return True
         return False
 
-    def reward_exploration_completion(self, area_trigger_id):
+    def reward_quest_exploration(self, area_trigger_id):
         for quest_id, active_quest in self.active_quests.items():
             if active_quest.is_exploration_quest() and active_quest.apply_exploration_completion(area_trigger_id):
                 if active_quest.can_complete_quest():
