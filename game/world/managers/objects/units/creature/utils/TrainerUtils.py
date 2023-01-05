@@ -102,7 +102,7 @@ class TrainerUtils:
         return data
 
     @staticmethod
-    def get_training_list_spell_status(spell, trainer_spell_template, req_level, preceded_spell, player_mgr, fulfills_skill=True):
+    def get_training_list_spell_status(spell: Spell, trainer_spell_template: TrainerTemplate, req_level: int, preceded_spell: int, player_mgr, fulfills_skill: bool =True):
         trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
         pet_info = player_mgr.pet_manager.get_active_pet_info()
