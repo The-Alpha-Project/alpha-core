@@ -31,7 +31,7 @@ class TrainerBuySpellHandler(object):
                 TrainerBuySpellHandler.handle_player_buy_spell(player_mgr, training_spell_id)
             # NPC Trainer.
             else:
-                TrainerBuySpellHandler.handle_trainer_buy_spell(world_session, player_mgr, trainer_guid, training_spell_id)
+                TrainerBuySpellHandler.handle_trainer_buy_spell(world_session, trainer_guid, training_spell_id)
 
         return 0
 
