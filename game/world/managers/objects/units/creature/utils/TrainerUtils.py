@@ -124,7 +124,7 @@ class TrainerUtils:
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
         pet_info = player_mgr.pet_manager.get_active_pet_info()
         if is_taught_to_pet and not pet_info:
-            return TrainerServices.TRAINER_SERVICE_NO_PET
+            return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
         target_spells = pet_info.spells if is_taught_to_pet else player_mgr.spell_manager.spells
         if spell.ID in target_spells:
