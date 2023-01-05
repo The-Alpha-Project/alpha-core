@@ -15599,6 +15599,54 @@ begin not atomic
         insert into applied_updates values ('291220221');
     end if;
 
+     if (select count(*) from applied_updates where id='291220222') = 0 then
+
+		-- Frank Lasson
+        UPDATE `spawns_creatures` SET `map` = 1,`position_x` =  -3633.652, `position_y` = -4412.926, `position_z` = 9.873, `orientation` = 4.284 WHERE `spawn_id` = 30681;
+
+		-- Kenna Larnad
+        UPDATE `spawns_creatures` SET `map` = 1,`position_x` =  -3721.706, `position_y` = -4374.991, `position_z` = 11.238, `orientation` = 2.021, `movement_type`=0 WHERE `spawn_id` = 8462;
+
+        -- Bernie Heinstein
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `wander_distance`, `mana_percent`) VALUES (3546, 0,  -9545.16, -15.6298,  57.2866,  0.329, 0, 0);
+
+        -- Ransin Donner
+        UPDATE `spawns_creatures` SET `map` = 0,`position_x` = -11500.5, `position_y` = 1762.2, `position_z` = 2.05317, `orientation` = 4.215 WHERE `spawn_id` = 1791;
+
+        -- Talar
+        UPDATE `spawns_creatures` SET `position_x`=10278.606, `position_y`=2431.135, `position_z`=1336.332, `orientation`=2.088, `map`=1 WHERE `spawn_id`=400074;
+
+        -- Nadya
+        UPDATE `spawns_creatures` SET `position_x`=10673.6, `position_y`=1923.97, `position_z`=1336.1, `orientation`=2.629, `map`=1 WHERE `spawn_id`=46193;
+
+        -- Nerra 
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`, `position_z`, `orientation`, `map`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`)  
+        VALUES (3699, 10603.142, 1935.351, 1323.638, 4.944, 1, 0, 0, 0, 300, 300, 0, 100, 0, 0, 0, 0, 0) ;
+
+        -- Zudd
+        UPDATE `spawns_creatures` SET `position_x`=447.48, `position_y`=-4487.652, `position_z`=50.238, `orientation`=2.528, `map`=1 WHERE `spawn_id`=667;
+
+        -- Placeholder display_id for NE trainers
+        UPDATE `creature_template` SET `display_id1`=1946 WHERE `entry`=3699;
+        UPDATE `creature_template` SET `display_id1`=1945 WHERE `entry`=3701;
+        UPDATE `creature_template` SET `display_id1`=1945 WHERE `entry`=3700;
+        UPDATE `creature_template` SET `display_id1`=1946 WHERE `entry`=3702;
+        UPDATE `creature_template` SET `display_id1`=1945 WHERE `entry`=3897;
+        UPDATE `creature_template` SET `display_id1`=1945 WHERE `entry`=3698;
+
+        insert into applied_updates values ('291220222');
+    end if;
+	
+	-- 03/01/2023 1
+    if (select count(*) from applied_updates where id='030120231') = 0 then
+        -- Make Flesh Eaters selectable.
+        UPDATE `creature_template` SET `static_flags` = '26624' WHERE (`entry` = '3');
+
+        -- Hunter Pet trainers.
+        UPDATE `creature_template` SET `trainer_class` = '3' WHERE entry IN (2935, 5006, 5520, 5749, 5750, 5753, 5013, 2872, 2941, 3698, 4882, 4994, 2870, 2942, 4207, 5003, 2878, 3699, 4153, 2881, 2938, 3701, 4206, 5002, 2880, 2939, 3697, 5118, 5005, 2876, 5001, 2940, 5004, 3623, 5008, 5009, 5011, 4621, 5508, 5015, 5507, 5012, 5017, 3525, 4881);
+        insert into applied_updates values ('030120231');
+    end if;
+
     -- 05/01/2023 1
     if (select count(*) from applied_updates where id='050120231') = 0 then
         -- Alchemy apprentices
