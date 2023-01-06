@@ -16462,5 +16462,31 @@ begin not atomic
         UPDATE `creature_template` SET `trainer_class` = '3' WHERE entry IN (2935, 5006, 5520, 5749, 5750, 5753, 5013, 2872, 2941, 3698, 4882, 4994, 2870, 2942, 4207, 5003, 2878, 3699, 4153, 2881, 2938, 3701, 4206, 5002, 2880, 2939, 3697, 5118, 5005, 2876, 5001, 2940, 5004, 3623, 5008, 5009, 5011, 4621, 5508, 5015, 5507, 5012, 5017, 3525, 4881);
         insert into applied_updates values ('030120231');
     end if;
+
+    -- 05/01/2023 1
+    if (select count(*) from applied_updates where id='050120231') = 0 then
+        -- Alchemy apprentices
+        UPDATE `creature_template` SET `trainer_id` = 505 WHERE entry IN (4609, 2132, 5500, 1246);
+
+        -- Blacksmithing/Weaponsmithing apprentices
+        UPDATE `creature_template` SET `trainer_id` = 506 WHERE entry IN (2116, 2135, 1383, 957, 2117, 2136, 1698);
+
+        -- Cooking apprentices
+        UPDATE `creature_template` SET `trainer_id` = 501 WHERE entry IN (5081);
+
+        -- Engineering apprentices
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE entry IN (2857, 3412, 4586);
+
+        -- Herbalism apprentices
+        UPDATE `creature_template` SET `trainer_id` = 502 WHERE entry IN (2114);
+
+        -- Leatherworking apprentices
+        UPDATE `creature_template` SET `trainer_id` = 509 WHERE entry IN (1466, 3008, 223);
+
+        -- Tailoring apprentices
+        UPDATE `creature_template` SET `trainer_id` = 507 WHERE entry IN (1300, 2855, 1703, 5567);
+
+        insert into applied_updates values ('050120231');
+    end if;
 end $
 delimiter ;

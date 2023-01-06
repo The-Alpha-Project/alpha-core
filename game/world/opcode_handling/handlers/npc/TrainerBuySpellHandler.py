@@ -1,4 +1,6 @@
+from typing import Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from database.dbc.DbcModels import Spell
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.constants.SpellCodes import SpellTargetMask
@@ -6,7 +8,7 @@ from network.packet.PacketReader import PacketReader
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import TrainerTypes, TrainingFailReasons
+from utils.constants.MiscCodes import TrainerServices, TrainerTypes, TrainingFailReasons
 from struct import unpack
 from network.packet.PacketWriter import *
 
@@ -43,7 +45,7 @@ class TrainerBuySpellHandler(object):
             return
 
         talent_cost = player_mgr.talent_manager.get_talent_cost_by_id(spell_id)
-        fail_reason = None
+        fail_reason = -1
         if talent_cost > player_mgr.talent_points:
             fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
         elif spell_id in player_mgr.spell_manager.spells:
@@ -51,13 +53,41 @@ class TrainerBuySpellHandler(object):
         elif not player_mgr.spell_manager.can_learn_spell(spell_id):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
 
-        if fail_reason:
+        # Get data required to verify spell status.
+        trainer_templates = WorldDatabaseManager.TrainerSpellHolder.TALENTS
+
+        trainer_spell = None
+        for t_template in trainer_templates:
+            if t_template.spell == training_spell_id:
+                trainer_spell = t_template
+                break
+
+        spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.playerspell)
+        preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
+        preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
+        req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
+        skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
+                spell.ID, player_mgr.race, player_mgr.class_)
+
+        # Get talent status again to verify that client check was correct.
+        verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, preceded_spell,
+                                                                    player_mgr)
+
+        # Check talent status, fail if spell should be unavailable.
+        if verify_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE or not \
+                TrainerUtils.player_can_ever_learn_talent(trainer_spell, spell, skill_line_ability, player_mgr):
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+            player_mgr.talent_manager.send_talent_list()
+
+        if fail_reason != -1:
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
-        else:
-            player_mgr.remove_talent_points(talent_cost)
-            player_mgr.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.SELF,
-                                                         validate=False)
-            TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, player_mgr.guid, training_spell_id)
+            return
+    
+        # Success.
+        player_mgr.remove_talent_points(talent_cost)
+        player_mgr.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.SELF,
+                                                     validate=False)
+        TrainerBuySpellHandler.send_trainer_buy_succeeded(player_mgr, player_mgr.guid, training_spell_id)
 
     @staticmethod
     def handle_trainer_buy_spell(player_mgr, trainer_guid, training_spell_id):
@@ -106,6 +136,32 @@ class TrainerBuySpellHandler(object):
             fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
             anti_cheat = True
 
+        # If this is a profession trainer, do checks that apply only to profession trainers.
+        if creature_template.trainer_type == TrainerTypes.TRAINER_TYPE_TRADESKILLS:
+            default_spells = WorldDatabaseManager.DefaultProfessionSpellHolder\
+                .default_profession_spells_get_by_trainer_spell_id(training_spell_id)
+
+            # Check for any spells that should be learned by default with profession and learn them.
+            if len(default_spells) > 0:
+                for profession_spell_entry in default_spells:
+                    player_mgr.spell_manager.learn_spell(profession_spell_entry.default_spell)
+
+            # Get data required to verify spell status.
+            spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.playerspell)
+            preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(
+                spell.ID)
+            preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
+            req_level = trainer_spell.reqlevel if trainer_spell.reqlevel else spell.BaseLevel
+
+            # Get spell status again to verify that client check was correct.
+            verify_status = TrainerUtils.get_training_list_spell_status(spell, trainer_spell, req_level, preceded_spell,
+                                                                        player_mgr)
+
+            # Check spell status, fail if spell should be unavailable.
+            if verify_status == TrainerServices.TRAINER_SERVICE_UNAVAILABLE:
+                fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+                TrainerUtils.send_trainer_list(unit, player_mgr)
+
         if fail_reason != -1:
             if anti_cheat:
                 Logger.anticheat(f'Player {player_mgr.guid} tried to train spell {trainer_spell.playerspell} '
@@ -119,14 +175,6 @@ class TrainerBuySpellHandler(object):
         # Some trainer spells cost SP in alpha - class trainers trained weapon skills, which cost skill points.
         if spell_skill_cost > 0:
             player_mgr.remove_skill_points(spell_skill_cost)
-
-        # If this is a profession trainer, check spells that should be learned on development skill train.
-        if creature_template.trainer_type == TrainerTypes.TRAINER_TYPE_TRADESKILLS:
-            default_spells = WorldDatabaseManager.DefaultProfessionSpellHolder.default_profession_spells_get_by_trainer_spell_id(training_spell_id)
-
-            if len(default_spells) > 0:
-                for profession_spell_entry in default_spells:
-                    player_mgr.spell_manager.learn_spell(profession_spell_entry.default_spell)
         
         # Succeeded.
         unit.spell_manager.handle_cast_attempt(training_spell_id, player_mgr, SpellTargetMask.UNIT, validate=False)
