@@ -135,10 +135,10 @@ class TrainerUtils:
 
         # target.skill_manager.get_total_skill_value(skill_id)
         if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells) or \
-                trainer_spell_template.reqskill != 0 and \
-                    (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) or \
-                        player_mgr.skill_manager.get_total_skill_value(trainer_spell_template.reqskill)
-                        < trainer_spell_template.reqskillvalue):
+            trainer_spell_template.reqskill != 0 and \
+                (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) or \
+                    player_mgr.skill_manager.get_total_skill_value(trainer_spell_template.reqskill)
+                    < trainer_spell_template.reqskillvalue):
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
         if player_mgr.level >= req_level:
