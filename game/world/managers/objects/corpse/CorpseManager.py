@@ -16,6 +16,7 @@ class CorpseManager(ObjectManager):
 
         self.owner = owner
         self.map_ = owner.map_
+        self.instance_id = owner.instance_id
         self.guild_id = owner.guild_manager.guild.guild_id if owner.guild_manager else 0
         self.location = owner.location
         self.current_scale = owner.current_scale

@@ -372,7 +372,7 @@ class PetManager:
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
 
-        creature_manager = CreatureBuilder.create(creature_id, spawn_position, self.owner.map_, self.owner.id,
+        creature_manager = CreatureBuilder.create(creature_id, spawn_position, self.owner.map_, self.owner.instance_id,
                                                   summoner=self.owner, faction=self.owner.faction,
                                                   movement_type=MovementTypes.IDLE,
                                                   spell_id=spell_id,

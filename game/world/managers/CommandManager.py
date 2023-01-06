@@ -766,8 +766,8 @@ class CommandManager(object):
             player_mgr = world_session.player_mgr
             creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
             faction = creature_template.faction if creature_template else player_mgr.faction
-            creature_instance = CreatureBuilder.create(creature_entry, player_mgr.location.copy(), player_mgr.map_,
-                                                       instance_id=player_mgr.id,
+            creature_instance = CreatureBuilder.create(creature_entry, player_mgr.location.copy(),
+                                                       player_mgr.map_, player_mgr.instance_id,
                                                        faction=faction)
 
             if not creature_instance:

@@ -238,7 +238,7 @@ class PlayerManager(UnitManager):
 
     def complete_login(self, first_login=False):
         instance_token = InstancesManager.get_instance_token_by_player(self, self.map_)
-        self.instance_id = instance_token.map_id
+        self.instance_id = instance_token.id
         if MapManager.is_dungeon_map_id(self.map_):
             if not MapManager.get_instance_map(instance_token):
                 self.map_ = self.deathbind.deathbind_map

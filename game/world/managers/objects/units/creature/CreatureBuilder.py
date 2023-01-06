@@ -37,7 +37,7 @@ class CreatureBuilder:
         creature_instance.location = location.copy()
         creature_instance.spawn_position = creature_instance.location.copy()
         creature_instance.map_ = map_id if not summoner else summoner.map_
-        creature_instance.instance_id = instance_id if not summoner else summoner.id
+        creature_instance.instance_id = instance_id if not summoner else summoner.instance_id
         creature_instance.zone = summoner.zone if summoner else 0
         creature_instance.spell_id = spell_id
         creature_instance.time_to_live_timer = ttl

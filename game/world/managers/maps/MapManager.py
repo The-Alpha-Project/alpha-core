@@ -102,6 +102,7 @@ class MapManager:
         if instance_token.map_id not in MAPS:
             MAPS[instance_token.map_id] = dict()
         if instance_token.id not in MAPS[instance_token.map_id]:
+            print(f'Initializing {instance_token.map_id}')
             instance_map = Map(instance_token.map_id, MapManager.on_cell_turn_active, instance_id=instance_token.id)
             MAPS[instance_token.map_id][instance_token.id] = instance_map
             instance_map.initialize()
@@ -129,8 +130,6 @@ class MapManager:
     @staticmethod
     def on_cell_turn_active(world_object):
         MapManager.enqueue_adt_tile_initialization(world_object.map_, world_object.location.x, world_object.location.y)
-        map_ = MapManager.get_map(world_object.map_, world_object.instance_id)
-        map_.check_state_scheduler()
 
     @staticmethod
     def validate_maps():

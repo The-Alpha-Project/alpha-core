@@ -38,14 +38,12 @@ class WorldLoader:
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobject_quest_starters()
             WorldLoader.load_gameobject_quest_finishers()
-            # WorldLoader.load_gameobjects_spawns()
         else:
             Logger.info('Skipped game object loading.')
 
         # Creature spawns
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_equip_templates()
-            # WorldLoader.load_creature_spawns()
             WorldLoader.load_creature_on_kill_reputation()
             WorldLoader.load_creature_quest_starters()
             WorldLoader.load_creature_quest_finishers()

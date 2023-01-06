@@ -16,6 +16,7 @@ class DynamicObjectManager(ObjectManager):
         self.summoner = owner
         self.owner = owner.guid
         self.map_ = owner.map_
+        self.instance_id = owner.instance_id
         self.location = location.copy()
         self.dynamic_type = dynamic_type
         self.spell_id = effect.casting_spell.spell_entry.ID
