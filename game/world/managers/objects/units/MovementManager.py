@@ -266,7 +266,8 @@ class MovementManager:
         # Don't move if the destination is not an active cell.
         new_cell_coords = GridManager.get_cell_key(random_point.x, random_point.y, self.unit.map_)
         if self.unit.current_cell != new_cell_coords and not \
-                MapManager.get_grid_manager_by_map_id(self.unit.map_).is_active_cell(new_cell_coords):
+                MapManager.get_grid_manager_by_map_instance_id(
+                    self.unit.map_, self.unit.instance_id).is_active_cell(new_cell_coords):
             return
 
         self.send_move_normal([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)

@@ -9,7 +9,7 @@ class CreatureBuilder:
     PET_GUID_MANAGER = GuidManager()
 
     @staticmethod
-    def create(entry, location, map_id, health_percent=100, mana_percent=100, summoner=None, faction=0,
+    def create(entry, location, map_id, instance_id, health_percent=100, mana_percent=100, summoner=None, faction=0,
                spell_id=0, ttl=0, addon=None, wander_distance=0, movement_type=MovementTypes.IDLE,
                subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, spawn_id=0, level=-1, possessed=False):
 
@@ -37,6 +37,7 @@ class CreatureBuilder:
         creature_instance.location = location.copy()
         creature_instance.spawn_position = creature_instance.location.copy()
         creature_instance.map_ = map_id if not summoner else summoner.map_
+        creature_instance.instance_id = instance_id if not summoner else summoner.id
         creature_instance.zone = summoner.zone if summoner else 0
         creature_instance.spell_id = spell_id
         creature_instance.time_to_live_timer = ttl

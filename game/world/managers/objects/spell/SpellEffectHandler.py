@@ -147,7 +147,8 @@ class SpellEffectHandler:
         if caster.get_type_id() != ObjectTypeIds.ID_PLAYER or target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        arbiter = GameObjectBuilder.create(effect.misc_value, effect.targets.resolved_targets_b[0], caster.map_,
+        arbiter = GameObjectBuilder.create(effect.misc_value, effect.targets.resolved_targets_b[0],
+                                           caster.map_, caster.instance_id,
                                            GameObjectStates.GO_STATE_READY,
                                            summoner=caster,
                                            spell_id=casting_spell.spell_entry.ID,
@@ -337,7 +338,8 @@ class SpellEffectHandler:
         # If no duration, default to 5 minutes.
         duration = 300 if duration == 0 else (duration / 1000)
 
-        creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, summoner=caster,
+        creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, caster.id,
+                                                  summoner=caster,
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
 
@@ -381,7 +383,7 @@ class SpellEffectHandler:
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
 
-        gameobject = GameObjectBuilder.create(object_entry, target, caster.map_,
+        gameobject = GameObjectBuilder.create(object_entry, target, caster.map_, caster.instance_id,
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=caster,
                                               spell_id=casting_spell.spell_entry.ID,
@@ -395,7 +397,8 @@ class SpellEffectHandler:
             return
 
         duration = casting_spell.get_duration() / 1000
-        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_, summoner=caster,
+        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_, caster.id,
+                                                  summoner=caster,
                                                   spell_id=casting_spell.spell_entry.ID,
                                                   faction=caster.faction, ttl=duration,
                                                   level=caster.level,
@@ -590,7 +593,7 @@ class SpellEffectHandler:
                     pz = location.z
 
             # Spawn the summoned unit.
-            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_,
+            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_, caster.id,
                                                       summoner=caster, faction=caster.faction, ttl=duration,
                                                       spell_id=casting_spell.spell_entry.ID,
                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)

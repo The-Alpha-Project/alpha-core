@@ -18,8 +18,9 @@ from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.PathManager import PathManager
+from utils.constants.MiscCodes import ObjectTypeIds
 
-MAPS: dict[int, Map] = {}
+MAPS: dict[int, dict[int, Map]] = {}
 MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
 # Holds .map files tiles information per Map.
 MAPS_TILES = dict()
@@ -48,9 +49,14 @@ class MapManager:
             # Initialize common and pvp maps.
             if dbc_map.IsInMap != MapType.COMMON and dbc_map.PVP != 1:
                 continue
-            MAPS[map_id] = Map(map_id, MapManager.on_cell_turn_active)
-            MAPS[map_id].initialize()
-        Logger.success(f'Loading {len(MAPS)} maps...')
+            MAPS[map_id] = dict()
+            # World/Pvp maps use map_id as instance id.
+            MAPS[map_id][map_id] = Map(map_id, MapManager.on_cell_turn_active, instance_id=map_id)
+            MAPS[map_id][map_id].initialize()
+
+    @staticmethod
+    def is_dungeon_map_id(map_id):
+        return map_id not in (0, 1, 30, 37)  # World / Pvp.
 
     @staticmethod
     def initialize_namigator():
@@ -92,14 +98,14 @@ class MapManager:
             return
 
     @staticmethod
-    def get_maps():
-        return list(MAPS.values())
-
-    @staticmethod
     def get_instance_map(instance_token):
-        if instance_token.instance_id not in MAPS:
-            MAPS[instance_token.instance_id] = Map(instance_token.map_id, MapManager.on_cell_turn_active)
-        return MAPS[instance_token.instance_id]
+        if instance_token.map_id not in MAPS:
+            MAPS[instance_token.map_id] = dict()
+        if instance_token.id not in MAPS[instance_token.map_id]:
+            instance_map = Map(instance_token.map_id, MapManager.on_cell_turn_active, instance_id=instance_token.id)
+            MAPS[instance_token.map_id][instance_token.id] = instance_map
+            instance_map.initialize()
+        return MAPS[instance_token.map_id][instance_token.id]
 
     @staticmethod
     def initialize_area_tables():
@@ -123,6 +129,8 @@ class MapManager:
     @staticmethod
     def on_cell_turn_active(world_object):
         MapManager.enqueue_adt_tile_initialization(world_object.map_, world_object.location.x, world_object.location.y)
+        map_ = MapManager.get_map(world_object.map_, world_object.instance_id)
+        map_.check_state_scheduler()
 
     @staticmethod
     def validate_maps():
@@ -552,13 +560,13 @@ class MapManager:
             return coord
 
     @staticmethod
-    def get_map(map_id):
-        return MAPS.get(map_id)
+    def get_map(map_id, instance_id):
+        return MAPS[map_id].get(instance_id)
 
     @staticmethod
-    def get_grid_manager_by_map_id(map_id) -> Optional[GridManager]:
+    def get_grid_manager_by_map_instance_id(map_id, instance_id) -> Optional[GridManager]:
         try:
-            return MAPS[map_id].grid_manager
+            return MAPS[map_id][instance_id].grid_manager
         except (KeyError, AttributeError, TypeError):
             return None
 
@@ -570,7 +578,7 @@ class MapManager:
 
     @staticmethod
     def should_relocate(world_object, destination, destination_map):
-        grid_manager = MapManager.get_grid_manager_by_map_id(destination_map)
+        grid_manager = MapManager.get_grid_manager_by_map_instance_id(destination_map, world_object.instance_id)
         destination_cells = grid_manager.get_surrounding_cells_by_location(destination.x, destination.y,
                                                                            destination_map)
         current_cell = grid_manager.get_cells()[world_object.current_cell]
@@ -580,11 +588,11 @@ class MapManager:
     def update_object(world_object, has_changes=False, has_inventory_changes=False):
         if world_object.current_cell:
             old_map = int(world_object.current_cell.split(':')[-1])
-            old_grid_manager = MapManager.get_grid_manager_by_map_id(old_map)
+            old_grid_manager = MapManager.get_grid_manager_by_map_instance_id(old_map, world_object.instance_id)
         else:
             old_grid_manager = None
 
-        grid_manager = MapManager.get_grid_manager_by_map_id(world_object.map_)
+        grid_manager = MapManager.get_grid_manager_by_map_instance_id(world_object.map_, world_object.instance_id)
         try:
             grid_manager.update_object(world_object, old_grid_manager, has_changes=has_changes,
                                        has_inventory_changes=has_inventory_changes)
@@ -594,7 +602,8 @@ class MapManager:
     @staticmethod
     def spawn_object(world_object_spawn=None, world_object_instance=None):
         map_ = world_object_spawn.map_ if world_object_spawn else world_object_instance.map_
-        grid_manager = MapManager.get_grid_manager_by_map_id(map_)
+        instance_id = world_object_spawn.instance_id if world_object_spawn else world_object_instance.instance_id
+        grid_manager = MapManager.get_grid_manager_by_map_instance_id(map_, instance_id)
         try:
             grid_manager.spawn_object(world_object_spawn, world_object_instance)
         except AttributeError:
@@ -602,57 +611,68 @@ class MapManager:
 
     @staticmethod
     def remove_object(world_object):
-        MapManager.get_grid_manager_by_map_id(world_object.map_).remove_object(world_object)
+        MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).remove_object(world_object)
         FarSightManager.remove_camera(world_object)
 
     @staticmethod
     def send_surrounding(packet, world_object, include_self=True, exclude=None, use_ignore=False):
-        MapManager.get_grid_manager_by_map_id(world_object.map_).send_surrounding(
-            packet, world_object, include_self, exclude, use_ignore)
+        # Send direct message if not yet in a Cell, includes self and is player.
+        if not world_object.current_cell and include_self and world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            world_object.enqueue_packet(packet)
+        elif world_object.current_cell:
+            MapManager.get_grid_manager_by_map_instance_id(world_object.map_, world_object.instance_id).send_surrounding(
+                packet, world_object, include_self, exclude, use_ignore)
 
     @staticmethod
     def send_surrounding_in_range(packet, world_object, range_, include_self=True, exclude=None, use_ignore=False):
-        MapManager.get_grid_manager_by_map_id(world_object.map_).send_surrounding_in_range(
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).send_surrounding_in_range(
             packet, world_object, range_, include_self, exclude, use_ignore)
 
     @staticmethod
     def get_surrounding_objects(world_object, object_types):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_objects(
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_objects(
             world_object, object_types)
 
     @staticmethod
     def get_surrounding_players(world_object):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_players(world_object)
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_players(world_object)
 
     @staticmethod
     def get_surrounding_units(world_object, include_players=False):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_units(
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_units(
             world_object, include_players)
 
     @staticmethod
-    def get_creature_spawn_by_id(map_id, spawn_id):
-        return MapManager.get_grid_manager_by_map_id(map_id).get_creature_spawn_by_id(spawn_id)
+    def get_creature_spawn_by_id(map_id, instance_id, spawn_id):
+        return MapManager.get_grid_manager_by_map_instance_id(map_id, instance_id).get_creature_spawn_by_id(spawn_id)
 
     @staticmethod
     def get_unit_totem_by_totem_entry(unit, totem_entry):
-        return MapManager.get_grid_manager_by_map_id(unit.map_).get_unit_totem_by_totem_entry(unit, totem_entry)
+        return MapManager.get_grid_manager_by_map_instance_id(
+            unit.map_, unit.instance_id).get_unit_totem_by_totem_entry(unit, totem_entry)
 
     @staticmethod
     def get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_creature_spawn_by_spawn_id(
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_creature_spawn_by_spawn_id(
             world_object, spawn_id)
 
     @staticmethod
-    def get_surrounding_units_by_location(vector, target_map, range_, include_players=False):
-        grid_mgr = MapManager.get_grid_manager_by_map_id(target_map)
+    def get_surrounding_units_by_location(vector, target_map, target_instance_id, range_, include_players=False):
+        grid_mgr = MapManager.get_grid_manager_by_map_instance_id(target_map, target_instance_id)
         try:
             return grid_mgr.get_surrounding_units_by_location(vector, target_map, range_, include_players)
         except AttributeError:
             return [{}, {}]
 
     @staticmethod
-    def get_surrounding_players_by_location(vector, target_map, range_):
-        grid_mgr = MapManager.get_grid_manager_by_map_id(target_map)
+    def get_surrounding_players_by_location(vector, target_map, target_instance_id, range_):
+        grid_mgr = MapManager.get_grid_manager_by_map_instance_id(target_map, target_instance_id)
         try:
             return grid_mgr.get_surrounding_players_by_location(vector, target_map, range_)
         except AttributeError:
@@ -660,54 +680,32 @@ class MapManager:
 
     @staticmethod
     def get_surrounding_gameobjects(world_object):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobjects(world_object)
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_gameobjects(world_object)
 
     @staticmethod
     def get_surrounding_player_by_guid(world_object, guid):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_player_by_guid(
-            world_object, guid)
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_player_by_guid(world_object, guid)
 
     @staticmethod
     def get_surrounding_unit_by_guid(world_object, guid, include_players=False):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_unit_by_guid(
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_unit_by_guid(
             world_object, guid, include_players)
 
     @staticmethod
     def get_surrounding_gameobject_by_guid(world_object, guid):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobject_by_guid(
-            world_object, guid)
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_gameobject_by_guid(world_object, guid)
 
     @staticmethod
     def get_surrounding_gameobject_by_spawn_id(world_object, spawn_id):
-        return MapManager.get_grid_manager_by_map_id(world_object.map_).get_surrounding_gameobject_by_spawn_id(
-            world_object, spawn_id)
-
-    @staticmethod
-    def update_creatures():
-        for map_id, map_ in MAPS.items():
-            map_.grid_manager.update_creatures()
-
-    @staticmethod
-    def update_gameobjects():
-        for map_id, map_ in MAPS.items():
-            map_.grid_manager.update_gameobjects()
-
-    @staticmethod
-    def update_dynobjects():
-        for map_id, map_ in MAPS.items():
-            map_.grid_manager.update_dynobjects()
-
-    @staticmethod
-    def update_spawns():
-        for map_id, map_ in MAPS.items():
-            map_.grid_manager.update_spawns()
-
-    @staticmethod
-    def update_corpses():
-        for map_id, map_ in MAPS.items():
-            map_.grid_manager.update_corpses()
+        return MapManager.get_grid_manager_by_map_instance_id(
+            world_object.map_, world_object.instance_id).get_surrounding_gameobject_by_spawn_id(world_object, spawn_id)
 
     @staticmethod
     def deactivate_cells():
-        for map_id, map_ in MAPS.items():
-            map_.grid_manager.deactivate_cells()
+        for map_id, instances in list(MAPS.items()):
+            for map_ in list(instances.values()):
+                map_.grid_manager.deactivate_cells()

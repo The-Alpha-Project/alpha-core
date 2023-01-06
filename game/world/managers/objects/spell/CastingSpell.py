@@ -86,9 +86,9 @@ class CastingSpell:
         self.spell_impact_timestamps = {}
 
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            selection_guid = self.spell_caster.current_selection if self.spell_caster.current_selection else caster.guid
-            self.targeted_unit_on_cast_start = MapManager.get_surrounding_unit_by_guid(
-                self.spell_caster, selection_guid, include_players=True)
+            selection = caster.current_selection
+            self.targeted_unit_on_cast_start = caster if not selection \
+                else MapManager.get_surrounding_unit_by_guid(self.spell_caster, selection, include_players=True)
 
         if self.is_fishing_spell():
             # Locate liquid vector in front of the caster.

@@ -134,6 +134,9 @@ class GridManager:
 
         return affected_cells
 
+    def has_active_cells(self):
+        return len(list(self.active_cell_keys)) > 0
+
     def is_active_cell(self, cell_key):
         return cell_key in self.active_cell_keys
 
@@ -157,11 +160,10 @@ class GridManager:
         if not vector:
             vector = world_object.location
         near_cell_keys = set()
-
+        map_ = world_object.map_
         for x in range(x_s, x_m + 1):
             for y in range(y_s, y_m + 1):
-                cell_coords = GridManager.get_cell_key(vector.x + (x * CELL_SIZE), vector.y + (y * CELL_SIZE),
-                                                       world_object.map_)
+                cell_coords = GridManager.get_cell_key(vector.x + (x * CELL_SIZE), vector.y + (y * CELL_SIZE), map_)
                 if cell_coords in self.cells:
                     near_cell_keys.add(cell_coords)
 

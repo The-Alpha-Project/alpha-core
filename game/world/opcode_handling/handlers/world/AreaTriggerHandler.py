@@ -31,7 +31,7 @@ class AreaTriggerHandler(object):
                 return 0
 
             area_trigger_point = Vector(area_trigger.X, area_trigger.Y, area_trigger.Z)
-            if area_trigger_point.distance(player_mgr.location) > area_trigger.Radius:
+            if area_trigger_point.distance(player_mgr.location) > area_trigger.Radius * 2:
                 Logger.debug(f'Player {player_mgr.get_name()} ignore Area Trigger ID {trigger_id} due distance.')
                 return 0
 

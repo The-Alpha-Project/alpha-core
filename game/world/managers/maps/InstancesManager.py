@@ -9,7 +9,10 @@ class InstancesManager:
     LOCK = RLock()
 
     @staticmethod
-    def get_instance_token(player_mgr, map_):
+    def get_instance_token_by_player(player_mgr, map_):
+        # World/Pvp maps use map_id as instance_id.
+        if not InstancesManager._is_dungeon_map_id(map_):
+            return InstanceToken(map_, map_)
         with InstancesManager.LOCK:
             group = player_mgr.group_manager
             # Group priority.
@@ -17,11 +20,11 @@ class InstancesManager:
                 if group.has_instance_token(map_):
                     return group.get_instance_token(map_)
                 instance_token = InstancesManager._generate_instance_token(player_mgr.guid, map_)
-                group.add_instance_token(map_, instance_token.instance_id, instance_token)
+                group.add_instance_token(map_, instance_token)
             else:
                 instance_token = InstancesManager._get_instance_token_for_player_guid(player_mgr.guid, map_)
 
-            print(f'Instance ID {instance_token.instance_id}')
+            print(f'Instance ID {instance_token.id}')
             return instance_token
 
     @staticmethod
@@ -37,5 +40,9 @@ class InstancesManager:
     def _get_instance_token_for_player_guid(guid, map_):
         if guid in PLAYER_INSTANCES:
             if map_ in PLAYER_INSTANCES[guid]:
-                return PLAYER_INSTANCES[guid]
+                return PLAYER_INSTANCES[guid][map_]
         return InstancesManager._generate_instance_token(guid, map_)
+
+    @staticmethod
+    def _is_dungeon_map_id(map_id):
+        return map_id not in (0, 1, 30, 37)  # World / Pvp.

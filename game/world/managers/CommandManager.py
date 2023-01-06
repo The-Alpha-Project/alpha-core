@@ -763,11 +763,12 @@ class CommandManager(object):
     def createmonster(world_session, args):
         try:
             creature_entry = int(args)
+            player_mgr = world_session.player_mgr
             creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
-            creature_instance = CreatureBuilder.create(creature_entry, Vector(world_session.player_mgr.location.x, world_session.player_mgr.location.y, world_session.player_mgr.location.z, world_session.player_mgr.location.o), 
-                                                        world_session.player_mgr.map_, summoner=None, faction=creature_template.faction if creature_template else world_session.player_mgr.faction,
-                                                        ttl=0, spell_id=0, 
-                                                        subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
+            faction = creature_template.faction if creature_template else player_mgr.faction
+            creature_instance = CreatureBuilder.create(creature_entry, player_mgr.location.copy(), player_mgr.map_,
+                                                       instance_id=player_mgr.id,
+                                                       faction=faction)
 
             if not creature_instance:
                 return -1, f'creature entry {creature_entry} not found'
@@ -782,13 +783,12 @@ class CommandManager(object):
     def destroymonster(world_session, args):
         try:
             creature_guid = int(args) if args else 0
+            player_mgr = world_session.player_mgr
 
             if not creature_guid or creature_guid == 0:
-                creature_instance = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                                            world_session.player_mgr.current_selection)
+                creature_instance = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection)
             else:
-                creature_instance = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                                            creature_guid)
+                creature_instance = MapManager.get_surrounding_unit_by_guid(player_mgr, creature_guid)
 
             if not creature_instance:
                 return -1, f'creature not found'

@@ -372,7 +372,7 @@ class PetManager:
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
 
-        creature_manager = CreatureBuilder.create(creature_id, spawn_position, self.owner.map_,
+        creature_manager = CreatureBuilder.create(creature_id, spawn_position, self.owner.map_, self.owner.id,
                                                   summoner=self.owner, faction=self.owner.faction,
                                                   movement_type=MovementTypes.IDLE,
                                                   spell_id=spell_id,
@@ -420,7 +420,7 @@ class PetManager:
             spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id)
             # This creature might be too far from its spawn upon detach, search in all map cells.
             if not spawn:
-                spawn = MapManager.get_creature_spawn_by_id(creature.map_, creature.spawn_id)
+                spawn = MapManager.get_creature_spawn_by_id(creature.map_, creature.instance_id, creature.spawn_id)
 
             # Creature spawn should be found already at this point.
             if spawn:

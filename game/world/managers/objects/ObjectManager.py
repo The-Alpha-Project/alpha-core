@@ -58,7 +58,7 @@ class ObjectManager:
         self.pitch = pitch
         self.zone = zone
         self.map_ = map_
-
+        self.instance_id = -1
         self.update_packet_factory = UpdatePacketFactory()
 
         self.initialized = False
@@ -442,7 +442,7 @@ class ObjectManager:
                 return False
 
             # If player is not in a PvP map (PvP system was not added until Patch 0.7).
-            if not MapManager.get_map(target.map_).is_pvp():
+            if not MapManager.get_map(target.map_, target.instance_id).is_pvp():
                 return False
 
         # Creature only checks.

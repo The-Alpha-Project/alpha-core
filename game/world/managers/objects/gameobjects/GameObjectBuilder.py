@@ -8,8 +8,8 @@ class GameObjectBuilder:
     GUID_MANAGER = GuidManager()
 
     @staticmethod
-    def create(entry_id, location, map_id, state, summoner=None, rot0=0, rot1=0, rot2=0, rot3=0, faction=0, spell_id=0,
-               ttl=0, spawn_id=0):
+    def create(entry_id, location, map_id, instance_id, state, summoner=None, rot0=0, rot1=0, rot2=0, rot3=0, faction=0,
+               spell_id=0, ttl=0, spawn_id=0):
 
         gobject_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry_id)
         if not gobject_template:
@@ -32,6 +32,7 @@ class GameObjectBuilder:
         gameobject_instance.rot2 = rot2
         gameobject_instance.rot3 = rot3
         gameobject_instance.map_ = map_id if not summoner else summoner.map_
+        gameobject_instance.instance_id = instance_id if not summoner else summoner.instance_id
         gameobject_instance.zone = summoner.zone if summoner else 0
         gameobject_instance.summoner = summoner
         gameobject_instance.spell_id = spell_id

@@ -237,6 +237,15 @@ class PlayerManager(UnitManager):
             self.chat_flags &= ~ChatFlags.CHAT_TAG_GM
 
     def complete_login(self, first_login=False):
+        instance_token = InstancesManager.get_instance_token_by_player(self, self.map_)
+        self.instance_id = instance_token.map_id
+        if MapManager.is_dungeon_map_id(self.map_):
+            if not MapManager.get_instance_map(instance_token):
+                self.map_ = self.deathbind.deathbind_map
+                self.location.x = self.deathbind.deathbind_position_x
+                self.location.y = self.deathbind.deathbind_position_y
+                self.location.z = self.deathbind.deathbind_position_z
+
         self.online = True
 
         # Join default channels.
@@ -684,12 +693,16 @@ class PlayerManager(UnitManager):
             self.teleport(self.pending_teleport_data.origin_map, self.pending_teleport_data.origin_location, True)
             return
 
-        if changed_map and dbc_map.IsInMap == MapType.INSTANCE:
-            instance_token = InstancesManager.get_instance_token(self, dbc_map.ID)
-            instance_map = MapManager.get_instance_map(instance_token)
-            print('New map')
+        instance_token = InstancesManager.get_instance_token_by_player(self, dbc_map.ID)
+        if changed_map and MapManager.is_dungeon_map_id(dbc_map.ID):
+            if not MapManager.get_instance_map(instance_token):
+                self.pending_teleport_data.set_failed(True)
+                self.teleport(self.pending_teleport_data.origin_map, self.pending_teleport_data.origin_location, True)
+                return
 
         self.map_ = self.pending_teleport_data.destination_map
+        self.instance_id = instance_token.id
+        print(f'Map {self.map_} Instance {self.instance_id}')
         self.location = self.pending_teleport_data.destination_location.copy()
 
         # Player changed map. Send initial spells, action buttons and create packet.
