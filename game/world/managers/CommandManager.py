@@ -130,6 +130,7 @@ class CommandManager(object):
         maps_z = MapManager.calculate_z_for_object(world_session.player_mgr)[0]
         adt_tile = MapManager.get_tile(player_x, player_y)
         return 0, f'Map: {world_session.player_mgr.map_id}\n' \
+                  f'InstanceID: {world_session.player_mgr.instance_id}\n' \
                   f'Zone: {world_session.player_mgr.zone}\n' \
                   f'ADT: [{adt_tile[0]},{adt_tile[1]}]\n' \
                   f'X: {player_x:.3f}, ' \
