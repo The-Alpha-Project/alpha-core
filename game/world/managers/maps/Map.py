@@ -16,7 +16,7 @@ class Map:
     # Start update threads.
     def initialize(self):
         # Load creatures and gameobjects.
-        # self._load_map_creatures()
+        self._load_map_creatures()
         self._load_map_gameobjects()
         pass
 
