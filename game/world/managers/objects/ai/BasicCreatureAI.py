@@ -73,10 +73,6 @@ class BasicCreatureAI(CreatureAI):
         self.can_summon_guards = self.creature.can_summon_guards() if self.creature else False
 
     def _is_ready_for_new_attack(self):
-        # TODO: Enable proximity aggro inside dungeons once Namigator works.
-        if MapManager.is_dungeon_map_id(self.creature.map_id):
-            return False
-
         return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0 \
                and self._is_aggressive() and not self.creature.in_combat and not self.creature.is_evading \
                and not self.creature.unit_state & UnitStates.STUNNED \
