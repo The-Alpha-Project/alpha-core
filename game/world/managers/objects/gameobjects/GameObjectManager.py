@@ -331,6 +331,9 @@ class GameObjectManager(ObjectManager):
         self.set_uint32(GameObjectFields.GAMEOBJECT_DISPLAYID, self.current_display_id)
         return True
 
+    def is_within_interactable_distance(self, victim):
+        return self.location.distance(victim.location) <= 6.0
+
     # There are only 3 possible animations that can be used here.
     # Effect might depend on the gameobject type, apparently. e.g. Fishing bobber does its animation by sending 0.
     # TODO: See if we can retrieve the animation names.
