@@ -77,7 +77,7 @@ class BasicCreatureAI(CreatureAI):
         if MapManager.is_dungeon_map_id(self.creature.map_id):
             return False
 
-        return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0
+        return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0 \
                and self._is_aggressive() and not self.creature.in_combat and not self.creature.is_evading \
                and not self.creature.unit_state & UnitStates.STUNNED \
                and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
