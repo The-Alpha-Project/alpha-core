@@ -1,5 +1,3 @@
-import hashlib
-
 from database.realm.RealmDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketReader import *

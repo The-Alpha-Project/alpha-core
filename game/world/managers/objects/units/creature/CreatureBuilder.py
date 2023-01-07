@@ -36,7 +36,7 @@ class CreatureBuilder:
         creature_instance.faction = faction if faction else creature_template.faction
         creature_instance.location = location.copy()
         creature_instance.spawn_position = creature_instance.location.copy()
-        creature_instance.map_ = map_id if not summoner else summoner.map_
+        creature_instance.map_id = map_id if not summoner else summoner.map_id
         creature_instance.instance_id = instance_id if not summoner else summoner.instance_id
         creature_instance.zone = summoner.zone if summoner else 0
         creature_instance.spell_id = spell_id

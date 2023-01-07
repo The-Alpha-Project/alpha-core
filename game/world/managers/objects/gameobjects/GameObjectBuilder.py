@@ -31,7 +31,7 @@ class GameObjectBuilder:
         gameobject_instance.rot1 = rot1
         gameobject_instance.rot2 = rot2
         gameobject_instance.rot3 = rot3
-        gameobject_instance.map_ = map_id if not summoner else summoner.map_
+        gameobject_instance.map_id = map_id if not summoner else summoner.map_id
         gameobject_instance.instance_id = instance_id if not summoner else summoner.instance_id
         gameobject_instance.zone = summoner.zone if summoner else 0
         gameobject_instance.summoner = summoner

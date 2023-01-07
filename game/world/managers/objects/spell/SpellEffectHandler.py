@@ -148,7 +148,7 @@ class SpellEffectHandler:
             return
 
         arbiter = GameObjectBuilder.create(effect.misc_value, effect.targets.resolved_targets_b[0],
-                                           caster.map_, caster.instance_id,
+                                           caster.map_id, caster.instance_id,
                                            GameObjectStates.GO_STATE_READY,
                                            summoner=caster,
                                            spell_id=casting_spell.spell_entry.ID,
@@ -338,7 +338,7 @@ class SpellEffectHandler:
         # If no duration, default to 5 minutes.
         duration = 300 if duration == 0 else (duration / 1000)
 
-        creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_, caster.instance_id,
+        creature_manager = CreatureBuilder.create(totem_entry, target, caster.map_id, caster.instance_id,
                                                   summoner=caster,
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
@@ -383,7 +383,7 @@ class SpellEffectHandler:
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
 
-        gameobject = GameObjectBuilder.create(object_entry, target, caster.map_, caster.instance_id,
+        gameobject = GameObjectBuilder.create(object_entry, target, caster.map_id, caster.instance_id,
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=caster,
                                               spell_id=casting_spell.spell_entry.ID,
@@ -397,7 +397,7 @@ class SpellEffectHandler:
             return
 
         duration = casting_spell.get_duration() / 1000
-        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_, caster.instance_id,
+        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_id, caster.instance_id,
                                                   summoner=caster,
                                                   spell_id=casting_spell.spell_entry.ID,
                                                   faction=caster.faction, ttl=duration,
@@ -424,7 +424,7 @@ class SpellEffectHandler:
             return  # Don't summon if the player interrupted the ritual channeling (couldn't remove the cast).
 
         player = WorldSessionStateHandler.find_player_by_guid(caster.current_selection)
-        player.teleport(caster.map_, caster.location)
+        player.teleport(caster.map_id, caster.location)
 
     @staticmethod
     def handle_script_effect(casting_spell, effect, caster, target):
@@ -488,7 +488,7 @@ class SpellEffectHandler:
         else:
             target.deathbind.creature_binder_guid = 0
 
-        target.deathbind.deathbind_map = target.map_
+        target.deathbind.deathbind_map = target.map_id
         target.deathbind.deathbind_zone = target.zone
         target.deathbind.deathbind_position_x = target.location.x
         target.deathbind.deathbind_position_y = target.location.y
@@ -517,7 +517,7 @@ class SpellEffectHandler:
         # Terrain targeted leaps (ie. blink).
         if casting_spell.initial_target_is_terrain():
             leap_target.o = leaper.location.o
-            leaper.teleport(caster.map_, leap_target, is_instant=True)
+            leaper.teleport(caster.map_id, leap_target, is_instant=True)
             return
 
         # Unit-targeted leap (Charge/heroic leap).
@@ -525,14 +525,14 @@ class SpellEffectHandler:
         # It wasn't until Patch 0.6 that Charge speeded you along a path towards the target, it just teleported you
         # next to the target (there's also video evidence of this behavior).
         distance = caster.location.distance(target.location) - UnitFormulas.combat_distance(leaper, leap_target)
-        charge_location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_)
+        charge_location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_id)
         charge_location.face_point(target.location)
 
         # Stop movement if target is currently moving with waypoints.
         target.stop_movement()
 
         # Instant teleport.
-        caster.teleport(caster.map_, charge_location, is_instant=True)
+        caster.teleport(caster.map_id, charge_location, is_instant=True)
 
     @staticmethod
     def handle_tame_creature(casting_spell, effect, caster, target):
@@ -576,13 +576,13 @@ class SpellEffectHandler:
                     py = target.y
                     pz = target.z
                 else:
-                    location = caster.location.get_random_point_in_radius(radius, caster.map_)
+                    location = caster.location.get_random_point_in_radius(radius, caster.map_id)
                     px = location.x
                     py = location.Y
                     pz = location.z
             else:
                 if radius > 0.0:
-                    location = caster.location.get_random_point_in_radius(radius, caster.map_)
+                    location = caster.location.get_random_point_in_radius(radius, caster.map_id)
                     px = location.x
                     py = location.Y
                     pz = location.z
@@ -593,7 +593,7 @@ class SpellEffectHandler:
                     pz = location.z
 
             # Spawn the summoned unit.
-            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_, caster.instance_id,
+            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_id, caster.instance_id,
                                                       summoner=caster, faction=caster.faction, ttl=duration,
                                                       spell_id=casting_spell.spell_entry.ID,
                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
@@ -616,7 +616,7 @@ class SpellEffectHandler:
         # Store resurrection data for target.
         from game.world.managers.objects.units.player import PlayerManager
         target.resurrect_data = PlayerManager.ResurrectionRequestDataHolder(
-            caster.guid, effect.get_effect_points() / 100, caster.location.copy(), caster.map_
+            caster.guid, effect.get_effect_points() / 100, caster.location.copy(), caster.map_id
         )
 
         # Send resurrection request.

@@ -27,7 +27,7 @@ class SpellFocusManager(object):
             return
 
         surrounding_creatures, surrounding_players = MapManager.get_surrounding_units_by_location(
-            self.gameobject.location, self.gameobject.map_, self.gameobject.instance_id, self.radius,
+            self.gameobject.location, self.gameobject.map_id, self.gameobject.instance_id, self.radius,
             include_players=True)
 
         surrounding_units = surrounding_creatures | surrounding_players

@@ -179,7 +179,7 @@ class ThreatManager:
     def _call_for_help(self, source, threat):
         if self._call_for_help_range:
             units = MapManager.get_surrounding_units_by_location(self.owner.location,
-                                                                 self.owner.map_,
+                                                                 self.owner.map_id,
                                                                  self.owner.instance_id,
                                                                  self._call_for_help_range)[0].values()
 

@@ -1,8 +1,8 @@
 from struct import pack
 
 from game.world import WorldManager
-from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.maps.helpers.CellUtils import CellUtils
 from game.world.managers.objects.units.MovementSpline import MovementSpline
 from game.world.managers.objects.units.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -68,7 +68,7 @@ class MovementManager:
             if self.total_waypoint_timer >= self.total_waypoint_time:
                 if self.is_player and self.unit.pending_taxi_destination:
                     self.unit.set_taxi_flying_state(False)
-                    self.unit.teleport(self.unit.map_, self.unit.pending_taxi_destination, is_instant=True)
+                    self.unit.teleport(self.unit.map_id, self.unit.pending_taxi_destination, is_instant=True)
                     self.unit.pending_taxi_destination = None
                     self.unit.taxi_manager.update_flight_state()
 
@@ -257,17 +257,16 @@ class MovementManager:
 
     # TODO: FindRandomPointAroundCircle (Detour)
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
-        random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_)
-        failed, in_place, path = MapManager.calculate_path(self.unit.map_, start_position, random_point)
+        random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_id)
+        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, start_position, random_point)
         if failed or len(path) > 2 or in_place:
             return
 
         random_point = path[0]
         # Don't move if the destination is not an active cell.
-        new_cell_coords = GridManager.get_cell_key(random_point.x, random_point.y, self.unit.map_)
-        if self.unit.current_cell != new_cell_coords and not \
-                MapManager.get_grid_manager_by_map_instance_id(
-                    self.unit.map_, self.unit.instance_id).is_active_cell(new_cell_coords):
+        new_cell_coords = CellUtils.get_cell_key(random_point.x, random_point.y, self.unit.map_id, self.unit.instance_id)
+        map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
+        if self.unit.current_cell != new_cell_coords and not map_.is_active_cell(new_cell_coords):
             return
 
         self.send_move_normal([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)

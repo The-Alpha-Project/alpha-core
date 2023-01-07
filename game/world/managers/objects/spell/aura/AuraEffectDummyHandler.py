@@ -4,7 +4,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import Emotes, ObjectTypeIds, ObjectTypeFlags
-from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import StandState
 
 

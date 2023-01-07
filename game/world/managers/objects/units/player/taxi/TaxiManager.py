@@ -51,14 +51,14 @@ class TaxiManager(object):
         # Player is already on the last waypoint, do not trigger flight and just move him there.
         if len(waypoints) == 0:
             self.taxi_resume_info.flush()
-            self.owner.teleport(self.owner.map_, Vector(nodes[-1].LocX, nodes[-1].LocY, nodes[-1].LocZ), is_instant=True)
+            self.owner.teleport(self.owner.map_id, Vector(nodes[-1].LocX, nodes[-1].LocY, nodes[-1].LocZ), is_instant=True)
             return False
 
         # Get mount according to Flight Master if this is an initial flight trigger.
         if flight_master:
             mount_display_id = self.get_mount_display_id(flight_master)
 
-        dest_taxi_node = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_and_id(self.owner.map_, dest_node)
+        dest_taxi_node = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_id_and_node_id(self.owner.map_id, dest_node)
         self.owner.pending_taxi_destination = Vector(dest_taxi_node.X, dest_taxi_node.Y, dest_taxi_node.Z)
         self.owner.set_taxi_flying_state(True, mount_display_id)
 
@@ -158,7 +158,7 @@ class TaxiManager(object):
 
     @staticmethod
     def get_nearest_taxi_node(player_mgr):
-        taxi_nodes = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map(player_mgr.map_)
+        taxi_nodes = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_id(player_mgr.map_id)
         last_near_distance = -1
         last_near_taxi_node_id = -1
         for taxi_node_id, taxi_node in taxi_nodes:

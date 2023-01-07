@@ -3,7 +3,7 @@ from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.player.ReputationManager import ReputationManager
-from game.world.managers.objects.units.player.SkillManager import SkillManager, SkillLineType
+from game.world.managers.objects.units.player.SkillManager import SkillManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils import TextUtils

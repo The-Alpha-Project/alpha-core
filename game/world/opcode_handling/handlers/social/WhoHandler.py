@@ -65,11 +65,11 @@ class WhoHandler(object):
                     if race_mask != 0xFFFFFFFF and race_mask & player_mgr.race_mask != player_mgr.race_mask:
                         continue
                     if zone_count > 0:
-                        current_areas = [DbcDatabaseManager.area_get_by_id_and_map_id(player_mgr.zone, player_mgr.map_)]
+                        current_areas = [DbcDatabaseManager.area_get_by_id_and_map_id(player_mgr.zone, player_mgr.map_id)]
 
                         # If the current zone has a parent zone, look for it and add it.
                         if current_areas[0] and current_areas[0].ParentAreaNum > 0:
-                            current_areas.append(DbcDatabaseManager.area_get_by_area_number(current_areas[0].ParentAreaNum, player_mgr.map_))
+                            current_areas.append(DbcDatabaseManager.area_get_by_area_number(current_areas[0].ParentAreaNum, player_mgr.map_id))
 
                         area_ids = [area.ID for area in current_areas if area]
 

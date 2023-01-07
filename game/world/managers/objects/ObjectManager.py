@@ -36,7 +36,7 @@ class ObjectManager:
                  transport=None,
                  pitch=0,
                  zone=0,
-                 map_=0):
+                 map_id=0):
         self.guid = guid
         self.entry = entry
         self.walk_speed = walk_speed
@@ -57,7 +57,7 @@ class ObjectManager:
         self.transport = Vector()
         self.pitch = pitch
         self.zone = zone
-        self.map_ = map_
+        self.map_id = map_id
         self.instance_id = -1
         self.update_packet_factory = UpdatePacketFactory()
 
@@ -376,7 +376,7 @@ class ObjectManager:
 
     # override
     def is_over_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+        liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
                                                                self.location.z)
         if not liquid_information:
             return False
@@ -385,14 +385,14 @@ class ObjectManager:
 
     # override
     def is_under_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+        liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
                                                                self.location.z)
 
         return liquid_information and self.location.z + (self.current_scale * 1.8) < liquid_information.height
 
     # override
     def is_in_deep_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+        liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
                                                                self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
@@ -442,7 +442,7 @@ class ObjectManager:
                 return False
 
             # If player is not in a PvP map (PvP system was not added until Patch 0.7).
-            if not MapManager.get_map(target.map_, target.instance_id).is_pvp():
+            if not MapManager.get_map(target.map_id, target.instance_id).is_pvp():
                 return False
 
         # Creature only checks.

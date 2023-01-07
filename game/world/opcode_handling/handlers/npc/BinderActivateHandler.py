@@ -3,7 +3,6 @@ from struct import unpack
 from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils import Formulas
-from utils.constants.MiscCodes import HighGuid
 from utils.constants.SpellCodes import SpellTargetMask
 
 BIND_SPELL = 3286

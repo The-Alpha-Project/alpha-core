@@ -35,7 +35,7 @@ class CreatureManager(UnitManager):
         self.creature_template = None
         self.location = None
         self.spawn_position = None
-        self.map_ = 0
+        self.map_id = 0
         self.health_percent = 100
         self.mana_percent = 100
         self.summoner = None
@@ -388,7 +388,7 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        failed, in_place, path = MapManager.calculate_path(self.map_, self.location, self.spawn_position)
+        failed, in_place, path = MapManager.calculate_path(self.map_id, self.location, self.spawn_position)
 
         if in_place:
             return
@@ -508,14 +508,14 @@ class CreatureManager(UnitManager):
 
         # Use direct combat location if target is over water.
         if not target_under_water:
-            failed, in_place, path = MapManager.calculate_path(self.map_, self.location.copy(), combat_location)
+            failed, in_place, path = MapManager.calculate_path(self.map_id, self.location.copy(), combat_location)
             if not failed and not in_place:
                 combat_location = path[0]
             elif in_place:
                 return
             # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
             elif MapManager.NAMIGATOR_LOADED:
-                Logger.warning(f'Unable to find navigation path, map {self.map_} loc {self.location} end {combat_location}')
+                Logger.warning(f'Unable to find navigation path, map {self.map_id} loc {self.location} end {combat_location}')
 
         self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 

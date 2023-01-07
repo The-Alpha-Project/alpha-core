@@ -62,6 +62,14 @@ class GroupManager(object):
     def get_leader_guid(self):
         return self.group.leader_guid
 
+    # When on a group, members should no longer hold individual tokens to the same map-instance_id kvp.
+    def update_instance_token_for_members(self, instance_token):
+        from game.world.managers.maps.InstancesManager import InstancesManager
+        for guid, member in list(self.members.items()):
+            member_instance_token = InstancesManager.get_instance_token_for_player_guid(guid, instance_token.map_id)
+            if member_instance_token and member_instance_token.id == instance_token.id:
+                InstancesManager.remove_token_for_player(guid, member_instance_token)
+
     # TODO, check if ordering becomes an issue cause of using dictionary for members.
     def get_member_at(self, index):
         for idx, member in enumerate(list(self.members.keys())):
@@ -319,7 +327,7 @@ class GroupManager(object):
 
     # noinspection PyMethodMayBeStatic
     def is_close_member(self, requester, player_mgr):
-        return requester and player_mgr and player_mgr.online and requester.map_ == player_mgr.map_ and \
+        return requester and player_mgr and player_mgr.online and requester.map_id == player_mgr.map_id and \
                requester.location.distance(player_mgr.location) < Distances.GROUP_SHARING_DISTANCE
 
     def reward_group_reputation(self, requester, creature):

@@ -1,7 +1,8 @@
 from multiprocessing import RLock
 from game.world.managers.maps.helpers.InstanceToken import InstanceToken
 
-PLAYER_INSTANCES = dict()
+# Instances tokens per player/map.
+INSTANCES: dict[int, dict[int, InstanceToken]] = dict()
 
 
 class InstancesManager:
@@ -9,38 +10,47 @@ class InstancesManager:
     LOCK = RLock()
 
     @staticmethod
-    def get_instance_token_by_player(player_mgr, map_):
+    def get_or_create_instance_token_by_player(player_mgr, map_id):
         # World/Pvp maps use map_id as instance_id.
-        if not InstancesManager._is_dungeon_map_id(map_):
-            return InstanceToken(map_, map_)
+        if not InstancesManager._is_dungeon_map_id(map_id):
+            return InstanceToken(map_id, map_id)
         with InstancesManager.LOCK:
-            group = player_mgr.group_manager
+            group_manager = player_mgr.group_manager
             # Group priority.
-            if group:
-                if group.has_instance_token(map_):
-                    return group.get_instance_token(map_)
-                instance_token = InstancesManager._generate_instance_token(player_mgr.guid, map_)
-                group.add_instance_token(map_, instance_token)
+            if group_manager:
+                if group_manager.has_instance_token(map_id):
+                    instance_token = group_manager.get_instance_token(map_id)
+                    group_manager.update_instance_token_for_members(instance_token)
+                    return instance_token
+                instance_token = InstancesManager._generate_instance_token(player_mgr.guid, map_id)
+                group_manager.add_instance_token(map_id, instance_token)
             else:
-                instance_token = InstancesManager._get_instance_token_for_player_guid(player_mgr.guid, map_)
+                instance_token = InstancesManager.get_instance_token_for_player_guid(player_mgr.guid, map_id)
+                if not instance_token:
+                    instance_token = InstancesManager._generate_instance_token(player_mgr.guid, map_id)
 
             return instance_token
 
     @staticmethod
-    def _generate_instance_token(guid, map_):
-        if guid not in PLAYER_INSTANCES:
-            PLAYER_INSTANCES[guid] = dict()
-        instance_token = InstanceToken(InstancesManager.INSTANCE_ID, map_)
-        PLAYER_INSTANCES[guid][map_] = instance_token
-        InstancesManager.INSTANCE_ID += 1
-        return instance_token
+    def get_instance_token_for_player_guid(player_guid, map_):
+        if player_guid in INSTANCES:
+            if map_ in INSTANCES[player_guid]:
+                return INSTANCES[player_guid][map_]
+        return None
 
     @staticmethod
-    def _get_instance_token_for_player_guid(guid, map_):
-        if guid in PLAYER_INSTANCES:
-            if map_ in PLAYER_INSTANCES[guid]:
-                return PLAYER_INSTANCES[guid][map_]
-        return InstancesManager._generate_instance_token(guid, map_)
+    def remove_token_for_player(player_guid, instance_token: InstanceToken):
+        if player_guid in INSTANCES and instance_token.map_id in INSTANCES[player_guid]:
+            INSTANCES[player_guid].pop(instance_token.map_id)
+
+    @staticmethod
+    def _generate_instance_token(player_guid, map_):
+        if player_guid not in INSTANCES:
+            INSTANCES[player_guid] = dict()
+        instance_token = InstanceToken(InstancesManager.INSTANCE_ID, map_)
+        INSTANCES[player_guid][map_] = instance_token
+        InstancesManager.INSTANCE_ID += 1
+        return instance_token
 
     @staticmethod
     def _is_dungeon_map_id(map_id):

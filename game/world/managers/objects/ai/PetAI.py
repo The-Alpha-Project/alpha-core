@@ -1,10 +1,9 @@
 import math
 
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
-from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from utils.constants.CustomCodes import Permits
 from utils.constants.PetCodes import PetCommandState
-from utils.constants.UnitCodes import SplineFlags, CreatureStaticFlags
+from utils.constants.UnitCodes import SplineFlags
 
 
 class PetAI(CreatureAI):

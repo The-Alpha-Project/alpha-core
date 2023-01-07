@@ -443,18 +443,18 @@ class DbcDatabaseManager:
                 DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES[taxi_node.ID] = taxi_node
 
         @staticmethod
-        def taxi_nodes_get_by_map(map_):
-            if map_ == 0:
+        def taxi_nodes_get_by_map_id(map_id):
+            if map_id == 0:
                 return DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items()
-            elif map_ == 1:
+            elif map_id == 1:
                 return DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES.items()
             return {}
 
         @staticmethod
-        def taxi_nodes_get_by_map_and_id(map_, node_id):
-            if map_ == 0:
+        def taxi_nodes_get_by_map_id_and_node_id(map_id, node_id):
+            if map_id == 0:
                 return DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES[node_id]
-            elif map_ == 1:
+            elif map_id == 1:
                 return DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES[node_id]
             return {}
 
