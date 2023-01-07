@@ -149,7 +149,7 @@ class MapManager:
                 if -1 < adt_x + i < 64 and -1 < adt_y + j < 64:
                     if MAPS_TILES[map_id][adt_x + i][adt_y + j].initialized:
                         continue
-                    Logger.debug(f'Loading ADT tile for coordinates {adt_x + i},{adt_y + j}')
+                    Logger.debug(f'[Map] Loading ADT tile for coordinates {adt_x + i},{adt_y + j}')
                     MAPS_TILES[map_id][adt_x + i][adt_y + j].initialize(namigator)
 
         return True
