@@ -702,7 +702,6 @@ class PlayerManager(UnitManager):
 
         self.map_ = self.pending_teleport_data.destination_map
         self.instance_id = instance_token.id
-        print(f'Map {self.map_} Instance {self.instance_id}')
         self.location = self.pending_teleport_data.destination_location.copy()
 
         # Player changed map. Send initial spells, action buttons and create packet.

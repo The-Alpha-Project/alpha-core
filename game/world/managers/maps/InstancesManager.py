@@ -24,7 +24,6 @@ class InstancesManager:
             else:
                 instance_token = InstancesManager._get_instance_token_for_player_guid(player_mgr.guid, map_)
 
-            print(f'Instance ID {instance_token.id}')
             return instance_token
 
     @staticmethod
