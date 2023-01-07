@@ -129,16 +129,23 @@ class Cell:
             player.update_known_objects_on_tick = True
 
     def remove(self, world_object):
-        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        guid = world_object.guid
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and guid in self.players:
             self.players.pop(world_object.guid, None)
-        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+            return True
+        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT and guid in self.creatures:
             self.creatures.pop(world_object.guid, None)
-        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            return True
+        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and guid in self.gameobjects:
             self.gameobjects.pop(world_object.guid, None)
-        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
+            return True
+        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT and guid in self.dynamic_objects:
             self.dynamic_objects.pop(world_object.guid, None)
-        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
+            return True
+        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE and guid in self.corpses:
             self.corpses.pop(world_object.guid, None)
+            return True
+        return False
 
     def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
         players_reached = set()

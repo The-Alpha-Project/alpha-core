@@ -74,10 +74,8 @@ class WorldLoader:
         WorldLoader.load_guilds()
 
         # Maps.
-        MapManager.initialize_world_maps()
-        MapManager.initialize_namigator()
+        MapManager.initialize_world_and_pvp_maps()
         MapManager.initialize_area_tables()
-        MapManager.load_map_adt_tiles()
 
     # World data holders
 

@@ -9,7 +9,8 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.InstancesManager import InstancesManager
-from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, RESOLUTION_LIQUIDS
+from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, \
+    RESOLUTION_LIQUIDS
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.Map import Map, MapType
 from game.world.managers.maps.MapTile import MapTile, MapTileStates
@@ -43,43 +44,42 @@ class MapManager:
     NAMIGATOR_FAILED = False
 
     @staticmethod
-    def initialize_world_maps():
+    def initialize_world_and_pvp_maps():
         for map_id in MAP_LIST:
             dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
             # Initialize common and pvp maps.
             if dbc_map.IsInMap != MapType.COMMON and dbc_map.PVP != 1:
                 continue
-            MAPS[map_id] = dict()
             # World/Pvp maps use map_id as instance id.
-            MAPS[map_id][map_id] = Map(map_id, MapManager.on_cell_turn_active, instance_id=map_id)
-            MAPS[map_id][map_id].initialize()
+            MapManager._build_map(map_id, map_id)
 
     @staticmethod
     def is_dungeon_map_id(map_id):
         return map_id not in (0, 1, 30, 37)  # World / Pvp.
 
     @staticmethod
-    def initialize_namigator():
-        if not config.Server.Settings.use_nav_tiles or MapManager.NAMIGATOR_FAILED:
+    def _build_map(map_id, instance_id):
+        if map_id in MAPS and instance_id in MAPS[map_id]:
+            Logger.warning(f'Tried to instantiate an existent map. Map {map_id}, Instance {instance_id}')
             return
-        length = len(MAP_LIST)
-        count = 0
-        for map_id in MAP_LIST:
-            count += 1
-            MapManager.build_map_namigator(MAPS[map_id])
-            Logger.progress('Loading map namigator...', count, length)
+
+        # Initialize instances dictionary.
+        if map_id not in MAPS:
+            MAPS[map_id] = dict()
+
+        new_map = Map(map_id, MapManager.on_cell_turn_active, instance_id=instance_id)
+        MAPS[map_id][instance_id] = new_map
+        new_map.initialize()
+        MapManager._build_map_namigator(new_map)
+        MapManager._build_map_adt_tiles(new_map)
+        return new_map
 
     @staticmethod
-    def build_map_namigator(map_):
-        if MapManager.NAMIGATOR_FAILED or map_.id in MAPS_NAMIGATOR or not config.Server.Settings.use_nav_tiles:
+    def _build_map_namigator(map_: Map):
+        if map_.id in MAPS_NO_NAVIGATION or MapManager.NAMIGATOR_FAILED or map_.id in MAPS_NAMIGATOR \
+                or not config.Server.Settings.use_nav_tiles:
             return
 
-        if map_.id in MAPS_NO_NAVIGATION:
-            return
-
-        # Attempt to load Namigator module if enabled.
-        if config.Server.Settings.use_nav_tiles and MapManager.NAMIGATOR_FAILED:
-            return
         try:
             from namigator import pathfind
             nav_root_path = PathManager.get_navs_path()
@@ -98,15 +98,72 @@ class MapManager:
             return
 
     @staticmethod
+    def enqueue_adt_tile_initialization(map_id, raw_x, raw_y):
+        if not config.Server.Settings.use_map_tiles:
+            return
+
+        with QUEUE_LOCK:
+            adt_x, adt_y = MapManager.get_tile(raw_x, raw_y)
+
+            adt_key = f'{map_id},{adt_x},{adt_y}'
+            if adt_key in PENDING_TILE_INITIALIZATION:
+                return
+
+            PENDING_TILE_INITIALIZATION[adt_key] = True
+            to_load_data = f'{map_id},{raw_x},{raw_y}'
+            PENDING_TILE_INITIALIZATION_QUEUE.put(to_load_data)
+
+    @staticmethod
+    def _build_map_adt_tiles(map_: Map):
+        if map_.id in MAPS_TILES:
+            return
+
+        MAPS_TILES[map_.id] = [[None for r in range(64)] for c in range(64)]
+        for adt_x in range(64):
+            for adt_y in range(64):
+                MAPS_TILES[map_.id][adt_x][adt_y] = MapTile(map_.id, adt_x, adt_y)
+
+        Logger.success(f'[MAP] Successfully built ADT tiles for map {map_.name}')
+        return True
+
+    @staticmethod
+    def initialize_pending_tiles():
+        if not PENDING_TILE_INITIALIZATION_QUEUE.empty():
+            key = PENDING_TILE_INITIALIZATION_QUEUE.get()
+            map_id, x, y = str(key).rsplit(',')
+            MapManager.initialize_adt_tile(int(map_id), float(x), float(y))
+
+    @staticmethod
+    def initialize_adt_tile(map_id, x, y):
+        if map_id not in MAP_LIST:
+            return False
+
+        adt_x = MapManager.get_tile_x(x)
+        adt_y = MapManager.get_tile_y(y)
+
+        # Map namigator instance, if available.
+        namigator = MAPS_NAMIGATOR[map_id] if map_id in MAPS_NAMIGATOR and MapManager.NAMIGATOR_LOADED else None
+
+        for i in range(-1, 1):
+            for j in range(-1, 1):
+                if -1 < adt_x + i < 64 and -1 < adt_y + j < 64:
+                    if MAPS_TILES[map_id][adt_x + i][adt_y + j].initialized:
+                        continue
+                    Logger.debug(f'Loading ADT tile for coordinates {adt_x + i},{adt_y + j}')
+                    MAPS_TILES[map_id][adt_x + i][adt_y + j].initialize(namigator)
+
+        return True
+
+    @staticmethod
     def get_instance_map(instance_token):
         if instance_token.map_id not in MAPS:
             MAPS[instance_token.map_id] = dict()
+        # If the instance does not exist, create it.
         if instance_token.id not in MAPS[instance_token.map_id]:
-            print(f'Initializing {instance_token.map_id}')
-            instance_map = Map(instance_token.map_id, MapManager.on_cell_turn_active, instance_id=instance_token.id)
-            MAPS[instance_token.map_id][instance_token.id] = instance_map
-            instance_map.initialize()
-        return MAPS[instance_token.map_id][instance_token.id]
+            instance_map = MapManager._build_map(instance_token.map_id, instance_token.id)
+        else:
+            instance_map = MAPS[instance_token.map_id][instance_token.id]
+        return instance_map
 
     @staticmethod
     def initialize_area_tables():
@@ -142,67 +199,6 @@ class MapManager:
         return True
 
     @staticmethod
-    def enqueue_adt_tile_initialization(map_id, raw_x, raw_y):
-        if not config.Server.Settings.use_map_tiles:
-            return
-
-        with QUEUE_LOCK:
-            adt_x, adt_y = MapManager.get_tile(raw_x, raw_y)
-
-            adt_key = f'{map_id},{adt_x},{adt_y}'
-            if adt_key in PENDING_TILE_INITIALIZATION:
-                return
-
-            PENDING_TILE_INITIALIZATION[adt_key] = True
-            to_load_data = f'{map_id},{raw_x},{raw_y}'
-            PENDING_TILE_INITIALIZATION_QUEUE.put(to_load_data)
-
-    @staticmethod
-    def load_map_adt_tiles():
-        if not config.Server.Settings.use_map_tiles:
-            return False
-
-        length = len(MAPS) * (64 * 64)
-        count = 0
-        for map_id in MAPS.keys():
-            MAPS_TILES[map_id] = [[None for r in range(64)] for c in range(64)]
-            for adt_x in range(64):
-                for adt_y in range(64):
-                    count += 1
-                    MAPS_TILES[map_id][adt_x][adt_y] = MapTile(map_id, adt_x, adt_y)
-                    Logger.progress('Loading map tiles...', count, length)
-
-        return True
-
-    @staticmethod
-    def initialize_pending_tiles():
-        if not PENDING_TILE_INITIALIZATION_QUEUE.empty():
-            key = PENDING_TILE_INITIALIZATION_QUEUE.get()
-            map_id, x, y = str(key).rsplit(',')
-            MapManager.initialize_tile(int(map_id), float(x), float(y))
-
-    @staticmethod
-    def initialize_tile(map_id, x, y):
-        if map_id not in MAP_LIST:
-            return False
-
-        adt_x = MapManager.get_tile_x(x)
-        adt_y = MapManager.get_tile_y(y)
-
-        # Map namigator instance, if available.
-        namigator = MAPS_NAMIGATOR[map_id] if map_id in MAPS_NAMIGATOR and MapManager.NAMIGATOR_LOADED else None
-
-        for i in range(-1, 1):
-            for j in range(-1, 1):
-                if -1 < adt_x + i < 64 and -1 < adt_y + j < 64:
-                    if MAPS_TILES[map_id][adt_x + i][adt_y + j].initialized:
-                        continue
-                    Logger.debug(f'Loading ADT tile for coordinates {adt_x + i},{adt_y + j}')
-                    MAPS_TILES[map_id][adt_x + i][adt_y + j].initialize(namigator)
-
-        return True
-
-    @staticmethod
     def get_tile(x, y):
         tile_x = int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)
         tile_y = int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)
@@ -221,14 +217,16 @@ class MapManager:
     @staticmethod
     def get_submap_tile_x(x):
         tile_x = int((RESOLUTION_ZMAP - 1) * (
-                32.0 - MapManager.validate_map_coord(x) / ADT_SIZE - int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)))
+                32.0 - MapManager.validate_map_coord(x) / ADT_SIZE - int(
+            32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)))
 
         return tile_x
 
     @staticmethod
     def get_submap_tile_y(y):
         tile_y = int((RESOLUTION_ZMAP - 1) * (
-                32.0 - MapManager.validate_map_coord(y) / ADT_SIZE - int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)))
+                32.0 - MapManager.validate_map_coord(y) / ADT_SIZE - int(
+            32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)))
 
         return tile_y
 
@@ -283,11 +281,13 @@ class MapManager:
                                                                                (RESOLUTION_ZMAP - 1))
 
         # Check if loaded or unable to load, return True if this fails.
-        if MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x, source_adt_y) != MapTileStates.READY:
+        if MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x,
+                                       source_adt_y) != MapTileStates.READY:
             return True
 
         # Check if loaded or unable to load, return True if this fails.
-        if MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y) != MapTileStates.READY:
+        if MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x,
+                                       destination_adt_y) != MapTileStates.READY:
             return True
 
         # Calculate path.
@@ -334,11 +334,13 @@ class MapManager:
                                                                                (RESOLUTION_ZMAP - 1))
 
         # Check if loaded or unable to load.
-        if MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x, source_adt_y) != MapTileStates.READY:
+        if MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x,
+                                       source_adt_y) != MapTileStates.READY:
             return True, False, [end_vector]
 
         # Check if loaded or unable to load.
-        if MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x, destination_adt_y) != MapTileStates.READY:
+        if MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x,
+                                       destination_adt_y) != MapTileStates.READY:
             return True, False, [end_vector]
 
         # Calculate path.
@@ -380,7 +382,8 @@ class MapManager:
         if not config.Server.Settings.use_map_tiles:
             return True
 
-        if map_id not in MAPS:
+        # Check valid ID.
+        if map_id not in MAP_LIST:
             return False
 
         # Some instances don't have tiles, only WMOs; always allow teleporting inside one.
@@ -620,7 +623,8 @@ class MapManager:
         if not world_object.current_cell and include_self and world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             world_object.enqueue_packet(packet)
         elif world_object.current_cell:
-            MapManager.get_grid_manager_by_map_instance_id(world_object.map_, world_object.instance_id).send_surrounding(
+            MapManager.get_grid_manager_by_map_instance_id(world_object.map_,
+                                                           world_object.instance_id).send_surrounding(
                 packet, world_object, include_self, exclude, use_ignore)
 
     @staticmethod
@@ -704,7 +708,37 @@ class MapManager:
             world_object.map_, world_object.instance_id).get_surrounding_gameobject_by_spawn_id(world_object, spawn_id)
 
     @staticmethod
+    def update_creatures():
+        for map_id, instances in MAPS.items():
+            for instance in instances.values():
+                instance.grid_manager.update_creatures()
+
+    @staticmethod
+    def update_gameobjects():
+        for map_id, instances in MAPS.items():
+            for instance in instances.values():
+                instance.grid_manager.update_gameobjects()
+
+    @staticmethod
+    def update_dynobjects():
+        for map_id, instances in MAPS.items():
+            for instance in instances.values():
+                instance.grid_manager.update_dynobjects()
+
+    @staticmethod
+    def update_spawns():
+        for map_id, instances in MAPS.items():
+            for instance in instances.values():
+                instance.grid_manager.update_spawns()
+
+    @staticmethod
+    def update_corpses():
+        for map_id, instances in MAPS.items():
+            for instance in instances.values():
+                instance.grid_manager.update_corpses()
+
+    @staticmethod
     def deactivate_cells():
-        for map_id, instances in list(MAPS.items()):
-            for map_ in list(instances.values()):
-                map_.grid_manager.deactivate_cells()
+        for map_id, instances in MAPS.items():
+            for instance in instances.values():
+                instance.grid_manager.deactivate_cells()

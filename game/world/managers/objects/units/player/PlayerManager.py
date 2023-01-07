@@ -599,7 +599,7 @@ class PlayerManager(UnitManager):
             return False
 
         if not MapManager.validate_teleport_destination(map_, location.x, location.y):
-            Logger.warning(f'Teleport, invalid destination, Map {map_}, X {location.x} Y {location.Y}.')
+            Logger.warning(f'Teleport, invalid destination, Map {map_}, X {location.x} Y {location.y}.')
             return False
 
         # End duel and detach pet if this is a long-distance teleport.
@@ -734,8 +734,11 @@ class PlayerManager(UnitManager):
             self.spirit_release_timer = 0
             self.resurrect_data = None
 
-        # Get us in a new cell.
-        MapManager.update_object(self)
+        if not changed_map:
+            # Get us in a new cell.
+            MapManager.update_object(self)
+        else:
+            MapManager.spawn_object(world_object_instance=self)
 
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)

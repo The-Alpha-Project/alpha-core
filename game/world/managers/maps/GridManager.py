@@ -5,7 +5,6 @@ import math
 import time
 
 from game.world.managers.maps.Cell import Cell
-from game.world.managers.maps.helpers.Constants import PlayerMapEvents
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
@@ -17,14 +16,13 @@ CELL_SIZE = config.Server.Settings.cell_size
 
 
 class GridManager:
-    def __init__(self, map_id, active_cell_callback, player_event_call_back, instance_id=0):
+    def __init__(self, map_id, active_cell_callback, instance_id=0):
         self.map_id = map_id
         self.grid_lock = RLock()
         self.instance_id = instance_id
         self.active_cell_keys: set[str] = set()
         self.cells: dict[str, Cell] = {}
         self.active_cell_callback = active_cell_callback
-        self.player_event_callback = player_event_call_back
 
     def spawn_object(self, world_object_spawn=None, world_object_instance=None):
         if world_object_instance:
@@ -35,12 +33,6 @@ class GridManager:
             Logger.warning(f'Spawn object called with None arguments.')
 
     def update_object(self, world_object, old_grid_manager, has_changes=False, has_inventory_changes=False):
-        player_event = PlayerMapEvents.NONE
-
-        # Join event.
-        if (not old_grid_manager or (old_grid_manager and old_grid_manager != self)) and world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            player_event = PlayerMapEvents.JOIN
-
         source_cell_key = world_object.current_cell
         current_cell_key = GridManager.get_cell_key(world_object.location.x, world_object.location.y, world_object.map_)
 
@@ -48,9 +40,6 @@ class GridManager:
         if old_grid_manager and old_grid_manager != self:
             # Remove from old location.
             old_grid_manager.remove_object(world_object)
-            # Left event.
-            if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                player_event = PlayerMapEvents.LEFT
             # Add to new location.
             self.add_world_object(world_object)
         # Handle cell change within the same map.
@@ -74,12 +63,6 @@ class GridManager:
                 world_object.reset_fields_older_than(now)
             if has_inventory_changes:
                 world_object.inventory.reset_fields_older_than(now)
-
-        # Player map event.
-        if player_event != PlayerMapEvents.NONE:
-            grid_manager = self if player_event == PlayerMapEvents.JOIN else old_grid_manager
-            if grid_manager:
-                grid_manager.player_event_callback(world_object, player_event)
 
         # Notify cell changed if needed.
         if old_grid_manager and old_grid_manager != self or current_cell_key != source_cell_key:
@@ -127,8 +110,7 @@ class GridManager:
     # Remove a world_object from its cell and notify surrounding players if required.
     def remove_object(self, world_object, update_players=True):
         cell = self.cells.get(world_object.current_cell)
-        if cell:
-            cell.remove(world_object)
+        if cell and cell.remove(world_object):
             # Notify surrounding players.
             if update_players:
                 self.update_players_surroundings(cell.key)
