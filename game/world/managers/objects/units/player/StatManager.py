@@ -53,6 +53,8 @@ class UnitStats(IntFlag):
 
     CRITICAL = auto()
     SPELL_CRITICAL = auto()
+    SPELL_ITEM_CRITICAL_MODS = auto()
+    SPELL_ITEM_GLOBAL_CRITICAL_MODS = auto()
     SPELL_CASTING_SPEED_NON_STACKING = auto()
     SCHOOL_CRITICAL = auto()
     SCHOOL_POWER_COST = auto()
@@ -669,6 +671,7 @@ class StatManager(object):
         if self.unit_mgr.handle_immunity(attacker, SpellImmunity.IMMUNITY_DAMAGE, SpellSchools.SPELL_SCHOOL_NORMAL):
             return HitInfo.ABSORBED
 
+        attack_weapon = None
         # Note: Bear and cat form attacks don't use a weapon, and instead have max attack rating.
         if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and not attacker.is_in_feral_form():
             attack_weapon = attacker.get_current_weapon_for_attack_type(attack_type)
@@ -721,6 +724,19 @@ class StatManager(object):
             return HitInfo.BLOCK
 
         attacker_critical_chance = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
+
+        # Check for spell crit mods for item class/subclass.
+        if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and attack_weapon:
+            # ItemSubClass specific.
+            item_subclass_mask = 1 << attack_weapon.item_template.subclass
+            attacker_critical_chance += attacker.stat_manager.get_total_stat(UnitStats.SPELL_ITEM_CRITICAL_MODS,
+                                                                             misc_value=item_subclass_mask,
+                                                                             accept_float=True,
+                                                                             misc_value_is_mask=True)
+            # General main, off, ranged. ItemClass -1.
+            attacker_critical_chance += attacker.stat_manager.get_total_stat(UnitStats.SPELL_ITEM_GLOBAL_CRITICAL_MODS,
+                                                                             accept_float=True)
+
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Player: +- 0.04% for each rating difference.
             # For example with defender player level 60 and attacker mob level 63:
@@ -754,6 +770,12 @@ class StatManager(object):
 
         critical_type = UnitStats.CRITICAL if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL else UnitStats.SPELL_CRITICAL
         crit_chance = caster.stat_manager.get_total_stat(critical_type, accept_float=True)
+
+        # If using base SPELL_CRITICAL, check if school critical enhancements exist.
+        if critical_type != UnitStats.CRITICAL:
+            crit_chance += caster.stat_manager.get_total_stat(UnitStats.SCHOOL_CRITICAL, misc_value=spell_school,
+                                                              accept_float=True, misc_value_is_mask=True)
+
         if random.random() < crit_chance:
             hit_flags |= SpellHitFlags.CRIT
 

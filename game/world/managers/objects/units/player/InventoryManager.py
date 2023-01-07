@@ -154,6 +154,7 @@ class InventoryManager(object):
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
                          handle_error=True):
+        created_by = 0 if not item else item.item_instance.creator
         if entry != 0 and not item_template:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         if not item_template:
@@ -184,11 +185,13 @@ class InventoryManager(object):
             dest_slot = dest_container.next_available_slot()
             remaining = count
 
+            # Add items to target container.
             if not dest_slot == -1:  # If the target container has a slot open.
-                remaining, item_mgr = dest_container.add_item(item_template, count=count)  # Add items to target container.
+                remaining, item_mgr = dest_container.add_item(item_template, count=count, created_by=created_by)
 
+            # Overflow to inventory.
             if remaining > 0:
-                self.add_item(item_template=item_template, count=remaining)  # Overflow to inventory.
+                self.add_item(item_template=item_template, count=remaining, created_by=created_by)
 
             return True
 
@@ -214,7 +217,7 @@ class InventoryManager(object):
                     self.send_equip_error(InventoryError.BAG_NOT_EQUIPPABLE, item, dest_item)
                 return False
 
-        generated_item = dest_container.set_item(item_template, dest_slot, count=count)
+        generated_item = dest_container.set_item(item_template, dest_slot, count=count, created_by=created_by)
         # Add to containers if a bag was dragged to bag slots
         if dest_container.is_backpack and self.is_bag_pos(dest_slot):
             self.add_bag(dest_slot, generated_item)
