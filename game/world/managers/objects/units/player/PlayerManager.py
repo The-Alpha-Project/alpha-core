@@ -712,6 +712,8 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(self.get_action_buttons())
             # Inventory updates before spawning.
             self.enqueue_packets(self.inventory.get_inventory_update_packets(requester=self))
+            # Reset move flags before create packet in order to avoid player starting automatically moving after tele.
+            self.movement_flags = MoveFlags.MOVEFLAG_NONE
             # Create packet.
             self.enqueue_packet(self.generate_create_packet(requester=self))
             # Apply enchantments again.

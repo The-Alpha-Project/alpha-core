@@ -257,9 +257,6 @@ class MovementManager:
 
     # TODO: Namigator: FindRandomPointAroundCircle (Detour)
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
-        # TODO: Enable wandering inside dungeons once Namigator works.
-        if MapManager.is_dungeon_map_id(self.unit.map_id):
-            return
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_id)
         failed, in_place, path = MapManager.calculate_path(self.unit.map_id, start_position, random_point)
         if failed or len(path) > 2 or in_place:

@@ -64,7 +64,7 @@ class CreatureSpawn:
         return False
 
     def spawn_creature(self):
-        creature_template_id = self._generate_creature_template()
+        creature_template_id = self._get_creature_entry()
 
         if not creature_template_id:
             Logger.warning(f'Found creature spawn with non existent creature template(s). '
@@ -108,7 +108,3 @@ class CreatureSpawn:
                                                self.creature_spawn.spawn_entry2,
                                                self.creature_spawn.spawn_entry3,
                                                self.creature_spawn.spawn_entry4])))
-
-    def _generate_creature_template(self):
-        return self._get_creature_entry()
-
