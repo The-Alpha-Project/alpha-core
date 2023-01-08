@@ -488,14 +488,12 @@ class SpellManager:
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT: moved,
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE: received_damage,
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_INTERRUPT: interrupted,
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK: received_auto_attack,
+            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK: received_auto_attack
         }
         channeling_spell_flag_cases = {
             SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE: received_damage,
             SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT: moved,
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING: turned,
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT: received_auto_attack
-
+            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING: turned
         }
         for casting_spell in list(self.casting_spells):
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
@@ -509,11 +507,12 @@ class SpellManager:
 
                     # TODO Do crushing blows interrupt channeling too?
                     if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and \
-                            not hit_info & HitInfo.CRUSHING and \
-                            flag != SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT:
-                        casting_spell.handle_partial_interrupt()
-                    else:
-                        self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                            not hit_info & HitInfo.CRUSHING:
+                        if flag & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE:
+                            casting_spell.handle_partial_interrupt()
+                            continue
+
+                    self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
                 continue
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
@@ -526,11 +525,14 @@ class SpellManager:
                     continue
 
                 # - Creatures dealing enough damage (crushing blow) will now fully interrupt casting. (0.5.3 notes).
-                if spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL and not hit_info & HitInfo.CRUSHING and \
-                        flag != SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT:
-                    casting_spell.handle_partial_interrupt()
-                else:
-                    self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                if spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL and not hit_info & HitInfo.CRUSHING:
+                    if flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE:
+                        casting_spell.handle_partial_interrupt()
+                        continue
+                    elif flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK:
+                        continue  # Skip auto attack for partial interrupts.
+
+                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
 
     def interrupt_casting_spell(self, cooldown_penalty=0):
         casting_spell = self.get_casting_spell()
