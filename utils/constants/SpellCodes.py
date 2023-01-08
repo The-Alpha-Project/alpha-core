@@ -257,11 +257,11 @@ class SpellSchoolMask(IntEnum):
 
 
 class SpellState(IntEnum):
-    SPELL_STATE_PREPARING = 0  # cast time delay period non channeled spell
-    SPELL_STATE_CASTING = 1  # channeled time period spell casting state
-    SPELL_STATE_FINISHED = 2  # cast finished to success or fail
-    SPELL_STATE_DELAYED = 3  # spell casted but need time to hit target(s)
-    SPELL_STATE_ACTIVE = 4  # Spell has been cast successfully. Effects should be applied on update (channels, range-limited auras) and InterruptFlags should be checked.
+    SPELL_STATE_PREPARING = 0  # Spell initialization.
+    SPELL_STATE_CASTING = 1  # Spell has been initialized and validated.
+    SPELL_STATE_FINISHED = 2  # Cast has finished successfully. Effects are applied immediately after.
+    SPELL_STATE_DELAYED = 3  # Cast is waiting for impact delay or next swing.
+    SPELL_STATE_ACTIVE = 4  # Spell has cast successfully and is either channeling or applying an area aura.
 
 
 class CurrentSpellType(IntEnum):
