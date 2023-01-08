@@ -33,9 +33,8 @@ class InstancesManager:
 
     @staticmethod
     def get_instance_token_for_player_guid(player_guid, map_):
-        if player_guid in INSTANCES:
-            if map_ in INSTANCES[player_guid]:
-                return INSTANCES[player_guid][map_]
+        if player_guid in INSTANCES and map_ in INSTANCES[player_guid]:
+            return INSTANCES[player_guid][map_]
         return None
 
     @staticmethod
