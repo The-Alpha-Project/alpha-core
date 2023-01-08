@@ -244,7 +244,7 @@ class PlayerManager(UnitManager):
     def complete_login(self, first_login=False):
         instance_token = InstancesManager.get_or_create_instance_token_by_player(self, self.map_id)
         self.instance_id = instance_token.id
-        if MapManager.is_dungeon_map_id(self.map_id) and not MapManager.get_instance_map(instance_token):
+        if MapManager.is_dungeon_map_id(self.map_id) and not MapManager.get_or_create_instance_map(instance_token):
             self.set_player_to_deathbind_location()
 
         self.online = True
@@ -696,7 +696,7 @@ class PlayerManager(UnitManager):
 
         instance_token = InstancesManager.get_or_create_instance_token_by_player(self, dbc_map.ID)
         if changed_map and MapManager.is_dungeon_map_id(dbc_map.ID):
-            if not MapManager.get_instance_map(instance_token):
+            if not MapManager.get_or_create_instance_map(instance_token):
                 self.pending_teleport_data.set_failed(True)
                 self.teleport(self.pending_teleport_data.origin_map, self.pending_teleport_data.origin_location, True)
                 return

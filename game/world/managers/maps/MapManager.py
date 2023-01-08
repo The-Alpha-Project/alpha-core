@@ -168,7 +168,7 @@ class MapManager:
             return None
 
     @staticmethod
-    def get_instance_map(instance_token):
+    def get_or_create_instance_map(instance_token):
         if instance_token.map_id not in MAPS:
             MAPS[instance_token.map_id] = dict()
         # If the instance does not exist, create it.
