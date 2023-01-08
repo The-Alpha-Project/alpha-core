@@ -65,10 +65,8 @@ class GridManager:
     # Remove a world_object from its cell and notify surrounding players if required.
     def remove_object(self, world_object, update_players=True):
         cell = self.cells.get(world_object.current_cell)
-        if cell and cell.remove(world_object):
-            # Notify surrounding players.
-            if update_players:
-                self._update_players_surroundings(cell.key)
+        if cell and cell.remove(world_object) and update_players:
+            self._update_players_surroundings(cell.key)
 
     def unit_should_relocate(self, world_object, destination, destination_map, destination_instance):
         destination_cells = self._get_surrounding_cells_by_location(destination.x, destination.y, destination_map, destination_instance)
