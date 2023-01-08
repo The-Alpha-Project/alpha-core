@@ -56,6 +56,10 @@ class SpellEffect:
         is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS or AuraEffectDummyHandler.is_periodic(casting_spell.spell_entry.ID)
         # Descriptions of periodic effects with a period of 0 either imply regeneration every 5s or say "per tick".
         self.aura_period = (self.aura_period if self.aura_period else 5000) if is_periodic else 0
+        if is_periodic and casting_spell.is_channeled():
+            # Account for channel time modifiers.
+            tick_count = int(self.casting_spell.get_duration(apply_mods=False) / self.aura_period)
+            self.aura_period = int(self.casting_spell.get_duration() / tick_count)
 
     def update_effect_aura(self, timestamp):
         if self.applied_aura_duration == -1:
@@ -90,7 +94,6 @@ class SpellEffect:
         duration = self.casting_spell.get_duration()
         if not self.is_periodic():
             return []
-
 
         if duration == -1:
             tick_count = 1  # Generate first tick for infinite duration spells.

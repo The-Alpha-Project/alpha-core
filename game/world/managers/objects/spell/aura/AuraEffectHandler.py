@@ -748,6 +748,15 @@ class AuraEffectHandler:
                                                          amount, percentual=True)
 
     @staticmethod
+    def handle_mod_casting_speed(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=True)
+            return
+        amount = aura.get_effect_points()
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_CASTING_SPEED, amount,
+                                                         percentual=True)
+
+    @staticmethod
     def handle_mod_parry_chance(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
@@ -846,6 +855,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SWIM_SPEED: AuraEffectHandler.handle_increase_swim_speed,
     AuraTypes.SPELL_AURA_MOD_ATTACKSPEED: AuraEffectHandler.handle_mod_attack_speed,
+    AuraTypes.SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK: AuraEffectHandler.handle_mod_casting_speed,
 
 
     AuraTypes.SPELL_AURA_MOD_PARRY_PERCENT: AuraEffectHandler.handle_mod_parry_chance,

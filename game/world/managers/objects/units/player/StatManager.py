@@ -11,7 +11,7 @@ from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubCla
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
 from utils.constants.SpellCodes import SpellSchools, SpellImmunity, SpellHitFlags, SpellMissReason
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags
-
+from utils.constants.UpdateFields import UnitFields
 
 # Stats that are modified by aura effects and items.
 # Use auto indexing to make expanding much easier.
@@ -55,7 +55,7 @@ class UnitStats(IntFlag):
     SPELL_CRITICAL = auto()
     SPELL_SCHOOL_CRITICAL = auto()
     SPELL_SCHOOL_POWER_COST = auto()
-    SPELL_CASTING_SPEED_NON_STACKING = auto()
+    SPELL_CASTING_SPEED = auto()
 
     DAMAGE_DONE = auto()
     DAMAGE_DONE_SCHOOL = auto()
@@ -271,6 +271,7 @@ class StatManager(object):
         self.send_damage_bonuses()
         self.send_resistances()
         self.send_defense_bonuses()
+        self.send_cast_time_mods()
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.unit_mgr.skill_manager.build_update()
@@ -308,13 +309,27 @@ class StatManager(object):
         else:
             bonus = 0
 
+        # Casting speed modifiers shouldn't stack.
+        # Instead of multiplying all bonuses, return the product of the highest and lowest bonuses.
+        is_stacking = not percentual or stat_type not in NON_STACKING_STATS
+        min_mod = 1.0
+        max_mod = 1.0
+
         for stat_bonus in self.get_aura_stat_bonuses(stat_type, percentual, misc_value, misc_value_is_mask):
+            if not is_stacking:
+                stat_bonus = stat_bonus / 100 + 1
+                if stat_bonus < min_mod:
+                    min_mod = stat_bonus
+                elif stat_bonus > max_mod:
+                    max_mod = stat_bonus
+                continue
+
             if not percentual:
                 bonus += stat_bonus
             else:
                 bonus *= stat_bonus / 100 + 1
 
-        return bonus
+        return bonus if is_stacking else min_mod * max_mod
 
     # Returns a list of bonuses for a stat from auras.
     def get_aura_stat_bonuses(self, stat_type: UnitStats, percentual=False, misc_value=-1, misc_value_is_mask=False) -> list[int]:
@@ -1028,6 +1043,12 @@ class StatManager(object):
         value = max(0, value)
         self.unit_mgr.set_dodge_chance(value)
 
+    def send_cast_time_mods(self):
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+        self.unit_mgr.set_float(UnitFields.UNIT_MOD_CAST_SPEED,
+                                self.get_total_stat(UnitStats.SPELL_CASTING_SPEED, accept_float=True) * 100)
+
     # Arguments greater than 0 if defense is higher.
     def _get_combat_rating_difference(self, attacker_level=-1, attacker_rating=-1, use_block=False):
         # Client displays percentages against enemies of equal level and max attack rating.
@@ -1152,4 +1173,8 @@ INVENTORY_STAT_TO_UNIT_STAT = {
     InventoryStats.INTELLECT: UnitStats.INTELLECT,
     InventoryStats.SPIRIT: UnitStats.SPIRIT,
     InventoryStats.STAMINA: UnitStats.STAMINA
+}
+
+NON_STACKING_STATS = {
+    UnitStats.SPELL_CASTING_SPEED
 }
