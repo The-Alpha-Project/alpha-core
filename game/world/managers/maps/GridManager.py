@@ -5,9 +5,8 @@ import time
 from game.world.managers.maps.Cell import Cell
 from game.world.managers.maps.helpers.CellUtils import CELL_SIZE, CellUtils
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
-from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds, HighGuid
+from utils.constants.MiscCodes import ObjectTypeIds
 
 
 class GridManager:
@@ -115,7 +114,7 @@ class GridManager:
         # Notify surrounding players.
         if update_players:
             # Pet/Temp summons creation should be instantly notified to player owner.
-            if world_object.is_temp_summon() or GuidUtils.extract_high_guid(world_object.guid) == HighGuid.HIGHGUID_PET:
+            if world_object.is_temp_summon() or world_object.is_pet():
                 summoner = world_object.get_charmer_or_summoner()
                 if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
                     summoner.update_known_world_object(world_object)

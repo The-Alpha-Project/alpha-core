@@ -16,9 +16,10 @@ from game.world.managers.objects.units.creature.utils.CreatureUtils import Creat
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, UnitStates
@@ -287,7 +288,9 @@ class CreatureManager(UnitManager):
         return not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
 
     def is_pet(self):
-        return (self.summoner or self.charmer) and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+        return (self.summoner or self.charmer) \
+               and (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+                    or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
 
     def is_temp_summon(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON

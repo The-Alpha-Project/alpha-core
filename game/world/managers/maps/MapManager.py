@@ -600,7 +600,7 @@ class MapManager:
             map_.update_object(world_object, old_map, has_changes=has_changes,
                                has_inventory_changes=has_inventory_changes)
         except AttributeError:
-            Logger.warning(f'Warning, update_object(), did not find Map {world_object.map_id}')
+            Logger.warning(f'Did not find Map {world_object.map_id}, update_object()')
 
     @staticmethod
     def spawn_object(world_object_spawn=None, world_object_instance=None):
@@ -610,7 +610,7 @@ class MapManager:
         try:
             map_.spawn_object(world_object_spawn, world_object_instance)
         except AttributeError:
-            Logger.warning(f'Warning, spawn_object(), did not find Map {map_}.')
+            Logger.warning(f'Did not find Map {map_id}, spawn_object()')
 
     @staticmethod
     def remove_object(world_object):
