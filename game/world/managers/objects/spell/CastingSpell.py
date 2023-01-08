@@ -160,7 +160,8 @@ class CastingSpell:
 
         effect.targets.resolve_targets()
         effect_info = effect.targets.get_effect_target_miss_results()
-        self.object_target_results = self.object_target_results | effect_info
+        # Prioritize previous effects' results.
+        self.object_target_results = effect_info | self.object_target_results
 
     def get_attack_type(self):
         return self.spell_attack_type if self.spell_attack_type != -1 else 0

@@ -780,7 +780,8 @@ class StatManager(object):
             hit_flags |= SpellHitFlags.CRIT
 
         # Spells cast on friendly targets should always hit.
-        if not caster.can_attack_target(self.unit_mgr):
+        if not caster.can_attack_target(self.unit_mgr) or \
+                any([not effect.can_miss() for effect in casting_spell.get_effects()]):
             return SpellMissReason.MISS_REASON_NONE, hit_flags
 
         # Use base attack formulas for next melee swing and ranged spells.

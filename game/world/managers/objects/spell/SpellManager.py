@@ -348,6 +348,10 @@ class SpellManager:
                 continue
 
             if not update:
+                if effect.is_full_miss():
+                    # Don't apply following effects if the previous one results in a full miss.
+                    # TODO Needs thorough testing to ensure this is correct.
+                    break
                 effect.start_aura_duration()
 
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:

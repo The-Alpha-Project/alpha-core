@@ -10,7 +10,7 @@ from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AU
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from utils.constants.MiscCodes import ObjectTypeFlags
-from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity
+from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity, SpellMissReason
 
 
 class SpellEffect:
@@ -178,6 +178,16 @@ class SpellEffect:
             return True
 
         return False
+
+    def can_miss(self):
+        return self.effect_type not in {SpellEffects.SPELL_EFFECT_LEAP}
+
+    def is_full_miss(self):
+        if not self.casting_spell.object_target_results:
+            return False
+        targets = self.targets.get_resolved_effect_targets_by_type(ObjectManager)
+        return all([self.casting_spell.object_target_results[target.guid].result != SpellMissReason.MISS_REASON_NONE
+                    for target in targets])
 
     # noinspection PyUnusedLocal
     def load_effect(self, spell, index):
