@@ -54,7 +54,7 @@ class UnitStats(IntFlag):
     MELEE_CRITICAL = auto()
     SPELL_CRITICAL = auto()
     SPELL_SCHOOL_CRITICAL = auto()
-    SCHOOL_POWER_COST = auto()
+    SPELL_SCHOOL_POWER_COST = auto()
     SPELL_CASTING_SPEED_NON_STACKING = auto()
 
     DAMAGE_DONE = auto()

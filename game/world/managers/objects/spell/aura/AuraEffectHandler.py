@@ -650,7 +650,7 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.get_effect_points()
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SCHOOL_POWER_COST, amount,
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_SCHOOL_POWER_COST, amount,
                                                          misc_value=aura.spell_effect.misc_value)
 
     @staticmethod
