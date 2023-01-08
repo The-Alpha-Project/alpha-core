@@ -188,6 +188,11 @@ class SpellEffect:
     def is_full_miss(self):
         if not self.casting_spell.object_target_results:
             return False
+
+        if not self.casting_spell.initial_target_is_unit_or_player():
+            # Don't consider non-unit-targeted spells for "full misses", as the initial target is unmissable.
+            return False
+
         targets = self.targets.get_resolved_effect_targets_by_type(ObjectManager)
         return all([self.casting_spell.object_target_results[target.guid].result != SpellMissReason.MISS_REASON_NONE
                     for target in targets])

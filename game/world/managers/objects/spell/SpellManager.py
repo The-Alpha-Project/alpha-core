@@ -350,16 +350,17 @@ class SpellManager:
             object_targets = effect.targets.get_resolved_effect_targets_by_type(ObjectManager)
 
             if not update:
-                if effect.is_full_miss():
-                    # Don't apply following effects if the previous one results in a full miss.
-                    [target.threat_manager.add_threat(casting_spell.spell_caster) for target in object_targets]
-                    remove = True
-                    break
                 effect.start_aura_duration()
 
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
+
+            if effect.is_full_miss():
+                # Don't apply following effects if the previous one results in a full miss.
+                [target.threat_manager.add_threat(casting_spell.spell_caster) for target in object_targets]
+                remove = True
+                break
 
             for target in object_targets:
                 if partial_targets and target.guid not in partial_targets:
@@ -450,7 +451,7 @@ class SpellManager:
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
                 # Active spells can either finish because of the associated channel ending or
                 # because of their effects' duration.
-                cast_finished = self.handle_spell_effect_update(casting_spell, timestamp) or \
+                cast_finished = self.handle_area_spell_effect_update(casting_spell, timestamp) or \
                                 (casting_spell.is_channeled() and cast_finished)
                 if cast_finished:
                     self.remove_cast(casting_spell)
@@ -740,21 +741,23 @@ class SpellManager:
         data = pack('<2i', casting_spell.spell_entry.ID, casting_spell.get_duration())
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
-    def handle_spell_effect_update(self, casting_spell, timestamp) -> bool:
-        is_finished = False
-        for effect in casting_spell.get_effects():
-            # TODO Do other, non-area spell effects depend on any logic here?
+    def handle_area_spell_effect_update(self, casting_spell, timestamp) -> bool:
+        area_effects = [effect for effect in casting_spell.get_effects() if
+                        effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS]
+        if not area_effects:
+            return False
 
+        casting_spell.object_target_results.clear()  # Reset target results.
+        is_finished = False
+        for effect in area_effects:
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
             if effect.is_periodic() and not effect.has_periodic_ticks_remaining():
                 is_finished = True
 
-            # Area spell effect update.
-            if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
-                self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
-                effect.area_aura_holder.update(timestamp)
+            self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
+            effect.area_aura_holder.update(timestamp)
 
         return is_finished
 
