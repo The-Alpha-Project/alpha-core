@@ -13,6 +13,7 @@ from utils.constants.SpellCodes import SpellSchools, SpellImmunity, SpellHitFlag
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags
 from utils.constants.UpdateFields import UnitFields
 
+
 # Stats that are modified by aura effects and items.
 # Use auto indexing to make expanding much easier.
 class UnitStats(IntFlag):
@@ -779,7 +780,7 @@ class StatManager(object):
             return SpellMissReason.MISS_REASON_NONE, hit_flags
 
         # Use base attack formulas for next melee swing and ranged spells.
-        if casting_spell.casts_on_swing() or casting_spell.casts_on_ranged_attack():
+        if casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack():
             # Note that dual wield penalty is not applied to spells.
             # TODO Consider skill for the spell-specific category instead of weapon skill?
             result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type())
