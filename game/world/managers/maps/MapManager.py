@@ -44,7 +44,7 @@ class MapManager:
     def initialize_world_and_pvp_maps():
         for map_id in MAP_LIST:
             dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
-            # Initialize common and pvp maps.
+            # Initialize common and PvP maps. (We handle PvP maps as common)
             if dbc_map.IsInMap != MapType.COMMON and dbc_map.PVP != 1:
                 continue
             # World/Pvp maps use map_id as instance id.
