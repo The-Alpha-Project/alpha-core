@@ -628,17 +628,11 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
 
-        # Any item, affects main, off and ranged.
-        if aura.source_spell.spell_entry.EquippedItemClass == -1:
-            amount = aura.get_effect_points() / 100
-            effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_ITEM_GLOBAL_CRITICAL_MODS,
-                                                             amount=amount)
-        # ItemSubClass specific.
-        else:
-            item_subclass_mask = aura.source_spell.spell_entry.EquippedItemSubclass
-            amount = aura.get_effect_points() / 100
-            effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_ITEM_CRITICAL_MODS,
-                                                             amount=amount, misc_value=item_subclass_mask)
+        amount = aura.get_effect_points() / 100
+        item_class = aura.source_spell.spell_entry.EquippedItemClass
+        misc_value = aura.source_spell.spell_entry.EquippedItemSubclass if item_class != -1 else -1
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.MELEE_CRITICAL,
+                                                         amount=amount, misc_value=misc_value)
 
     @staticmethod
     def handle_mod_school_crit_chance(aura, effect_target, remove):
@@ -646,7 +640,7 @@ class AuraEffectHandler:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.get_effect_points() / 100
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SCHOOL_CRITICAL,
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_SCHOOL_CRITICAL,
                                                          amount=amount,
                                                          misc_value=aura.spell_effect.misc_value)
 

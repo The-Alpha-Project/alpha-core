@@ -51,13 +51,11 @@ class UnitStats(IntFlag):
 
     PROC_CHANCE = auto()
 
-    CRITICAL = auto()
+    MELEE_CRITICAL = auto()
     SPELL_CRITICAL = auto()
-    SPELL_ITEM_CRITICAL_MODS = auto()
-    SPELL_ITEM_GLOBAL_CRITICAL_MODS = auto()
-    SPELL_CASTING_SPEED_NON_STACKING = auto()
-    SCHOOL_CRITICAL = auto()
+    SPELL_SCHOOL_CRITICAL = auto()
     SCHOOL_POWER_COST = auto()
+    SPELL_CASTING_SPEED_NON_STACKING = auto()
 
     DAMAGE_DONE = auto()
     DAMAGE_DONE_SCHOOL = auto()
@@ -185,7 +183,7 @@ class StatManager(object):
             self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100
             # Players have block scaling, assign flat 5% to creatures.
             self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
-            self.base_stats[UnitStats.CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
+            self.base_stats[UnitStats.MELEE_CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
             self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_SPELL_CRITICAL_CHANCE / 100
             self.unit_mgr.base_hp = self.unit_mgr.max_health
             self.unit_mgr.base_mana = self.unit_mgr.max_power_1
@@ -318,7 +316,7 @@ class StatManager(object):
 
         return bonus
 
-    # Returns a list of bonuses for a stat from auras. Needed for separating negative and positive resistance bonuses for the client.
+    # Returns a list of bonuses for a stat from auras.
     def get_aura_stat_bonuses(self, stat_type: UnitStats, percentual=False, misc_value=-1, misc_value_is_mask=False) -> list[int]:
         bonuses = []
         if percentual:
@@ -537,7 +535,7 @@ class StatManager(object):
         class_rate = (scaling[0] * (60 - self.unit_mgr.level) +
                       scaling[1] * (self.unit_mgr.level - 1)) / 59
         critical_bonus = strength / class_rate / 100
-        self.base_stats[UnitStats.CRITICAL] = critical_bonus
+        self.base_stats[UnitStats.MELEE_CRITICAL] = critical_bonus
 
     def update_base_dodge_chance(self):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -723,19 +721,11 @@ class StatManager(object):
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
             return HitInfo.BLOCK
 
-        attacker_critical_chance = attacker.stat_manager.get_total_stat(UnitStats.CRITICAL, accept_float=True)
+        attacker_weapon_mask = 1 << attack_weapon.item_template.subclass if attack_weapon else -1
 
-        # Check for spell crit mods for item class/subclass.
-        if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and attack_weapon:
-            # ItemSubClass specific.
-            item_subclass_mask = 1 << attack_weapon.item_template.subclass
-            attacker_critical_chance += attacker.stat_manager.get_total_stat(UnitStats.SPELL_ITEM_CRITICAL_MODS,
-                                                                             misc_value=item_subclass_mask,
-                                                                             accept_float=True,
-                                                                             misc_value_is_mask=True)
-            # General main, off, ranged. ItemClass -1.
-            attacker_critical_chance += attacker.stat_manager.get_total_stat(UnitStats.SPELL_ITEM_GLOBAL_CRITICAL_MODS,
-                                                                             accept_float=True)
+        attacker_critical_chance = attacker.stat_manager.get_total_stat(UnitStats.MELEE_CRITICAL, accept_float=True,
+                                                                        misc_value=attacker_weapon_mask,
+                                                                        misc_value_is_mask=attacker_weapon_mask != -1)
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Player: +- 0.04% for each rating difference.
@@ -768,17 +758,6 @@ class StatManager(object):
         spell_school = casting_spell.spell_entry.School
         caster = casting_spell.spell_caster
 
-        critical_type = UnitStats.CRITICAL if spell_school == SpellSchools.SPELL_SCHOOL_NORMAL else UnitStats.SPELL_CRITICAL
-        crit_chance = caster.stat_manager.get_total_stat(critical_type, accept_float=True)
-
-        # If using base SPELL_CRITICAL, check if school critical enhancements exist.
-        if critical_type != UnitStats.CRITICAL:
-            crit_chance += caster.stat_manager.get_total_stat(UnitStats.SCHOOL_CRITICAL, misc_value=spell_school,
-                                                              accept_float=True, misc_value_is_mask=True)
-
-        if random.random() < crit_chance:
-            hit_flags |= SpellHitFlags.CRIT
-
         # Spells cast on friendly targets should always hit.
         if not caster.can_attack_target(self.unit_mgr) or \
                 any([not effect.can_miss() for effect in casting_spell.get_effects()]):
@@ -789,6 +768,9 @@ class StatManager(object):
             # Note that dual wield penalty is not applied to spells.
             # TODO Consider skill for the spell-specific category instead of weapon skill?
             result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type())
+            if result_info & HitInfo.CRITICAL_HIT:
+                hit_flags |= SpellHitFlags.CRIT
+
             if result_info & HitInfo.PARRY:
                 miss_reason = SpellMissReason.MISS_REASON_PARRIED
             elif result_info & HitInfo.DODGE:
@@ -801,7 +783,12 @@ class StatManager(object):
                 miss_reason = SpellMissReason.MISS_REASON_NONE
             return miss_reason, hit_flags
 
-        # Non-physical spell resist chance.
+        # Add base spell crit and school-specific crit modifiers.
+        crit_chance = caster.stat_manager.get_total_stat(UnitStats.SPELL_CRITICAL, accept_float=True)
+        crit_chance += caster.stat_manager.get_total_stat(UnitStats.SPELL_SCHOOL_CRITICAL, misc_value=spell_school,
+                                                          accept_float=True)
+        if random.random() < crit_chance:
+            hit_flags |= SpellHitFlags.CRIT
 
         # TODO Research is needed on how resist mechanics worked in alpha.
         # 0.7 patch notes:
