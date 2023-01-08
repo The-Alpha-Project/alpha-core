@@ -51,7 +51,8 @@ class MovementManager:
                         self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
                     return
                 # Guess the unit new position.
-                new_position = self.last_position.get_point_in_between_movement(current_waypoint, guessed_distance)
+                new_position = self.last_position.get_point_in_between(guessed_distance, current_waypoint.location,
+                                                                       map_id=self.unit.map_id)
 
             if new_position:
                 self.waypoint_timer = 0

@@ -117,21 +117,6 @@ class Vector(object):
 
         return Vector(x3, y3, z3, z_locked=z_locked)
 
-    def get_point_in_between_movement(self, waypoint, guessed_distance):
-        x = waypoint.location.x - self.x
-        x_bar = math.fabs(x)
-        y = waypoint.location.y - self.y
-        y_bar = math.fabs(y)
-        z = waypoint.location.z - self.z
-        z_bar = math.fabs(z)
-
-        sum_xyz_fab = x_bar + y_bar + z_bar
-        new_x = self.x + x / sum_xyz_fab * guessed_distance
-        new_y = self.y + y / sum_xyz_fab * guessed_distance
-        new_z = self.z + z / sum_xyz_fab * guessed_distance
-
-        return Vector(new_x, new_y, new_z)
-
     def get_point_in_middle(self, vector, map_id=-1):
         x = (self.x + vector.x) / 2
         y = (self.y + vector.y) / 2
