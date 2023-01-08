@@ -623,12 +623,41 @@ class AuraEffectHandler:
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.MANA, amount)
 
     @staticmethod
+    def handle_spell_crit_percent(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
+            return
+
+        # Any item, affects main, off and ranged.
+        if aura.source_spell.spell_entry.EquippedItemClass == -1:
+            amount = aura.get_effect_points() / 100
+            effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_ITEM_GLOBAL_CRITICAL_MODS,
+                                                             amount=amount)
+        # ItemSubClass specific.
+        else:
+            item_subclass_mask = aura.source_spell.spell_entry.EquippedItemSubclass
+            amount = aura.get_effect_points() / 100
+            effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SPELL_ITEM_CRITICAL_MODS,
+                                                             amount=amount, misc_value=item_subclass_mask)
+
+    @staticmethod
+    def handle_mod_school_crit_chance(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
+            return
+        amount = aura.get_effect_points() / 100
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SCHOOL_CRITICAL,
+                                                         amount=amount,
+                                                         misc_value=aura.spell_effect.misc_value)
+
+    @staticmethod
     def handle_mod_power_cost_school(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
         amount = aura.get_effect_points()
-        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SCHOOL_POWER_COST, amount, misc_value=aura.spell_effect.misc_value)
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.SCHOOL_POWER_COST, amount,
+                                                         misc_value=aura.spell_effect.misc_value)
 
     @staticmethod
     def handle_increase_speed(aura, effect_target, remove):
@@ -816,6 +845,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_INCREASE_MANA: AuraEffectHandler.handle_increase_mana,
     AuraTypes.SPELL_AURA_MOD_PERCENT_STAT: AuraEffectHandler.handle_mod_percent_stat,
     AuraTypes.SPELL_AURA_MOD_POWER_COST_SCHOOL: AuraEffectHandler.handle_mod_power_cost_school,
+    AuraTypes.SPELL_AURA_MOD_CRIT_PERCENT: AuraEffectHandler.handle_spell_crit_percent,
+    AuraTypes.SPELL_AURA_MOD_SPELL_CRIT_CHANCE_SCHOOL: AuraEffectHandler.handle_mod_school_crit_chance,
     AuraTypes.SPELL_AURA_MOD_INCREASE_SPEED: AuraEffectHandler.handle_increase_speed,
     AuraTypes.SPELL_AURA_MOD_INCREASE_MOUNTED_SPEED: AuraEffectHandler.handle_increase_mounted_speed,
     AuraTypes.SPELL_AURA_MOD_DECREASE_SPEED: AuraEffectHandler.handle_decrease_speed,
