@@ -347,18 +347,19 @@ class SpellManager:
             if update and update_index != effect.effect_index:
                 continue
 
+            object_targets = effect.targets.get_resolved_effect_targets_by_type(ObjectManager)
+
             if not update:
                 if effect.is_full_miss():
                     # Don't apply following effects if the previous one results in a full miss.
                     # TODO Needs thorough testing to ensure this is correct.
+                    [target.threat_manager.add_threat(casting_spell.spell_caster) for target in object_targets]
                     break
                 effect.start_aura_duration()
 
             if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
-
-            object_targets = effect.targets.get_resolved_effect_targets_by_type(ObjectManager)
 
             for target in object_targets:
                 if partial_targets and target.guid not in partial_targets:
