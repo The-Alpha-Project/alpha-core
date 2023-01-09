@@ -127,7 +127,8 @@ class CommandManager(object):
         player_y = world_session.player_mgr.location.y
         player_z = world_session.player_mgr.location.z
         player_o = world_session.player_mgr.location.o
-        maps_z = MapManager.calculate_z_for_object(world_session.player_mgr)[0]
+        maps_z, z_locked = MapManager.calculate_z_for_object(world_session.player_mgr)
+        maps_z_str = f'{maps_z:.3f}' if not z_locked else 'Invalid'
         adt_tile = MapManager.get_tile(player_x, player_y)
         return 0, f'Map: {world_session.player_mgr.map_id}\n' \
                   f'InstanceID: {world_session.player_mgr.instance_id}\n' \
@@ -136,7 +137,7 @@ class CommandManager(object):
                   f'X: {player_x:.3f}, ' \
                   f'Y: {player_y:.3f}, ' \
                   f'Z: {player_z:.3f}, ' \
-                  f'MapZ: {maps_z:.3f}, ' \
+                  f'MapZ: {maps_z_str}, ' \
                   f'O: {player_o:.3f}'
 
     @staticmethod
