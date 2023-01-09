@@ -57,31 +57,41 @@ class ChatManager(object):
             channel.broadcast_to_channel(sender, packet)
 
     @staticmethod
-    def send_party(sender, message, lang):
+    def send_party(sender, message, lang) -> bool:
+        success = None
         if sender.group_manager:
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_PARTY, lang)
             sender.group_manager.send_packet_to_members(sender_packet, source=sender, use_ignore=True)
+            success = True
         else:
             GroupManager.send_group_operation_result(sender, PartyOperations.PARTY_OP_LEAVE, '',
                                                      PartyResults.ERR_NOT_IN_GROUP)
+            success = False
+        return success
 
     @staticmethod
-    def send_guild(sender, message, lang, chat_type):
+    def send_guild(sender, message, lang, chat_type) -> bool:
+        success = None
         if sender.guild_manager:
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, chat_type, lang)
 
             if chat_type == ChatMsgs.CHAT_MSG_GUILD:
                 sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_ALL, source=sender)
+                success = True
             else:
                 if sender.guild_manager.get_rank(sender.guid) > GuildRank.GUILDRANK_OFFICER:
                     GuildManager.send_guild_command_result(sender, GuildTypeCommand.GUILD_CREATE_S, '',
                                                            GuildCommandResults.GUILD_PERMISSIONS)
+                    success = False
                 else:
                     sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_OFFICERCHAT, source=sender)
+                    success = True
         else:
             GuildManager.send_guild_command_result(sender, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
+            success = False
+        return success
 
     @staticmethod
     def send_whisper(sender, receiver, message, lang):
