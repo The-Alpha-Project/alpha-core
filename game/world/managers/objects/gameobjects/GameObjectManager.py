@@ -332,6 +332,7 @@ class GameObjectManager(ObjectManager):
         return True
 
     def is_within_interactable_distance(self, victim):
+        # TODO: https://github.com/cmangos/mangos-tbc/blob/master/src/game/Entities/GameObject.cpp#L2438
         return self.location.distance(victim.location) <= 6.0
 
     # There are only 3 possible animations that can be used here.
