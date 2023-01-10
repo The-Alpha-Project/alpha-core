@@ -435,7 +435,8 @@ class UnitManager(ObjectManager):
                                        attack_type=attack_type,
                                        damage_school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_NORMAL)
 
-        damage_info.hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type, dual_wield_penalty)
+        damage_info.hit_info = victim.stat_manager.get_attack_result_against_self(self, attack_type,
+                                                                                  dual_wield_penalty=dual_wield_penalty)
 
         damage_info.base_damage = self.calculate_base_attack_damage(attack_type, SpellSchools.SPELL_SCHOOL_NORMAL, victim)
         damage_info.target_state = VictimStates.VS_WOUND  # Default state on successful attack.

@@ -347,6 +347,8 @@ class SpellManager:
             if update and update_index != effect.effect_index:
                 continue
 
+            object_targets = effect.targets.get_resolved_effect_targets_by_type(ObjectManager)
+
             if not update:
                 effect.start_aura_duration()
 
@@ -354,7 +356,11 @@ class SpellManager:
                 SpellEffectHandler.apply_effect(casting_spell, effect, casting_spell.spell_caster, None)
                 continue
 
-            object_targets = effect.targets.get_resolved_effect_targets_by_type(ObjectManager)
+            if effect.is_full_miss():
+                # Don't apply following effects if the previous one results in a full miss.
+                [target.threat_manager.add_threat(casting_spell.spell_caster) for target in object_targets]
+                remove = True
+                break
 
             for target in object_targets:
                 if partial_targets and target.guid not in partial_targets:
@@ -445,7 +451,7 @@ class SpellManager:
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
                 # Active spells can either finish because of the associated channel ending or
                 # because of their effects' duration.
-                cast_finished = self.handle_spell_effect_update(casting_spell, timestamp) or \
+                cast_finished = self.handle_area_spell_effect_update(casting_spell, timestamp) or \
                                 (casting_spell.is_channeled() and cast_finished)
                 if cast_finished:
                     self.remove_cast(casting_spell)
@@ -483,14 +489,12 @@ class SpellManager:
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT: moved,
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE: received_damage,
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_INTERRUPT: interrupted,
-            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK: received_auto_attack,
+            SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK: received_auto_attack
         }
         channeling_spell_flag_cases = {
             SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE: received_damage,
             SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT: moved,
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING: turned,
-            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT: received_auto_attack
-
+            SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_TURNING: turned
         }
         for casting_spell in list(self.casting_spells):
             if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
@@ -504,11 +508,12 @@ class SpellManager:
 
                     # TODO Do crushing blows interrupt channeling too?
                     if not (channel_flags & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_FULL_INTERRUPT) and \
-                            not hit_info & HitInfo.CRUSHING and \
-                            flag != SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_MOVEMENT:
-                        casting_spell.handle_partial_interrupt()
-                    else:
-                        self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                            not hit_info & HitInfo.CRUSHING:
+                        if flag & SpellChannelInterruptFlags.CHANNEL_INTERRUPT_FLAG_DAMAGE:
+                            casting_spell.handle_partial_interrupt()
+                            continue
+
+                    self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
                 continue
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
@@ -521,11 +526,14 @@ class SpellManager:
                     continue
 
                 # - Creatures dealing enough damage (crushing blow) will now fully interrupt casting. (0.5.3 notes).
-                if spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL and not hit_info & HitInfo.CRUSHING and \
-                        flag != SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT:
-                    casting_spell.handle_partial_interrupt()
-                else:
-                    self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                if spell_flags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL and not hit_info & HitInfo.CRUSHING:
+                    if flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE:
+                        casting_spell.handle_partial_interrupt()
+                        continue
+                    elif flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK:
+                        continue  # Skip auto attack for partial interrupts.
+
+                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
 
     def interrupt_casting_spell(self, cooldown_penalty=0):
         casting_spell = self.get_casting_spell()
@@ -687,7 +695,7 @@ class SpellManager:
             cast_flags |= SpellCastFlags.CAST_FLAG_PROC
 
         data = [source_guid, self.caster.guid,
-                casting_spell.spell_entry.ID, cast_flags, casting_spell.get_base_cast_time(),
+                casting_spell.spell_entry.ID, cast_flags, casting_spell.get_cast_time(),
                 casting_spell.spell_target_mask]
 
         signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
@@ -733,21 +741,23 @@ class SpellManager:
         data = pack('<2i', casting_spell.spell_entry.ID, casting_spell.get_duration())
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_START, data))
 
-    def handle_spell_effect_update(self, casting_spell, timestamp) -> bool:
-        is_finished = False
-        for effect in casting_spell.get_effects():
-            # TODO Do other, non-area spell effects depend on any logic here?
+    def handle_area_spell_effect_update(self, casting_spell, timestamp) -> bool:
+        area_effects = [effect for effect in casting_spell.get_effects() if
+                        effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS]
+        if not area_effects:
+            return False
 
+        casting_spell.object_target_results.clear()  # Reset target results.
+        is_finished = False
+        for effect in area_effects:
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
             if effect.is_periodic() and not effect.has_periodic_ticks_remaining():
                 is_finished = True
 
-            # Area spell effect update.
-            if effect.effect_type in SpellEffectHandler.AREA_SPELL_EFFECTS:
-                self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
-                effect.area_aura_holder.update(timestamp)
+            self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
+            effect.area_aura_holder.update(timestamp)
 
         return is_finished
 

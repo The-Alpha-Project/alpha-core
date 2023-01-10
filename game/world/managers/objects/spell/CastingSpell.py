@@ -42,6 +42,10 @@ class CastingSpell:
     spell_visual_entry: SpellVisual
     _effects: list[Optional[SpellEffect]]
 
+    cast_time_: Optional[int] = None
+    duration_: Optional[int] = None
+    base_duration_: Optional[int] = None  # Duration without aura modifiers.
+
     cast_start_timestamp: float
     cast_end_timestamp: float
     spell_impact_timestamps: dict[int, float]
@@ -65,8 +69,10 @@ class CastingSpell:
         self.dynamic_object = None
         self.duration_entry = DbcDatabaseManager.spell_duration_get_by_id(spell.DurationIndex)
         self.range_entry = DbcDatabaseManager.spell_range_get_by_id(spell.RangeIndex)
+
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
-        self.cast_end_timestamp = self.get_base_cast_time()/1000 + time.time()
+
+        self.cast_end_timestamp = self.get_cast_time() / 1000 + time.time()
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
         if self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
@@ -81,6 +87,11 @@ class CastingSpell:
         # Item target casts (enchants) have target item info in equipment requirements - ignore.
         if spell.EquippedItemClass == ItemClasses.ITEM_CLASS_WEAPON and not self.initial_target_is_item():
             self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged_weapon_attack() else AttackTypes.BASE_ATTACK
+
+        # Resolve cast time and duration on init (ie. apply any cast time modifiers on cast start).
+        self.cast_time_ = self.get_cast_time()
+        self.duration_ = self.get_duration()
+        self.base_duration_ = self.get_duration(apply_mods=False)
 
         self.cast_state = SpellState.SPELL_STATE_PREPARING
         self.spell_impact_timestamps = {}
@@ -160,7 +171,8 @@ class CastingSpell:
 
         effect.targets.resolve_targets()
         effect_info = effect.targets.get_effect_target_miss_results()
-        self.object_target_results = self.object_target_results | effect_info
+        # Prioritize previous effects' results.
+        self.object_target_results = effect_info | self.object_target_results
 
     def get_attack_type(self):
         return self.spell_attack_type if self.spell_attack_type != -1 else 0
@@ -389,7 +401,7 @@ class CastingSpell:
                (SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_1 | SpellAttributes.SPELL_ATTR_ON_NEXT_SWING_2)
 
     def casts_on_ranged_attack(self):
-        # Quick Shot has a negative base cast time (-1000000), which will resolve to 0 in get_base_cast_time().
+        # Quick Shot has a negative base cast time (-1000000), which will resolve to 0.
         # Ranged attacks occurring on next ranged have a base cast time of 0.
         if not self.cast_time_entry or self.cast_time_entry.Base < 0:
             return False  # No entry or Quick Shot.
@@ -428,7 +440,10 @@ class CastingSpell:
             level = self.spell_entry.BaseLevel
         return max(level - self.spell_entry.SpellLevel, 0)
 
-    def get_base_cast_time(self):
+    def get_cast_time(self):
+        if self.cast_time_ is not None:
+            return self.cast_time_
+
         if self.is_instant_cast():
             return 0
 
@@ -441,18 +456,16 @@ class CastingSpell:
 
         caster_is_unit = self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
 
-        if caster_is_unit and self.spell_entry.Attributes & (SpellAttributes.SPELL_ATTR_IS_ABILITY |
-                                                             SpellAttributes.SPELL_ATTR_TRADESPELL):
-            # TODO: This calculation should probably be out of 'base' cast time.
-            mod_cast_speed = self.spell_caster.get_uint32(UnitFields.UNIT_MOD_CAST_SPEED)
-            cast_time = int(cast_time * (1.0 + mod_cast_speed / 100.0))
-
         if self.is_ranged_weapon_attack() and caster_is_unit:
             # Ranged attack tooltips are unfinished, so this is partially a guess.
             # All ranged attacks without delay seem to say "next ranged".
             # Ranged attacks with delay (cast time) say "attack speed + X (delay) sec".
             ranged_delay = self.spell_caster.stat_manager.get_total_stat(UnitStats.RANGED_DELAY)
             cast_time += ranged_delay
+
+        if caster_is_unit and not self.spell_entry.Attributes & (SpellAttributes.SPELL_ATTR_TRADESPELL |
+                                                                 SpellAttributes.SPELL_ATTR_IS_ABILITY):
+            cast_time = self.spell_caster.stat_manager.apply_bonuses_for_value(cast_time, UnitStats.SPELL_CASTING_SPEED)
 
         return max(0, cast_time)
 
@@ -464,22 +477,34 @@ class CastingSpell:
             mana_cost = self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
 
         if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SCHOOL_POWER_COST,
+            mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SPELL_SCHOOL_POWER_COST,
                                                                                misc_value=self.spell_entry.School)
         # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
 
         return mana_cost + power_cost_mod
 
-    def get_duration(self):
+    def get_duration(self, apply_mods=True):
         if not self.duration_entry:
             return 0
         base_duration = self.duration_entry.Duration
         if base_duration == -1:
             return -1  # Permanent.
 
-        gain_per_level = self.duration_entry.DurationPerLevel * self.caster_effective_level
         combo_gain = max(0, self.spent_combo_points - 1) * base_duration
-        return min(base_duration + gain_per_level, self.duration_entry.MaxDuration) + combo_gain
+        if self.duration_ is not None and self.base_duration_ is not None:
+            return (self.duration_ if apply_mods else self.base_duration_) + combo_gain
+
+        gain_per_level = self.duration_entry.DurationPerLevel * self.caster_effective_level
+
+        base_duration = min(base_duration + gain_per_level, self.duration_entry.MaxDuration)
+        if not self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return base_duration
+
+        # Apply casting speed modifiers for channeled spells.
+        if self.is_channeled() and apply_mods:
+            return self.spell_caster.stat_manager.apply_bonuses_for_value(base_duration, UnitStats.SPELL_CASTING_SPEED)
+
+        return base_duration
 
     def get_cast_damage_info(self, attacker, victim, damage, absorb, healing=False):
         damage_info = DamageInfoHolder(attacker=attacker, target=victim,
@@ -536,33 +561,28 @@ class CastingSpell:
         if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        # TODO Did pushback resistance exist?
         curr_time = time.time()
-        remaining_cast_before_pushback = self.cast_end_timestamp - curr_time
+        remaining_cast_before_pushback = (self.cast_end_timestamp - curr_time) * 1000
 
         if self.is_channeled() and self.cast_state == SpellState.SPELL_STATE_ACTIVE and self.get_duration() != -1:
-            channel_length = self.get_duration() / 1000  # /1000 for seconds.
+            channel_length = self.get_duration()
             final_opcode = OpCode.MSG_CHANNEL_UPDATE
-            pushback_length_sec = min(remaining_cast_before_pushback, channel_length * 0.25)
+            pushback_length = channel_length * 0.25
             for effect in self.get_effects():
-                if remaining_cast_before_pushback <= pushback_length_sec:
-                    # Applied aura duration is not timestamp based so it's stored in milliseconds.
-                    # To avoid rounding issues, set to zero instead of subtracting if pushback leads to channel stop.
-                    effect.applied_aura_duration = 0
-                else:
-                    effect.applied_aura_duration -= pushback_length_sec * 1000  # aura duration is stored as millis.
+                effect.applied_aura_duration -= pushback_length
                 effect.remove_old_periodic_effect_ticks()
 
-            self.cast_end_timestamp -= pushback_length_sec
-            data = pack('<I', int((remaining_cast_before_pushback - pushback_length_sec)*1000))  # *1000 for millis.
+            pushback_length = min(remaining_cast_before_pushback, pushback_length)
+            self.cast_end_timestamp -= pushback_length / 1000
+            data = pack('<I', int(remaining_cast_before_pushback - pushback_length))
 
         elif self.cast_state == SpellState.SPELL_STATE_CASTING:
             final_opcode = OpCode.SMSG_SPELL_DELAYED
-            cast_progress_seconds = self.get_base_cast_time()/1000 - remaining_cast_before_pushback  # base cast time in seconds.
-            pushback_length_sec = min(cast_progress_seconds, 0.5)  # Push back 0.5s or to beginning of cast.
+            cast_progress = self.get_cast_time() - remaining_cast_before_pushback
+            pushback_length = min(cast_progress, 500)  # Push back 0.5s or to beginning of cast.
 
-            self.cast_end_timestamp += pushback_length_sec
-            data = pack('<QI', self.spell_caster.guid, int(pushback_length_sec * 1000))  # *1000 for millis.
+            self.cast_end_timestamp += pushback_length / 1000
+            data = pack('<QI', self.spell_caster.guid, int(pushback_length))
         else:
             return
 
