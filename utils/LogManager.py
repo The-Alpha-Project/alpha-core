@@ -72,7 +72,7 @@ class LogManager:
 
     def _log_whisper(self, player_mgr, msg, target_player_mgr):
         date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-        self._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, NAME {player_mgr.get_name()}, MAP {player_mgr.map_}, POS {self._get_location_string(player_mgr)}): [Whisper] {player_mgr.get_name()}:{player_mgr.guid} -> {target_player_mgr.get_name()}:{target_player_mgr.guid} : {msg}\n')
+        self._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, NAME {player_mgr.get_name()}, MAP {player_mgr.map_}, POS {self._get_location_string(player_mgr)}): [Whisper] {player_mgr.get_name()}:{player_mgr.guid} -> {target_player_mgr.get_name()}:{target_player_mgr.guid} : {msg}')
 
     def _write_to_log(self, msg):
         Path(LogManager.LOG_PATH).mkdir(parents=True, exist_ok=True)
