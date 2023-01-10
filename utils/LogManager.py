@@ -24,8 +24,10 @@ class LogManager(object):
                         or log[0] == ChatMsgs.CHAT_MSG_EMOTE or log[0] == ChatMsgs.CHAT_MSG_PARTY \
                             or log[0] == ChatMsgs.CHAT_MSG_GUILD or log[0] == ChatMsgs.CHAT_MSG_OFFICER:
                         LogManager._log_chat(log[0], log[1], log[2])
-                    elif log[0] == ChatMsgs.CHAT_MSG_CHANNEL or log[0] == ChatMsgs.CHAT_MSG_WHISPER:
+                    elif log[0] == ChatMsgs.CHAT_MSG_CHANNEL:
                         LogManager._log_channel(log[1], log[2], log[3])
+                    elif log[0] == ChatMsgs.CHAT_MSG_WHISPER:
+                        LogManager._log_whisper(log[1], log[2], log[3])
 
     @staticmethod
     def exit():
