@@ -53,7 +53,7 @@ class BasicCreatureAI(CreatureAI):
             if not can_detect_victim:
                 continue
             # Basic LoS check.
-            if not MapManager.los_check(victim.map_, self.creature.get_ray_position(), victim.get_ray_position()):
+            if not MapManager.los_check(victim.map_id, self.creature.get_ray_position(), victim.get_ray_position()):
                 continue
             # Attempt to begin attack, break upon succeeding.
             if self._start_proximity_aggro_attack(victim, target_is_player=True):

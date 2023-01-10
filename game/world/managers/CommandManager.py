@@ -127,15 +127,17 @@ class CommandManager(object):
         player_y = world_session.player_mgr.location.y
         player_z = world_session.player_mgr.location.z
         player_o = world_session.player_mgr.location.o
-        maps_z = MapManager.calculate_z_for_object(world_session.player_mgr)[0]
+        maps_z, z_locked = MapManager.calculate_z_for_object(world_session.player_mgr)
+        maps_z_str = f'{maps_z:.3f}' if not z_locked else 'Invalid'
         adt_tile = MapManager.get_tile(player_x, player_y)
-        return 0, f'Map: {world_session.player_mgr.map_}\n' \
+        return 0, f'Map: {world_session.player_mgr.map_id}\n' \
+                  f'InstanceID: {world_session.player_mgr.instance_id}\n' \
                   f'Zone: {world_session.player_mgr.zone}\n' \
                   f'ADT: [{adt_tile[0]},{adt_tile[1]}]\n' \
                   f'X: {player_x:.3f}, ' \
                   f'Y: {player_y:.3f}, ' \
                   f'Z: {player_z:.3f}, ' \
-                  f'MapZ: {maps_z:.3f}, ' \
+                  f'MapZ: {maps_z_str}, ' \
                   f'O: {player_o:.3f}'
 
     @staticmethod
@@ -410,13 +412,13 @@ class CommandManager(object):
     @staticmethod
     def port(world_session, args):
         try:
-            x, y, z, map_ = args.split()
+            x, y, z, map_id = args.split()
             tel_location = Vector(float(x), float(y), float(z))
-            success = world_session.player_mgr.teleport(int(map_), tel_location)
+            success = world_session.player_mgr.teleport(int(map_id), tel_location)
 
             if success:
                 return 0, ''
-            return -1, f'map not found ({int(map_)}).'
+            return -1, f'map not found ({int(map_id)}).'
         except ValueError:
             return -1, 'please use the "x y z map" format.'
 
@@ -460,11 +462,11 @@ class CommandManager(object):
 
         player = WorldSessionStateHandler.find_player_by_name(player_name)
         player_location = None
-        map_ = 0
+        map_id = 0
 
         if player:
             player_location = player.location
-            map_ = player.map_
+            map_id = player.map_id
         else:
             online = False
             player = RealmDatabaseManager.character_get_by_name(player_name)
@@ -472,11 +474,11 @@ class CommandManager(object):
         if player:
             if not online:
                 player_location = Vector(float(player.position_x), float(player.position_y), float(player.position_z))
-                map_ = player.map
+                map_id = player.map
         else:
             return -1, 'player not found.'
 
-        world_session.player_mgr.teleport(int(map_), player_location)
+        world_session.player_mgr.teleport(int(map_id), player_location)
 
         status_text = 'Online' if online else 'Offline'
         return 0, f'Teleported to player {player_name.capitalize()} ({status_text}).'
@@ -489,14 +491,14 @@ class CommandManager(object):
         player = WorldSessionStateHandler.find_player_by_name(player_name)
 
         if player:
-            player.teleport(world_session.player_mgr.map_, world_session.player_mgr.location)
+            player.teleport(world_session.player_mgr.map_id, world_session.player_mgr.location)
         else:
             online = False
             player = RealmDatabaseManager.character_get_by_name(player_name)
 
         if player:
             if not online:
-                player.map = world_session.player_mgr.map_
+                player.map = world_session.player_mgr.map_id
                 player.zone = world_session.player_mgr.zone
                 player.position_x = world_session.player_mgr.location.x
                 player.position_y = world_session.player_mgr.location.y
@@ -598,7 +600,7 @@ class CommandManager(object):
                       f'Y: {creature.location.y}, ' \
                       f'Z: {creature.location.z}, ' \
                       f'O: {creature.location.o}\n' \
-                      f'Map: {creature.map_}'
+                      f'Map: {creature.map_id}'
         return -1, 'error retrieving creature info.'
 
     @staticmethod
@@ -634,7 +636,7 @@ class CommandManager(object):
                                                     f'Y: {gobject.location.y}, '
                                                     f'Z: {gobject.location.z}, '
                                                     f'O: {gobject.location.o}, '
-                                                    f'Map: {gobject.map_}\n'
+                                                    f'Map: {gobject.map_id}\n'
                                                     f'Distance: {distance}')
             return 0, f'{found_count} game objects found within {max_distance} distance units.'
         except ValueError:
@@ -712,10 +714,10 @@ class CommandManager(object):
     @staticmethod
     def los(world_session, args):
         unit = CommandManager._target_or_self(world_session)
-        los = MapManager.los_check(unit.map_, world_session.player_mgr.get_ray_position(), unit.get_ray_position())
+        los = MapManager.los_check(unit.map_id, world_session.player_mgr.get_ray_position(), unit.get_ray_position())
 
         return 0, f'Is in line of sight: {los}\nSource: {world_session.player_mgr.location}\nTarget: ' \
-                  f'{unit.location}\nMap: {unit.map_}'
+                  f'{unit.location}\nMap: {unit.map_id}'
 
     @staticmethod
     def kick(world_session, args):
@@ -763,11 +765,12 @@ class CommandManager(object):
     def createmonster(world_session, args):
         try:
             creature_entry = int(args)
+            player_mgr = world_session.player_mgr
             creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
-            creature_instance = CreatureBuilder.create(creature_entry, Vector(world_session.player_mgr.location.x, world_session.player_mgr.location.y, world_session.player_mgr.location.z, world_session.player_mgr.location.o), 
-                                                        world_session.player_mgr.map_, summoner=None, faction=creature_template.faction if creature_template else world_session.player_mgr.faction,
-                                                        ttl=0, spell_id=0, 
-                                                        subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
+            faction = creature_template.faction if creature_template else player_mgr.faction
+            creature_instance = CreatureBuilder.create(creature_entry, player_mgr.location.copy(),
+                                                       player_mgr.map_id, player_mgr.instance_id,
+                                                       faction=faction)
 
             if not creature_instance:
                 return -1, f'creature entry {creature_entry} not found'
@@ -782,13 +785,12 @@ class CommandManager(object):
     def destroymonster(world_session, args):
         try:
             creature_guid = int(args) if args else 0
+            player_mgr = world_session.player_mgr
 
             if not creature_guid or creature_guid == 0:
-                creature_instance = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                                            world_session.player_mgr.current_selection)
+                creature_instance = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection)
             else:
-                creature_instance = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                                            creature_guid)
+                creature_instance = MapManager.get_surrounding_unit_by_guid(player_mgr, creature_guid)
 
             if not creature_instance:
                 return -1, f'creature not found'

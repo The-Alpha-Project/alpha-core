@@ -16,9 +16,10 @@ from game.world.managers.objects.units.creature.utils.CreatureUtils import Creat
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
+from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
     CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, UnitStates
@@ -35,7 +36,7 @@ class CreatureManager(UnitManager):
         self.creature_template = None
         self.location = None
         self.spawn_position = None
-        self.map_ = 0
+        self.map_id = 0
         self.health_percent = 100
         self.mana_percent = 100
         self.summoner = None
@@ -287,7 +288,9 @@ class CreatureManager(UnitManager):
         return not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
 
     def is_pet(self):
-        return (self.summoner or self.charmer) and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+        return (self.summoner or self.charmer) \
+               and (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
+                    or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
 
     def is_temp_summon(self):
         return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
@@ -388,7 +391,7 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        failed, in_place, path = MapManager.calculate_path(self.map_, self.location, self.spawn_position)
+        failed, in_place, path = MapManager.calculate_path(self.map_id, self.location, self.spawn_position)
 
         if in_place:
             return
@@ -493,7 +496,7 @@ class CreatureManager(UnitManager):
         if not self.location.has_in_arc(self.combat_target.location, math.pi):
             self.movement_manager.send_face_target(self.combat_target)
 
-        combat_location = self.combat_target.location.get_point_in_between_movement(self, combat_position_distance)
+        combat_location = self.combat_target.location.get_point_in_between(combat_position_distance, vector=self.location)
         if not combat_location:
             return
 
@@ -508,14 +511,14 @@ class CreatureManager(UnitManager):
 
         # Use direct combat location if target is over water.
         if not target_under_water:
-            failed, in_place, path = MapManager.calculate_path(self.map_, self.location.copy(), combat_location)
+            failed, in_place, path = MapManager.calculate_path(self.map_id, self.location.copy(), combat_location)
             if not failed and not in_place:
                 combat_location = path[0]
             elif in_place:
                 return
             # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
             elif MapManager.NAMIGATOR_LOADED:
-                Logger.warning(f'Unable to find navigation path, map {self.map_} loc {self.location} end {combat_location}')
+                Logger.warning(f'Unable to find navigation path, map {self.map_id} loc {self.location} end {combat_location}')
 
         self.movement_manager.send_move_normal([combat_location], self.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 

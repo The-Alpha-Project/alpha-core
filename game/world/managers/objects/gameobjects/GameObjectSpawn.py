@@ -10,10 +10,11 @@ from utils.Logger import Logger
 
 
 class GameObjectSpawn:
-    def __init__(self, gameobject_spawn):
+    def __init__(self, gameobject_spawn, instance_id):
         self.gameobject_spawn: SpawnsGameobjects = gameobject_spawn
         self.spawn_id = gameobject_spawn.spawn_id
-        self.map_ = gameobject_spawn.spawn_map
+        self.map_id = gameobject_spawn.spawn_map
+        self.instance_id = instance_id
         self.location = self._get_location()
         self.gameobject_instance: Optional[GameObjectManager] = None
         self.respawn_timer = 0
@@ -43,7 +44,8 @@ class GameObjectSpawn:
         gameobject_location = self._get_location()
         self.respawn_timer = 0
         self.respawn_time = randint(self.gameobject_spawn.spawn_spawntimemin, self.gameobject_spawn.spawn_spawntimemax)
-        self.gameobject_instance = GameObjectBuilder.create(gameobject_template_id, gameobject_location, self.map_,
+        self.gameobject_instance = GameObjectBuilder.create(gameobject_template_id, gameobject_location,
+                                                            self.map_id, self.instance_id,
                                                             self.gameobject_spawn.spawn_state,
                                                             rot0=self.gameobject_spawn.spawn_rotation0,
                                                             rot1=self.gameobject_spawn.spawn_rotation1,

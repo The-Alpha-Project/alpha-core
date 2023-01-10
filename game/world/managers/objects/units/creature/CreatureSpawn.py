@@ -10,14 +10,15 @@ from utils.Logger import Logger
 
 
 class CreatureSpawn:
-    def __init__(self, creature_spawn):
+    def __init__(self, creature_spawn, instance_id):
         self.creature_spawn: SpawnsCreatures = creature_spawn
         self.spawn_id = creature_spawn.spawn_id
         self.movement_type = creature_spawn.movement_type
         self.wander_distance = creature_spawn.wander_distance
         self.health_percent = creature_spawn.health_percent
         self.mana_percent = creature_spawn.mana_percent
-        self.map_ = creature_spawn.map
+        self.map_id = creature_spawn.map
+        self.instance_id = instance_id
         self.location = self._get_location()
         self.addon = creature_spawn.addon
         self.creature_instance: Optional[CreatureManager] = None
@@ -63,7 +64,7 @@ class CreatureSpawn:
         return False
 
     def spawn_creature(self):
-        creature_template_id = self._generate_creature_template()
+        creature_template_id = self._get_creature_entry()
 
         if not creature_template_id:
             Logger.warning(f'Found creature spawn with non existent creature template(s). '
@@ -73,7 +74,8 @@ class CreatureSpawn:
         creature_location = self._get_location()
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_spawn.spawntimesecsmin, self.creature_spawn.spawntimesecsmax)
-        self.creature_instance = CreatureBuilder.create(creature_template_id, creature_location, self.map_,
+        self.creature_instance = CreatureBuilder.create(creature_template_id, creature_location,
+                                                        self.map_id, self.instance_id,
                                                         health_percent=self.health_percent,
                                                         mana_percent=self.mana_percent,
                                                         addon=self.addon,
@@ -106,7 +108,3 @@ class CreatureSpawn:
                                                self.creature_spawn.spawn_entry2,
                                                self.creature_spawn.spawn_entry3,
                                                self.creature_spawn.spawn_entry4])))
-
-    def _generate_creature_template(self):
-        return self._get_creature_entry()
-

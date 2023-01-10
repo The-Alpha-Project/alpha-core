@@ -15,7 +15,7 @@ class GetDeathBindPointHandler(object):
 
         if player_mgr.deathbind:
             area_number = MapManager.get_area_number_by_zone_id(player_mgr.deathbind.deathbind_zone)
-            data = pack('<2I', player_mgr.map_, area_number)
+            data = pack('<2I', player_mgr.map_id, area_number)
             packet = PacketWriter.get_packet(OpCode.SMSG_BINDZONEREPLY, data)
             player_mgr.enqueue_packet(packet)
 

@@ -206,7 +206,7 @@ class GameObjectManager(ObjectManager):
                     lowest_distance = player_slot_distance
                     x_lowest = x_i
                     y_lowest = y_i
-            player.teleport(player.map_, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
+            player.teleport(player.map_id, Vector(x_lowest, y_lowest, self.location.z, self.location.o), is_instant=True)
             player.set_stand_state(StandState.UNIT_SITTINGCHAIRLOW.value + height)
 
     def _handle_use_chest(self, player):

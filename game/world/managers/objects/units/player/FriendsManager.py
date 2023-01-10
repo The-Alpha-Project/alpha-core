@@ -165,7 +165,7 @@ class FriendsManager(object):
                     '<QB3I',
                     player_mgr.guid,
                     FriendStatus.FRIEND_STATUS_ONLINE,
-                    MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_),
+                    MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_id),
                     player_mgr.level,
                     player_mgr.class_
                 )
@@ -196,7 +196,7 @@ class FriendsManager(object):
                     FriendResults.FRIEND_ONLINE,
                     self.owner.guid,
                     FriendStatus.FRIEND_STATUS_ONLINE,
-                    MapManager.get_parent_zone_id(self.owner.zone, self.owner.map_),
+                    MapManager.get_parent_zone_id(self.owner.zone, self.owner.map_id),
                     self.owner.level,
                     self.owner.class_
                 )

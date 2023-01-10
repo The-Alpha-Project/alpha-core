@@ -1,4 +1,3 @@
-from utils.constants.SpellCodes import SpellAttributesEx
 from utils.constants.UpdateFields import PlayerFields
 
 

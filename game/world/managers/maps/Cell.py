@@ -4,12 +4,13 @@ from threading import RLock
 
 
 class Cell:
-    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_=0.0, key=''):
+    def __init__(self, min_x=0.0, min_y=0.0, max_x=0.0, max_y=0.0, map_id=0, instance_id=0, key=''):
         self.min_x = min_x
         self.min_y = min_y
         self.max_x = max_x
         self.max_y = max_y
-        self.map_ = map_
+        self.map_id = map_id
+        self.instance_id = instance_id
         self.key = key
         # Cell lock.
         self.cell_lock = RLock()
@@ -24,7 +25,7 @@ class Cell:
         self.gameobject_spawns = dict()
 
         if not key:
-            self.key = f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:{self.map_}'
+            self.key = f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:{self.map_id}:{self.instance_id}'
 
     def has_players(self):
         return len(self.players) > 0
@@ -32,15 +33,16 @@ class Cell:
     def has_cameras(self):
         return FarSightManager.has_camera_in_cell(self)
 
-    def contains(self, world_object=None, vector=None, map_=None):
+    def contains(self, world_object=None, vector=None, map_id=None, instance_id=None):
         if world_object:
             vector = world_object.location
-            map_ = world_object.map_
+            map_id = world_object.map_id
+            instance_id = world_object.instance_id
 
-        if vector and map_:
+        if vector and map_id:
             return self.min_x <= round(vector.x, 5) <= self.max_x and \
                    self.min_y <= round(vector.y, 5) <= self.max_y and \
-                   map_ == self.map_
+                   map_id == self.map_id and instance_id == self.instance_id
         return False
 
     def add_world_object_spawn(self, world_object_spawn):
@@ -129,16 +131,23 @@ class Cell:
             player.update_known_objects_on_tick = True
 
     def remove(self, world_object):
-        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        guid = world_object.guid
+        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER and guid in self.players:
             self.players.pop(world_object.guid, None)
-        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
+            return True
+        elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT and guid in self.creatures:
             self.creatures.pop(world_object.guid, None)
-        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            return True
+        elif world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and guid in self.gameobjects:
             self.gameobjects.pop(world_object.guid, None)
-        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
+            return True
+        elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT and guid in self.dynamic_objects:
             self.dynamic_objects.pop(world_object.guid, None)
-        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE:
+            return True
+        elif world_object.get_type_id() == ObjectTypeIds.ID_CORPSE and guid in self.corpses:
             self.corpses.pop(world_object.guid, None)
+            return True
+        return False
 
     def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
         players_reached = set()

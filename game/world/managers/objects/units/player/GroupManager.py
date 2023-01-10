@@ -26,6 +26,7 @@ class GroupManager(object):
         self.allowed_looters = {}
         self.last_group_update = 0
         self._last_looter = None  # For Round Robin, cycle will start at leader.
+        self.instance_tokens = {}
 
     def load_group_members(self):
         members = RealmDatabaseManager.group_get_members(self.group)
@@ -46,6 +47,28 @@ class GroupManager(object):
     # the other player accepts the invitation.
     def is_party_formed(self):
         return len(self.members) > 1
+
+    def has_instance_token(self, map_id):
+        return map_id in self.instance_tokens
+
+    def get_instance_token(self, map_id):
+        if not self.has_instance_token(map_id):
+            return 0
+        return self.instance_tokens[map_id]
+
+    def add_instance_token(self, map_id, token):
+        self.instance_tokens[map_id] = token
+
+    def get_leader_guid(self):
+        return self.group.leader_guid
+
+    # When on a group, members should no longer hold individual tokens to the same map-instance_id kvp.
+    def update_instance_token_for_members(self, instance_token):
+        from game.world.managers.maps.InstancesManager import InstancesManager
+        for guid, member in list(self.members.items()):
+            member_instance_token = InstancesManager.get_instance_token_for_player_guid(guid, instance_token.map_id)
+            if member_instance_token and member_instance_token.id == instance_token.id:
+                InstancesManager.remove_token_for_player(guid, member_instance_token)
 
     # TODO, check if ordering becomes an issue cause of using dictionary for members.
     def get_member_at(self, index):
@@ -304,7 +327,7 @@ class GroupManager(object):
 
     # noinspection PyMethodMayBeStatic
     def is_close_member(self, requester, player_mgr):
-        return requester and player_mgr and player_mgr.online and requester.map_ == player_mgr.map_ and \
+        return requester and player_mgr and player_mgr.online and requester.map_id == player_mgr.map_id and \
                requester.location.distance(player_mgr.location) < Distances.GROUP_SHARING_DISTANCE
 
     def reward_group_reputation(self, requester, creature):
@@ -405,6 +428,7 @@ class GroupManager(object):
         self.members.clear()
         self.allowed_looters.clear()
         self.invites.clear()
+        self.instance_tokens.clear()
         self.group = None
         self._last_looter = None
 

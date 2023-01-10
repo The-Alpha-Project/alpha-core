@@ -1,5 +1,4 @@
 import math
-from dataclasses import dataclass
 
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
@@ -7,7 +6,9 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.InstancesManager import InstancesManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.maps.helpers.PendingTeleportDataHolder import PendingTeleportDataHolder
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.loot.LootSelection import LootSelection
@@ -47,20 +48,12 @@ MAX_ACTION_BUTTONS = 120
 MAX_EXPLORED_AREAS = 488
 
 
-@dataclass
-class ResurrectionRequestDataHolder:
-    resuscitator_guid: int
-    recovery_percentage: float
-    resurrect_location: Vector
-    resurrect_map: int
-
-
 class PlayerManager(UnitManager):
     def __init__(self,
                  player=None,
                  session=None,
                  num_inv_slots=0x89,  # Paperdoll + Bag slots + Bag space
-                 player_bytes=0,  # skin, face, hair style, hair color
+                 player_bytes=0,  # skin, face, hairstyle, hair color
                  xp=0,
                  next_level_xp=0,
                  player_bytes_2=0,  # player flags, facial hair, bank slots, 0
@@ -77,9 +70,7 @@ class PlayerManager(UnitManager):
         super().__init__(**kwargs)
 
         self.session = session
-        self.pending_teleport_recovery_percentage = -1
-        self.pending_teleport_destination = None
-        self.pending_teleport_destination_map = -1
+        self.pending_teleport_data = None
         self.update_lock = False
         self.possessed_unit = None
         self.known_objects = dict()
@@ -130,7 +121,7 @@ class PlayerManager(UnitManager):
             self.xp = player.xp
             self.talent_points = self.player.talentpoints
             self.skill_points = self.player.skillpoints
-            self.map_ = self.player.map
+            self.map_id = self.player.map
             self.zone = self.player.zone
             self.location.x = self.player.position_x
             self.location.y = self.player.position_y
@@ -237,10 +228,25 @@ class PlayerManager(UnitManager):
         self.team = PlayerManager.get_team_for_race(self.race)
 
     def set_gm(self, on=True):
-        self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
-        self.chat_flags = ChatFlags.CHAT_TAG_GM
+        if on:
+            self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
+            self.chat_flags |= ChatFlags.CHAT_TAG_GM
+        else:
+            self.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GM
+            self.chat_flags &= ~ChatFlags.CHAT_TAG_GM
+
+    def set_player_to_deathbind_location(self):
+        self.map_id = self.deathbind.deathbind_map
+        self.location.x = self.deathbind.deathbind_position_x
+        self.location.y = self.deathbind.deathbind_position_y
+        self.location.z = self.deathbind.deathbind_position_z
 
     def complete_login(self, first_login=False):
+        instance_token = InstancesManager.get_or_create_instance_token_by_player(self, self.map_id)
+        self.instance_id = instance_token.id
+        if MapManager.is_dungeon_map_id(self.map_id) and not MapManager.get_or_create_instance_map(instance_token):
+            self.set_player_to_deathbind_location()
+
         self.online = True
 
         # Join default channels.
@@ -328,7 +334,8 @@ class PlayerManager(UnitManager):
         self.session.player_mgr = None
         self.session = None
 
-    def get_tutorial_packet(self):
+    @staticmethod
+    def get_tutorial_packet():
         return PacketWriter.get_packet(OpCode.SMSG_TUTORIAL_FLAGS, pack('<18I', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                                         0, 0, 0, 0, 0))
 
@@ -572,7 +579,7 @@ class PlayerManager(UnitManager):
             self.player.position_x = self.location.x
             self.player.position_y = self.location.y
             self.player.position_z = self.location.z
-            self.player.map = self.map_
+            self.player.map = self.map_id
             self.player.orientation = self.location.o
             self.player.zone = self.zone
             self.player.explored_areas = self.explored_areas.to01()
@@ -587,10 +594,13 @@ class PlayerManager(UnitManager):
             self.player.online = self.online
 
     def teleport(self, map_, location, is_instant=False, recovery: float = -1.0):
-        if not DbcDatabaseManager.map_get_by_id(map_):
+        dbc_map = DbcDatabaseManager.map_get_by_id(map_)
+        if not dbc_map:
+            Logger.warning(f'Teleport, invalid map {map_}.')
             return False
 
         if not MapManager.validate_teleport_destination(map_, location.x, location.y):
+            Logger.warning(f'Teleport, invalid destination, Map {map_}, X {location.x} Y {location.y}.')
             return False
 
         # End duel and detach pet if this is a long-distance teleport.
@@ -608,11 +618,18 @@ class PlayerManager(UnitManager):
             self.spell_manager.remove_casts(remove_active=False)
 
         # TODO: Stop any movement, rotation?
-        # New destination we will use when we receive an acknowledge message from client.
-        self.pending_teleport_destination_map = map_
-        self.pending_teleport_recovery_percentage = recovery
-        self.pending_teleport_destination = Vector(location.x, location.y, location.z, location.o)
+        previous_failed = self.pending_teleport_data and self.pending_teleport_data.failed
 
+        # If the previous attempt failed, we are reversing that teleport using the existent data.
+        if not previous_failed:
+            destination_location = location.copy()
+            # New destination we will use when we receive an acknowledgment message from client.
+            self.pending_teleport_data = PendingTeleportDataHolder(recovery_percentage=recovery,
+                                                                   origin_location=self.location.copy(),
+                                                                   origin_map=self.map_id,
+                                                                   destination_location=destination_location,
+                                                                   destination_map=map_,
+                                                                   failed=False)
         if is_instant:
             self.trigger_teleport()
 
@@ -624,7 +641,7 @@ class PlayerManager(UnitManager):
         self.update_lock = True
 
         # Same map.
-        if self.map_ == self.pending_teleport_destination_map:
+        if self.map_id == self.pending_teleport_data.destination_map:
             data = pack(
                 '<Q9fI',
                 self.transport_id,
@@ -632,10 +649,10 @@ class PlayerManager(UnitManager):
                 self.transport.y,
                 self.transport.z,
                 self.transport.o,
-                self.pending_teleport_destination.x,
-                self.pending_teleport_destination.y,
-                self.pending_teleport_destination.z,
-                self.pending_teleport_destination.o,
+                self.pending_teleport_data.destination_location.x,
+                self.pending_teleport_data.destination_location.y,
+                self.pending_teleport_data.destination_location.z,
+                self.pending_teleport_data.destination_location.o,
                 self.pitch,
                 MoveFlags.MOVEFLAG_NONE,
             )
@@ -658,23 +675,35 @@ class PlayerManager(UnitManager):
 
             data = pack(
                 '<B4f',
-                self.pending_teleport_destination_map,
-                self.pending_teleport_destination.x,
-                self.pending_teleport_destination.y,
-                self.pending_teleport_destination.z,
-                self.pending_teleport_destination.o
+                self.pending_teleport_data.destination_map,
+                self.pending_teleport_data.destination_location.x,
+                self.pending_teleport_data.destination_location.y,
+                self.pending_teleport_data.destination_location.z,
+                self.pending_teleport_data.destination_location.o
             )
 
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
     def spawn_player_from_teleport(self):
         # Check if player changed maps before setting the new value.
-        changed_map = self.map_ != self.pending_teleport_destination_map
+        changed_map = self.map_id != self.pending_teleport_data.destination_map
 
-        # Update new coordinates and map.
-        if self.pending_teleport_destination_map != -1 and self.pending_teleport_destination:
-            self.map_ = self.pending_teleport_destination_map
-            self.location = Vector(self.pending_teleport_destination.x, self.pending_teleport_destination.y, self.pending_teleport_destination.z, self.pending_teleport_destination.o)
+        dbc_map = DbcDatabaseManager.map_get_by_id(self.pending_teleport_data.destination_map)
+        if not dbc_map and changed_map:
+            self.pending_teleport_data.set_failed(True)
+            self.teleport(self.pending_teleport_data.origin_map, self.pending_teleport_data.origin_location, True)
+            return
+
+        instance_token = InstancesManager.get_or_create_instance_token_by_player(self, dbc_map.ID)
+        if changed_map and MapManager.is_dungeon_map_id(dbc_map.ID):
+            if not MapManager.get_or_create_instance_map(instance_token):
+                self.pending_teleport_data.set_failed(True)
+                self.teleport(self.pending_teleport_data.origin_map, self.pending_teleport_data.origin_location, True)
+                return
+
+        self.map_id = self.pending_teleport_data.destination_map
+        self.instance_id = instance_token.id
+        self.location = self.pending_teleport_data.destination_location.copy()
 
         # Player changed map. Send initial spells, action buttons and create packet.
         if changed_map:
@@ -683,6 +712,8 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(self.get_action_buttons())
             # Inventory updates before spawning.
             self.enqueue_packets(self.inventory.get_inventory_update_packets(requester=self))
+            # Reset move flags before create packet in order to avoid player starting automatically moving after tele.
+            self.movement_flags = MoveFlags.MOVEFLAG_NONE
             # Create packet.
             self.enqueue_packet(self.generate_create_packet(requester=self))
             # Apply enchantments again.
@@ -700,13 +731,16 @@ class PlayerManager(UnitManager):
             self.unmount()
 
         # Repop/Resurrect.
-        if self.pending_teleport_recovery_percentage != -1:
-            self.respawn(self.pending_teleport_recovery_percentage)
+        if self.pending_teleport_data.recovery_percentage != -1:
+            self.respawn(self.pending_teleport_data.recovery_percentage)
             self.spirit_release_timer = 0
             self.resurrect_data = None
 
-        # Get us in a new cell.
-        MapManager.update_object(self)
+        if not changed_map:
+            # Get us in a new cell.
+            MapManager.update_object(self)
+        else:
+            MapManager.spawn_object(world_object_instance=self)
 
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)
@@ -714,10 +748,7 @@ class PlayerManager(UnitManager):
             heart_beat_packet = self.get_heartbeat_packet()
             MapManager.send_surrounding(heart_beat_packet, self, False)
 
-        # TODO: Wrap pending teleport data in a new holder object?
-        self.pending_teleport_recovery_percentage = -1
-        self.pending_teleport_destination_map = -1
-        self.pending_teleport_destination = None
+        self.pending_teleport_data = None
         self.update_lock = False
 
         # Update managers.
@@ -1126,7 +1157,7 @@ class PlayerManager(UnitManager):
 
         # Exploration handling (only if player is not flying).
         if not self.movement_spline or self.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
-            area_information = MapManager.get_area_information(self.map_, self.location.x, self.location.y)
+            area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
             if area_information:
                 # Check if we need to set this zone as explored.
                 if area_information.explore_bit >= 0 and not self.has_area_explored(area_information.explore_bit):
@@ -1150,7 +1181,8 @@ class PlayerManager(UnitManager):
                         exploration_percent = 100
                     elif exploration_percent < 0:
                         exploration_percent = 0
-                    xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * exploration_percent / 100 * xp_rate
+                    base_xp = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level)
+                    xp_gain = base_xp * exploration_percent / 100 * xp_rate
                 else:
                     xp_gain = WorldDatabaseManager.exploration_base_xp_get_by_level(area_information.level) * xp_rate
                 self.give_xp([xp_gain], notify=False)
@@ -1164,10 +1196,10 @@ class PlayerManager(UnitManager):
 
     def update_swimming_state(self, state):
         if state:
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y,
+            self.liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
                                                                         self.location.z)
             if not self.liquid_information:
-                Logger.warning(f'Unable to retrieve liquids information. Map {self.map_} X {self.location.x} Y '
+                Logger.warning(f'Unable to retrieve liquids information. Map {self.map_id} X {self.location.x} Y '
                                f'{self.location.y}')
         else:
             self.liquid_information = None
@@ -1177,7 +1209,11 @@ class PlayerManager(UnitManager):
 
     # override
     def is_over_water(self):
-        self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+        if not self.current_cell:
+            return False
+
+        self.liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
+                                                                    self.location.z)
         return self.liquid_information and self.liquid_information.height > self.location.z
 
     # override
@@ -1195,7 +1231,8 @@ class PlayerManager(UnitManager):
     def update_liquid_information(self):
         # Retrieve the latest liquid information, only if player is swimming.
         if self.is_swimming():
-            self.liquid_information = MapManager.get_liquid_information(self.map_, self.location.x, self.location.y, self.location.z)
+            self.liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
+                                                                        self.location.z)
 
     # override
     def initialize_field_values(self):
@@ -1501,7 +1538,8 @@ class PlayerManager(UnitManager):
 
     # override
     def add_combo_points_on_target(self, target, combo_points, hide=False):
-        if combo_points <= 0 or not target.is_alive:  # Killing a unit with a combo generator can generate a combo point after death
+        # Killing a unit with a combo generator can generate a combo point after death.
+        if combo_points <= 0 or not target.is_alive:
             return
 
         if target.guid != self.combo_target:
@@ -1648,8 +1686,7 @@ class PlayerManager(UnitManager):
             if self.online and has_changes or has_inventory_changes:
                 MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
-            elif not has_changes and not has_inventory_changes and self.pending_teleport_destination \
-                    and not self.update_lock:
+            elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
                 self.trigger_teleport()
             # Do normal update.
             else:
@@ -1725,7 +1762,7 @@ class PlayerManager(UnitManager):
             CorpseManager.spawn(self)
 
         if self.resurrect_data and not release_spirit:
-            is_instant = self.resurrect_data.resurrect_map == self.map_ and \
+            is_instant = self.resurrect_data.resurrect_map == self.map_id and \
                          self.resurrect_data.resurrect_location == self.location
             self.teleport(self.resurrect_data.resurrect_map, self.resurrect_data.resurrect_location,
                           is_instant=is_instant, recovery=self.resurrect_data.recovery_percentage)
@@ -1740,7 +1777,7 @@ class PlayerManager(UnitManager):
     def get_player_bytes(self):
         return ByteUtils.bytes_to_int(
             self.player.haircolour,  # Hair colour.
-            self.player.hairstyle,  # Hair style.
+            self.player.hairstyle,  # Hairstyle.
             self.player.face,  # Player face.
             self.player.skin  # Player skin.
         )

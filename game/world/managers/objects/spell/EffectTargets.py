@@ -12,7 +12,7 @@ from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHand
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.SpellCodes import SpellImplicitTargets, SpellMissReason, SpellEffects, SpellTargetMask, \
-    SpellHitFlags, SpellMissInfo
+    SpellHitFlags
 
 
 @dataclass
@@ -265,11 +265,12 @@ class EffectTargets:
     @staticmethod
     def resolve_all_enemy_in_area_instant(casting_spell, target_effect):
         caster = casting_spell.spell_caster
-        map_ = casting_spell.spell_caster.map_
+        map_id = casting_spell.spell_caster.map_id
+        instance_id = casting_spell.spell_caster.instance_id
         radius = target_effect.get_radius()
         if casting_spell.initial_target_is_terrain():
             effect_source = casting_spell.initial_target
-            result = MapManager.get_surrounding_units_by_location(effect_source, map_, radius, True)  # Ground-targeted AoE.
+            result = MapManager.get_surrounding_units_by_location(effect_source, map_id, instance_id, radius, True)  # Ground-targeted AoE.
             merged = list(result[0].values()) + list(result[1].values())
         else:
             # TODO len(target_effect.targets.resolved_targets_a) == 1 incorrectly resolves to a single target of an AoE spell.
@@ -439,8 +440,9 @@ class EffectTargets:
         target = casting_spell.initial_target
         if not casting_spell.initial_target_is_terrain():
             return []
-        map_ = casting_spell.spell_caster.map_
-        result = MapManager.get_surrounding_units_by_location(target, map_, target_effect.get_radius(), True)
+        map_id = casting_spell.spell_caster.map_id
+        instance_id = casting_spell.spell_caster.instance_id
+        result = MapManager.get_surrounding_units_by_location(target, map_id, instance_id, target_effect.get_radius(), True)
 
         merged = list(result[0].values()) + list(result[1].values())
         return EffectTargets.get_friends_from_unit_list(merged, casting_spell.spell_caster)

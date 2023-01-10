@@ -237,18 +237,6 @@ class WorldServerSessionHandler:
                                                      seconds=1, max_instances=1)
         player_update_known_object_scheduler.start()
 
-        # Corpses updates.
-        corpses_update_scheduler = BackgroundScheduler()
-        corpses_update_scheduler._daemon = True
-        corpses_update_scheduler.add_job(MapManager.update_corpses, 'interval', seconds=10.0, max_instances=1)
-        corpses_update_scheduler.start()
-
-        # MapManager tile loading.
-        tile_loading_scheduler = BackgroundScheduler()
-        tile_loading_scheduler._daemon = True
-        tile_loading_scheduler.add_job(MapManager.initialize_pending_tiles, 'interval', seconds=1.0, max_instances=4)
-        tile_loading_scheduler.start()
-
         # Creature updates.
         creature_update_scheduler = BackgroundScheduler()
         creature_update_scheduler._daemon = True
@@ -272,6 +260,18 @@ class WorldServerSessionHandler:
         spawn_update_scheduler._daemon = True
         spawn_update_scheduler.add_job(MapManager.update_spawns, 'interval', seconds=1.0, max_instances=1)
         spawn_update_scheduler.start()
+
+        # Corpses updates.
+        corpses_update_scheduler = BackgroundScheduler()
+        corpses_update_scheduler._daemon = True
+        corpses_update_scheduler.add_job(MapManager.update_corpses, 'interval', seconds=10.0, max_instances=1)
+        corpses_update_scheduler.start()
+
+        # MapManager tile loading.
+        tile_loading_scheduler = BackgroundScheduler()
+        tile_loading_scheduler._daemon = True
+        tile_loading_scheduler.add_job(MapManager.initialize_pending_tiles, 'interval', seconds=1.0, max_instances=4)
+        tile_loading_scheduler.start()
 
         # Cell deactivation.
         cell_unloading_scheduler = BackgroundScheduler()

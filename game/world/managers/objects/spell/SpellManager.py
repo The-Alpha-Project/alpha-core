@@ -1077,7 +1077,7 @@ class SpellManager:
             # Line of sight.
             target_ray_vector = validation_target.get_ray_position() if not is_terrain \
                 else target_loc.get_ray_vector(is_terrain=True)
-            if not MapManager.los_check(self.caster.map_, self.caster.get_ray_position(), target_ray_vector):
+            if not MapManager.los_check(self.caster.map_id, self.caster.get_ray_position(), target_ray_vector):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
                 return False
 

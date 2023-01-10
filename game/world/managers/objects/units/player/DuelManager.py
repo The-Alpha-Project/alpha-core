@@ -28,7 +28,7 @@ class DuelManager(object):
         self.duel_state = DuelState.DUEL_STATE_FINISHED
         self.arbiter = arbiter
         self.elapsed = 0  # Used to control 1 update per second based on global tick rate.
-        self.map = player1.map_
+        self.map_id = player1.map_id
 
     @staticmethod
     def request_duel(requester, target, arbiter):
@@ -137,7 +137,7 @@ class DuelManager(object):
         self.players.clear()
         self.team_ids.clear()
         self.arbiter = None
-        self.map = None
+        self.map_id = None
 
     def is_unit_involved(self, who):
         if who.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -149,7 +149,7 @@ class DuelManager(object):
     def boundary_check(self):
         for entry in list(self.players.values()):  # Prevent mutability
             # Check if player switched maps, if he did, end duel as retreat.
-            if entry.player.map_ != self.map:
+            if entry.player.map_id != self.map_id:
                 self.end_duel(DuelWinner.DUEL_WINNER_RETREAT, DuelComplete.DUEL_FINISHED, entry.target)
                 break
             dist = self.arbiter.location.distance(entry.player.location)
