@@ -15,18 +15,17 @@ class LogManager(object):
 
     @staticmethod
     def process_logs():
-        while (LogManager.should_process_logs):
-            log = LogManager.chat_queue.get(block=True, timeout=None)
+        if config.Server.Logging.log_player_chat:
+            while (LogManager.should_process_logs):
+                log = LogManager.chat_queue.get(block=True, timeout=None)
 
-            if log:
-                if log[0] == ChatMsgs.CHAT_MSG_SAY or log[0] == ChatMsgs.CHAT_MSG_YELL \
-                    or log[0] == ChatMsgs.CHAT_MSG_EMOTE or log[0] == ChatMsgs.CHAT_MSG_PARTY \
-                        or log[0] == ChatMsgs.CHAT_MSG_GUILD or log[0] == ChatMsgs.CHAT_MSG_OFFICER:
-                    LogManager._log_chat(log[0], log[1], log[2])
-                elif log[0] == ChatMsgs.CHAT_MSG_CHANNEL:
-                    LogManager._log_channel(log[1], log[2], log[3])
-                elif log[0] == ChatMsgs.CHAT_MSG_WHISPER:
-                    LogManager._log_whisper(log[1], log[2], log[3])
+                if log:
+                    if log[0] == ChatMsgs.CHAT_MSG_SAY or log[0] == ChatMsgs.CHAT_MSG_YELL \
+                        or log[0] == ChatMsgs.CHAT_MSG_EMOTE or log[0] == ChatMsgs.CHAT_MSG_PARTY \
+                            or log[0] == ChatMsgs.CHAT_MSG_GUILD or log[0] == ChatMsgs.CHAT_MSG_OFFICER:
+                        LogManager._log_chat(log[0], log[1], log[2])
+                    elif log[0] == ChatMsgs.CHAT_MSG_CHANNEL or log[0] == ChatMsgs.CHAT_MSG_WHISPER:
+                        LogManager._log_channel(log[1], log[2], log[3])
 
     @staticmethod
     def exit():
