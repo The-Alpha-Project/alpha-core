@@ -55,4 +55,5 @@ class InstancesManager:
 
     @staticmethod
     def _is_dungeon_map_id(map_id):
-        return map_id not in (0, 1, 30, 37)  # World / Pvp.
+        # TODO: Move to Map db table as custom field?
+        return map_id not in (0, 1, 13, 17, 25, 29, 30, 37, 42)
