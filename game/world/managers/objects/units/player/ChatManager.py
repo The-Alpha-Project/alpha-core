@@ -57,7 +57,7 @@ class ChatManager(object):
             packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, ChatMsgs.CHAT_MSG_CHANNEL,
                                                      lang, channel=channel_name)
             channel.broadcast_to_channel(sender, packet)
-            LogManager.log_channel(sender, message, channel_name)
+            LogManager.log_channel(sender, message, channel)
 
     @staticmethod
     def send_party(sender, message, lang):

@@ -41,12 +41,12 @@ class LogManager(object):
                                               msg))
     
     @staticmethod
-    def log_channel(player_mgr, msg, channel_name):
-        if config.Server.Logging.log_player_chat:
+    def log_channel(player_mgr, msg, channel):
+        if config.Server.Logging.log_player_chat and not channel.is_addon():
             LogManager.chat_queue.put_nowait((ChatMsgs.CHAT_MSG_CHANNEL, 
                                               player_mgr, 
                                               msg,
-                                              channel_name))
+                                              channel.name))
     
     @staticmethod
     def log_whisper(player_mgr, msg, target_player_mgr):
