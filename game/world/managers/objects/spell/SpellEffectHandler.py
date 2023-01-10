@@ -830,10 +830,10 @@ class SpellEffectHandler:
     def handle_spell_defense_passive(casting_spell, effect, caster, target):
         pass  # Only "SPELLDEFENSE (DND)", obsolete
 
-    AREA_SPELL_EFFECTS = [
+    AREA_SPELL_EFFECTS = {
         SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA,
         SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA
-    ]
+    }
 
 
 SPELL_EFFECTS = {

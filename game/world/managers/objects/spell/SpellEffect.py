@@ -10,7 +10,7 @@ from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AU
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from utils.constants.MiscCodes import ObjectTypeFlags
-from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity
+from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity, SpellMissReason
 
 
 class SpellEffect:
@@ -56,6 +56,10 @@ class SpellEffect:
         is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS or AuraEffectDummyHandler.is_periodic(casting_spell.spell_entry.ID)
         # Descriptions of periodic effects with a period of 0 either imply regeneration every 5s or say "per tick".
         self.aura_period = (self.aura_period if self.aura_period else 5000) if is_periodic else 0
+        if is_periodic and casting_spell.is_channeled():
+            # Account for channel time modifiers.
+            tick_count = int(self.casting_spell.get_duration(apply_mods=False) / self.aura_period)
+            self.aura_period = int(self.casting_spell.get_duration() / tick_count)
 
     def update_effect_aura(self, timestamp):
         if self.applied_aura_duration == -1:
@@ -90,7 +94,6 @@ class SpellEffect:
         duration = self.casting_spell.get_duration()
         if not self.is_periodic():
             return []
-
 
         if duration == -1:
             tick_count = 1  # Generate first tick for infinite duration spells.
@@ -178,6 +181,21 @@ class SpellEffect:
             return True
 
         return False
+
+    def can_miss(self):
+        return self.effect_type not in {SpellEffects.SPELL_EFFECT_LEAP}
+
+    def is_full_miss(self):
+        if not self.casting_spell.object_target_results:
+            return False
+
+        if not self.casting_spell.initial_target_is_unit_or_player():
+            # Don't consider non-unit-targeted spells for "full misses", as the initial target is unmissable.
+            return False
+
+        targets = self.targets.get_resolved_effect_targets_by_type(ObjectManager)
+        return all([self.casting_spell.object_target_results[target.guid].result != SpellMissReason.MISS_REASON_NONE
+                    for target in targets])
 
     # noinspection PyUnusedLocal
     def load_effect(self, spell, index):
