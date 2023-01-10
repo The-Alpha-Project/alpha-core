@@ -6,6 +6,8 @@ INSTANCES: dict[int, dict[int, InstanceToken]] = dict()
 
 
 class InstancesManager:
+    # TODO: Generate a new id on map creation instead of starting from this hardcoded value. At the very least, grab the
+    #  max map id from the dbc files.
     INSTANCE_ID = 130  # Max map_id + 1.
     LOCK = RLock()
 
