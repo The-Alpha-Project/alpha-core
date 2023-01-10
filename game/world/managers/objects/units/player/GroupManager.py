@@ -582,7 +582,7 @@ class GroupManager(object):
             player_mgr.get_power_value() if player_mgr else 0,
             player_mgr.get_max_power_value() if player_mgr else 0,
             player_mgr.level if player_mgr else character.level,
-            player_mgr.map_ if player_mgr else character.map,
+            player_mgr.map_id if player_mgr else character.map,
             # Client expects an AreaNumber from AreaTable, not a zone id.
             MapManager.get_area_number_by_zone_id(player_mgr.zone if player_mgr else character.zone),
             player_mgr.class_ if player_mgr else character.class_,
