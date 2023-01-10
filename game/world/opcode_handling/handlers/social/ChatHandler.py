@@ -26,7 +26,6 @@ class ChatHandler(object):
             channel_name = PacketReader.read_string(reader.data, 8).strip()
             message = PacketReader.read_string(reader.data, 8 + len(channel_name)+1)
             ChatManager.send_channel_message(world_session.player_mgr, channel_name, message, lang)
-            world_session.log_mgr.log_channel(world_session.player_mgr, message, channel_name)
         # Say, Yell, Emote.
         elif chat_type == ChatMsgs.CHAT_MSG_SAY \
                 or chat_type == ChatMsgs.CHAT_MSG_EMOTE \
@@ -39,7 +38,6 @@ class ChatHandler(object):
             if not ChatHandler.check_if_command(world_session, message):
                 ChatManager.send_chat_message(world_session, guid, chat_flags, message, chat_type, lang,
                                               ChatHandler.get_range_by_type(chat_type))
-                world_session.log_mgr.log_chat(world_session.player_mgr, message, chat_type)
         # Whisper.
         elif chat_type == ChatMsgs.CHAT_MSG_WHISPER:
             target_name = PacketReader.read_string(reader.data, 8).strip()
@@ -54,25 +52,18 @@ class ChatHandler(object):
                     lang = Languages.LANG_UNIVERSAL
 
                 ChatManager.send_whisper(world_session.player_mgr, target_player_mgr, message, lang)
-                world_session.log_mgr.log_whisper(world_session.player_mgr, message, target_player_mgr)
             return 0
         # Party.
         elif chat_type == ChatMsgs.CHAT_MSG_PARTY:
             if not ChatHandler.check_if_command(world_session, message):
                 message = PacketReader.read_string(reader.data, 8)
-                success = ChatManager.send_party(world_session.player_mgr, message, lang)
-
-                if success:
-                    world_session.log_mgr.log_chat(world_session.player_mgr, message, chat_type)
+                ChatManager.send_party(world_session.player_mgr, message, lang)
             return 0
         # Guild.
         elif chat_type == ChatMsgs.CHAT_MSG_GUILD or chat_type == ChatMsgs.CHAT_MSG_OFFICER:
             if not ChatHandler.check_if_command(world_session, message):
                 message = PacketReader.read_string(reader.data, 8)
-                success = ChatManager.send_guild(world_session.player_mgr, message, lang, chat_type)
-                
-                if success:
-                    world_session.log_mgr.log_chat(world_session.player_mgr, message, chat_type)
+                ChatManager.send_guild(world_session.player_mgr, message, lang, chat_type)
             return 0
 
         return 0
