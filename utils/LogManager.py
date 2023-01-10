@@ -37,24 +37,24 @@ class LogManager(object):
     def log_chat(player_mgr, msg, chat_type):
         if config.Server.Logging.log_player_chat:
             LogManager.chat_queue.put_nowait((chat_type,
-                                        player_mgr,
-                                        msg))
+                                              player_mgr,
+                                              msg))
     
     @staticmethod
     def log_channel(player_mgr, msg, channel_name):
         if config.Server.Logging.log_player_chat:
             LogManager.chat_queue.put_nowait((ChatMsgs.CHAT_MSG_CHANNEL, 
-                                        player_mgr, 
-                                        msg,
-                                        channel_name))
+                                              player_mgr, 
+                                              msg,
+                                              channel_name))
     
     @staticmethod
     def log_whisper(player_mgr, msg, target_player_mgr):
         if config.Server.Logging.log_player_chat:
             LogManager.chat_queue.put_nowait((ChatMsgs.CHAT_MSG_WHISPER, 
-                                        player_mgr, 
-                                        msg,
-                                        target_player_mgr))
+                                              player_mgr, 
+                                              msg,
+                                              target_player_mgr))
     
     @staticmethod
     def _log_chat(chat_type, player_mgr, msg):

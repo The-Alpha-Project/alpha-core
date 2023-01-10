@@ -58,7 +58,7 @@ Server:
         z_resolution: 256  # The resolution used when extracting maps
 
     Logging: # Logs stored in 'etc/logs/'.
-        log_player_chat: True
+        log_player_chat: False
 
     General:
         # Message of the day
