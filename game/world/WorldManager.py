@@ -34,7 +34,6 @@ class WorldServerSessionHandler:
         self.client_address = client_address
 
         self.account_mgr = None
-        self.log_mgr: Optional[LogManager] = None
         self.player_mgr: Optional[PlayerManager] = None
         self.keep_alive = False
 
@@ -48,7 +47,6 @@ class WorldServerSessionHandler:
 
             self.player_mgr = None
             self.account_mgr = None
-            self.log_mgr = LogManager(self)
             self.keep_alive = True
 
             if self.auth_challenge(self.request):
@@ -61,10 +59,6 @@ class WorldServerSessionHandler:
                 outgoing_thread = threading.Thread(target=self.process_outgoing)
                 outgoing_thread.daemon = True
                 outgoing_thread.start()
-
-                logging_thread = threading.Thread(target=self.log_mgr.process_logs)
-                logging_thread.daemon = True
-                logging_thread.start()
 
                 while self.receive(self.request) != -1 and self.keep_alive:
                     continue
@@ -285,6 +279,11 @@ class WorldServerSessionHandler:
         cell_unloading_scheduler._daemon = True
         cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=120.0, max_instances=1)
         cell_unloading_scheduler.start()
+
+        # Behavior logging.
+        logging_thread = threading.Thread(target=LogManager.process_logs)
+        logging_thread.daemon = True
+        logging_thread.start()
 
     @staticmethod
     def start():
