@@ -21,6 +21,9 @@ class TeleportToPlayerHandler(object):
 
         if len(reader.data) >= 1:  # Avoid handling empty teleport to player packet.
             player_name: str = PacketReader.read_string(reader.data, 0)
-            CommandManager.goplayer(world_session, player_name)
+            result = CommandManager.goplayer(world_session, player_name)
+
+            if result[0] == -1:
+                CommandManager.tel(world_session, player_name)
 
         return 0
