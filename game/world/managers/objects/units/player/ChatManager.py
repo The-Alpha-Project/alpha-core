@@ -60,7 +60,7 @@ class ChatManager(object):
             LogManager.log_channel(sender, message, channel_name)
 
     @staticmethod
-    def send_party(sender, message, lang) -> bool:
+    def send_party(sender, message, lang):
         if sender.group_manager:
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_PARTY, lang)
@@ -71,7 +71,7 @@ class ChatManager(object):
                                                      PartyResults.ERR_NOT_IN_GROUP)
 
     @staticmethod
-    def send_guild(sender, message, lang, chat_type) -> bool:
+    def send_guild(sender, message, lang, chat_type):
         if sender.guild_manager:
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, chat_type, lang)
 

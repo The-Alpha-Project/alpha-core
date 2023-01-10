@@ -74,22 +74,25 @@ class LogManager(object):
         elif chat_type == ChatMsgs.CHAT_MSG_OFFICER:
             log_type = 'Officer'
 
-        LogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, NAME {player_mgr.get_name()}, MAP {player_mgr.map_}, POS {LogManager._get_location_string(player_mgr)}): [{log_type}] {player_mgr.get_name()}:{player_mgr.guid} : {msg}')
+        LogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, NAME {player_mgr.get_name()}, MAP {player_mgr.map_}, POS {LogManager._get_location_string(player_mgr)}): [{log_type}] {player_mgr.get_name()}:{player_mgr.guid} : {msg}',
+                                 LogManager.CHAT_LOG_FILE)
 
     @staticmethod
     def _log_channel(player_mgr, msg, channel_name):
         date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-        LogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, NAME {player_mgr.get_name()}, MAP {player_mgr.map_}, POS {LogManager._get_location_string(player_mgr)}): [Channel: {channel_name}] {player_mgr.get_name()}:{player_mgr.guid} : {msg}')
+        LogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, NAME {player_mgr.get_name()}, MAP {player_mgr.map_}, POS {LogManager._get_location_string(player_mgr)}): [Channel: {channel_name}] {player_mgr.get_name()}:{player_mgr.guid} : {msg}',
+                                 LogManager.CHAT_LOG_FILE)
 
     @staticmethod
     def _log_whisper(player_mgr, msg, target_player_mgr):
         date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-        LogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, NAME {player_mgr.get_name()}, MAP {player_mgr.map_}, POS {LogManager._get_location_string(player_mgr)}): [Whisper] {player_mgr.get_name()}:{player_mgr.guid} -> {target_player_mgr.get_name()}:{target_player_mgr.guid} : {msg}')
+        LogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, NAME {player_mgr.get_name()}, MAP {player_mgr.map_}, POS {LogManager._get_location_string(player_mgr)}): [Whisper] {player_mgr.get_name()}:{player_mgr.guid} -> {target_player_mgr.get_name()}:{target_player_mgr.guid} : {msg}', 
+                                 LogManager.CHAT_LOG_FILE)
 
     @staticmethod
-    def _write_to_log(msg):
+    def _write_to_log(msg, logfile):
         Path(LogManager.LOG_PATH).mkdir(parents=True, exist_ok=True)
-        with open (f'{LogManager.LOG_PATH}/{LogManager.CHAT_LOG_FILE}', 'a+') as log:
+        with open (f'{LogManager.LOG_PATH}/{logfile}', 'a+') as log:
             log.write(f'{msg}\n')
             log.close()
 
