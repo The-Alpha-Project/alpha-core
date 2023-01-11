@@ -784,7 +784,7 @@ class UnitManager(ObjectManager):
 
         target_result = spell.object_target_results.get(target.guid, None)
         if target_result:
-            miss_reason, hit_flags = target_result.result, target_result.hit_flags
+            miss_reason, hit_flags = target_result.result, target_result.flags
         elif target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             # Proc auras (PROC_TRIGGER_DAMAGE/DAMAGE_SHIELD) have no persistent target results.
             # Roll miss reason here if the target is missing.
