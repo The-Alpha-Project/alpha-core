@@ -194,6 +194,10 @@ class SpellEffect:
             return False
 
         targets = self.targets.get_resolved_effect_targets_by_type(ObjectManager)
+        if not targets:
+            # Initial unit target, but primary target type isn't an object.
+            return False
+
         return all([self.casting_spell.object_target_results[target.guid].result != SpellMissReason.MISS_REASON_NONE
                     for target in targets])
 
