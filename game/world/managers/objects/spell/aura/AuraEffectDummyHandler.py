@@ -69,7 +69,7 @@ class AuraEffectDummyHandler:
         if remove or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        totem_entry = aura.spell_effect.misc_value
+        totem_entry = aura.source_spell.spell_entry.EffectMiscValue_1
         totem = MapManager.get_unit_totem_by_totem_entry(aura.caster, totem_entry)
         FarSightManager.add_camera(totem, aura.caster)
 
