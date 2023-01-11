@@ -802,40 +802,35 @@ class SpellManager:
         data = [self.caster.guid, source_unit,
                 casting_spell.spell_entry.ID, casting_spell.cast_flags]
 
-        signature = '<2QIH'  # caster, source, ID, flags .. (targets, ammo info).
+        signature = '<2QIHB'  # caster, source, ID, flags .. (targets, ammo info).
 
-        # Prepare target data
-        results_by_type = {SpellMissReason.MISS_REASON_NONE: []}  # Hits need to be written first.
+        # Prepare target data.
+        hits = []
+        misses = []
 
         # Only include the primary effect targets.
         targets = casting_spell.get_effects()[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
         for target in targets:
             miss_info = casting_spell.object_target_results[target.guid]
-            new_targets = results_by_type.get(miss_info.result, [])
-            new_targets.append(target.guid)
-            results_by_type[miss_info.result] = new_targets  # Sort targets by hit type for filling packet fields.
+            if miss_info.result == SpellMissReason.MISS_REASON_NONE:
+                hits.append(target.guid)
+            else:
+                misses.append((miss_info.result, target.guid))
 
-        hit_count = len(results_by_type[SpellMissReason.MISS_REASON_NONE])
-        miss_count = len(targets) - hit_count  # Subtract hits from all targets.
-        # Write targets, hits first
-        for result, guids in results_by_type.items():
-            if result == SpellMissReason.MISS_REASON_NONE:  # Hit count is written separately.
-                signature += 'B'
-                data.append(hit_count)
+        # Write hits.
+        hit_count = len(hits)
+        data.append(hit_count)
+        if hit_count:
+            data.extend(hits)
+            signature += f'{hit_count}Q'
 
-            if result != SpellMissReason.MISS_REASON_NONE:  # Write reason for miss.
-                signature += 'B'
-                data.append(result)
-
-            if len(guids) > 0:  # Write targets if there are any.
-                signature += f'{len(guids)}Q'
-            for target_guid in guids:
-                data.append(target_guid)
-
-            # Write miss count at the end of hits since it needs to be written even if none happen.
-            if result == SpellMissReason.MISS_REASON_NONE:
-                signature += 'B'
-                data.append(miss_count)
+        # Write misses.
+        signature += 'B'
+        data.append(len(targets) - hit_count)
+        for result, target_guid in misses:
+            signature += 'BQ'
+            data.append(result)
+            data.append(target_guid)
 
         signature += 'H'  # SpellTargetMask
         data.append(casting_spell.spell_target_mask)
