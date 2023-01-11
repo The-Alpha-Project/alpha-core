@@ -19,6 +19,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, 
     GameObjectStates
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import SpellMissReason
 from utils.constants.UnitCodes import StandState, UnitFlags
 from utils.constants.UpdateFields import ObjectFields, GameObjectFields, UnitFields
 
@@ -249,7 +250,7 @@ class GameObjectManager(ObjectManager):
 
         spell = spell_effect.casting_spell
         damage_info = spell.get_cast_damage_info(self, target, damage, absorb=0)
-        damage_info.spell_miss_reason = spell.object_target_results[target.guid].result
+        damage_info.spell_miss_reason = SpellMissReason.MISS_REASON_NONE
 
         target.send_spell_cast_debug_info(damage_info, spell)
         target.receive_damage(damage_info, self, casting_spell=spell, is_periodic=is_periodic)

@@ -663,14 +663,14 @@ class UnitManager(ObjectManager):
     def calculate_min_max_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target):
         return self.stat_manager.get_base_attack_base_min_max_damage(AttackTypes(attack_type))
 
-    def calculate_spell_damage(self, base_damage, miss_reason, spell_effect, target):
+    def calculate_spell_damage(self, base_damage, miss_reason, hit_flags, spell_effect, target):
         spell = spell_effect.casting_spell
 
         damage_info = DamageInfoHolder(attacker=self, target=target, attack_type=spell.get_attack_type(),
                                        damage_school_mask=spell.get_school_mask(),
                                        spell_id=spell.spell_entry.ID,
                                        spell_school=spell.spell_entry.School,
-                                       spell_miss_reason=miss_reason)
+                                       spell_miss_reason=miss_reason, hit_info=hit_flags)
 
         subclass = 0
         if self.get_type_id() == ObjectTypeIds.ID_PLAYER and damage_info.attack_type != -1:
@@ -690,9 +690,6 @@ class UnitManager(ObjectManager):
         else:
             damage_info.base_damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school,
                                                                                  target, subclass)
-
-        spell_miss_info = spell.object_target_results[target.guid]
-        damage_info.hit_info = spell_miss_info.flags
 
         if spell.casts_on_swing():
             damage_info.hit_info |= HitInfo.DEFERRED_LOGGING
@@ -785,10 +782,15 @@ class UnitManager(ObjectManager):
 
         spell = spell_effect.casting_spell
 
-        if target.guid in spell.object_target_results:
-            miss_reason = spell.object_target_results[target.guid].result
-        else:  # TODO Proc damage effects (SPELL_AURA_PROC_TRIGGER_DAMAGE) can't fill target results - should they be able to miss?
-            miss_reason = SpellMissReason.MISS_REASON_NONE
+        target_result = spell.object_target_results.get(target.guid, None)
+        if target_result:
+            miss_reason, hit_flags = target_result.result, target_result.hit_flags
+        elif target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            # Proc auras (PROC_TRIGGER_DAMAGE/DAMAGE_SHIELD) have no persistent target results.
+            # Roll miss reason here if the target is missing.
+            miss_reason, hit_flags = target.stat_manager.get_spell_miss_result_against_self(spell_effect.casting_spell)
+        else:
+            miss_reason, hit_flags = SpellMissReason.MISS_REASON_NONE, SpellHitFlags.NONE
 
         # Overwrite if evading.
         if target.is_evading:
@@ -804,7 +806,7 @@ class UnitManager(ObjectManager):
                                       casting_spell=spell):
                 miss_reason = SpellMissReason.MISS_REASON_IMMUNE
 
-        damage_info = self.calculate_spell_damage(damage, miss_reason, spell_effect, target)
+        damage_info = self.calculate_spell_damage(damage, miss_reason, hit_flags, spell_effect, target)
 
         is_cast_on_swing = spell.casts_on_swing()
         # TODO Should other spells give skill too?
