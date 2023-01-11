@@ -294,8 +294,10 @@ class SpellEffectHandler:
         casting_spell.cast_state = SpellState.SPELL_STATE_ACTIVE
         if not effect.area_aura_holder:
             effect.area_aura_holder = AreaAuraHolder(effect)
+            previous_targets = []
+        else:
+            previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
 
-        previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
         current_targets = effect.targets.resolved_targets_a
 
         new_targets = [unit for unit in current_targets if

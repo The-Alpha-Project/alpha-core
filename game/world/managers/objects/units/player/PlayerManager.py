@@ -1871,18 +1871,20 @@ class PlayerManager(UnitManager):
 
     # override
     def can_attack_target(self, target):
-        if not target:
+        if not target or target is self:
             return False
 
-        is_enemy = super().can_attack_target(target)
-        if is_enemy:
-            return True
+        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            # Return True if players are dueling.
+            if self.duel_manager and self.duel_manager.is_unit_involved(target) and \
+                    self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED:
+                return True
 
-        # Return True if players are dueling.
-        if self.duel_manager and target is not self and self.duel_manager.is_unit_involved(target):
-            return self.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
+            # Only allow pvp in pvp maps (PvP system was not added until Patch 0.7).
+            if not MapManager.get_map(target.map_id, target.instance_id).is_pvp():
+                return False
 
-        return False
+        return super().can_attack_target(target)
 
     # override
     def get_type_mask(self):

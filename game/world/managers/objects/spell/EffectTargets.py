@@ -131,11 +131,13 @@ class EffectTargets:
             self.previous_targets_b = self.resolved_targets_b
             self.resolved_targets_b = [target for target in self.resolved_targets_b if target.guid != guid]
 
+    # noinspection PyUnresolvedReferences
     def get_effect_target_miss_results(self) -> dict[int, TargetMissInfo]:
         targets = self.get_resolved_effect_targets_by_type(ObjectManager)
         target_info = {}
         for target in targets:
-            if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and \
+                    self.effect_source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
                 result = target.stat_manager.get_spell_miss_result_against_self(self.casting_spell)
                 target_info[target.guid] = TargetMissInfo(target, *result)
             else:

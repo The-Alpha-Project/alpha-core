@@ -441,10 +441,6 @@ class ObjectManager:
             if target.movement_spline and target.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
                 return False
 
-            # If player is not in a PvP map (PvP system was not added until Patch 0.7).
-            if not MapManager.get_map(target.map_id, target.instance_id).is_pvp():
-                return False
-
         # Creature only checks.
         elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
             # If the unit is evading.

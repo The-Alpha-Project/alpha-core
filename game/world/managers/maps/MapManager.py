@@ -154,7 +154,7 @@ class MapManager:
     @staticmethod
     def get_map_by_object(world_object):
         try:
-            return MAPS[world_object.map_id].get(world_object.instance_id)
+            return MAPS[world_object.map_id][world_object.instance_id]
         except (KeyError, AttributeError, TypeError):
             Logger.error(f'Unable to retrieve Map for Id {world_object.map_id}, Instance {world_object.instance_id}')
             return None
@@ -162,7 +162,7 @@ class MapManager:
     @staticmethod
     def get_map(map_id, instance_id) -> Optional[Map]:
         try:
-            return MAPS[map_id].get(instance_id)
+            return MAPS[map_id][instance_id]
         except (KeyError, AttributeError, TypeError):
             Logger.error(f'Unable to retrieve Map for Id {map_id}, Instance {instance_id}')
             return None
