@@ -162,7 +162,7 @@ class MapManager:
     @staticmethod
     def get_map(map_id, instance_id) -> Optional[Map]:
         try:
-            return MAPS[map_id].get(instance_id)
+            return MAPS[map_id][instance_id]
         except (KeyError, AttributeError, TypeError):
             Logger.error(f'Unable to retrieve Map for Id {map_id}, Instance {instance_id}')
             return None
