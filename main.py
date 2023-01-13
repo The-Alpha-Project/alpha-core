@@ -9,7 +9,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.MapTile import MapTile
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
-from utils.LogManager import LogManager
+from utils.ChatLogManager import ChatLogManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     except:
         Logger.info('Shutting down the core...')
 
-    LogManager.exit()
+    ChatLogManager.exit()
     
     # Send SIGTERM to processes.
     world_process.terminate()

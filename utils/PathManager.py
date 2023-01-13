@@ -1,5 +1,7 @@
 from os import path
 
+from utils.ConfigManager import config
+
 
 class PathManager:
     ROOT_PATH = ''
@@ -16,6 +18,10 @@ class PathManager:
 
     # Git.
     GIT_RELATIVE_PATH = '.git/'
+
+    # Chat logging.
+    CHAT_LOG_PATH = config.Server.Logging.log_chat_path
+    CHAT_LOG_FILE_NAME = 'chat.log'
 
     @staticmethod
     def set_root_path(root_path):
@@ -48,3 +54,7 @@ class PathManager:
     @staticmethod
     def get_git_path():
         return path.join(PathManager.ROOT_PATH, PathManager.GIT_RELATIVE_PATH)
+
+    @staticmethod
+    def get_chat_log_path():
+        return path.join(PathManager.CHAT_LOG_PATH, PathManager.CHAT_LOG_FILE_NAME)

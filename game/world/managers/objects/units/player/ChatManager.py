@@ -6,7 +6,7 @@ from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.units.player.trade.ChatAddonManager import ChatAddonManager
 from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.LogManager import LogManager
+from utils.ChatLogManager import ChatLogManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, \
     GuildTypeCommand, ChannelNotifications, Languages
@@ -40,7 +40,7 @@ class ChatManager(object):
     def send_chat_message(world_session, guid, chat_flags, message, chat_type, lang, range_):
         MapManager.send_surrounding_in_range(ChatManager._get_message_packet(guid, chat_flags, message, chat_type, lang),
                                              world_session.player_mgr, range_, use_ignore=True)
-        LogManager.log_chat(world_session.player_mgr, message, chat_type)
+        ChatLogManager.log_chat(world_session.player_mgr, message, chat_type)
 
     @staticmethod
     def send_channel_message(sender, channel_name, message, lang):
@@ -57,7 +57,7 @@ class ChatManager(object):
             packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, ChatMsgs.CHAT_MSG_CHANNEL,
                                                      lang, channel=channel_name)
             channel.broadcast_to_channel(sender, packet)
-            LogManager.log_channel(sender, message, channel)
+            ChatLogManager.log_channel(sender, message, channel)
 
     @staticmethod
     def send_party(sender, message, lang):
@@ -65,7 +65,7 @@ class ChatManager(object):
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                             ChatMsgs.CHAT_MSG_PARTY, lang)
             sender.group_manager.send_packet_to_members(sender_packet, source=sender, use_ignore=True)
-            LogManager.log_chat(sender, message, ChatMsgs.CHAT_MSG_PARTY)
+            ChatLogManager.log_chat(sender, message, ChatMsgs.CHAT_MSG_PARTY)
         else:
             GroupManager.send_group_operation_result(sender, PartyOperations.PARTY_OP_LEAVE, '',
                                                      PartyResults.ERR_NOT_IN_GROUP)
@@ -77,14 +77,14 @@ class ChatManager(object):
 
             if chat_type == ChatMsgs.CHAT_MSG_GUILD:
                 sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_ALL, source=sender)
-                LogManager.log_chat(sender, message, chat_type)
+                ChatLogManager.log_chat(sender, message, chat_type)
             else:
                 if sender.guild_manager.get_rank(sender.guid) > GuildRank.GUILDRANK_OFFICER:
                     GuildManager.send_guild_command_result(sender, GuildTypeCommand.GUILD_CREATE_S, '',
                                                            GuildCommandResults.GUILD_PERMISSIONS)
                 else:
                     sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_OFFICERCHAT, source=sender)
-                    LogManager.log_chat(sender, message, chat_type)
+                    ChatLogManager.log_chat(sender, message, chat_type)
         else:
             GuildManager.send_guild_command_result(sender, GuildTypeCommand.GUILD_CREATE_S, '',
                                                    GuildCommandResults.GUILD_PLAYER_NOT_IN_GUILD)
@@ -102,7 +102,7 @@ class ChatManager(object):
             receiver_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message,
                                                               ChatMsgs.CHAT_MSG_WHISPER, lang)
             receiver.enqueue_packet(receiver_packet)
-            LogManager.log_whisper(sender, message, receiver)
+            ChatLogManager.log_whisper(sender, message, receiver)
 
     @staticmethod
     def _get_message_packet(guid, chat_flags, message, chat_type, lang, channel=None):

@@ -32,17 +32,6 @@ Server:
         auto_create_gm_accounts: False  # Give all new accounts GM permissions
         blizzlike_names: True  # If True, names won't have any restriction as it was back in the day
         xp_rate: 1.0
-        # Debug level values (you can combine them as a mask):
-        #   None = 0x00 (0)
-        #   Success = 0x01 (1)
-        #   Information = 0x02 (2)
-        #   Anticheat = 0x04 (4)
-        #   Warning = 0x08 (8)
-        #   Error = 0x10 (16)
-        #   Debug = 0x20 (32)
-        #
-        #   All = 0x3f (63, the sum of all)
-        logging_mask: 0x3f
         load_gameobjects: True
         load_creatures: True
         supported_client: 3368
@@ -57,8 +46,20 @@ Server:
         use_nav_tiles: False
         z_resolution: 256  # The resolution used when extracting maps
 
-    Logging: # Logs stored in 'etc/logs/'.
-        log_player_chat: True
+    Logging:
+        # Debug level values (you can combine them as a mask):
+        #   None = 0x00 (0)
+        #   Success = 0x01 (1)
+        #   Information = 0x02 (2)
+        #   Anticheat = 0x04 (4)
+        #   Warning = 0x08 (8)
+        #   Error = 0x10 (16)
+        #   Debug = 0x20 (32)
+        #
+        #   All = 0x3f (63, the sum of all)
+        logging_mask: 0x3f
+        log_player_chat: False
+        log_chat_path: /var/log/alpha-core/chat
 
     General:
         # Message of the day

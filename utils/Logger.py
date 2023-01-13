@@ -32,7 +32,7 @@ class Logger:
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
-        return config.Server.Settings.logging_mask & log_type
+        return config.Server.Logging.logging_mask & log_type
 
     @staticmethod
     def _colorize_message(label, color, msg):
