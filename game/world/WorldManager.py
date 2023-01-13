@@ -15,6 +15,7 @@ from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
+from utils.LogManager import LogManager
 from utils.constants.AuthCodes import AuthCode
 
 STARTUP_TIME = time()
@@ -278,6 +279,11 @@ class WorldServerSessionHandler:
         cell_unloading_scheduler._daemon = True
         cell_unloading_scheduler.add_job(MapManager.deactivate_cells, 'interval', seconds=120.0, max_instances=1)
         cell_unloading_scheduler.start()
+
+        # Behavior logging.
+        logging_thread = threading.Thread(target=LogManager.process_logs)
+        logging_thread.daemon = True
+        logging_thread.start()
 
     @staticmethod
     def start():

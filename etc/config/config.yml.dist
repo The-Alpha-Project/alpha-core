@@ -1,5 +1,5 @@
 Version:
-    current: 5
+    current: 6
 
 Database:
     Connection:
@@ -56,6 +56,9 @@ Server:
         # of Namigator.
         use_nav_tiles: False
         z_resolution: 256  # The resolution used when extracting maps
+
+    Logging: # Logs stored in 'etc/logs/'.
+        log_player_chat: True
 
     General:
         # Message of the day

@@ -113,6 +113,8 @@ from game.world.opcode_handling.handlers.player.RepopRequestHandler import Repop
 from game.world.opcode_handling.handlers.player.SetWeaponModeHandler import SetWeaponModeHandler
 from game.world.opcode_handling.handlers.player.StandStateChangeHandler import StandStateChangeHandler
 from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
+from game.world.opcode_handling.handlers.player.cheats.GmSummonHandler import GmSummonHandler
+from game.world.opcode_handling.handlers.player.cheats.TeleportToPlayerHandler import TeleportToPlayerHandler
 from game.world.opcode_handling.handlers.player.cheats.SpeedCheatHandler import SpeedCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.CheatSetMoneyHandler import CheatSetMoneyHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelCheatHandler import LevelCheatHandler
@@ -316,6 +318,8 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
     OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle,
     OpCode.CMSG_GODMODE: GodModeHandler.handle,
+    OpCode.MSG_GM_SUMMON: GmSummonHandler.handle,
+    OpCode.CMSG_TELEPORT_TO_PLAYER: TeleportToPlayerHandler.handle,
     OpCode.CMSG_CHEAT_SETMONEY: CheatSetMoneyHandler.handle,
     OpCode.CMSG_LEVEL_CHEAT: LevelCheatHandler.handle,
     OpCode.CMSG_BEASTMASTER: CheatBeastMasterHandler.handle,
