@@ -3,7 +3,6 @@ from datetime import datetime
 from pathlib import Path
 from os import path
 
-from utils.PathManager import PathManager
 from utils.constants.MiscCodes import ChatMsgs
 from utils.ConfigManager import config
 
@@ -19,7 +18,7 @@ class ChatLogManager:
 
     @staticmethod
     def process_logs():
-        Path(ChatLogManager.CHAT_LOG_FULL_PATH).mkdir(parents=True, exist_ok=True)
+        Path(ChatLogManager.CHAT_LOG_PATH).mkdir(parents=True, exist_ok=True)
 
         while ChatLogManager.should_process_logs:
             log = ChatLogManager.CHAT_QUEUE.get(block=True, timeout=None)
