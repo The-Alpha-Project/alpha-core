@@ -263,20 +263,22 @@ class PetManager:
             self.get_active_pet_info().save()
 
     def detach_totems(self):
-        for slot, totem in list(self.totems.items()):
-            self.detach_totem_by_slot(slot, totem)
+        for slot in list(self.totems.keys()):
+            self.detach_totem_by_slot(slot)
 
     def detach_totem_by_guid(self, guid):
         for slot, totem in list(self.totems.items()):
             if totem.guid == guid:
-                self.detach_totem_by_slot(slot, totem)
+                self.detach_totem_by_slot(slot)
                 break
 
-    def detach_totem_by_slot(self, totem_slot, totem: CreatureManager):
+    def detach_totem_by_slot(self, totem_slot):
+        if totem_slot not in self.totems:
+            return
+        totem = self.totems[totem_slot]
         if totem.is_alive:
             totem.destroy()
-        if totem_slot in self.totems:
-            self.totems.pop(totem_slot)
+        self.totems.pop(totem_slot)
 
     def set_totem(self, totem_slot: TotemSlots, totem: CreatureManager):
         self.totems[totem_slot] = totem

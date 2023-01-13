@@ -1183,8 +1183,7 @@ class SpellManager:
         if casting_spell.is_summon_totem_spell():
             totem_slot = casting_spell.get_totem_slot_type()
             if totem_slot != -1 and casting_spell.spell_caster.pet_manager.get_totem_by_slot(totem_slot):
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TOTEMS)
-                return False
+                casting_spell.spell_caster.pet_manager.detach_totem_by_slot(totem_slot)
 
         # Charm checks.
 
