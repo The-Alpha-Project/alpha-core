@@ -81,7 +81,7 @@ class ChatLogManager:
 
         ChatLogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, '
                                      f'NAME {player_mgr.get_name()}, '
-                                     f'MAP {player_mgr.map_}, '
+                                     f'MAP {player_mgr.map_id}, '
                                      f'POS {ChatLogManager._get_location_string(player_mgr)}): '
                                      f'[{log_type}] {player_mgr.get_name()}:{player_mgr.guid} : {msg}')
 
@@ -90,7 +90,7 @@ class ChatLogManager:
         date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         ChatLogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, '
                                      f'NAME {player_mgr.get_name()}, '
-                                     f'MAP {player_mgr.map_}, '
+                                     f'MAP {player_mgr.map_id}, '
                                      f'POS {ChatLogManager._get_location_string(player_mgr)}): '
                                      f'[Channel: {channel_name}] {player_mgr.get_name()}:{player_mgr.guid} : {msg}')
 
@@ -99,7 +99,7 @@ class ChatLogManager:
         date = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
         ChatLogManager._write_to_log(f'{date} [CHAT] (GUID {player_mgr.guid}, '
                                      f'NAME {player_mgr.get_name()}, '
-                                     f'MAP {player_mgr.map_}, '
+                                     f'MAP {player_mgr.map_id}, '
                                      f'POS {ChatLogManager._get_location_string(player_mgr)}): '
                                      f'[Whisper] {player_mgr.get_name()}:{player_mgr.guid} -> '
                                      f'{target_player_mgr.get_name()}:{target_player_mgr.guid} : {msg}')
