@@ -1492,13 +1492,8 @@ class UnitManager(ObjectManager):
         # Reset threat table.
         self.threat_manager.reset()
 
-        charmer_or_summoner = self.get_charmer_or_summoner()
-        # Detach from controller if this unit is an active pet and the summoner is a unit (game objects can only spawn
-        # creatures, but they can never have actual pets so they don't have any PetManager).
-        if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            active_pet = charmer_or_summoner.pet_manager.active_pet
-            if active_pet:
-                charmer_or_summoner.pet_manager.detach_active_pet()
+        if self.object_ai:
+            self.object_ai.just_died()
 
         self.leave_combat()
         self.set_health(0)

@@ -25,6 +25,8 @@ class GridManager:
             self._add_world_object_spawn(world_object_spawn)
         if not world_object_spawn and not world_object_instance:
             Logger.warning(f'Spawn object called with None arguments.')
+        if world_object_instance and world_object_instance.object_ai:
+            world_object_instance.object_ai.just_respawned()
 
     def update_object(self, world_object, old_map, has_changes=False, has_inventory_changes=False):
         source_cell_key = world_object.current_cell

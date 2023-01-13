@@ -309,6 +309,7 @@ class PlayerManager(UnitManager):
         self.spell_manager.remove_casts()
         self.aura_manager.remove_all_auras()
         self.pet_manager.detach_active_pet()
+        self.pet_manager.detach_totems()
         self.leave_combat()
 
         # Channels weren't saved on logout until Patch 0.5.5
@@ -1725,6 +1726,7 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(death_notify_packet)
 
         self.pet_manager.detach_active_pet()
+        self.pet_manager.detach_totems()
 
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0

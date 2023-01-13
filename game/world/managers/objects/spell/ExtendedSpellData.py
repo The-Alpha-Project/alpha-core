@@ -158,9 +158,7 @@ class CastPositionRestrictions:
         return spell_id in CastPositionRestrictions.CASTABLE_FROM_BEHIND
 
 
-class SummonedObjectPositions:
-    # Vanilla has separate spell effects for different totem positions.
-    # Shamans were still a work-in-progress in 0.5.3.
+class TotemHelpers:
     TOTEM_INDICES_BY_TOOL = {
         5176: TotemSlots.TOTEM_SLOT_FIRE,
         5175: TotemSlots.TOTEM_SLOT_EARTH,
@@ -168,6 +166,14 @@ class SummonedObjectPositions:
         5178: TotemSlots.TOTEM_SLOT_AIR
     }
 
+    @staticmethod
+    def get_totem_slot_type_by_tool(tool_id):
+        return TotemHelpers.TOTEM_INDICES_BY_TOOL.get(tool_id, None)
+
+
+# Vanilla has separate spell effects for different totem positions.
+    # Shamans were still a work-in-progress in 0.5.3.
+class SummonedObjectPositions:
     FRONT_SUMMONED_OBJECTS = (
         36727,  # Ritual of Summoning
         29784,  # Basic Campfire
@@ -182,8 +188,8 @@ class SummonedObjectPositions:
 
     @staticmethod
     def get_position_for_totem(totem_tool_id, caster_location):
-        totem_slot = SummonedObjectPositions.TOTEM_INDICES_BY_TOOL.get(totem_tool_id, -1)
-        if totem_slot == -1:
+        totem_slot = TotemHelpers.get_totem_slot_type_by_tool(totem_tool_id)
+        if not totem_slot:
             return caster_location
 
         totem_angle = math.pi / float(TotemSlots.MAX_TOTEM_SLOT) - (

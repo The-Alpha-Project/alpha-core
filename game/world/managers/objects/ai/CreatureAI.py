@@ -10,6 +10,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
+from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
@@ -86,8 +87,14 @@ class CreatureAI:
         return True
 
     # Called when the creature is killed.
-    def just_died(self, unit):
-        pass
+    def just_died(self):
+        charmer_or_summoner = self.creature.get_charmer_or_summoner()
+        # Detach from controller if this unit is an active pet and the summoner is a unit (game objects can only spawn
+        # creatures, but they can never have actual pets so they don't have any PetManager).
+        if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            active_pet = charmer_or_summoner.pet_manager.active_pet
+            if active_pet:
+                charmer_or_summoner.pet_manager.detach_active_pet()
 
     # Called when the creature summon is killed.
     def summoned_creature_just_died(self, creature):
@@ -137,6 +144,10 @@ class CreatureAI:
     def just_respawned(self):
         # Reset spells template to default on respawn.
         # Reset combat movement and melee attack.
+        pass
+
+    # Called when a creature is despawned by natural means (TTL).
+    def just_despawned(self):
         pass
 
     # Called when the creature summon successfully other creature or gameobject.
