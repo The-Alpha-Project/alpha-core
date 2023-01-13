@@ -1181,9 +1181,8 @@ class SpellManager:
 
         # Unique totem check.
         if casting_spell.is_summon_totem_spell():
-            totem_tool_id = casting_spell.get_required_tools()[0]
-            totem_slot = TotemHelpers.get_totem_slot_type_by_tool(totem_tool_id)
-            if totem_slot and casting_spell.spell_caster.pet_manager.get_totem_by_slot(totem_slot):
+            totem_slot = casting_spell.get_totem_slot_type()
+            if totem_slot != -1 and casting_spell.spell_caster.pet_manager.get_totem_by_slot(totem_slot):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TOTEMS)
                 return False
 

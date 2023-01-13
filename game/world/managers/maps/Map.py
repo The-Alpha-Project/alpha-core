@@ -84,9 +84,6 @@ class Map:
     def get_creature_spawn_by_id(self, spawn_id):
         return self.grid_manager.get_creature_spawn_by_id(spawn_id)
 
-    def get_unit_totem_by_totem_entry(self, unit, totem_entry):
-        return self.grid_manager.get_unit_totem_by_totem_entry(unit, totem_entry)
-
     def get_surrounding_units_by_location(self, vector, target_map, target_instance, range_, include_players=False):
         return self.grid_manager.get_surrounding_units_by_location(vector, target_map, target_instance, range_, include_players)
 

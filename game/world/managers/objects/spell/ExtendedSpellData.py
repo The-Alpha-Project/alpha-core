@@ -168,7 +168,7 @@ class TotemHelpers:
 
     @staticmethod
     def get_totem_slot_type_by_tool(tool_id):
-        return TotemHelpers.TOTEM_INDICES_BY_TOOL.get(tool_id, None)
+        return TotemHelpers.TOTEM_INDICES_BY_TOOL.get(tool_id, -1)
 
 
 # Vanilla has separate spell effects for different totem positions.
@@ -189,7 +189,7 @@ class SummonedObjectPositions:
     @staticmethod
     def get_position_for_totem(totem_tool_id, caster_location):
         totem_slot = TotemHelpers.get_totem_slot_type_by_tool(totem_tool_id)
-        if not totem_slot:
+        if totem_slot == -1:
             return caster_location
 
         totem_angle = math.pi / float(TotemSlots.MAX_TOTEM_SLOT) - (
