@@ -345,21 +345,8 @@ class SpellEffectHandler:
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
 
-        if not creature_manager:
-            return
-
+        caster.pet_manager.set_totem(casting_spell.get_totem_slot_type(), creature_manager)
         MapManager.spawn_object(world_object_instance=creature_manager)
-
-        # TODO This should be handled in creature AI instead
-        # TODO Totems are not connected to player (pet etc. handling)
-        for spell_id in [creature_manager.creature_template.spell_id1,
-                         creature_manager.creature_template.spell_id2,
-                         creature_manager.creature_template.spell_id3,
-                         creature_manager.creature_template.spell_id4]:
-            if spell_id == 0:
-                break
-            creature_manager.spell_manager.handle_cast_attempt(spell_id, creature_manager,
-                                                               SpellTargetMask.UNIT, validate=False)
 
     @staticmethod
     def handle_summon_object(casting_spell, effect, caster, target):

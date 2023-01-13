@@ -19,7 +19,8 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
-from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, SpellAttributesEx, SpellAttributes
+from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, SpellAttributesEx, SpellAttributes, \
+    TotemSlots
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -237,7 +238,8 @@ class PetManager:
     def __init__(self, owner):
         self.owner = owner
         self.pets: list[PetData] = []
-        self.active_pet: Optional[ActivePet] = None  # TODO Multiple active pets - totems?
+        self.active_pet: Optional[ActivePet] = None
+        self.totems: dict[TotemSlots, CreatureManager] = dict()
 
     def load_pets(self):
         character_pets = RealmDatabaseManager.character_get_pets(self.owner.guid)
@@ -259,6 +261,33 @@ class PetManager:
     def save(self):
         if self.active_pet:
             self.get_active_pet_info().save()
+
+    def detach_totems(self):
+        for slot in list(self.totems.keys()):
+            self.detach_totem_by_slot(slot)
+
+    def detach_totem_by_guid(self, guid):
+        for slot, totem in list(self.totems.items()):
+            if totem.guid == guid:
+                self.detach_totem_by_slot(slot)
+                break
+
+    def detach_totem_by_slot(self, totem_slot):
+        if totem_slot not in self.totems:
+            return
+        totem = self.totems[totem_slot]
+        if totem.is_alive:
+            totem.destroy()
+        self.totems.pop(totem_slot)
+
+    def set_totem(self, totem_slot: TotemSlots, totem: CreatureManager):
+        self.totems[totem_slot] = totem
+
+    def get_totem_by_slot(self, totem_slot: TotemSlots):
+        return self.totems.get(totem_slot, None)
+
+    def get_totems(self):
+        return list(self.totems.values())
 
     def set_creature_as_pet(self, creature: CreatureManager, summon_spell_id: int,
                             pet_level=-1, pet_index=-1, is_permanent=False) -> Optional[ActivePet]:
@@ -372,7 +401,8 @@ class PetManager:
         spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                            PetAI.PET_FOLLOW_ANGLE)
 
-        creature_manager = CreatureBuilder.create(creature_id, spawn_position, self.owner.map_id, self.owner.instance_id,
+        creature_manager = CreatureBuilder.create(creature_id, spawn_position,
+                                                  self.owner.map_id, self.owner.instance_id,
                                                   summoner=self.owner, faction=self.owner.faction,
                                                   movement_type=MovementTypes.IDLE,
                                                   spell_id=spell_id,
@@ -420,7 +450,7 @@ class PetManager:
             spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(creature, creature.spawn_id)
             # This creature might be too far from its spawn upon detach, search in all map cells.
             if not spawn:
-                spawn = MapManager.get_creature_spawn_by_id(creature.map_, creature.instance_id, creature.spawn_id)
+                spawn = MapManager.get_creature_spawn_by_id(creature.map_id, creature.instance_id, creature.spawn_id)
 
             # Creature spawn should be found already at this point.
             if spawn:

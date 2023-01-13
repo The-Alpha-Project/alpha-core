@@ -16,6 +16,7 @@ from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
+from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -1177,6 +1178,12 @@ class SpellManager:
                         else SpellCheckCastResult.SPELL_FAILED_LOWLEVEL
                     self.send_cast_result(casting_spell, reason)
                     return False  # Pet can't learn the teachable spell.
+
+        # Unique totem check.
+        if casting_spell.is_summon_totem_spell():
+            totem_slot = casting_spell.get_totem_slot_type()
+            if totem_slot != -1 and casting_spell.spell_caster.pet_manager.get_totem_by_slot(totem_slot):
+                casting_spell.spell_caster.pet_manager.detach_totem_by_slot(totem_slot)
 
         # Charm checks.
 

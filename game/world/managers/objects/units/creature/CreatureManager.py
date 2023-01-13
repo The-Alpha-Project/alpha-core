@@ -272,6 +272,12 @@ class CreatureManager(UnitManager):
 
             self.fully_loaded = True
 
+    def get_template_spells(self):
+        return list(filter((0).__ne__, [self.creature_template.spell_id1,
+                                        self.creature_template.spell_id2,
+                                        self.creature_template.spell_id3,
+                                        self.creature_template.spell_id4]))
+
     def is_guard(self):
         return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_GUARD
 
@@ -293,7 +299,8 @@ class CreatureManager(UnitManager):
                     or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
 
     def is_temp_summon(self):
-        return self.summoner and self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
+        return self.summoner and self.subtype in \
+               {CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON, CustomCodes.CreatureSubtype.SUBTYPE_TOTEM}
 
     # override
     def is_unit_pet(self, unit):
@@ -590,6 +597,8 @@ class CreatureManager(UnitManager):
             # Time to live expired, destroy.
             if self.time_to_live_timer <= 0:
                 self.destroy()
+                if self.object_ai:
+                    self.object_ai.just_despawned()
                 return False
         return True
 

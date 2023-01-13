@@ -68,10 +68,10 @@ class AuraEffectDummyHandler:
     def handle_sentry_totem(aura, effect_target, remove):
         if remove or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
-
-        totem_entry = aura.source_spell.spell_entry.EffectMiscValue_1
-        totem = MapManager.get_unit_totem_by_totem_entry(aura.caster, totem_entry)
-        FarSightManager.add_camera(totem, aura.caster)
+        totem_slot = aura.source_spell.get_totem_slot_type()
+        totem = aura.caster.pet_manager.get_totem_by_slot(totem_slot)
+        if totem:
+            FarSightManager.add_camera(totem, aura.caster)
 
 
 PERIODIC_DUMMY_AURAS = {

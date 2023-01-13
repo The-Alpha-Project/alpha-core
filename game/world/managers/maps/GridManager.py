@@ -25,6 +25,8 @@ class GridManager:
             self._add_world_object_spawn(world_object_spawn)
         if not world_object_spawn and not world_object_instance:
             Logger.warning(f'Spawn object called with None arguments.')
+        if world_object_instance and world_object_instance.object_ai:
+            world_object_instance.object_ai.just_respawned()
 
     def update_object(self, world_object, old_map, has_changes=False, has_inventory_changes=False):
         source_cell_key = world_object.current_cell
@@ -247,14 +249,6 @@ class GridManager:
             if spawn_found:
                 return spawn_found
         return None
-
-    def get_unit_totem_by_totem_entry(self, unit, totem_entry):
-        location = unit.location
-        cells = self._get_surrounding_cells_by_location(location.x, location.y, unit.map_id, unit.instance_id)
-        for cell in cells:
-            for guid, creature in list(cell.creatures.items()):
-                if creature.entry == totem_entry and creature.summoner == unit:
-                    return creature
 
     def _get_surrounding_creature_spawns(self, world_object):
         spawns = {}
