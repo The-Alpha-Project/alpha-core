@@ -1,6 +1,7 @@
 import _queue
 from datetime import datetime
 from pathlib import Path
+from os import path
 
 from utils.PathManager import PathManager
 from utils.constants.MiscCodes import ChatMsgs
@@ -8,14 +9,17 @@ from utils.ConfigManager import config
 
 
 class ChatLogManager:
-    CHAT_LOG_FULL_PATH = PathManager.get_chat_log_path()
+    CHAT_LOG_PATH = config.Server.Logging.log_chat_path
+    CHAT_LOG_FILE_NAME = 'chat.log'
+
+    CHAT_LOG_FULL_PATH = path.join(CHAT_LOG_PATH, CHAT_LOG_FILE_NAME)
     CHAT_QUEUE = _queue.SimpleQueue()
 
     should_process_logs = True
 
     @staticmethod
     def process_logs():
-        Path(PathManager.get_chat_log_path()).mkdir(parents=True, exist_ok=True)
+        Path(ChatLogManager.CHAT_LOG_FULL_PATH).mkdir(parents=True, exist_ok=True)
 
         while ChatLogManager.should_process_logs:
             log = ChatLogManager.CHAT_QUEUE.get(block=True, timeout=None)
@@ -101,7 +105,7 @@ class ChatLogManager:
                                      f'{target_player_mgr.get_name()}:{target_player_mgr.guid} : {msg}')
 
     @staticmethod
-    def _write_to_log(msg, logfile):
+    def _write_to_log(msg):
         with open(ChatLogManager.CHAT_LOG_FULL_PATH, 'a+') as log:
             log.write(f'{msg}\n')
             log.close()
