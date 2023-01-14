@@ -151,16 +151,18 @@ class ActivePet:
 
         self._pet_manager.send_pet_spell_info(reset=True)
 
+        # Orphan creature, destroy.
+        if not self.creature.spawn_id:
+            self.creature.destroy()
+
         # Releasing a pet. Restore state.
         if self.is_permanent() or not self.is_controlled():
             self.creature.set_summoned_by(self._pet_manager.owner, movement_type=movement_type, remove=True)
         else:
             self.creature.set_charmed_by(self._pet_manager.owner, movement_type=movement_type, remove=True)
 
-        # Orphan creature, destroy.
-        if not self.creature.spawn_id:
-            self.creature.destroy()
-            return
+        if not self.creature.is_spawned:
+            return  # Destroyed and detached.
 
         # Generate threat against owner.
         self.creature.threat_manager.add_threat(self._pet_manager.owner)
