@@ -57,7 +57,10 @@ class PetManager:
         # Modify and link owner and creature.
         self._handle_creature_spawn_detach(creature, is_permanent)
         creature.leave_combat()
-        creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_PET
+        if PetSlot.PET_SLOT_TOTEM_START <= pet_slot < PetSlot.PET_SLOT_END:
+            creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
+        else:
+            creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_PET
 
         if pet_index == -1:
             # Pet not in database.
