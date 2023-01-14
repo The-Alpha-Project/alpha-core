@@ -18,7 +18,7 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
-from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState
+from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetReactState, PetSlot
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, SpellAttributesEx, SpellAttributes, \
     TotemSlots
 from utils.constants.UnitCodes import MovementTypes
@@ -237,7 +237,7 @@ class PetManager:
 
     def __init__(self, owner):
         self.owner = owner
-        self.pets: list[PetData] = []
+        self.permanent_pets: list[PetData] = []
         self.active_pet: Optional[ActivePet] = None
         self.totems: dict[TotemSlots, CreatureManager] = dict()
 
@@ -245,7 +245,7 @@ class PetManager:
         character_pets = RealmDatabaseManager.character_get_pets(self.owner.guid)
         for character_pet in character_pets:
             spells = RealmDatabaseManager.character_get_pet_spells(self.owner.guid, character_pet.pet_id)
-            self.pets.append(PetData(
+            self.permanent_pets.append(PetData(
                 character_pet.pet_id,
                 character_pet.name,
                 character_pet.rename_time,
@@ -344,8 +344,8 @@ class PetManager:
                       0, summon_spell_id, permanent=permanent)
 
         pet.save()
-        self.pets.append(pet)
-        return len(self.pets) - 1
+        self.permanent_pets.append(pet)
+        return len(self.permanent_pets) - 1
 
     def teach_active_pet_spell(self, spell_id, force=False, update=True) -> bool:
         pet = self.get_active_pet_info()
@@ -384,17 +384,17 @@ class PetManager:
 
         pet_index = -1
         if not creature_id:
-            if not len(self.pets):
+            if not len(self.permanent_pets):
                 return
 
             # TODO Assume permanent pet in slot 0 for now. This might (?) lead to some unexpected behavior.
             pet_index = 0
-            creature_id = self.pets[pet_index].creature_template.entry
+            creature_id = self.permanent_pets[pet_index].creature_template.entry
         else:
             # Other summon casts happen by creature ID reference.
             # If no pet is found, a new entry is simply created as pet_index remains -1.
-            for i in range(len(self.pets)):
-                if self.pets[i].creature_template.entry == creature_id:
+            for i in range(len(self.permanent_pets)):
+                if self.permanent_pets[i].creature_template.entry == creature_id:
                     pet_index = i
                     break
 
@@ -423,7 +423,7 @@ class PetManager:
 
     def remove_pet(self, pet_index):
         if self._get_pet_info(pet_index):
-            self.pets.pop(pet_index)
+            self.permanent_pets.pop(pet_index)
 
     def detach_active_pet(self, spell_entry=None):
         if not self.active_pet:
@@ -645,7 +645,7 @@ class PetManager:
             return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
         # Only one tamed pet at a time.
-        if self.pets:
+        if self.permanent_pets:
             self._send_tame_result(PetTameResult.TAME_TOO_MANY)
             return SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
@@ -697,10 +697,10 @@ class PetManager:
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_TAME_FAILURE, data))
 
     def _get_pet_info(self, pet_index: int) -> Optional[PetData]:
-        if pet_index < 0 or pet_index >= len(self.pets):
+        if pet_index < 0 or pet_index >= len(self.permanent_pets):
             return None
 
-        return self.pets[pet_index]
+        return self.permanent_pets[pet_index]
 
     def _handle_creature_spawn_detach(self, creature: CreatureManager, is_permanent):
         # Creatures which are linked to a CreatureSpawn.
