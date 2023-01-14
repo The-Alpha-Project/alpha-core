@@ -607,7 +607,7 @@ class PlayerManager(UnitManager):
         if not is_instant:
             self.pet_manager.detach_active_pets()
             if self.duel_manager:
-                self.duel_manager.end_duel()
+                self.duel_manager.force_duel_end(self)
 
         # If unit is being moved by a spline, stop it.
         if self.movement_manager.unit_is_moving():
