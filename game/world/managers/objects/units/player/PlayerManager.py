@@ -308,8 +308,7 @@ class PlayerManager(UnitManager):
 
         self.spell_manager.remove_casts()
         self.aura_manager.remove_all_auras()
-        self.pet_manager.detach_active_pet()
-        self.pet_manager.detach_totems()
+        self.pet_manager.detach_active_pets()
         self.leave_combat()
 
         # Channels weren't saved on logout until Patch 0.5.5
@@ -604,9 +603,9 @@ class PlayerManager(UnitManager):
             Logger.warning(f'Teleport, invalid destination, Map {map_}, X {location.x} Y {location.y}.')
             return False
 
-        # End duel and detach pet if this is a long-distance teleport.
+        # End duel and detach pets if this is a long-distance teleport.
         if not is_instant:
-            self.pet_manager.detach_active_pet()
+            self.pet_manager.detach_active_pets()
             if self.duel_manager:
                 self.duel_manager.end_duel()
 
@@ -1038,7 +1037,9 @@ class PlayerManager(UnitManager):
 
         # Reward kill experience to pet.
         if victim:
-            self.pet_manager.add_active_pet_experience(total_amount)
+            pet = self.pet_manager.get_active_permanent_pet()
+            if pet:
+                pet.get_pet_data().add_experience(total_amount)
 
         if self.xp + total_amount >= self.next_level_xp:  # Level up!
             xp_to_level = self.next_level_xp - self.xp
@@ -1517,15 +1518,6 @@ class PlayerManager(UnitManager):
         super().set_charmed_by(charmer, subtype=subtype, remove=remove)
 
     # override
-    def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
-        # Summoner must be set here not in parent.
-        self.summoner = summoner if not remove else None
-        # Restore faction.
-        if remove:
-            self.set_player_variables()
-        super().set_summoned_by(summoner, spell_id, subtype, remove=remove)
-
-    # override
     def set_stand_state(self, stand_state):
         super().set_stand_state(stand_state)
         self.bytes_1 = self.get_bytes_1()
@@ -1707,11 +1699,6 @@ class PlayerManager(UnitManager):
             return False
 
         if killer:
-            # Notify pet AI about this kill.
-            killer_pet = killer.get_pet()
-            if killer_pet:
-                killer_pet.object_ai.killed_unit(self)
-
             # If this player is dueling and the death blow comes from the opponent just end duel and set HP to 1.
             if self.duel_manager and self.duel_manager.is_unit_involved(killer):
                 if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -1725,8 +1712,7 @@ class PlayerManager(UnitManager):
                 death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
                 self.enqueue_packet(death_notify_packet)
 
-        self.pet_manager.detach_active_pet()
-        self.pet_manager.detach_totems()
+        self.pet_manager.detach_active_pets()
 
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0

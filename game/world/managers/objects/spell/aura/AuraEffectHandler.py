@@ -7,6 +7,7 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags, ObjectTypeFlags
+from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
 from utils.constants.UpdateFields import UnitFields, PlayerFields, ObjectFields
@@ -407,9 +408,9 @@ class AuraEffectHandler:
 
         # Creature.
         if remove:
-            aura.caster.pet_manager.detach_active_pet()
+            aura.caster.pet_manager.detach_pet_by_slot(PetSlot.PET_SLOT_CHARM)
             return
-        aura.caster.pet_manager.set_creature_as_pet(effect_target, aura.spell_id)
+        aura.caster.pet_manager.set_creature_as_pet(effect_target, aura.spell_id, PetSlot.PET_SLOT_CHARM)
 
     @staticmethod
     def handle_taunt(aura, effect_target, remove):

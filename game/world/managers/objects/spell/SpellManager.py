@@ -16,7 +16,6 @@ from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
-from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
@@ -1034,7 +1033,8 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                     return False
             elif casting_spell.has_pet_target():
-                validation_target = self.caster.get_pet()
+                controlled_pet = self.caster.pet_manager.get_active_controlled_pet()
+                validation_target = controlled_pet.creature if controlled_pet else None
 
         if not validation_target:
             result = SpellCheckCastResult.SPELL_FAILED_NOT_FISHABLE if casting_spell.is_fishing_spell() \
@@ -1163,8 +1163,8 @@ class SpellManager:
                     return False  # Spell already known.
             else:
                 # Teaching a pet a spell.
-                pet = self.caster.pet_manager.get_active_pet_info()
-                if not pet or not pet.permanent:
+                pet = self.caster.pet_manager.get_active_permanent_pet()
+                if not pet:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
                     return False  # No pet (or temporary charm).
 
@@ -1179,23 +1179,16 @@ class SpellManager:
                     self.send_cast_result(casting_spell, reason)
                     return False  # Pet can't learn the teachable spell.
 
-        # Unique totem check.
-        if casting_spell.is_summon_totem_spell():
-            totem_slot = casting_spell.get_totem_slot_type()
-            if totem_slot != -1 and casting_spell.spell_caster.pet_manager.get_totem_by_slot(totem_slot):
-                casting_spell.spell_caster.pet_manager.detach_totem_by_slot(totem_slot)
-
         # Charm checks.
-
         charm_effect = casting_spell.get_charm_effect()
         if self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER and charm_effect:
             if not self.caster.can_attack_target(validation_target):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
-            active_pet = self.caster.pet_manager.get_active_pet_info()
+            active_pet = self.caster.pet_manager.get_active_controlled_pet()
             if active_pet:
-                error = SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON if active_pet.permanent \
+                error = SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON if active_pet.is_permanent() \
                     else SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_CHARM
                 self.send_cast_result(casting_spell, error)
                 return False

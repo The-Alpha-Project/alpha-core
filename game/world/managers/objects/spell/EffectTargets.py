@@ -229,8 +229,10 @@ class EffectTargets:
 
     @staticmethod
     def resolve_pet(casting_spell, target_effect):
-        pet = casting_spell.spell_caster.get_pet()
-        return pet if pet else []
+        if not casting_spell.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return []
+        active_pet = casting_spell.spell_caster.pet_manager.get_active_controlled_pet()
+        return active_pet.creature if active_pet else []
 
     @staticmethod
     def resolve_unit_near_caster(casting_spell, target_effect):
@@ -332,7 +334,7 @@ class EffectTargets:
 
         caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         caster_is_unit = caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
-        caster_pet = caster.get_pet() if caster_is_unit else None
+        caster_pet = caster.pet_manager.get_active_controlled_pet() if caster_is_unit else None
         charmer_or_summoner = caster.get_charmer_or_summoner() if caster_is_unit else None
         party_group = None
         distance = target_effect.get_radius()
@@ -367,9 +369,9 @@ class EffectTargets:
                     caster.can_attack_target(unit):   # Dueling party members
                 continue
             # Unit pets.
-            unit_pet = unit.get_pet()
-            if unit_pet and caster.location.distance(unit_pet.location) < distance:
-                units_in_range.append(unit_pet)
+            unit_pet = unit.pet_manager.get_active_controlled_pet()
+            if unit_pet and caster.location.distance(unit_pet.creature.location) < distance:
+                units_in_range.append(unit_pet.creature)
             # Unit.
             if caster.location.distance(unit.location) <= distance:
                 units_in_range.append(unit)

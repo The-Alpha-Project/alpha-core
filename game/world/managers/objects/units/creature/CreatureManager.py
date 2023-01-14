@@ -42,7 +42,7 @@ class CreatureManager(UnitManager):
         self.summoner = None
         self.charmer = None
         self.addon = None
-        self.spell_id = 0
+        self.creation_spell_id = 0
         self.time_to_live_timer = 0
         self.faction = 0
         self.subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
@@ -169,7 +169,7 @@ class CreatureManager(UnitManager):
 
             # Unit fields.
             self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
-            self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.spell_id)
+            self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.creation_spell_id)
             self.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.summoner.guid if self.summoner else 0)
             self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if self.summoner else 0)
             self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
@@ -670,11 +670,6 @@ class CreatureManager(UnitManager):
         if not self.threat_manager.has_aggro_from(killer):
             self.threat_manager.add_threat(killer)
 
-        # Notify pet AI about this kill.
-        pet_or_killer_pet = self if self.is_pet() else killer.get_pet()
-        if pet_or_killer_pet:
-            pet_or_killer_pet.object_ai.killed_unit(self)
-
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             charmer_or_summoner = killer.get_charmer_or_summoner()
             # Attribute non-player kills to the creature's charmer/summoner.
@@ -803,34 +798,39 @@ class CreatureManager(UnitManager):
     def has_ranged_weapon(self):
         return self.wearing_ranged_weapon
 
-    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, movement_type=None,
-                       remove=False):
-        # Charmer must be set here not in parent.
-        self.charmer = charmer if not remove else None
-        self.movement_type = movement_type
-        self.faction = charmer.faction if not remove else self.creature_template.faction
-        self.subtype = subtype
-        self.object_ai = AIFactory.build_ai(self)
-        # Set/remove player controlled flag.
-        if charmer.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            self.set_player_controlled(not remove)
-        super().set_charmed_by(charmer, subtype=subtype, remove=remove)
+    # override
+    def get_charmer_or_summoner(self, include_self=False):
+        return self.charmer if self.charmer \
+            else self.summoner if self.summoner \
+            else self if include_self else None
 
     # override
+    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
+                       movement_type=None, remove=False):
+        self._set_controlled_by(charmer, subtype, movement_type, remove)
+        super().set_charmed_by(charmer, subtype=subtype, remove=remove)
+
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
                         movement_type=None, remove=False):
-        # Summoner must be set here not in parent.
         self.summoner = summoner if not remove else None
+        self.creation_spell_id = spell_id if not remove else 0
+
+        self.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.summoner.guid if not remove else 0)
+        self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if not remove else 0)
+        self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.creation_spell_id)
+        self._set_controlled_by(summoner, subtype, movement_type, remove)
+        super().set_summoned_by(summoner, subtype=subtype, remove=remove)
+
+    def _set_controlled_by(self, controller, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC,
+                           movement_type=None, remove=False):
         self.movement_type = movement_type
-        self.spell_id = spell_id
-        self.faction = summoner.faction if not remove else self.creature_template.faction
+
+        self.faction = controller.faction if not remove else self.creature_template.faction
         self.subtype = subtype
         self.object_ai = AIFactory.build_ai(self)
-        self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, spell_id)
         # Set/remove player controlled flag.
-        if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if controller.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.set_player_controlled(not remove)
-        super().set_summoned_by(summoner, subtype=subtype, remove=remove)
 
     # override
     def set_stand_state(self, stand_state):

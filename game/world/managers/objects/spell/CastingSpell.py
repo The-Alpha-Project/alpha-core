@@ -332,10 +332,6 @@ class CastingSpell:
     def is_pick_pocket_spell(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
 
-    def is_summon_totem_spell(self):
-        return any(effect for effect in self.get_effects()
-                   if effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_TOTEM)
-
     def get_totem_slot_type(self):
         totem_tool_id = self.get_required_tools()[0]
         totem_slot = TotemHelpers.get_totem_slot_type_by_tool(totem_tool_id)

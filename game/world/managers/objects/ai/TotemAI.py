@@ -32,14 +32,11 @@ class TotemAI(CreatureAI):
         super().just_despawned()
 
     # override
-    def just_died(self):
-        charmer_or_summoner = self.creature.get_charmer_or_summoner()
-        if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            charmer_or_summoner.pet_manager.detach_totem_by_guid(self.creature.guid)
-        super().just_died()
+    def move_in_line_of_sight(self, unit):
+        pass
 
     # override
-    def move_in_line_of_sight(self, unit):
+    def handle_return_movement(self):
         pass
 
     # override

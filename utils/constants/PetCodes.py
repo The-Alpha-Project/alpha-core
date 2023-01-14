@@ -37,5 +37,5 @@ class PetTameResult(IntEnum):
 class PetSlot(IntEnum):
 	PET_SLOT_PERMANENT = 0
 	PET_SLOT_CHARM = 1
-	PET_SLOT_TOTEM = 2
-	PET_SLOT_MISC = 3
+	PET_SLOT_TOTEM_START = 2
+	PET_SLOT_END = 6

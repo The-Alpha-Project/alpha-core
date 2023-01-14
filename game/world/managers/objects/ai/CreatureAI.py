@@ -89,12 +89,10 @@ class CreatureAI:
     # Called when the creature is killed.
     def just_died(self):
         charmer_or_summoner = self.creature.get_charmer_or_summoner()
-        # Detach from controller if this unit is an active pet and the summoner is a unit (game objects can only spawn
-        # creatures, but they can never have actual pets so they don't have any PetManager).
+        # Detach from controller if this unit is an active pet and the summoner is a unit
+        # (game objects can spawn creatures, but they don't have a PetManager).
         if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            active_pet = charmer_or_summoner.pet_manager.active_pet
-            if active_pet:
-                charmer_or_summoner.pet_manager.detach_active_pet()
+            charmer_or_summoner.pet_manager.detach_pet_by_guid(self.creature.guid)
 
     # Called when the creature summon is killed.
     def summoned_creature_just_died(self, creature):
