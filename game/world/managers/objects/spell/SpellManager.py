@@ -595,6 +595,10 @@ class SpellManager:
                     #  SPELL_ATTR_EX_FARSIGHT doesn't relate to the stun and is used by other perspective change spells.
                     continue
 
+            if casting_spell.cast_state == SpellState.SPELL_STATE_FINISHED:
+                # Cast finished normally, but this was called before update removed the cast.
+                result = SpellCheckCastResult.SPELL_NO_ERROR
+
             # "Passive" casts like active area auras and delayed spells.
             if not casting_spell.is_channeled() and \
                     casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE or \
