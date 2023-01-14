@@ -466,9 +466,6 @@ class PetManager:
 
         if is_permanent:
             pet_info.save(creature)
-            # Summon Pet cooldown is locked by default - unlock on despawn.
-            # TODO more generic check with created_by_spell despawn?
-            self.owner.spell_manager.unlock_spell_cooldown(pet_info.summon_spell_id)
         else:
             self.remove_pet(pet_index)
 

@@ -1526,6 +1526,13 @@ class UnitManager(ObjectManager):
         if self.spell_manager:
             self.spell_manager.remove_casts()
             self.aura_manager.remove_all_auras()
+
+        charmer = self.get_charmer_or_summoner()
+        if charmer:
+            effect_spell_id = self.get_int32(UnitFields.UNIT_CREATED_BY_SPELL)
+            if effect_spell_id:
+                charmer.spell_manager.unlock_spell_cooldown(effect_spell_id)
+
         self.is_alive = False
         super().destroy()
 
