@@ -59,6 +59,9 @@ class ActivePet:
             pet_data.set_dirty()
 
     def update_stats(self, reset=False):
+        if not self.is_permanent():
+            return
+
         pet_data = self.get_pet_data()
 
         if not reset:
