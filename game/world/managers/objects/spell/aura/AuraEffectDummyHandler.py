@@ -68,8 +68,9 @@ class AuraEffectDummyHandler:
             return
         totem_slot = aura.source_spell.get_totem_slot_type()
         totem = effect_target.pet_manager.get_active_totem(totem_slot)
-        aura.caster = totem.creature  # Set the totem as the caster of the aura so it can be removed when the totem dies.
         if totem:
+            # Set the totem as the caster of the aura so it can easily be removed when the totem is destroyed.
+            aura.caster = totem.creature
             FarSightManager.add_camera(totem.creature, effect_target)
 
 
