@@ -56,7 +56,6 @@ class PetManager:
 
         # Modify and link owner and creature.
         self._handle_creature_spawn_detach(creature, is_permanent)
-        creature.leave_combat()
         if PetSlot.PET_SLOT_TOTEM_START <= pet_slot < PetSlot.PET_SLOT_END:
             creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
         else:
@@ -80,6 +79,8 @@ class PetManager:
         self.active_pets[pet_slot] = active_pet
 
         active_pet.attach()
+        creature.leave_combat()
+
         self.send_pet_spell_info()
         active_pet.set_level(pet_level)
 
