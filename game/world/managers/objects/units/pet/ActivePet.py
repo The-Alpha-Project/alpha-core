@@ -63,32 +63,27 @@ class ActivePet:
             return
 
         pet_data = self.get_pet_data()
-
-        if not reset:
-            # From VMaNGOS.
-            delay_mod = pet_data.creature_template.base_attack_time / 2000
-            damage_base = pet_data.get_level() * 1.05
-            damage_min = damage_base * 1.15 * delay_mod
-            damage_max = damage_base * 1.45 * delay_mod
-        else:
-            damage_min = pet_data.creature_template.dmg_min
-            damage_max = pet_data.creature_template.dmg_max
+        # From VMaNGOS.
+        delay_mod = pet_data.creature_template.base_attack_time / 2000
+        damage_base = pet_data.get_level() * 1.05
+        damage_min = self.creature.creature_template.dmg_min if reset else damage_base * 1.15 * delay_mod
+        damage_max = self.creature.creature_template.dmg_max if reset else damage_base * 1.45 * delay_mod
 
         pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(pet_data.creature_template.entry,
                                                                                 pet_data.get_level())
 
-        if pet_stats:
-            self.creature.stat_manager.base_stats[UnitStats.HEALTH] = pet_stats.hp
-            self.creature.stat_manager.base_stats[UnitStats.MANA] = pet_stats.mana
-            self.creature.stat_manager.base_stats[UnitStats.RESISTANCE_PHYSICAL] = pet_stats.armor
-            self.creature.stat_manager.base_stats[UnitStats.STRENGTH] = pet_stats.str
-            self.creature.stat_manager.base_stats[UnitStats.AGILITY] = pet_stats.agi
-            self.creature.stat_manager.base_stats[UnitStats.STAMINA] = pet_stats.sta
-            self.creature.stat_manager.base_stats[UnitStats.INTELLECT] = pet_stats.inte
-            self.creature.stat_manager.base_stats[UnitStats.SPIRIT] = pet_stats.spi
-        else:
-            Logger.warning(f'Unable to locate pet level stats for creature entry '
-                           f'{pet_data.creature_template.entry} level {pet_data.get_level()}')
+        if pet_stats or reset:
+            self.creature.stat_manager.base_stats[UnitStats.HEALTH] = self.creature.max_health if reset else pet_stats.hp
+            self.creature.stat_manager.base_stats[UnitStats.MANA] = self.creature.max_power_1 if reset else pet_stats.mana
+            self.creature.stat_manager.base_stats[UnitStats.SPIRIT] = 1 if reset else pet_stats.spi
+            self.creature.stat_manager.base_stats[UnitStats.RESISTANCE_PHYSICAL] = 0 if reset else pet_stats.armor
+            self.creature.stat_manager.base_stats[UnitStats.STRENGTH] = 0 if reset else pet_stats.str
+            self.creature.stat_manager.base_stats[UnitStats.AGILITY] = 0 if reset else pet_stats.agi
+            self.creature.stat_manager.base_stats[UnitStats.STAMINA] = 0 if reset else pet_stats.sta
+            self.creature.stat_manager.base_stats[UnitStats.INTELLECT] = 0 if reset else pet_stats.inte
+            if not reset:
+                Logger.warning(f'Unable to locate pet level stats for creature entry '
+                               f'{pet_data.creature_template.entry} level {pet_data.get_level()}')
 
         self.creature.set_melee_damage(int(damage_min), int(damage_max))
         self.creature.stat_manager.apply_bonuses()
