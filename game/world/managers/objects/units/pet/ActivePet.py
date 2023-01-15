@@ -147,7 +147,8 @@ class ActivePet:
         # Flush ThreatManager before releasing this creature in order to avoid evade trigger.
         self.creature.leave_combat()
 
-        self._pet_manager.send_pet_spell_info(reset=True)
+        if self.is_controlled():
+            self._pet_manager.send_pet_spell_info(reset=True)
 
         # Orphan creature, destroy.
         if not self.creature.spawn_id:
