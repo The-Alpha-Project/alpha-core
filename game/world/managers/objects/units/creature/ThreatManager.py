@@ -143,11 +143,11 @@ class ThreatManager:
 
         return None if not self.current_holder else self.current_holder.unit
 
-    def select_attacking_target(self, attacking_target: AttackingTarget, sorted_targets=None) -> Optional[UnitManager]:
+    def select_attacking_target(self, attacking_target: AttackingTarget) -> Optional[UnitManager]:
         if len(self.holders) == 0:
             return None
 
-        relevant_holders = self._get_sorted_threat_collection() if not sorted_targets else sorted_targets
+        relevant_holders = self._get_sorted_threat_collection()
         if not relevant_holders:
             return None
 
