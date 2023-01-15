@@ -125,3 +125,5 @@ class ScriptTarget(IntEnum):
     # Param1 = gameobject_entry
     # Param2 = search_radius
     TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY = 27
+    # Owner's current (highest threat) target in range.
+    TARGET_T_OWNER_HIGHEST_THREAT = 28

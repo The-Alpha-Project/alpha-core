@@ -187,7 +187,7 @@ class CreatureAI:
         pass
 
     def update_spell_list(self, elapsed):
-        if not self.has_spell_list() or not self.creature.combat_target:
+        if not self.has_spell_list():
             return
 
         if self.casting_delay <= 0:

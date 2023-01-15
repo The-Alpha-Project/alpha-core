@@ -141,37 +141,39 @@ class ThreatManager:
 
         return None if not self.current_holder else self.current_holder.unit
 
-    def select_attacking_target(self, attacking_target: AttackingTarget) -> Optional[UnitManager]:
+    def select_attacking_target(self, attacking_target: AttackingTarget, sorted_targets=None) -> Optional[UnitManager]:
         if len(self.holders) == 0:
             return None
 
+        relevant_holders = self.get_sorted_threat_collection() if not sorted_targets else sorted_targets
+        if not relevant_holders:
+            return None
+
         if attacking_target == AttackingTarget.ATTACKING_TARGET_TOPAGGRO:
-            return self.get_hostile_target()
+            return relevant_holders[-1].unit
+        if attacking_target == AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO:
+            return relevant_holders[0].unit
+        elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOM:
+            return random.choice(relevant_holders).unit
+        elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP:
+            # Only top available, return None.
+            if len(relevant_holders) == 1:
+                return None
+            # Random, not top.
+            return random.choice(relevant_holders[:-1]).unit
+        # Farthest or Nearest targets.
         else:
-            relevant_holders = self._get_sorted_threat_collection()
-            if relevant_holders and len(relevant_holders) > 0:
-                if attacking_target == AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO:
-                    return relevant_holders[0].unit
-                elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOM:
-                    return random.choice(relevant_holders).unit
-                elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP:
-                    # Only top available, return None.
-                    if len(relevant_holders) == 1:
-                        return None
-                    # Random, not top.
-                    return random.choice(relevant_holders[:-1]).unit
-                # Farthest or Nearest targets.
-                else:
-                    surrounding_units = MapManager.get_surrounding_units(self.owner, include_players=True)
-                    units_in_range = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
-                    units_in_aggro_list = [h.unit for h in relevant_holders if h.unit in units_in_range]
-                    if len(units_in_aggro_list) > 0:
-                        # Sort found units by distance.
-                        units_in_aggro_list.sort(key=lambda player: player.location.distance(self.owner.location))
-                        if attacking_target == AttackingTarget.ATTACKING_TARGET_NEAREST:
-                            return units_in_aggro_list[0]
-                        elif attacking_target == AttackingTarget.ATTACKING_TARGET_FARTHEST:
-                            return units_in_aggro_list[-1]
+            surrounding_units = MapManager.get_surrounding_units(self.owner, include_players=True)
+            units_in_range = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
+            units_in_aggro_list = [h.unit for h in relevant_holders if h.unit in units_in_range]
+            if len(units_in_aggro_list) > 0:
+                # Sort found units by distance.
+                units_in_aggro_list.sort(key=lambda player: player.location.distance(self.owner.location))
+                if attacking_target == AttackingTarget.ATTACKING_TARGET_NEAREST:
+                    return units_in_aggro_list[0]
+                elif attacking_target == AttackingTarget.ATTACKING_TARGET_FARTHEST:
+                    return units_in_aggro_list[-1]
+
         # No suitable target found.
         return None
 
@@ -212,10 +214,10 @@ class ThreatManager:
 
     # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
-        relevant_holders = self._get_sorted_threat_collection()
+        relevant_holders = self.get_sorted_threat_collection()
         return None if not relevant_holders else relevant_holders[-1]
 
-    def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
+    def get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
         for holder in list(self.holders.values()):
             if not holder.unit.is_alive:

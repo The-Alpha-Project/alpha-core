@@ -11,7 +11,12 @@ class TotemAI(CreatureAI):
 
     # override
     def update_ai(self, elapsed):
-        pass
+        super().update_ai(elapsed)
+        if not self.creature:
+            return
+
+        if self.has_spell_list():
+            self.update_spell_list(elapsed)
 
     # override
     def permissible(self, creature):

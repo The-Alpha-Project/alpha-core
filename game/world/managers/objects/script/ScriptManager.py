@@ -12,6 +12,8 @@ class ScriptManager:
     @staticmethod
     # This can return either UnitManager or GameObjectManager. (Both have spell managers and aura managers)
     def get_target_by_type(caster, target, target_type, param1, param2, spell_template):
+        spell_range_entry = DbcDatabaseManager.spell_range_get_by_id(spell_template.RangeIndex)
+
         if target_type == ScriptTarget.TARGET_T_PROVIDED_TARGET:
             return target
         elif target_type == ScriptTarget.TARGET_T_HOSTILE:
@@ -21,6 +23,15 @@ class ScriptManager:
         elif target_type == ScriptTarget.TARGET_T_HOSTILE_SECOND_AGGRO:
             if ScriptManager._validate_is_unit(caster):
                 return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO)
+        elif target_type == ScriptTarget.TARGET_T_OWNER_HIGHEST_THREAT:
+            if ScriptManager._validate_is_unit(caster):
+                owner = caster.get_charmer_or_summoner()
+                if owner:
+                    owner_attackers = owner.threat_manager.get_sorted_threat_collection()
+                    owner_attackers = [attacker for attacker in owner_attackers if
+                                       attacker.unit.location.distance(caster.location) <= spell_range_entry.RangeMax]
+                    return owner.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO,
+                                                                        sorted_targets=owner_attackers)
         elif target_type == ScriptTarget.TARGET_T_HOSTILE_LAST_AGGRO:
             if ScriptManager._validate_is_unit(caster):
                 return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO)
