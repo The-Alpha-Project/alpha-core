@@ -147,6 +147,8 @@ class CreatureAI:
         # Apply passives.
         for spell_id in self.creature.get_template_spells():
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not spell:
+                continue
             self.creature.spell_manager.apply_passive_spell_effects(spell)
 
     # Called when a creature is despawned by natural means (TTL).
