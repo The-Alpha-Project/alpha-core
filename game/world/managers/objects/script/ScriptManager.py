@@ -12,8 +12,6 @@ class ScriptManager:
     @staticmethod
     # This can return either UnitManager or GameObjectManager. (Both have spell managers and aura managers)
     def get_target_by_type(caster, target, target_type, param1, param2, spell_template):
-        spell_range_entry = DbcDatabaseManager.spell_range_get_by_id(spell_template.RangeIndex)
-
         if target_type == ScriptTarget.TARGET_T_PROVIDED_TARGET:
             return target
         elif target_type == ScriptTarget.TARGET_T_HOSTILE:
