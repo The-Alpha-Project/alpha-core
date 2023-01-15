@@ -240,6 +240,8 @@ class CreatureAI:
                 # Override target with Vector if this spell targets terrain.
                 if spell_target_mask & SpellTargetMask.CAN_TARGET_TERRAIN != 0:
                     spell_target = unit_target.location.copy()
+                elif spell_target_mask == SpellTargetMask.SELF and unit_target is not self.creature:
+                    spell_target_mask = SpellTargetMask.UNIT
 
                 # Try to initialize the spell.
                 casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
