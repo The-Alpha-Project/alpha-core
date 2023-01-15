@@ -16488,5 +16488,55 @@ begin not atomic
 
         insert into applied_updates values ('050120231');
     end if;
+
+	-- 15/01/2023
+    if (select count(*) from applied_updates where id='150120231') = 0 then
+        DELETE FROM `creature_spells` WHERE entry = 39020;
+        INSERT INTO `creature_spells` (`entry`, `name`, `spellid_1`, `probability_1`, `castTarget_1`) VALUES
+        -- Add spell templates for active totem spells.
+        (25230, 'Serpent Totem', 3606, 100, 1),
+        (39020, 'Serpent Totem II', 6350, 100, 1),
+        (39030, 'Serpent Totem III', 6351, 100, 1),
+        (39040, 'Serpent Totem IV', 6352, 100, 1),
+        (35270, 'Healing Totem', 5672, 100, 0),
+        (39060, 'Healing Totem II', 6371, 100, 0),
+        (39070, 'Healing Totem III', 6372, 100, 0),
+        (39080, 'Healing Totem IV', 6373, 100, 0),
+        (39090, 'Healing Totem V', 6374, 100, 0),
+        (35730, 'Mana Totem', 5677, 100, 0);
+
+        UPDATE `creature_template` SET `spell_list_id` = 25230 WHERE `entry` = 2523;  -- Serpent Totem
+        UPDATE `creature_template` SET `spell_list_id` = 39020 WHERE `entry` = 3902;
+        UPDATE `creature_template` SET `spell_list_id` = 39030 WHERE `entry` = 3903;
+        UPDATE `creature_template` SET `spell_list_id` = 39040 WHERE `entry` = 3904;
+        UPDATE `creature_template` SET `spell_list_id` = 35270 WHERE `entry` = 3527;  -- Healing Totem
+        UPDATE `creature_template` SET `spell_list_id` = 39060 WHERE `entry` = 3906;
+        UPDATE `creature_template` SET `spell_list_id` = 39070 WHERE `entry` = 3907;
+        UPDATE `creature_template` SET `spell_list_id` = 39080 WHERE `entry` = 3908;
+        UPDATE `creature_template` SET `spell_list_id` = 39090 WHERE `entry` = 3909;
+        UPDATE `creature_template` SET `spell_list_id` = 35730 WHERE `entry` = 3573;  -- Mana Totem
+        UPDATE `creature_template` SET `spell_id1` = 5732 WHERE `entry` = 3580;  -- Invisibility Totem (passive)
+
+        -- Stasis Totem II
+        INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`,
+                                 `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`,
+                                 `level_min`, `level_max`, `health_min`, `health_max`, `mana_min`, `mana_max`,
+                                 `armor`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`,
+                                 `detection_range`, `call_for_help_range`, `leash_range`, `rank`,
+                                 `xp_multiplier`, `dmg_min`, `dmg_max`, `dmg_school`, `attack_power`,
+                                 `dmg_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`,
+                                 `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`,
+                                 `trainer_class`, `trainer_race`, `ranged_dmg_min`, `ranged_dmg_max`,
+                                 `ranged_attack_power`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`,
+                                 `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`,
+                                 `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`,
+                                 `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`,
+                                 `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`,
+                                 `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`,
+                                 `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`,
+                                 `script_name`) VALUES
+        (3910, 1421, 0, 0, 0, 0, 'Statis Totem II', NULL, 1101062, 0, 34, 34, 5, 5, 0, 0, 0, 35, 0, 1, 1, 0, 18, 5, 0, 0, 1, 9, 9, 0, 138, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 0, 0, 51.128, 70.301, 100, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6475, 0, 0, 0, 0, 0, NULL, 13, 67, '', 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, '');
+        insert into applied_updates values ('150120231');
+    end if;
 end $
 delimiter ;

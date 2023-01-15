@@ -934,6 +934,12 @@ class SpellManager:
                 return True
         return False
 
+    def is_spell_active(self, spell_id):
+        return any([spell for spell in self.casting_spells if
+                    spell.spell_entry.ID == spell_id and
+                    spell.cast_state == SpellState.SPELL_STATE_ACTIVE and
+                    not spell.is_channeled()])
+
     def get_casting_spell(self):
         for spell in list(self.casting_spells):
             if spell.triggered:

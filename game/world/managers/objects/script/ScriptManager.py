@@ -23,15 +23,6 @@ class ScriptManager:
         elif target_type == ScriptTarget.TARGET_T_HOSTILE_SECOND_AGGRO:
             if ScriptManager._validate_is_unit(caster):
                 return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO)
-        elif target_type == ScriptTarget.TARGET_T_OWNER_HIGHEST_THREAT:
-            if ScriptManager._validate_is_unit(caster):
-                owner = caster.get_charmer_or_summoner()
-                if owner:
-                    owner_attackers = owner.threat_manager.get_sorted_threat_collection()
-                    owner_attackers = [attacker for attacker in owner_attackers if
-                                       attacker.unit.location.distance(caster.location) <= spell_range_entry.RangeMax]
-                    return owner.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO,
-                                                                        sorted_targets=owner_attackers)
         elif target_type == ScriptTarget.TARGET_T_HOSTILE_LAST_AGGRO:
             if ScriptManager._validate_is_unit(caster):
                 return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO)

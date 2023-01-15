@@ -290,6 +290,10 @@ class CreatureAI:
         if cast_flags & CastFlags.CF_TARGET_CASTING and not target.spell_manager.is_casting():
             return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
 
+        # Don't recast active area aura spells.
+        if self.creature.spell_manager.is_spell_active(casting_spell.spell_entry.ID):
+            return SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED
+
         # This spell should only be cast when target does not have the aura it applies.
         if cast_flags & CastFlags.CF_AURA_NOT_PRESENT and target.aura_manager.has_aura_by_spell_id(
                 casting_spell.spell_entry.ID):

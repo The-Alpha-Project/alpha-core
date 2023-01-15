@@ -1,8 +1,6 @@
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
-from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers
 from utils.constants.CustomCodes import Permits
-from utils.constants.MiscCodes import ObjectTypeFlags
-from utils.constants.SpellCodes import SpellTargetMask
 
 
 class TotemAI(CreatureAI):
@@ -14,6 +12,12 @@ class TotemAI(CreatureAI):
         super().update_ai(elapsed)
         if not self.creature:
             return
+
+        owner = self.creature.get_charmer_or_summoner()
+        if not owner:
+            return
+
+        self.creature.threat_manager.holders = owner.threat_manager.holders.copy()
 
         if self.has_spell_list():
             self.update_spell_list(elapsed)
@@ -27,8 +31,9 @@ class TotemAI(CreatureAI):
     # override
     def just_respawned(self):
         for spell_id in self.creature.get_template_spells():
-            self.creature.spell_manager.handle_cast_attempt(spell_id, self.creature, SpellTargetMask.UNIT,
-                                                            validate=False)
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            # Apply totem passives.
+            self.creature.spell_manager.apply_passive_spell_effects(spell)
         super().just_respawned()
 
     # override

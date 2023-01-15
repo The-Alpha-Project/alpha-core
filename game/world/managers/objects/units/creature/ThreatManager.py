@@ -132,6 +132,8 @@ class ThreatManager:
 
     def get_hostile_target(self) -> Optional[UnitManager]:
         max_threat_holder = self._get_max_threat_holder()
+        if not max_threat_holder:
+            return None
 
         # Threat target switching.
         if max_threat_holder != self.current_holder:
@@ -145,7 +147,7 @@ class ThreatManager:
         if len(self.holders) == 0:
             return None
 
-        relevant_holders = self.get_sorted_threat_collection() if not sorted_targets else sorted_targets
+        relevant_holders = self._get_sorted_threat_collection() if not sorted_targets else sorted_targets
         if not relevant_holders:
             return None
 
@@ -214,10 +216,10 @@ class ThreatManager:
 
     # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
-        relevant_holders = self.get_sorted_threat_collection()
+        relevant_holders = self._get_sorted_threat_collection()
         return None if not relevant_holders else relevant_holders[-1]
 
-    def get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
+    def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
         for holder in list(self.holders.values()):
             if not holder.unit.is_alive:
