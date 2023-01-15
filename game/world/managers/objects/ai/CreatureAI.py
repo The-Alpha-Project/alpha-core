@@ -5,6 +5,7 @@ from random import randint
 from struct import pack
 from typing import TYPE_CHECKING, Optional
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
@@ -142,7 +143,11 @@ class CreatureAI:
     def just_respawned(self):
         # Reset spells template to default on respawn.
         # Reset combat movement and melee attack.
-        pass
+
+        # Apply passives.
+        for spell_id in self.creature.get_template_spells():
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            self.creature.spell_manager.apply_passive_spell_effects(spell)
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):
