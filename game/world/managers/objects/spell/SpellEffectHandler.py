@@ -779,7 +779,9 @@ class SpellEffectHandler:
             return
 
         target.has_block_passive = True
+
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            target.stat_manager.send_defense_bonuses()  # Send new block chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
             if skill:
@@ -792,10 +794,8 @@ class SpellEffectHandler:
 
         target.has_parry_passive = True
 
-        # Parry does not apply a passive aura, refresh bonuses.
-        target.stat_manager.apply_bonuses()
-
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            target.stat_manager.send_defense_bonuses()  # Send new parry chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
             if skill:
@@ -807,7 +807,9 @@ class SpellEffectHandler:
             return
 
         target.has_dodge_passive = True
+
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            target.stat_manager.send_defense_bonuses()  # Send new dodge chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
             if skill:
@@ -815,14 +817,13 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_defense_passive(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
-                                                                                   caster.race, caster.class_)
-            if skill:
-                target.skill_manager.add_skill(skill.ID)
+        skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
+                                                                               caster.race, caster.class_)
+        if skill:
+            target.skill_manager.add_skill(skill.ID)
 
     @staticmethod
     def handle_spell_defense_passive(casting_spell, effect, caster, target):
