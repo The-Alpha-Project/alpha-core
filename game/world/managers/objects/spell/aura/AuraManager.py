@@ -331,6 +331,11 @@ class AuraManager:
             if aura.harmful and aura.caster.guid == caster_guid:
                 self.remove_aura(aura)
 
+    def remove_auras_by_caster(self, caster_guid):
+        for aura in list(self.active_auras.values()):
+            if aura.caster.guid == caster_guid:
+                self.remove_aura(aura)
+
     def remove_aura(self, aura, canceled=False):
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target, remove=True)
         if not self.active_auras.pop(aura.index, None):

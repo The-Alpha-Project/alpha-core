@@ -5,6 +5,7 @@ from random import randint
 from struct import pack
 from typing import TYPE_CHECKING, Optional
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
@@ -89,12 +90,10 @@ class CreatureAI:
     # Called when the creature is killed.
     def just_died(self):
         charmer_or_summoner = self.creature.get_charmer_or_summoner()
-        # Detach from controller if this unit is an active pet and the summoner is a unit (game objects can only spawn
-        # creatures, but they can never have actual pets so they don't have any PetManager).
+        # Detach from controller if this unit is an active pet and the summoner is a unit
+        # (game objects can spawn creatures, but they don't have a PetManager).
         if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            active_pet = charmer_or_summoner.pet_manager.active_pet
-            if active_pet:
-                charmer_or_summoner.pet_manager.detach_active_pet()
+            charmer_or_summoner.pet_manager.detach_pet_by_guid(self.creature.guid)
 
     # Called when the creature summon is killed.
     def summoned_creature_just_died(self, creature):
@@ -144,7 +143,13 @@ class CreatureAI:
     def just_respawned(self):
         # Reset spells template to default on respawn.
         # Reset combat movement and melee attack.
-        pass
+
+        # Apply passives.
+        for spell_id in self.creature.get_template_spells():
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not spell:
+                continue
+            self.creature.spell_manager.apply_passive_spell_effects(spell)
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):
@@ -189,7 +194,7 @@ class CreatureAI:
         pass
 
     def update_spell_list(self, elapsed):
-        if not self.has_spell_list() or not self.creature.combat_target:
+        if not self.has_spell_list():
             return
 
         if self.casting_delay <= 0:
@@ -242,6 +247,8 @@ class CreatureAI:
                 # Override target with Vector if this spell targets terrain.
                 if spell_target_mask & SpellTargetMask.CAN_TARGET_TERRAIN != 0:
                     spell_target = unit_target.location.copy()
+                elif spell_target_mask == SpellTargetMask.SELF and unit_target is not self.creature:
+                    spell_target_mask = SpellTargetMask.UNIT
 
                 # Try to initialize the spell.
                 casting_spell = self.creature.spell_manager.try_initialize_spell(spell_template,
@@ -289,6 +296,10 @@ class CreatureAI:
 
         if cast_flags & CastFlags.CF_TARGET_CASTING and not target.spell_manager.is_casting():
             return SpellCheckCastResult.SPELL_FAILED_UNKNOWN
+
+        # Don't recast active area aura spells.
+        if self.creature.spell_manager.is_spell_active(casting_spell.spell_entry.ID):
+            return SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED
 
         # This spell should only be cast when target does not have the aura it applies.
         if cast_flags & CastFlags.CF_AURA_NOT_PRESENT and target.aura_manager.has_aura_by_spell_id(

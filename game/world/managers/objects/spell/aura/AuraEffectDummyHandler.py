@@ -1,6 +1,5 @@
 from random import randint
 
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import Emotes, ObjectTypeIds, ObjectTypeFlags
@@ -17,7 +16,6 @@ class AuraEffectDummyHandler:
     def get_period(spell_id):
         return PERIODIC_DUMMY_AURAS[spell_id]
 
-    # TODO: Still need to figure how to cancel the channel if the units dies.
     @staticmethod
     def handle_killrogg_eye(aura, effect_target, remove):
         if not remove:
@@ -66,12 +64,14 @@ class AuraEffectDummyHandler:
 
     @staticmethod
     def handle_sentry_totem(aura, effect_target, remove):
-        if remove or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if remove or effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
         totem_slot = aura.source_spell.get_totem_slot_type()
-        totem = aura.caster.pet_manager.get_totem_by_slot(totem_slot)
+        totem = effect_target.pet_manager.get_active_totem(totem_slot)
         if totem:
-            FarSightManager.add_camera(totem, aura.caster)
+            # Set the totem as the caster of the aura so it can easily be removed when the totem is destroyed.
+            aura.caster = totem.creature
+            FarSightManager.add_camera(totem.creature, effect_target)
 
 
 PERIODIC_DUMMY_AURAS = {

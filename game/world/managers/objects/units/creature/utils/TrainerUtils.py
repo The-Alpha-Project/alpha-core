@@ -125,7 +125,7 @@ class TrainerUtils:
                                        preceded_spell: int, player_mgr, fulfills_skill: bool = True):
         trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
-        pet_info = player_mgr.pet_manager.get_active_pet_info()
+        pet_info = player_mgr.pet_manager.get_active_permanent_pet()
         if is_taught_to_pet and not pet_info:
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 

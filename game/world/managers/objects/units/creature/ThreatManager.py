@@ -132,6 +132,8 @@ class ThreatManager:
 
     def get_hostile_target(self) -> Optional[UnitManager]:
         max_threat_holder = self._get_max_threat_holder()
+        if not max_threat_holder:
+            return None
 
         # Threat target switching.
         if max_threat_holder != self.current_holder:
@@ -145,33 +147,35 @@ class ThreatManager:
         if len(self.holders) == 0:
             return None
 
+        relevant_holders = self._get_sorted_threat_collection()
+        if not relevant_holders:
+            return None
+
         if attacking_target == AttackingTarget.ATTACKING_TARGET_TOPAGGRO:
-            return self.get_hostile_target()
+            return relevant_holders[-1].unit
+        if attacking_target == AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO:
+            return relevant_holders[0].unit
+        elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOM:
+            return random.choice(relevant_holders).unit
+        elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP:
+            # Only top available, return None.
+            if len(relevant_holders) == 1:
+                return None
+            # Random, not top.
+            return random.choice(relevant_holders[:-1]).unit
+        # Farthest or Nearest targets.
         else:
-            relevant_holders = self._get_sorted_threat_collection()
-            if relevant_holders and len(relevant_holders) > 0:
-                if attacking_target == AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO:
-                    return relevant_holders[0].unit
-                elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOM:
-                    return random.choice(relevant_holders).unit
-                elif attacking_target == AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP:
-                    # Only top available, return None.
-                    if len(relevant_holders) == 1:
-                        return None
-                    # Random, not top.
-                    return random.choice(relevant_holders[:-1]).unit
-                # Farthest or Nearest targets.
-                else:
-                    surrounding_units = MapManager.get_surrounding_units(self.owner, include_players=True)
-                    units_in_range = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
-                    units_in_aggro_list = [h.unit for h in relevant_holders if h.unit in units_in_range]
-                    if len(units_in_aggro_list) > 0:
-                        # Sort found units by distance.
-                        units_in_aggro_list.sort(key=lambda player: player.location.distance(self.owner.location))
-                        if attacking_target == AttackingTarget.ATTACKING_TARGET_NEAREST:
-                            return units_in_aggro_list[0]
-                        elif attacking_target == AttackingTarget.ATTACKING_TARGET_FARTHEST:
-                            return units_in_aggro_list[-1]
+            surrounding_units = MapManager.get_surrounding_units(self.owner, include_players=True)
+            units_in_range = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
+            units_in_aggro_list = [h.unit for h in relevant_holders if h.unit in units_in_range]
+            if len(units_in_aggro_list) > 0:
+                # Sort found units by distance.
+                units_in_aggro_list.sort(key=lambda player: player.location.distance(self.owner.location))
+                if attacking_target == AttackingTarget.ATTACKING_TARGET_NEAREST:
+                    return units_in_aggro_list[0]
+                elif attacking_target == AttackingTarget.ATTACKING_TARGET_FARTHEST:
+                    return units_in_aggro_list[-1]
+
         # No suitable target found.
         return None
 

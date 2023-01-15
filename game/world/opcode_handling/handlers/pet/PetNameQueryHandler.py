@@ -16,12 +16,13 @@ class PetNameQueryHandler(object):
             owner = pet_creature.get_charmer_or_summoner()
             if not owner:
                 return 0
-            pet_info = owner.pet_manager.get_active_pet_info()
-            if not pet_info or not pet_info.permanent:
+            active_pet = owner.pet_manager.get_active_permanent_pet()
+            if not active_pet:
                 return 0
 
-            pet_name_bytes = PacketWriter.string_to_bytes(pet_info.name)
-            name_timestamp = pet_info.rename_time
+            pet_data = active_pet.get_pet_data()
+            pet_name_bytes = PacketWriter.string_to_bytes(pet_data.name)
+            name_timestamp = pet_data.rename_time
             data = pack(f'<I{len(pet_name_bytes)}sI', pet_id, pet_name_bytes, name_timestamp)
             world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_PET_NAME_QUERY_RESPONSE, data))
         return 0

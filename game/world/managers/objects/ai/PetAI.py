@@ -139,7 +139,7 @@ class PetAI(CreatureAI):
             self.is_at_home = False
 
     def _get_command_state(self):
-        pet_info = self.creature.get_charmer_or_summoner().pet_manager.get_active_pet_info()
-        if not pet_info:
+        controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()
+        if not controlled_pet:
             return PetCommandState.COMMAND_FOLLOW
-        return pet_info.command_state
+        return controlled_pet.get_pet_data().command_state

@@ -204,7 +204,7 @@ class UnitManager(ObjectManager):
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
         # TODO: Support for CreatureManager is not added yet.
-        from game.world.managers.objects.units.PetManager import PetManager
+        from game.world.managers.objects.units.pet.PetManager import PetManager
         self.pet_manager = PetManager(self)
         # Players/Creatures.
         self.threat_manager = None
@@ -981,9 +981,6 @@ class UnitManager(ObjectManager):
     def is_tameable(self):
         return False
 
-    def get_pet(self):
-        return self.pet_manager.active_pet.creature if self.pet_manager.active_pet else None
-
     def get_possessed_unit(self):
         possessed_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARM)
         if possessed_id:
@@ -1127,21 +1124,21 @@ class UnitManager(ObjectManager):
     def update_power_type(self):
         pass
 
-    # Charmer must have priority over summoner since it is the current master.
+    # Implemented by CreatureManager.
     def get_charmer_or_summoner(self, include_self=False):
-        charmer_or_summoner = self.charmer if self.charmer else self.summoner if self.summoner else None
-        return charmer_or_summoner if charmer_or_summoner else self if include_self else None
+        return self.charmer if self.charmer \
+            else self if include_self else None
 
-    def set_charmed_by(self, charmer, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
+    # Implemented by CreatureManager.
+    def set_charmed_by(self, charmer, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
+        self.charmer = charmer if not remove else None
         self.set_uint64(UnitFields.UNIT_FIELD_CHARMEDBY, charmer.guid if not remove else 0)
         charmer.set_uint64(UnitFields.UNIT_FIELD_CHARM, self.guid if not remove else 0)
         # Set faction, either original or charmer. (Restored on CreatureManager/PlayerManager)
         self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
 
-    # Implemented by Creature/PlayerManager.
+    # Implemented by CreatureManager.
     def set_summoned_by(self, summoner, spell_id=0, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, remove=False):
-        self.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.summoner.guid if not remove else 0)
-        self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if not remove else 0)
         # Link self to summoner.
         summoner.set_uint64(UnitFields.UNIT_FIELD_SUMMON, self.guid if not remove else 0)
         # Set faction, either original or summoner. (Restored on CreatureManager/PlayerManager)
@@ -1495,6 +1492,12 @@ class UnitManager(ObjectManager):
         if self.object_ai:
             self.object_ai.just_died()
 
+        # Notify killer's pet AI about this kill.
+        if killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            killer_pet = killer.pet_manager.get_active_controlled_pet()
+            if killer_pet:
+                killer_pet.creature.object_ai.killed_unit(self)
+
         self.leave_combat()
         self.set_health(0)
 
@@ -1526,6 +1529,16 @@ class UnitManager(ObjectManager):
         if self.spell_manager:
             self.spell_manager.remove_casts()
             self.aura_manager.remove_all_auras()
+
+        charmer = self.get_charmer_or_summoner()
+        if charmer:
+            active_pet = charmer.pet_manager.get_active_pet_by_guid(self.guid)
+            if active_pet:
+                summon_spell = active_pet.get_pet_data().summon_spell_id
+                charmer.spell_manager.remove_cast_by_id(summon_spell)
+                charmer.aura_manager.remove_auras_by_caster(self.guid)
+                charmer.spell_manager.unlock_spell_cooldown(summon_spell)
+
         self.is_alive = False
         super().destroy()
 

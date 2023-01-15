@@ -1,8 +1,5 @@
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
-from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers
 from utils.constants.CustomCodes import Permits
-from utils.constants.MiscCodes import ObjectTypeFlags
-from utils.constants.SpellCodes import SpellTargetMask
 
 
 class TotemAI(CreatureAI):
@@ -11,7 +8,18 @@ class TotemAI(CreatureAI):
 
     # override
     def update_ai(self, elapsed):
-        pass
+        super().update_ai(elapsed)
+        if not self.creature:
+            return
+
+        owner = self.creature.get_charmer_or_summoner()
+        if not owner:
+            return
+
+        self.creature.threat_manager.holders = owner.threat_manager.holders.copy()
+
+        if self.has_spell_list():
+            self.update_spell_list(elapsed)
 
     # override
     def permissible(self, creature):
@@ -20,26 +28,16 @@ class TotemAI(CreatureAI):
         return Permits.PERMIT_BASE_NO
 
     # override
-    def just_respawned(self):
-        for spell_id in self.creature.get_template_spells():
-            self.creature.spell_manager.handle_cast_attempt(spell_id, self.creature, SpellTargetMask.UNIT,
-                                                            validate=False)
-        super().just_respawned()
-
-    # override
     def just_despawned(self):
         self.just_died()  # Handle same as dead for now.
         super().just_despawned()
 
     # override
-    def just_died(self):
-        charmer_or_summoner = self.creature.get_charmer_or_summoner()
-        if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            charmer_or_summoner.pet_manager.detach_totem_by_guid(self.creature.guid)
-        super().just_died()
+    def move_in_line_of_sight(self, unit):
+        pass
 
     # override
-    def move_in_line_of_sight(self, unit):
+    def handle_return_movement(self):
         pass
 
     # override

@@ -70,7 +70,8 @@ class AppliedAura:
         if self.spell_effect.area_aura_holder:
             return  # Area auras are managed by AreaAuraHolder.
 
-        if self.has_duration():
+        if self.has_duration() or self.is_periodic():
+            # Check periodic in case of periodic auras with infinite duration.
             self.spell_effect.update_effect_aura(timestamp)
 
         if self.is_periodic():

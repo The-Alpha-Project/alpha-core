@@ -14,6 +14,7 @@ from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler, ExtendedSpellData
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
+from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -23,6 +24,7 @@ from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
     GameObjectStates, DynamicObjectTypes
+from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
 from utils.constants.UnitCodes import UnitFlags
 
@@ -323,7 +325,9 @@ class SpellEffectHandler:
         if summoner.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        summoner.pet_manager.teach_active_pet_spell(target_spell_id)
+        active_pet = summoner.pet_manager.get_active_permanent_pet()
+        if active_pet:
+            active_pet.teach_spell(target_spell_id)
 
     @staticmethod
     def handle_learn_pet_spell(casting_spell, effect, caster, target):
@@ -331,7 +335,9 @@ class SpellEffectHandler:
             return
 
         target_spell_id = effect.trigger_spell_id
-        target.pet_manager.teach_active_pet_spell(target_spell_id)
+        active_pet = target.pet_manager.get_active_permanent_pet()
+        if active_pet:
+            active_pet.teach_spell(target_spell_id)
 
     @staticmethod
     def handle_summon_totem(casting_spell, effect, caster, target):
@@ -345,7 +351,10 @@ class SpellEffectHandler:
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
 
-        caster.pet_manager.set_totem(casting_spell.get_totem_slot_type(), creature_manager)
+        totem_slot = casting_spell.get_totem_slot_type()
+        # Remove existing totem in this slot.
+        caster.pet_manager.detach_totem(totem_slot)
+        caster.pet_manager.add_totem_from_spell(creature_manager, casting_spell)
         MapManager.spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
@@ -532,12 +541,12 @@ class SpellEffectHandler:
 
         # Taming will always result in the target becoming the caster's pet.
         # Pass summon pet ID as the spell creating this unit since it's saved in the database.
-        from game.world.managers.objects.units.PetManager import PetManager
-        pet = caster.pet_manager.set_creature_as_pet(target, PetManager.SUMMON_PET_SPELL_ID, is_permanent=True)
+        pet = caster.pet_manager.set_creature_as_pet(target, PetData.SUMMON_PET_SPELL_ID,
+                                                     PetSlot.PET_SLOT_PERMANENT, is_permanent=True)
         if pet:
             # Since we have no data for what abilities pets had in the wild (or if it even varied in 0.5.3),
             # learn all abilities the pet could have at its current level.
-            caster.pet_manager.initialize_active_pet_spells()
+            pet.initialize_spells()
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):
@@ -770,7 +779,9 @@ class SpellEffectHandler:
             return
 
         target.has_block_passive = True
+
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            target.stat_manager.send_defense_bonuses()  # Send new block chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
             if skill:
@@ -783,10 +794,8 @@ class SpellEffectHandler:
 
         target.has_parry_passive = True
 
-        # Parry does not apply a passive aura, refresh bonuses.
-        target.stat_manager.apply_bonuses()
-
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            target.stat_manager.send_defense_bonuses()  # Send new parry chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
             if skill:
@@ -798,7 +807,9 @@ class SpellEffectHandler:
             return
 
         target.has_dodge_passive = True
+
         if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            target.stat_manager.send_defense_bonuses()  # Send new dodge chance.
             skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
                                                                                    caster.race, caster.class_)
             if skill:
@@ -806,18 +817,27 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_defense_passive(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        if target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
-                                                                                   caster.race, caster.class_)
-            if skill:
-                target.skill_manager.add_skill(skill.ID)
+        skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
+                                                                               caster.race, caster.class_)
+        if skill:
+            target.skill_manager.add_skill(skill.ID)
 
     @staticmethod
     def handle_spell_defense_passive(casting_spell, effect, caster, target):
         pass  # Only "SPELLDEFENSE (DND)", obsolete
+
+    @staticmethod
+    def handle_dual_wield_passive(casting_spell, effect, caster, target):
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
+                                                                               caster.race, caster.class_)
+        if skill:
+            target.skill_manager.add_skill(skill.ID)
 
     AREA_SPELL_EFFECTS = {
         SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA,
@@ -877,6 +897,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_DODGE: SpellEffectHandler.handle_dodge_passive,
     SpellEffects.SPELL_EFFECT_DEFENSE: SpellEffectHandler.handle_defense_passive,
     SpellEffects.SPELL_EFFECT_SPELL_DEFENSE: SpellEffectHandler.handle_spell_defense_passive,
+    SpellEffects.SPELL_EFFECT_DUAL_WIELD: SpellEffectHandler.handle_dual_wield_passive,
     SpellEffects.SPELL_EFFECT_WEAPON: SpellEffectHandler.handle_weapon_skill,
     SpellEffects.SPELL_EFFECT_PROFICIENCY: SpellEffectHandler.handle_add_proficiency,
     SpellEffects.SPELL_EFFECT_LANGUAGE: SpellEffectHandler.handle_add_language
