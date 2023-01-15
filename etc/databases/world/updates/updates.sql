@@ -16515,7 +16515,7 @@ begin not atomic
         UPDATE `creature_template` SET `spell_list_id` = 39080 WHERE `entry` = 3908;
         UPDATE `creature_template` SET `spell_list_id` = 39090 WHERE `entry` = 3909;
         UPDATE `creature_template` SET `spell_list_id` = 35730 WHERE `entry` = 3573;  -- Mana Totem
-        UPDATE `creature_template` SET `spell_id1` = 5732, `static_flags` = 1101062 WHERE `entry` = 3580;  -- Invisibility Totem
+        UPDATE `creature_template` SET `spell_id1` = 5733, `static_flags` = 1101062 WHERE `entry` = 3580;  -- Invisibility Totem
 
         -- Stasis Totem II
         INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`,
