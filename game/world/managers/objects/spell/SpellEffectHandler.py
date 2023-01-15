@@ -828,6 +828,16 @@ class SpellEffectHandler:
     def handle_spell_defense_passive(casting_spell, effect, caster, target):
         pass  # Only "SPELLDEFENSE (DND)", obsolete
 
+    @staticmethod
+    def handle_dual_wield_passive(casting_spell, effect, caster, target):
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        skill, skill_line = SkillManager.get_skill_and_skill_line_for_spell_id(casting_spell.spell_entry.ID,
+                                                                               caster.race, caster.class_)
+        if skill:
+            target.skill_manager.add_skill(skill.ID)
+
     AREA_SPELL_EFFECTS = {
         SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA,
         SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA
@@ -886,6 +896,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_DODGE: SpellEffectHandler.handle_dodge_passive,
     SpellEffects.SPELL_EFFECT_DEFENSE: SpellEffectHandler.handle_defense_passive,
     SpellEffects.SPELL_EFFECT_SPELL_DEFENSE: SpellEffectHandler.handle_spell_defense_passive,
+    SpellEffects.SPELL_EFFECT_DUAL_WIELD: SpellEffectHandler.handle_dual_wield_passive,
     SpellEffects.SPELL_EFFECT_WEAPON: SpellEffectHandler.handle_weapon_skill,
     SpellEffects.SPELL_EFFECT_PROFICIENCY: SpellEffectHandler.handle_add_proficiency,
     SpellEffects.SPELL_EFFECT_LANGUAGE: SpellEffectHandler.handle_add_language
