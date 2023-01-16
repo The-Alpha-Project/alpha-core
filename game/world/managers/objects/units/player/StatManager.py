@@ -678,7 +678,7 @@ class StatManager(object):
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0.0) -> HitInfo:
         # TODO Based on vanilla calculations.
         # Evading, return miss and handle on calling method.
-        if self.unit_mgr.is_evading:
+        if self.unit_mgr.is_evading or self.unit_mgr.unit_state & UnitStates.SANCTUARY:
             return HitInfo.MISS
 
         # Immunity.
