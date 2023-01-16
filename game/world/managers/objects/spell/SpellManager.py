@@ -1581,12 +1581,3 @@ class SpellManager:
                    pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
 
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
-
-    # TODO This doesn't display anything to the client at the moment.
-    def send_cast_immune_result(self, target, casting_spell=None):
-        spell_id = casting_spell.spell_entry.ID if casting_spell else 0
-        miss_reason = SpellMissReason.MISS_REASON_IMMUNE
-        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-        combat_log_data = pack('<i2Q2i', SpellHitFlags.NONE, self.caster.guid, target.guid, spell_id, miss_reason)
-        miss_packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS, combat_log_data)
-        MapManager.send_surrounding(miss_packet, self.caster, include_self=is_player)
