@@ -778,12 +778,8 @@ class StatManager(object):
                 any([not effect.can_miss() for effect in casting_spell.get_effects()]):
             return SpellMissReason.MISS_REASON_NONE, hit_flags
 
-        # Sanctuary.
-        if self.unit_mgr.unit_state & UnitStates.SANCTUARY:
-            return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
-
-        # Immunity.
-        if self.unit_mgr.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and self.unit_mgr.handle_immunity(
+        # Immunity/Sanctuary.
+        if self.unit_mgr.unit_state & UnitStates.SANCTUARY or self.unit_mgr.handle_immunity(
                 caster, SpellImmunity.IMMUNITY_DAMAGE, spell_school, casting_spell=casting_spell):
             return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
 
