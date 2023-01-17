@@ -20,14 +20,12 @@ class MovementManager:
         self.pending_waypoints: list[PendingWaypoint] = []
         self.total_waypoint_time = 0
         self.total_waypoint_timer = 0
-        self.waypoint_timer = 0
 
     def update_pending_waypoints(self, elapsed):
         if not self.should_update_waypoints:
             return
 
         self.total_waypoint_timer += elapsed
-        self.waypoint_timer += elapsed
         # Set elapsed time to the current movement spline data.
         if self.unit.movement_spline:
             if self.unit.movement_spline.elapsed < self.unit.movement_spline.total_time:
@@ -41,11 +39,10 @@ class MovementManager:
             if self.total_waypoint_timer >= current_waypoint.expected_timestamp:
                 new_position = current_waypoint.location
                 self.last_position = new_position.copy()
-                self.waypoint_timer = 0
                 self.pending_waypoints.pop(0)
             # Guess current position based on speed and time.
             else:
-                guessed_distance = self.unit.movement_spline.speed * self.waypoint_timer
+                guessed_distance = self.unit.movement_spline.speed * elapsed
                 # If player is flying, don't guess in between locations, use waypoints only.
                 if self.is_player and self.unit.movement_spline and \
                         self.unit.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
@@ -55,7 +52,6 @@ class MovementManager:
                                                                        map_id=self.unit.map_id)
 
             if new_position:
-                self.waypoint_timer = 0
                 self.last_position = new_position.copy()
                 self.unit.location.x = new_position.x
                 self.unit.location.y = new_position.y
@@ -88,7 +84,6 @@ class MovementManager:
         self.last_position = None
         self.total_waypoint_time = 0
         self.total_waypoint_timer = 0
-        self.waypoint_timer = 0
 
     def unit_is_moving(self):
         if self.is_player:
