@@ -209,6 +209,9 @@ class CreatureManager(UnitManager):
 
             self.initialized = True
 
+            # Trigger respawned event.
+            self.object_ai.just_respawned()
+
     def finish_loading(self):
         if not self.fully_loaded:
             # Load loot manager.
