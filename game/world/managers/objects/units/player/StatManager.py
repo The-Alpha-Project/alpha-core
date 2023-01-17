@@ -8,9 +8,9 @@ from game.world.managers.objects.units.player.EnchantmentManager import Enchantm
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
-from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
+from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellSchools, SpellImmunity, SpellHitFlags, SpellMissReason
-from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags
+from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -677,8 +677,8 @@ class StatManager(object):
 
     def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0.0) -> HitInfo:
         # TODO Based on vanilla calculations.
-        # Evading, return miss and handle on calling method.
-        if self.unit_mgr.is_evading:
+        # Evading/Sanctuary.
+        if self.unit_mgr.is_evading or self.unit_mgr.unit_state & UnitStates.SANCTUARY:
             return HitInfo.MISS
 
         # Immunity.
@@ -766,10 +766,9 @@ class StatManager(object):
     def get_spell_miss_result_against_self(self, casting_spell) -> (SpellMissReason, SpellHitFlags):
         hit_flags = SpellHitFlags.NONE
 
+        # Evading.
         if self.unit_mgr.is_evading:
             return SpellMissReason.MISS_REASON_EVADED, hit_flags
-
-        # TODO Move spell immunity handling here?
 
         spell_school = casting_spell.spell_entry.School
         caster = casting_spell.spell_caster
@@ -778,6 +777,11 @@ class StatManager(object):
         if not caster.can_attack_target(self.unit_mgr) or \
                 any([not effect.can_miss() for effect in casting_spell.get_effects()]):
             return SpellMissReason.MISS_REASON_NONE, hit_flags
+
+        # Immunity/Sanctuary.
+        if self.unit_mgr.unit_state & UnitStates.SANCTUARY or self.unit_mgr.handle_immunity(
+                caster, SpellImmunity.IMMUNITY_DAMAGE, spell_school, casting_spell=casting_spell):
+            return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
 
         # Use base attack formulas for next melee swing and ranged spells.
         if casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack():
