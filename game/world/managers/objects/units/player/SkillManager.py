@@ -663,9 +663,11 @@ class SkillManager(object):
             skill_id = SkillTypes.BLOCK
             skill = self.skills[skill_id]
         # Always fall back to defense.
-        else:
+        elif SkillTypes.DEFENSE in self.skills:
             skill_id = SkillTypes.DEFENSE
             skill = self.skills[skill_id]
+        else:
+            return 1  # Player is missing defense skill, likely uninitialized.
 
         bonus_skill = 0 if no_bonus else self.player_mgr.stat_manager.get_stat_skill_bonus(skill_id)
         return skill.value + bonus_skill
