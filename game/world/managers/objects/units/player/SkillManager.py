@@ -405,6 +405,11 @@ class SkillManager(object):
         if skill_id == -1:
             return False
 
+        skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
+        # Skip Professions.
+        if skill.SkillType == SkillLineType.SECONDARY and skill.CategoryID == SkillCategories.CLASS_SKILL:
+            return False
+
         self.handle_offense_skill_gain_chance(skill_id)
 
     def handle_spell_cast_skill_gain(self, spell_id):
