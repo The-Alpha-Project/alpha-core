@@ -683,6 +683,9 @@ class InventoryManager(object):
                               send_message=False, show_item_get=False)
                 self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
 
+        # Handle spells interrupt.
+        self.owner.spell_manager.handle_equipment_change(source_item)
+        self.owner.spell_manager.handle_equipment_change(dest_item)
         # Handle enchantments auras removal.
         self.owner.enchantment_manager.handle_equipment_change(source_item)
         self.owner.enchantment_manager.handle_equipment_change(dest_item)
