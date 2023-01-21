@@ -197,21 +197,28 @@ class SpellManager:
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        main_hand = self.caster.inventory.get_main_hand()
-        if not main_hand:
-            return
-
         casting_spell = self.get_casting_spell()
         if not casting_spell:
             return
 
-        if casting_spell.spell_entry.EquippedItemClass != -1:
-            required_item_class = casting_spell.spell_entry.EquippedItemClass
-            required_item_subclass = casting_spell.spell_entry.EquippedItemSubclass
-            item_class = main_hand.item_template.class_
-            item_subclass_mask = 1 << main_hand.item_template.subclass
-            if required_item_class != item_class or not required_item_subclass & item_subclass_mask:
-                self.interrupt_casting_spell()
+        # No required item.
+        if casting_spell.spell_entry.EquippedItemClass == -1:
+            return
+
+        attack_type = AttackTypes.RANGED_ATTACK if casting_spell.is_ranged_weapon_attack() else AttackTypes.BASE_ATTACK
+        weapon = self.caster.get_current_weapon_for_attack_type(attack_type)
+        # No weapon and spell requires it, interrupt.
+        if not weapon:
+            self.interrupt_casting_spell()
+            return
+
+        # Check weather the current weapon satisfies spell requirements.
+        required_item_class = casting_spell.spell_entry.EquippedItemClass
+        required_item_subclass = casting_spell.spell_entry.EquippedItemSubclass
+        item_class = weapon.item_template.class_
+        item_subclass_mask = 1 << weapon.item_template.subclass
+        if required_item_class != item_class or not required_item_subclass & item_subclass_mask:
+            self.interrupt_casting_spell()
 
     def handle_item_cast_attempt(self, item, spell_target, target_mask):
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
