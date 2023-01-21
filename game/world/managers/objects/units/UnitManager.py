@@ -196,6 +196,8 @@ class UnitManager(ObjectManager):
         self._immunities = {}
         # School absorb.
         self._school_absorbs = {}
+        # Root effects.
+        self._root_effects = set()
 
         self.has_moved = False
         self.has_turned = False
@@ -1068,15 +1070,18 @@ class UnitManager(ObjectManager):
 
         return distance <= visible_distance, alert
 
-    def set_root(self, active):
+    def set_root(self, active, index=-1):
         if active:
             # Stop movement if needed.
             self.stop_movement()
             self.movement_flags |= MoveFlags.MOVEFLAG_ROOTED
             self.unit_state |= UnitStates.ROOTED
-        else:
+            self._root_effects.add(index)
+        elif not self._root_effects:
             self.movement_flags &= ~MoveFlags.MOVEFLAG_ROOTED
             self.unit_state &= ~UnitStates.ROOTED
+        else:
+            self._root_effects.remove(index)
 
     def play_emote(self, emote):
         if emote != 0:

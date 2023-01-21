@@ -759,12 +759,17 @@ class PlayerManager(UnitManager):
         # Notify surrounding for proximity checks.
         self._on_relocation()
 
-    def set_root(self, active):
-        super().set_root(active)
-        if active:
+    def set_root(self, active, index=-1):
+        super().set_root(active, index)
+        effect_count = len(self._root_effects)
+
+        if effect_count == 1:
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
-        else:
+        elif not effect_count:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
+        else:
+            return
+
         self.enqueue_packet(PacketWriter.get_packet(opcode))
 
     # override

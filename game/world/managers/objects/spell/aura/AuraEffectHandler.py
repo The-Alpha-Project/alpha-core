@@ -304,7 +304,7 @@ class AuraEffectHandler:
             effect_target.interrupt_looting()
 
         # Root (or unroot) unit.
-        effect_target.set_root(not remove)
+        effect_target.set_root(not remove, aura.index)
 
         if not remove:
             effect_target.spell_manager.remove_casts(remove_active=False)
@@ -358,7 +358,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_root(aura, effect_target, remove):
-        effect_target.set_root(not remove)
+        effect_target.set_root(not remove, aura.index)
 
     @staticmethod
     def handle_mod_stealth(aura, effect_target, remove):
