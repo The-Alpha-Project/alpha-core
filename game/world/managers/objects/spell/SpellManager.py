@@ -209,7 +209,7 @@ class SpellManager:
             self.interrupt_casting_spell()
             return
 
-        # Check weather the current weapon satisfies spell requirements.
+        # Check if the current weapon satisfies spell requirements.
         required_item_class = casting_spell.spell_entry.EquippedItemClass
         required_item_subclass = casting_spell.spell_entry.EquippedItemSubclass
         item_class = weapon.item_template.class_
