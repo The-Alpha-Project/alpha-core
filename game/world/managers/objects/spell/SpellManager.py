@@ -194,9 +194,6 @@ class SpellManager:
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
     def handle_equipment_change(self):
-        if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            return
-
         casting_spell = self.get_casting_spell()
         if not casting_spell:
             return
