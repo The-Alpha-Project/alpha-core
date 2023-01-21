@@ -179,8 +179,18 @@ class SpellManager:
 
         spell = self.try_initialize_spell(spell_template, self.caster, SpellTargetMask.SELF,
                                           validate=False)
-        spell.resolve_target_info_for_effects()
+
+        # Don't use actual target resolvers since the caster may not be fully initialized yet.
+        for effect in spell.get_effects():
+            effect.targets.resolved_targets_a = [self.caster]
+            if not spell.object_target_results:
+                spell.object_target_results = effect.targets.get_effect_target_miss_results()
+
         self.apply_spell_effects(spell)
+
+        # Add any passive area auras to casts.
+        if spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
+            self.casting_spells.append(spell)
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.caster.guid)
