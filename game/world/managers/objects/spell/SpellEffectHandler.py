@@ -43,11 +43,6 @@ class SpellEffectHandler:
             if not target.is_alive and effect.effect_type != SpellEffects.SPELL_EFFECT_RESURRECT:
                 return
 
-        # Immunities.
-        if effect.is_target_immune(target):
-            caster.spell_manager.send_cast_immune_result(target, casting_spell=casting_spell)
-            return
-
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
 
     @staticmethod

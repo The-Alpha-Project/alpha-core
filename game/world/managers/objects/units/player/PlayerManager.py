@@ -33,7 +33,6 @@ from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants import CustomCodes
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults
@@ -481,7 +480,7 @@ class PlayerManager(UnitManager):
                 gobject.known_players[self.guid] = self
         # Player knows the game object but is not spawned anymore, destroy it for self.
         elif gobject.guid in self.known_objects and not gobject.is_spawned:
-            active_objects.pop(self.guid)
+            active_objects.pop(gobject.guid)
 
     def _update_known_creature(self, creature, active_objects: dict):
         # Handle visibility/stealth.

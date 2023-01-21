@@ -22,12 +22,14 @@ class EnchantmentManager(object):
         self._applied_proc_enchants: Dict[int, Tuple[int, int, int]] = {}
 
     # Load and apply enchantments from item_instance.
-    def load_enchantments_for_item(self, item):
+    def load_enchantments_for_item(self, item, from_db=False):
         db_enchantments = item.item_instance.enchantments
         if db_enchantments:
             values = db_enchantments.rsplit(',')
             for slot in range(MAX_ENCHANTMENTS):
                 entry = int(values[slot * 3 + 0])
+                if from_db and not entry:
+                    continue
                 duration = int(values[slot * 3 + 1])
                 charges = int(values[slot * 3 + 2])
                 self.set_item_enchantment(item, slot, entry, duration, charges)
@@ -68,7 +70,7 @@ class EnchantmentManager(object):
                     continue
                 # Initialize enchantments from db state if needed.
                 if load:
-                    self.load_enchantments_for_item(item)
+                    self.load_enchantments_for_item(item, from_db=True)
                 else:
                     for enchantment_slot, enchantment in enumerate(item.enchantments):
                         self.set_item_enchantment(item, enchantment_slot, enchantment.entry, enchantment.duration,

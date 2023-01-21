@@ -203,6 +203,30 @@ class SpellManager:
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
+    def handle_equipment_change(self):
+        casting_spell = self.get_casting_spell()
+        if not casting_spell:
+            return
+
+        # No required item.
+        if casting_spell.spell_entry.EquippedItemClass == -1:
+            return
+
+        attack_type = AttackTypes.RANGED_ATTACK if casting_spell.is_ranged_weapon_attack() else AttackTypes.BASE_ATTACK
+        weapon = self.caster.get_current_weapon_for_attack_type(attack_type)
+        # No weapon and spell requires it, interrupt.
+        if not weapon:
+            self.interrupt_casting_spell()
+            return
+
+        # Check if the current weapon satisfies spell requirements.
+        required_item_class = casting_spell.spell_entry.EquippedItemClass
+        required_item_subclass = casting_spell.spell_entry.EquippedItemSubclass
+        item_class = weapon.item_template.class_
+        item_subclass_mask = 1 << weapon.item_template.subclass
+        if required_item_class != item_class or not required_item_subclass & item_subclass_mask:
+            self.interrupt_casting_spell()
+
     def handle_item_cast_attempt(self, item, spell_target, target_mask):
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -1591,12 +1615,3 @@ class SpellManager:
                    pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
 
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
-
-    # TODO This doesn't display anything to the client at the moment.
-    def send_cast_immune_result(self, target, casting_spell=None):
-        spell_id = casting_spell.spell_entry.ID if casting_spell else 0
-        miss_reason = SpellMissReason.MISS_REASON_IMMUNE
-        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-        combat_log_data = pack('<i2Q2i', SpellHitFlags.NONE, self.caster.guid, target.guid, spell_id, miss_reason)
-        miss_packet = PacketWriter.get_packet(OpCode.SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS, combat_log_data)
-        MapManager.send_surrounding(miss_packet, self.caster, include_self=is_player)

@@ -794,20 +794,6 @@ class UnitManager(ObjectManager):
         else:
             miss_reason, hit_flags = SpellMissReason.MISS_REASON_NONE, SpellHitFlags.NONE
 
-        # Overwrite if evading.
-        if target.is_evading:
-            miss_reason = SpellMissReason.MISS_REASON_EVADED
-        # Overwrite if sanctuary.
-        if target.unit_state & UnitStates.SANCTUARY:
-            miss_reason = SpellMissReason.MISS_REASON_IMMUNE
-
-        # TODO This and evade should be written in spell target results instead.
-        # Overwrite on immune.
-        if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            if target.handle_immunity(self, SpellImmunity.IMMUNITY_DAMAGE, spell.spell_entry.School,
-                                      casting_spell=spell):
-                miss_reason = SpellMissReason.MISS_REASON_IMMUNE
-
         damage_info = self.calculate_spell_damage(damage, miss_reason, hit_flags, spell_effect, target)
 
         is_cast_on_swing = spell.casts_on_swing()
@@ -1327,7 +1313,6 @@ class UnitManager(ObjectManager):
         if self.has_immunity(immunity_type, immunity_arg, is_mask=is_mask) or \
             (immunity_type == SpellImmunity.IMMUNITY_DAMAGE and
                 self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, immunity_arg, is_mask=is_mask)):
-            self.spell_manager.send_cast_immune_result(source, casting_spell)
             return True
 
         return False

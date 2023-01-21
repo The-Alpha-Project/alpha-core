@@ -20,6 +20,11 @@ class GameObjectBuilder:
         gameobject_instance.entry = gobject_template.entry
         gameobject_instance.guid = gameobject_instance.generate_object_guid(GameObjectBuilder.GUID_MANAGER.get_new_guid())
         gameobject_instance.gobject_template = gobject_template
+        gameobject_instance.map_id = map_id if not summoner else summoner.map_id
+        gameobject_instance.instance_id = instance_id if not summoner else summoner.instance_id
+        gameobject_instance.zone = summoner.zone if summoner else 0
+        gameobject_instance.summoner = summoner
+        gameobject_instance.spell_id = spell_id
 
         # Initialize from gameobject template.
         gameobject_instance.initialize_from_gameobject_template(gobject_template)
@@ -31,11 +36,6 @@ class GameObjectBuilder:
         gameobject_instance.rot1 = rot1
         gameobject_instance.rot2 = rot2
         gameobject_instance.rot3 = rot3
-        gameobject_instance.map_id = map_id if not summoner else summoner.map_id
-        gameobject_instance.instance_id = instance_id if not summoner else summoner.instance_id
-        gameobject_instance.zone = summoner.zone if summoner else 0
-        gameobject_instance.summoner = summoner
-        gameobject_instance.spell_id = spell_id
         gameobject_instance.state = state
         gameobject_instance.time_to_live_timer = ttl
 
