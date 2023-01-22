@@ -758,6 +758,14 @@ class AuraEffectHandler:
                                                          percentual=True)
 
     @staticmethod
+    def handle_mod_hit_chance(aura, effect_target, remove):
+        if remove:
+            effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
+            return
+        amount = aura.get_effect_points() / 100
+        effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HIT_CHANCE, amount)
+
+    @staticmethod
     def handle_mod_parry_chance(aura, effect_target, remove):
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index, percentual=False)
@@ -858,7 +866,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_ATTACKSPEED: AuraEffectHandler.handle_mod_attack_speed,
     AuraTypes.SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK: AuraEffectHandler.handle_mod_casting_speed,
 
-
+    AuraTypes.SPELL_AURA_MOD_HIT_CHANCE: AuraEffectHandler.handle_mod_hit_chance,
     AuraTypes.SPELL_AURA_MOD_PARRY_PERCENT: AuraEffectHandler.handle_mod_parry_chance,
     AuraTypes.SPELL_AURA_MOD_DODGE_PERCENT: AuraEffectHandler.handle_mod_dodge_chance,
     AuraTypes.SPELL_AURA_MOD_BLOCK_PERCENT: AuraEffectHandler.handle_mod_block_chance,
