@@ -202,7 +202,7 @@ class SpellEffectHandler:
 
         # Determine the effective amount to be burned in order to apply damage later.
         current_power_amount = target.get_power_value(power_type)
-        effective_amount = max(0, min(current_power_amount, current_power_amount - amount))
+        effective_amount = current_power_amount - max(0, (current_power_amount - amount))
 
         # Remove power from the target.
         target.receive_power(-amount, power_type)
@@ -220,7 +220,7 @@ class SpellEffectHandler:
 
         # Determine the effective amount to be drained in order to restore power to the caster later.
         current_power_amount = target.get_power_value(power_type)
-        effective_amount = max(0, min(current_power_amount, current_power_amount - amount))
+        effective_amount = current_power_amount - max(0, (current_power_amount - amount))
 
         # Remove power from the target.
         target.receive_power(-amount, power_type)
