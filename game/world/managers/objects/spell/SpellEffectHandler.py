@@ -196,10 +196,19 @@ class SpellEffectHandler:
     def handle_power_burn(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
+
         power_type = effect.misc_value
         amount = effect.get_effect_points()
+
+        # Determine the effective amount to be drained in order to apply damage later.
+        current_power_amount = target.get_power_value(power_type)
+        effective_amount = max(0, min(current_power_amount, current_power_amount - amount))
+
+        # Remove power from the target.
         target.receive_power(-amount, power_type)
-        caster.receive_power(amount, power_type, source=target)
+
+        # Apply damage as per description (1 HP point per power drained).
+        caster.apply_spell_damage(target, effective_amount, effect)
 
     @staticmethod
     def handle_health_leech(casting_spell, effect, caster, target):
