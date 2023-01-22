@@ -762,7 +762,6 @@ class AuraEffectHandler:
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
-
         amount = aura.get_effect_points() / 100
         effect_target.stat_manager.apply_aura_stat_bonus(aura.index, UnitStats.HIT_CHANCE, amount)
 
