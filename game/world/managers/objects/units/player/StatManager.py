@@ -52,6 +52,7 @@ class UnitStats(IntFlag):
 
     PROC_CHANCE = auto()
 
+    HIT_CHANCE = auto()
     MELEE_CRITICAL = auto()
     SPELL_CRITICAL = auto()
     SPELL_SCHOOL_CRITICAL = auto()
@@ -708,6 +709,11 @@ class StatManager(object):
             #  2% + 0.4% if defense rating is >10 points higher than attack rating, otherwise 0.1%.
             miss_chance += rating_difference * 0.001 if rating_difference <= 10 else \
                 0.02 + (rating_difference - 10) * 0.004
+
+        hit_chance_mod = attacker.stat_manager.get_total_stat(UnitStats.HIT_CHANCE, accept_negative=True,
+                                                              accept_float=True)
+        if hit_chance_mod:
+            miss_chance -= hit_chance_mod
 
         # Prior to version 1.8, dual wield's miss chance had a hard cap of 19%,
         # meaning that all dual-wield auto-attacks had a minimum 19% miss chance
