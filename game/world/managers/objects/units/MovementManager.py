@@ -17,29 +17,18 @@ class MovementManager:
             return
 
         pending_spline = self.pending_splines[0]
-        position_changed = pending_spline.update(elapsed)
+        position_changed, new_position = pending_spline.update(elapsed)
 
         if position_changed:
-            self.unit.location.x = pending_spline.last_location.x
-            self.unit.location.y = pending_spline.last_location.y
-            self.unit.location.z = pending_spline.last_location.z
+            self.unit.location = new_position
             self.unit.set_has_moved(has_moved=True, has_turned=False)
             if self.is_player and self.unit.pending_taxi_destination:
                 self.unit.taxi_manager.update_flight_state()
 
         if pending_spline.is_complete():
-            if self.is_player and self.unit.pending_taxi_destination:
-                self.unit.set_taxi_flying_state(False)
-                self.unit.teleport(self.unit.map_id, self.unit.pending_taxi_destination, is_instant=True)
-                self.unit.pending_taxi_destination = None
-                self.unit.taxi_manager.update_flight_state()
-
-            if not self.is_player:
-                if self.unit.is_evading:
-                    self.unit.is_evading = False
-                if self.unit.is_at_home() and self.unit.movement_spline.is_type(SplineType.SPLINE_TYPE_NORMAL):
-                    self.unit.on_at_home()
-
+            if pending_spline.is_flight():
+                self._handle_flight_end()
+            self._handle_spline_end()
             self.reset()
 
     def reset(self):
@@ -49,10 +38,10 @@ class MovementManager:
     def get_pending_waypoints_length(self):
         return 0 if not self.pending_splines else self.pending_splines[0].get_pending_waypoints_length()
 
-    def get_moving_to_location(self):
+    def get_waypoint_location(self):
         if not self.pending_splines:
             return self.unit.location
-        return self.pending_splines[0].get_moving_to_location()
+        return self.pending_splines[0].get_waypoint_location()
 
     def unit_is_moving(self):
         if self.is_player:
@@ -63,6 +52,23 @@ class MovementManager:
         if not self.pending_splines:
             return None
         return self.pending_splines[0].try_build_movement_packet(waypoints, is_initial)
+
+    def _handle_spline_end(self):
+        if self.is_player:
+            return
+        if self.unit.is_evading:
+            self.unit.is_evading = False
+        if self.unit.is_at_home() and self.unit.movement_spline.is_type(SplineType.SPLINE_TYPE_NORMAL):
+            print('At home')
+            self.unit.on_at_home()
+
+    def _handle_flight_end(self):
+        if not self.is_player and not self.unit.pending_taxi_destination:
+            return
+        self.unit.set_taxi_flying_state(False)
+        self.unit.teleport(self.unit.map_id, self.unit.pending_taxi_destination, is_instant=True)
+        self.unit.pending_taxi_destination = None
+        self.unit.taxi_manager.update_flight_state()
 
     def send_move_normal(self, waypoints, speed, spline_flag, spline_type=SplineType.SPLINE_TYPE_NORMAL):
         if self.unit.movement_flags & MoveFlags.MOVEFLAG_ROOTED:

@@ -515,7 +515,7 @@ class CreatureManager(UnitManager):
             return
 
         if self.is_moving():
-            if self.movement_manager.get_moving_to_location().distance(combat_location) < 0.1:
+            if self.movement_manager.get_waypoint_location().distance(combat_location) < 0.1:
                 return
 
         # Use direct combat location if target is over water.

@@ -2,9 +2,11 @@ from struct import pack, unpack
 
 from game.world import WorldManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.units.movement.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
@@ -23,7 +25,6 @@ class MovementSpline(object):
         self.elapsed = elapsed
         self.total_time = total_time
         self.points = points
-        self.last_location = unit.location.copy()
         self.pending_waypoints: list[PendingWaypoint] = []
         self.total_waypoint_timer = 0
 
@@ -34,22 +35,33 @@ class MovementSpline(object):
             self.elapsed = self.total_time
 
         if not self.pending_waypoints:
-            return
+            return False, None
 
         current_waypoint = self.pending_waypoints[0]
-        current_waypoint.update(elapsed)
-
-        if self.total_waypoint_timer >= current_waypoint.expected_timestamp:
-            new_position = current_waypoint.location
+        is_complete = self.total_waypoint_timer >= current_waypoint.expected_timestamp
+        if is_complete:
             self.pending_waypoints.pop(0)
-        # Guess current position based on speed and time.
-        else:
-            guessed_distance = self.speed * current_waypoint.elapsed
-            new_position = self.unit.location.get_point_in_between(guessed_distance, current_waypoint.location,
-                                                                   map_id=self.unit.map_id)
 
-        self.last_location = new_position if new_position else self.last_location
-        return new_position is not None  # Position changed.
+        new_position = self._get_position(current_waypoint, elapsed, is_complete)
+
+        if new_position:
+            self._debug_position(new_position)
+
+        return new_position is not None, new_position  # Position changed.
+
+    def _get_position(self, pending_waypoint, elapsed, is_complete=False):
+        if is_complete:
+            return pending_waypoint.location
+        guessed_distance = self.speed * elapsed
+        return self.unit.location.get_point_in_between(guessed_distance, pending_waypoint.location,
+                                                       map_id=self.unit.map_id)
+
+    def _debug_position(self, location):
+        gameobject = GameObjectBuilder.create(76, location, self.unit.map_id, self.unit.instance_id,
+                                              GameObjectStates.GO_STATE_READY,
+                                              summoner=self.unit,
+                                              ttl=3)
+        MapManager.spawn_object(world_object_instance=gameobject)
 
     def is_complete(self):
         return not self.pending_waypoints and self.total_waypoint_timer >= self.total_time
@@ -57,10 +69,13 @@ class MovementSpline(object):
     def is_type(self, spline_type):
         return spline_type == self.spline_type
 
+    def is_flight(self):
+        return self.flags & SplineFlags.SPLINEFLAG_FLYING
+
     def get_pending_waypoints_length(self):
         return len(self.pending_waypoints)
 
-    def get_moving_to_location(self):
+    def get_waypoint_location(self):
         if not self.pending_waypoints:
             return self.unit.location
         return self.pending_waypoints[0].location
@@ -90,15 +105,15 @@ class MovementSpline(object):
         data = b''
         last_waypoint = self.unit.location.copy()
         self.total_time = 0
-        for waypoint in waypoints:
-            data += waypoint.to_bytes(include_orientation=False)
-            current_distance = last_waypoint.distance(waypoint)
+        for wp in waypoints:
+            data += wp.to_bytes(include_orientation=False)
+            current_distance = last_waypoint.distance(wp)
             # Avoid div by zero. e.g. Facing spline.
             current_time = 0 if not self.speed else current_distance / self.speed
             self.total_time += current_time
             if is_initial:
-                self.pending_waypoints.append(PendingWaypoint(len(self.pending_waypoints), self.total_time, waypoint))
-            last_waypoint = waypoint
+                self.pending_waypoints.append(PendingWaypoint(self, len(self.pending_waypoints), self.total_time, wp))
+            last_waypoint = wp
 
         # Player shouldn't instantly dismount after reaching the taxi destination, add 1 extra second.
         if is_initial and self.is_player and self.flags == SplineFlags.SPLINEFLAG_FLYING:
