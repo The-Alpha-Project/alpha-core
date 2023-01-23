@@ -46,6 +46,9 @@ class BasicCreatureAI(CreatureAI):
             # Sanctuary.
             if victim.unit_state & UnitStates.SANCTUARY:
                 return False
+            # Not while flying.
+            if victim.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+                return False
             # Check for stealth/invisibility.
             can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
             if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER:

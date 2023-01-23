@@ -1,0 +1,186 @@
+from struct import pack, unpack
+
+from game.world import WorldManager
+from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.units.movement.PendingWaypoint import PendingWaypoint
+from network.packet.PacketWriter import PacketWriter
+from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.OpCodes import OpCode
+from utils.constants.UnitCodes import SplineFlags, SplineType
+
+
+class MovementSpline(object):
+    def __init__(self, unit, spline_type=0, flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0, total_time=0,
+                 points=None):
+        self.unit = unit
+        self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+        self.spline_type = spline_type
+        self.flags = flags
+        self.spot = spot
+        self.guid = guid
+        self.facing = facing
+        self.speed = speed
+        self.elapsed = elapsed
+        self.total_time = total_time
+        self.points = points
+        self.last_location = unit.location.copy()
+        self.pending_waypoints: list[PendingWaypoint] = []
+        self.total_waypoint_timer = 0
+
+    def update(self, elapsed):
+        self.total_waypoint_timer += elapsed
+        self.elapsed += elapsed * 1000
+        if self.elapsed > self.total_time:
+            self.elapsed = self.total_time
+
+        if not self.pending_waypoints:
+            return
+
+        current_waypoint = self.pending_waypoints[0]
+        current_waypoint.update(elapsed)
+
+        if self.total_waypoint_timer >= current_waypoint.expected_timestamp:
+            new_position = current_waypoint.location
+            self.pending_waypoints.pop(0)
+        # Guess current position based on speed and time.
+        else:
+            guessed_distance = self.speed * current_waypoint.elapsed
+            new_position = self.unit.location.get_point_in_between(guessed_distance, current_waypoint.location,
+                                                                   map_id=self.unit.map_id)
+
+        self.last_location = new_position if new_position else self.last_location
+        return new_position is not None  # Position changed.
+
+    def is_complete(self):
+        return not self.pending_waypoints and self.total_waypoint_timer >= self.total_time
+
+    def is_type(self, spline_type):
+        return spline_type == self.spline_type
+
+    def get_pending_waypoints_length(self):
+        return len(self.pending_waypoints)
+
+    def get_moving_to_location(self):
+        if not self.pending_waypoints:
+            return self.unit.location
+        return self.pending_waypoints[0].location
+
+    def try_build_movement_packet(self, waypoints=None, is_initial=False):
+        # If this is a partial packet, use pending waypoints.
+        if not waypoints:
+            waypoints = [pending_wp.location for pending_wp in list(self.pending_waypoints)]
+
+        # Sending no waypoints crashes the client.
+        if len(waypoints) == 0:
+            return None
+
+        # Fill header.
+        data = self._get_header_bytes()
+
+        # Short circuit on stop spline.
+        if self.is_type(SplineType.SPLINE_TYPE_STOP):
+            return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
+
+        # Fill payload.
+        data += self._get_payload_bytes(waypoints, is_initial=is_initial)
+
+        return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
+
+    def _get_payload_bytes(self, waypoints, is_initial=False):
+        data = b''
+        last_waypoint = self.unit.location.copy()
+        self.total_time = 0
+        for waypoint in waypoints:
+            data += waypoint.to_bytes(include_orientation=False)
+            current_distance = last_waypoint.distance(waypoint)
+            # Avoid div by zero. e.g. Facing spline.
+            current_time = 0 if not self.speed else current_distance / self.speed
+            self.total_time += current_time
+            if is_initial:
+                self.pending_waypoints.append(PendingWaypoint(len(self.pending_waypoints), self.total_time, waypoint))
+            last_waypoint = waypoint
+
+        # Player shouldn't instantly dismount after reaching the taxi destination, add 1 extra second.
+        if is_initial and self.is_player and self.flags == SplineFlags.SPLINEFLAG_FLYING:
+            self.total_time += 1.0
+
+        return pack(
+            f'<I2I{len(data)}s',
+            self.flags,
+            int(self.total_time * 1000),
+            len(waypoints),
+            data
+        )
+
+    def _get_header_bytes(self):
+        start_time = int(WorldManager.get_seconds_since_startup() * 1000)
+        location_bytes = self.unit.location.to_bytes(include_orientation=False)
+        data = pack(
+            f'<Q{len(location_bytes)}sIB',
+            self.unit.guid,
+            location_bytes,
+            start_time,
+            self.spline_type
+        )
+        if self.is_type(SplineType.SPLINE_TYPE_FACING_SPOT):
+            spot_bytes = self.spot.to_bytes(include_orientation=False)
+            data += pack(f'<{len(location_bytes)}s', spot_bytes)
+        elif self.is_type(SplineType.SPLINE_TYPE_FACING_TARGET):
+            data += pack('<Q', self.guid)
+        elif self.is_type(SplineType.SPLINE_TYPE_FACING_ANGLE):
+            data += pack('<f', self.facing)
+        return data
+
+    @staticmethod
+    def from_bytes(unit, spline_bytes):
+        if len(spline_bytes < 42):
+            return None
+
+        bytes_read = 0
+
+        spline = MovementSpline(unit)
+        spline.flags = unpack('<I', spline_bytes[:4])[0]
+        bytes_read += 4
+
+        if spline.flags & SplineFlags.SPLINEFLAG_SPOT:
+            spline.spot = Vector.from_bytes(spline_bytes[bytes_read:12])
+            bytes_read += 12
+        if spline.flags & SplineFlags.SPLINEFLAG_TARGET:
+            spline.guid = unpack('<Q', spline_bytes[bytes_read:8])[0]
+            bytes_read += 8
+        if spline.flags & SplineFlags.SPLINEFLAG_FACING:
+            spline.facing = unpack('<f', spline_bytes[bytes_read:4])[0]
+            bytes_read += 4
+
+        spline.elapsed, spline.total_time = unpack('<2I', spline_bytes[bytes_read:8])
+        bytes_read += 8
+
+        points_length = unpack('<I', spline_bytes[bytes_read:4])[0]
+        bytes_read += 4
+        for i in range(points_length):
+            spline.points.append(Vector.from_bytes(spline_bytes[bytes_read:12]))
+            bytes_read += 12
+
+        return spline
+
+    def to_bytes(self):
+        data = pack('<I', self.flags)
+
+        if self.flags & SplineFlags.SPLINEFLAG_SPOT:
+            data += self.spot.to_bytes(include_orientation=False)
+        if self.flags & SplineFlags.SPLINEFLAG_TARGET:
+            data += pack('<Q', self.guid)
+        if self.flags & SplineFlags.SPLINEFLAG_FACING:
+            data += pack('<f', self.facing)
+
+        data += pack(
+            '<2Ii',
+            int(self.elapsed),
+            self.total_time,
+            len(self.points)
+        )
+
+        for point in self.points:
+            data += point.to_bytes(include_orientation=False)
+
+        return data

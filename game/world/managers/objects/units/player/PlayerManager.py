@@ -1625,7 +1625,7 @@ class PlayerManager(UnitManager):
             self.quest_manager.update(elapsed)
 
             # Waypoints (mostly flying paths) update.
-            self.movement_manager.update_pending_waypoints(elapsed)
+            self.movement_manager.update(elapsed)
 
             # Duel tick.
             if self.duel_manager:

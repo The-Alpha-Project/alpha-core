@@ -92,8 +92,8 @@ class TaxiManager(object):
 
     def update_flight_state(self):
         if self.owner.movement_manager.unit_is_moving():
-            current_waypoint = self.owner.movement_manager.pending_waypoints[0].location
-            waypoints_length = len(self.owner.movement_manager.pending_waypoints)
+            current_waypoint = self.owner.movement_manager.get_moving_to_location()
+            waypoints_length = self.owner.movement_manager.get_pending_waypoints_length()
             self.taxi_resume_info.update_fields(start_location=current_waypoint, remaining_wp=waypoints_length)
         else:
             self.taxi_resume_info.flush()

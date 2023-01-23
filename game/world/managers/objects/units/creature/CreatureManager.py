@@ -449,7 +449,7 @@ class CreatureManager(UnitManager):
         # Do not wander if dead, in combat, while evading or without wander flag.
         if self.is_alive and not self.in_combat and not self.is_evading and self.has_wander_type() and \
                 not self.unit_state & UnitStates.STUNNED:
-            if len(self.movement_manager.pending_waypoints) == 0:
+            if not self.is_moving():
                 if now > self.last_random_movement + self.random_movement_wait_time:
                     self.movement_manager.move_random(self.spawn_position, self.wander_distance)
                     self.random_movement_wait_time = randint(1, 12)
@@ -514,9 +514,8 @@ class CreatureManager(UnitManager):
         if round(target_distance) <= round(combat_position_distance) or self.location == combat_location:
             return
 
-        if len(self.movement_manager.pending_waypoints) > 0:
-            # Not underwater , avoid moving due floating point precision.
-            if self.movement_manager.pending_waypoints[0].location.distance(combat_location) < 0.1:
+        if self.is_moving():
+            if self.movement_manager.get_moving_to_location().distance(combat_location) < 0.1:
                 return
 
         # Use direct combat location if target is over water.
@@ -550,7 +549,7 @@ class CreatureManager(UnitManager):
                 # Sanctuary check.
                 self.update_sanctuary(elapsed)
                 # Movement Updates.
-                self.movement_manager.update_pending_waypoints(elapsed)
+                self.movement_manager.update(elapsed)
                 if self.has_moved or self.has_turned:
                     # Relocate only if x, y changed.
                     if self.has_moved:
