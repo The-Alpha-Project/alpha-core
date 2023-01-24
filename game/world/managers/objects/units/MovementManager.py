@@ -1,11 +1,14 @@
+import math
 import time
+from random import randint
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.maps.helpers.CellUtils import CellUtils
 from game.world.managers.objects.units.movement.MovementSpline import MovementSpline
 from utils.ConfigManager import config
+from utils.Formulas import UnitFormulas, Distances
+from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveFlags, ObjectTypeIds
-from utils.constants.UnitCodes import SplineFlags, SplineType
+from utils.constants.UnitCodes import SplineFlags, SplineType, UnitStates, UnitFlags
 
 
 class MovementManager:
@@ -13,8 +16,16 @@ class MovementManager:
         self.unit = unit
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.pending_splines: list[MovementSpline] = []
+        self.last_random_movement = 0
+        self.random_movement_wait_time = randint(1, 12)
 
-    def update(self, elapsed):
+    def update(self, now, elapsed):
+
+        if self._can_perform_wandering(self.unit, now):
+            self._perform_random_movement(self.unit, now)
+        elif self._can_perform_combat_chase(self.unit):
+            self._perform_combat_chase_movement(self.unit)
+
         if not self.pending_splines:
             return
 
@@ -31,6 +42,95 @@ class MovementManager:
             self.pending_splines.pop(0)
             self._handle_flight_end(pending_spline)
             self._handle_spline_end(pending_spline)
+
+    def _perform_random_movement(self, unit, now):
+        self.move_random(unit.spawn_position, unit.wander_distance)
+        self.random_movement_wait_time = randint(1, 12)
+        self.last_random_movement = now
+
+    # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
+    #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
+    #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
+    #  couldn't swim before patch 1.3.0:
+    #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
+    #   - Most humanoids NPCs have gained the ability to swim.
+    #  This might only refer to creatures not having swimming animations.
+    def _perform_combat_chase_movement(self, unit):
+        # Check if target is player and is online.
+        target_is_player = unit.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER
+        if target_is_player and not unit.combat_target.online:
+            unit.threat_manager.remove_unit_threat(unit.combat_target)
+            return
+
+        spawn_distance = unit.location.distance(unit.spawn_position)
+        target_distance = unit.location.distance(unit.combat_target.location)
+        combat_position_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
+        target_under_water = unit.combat_target.is_under_water()
+
+        if not unit.is_pet():
+            # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
+            # From 0.5.4 patch notes:
+            #     "Creature pursuit is now timer based rather than distance based."
+            if spawn_distance > Distances.CREATURE_EVADE_DISTANCE \
+                    or target_distance > Distances.CREATURE_EVADE_DISTANCE:
+                unit.threat_manager.remove_unit_threat(unit.combat_target)
+                return
+
+            # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
+            #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
+            #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
+            #  couldn't swim before patch 1.3.0:
+            #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
+            #   - Most humanoids NPCs have gained the ability to swim.
+            if unit.is_under_water():
+                if not unit.can_swim():
+                    unit.threat_manager.remove_unit_threat(unit.combat_target)
+                    return
+                if not unit.can_exit_water() and not target_under_water:
+                    unit.threat_manager.remove_unit_threat(unit.combat_target)
+                    return
+
+        # If this creature is not facing the attacker, update its orientation.
+        if not unit.location.has_in_arc(unit.combat_target.location, math.pi):
+            unit.movement_manager.send_face_target(unit.combat_target)
+
+        combat_location = unit.combat_target.location.get_point_in_between(combat_position_distance, vector=unit.location)
+        if not combat_location:
+            return
+
+        # Target is within combat distance or already in combat location, don't move.
+        if round(target_distance) <= round(combat_position_distance) or unit.location == combat_location:
+            return
+
+        if unit.is_moving():
+            if unit.movement_manager.get_waypoint_location().distance(combat_location) < 0.1:
+                return
+
+        # Use direct combat location if target is over water.
+        if not target_under_water:
+            failed, in_place, path = MapManager.calculate_path(unit.map_id, unit.location.copy(), combat_location)
+            if not failed and not in_place:
+                combat_location = path[0]
+            elif in_place:
+                return
+            # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
+            elif MapManager.NAMIGATOR_LOADED:
+                Logger.warning(f'Unable to find navigation path, map {unit.map_id} loc {unit.location} end {combat_location}')
+
+        self.send_move_normal([combat_location], unit.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
+
+    # noinspection PyMethodMayBeStatic
+    def _can_perform_combat_chase(self, unit):
+        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_totem() \
+            and unit.combat_target and not unit.is_evading and unit.combat_target.is_alive \
+            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED
+
+    # noinspection PyMethodMayBeStatic
+    def _can_perform_wandering(self, unit, now):
+        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
+            and not unit.in_combat and not unit.is_evading and unit.has_wander_type() \
+            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
+            and now > self.last_random_movement + self.random_movement_wait_time
 
     def reset(self):
         # If currently moving, update the current spline before flushing.
@@ -170,14 +270,11 @@ class MovementManager:
     def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
         random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_id)
         failed, in_place, path = MapManager.calculate_path(self.unit.map_id, start_position, random_point)
-        if failed or len(path) > 2 or in_place:
+        if failed or len(path) > 1 or in_place:
             return
 
-        random_point = path[0]
-        # Don't move if the destination is not an active cell.
-        new_cell_coords = CellUtils.get_cell_key(random_point.x, random_point.y, self.unit.map_id, self.unit.instance_id)
         map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
-        if self.unit.current_cell != new_cell_coords and not map_.is_active_cell(new_cell_coords):
+        if not map_.is_active_cell_for_location(random_point):
             return
 
         self.send_move_normal([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)

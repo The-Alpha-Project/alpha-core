@@ -54,6 +54,9 @@ class Map:
     def is_active_cell(self, cell_coords):
         return self.grid_manager.is_active_cell(cell_coords)
 
+    def is_active_cell_for_location(self, location):
+        return self.grid_manager.is_active_cell_for_location(location)
+
     def spawn_object(self, world_object_spawn=None, world_object_instance=None):
         self.grid_manager.spawn_object(world_object_spawn, world_object_instance)
 

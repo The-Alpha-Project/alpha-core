@@ -76,6 +76,10 @@ class GridManager:
     def is_active_cell(self, cell_key):
         return cell_key in self.active_cell_keys
 
+    def is_active_cell_for_location(self, location):
+        cell_key = CellUtils.get_cell_key(location.x, location.y, self.map_id, self.instance_id)
+        return self.is_active_cell(cell_key)
+
     # TODO: Should cleanup loaded tiles for deactivated cells.
     def deactivate_cells(self):
         with self.grid_lock:
