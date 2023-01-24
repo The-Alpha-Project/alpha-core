@@ -6,6 +6,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.units.movement.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
+from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
@@ -44,7 +45,7 @@ class MovementSpline(object):
 
         new_position = self._get_position(current_waypoint, elapsed, is_complete)
 
-        if new_position:
+        if new_position and config.Server.Settings.debug_movement:
             self._debug_position(new_position)
 
         return new_position is not None, new_position  # Position changed.
@@ -57,10 +58,10 @@ class MovementSpline(object):
                                                        map_id=self.unit.map_id)
 
     def _debug_position(self, location):
-        gameobject = GameObjectBuilder.create(76, location, self.unit.map_id, self.unit.instance_id,
+        gameobject = GameObjectBuilder.create(2555, location, self.unit.map_id, self.unit.instance_id,
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=self.unit,
-                                              ttl=3)
+                                              ttl=1)
         MapManager.spawn_object(world_object_instance=gameobject)
 
     def is_complete(self):

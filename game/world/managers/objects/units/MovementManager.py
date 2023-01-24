@@ -1,3 +1,5 @@
+import time
+
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.helpers.CellUtils import CellUtils
 from game.world.managers.objects.units.movement.MovementSpline import MovementSpline
@@ -31,6 +33,9 @@ class MovementManager:
             self._handle_spline_end(pending_spline)
 
     def reset(self):
+        # If currently moving, update the current spline before flushing.
+        if self.pending_splines:
+            self.pending_splines[0].update(time.time() - self.unit.last_tick)
         self.pending_splines.clear()
         self.unit.movement_spline = None
 
