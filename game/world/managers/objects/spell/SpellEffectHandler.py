@@ -26,7 +26,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     GameObjectStates, DynamicObjectTypes
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, UnitStates
 
 
 class SpellEffectHandler:
@@ -683,6 +683,17 @@ class SpellEffectHandler:
         target.threat_manager.add_threat(caster, threat)
 
     @staticmethod
+    def handle_distract(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        if target.combat_target or target.unit_state & UnitStates.DISTRACTED:
+            return
+
+        duration = casting_spell.get_duration() / 1000
+        target.movement_manager.set_distracted(duration, source_unit=caster)
+
+    @staticmethod
     def handle_interrupt_cast(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -923,6 +934,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_THREAT: SpellEffectHandler.handle_threat,
     SpellEffects.SPELL_EFFECT_STUCK: SpellEffectHandler.handle_stuck,
     SpellEffects.SPELL_EFFECT_INTERRUPT_CAST: SpellEffectHandler.handle_interrupt_cast,
+    SpellEffects.SPELL_EFFECT_DISTRACT: SpellEffectHandler.handle_distract,
+
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

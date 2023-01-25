@@ -431,6 +431,9 @@ class ObjectManager:
                 target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
             return False
 
+        if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+            return False
+
         # Unit vs Player only checks.
         if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # If player is on a flying path.

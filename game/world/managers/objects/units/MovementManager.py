@@ -16,15 +16,21 @@ class MovementManager:
         self.unit = unit
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.pending_splines: list[MovementSpline] = []
+        self.distracted_timer = 0
+        self.fear_timer = 0
         self.last_random_movement = 0
-        self.random_movement_wait_time = randint(1, 12)
+        self.random_wait_time = randint(1, 12)
 
     def update(self, now, elapsed):
+        if self._should_remove_distracted(elapsed):
+            self.set_distracted(0)
 
         if self._can_perform_wandering(self.unit, now):
             self._perform_random_movement(self.unit, now)
         elif self._can_perform_combat_chase(self.unit):
             self._perform_combat_chase_movement(self.unit)
+        elif self._can_perform_fear(self.unit, now):
+            self._perform_fear_movement(now)
 
         if not self.pending_splines:
             return
@@ -43,10 +49,35 @@ class MovementManager:
             self._handle_flight_end(pending_spline)
             self._handle_spline_end(pending_spline)
 
+    def _perform_fear_movement(self, now):
+        if self._move_fear():
+            self.random_wait_time = self.pending_splines[0].total_time
+            self.last_random_movement = now
+            self.fear_timer = 0
+
     def _perform_random_movement(self, unit, now):
-        self.move_random(unit.spawn_position, unit.wander_distance)
-        self.random_movement_wait_time = randint(1, 12)
-        self.last_random_movement = now
+        if self._move_random(unit.spawn_position, unit.wander_distance):
+            self.random_wait_time = randint(1, 12)
+            self.last_random_movement = now
+
+    def _move_fear(self, speed=config.Unit.Defaults.run_speed):
+        fear_point = self.unit.location.get_point_in_radius_and_angle(speed * self.fear_timer, 0)
+        self.send_move_normal([fear_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
+        return True
+
+    # TODO: Namigator: FindRandomPointAroundCircle (Detour)
+    def _move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
+        random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_id)
+        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, start_position, random_point)
+        if failed or len(path) > 1 or in_place:
+            return False
+
+        map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
+        if not map_.is_active_cell_for_location(random_point):
+            return False
+
+        self.send_move_normal([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
+        return True
 
     # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
     #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
@@ -120,17 +151,47 @@ class MovementManager:
         self.send_move_normal([combat_location], unit.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # noinspection PyMethodMayBeStatic
+    def _can_perform_fear(self, unit, now):
+        return self.fear_timer and unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
+            and now > self.last_random_movement + self.random_wait_time
+
+    # noinspection PyMethodMayBeStatic
     def _can_perform_combat_chase(self, unit):
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_totem() \
             and unit.combat_target and not unit.is_evading and unit.combat_target.is_alive \
-            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED
+            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
+            and not unit.unit_state & UnitStates.DISTRACTED \
+            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
     # noinspection PyMethodMayBeStatic
     def _can_perform_wandering(self, unit, now):
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
-            and not unit.in_combat and not unit.is_evading and unit.has_wander_type() \
+            and not unit.combat_target and not unit.is_evading and unit.has_wander_type() \
             and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_random_movement + self.random_movement_wait_time
+            and now > self.last_random_movement + self.random_wait_time \
+            and not unit.unit_state & UnitStates.DISTRACTED \
+            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+
+    def _should_remove_distracted(self, elapsed):
+        if not self.unit.unit_state & UnitStates.DISTRACTED:
+            return False
+        self.distracted_timer = max(0, self.distracted_timer - elapsed)
+        return self.unit.combat_target or not self.distracted_timer
+
+    def set_feared(self, duration=0):
+        self.fear_timer = duration
+
+    def set_distracted(self, duration, source_unit=None):
+        if duration:
+            self.distracted_timer = duration
+            self.unit.unit_state |= UnitStates.DISTRACTED
+            self.send_face_target(source_unit)
+        else:
+            self.unit.unit_state &= ~UnitStates.DISTRACTED
+            # Restore original spawn orientation.
+            if not self.is_player and not self.unit.has_wander_type():
+                self.unit.location.o = self.unit.spawn_position.o
+                self.send_face_target(self.unit)
 
     def reset(self):
         # If currently moving, update the current spline before flushing.
@@ -265,16 +326,3 @@ class MovementManager:
         if packet:
             MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
             self.pending_splines.append(spline)
-
-    # TODO: Namigator: FindRandomPointAroundCircle (Detour)
-    def move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
-        random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_id)
-        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, start_position, random_point)
-        if failed or len(path) > 1 or in_place:
-            return
-
-        map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
-        if not map_.is_active_cell_for_location(random_point):
-            return
-
-        self.send_move_normal([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
