@@ -126,6 +126,8 @@ class ThreatManager:
         return False
 
     def resolve_target(self):
+        if not self.can_resolve_target():
+            return None
         if len(self.holders) > 0:
             return self.get_hostile_target()
         return None
@@ -192,6 +194,18 @@ class ThreatManager:
             for unit in helping_units:
                 unit.threat_manager.add_threat(source, threat, is_call_for_help=True)
 
+    def can_resolve_target(self):
+        if self.owner.unit_state & UnitStates.STUNNED:
+            return False
+        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+            return False
+        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED:
+            return False
+        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+            return False
+
+        return True
+
     # 0.5.3 has no faction template flags.
     def unit_can_assist_help_call(self, unit, source):
         if unit == self.owner:
@@ -201,6 +215,8 @@ class ThreatManager:
         elif unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
         elif unit.unit_state & UnitStates.STUNNED:
+            return False
+        elif unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
             return False
         elif self.owner.faction != unit.faction and self.owner.is_hostile_to(unit):
             return False

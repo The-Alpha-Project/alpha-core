@@ -39,6 +39,8 @@ class MovementSpline(object):
             return False, None
 
         current_waypoint = self.pending_waypoints[0]
+        self.unit.location.face_point(current_waypoint.location)
+
         is_complete = self.total_waypoint_timer >= current_waypoint.expected_timestamp
         if is_complete:
             self.pending_waypoints.pop(0)
@@ -140,7 +142,7 @@ class MovementSpline(object):
         )
         if self.is_type(SplineType.SPLINE_TYPE_FACING_SPOT):
             spot_bytes = self.spot.to_bytes(include_orientation=False)
-            data += pack(f'<{len(location_bytes)}s', spot_bytes)
+            data += pack(f'<{len(spot_bytes)}s', spot_bytes)
         elif self.is_type(SplineType.SPLINE_TYPE_FACING_TARGET):
             data += pack('<Q', self.guid)
         elif self.is_type(SplineType.SPLINE_TYPE_FACING_ANGLE):

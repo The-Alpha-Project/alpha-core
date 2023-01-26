@@ -152,7 +152,7 @@ class MovementManager:
 
     # noinspection PyMethodMayBeStatic
     def _can_perform_fear(self, unit, now):
-        return self.fear_timer and unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
+        return unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
             and now > self.last_random_movement + self.random_wait_time
 
     # noinspection PyMethodMayBeStatic
@@ -180,12 +180,15 @@ class MovementManager:
 
     def set_feared(self, duration=0):
         self.fear_timer = duration
+        if duration:
+            self.reset()
 
-    def set_distracted(self, duration, source_unit=None):
+    def set_distracted(self, duration, location=None):
         if duration:
             self.distracted_timer = duration
             self.unit.unit_state |= UnitStates.DISTRACTED
-            self.send_face_target(source_unit)
+            # TODO: Use spot SplineType, currently crashes.
+            self.send_face_angle(self.unit.location.angle(location))
         else:
             self.unit.unit_state &= ~UnitStates.DISTRACTED
             # Restore original spawn orientation.
@@ -197,6 +200,8 @@ class MovementManager:
         # If currently moving, update the current spline before flushing.
         if self.pending_splines:
             self.pending_splines[0].update(time.time() - self.unit.last_tick)
+        self.last_random_movement = 0
+        self.random_wait_time = 0
         self.pending_splines.clear()
         self.unit.movement_spline = None
 
@@ -237,6 +242,9 @@ class MovementManager:
     def send_move_normal(self, waypoints, speed, spline_flag, spline_type=SplineType.SPLINE_TYPE_NORMAL):
         if self.unit.movement_flags & MoveFlags.MOVEFLAG_ROOTED:
             return
+
+        # Face destination vector.
+        self.unit.location.face_point(waypoints[0])
 
         # Generate movement spline.
         spline = MovementSpline(
@@ -326,3 +334,5 @@ class MovementManager:
         if packet:
             MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
             self.pending_splines.append(spline)
+        else:
+            print('FAILED')
