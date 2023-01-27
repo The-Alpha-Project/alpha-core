@@ -4,6 +4,7 @@ from random import randint
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.MovementSpline import MovementSpline
+from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
@@ -29,7 +30,7 @@ class MovementManager:
             self._perform_random_movement(self.unit, now)
         elif self._can_perform_combat_chase(self.unit):
             self._perform_combat_chase_movement(self.unit)
-        elif self._can_perform_fear(self.unit, now):
+        elif self._can_perform_fear(self.unit, elapsed, now):
             self._perform_fear_movement(now)
 
         if not self.pending_splines:
@@ -53,14 +54,14 @@ class MovementManager:
         if self._move_fear():
             self.random_wait_time = self.pending_splines[0].total_time
             self.last_random_movement = now
-            self.fear_timer = 0
 
     def _perform_random_movement(self, unit, now):
         if self._move_random(unit.spawn_position, unit.wander_distance):
             self.random_wait_time = randint(1, 12)
             self.last_random_movement = now
 
-    def _move_fear(self, speed=config.Unit.Defaults.run_speed):
+    def _move_fear(self):
+        speed = self.unit.running_speed
         fear_point = self.unit.location.get_point_in_radius_and_angle(speed * self.fear_timer, 0)
         self.send_move_normal([fear_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
         return True
@@ -151,8 +152,10 @@ class MovementManager:
         self.send_move_normal([combat_location], unit.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     # noinspection PyMethodMayBeStatic
-    def _can_perform_fear(self, unit, now):
-        return unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
+    def _can_perform_fear(self, unit, elapsed, now):
+        if self.fear_timer:
+            self.fear_timer = max(0, self.fear_timer - elapsed)
+        return self.fear_timer and unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
             and now > self.last_random_movement + self.random_wait_time
 
     # noinspection PyMethodMayBeStatic
@@ -178,10 +181,14 @@ class MovementManager:
         self.distracted_timer = max(0, self.distracted_timer - elapsed)
         return self.unit.combat_target or not self.distracted_timer
 
+    def update_speed(self):
+        self.random_wait_time = 0
+
     def set_feared(self, duration=0):
         self.fear_timer = duration
-        if duration:
-            self.reset()
+        self.reset()
+        if not duration:
+            self.send_move_stop()
 
     def set_distracted(self, duration, location=None):
         if duration:
@@ -215,7 +222,7 @@ class MovementManager:
 
     def unit_is_moving(self):
         if self.is_player:
-            return self.pending_splines and self.unit.pending_taxi_destination is not None
+            return self.pending_splines or self.unit.pending_taxi_destination is not None
         return self.pending_splines
 
     def try_build_movement_packet(self, waypoints=None, is_initial=False):
@@ -334,5 +341,3 @@ class MovementManager:
         if packet:
             MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
             self.pending_splines.append(spline)
-        else:
-            print('FAILED')

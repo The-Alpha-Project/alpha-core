@@ -15,8 +15,9 @@ class Map:
 
     def initialize(self):
         # Load creatures and gameobjects.
-        self._load_map_creatures()
+        #self._load_map_creatures()
         #self._load_map_gameobjects()
+        pass
 
     def _load_map_creatures(self):
         from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn

@@ -296,6 +296,7 @@ class AuraEffectHandler:
     def handle_mod_fear(aura, effect_target, remove):
         if remove:
             effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_FLEEING
+            effect_target.movement_manager.set_feared(0)
         else:
             if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 effect_target.interrupt_looting()

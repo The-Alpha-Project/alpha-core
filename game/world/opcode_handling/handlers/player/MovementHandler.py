@@ -34,6 +34,7 @@ class MovementHandler:
                     player_mgr.teleport(player_mgr.map_id, player_mgr.location, is_instant=True)
                     return 0
 
+                unit_collide = reader.opcode in {OpCode.MSG_MOVE_COLLIDE_REDIRECT, OpCode.MSG_MOVE_COLLIDE_STUCK}
                 unit_jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
                 unit_moved = flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) != 0
                 unit_turned = flags & MoveFlags.MOVEFLAG_TURN_MASK != 0
@@ -70,6 +71,11 @@ class MovementHandler:
                 unit_mover.location.o = o
                 unit_mover.pitch = pitch
                 unit_mover.movement_flags = flags
+
+                if unit_collide:
+                    unit_mover.movement_flags |= MoveFlags.MOVEFLAG_REDIRECTED
+                else:
+                    unit_mover.movement_flags &= ~MoveFlags.MOVEFLAG_REDIRECTED
 
                 unit_mover.set_has_moved(has_moved=unit_moved or unit_jumped, has_turned=unit_turned)
 

@@ -616,7 +616,6 @@ class PlayerManager(UnitManager):
         if self.spell_manager.is_casting():
             self.spell_manager.remove_casts(remove_active=False)
 
-        # TODO: Stop any movement, rotation?
         previous_failed = self.pending_teleport_data and self.pending_teleport_data.failed
 
         # If the previous attempt failed, we are reversing that teleport using the existent data.

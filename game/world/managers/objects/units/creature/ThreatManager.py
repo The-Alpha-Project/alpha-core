@@ -195,6 +195,8 @@ class ThreatManager:
                 unit.threat_manager.add_threat(source, threat, is_call_for_help=True)
 
     def can_resolve_target(self):
+        if not self.owner.is_alive:
+            return False
         if self.owner.unit_state & UnitStates.STUNNED:
             return False
         elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:

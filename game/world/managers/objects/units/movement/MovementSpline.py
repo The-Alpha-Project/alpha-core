@@ -7,7 +7,7 @@ from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObject
 from game.world.managers.objects.units.movement.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates
+from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
@@ -53,6 +53,9 @@ class MovementSpline(object):
         return new_position is not None, new_position  # Position changed.
 
     def _get_position(self, pending_waypoint, elapsed, is_complete=False):
+        # Handle players collision due wrong pathing.
+        if self.unit.movement_flags & MoveFlags.MOVEFLAG_REDIRECTED:
+            return self.unit.location
         if is_complete:
             return pending_waypoint.location
         guessed_distance = self.speed * elapsed
