@@ -122,7 +122,7 @@ class PetAI(CreatureAI):
     def command_state_update(self):
         if not self.creature.combat_target:
             self.creature.stop_movement()
-            self.creature.movement_manager.pending_waypoints.clear()
+            self.creature.movement_manager.reset()
 
         if self._get_command_state() != PetCommandState.COMMAND_ATTACK:
             self.creature.attack_stop()  # Always stop attacking if new state isn't attack.
