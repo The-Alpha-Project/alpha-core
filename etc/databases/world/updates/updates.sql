@@ -16538,5 +16538,13 @@ begin not atomic
         (3910, 1421, 0, 0, 0, 0, 'Statis Totem II', NULL, 1101062, 0, 34, 34, 5, 5, 0, 0, 0, 35, 0, 1, 1, 0, 18, 5, 0, 0, 1, 9, 9, 0, 138, 1, 2000, 2000, 1, 0, 0, 0, 0, 0, 0, 0, 51.128, 70.301, 100, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6475, 0, 0, 0, 0, 0, NULL, 13, 67, '', 0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, '');
         insert into applied_updates values ('150120231');
     end if;
+
+    -- 26/01/2023 1
+    if (select count(*) from applied_updates where id='260120231') = 0 then
+        -- "Update Coyote Packleader display_id based on sniffs.
+        UPDATE `creature_template` SET `display_id1` = 643 WHERE `entry` = 833;
+
+        insert into applied_updates values ('260120231');
+    end if;
 end $
 delimiter ;
