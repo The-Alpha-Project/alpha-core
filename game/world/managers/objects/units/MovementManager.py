@@ -64,12 +64,13 @@ class MovementManager:
         self.wait_time = self.pending_splines[-1].total_time
         self.last_movement = now
 
+    # TODO: No scripts, no wait times, etc.
     def _perform_waypoints_movement(self, now):
         print('Perform waypoint')
         speed = config.Unit.Defaults.walk_speed
+        # Initialize waypoints if needed.
         if not self.movement_waypoints:
-            self.movement_waypoints = [Vector(wp.position_x, wp.position_y, wp.position_z, wp.orientation)
-                                       for wp in self.unit.default_waypoints]
+            self.movement_waypoints = self._get_sorted_waypoints_by_distance()
 
         self.unit.movement_flags |= (MoveFlags.MOVEFLAG_WALK | MoveFlags.MOVEFLAG_MOVED)
         self.send_move_normal([self.movement_waypoints[0]], speed, SplineFlags.SPLINEFLAG_RUNMODE)
@@ -221,6 +222,15 @@ class MovementManager:
             return False
         self.distracted_timer = max(0, self.distracted_timer - elapsed)
         return self.unit.combat_target or not self.distracted_timer
+
+    def _get_sorted_waypoints_by_distance(self):
+        points = [Vector(wp.position_x, wp.position_y, wp.position_z, wp.orientation)
+                  for wp in self.unit.default_waypoints]
+        closest = min(points, key=lambda point: self.unit.spawn_position.distance(point))
+        index = points.index(closest)
+        if index:
+            points = points[index:] + points[0:index]
+        return points
 
     def update_speed(self):
         # This will automatically trigger a new spline heading on the same direction with updated speed.
