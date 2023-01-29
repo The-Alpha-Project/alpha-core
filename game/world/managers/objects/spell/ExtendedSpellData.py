@@ -234,9 +234,9 @@ class ProfessionInfo:
 
     @staticmethod
     def get_profession_skill_id_for_spell(spell_id):
-        for profession_spell_id, prof_spells in ProfessionInfo.PROFESSION_MAX_SKILL_VALUES.items():
+        for skill_id, prof_spells in ProfessionInfo._PROFESSION_SPELLS.items():
             if spell_id in prof_spells:
-                return profession_spell_id
+                return skill_id
         return 0
 
 
@@ -248,7 +248,7 @@ class UnitSpellsValidator:
     #  https://github.com/The-Alpha-Project/alpha-core/issues/383
     #  Might be that these spells were not used in alpha.
     #  e.g. Frost Breath, Glacial Roar, crashes both on Unit and Player. (Cast reaches server, crashes before reply)
-    _INVALID_PRECAST_SPELLS_ = {
+    _INVALID_PRECAST_SPELLS = {
         3131,  # Frost Breath
         3129,  # Frost Breath
         3143,  # Glacial Roar
@@ -257,7 +257,7 @@ class UnitSpellsValidator:
 
     @staticmethod
     def spell_has_valid_cast(casting_spell):
-        return casting_spell.spell_entry.ID not in UnitSpellsValidator._INVALID_PRECAST_SPELLS_
+        return casting_spell.spell_entry.ID not in UnitSpellsValidator._INVALID_PRECAST_SPELLS
 
 
 class SpellEffectMechanics:
