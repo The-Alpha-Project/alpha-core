@@ -384,7 +384,6 @@ class CreatureManager(UnitManager):
         if not self.is_player_controlled_pet():
             self.evade()
 
-    # TODO: Finish implementing evade mechanic.
     def evade(self):
         # Already evading or dead, ignore.
         if self.is_evading or not self.is_alive:
@@ -407,23 +406,20 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        failed, in_place, path = MapManager.calculate_path(self.map_id, self.location, self.spawn_position)
+        failed, in_place, waypoints = MapManager.calculate_path(self.map_id, self.location, self.spawn_position)
 
         if in_place:
             return
 
         # Destroy instance if too far away from spawn or unable to acquire a valid path.
-        if failed or self.location.distance(path[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
+        if failed or self.location.distance(waypoints[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
             if failed:
                 Logger.warning(f'Unit: {self.get_name()}, Namigator was unable to provide a valid return home path:')
                 Logger.warning(f'Start: {self.location}')
                 Logger.warning(f'End: {self.spawn_position}')
             self.destroy()
         else:
-            # TODO: Find a proper move type that accepts multiple waypoints, RUNMODE and others halt the unit movement.
-            use_fly_spline = len(path) > 1
-            spline_flag = SplineFlags.SPLINEFLAG_RUNMODE if not use_fly_spline else SplineFlags.SPLINEFLAG_FLYING
-            self.movement_manager.send_move_normal(path, self.running_speed, spline_flag)
+            self.movement_manager.move_home(waypoints)
 
     def get_default_auras(self):
         auras = set()

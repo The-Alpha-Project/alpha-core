@@ -41,11 +41,10 @@ class MovementSpline(object):
 
         current_waypoint = self.pending_waypoints[0]
         self.unit.location.face_point(current_waypoint.location)
-        print(f'{current_waypoint.location}')
 
         is_complete = self.total_waypoint_timer >= current_waypoint.expected_timestamp
         if is_complete:
-            print('Complete')
+            print('WP Complete')
             self.pending_waypoints.pop(0)
 
         new_position = self._get_position(current_waypoint, elapsed, is_complete)
@@ -193,6 +192,8 @@ class MovementSpline(object):
 
         return spline
 
+    # TODO: Fix SMSG_UPDATE_OBJECT create movement block.
+    #  There is no reason to send monster move packets, spline should be part of the create packet.
     def to_bytes(self):
         data = pack('<I', self.flags)
 
@@ -202,13 +203,6 @@ class MovementSpline(object):
             data += pack('<Q', self.guid)
         if self.flags & SplineFlags.SPLINEFLAG_FACING:
             data += pack('<f', self.facing)
-
-        data += pack(
-            '<2Ii',
-            int(self.elapsed),
-            self.total_time,
-            len(self.points)
-        )
 
         for point in self.points:
             data += point.to_bytes(include_orientation=False)
