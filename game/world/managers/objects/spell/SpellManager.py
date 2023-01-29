@@ -92,7 +92,7 @@ class SpellManager:
         # Check if this skill requires a 'cast ui' spell. e.g. Poisons frame.
         if skill and spell.Effect_1 != SpellEffects.SPELL_EFFECT_SPELL_CAST_UI:
             cast_ui_spells = self.caster.skill_manager.get_cast_ui_spells_for_skill_id(skill.ID)
-            if not self.spells.keys() & cast_ui_spells:  # Player doesn't have any cast UI for this spell yet.
+            if cast_ui_spells and not self.spells.keys() & cast_ui_spells:  # Player doesn't have any cast UI for this spell yet.
                 # Get cast UI with lowest spell ID (lowest rank where applicable).
                 cast_ui_spell = min(cast_ui_spells)
                 if self.can_learn_spell(cast_ui_spell):
