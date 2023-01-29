@@ -389,6 +389,28 @@ class WorldDatabaseManager(object):
 
     # Creature stuff.
 
+    @staticmethod
+    def creature_movement_get_all() -> list[CreatureMovement]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureMovement).all()
+        world_db_session.close()
+        return res
+
+    class CreatureMovementHolder:
+        CREATURE_WAYPOINTS: [int, list[CreatureMovement]] = {}
+
+        @staticmethod
+        def load_creature_waypoints(creature_movement):
+            if creature_movement.id not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_movement.id] = []
+            WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_movement.id].append(creature_movement)
+
+        @staticmethod
+        def creature_waypoints_by_id(entry) -> list[CreatureMovement]:
+            if entry not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                return []
+            return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[entry]
+
     class CreatureTemplateHolder:
         CREATURE_TEMPLATES: [int, CreatureTemplate] = {}
 

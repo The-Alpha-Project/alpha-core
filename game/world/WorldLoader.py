@@ -43,6 +43,7 @@ class WorldLoader:
 
         # Creature spawns
         if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_movement()
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creature_on_kill_reputation()
             WorldLoader.load_creature_quest_starters()
@@ -132,6 +133,19 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading gameobject quest finishers...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_movement():
+        creature_movements = WorldDatabaseManager.creature_movement_get_all()
+        length = len(creature_movements)
+        count = 0
+
+        for creature_movement in creature_movements:
+            WorldDatabaseManager.CreatureMovementHolder.load_creature_waypoints(creature_movement)
+            count += 1
+            Logger.progress('Loading creature movement...', count, length)
 
         return length
 

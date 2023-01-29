@@ -2,14 +2,14 @@ import math
 import time
 from random import randint
 
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.MovementSpline import MovementSpline
-from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveFlags, ObjectTypeIds
-from utils.constants.UnitCodes import SplineFlags, SplineType, UnitStates, UnitFlags
+from utils.constants.UnitCodes import SplineFlags, SplineType, UnitStates, UnitFlags, MovementTypes
 
 
 class MovementManager:
@@ -19,46 +19,61 @@ class MovementManager:
         self.pending_splines: list[MovementSpline] = []
         self.distracted_timer = 0
         self.fear_timer = 0
-        self.last_random_movement = 0
-        self.random_wait_time = randint(1, 12)
+        self.last_movement = 0
+        self.wait_time = randint(1, 12)
+        self.movement_waypoints = []
 
     def update(self, now, elapsed):
+
+        # Update any pending spline first.
+        if self.pending_splines:
+            pending_spline = self.pending_splines[0]
+            position_changed, new_position = pending_spline.update(elapsed)
+
+            if position_changed:
+                self.unit.location = new_position
+                self.unit.set_has_moved(has_moved=True, has_turned=False)
+                if self.is_player and self.unit.pending_taxi_destination:
+                    self.unit.taxi_manager.update_flight_state()
+
+            if pending_spline.is_complete():
+                self.pending_splines.pop(0)
+                self._handle_flight_end(pending_spline)
+                self._handle_spline_end(pending_spline)
+
+        # Remove distracted if necessary.
         if self._should_remove_distracted(elapsed):
             self.set_distracted(0)
 
-        if self._can_perform_wandering(self.unit, now):
+        # Check if we need to trigger any type of new movement.
+        if self._can_perform_creature_waypoints(self.unit, now):
+            self._perform_waypoints_movement(now)
+        elif self._can_perform_wandering(self.unit, now):
             self._perform_random_movement(self.unit, now)
         elif self._can_perform_combat_chase(self.unit):
             self._perform_combat_chase_movement(self.unit)
         elif self._can_perform_fear(self.unit, elapsed, now):
             self._perform_fear_movement(now)
 
-        if not self.pending_splines:
-            return
-
-        pending_spline = self.pending_splines[0]
-        position_changed, new_position = pending_spline.update(elapsed)
-
-        if position_changed:
-            self.unit.location = new_position
-            self.unit.set_has_moved(has_moved=True, has_turned=False)
-            if self.is_player and self.unit.pending_taxi_destination:
-                self.unit.taxi_manager.update_flight_state()
-
-        if pending_spline.is_complete():
-            self.pending_splines.pop(0)
-            self._handle_flight_end(pending_spline)
-            self._handle_spline_end(pending_spline)
+    def _perform_waypoints_movement(self, now):
+        speed = config.Unit.Defaults.walk_speed
+        wps = [Vector(wp.position_x, wp.position_y, wp.position_z, wp.orientation) for wp in self.unit.default_waypoints]
+        # TODO, SplineFlag.
+        self.send_move_normal(wps, speed, SplineFlags.SPLINEFLAG_FLYING)
+        self.wait_time = self.pending_splines[-1].total_time
+        self.last_movement = now
+        print('Sent waypoints')
+        print(f'Waiting for {self.wait_time}')
 
     def _perform_fear_movement(self, now):
         if self._move_fear():
-            self.random_wait_time = self.pending_splines[0].total_time
-            self.last_random_movement = now
+            self.wait_time = self.pending_splines[-1].total_time
+            self.last_movement = now
 
     def _perform_random_movement(self, unit, now):
         if self._move_random(unit.spawn_position, unit.wander_distance):
-            self.random_wait_time = randint(1, 12)
-            self.last_random_movement = now
+            self.wait_time = randint(1, 12)
+            self.last_movement = now
 
     def _move_fear(self):
         speed = self.unit.running_speed
@@ -151,12 +166,20 @@ class MovementManager:
 
         self.send_move_normal([combat_location], unit.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
+    def _can_perform_creature_waypoints(self, unit, now):
+        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
+            and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
+            and unit.default_waypoints \
+            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
+            and now > self.last_movement + self.wait_time \
+            and not unit.unit_state & UnitStates.DISTRACTED \
+            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+
     # noinspection PyMethodMayBeStatic
     def _can_perform_fear(self, unit, elapsed, now):
-        if self.fear_timer:
-            self.fear_timer = max(0, self.fear_timer - elapsed)
+        self.fear_timer = max(0, self.fear_timer - elapsed)
         return self.fear_timer and unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
-            and now > self.last_random_movement + self.random_wait_time
+            and now > self.last_movement + self.wait_time
 
     # noinspection PyMethodMayBeStatic
     def _can_perform_combat_chase(self, unit):
@@ -171,7 +194,7 @@ class MovementManager:
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
             and not unit.combat_target and not unit.is_evading and unit.has_wander_type() \
             and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_random_movement + self.random_wait_time \
+            and now > self.last_movement + self.wait_time \
             and not unit.unit_state & UnitStates.DISTRACTED \
             and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
@@ -182,7 +205,8 @@ class MovementManager:
         return self.unit.combat_target or not self.distracted_timer
 
     def update_speed(self):
-        self.random_wait_time = 0
+        self.fear_timer = 0
+        self.wait_time = 0
 
     def set_feared(self, duration=0):
         self.fear_timer = duration
@@ -207,8 +231,8 @@ class MovementManager:
         # If currently moving, update the current spline before flushing.
         if self.pending_splines:
             self.pending_splines[0].update(time.time() - self.unit.last_tick)
-        self.last_random_movement = 0
-        self.random_wait_time = 0
+        self.last_movement = 0
+        self.wait_time = 0
         self.pending_splines.clear()
         self.unit.movement_spline = None
 
@@ -239,7 +263,7 @@ class MovementManager:
             self.unit.on_at_home()
 
     def _handle_flight_end(self, spline):
-        if not spline.is_flight() or (not self.is_player and not self.unit.pending_taxi_destination):
+        if not spline.is_flight() or (self.is_player and not self.unit.pending_taxi_destination):
             return
         self.unit.set_taxi_flying_state(False)
         self.unit.teleport(self.unit.map_id, self.unit.pending_taxi_destination, is_instant=True)

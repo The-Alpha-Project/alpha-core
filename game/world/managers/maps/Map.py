@@ -15,7 +15,7 @@ class Map:
 
     def initialize(self):
         # Load creatures and gameobjects.
-        #self._load_map_creatures()
+        self._load_map_creatures()
         #self._load_map_gameobjects()
         pass
 
@@ -27,6 +27,8 @@ class Map:
         count = 0
         length = len(creature_spawns)
         for creature_spawn in creature_spawns:
+            if creature_spawn.spawn_id != 79723:
+                continue
             creature_spawn = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
             creature_spawn.spawn_creature()
             count += 1

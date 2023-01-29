@@ -36,6 +36,7 @@ class CreatureManager(UnitManager):
         self.creature_template = None
         self.location = None
         self.spawn_position = None
+        self.default_waypoints = None
         self.map_id = 0
         self.health_percent = 100
         self.mana_percent = 100
@@ -136,7 +137,6 @@ class CreatureManager(UnitManager):
         self.health = int((self.health_percent / 100) * self.max_health)
         self.power_1 = int((self.mana_percent / 100) * self.max_power_1)
 
-        self.last_random_movement = 0
         self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
 
         # Reset pickpocket state.
@@ -235,6 +235,14 @@ class CreatureManager(UnitManager):
                 self.native_scale = self.creature_template.scale
             self.current_scale = self.native_scale
 
+            if self.has_waypoints_type() and self.spawn_id:
+                # Load default waypoints if any.
+                self.default_waypoints = WorldDatabaseManager.CreatureMovementHolder.creature_waypoints_by_id(self.spawn_id)
+                if self.default_waypoints:
+                    # Sort by point ID.
+                    self.default_waypoints.sort(key=lambda wp: wp.point)
+
+            # Equipment.
             if self.creature_template.equipment_id > 0:
                 creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
                     self.creature_template.equipment_id
@@ -438,7 +446,11 @@ class CreatureManager(UnitManager):
     # override
     # TODO: Quest active escort npc, other cases?
     def is_active_object(self):
-        return len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self)
+        return (self.has_waypoints_type() and self.is_moving()) \
+            or len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self)
+
+    def has_waypoints_type(self):
+        return self.movement_type == MovementTypes.WAYPOINT
 
     def has_wander_type(self):
         return self.movement_type == MovementTypes.WANDER
@@ -467,7 +479,6 @@ class CreatureManager(UnitManager):
                     # Relocate only if x, y changed.
                     if self.has_moved:
                         self._on_relocation()
-                        self.set_has_moved(False, False, flush=True)
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
@@ -488,7 +499,8 @@ class CreatureManager(UnitManager):
 
             has_changes = self.has_pending_updates()
             # Check if this creature object should be updated yet or not.
-            if has_changes:
+            if has_changes or self.has_moved:
+                self.set_has_moved(False, False, flush=True)
                 MapManager.update_object(self, has_changes=has_changes)
 
         self.last_tick = now

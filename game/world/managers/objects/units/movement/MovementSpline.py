@@ -23,6 +23,7 @@ class MovementSpline(object):
         self.guid = guid
         self.facing = facing
         self.speed = speed
+        self.start_time = int(WorldManager.get_seconds_since_startup() * 1000)
         self.elapsed = elapsed
         self.total_time = total_time
         self.points = points
@@ -40,9 +41,11 @@ class MovementSpline(object):
 
         current_waypoint = self.pending_waypoints[0]
         self.unit.location.face_point(current_waypoint.location)
+        print(f'{current_waypoint.location}')
 
         is_complete = self.total_waypoint_timer >= current_waypoint.expected_timestamp
         if is_complete:
+            print('Complete')
             self.pending_waypoints.pop(0)
 
         new_position = self._get_position(current_waypoint, elapsed, is_complete)
@@ -109,21 +112,24 @@ class MovementSpline(object):
 
     def _get_payload_bytes(self, waypoints, is_initial=False):
         data = b''
-        last_waypoint = self.unit.location.copy()
-        self.total_time = 0
+        last_waypoint = self.unit.location
+        total_time = 0
         for wp in waypoints:
             data += wp.to_bytes(include_orientation=False)
             current_distance = last_waypoint.distance(wp)
             # Avoid div by zero. e.g. Facing spline.
             current_time = 0 if not self.speed else current_distance / self.speed
-            self.total_time += current_time
+            total_time += current_time
             if is_initial:
-                self.pending_waypoints.append(PendingWaypoint(self, len(self.pending_waypoints), self.total_time, wp))
+                self.pending_waypoints.append(PendingWaypoint(self, len(self.pending_waypoints), total_time, wp))
             last_waypoint = wp
 
         # Player shouldn't instantly dismount after reaching the taxi destination, add 1 extra second.
         if is_initial and self.is_player and self.flags == SplineFlags.SPLINEFLAG_FLYING:
-            self.total_time += 1.0
+            total_time += 1.0
+
+        # Update total time.
+        self.total_time = total_time
 
         return pack(
             f'<I2I{len(data)}s',
@@ -134,7 +140,7 @@ class MovementSpline(object):
         )
 
     def _get_header_bytes(self):
-        start_time = int(WorldManager.get_seconds_since_startup() * 1000)
+        start_time = self.get_total_elapsed()
         location_bytes = self.unit.location.to_bytes(include_orientation=False)
         data = pack(
             f'<Q{len(location_bytes)}sIB',
@@ -151,6 +157,9 @@ class MovementSpline(object):
         elif self.is_type(SplineType.SPLINE_TYPE_FACING_ANGLE):
             data += pack('<f', self.facing)
         return data
+
+    def get_total_elapsed(self):
+        return int(self.start_time + self.elapsed)
 
     @staticmethod
     def from_bytes(unit, spline_bytes):
