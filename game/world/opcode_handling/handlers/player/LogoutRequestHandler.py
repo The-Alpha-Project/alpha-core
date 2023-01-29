@@ -20,7 +20,7 @@ class LogoutRequestHandler(object):
             res = LogoutResponseCodes.LOGOUT_PROCEED
             if not player_mgr.is_swimming():
                 player_mgr.set_stand_state(StandState.UNIT_SITTING)
-            player_mgr.set_root(True)
+            player_mgr.set_rooted(True)
             player_mgr.logout_timer = 20
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_RESPONSE, pack('<B', res)))
 

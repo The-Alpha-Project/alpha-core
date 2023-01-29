@@ -14,7 +14,7 @@ class LogoutCancelHandler(object):
             return res
 
         player_mgr.set_stand_state(StandState.UNIT_STANDING)
-        player_mgr.set_root(False)
+        player_mgr.set_rooted(False)
         player_mgr.logout_timer = -1
         player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_CANCEL_ACK))
 
