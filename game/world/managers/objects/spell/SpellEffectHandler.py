@@ -193,6 +193,42 @@ class SpellEffectHandler:
         target.receive_power(amount, power_type)
 
     @staticmethod
+    def handle_power_burn(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        power_type = effect.misc_value
+        amount = effect.get_effect_points()
+
+        # Determine the effective amount to be burned in order to apply damage later.
+        current_power_amount = target.get_power_value(power_type)
+        effective_amount = current_power_amount - max(0, (current_power_amount - amount))
+
+        # Remove power from the target.
+        target.receive_power(-amount, power_type)
+
+        # Apply damage as per description (1 HP point per power drained).
+        caster.apply_spell_damage(target, effective_amount, effect)
+
+    @staticmethod
+    def handle_power_drain(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        power_type = effect.misc_value
+        amount = effect.get_effect_points()
+
+        # Determine the effective amount to be drained in order to restore power to the caster later.
+        current_power_amount = target.get_power_value(power_type)
+        effective_amount = current_power_amount - max(0, (current_power_amount - amount))
+
+        # Remove power from the target.
+        target.receive_power(-amount, power_type)
+
+        # Restore power to the caster.
+        caster.receive_power(effective_amount, power_type)
+
+    @staticmethod
     def handle_health_leech(casting_spell, effect, caster, target):
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -852,6 +888,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_APPLY_AURA: SpellEffectHandler.handle_aura_application,
     SpellEffects.SPELL_EFFECT_DISPEL: SpellEffectHandler.handle_dispel,
     SpellEffects.SPELL_EFFECT_ENERGIZE: SpellEffectHandler.handle_energize,
+    SpellEffects.SPELL_EFFECT_POWER_BURN: SpellEffectHandler.handle_power_burn,
+    SpellEffects.SPELL_EFFECT_POWER_DRAIN: SpellEffectHandler.handle_power_drain,
     SpellEffects.SPELL_EFFECT_HEALTH_LEECH: SpellEffectHandler.handle_health_leech,
     SpellEffects.SPELL_EFFECT_SUMMON_MOUNT: SpellEffectHandler.handle_summon_mount,
     SpellEffects.SPELL_EFFECT_INSTAKILL: SpellEffectHandler.handle_insta_kill,
