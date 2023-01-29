@@ -204,6 +204,13 @@ class MovementSpline(object):
         if self.flags & SplineFlags.SPLINEFLAG_FACING:
             data += pack('<f', self.facing)
 
+        data += pack(
+            '<2Ii',
+            int(self.elapsed),
+            self.total_time,
+            len(self.points)
+        )
+
         for point in self.points:
             data += point.to_bytes(include_orientation=False)
 
