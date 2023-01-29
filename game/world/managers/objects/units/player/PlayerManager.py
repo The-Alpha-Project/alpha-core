@@ -35,7 +35,7 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults, LockTypes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import SpellTargetMask
@@ -796,7 +796,7 @@ class PlayerManager(UnitManager):
         self.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, current_flags)
 
     def set_tracked_resource_type(self, lock_type, active, index=-1):
-        is_tracking = self._set_effect_flag_state(CreatureTypes, lock_type, active, index)
+        is_tracking = self._set_effect_flag_state(LockTypes, lock_type, active, index)
         current_flags = self.get_uint32(PlayerFields.PLAYER_TRACK_RESOURCES)
         if is_tracking:
             current_flags |= (1 << (lock_type - 1))
