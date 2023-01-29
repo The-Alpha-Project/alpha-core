@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.units.player.SkillManager import SkillTypes
-from utils.constants.MiscCodes import LockKeyTypes, LockType, ObjectTypeIds
+from utils.constants.MiscCodes import LockKeyTypes, LockTypes, ObjectTypeIds
 from utils.constants.SpellCodes import SpellCheckCastResult
 
 
@@ -41,7 +41,7 @@ class LockManager:
                 if lock_type != lock_info.indexes[index]:
                     continue
 
-                skill_type = LockManager.get_skill_by_lock_type(LockType(lock_info.indexes[index]))
+                skill_type = LockManager.get_skill_by_lock_type(LockTypes(lock_info.indexes[index]))
                 if skill_type != SkillTypes.NONE:
                     required_skill_value = lock_info.skills[index]
                     skill_value = 0 if cast_item or caster.get_type_id() != ObjectTypeIds.ID_PLAYER else \
@@ -57,13 +57,13 @@ class LockManager:
         return OpenLockResult(SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
 
     @staticmethod
-    def get_skill_by_lock_type(lock_type: LockType) -> SkillTypes:
-        if lock_type == LockType.LOCKTYPE_PICKLOCK:
+    def get_skill_by_lock_type(lock_type: LockTypes) -> SkillTypes:
+        if lock_type == LockTypes.LOCKTYPE_PICKLOCK:
             return SkillTypes.LOCKPICKING
-        elif lock_type == LockType.LOCKTYPE_HERBALISM:
+        elif lock_type == LockTypes.LOCKTYPE_HERBALISM:
             return SkillTypes.HERBALISM
-        elif lock_type == LockType.LOCKTYPE_MINING:
+        elif lock_type == LockTypes.LOCKTYPE_MINING:
             return SkillTypes.MINING
-        elif lock_type == LockType.LOCKTYPE_FISHING:
+        elif lock_type == LockTypes.LOCKTYPE_FISHING:
             return SkillTypes.FISHING
         return SkillTypes.NONE

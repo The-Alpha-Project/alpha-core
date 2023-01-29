@@ -884,7 +884,7 @@ class LockKeyTypes(IntEnum):
     LOCK_KEY_SKILL = 2
 
 
-class LockType(IntEnum):
+class LockTypes(IntEnum):
     LOCKTYPE_NONE = 0
     LOCKTYPE_PICKLOCK = 1
     LOCKTYPE_HERBALISM = 2

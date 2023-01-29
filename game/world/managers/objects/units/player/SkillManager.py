@@ -16,7 +16,7 @@ from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockType
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects
 from utils.constants.UpdateFields import PlayerFields
@@ -583,7 +583,7 @@ class SkillManager(object):
         self.build_update()
         return True
 
-    def get_unlocking_attempt_result(self, lock_type: LockType, lock_id: int,
+    def get_unlocking_attempt_result(self, lock_type: LockTypes, lock_id: int,
                                      used_item: Optional[ItemManager] = None,
                                      bonus_skill: int = 0) -> SpellCheckCastResult:
         from game.world.managers.objects.locks.LockManager import LockManager
