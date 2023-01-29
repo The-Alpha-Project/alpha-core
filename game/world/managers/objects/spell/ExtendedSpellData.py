@@ -207,7 +207,8 @@ class SummonedObjectPositions:
 
 
 class ProfessionInfo:
-    PROFESSION_MAX_SKILL_VALUES = {
+    _PROFESSION_SPELLS = {
+        129: (3273, 3274),        # First Aid
         164: (2018, 3100, 3538),  # Blacksmithing
         165: (2108, 3104, 3811),  # Leatherworking
         171: (2259, 3101, 3464),  # Alchemy
@@ -221,8 +222,11 @@ class ProfessionInfo:
     }
 
     @staticmethod
-    def get_max_skill_value(profession_spell_id, player):
-        prof_spells = ProfessionInfo.PROFESSION_MAX_SKILL_VALUES[profession_spell_id]
+    def get_max_skill_value(skill_id, player):
+        prof_spells = ProfessionInfo._PROFESSION_SPELLS.get(skill_id, ())
+        if not prof_spells:
+            return 0
+
         known = player.spell_manager.spells.keys() & prof_spells
         if not known:
             return 0

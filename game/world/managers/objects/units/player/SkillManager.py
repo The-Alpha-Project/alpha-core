@@ -509,15 +509,6 @@ class SkillManager(object):
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
         return skill, skill_line_ability
 
-    def get_cast_ui_spell_for_skill_id(self, skill_id):
-        skill_line_spells = DbcDatabaseManager.SkillLineAbilityHolder.spells_get_by_skill_id(skill_id)
-        for spell_id in skill_line_spells:
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
-            if spell and spell.Effect_1 == SpellEffects.SPELL_EFFECT_SPELL_CAST_UI:
-                return spell
-
-        return None
-
     def get_skill_info_for_spell_id(self, spell_id):
         race = self.player_mgr.race
         class_ = self.player_mgr.class_
@@ -712,6 +703,18 @@ class SkillManager(object):
             return LANG_DESCRIPTION[language_id].skill_id
         return -1
 
+    @staticmethod
+    def get_cast_ui_spells_for_skill_id(skill_id) -> set[int]:
+        skill_line_spells = DbcDatabaseManager.SkillLineAbilityHolder.spells_get_by_skill_id(skill_id)
+        spells = set()
+        for spell_id in skill_line_spells:
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+
+            if spell and spell.Effect_1 == SpellEffects.SPELL_EFFECT_SPELL_CAST_UI:
+                spells.add(spell.ID)
+
+        return spells
+
     def get_skill_for_spell_id(self, spell_id):
         skill_line_ability = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_ability_get_by_spell_race_and_class(
             spell_id, self.player_mgr.race, self.player_mgr.class_)
@@ -734,12 +737,8 @@ class SkillManager(object):
             # Language, Riding
             if skill.CategoryID == SkillCategories.MAX_SKILL:
                 return skill.MaxRank
-            elif skill.CategoryID == SkillCategories.CLASS_SKILL:
-                # Professions.
-                return ExtendedSpellData.ProfessionInfo.get_max_skill_value(skill_id, self.player_mgr)
-            else:
-                return (level * 5) + 25
-
+            # Secondary skills of other categories are all professions.
+            return ExtendedSpellData.ProfessionInfo.get_max_skill_value(skill_id, self.player_mgr)
         return 0
 
     def can_dual_wield(self):
