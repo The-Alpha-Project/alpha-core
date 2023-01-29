@@ -351,7 +351,7 @@ class QuestFailedReasons(IntEnum):
 
 class SkillCategories(IntEnum):
     MAX_SKILL = 1  # These are always max when added i.e. language/riding
-    WEAPON_SKILL = 2
+    COMBAT_SKILL = 2
     CLASS_SKILL = 3
     SECONDARY_SKILL = 4
 
