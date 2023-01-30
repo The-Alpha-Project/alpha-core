@@ -941,16 +941,6 @@ class UnitManager(ObjectManager):
         self.stand_state = stand_state
         self.aura_manager.check_aura_interrupts(changed_stand_state=True)
 
-    def is_stealthed(self):
-        return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK
-
-    def set_stealthed(self, active):
-        if active:
-            self.unit_flags |= UnitFlags.UNIT_FLAG_SNEAK
-        else:
-            self.unit_flags &= ~UnitFlags.UNIT_FLAG_SNEAK
-        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-
     def set_sanctuary(self, active, time_secs=0):
         if active:
             self.unit_state |= UnitStates.SANCTUARY
@@ -1055,6 +1045,12 @@ class UnitManager(ObjectManager):
             alert = alert_range >= distance > visible_distance
 
         return distance <= visible_distance, alert
+
+    def is_stealthed(self) -> bool:
+        return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK
+
+    def set_stealthed(self, active, index=-1) -> bool:
+        return self.set_unit_flag(UnitFlags.UNIT_FLAG_SNEAK, active, index)
 
     def set_rooted(self, active, index=-1) -> bool:
         is_rooted = self.set_move_flag(MoveFlags.MOVEFLAG_ROOTED, active, index)

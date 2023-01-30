@@ -891,9 +891,9 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
 
     # override
-    def set_stealthed(self, active):
-        super().set_stealthed(active)
-        if not active:
+    def set_stealthed(self, active, index=-1):
+        stealthed = super().set_stealthed(active, index)
+        if not stealthed:
             # Notify surrounding units about fading stealth for proximity aggro.
             self._on_relocation()
 

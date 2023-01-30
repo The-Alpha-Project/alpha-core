@@ -307,7 +307,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_stealth(aura, effect_target, remove):
-        effect_target.set_stealthed(active=not remove)
+        effect_target.set_stealthed(not remove, aura.index)
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
@@ -326,7 +326,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_invisibility(aura, effect_target, remove):
-        effect_target.set_stealthed(active=not remove)
+        effect_target.set_stealthed(not remove, aura.index)
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
