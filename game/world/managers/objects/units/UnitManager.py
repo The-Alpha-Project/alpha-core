@@ -1143,10 +1143,6 @@ class UnitManager(ObjectManager):
 
         return len(effects) > 0  # Return True if this flag should be set for the unit.
 
-    def _is_effect_unit_flag_set(self, flag_type, flag) -> bool:
-        return flag_type not in self._flag_effects or \
-            flag not in self._flag_effects[flag_type]
-
     def play_emote(self, emote):
         if emote != 0:
             data = pack('<IQ', emote, self.guid)
