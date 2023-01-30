@@ -245,10 +245,6 @@ class ObjectManager:
             self.movement_flags
         )
 
-        # TODO: NOT WORKING!
-        # if self.movement_spline:
-        #    data += self.movement_spline.to_bytes()
-
         data += pack(
             '<I4f',
             0,  # Fall Time
@@ -257,6 +253,10 @@ class ObjectManager:
             self.swim_speed,
             self.turn_rate
          )
+
+        # TODO: Not working.
+        # if self.movement_flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
+        #     data += self.movement_spline.to_bytes()
 
         return data
 

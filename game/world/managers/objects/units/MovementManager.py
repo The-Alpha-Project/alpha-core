@@ -55,11 +55,12 @@ class MovementManager:
             self._perform_fear_movement(now)
 
         if not self.pending_splines:
-            self.unit.movement_flags = MoveFlags.MOVEFLAG_NONE
+            self.unit.movement_flags &= ~MoveFlags.MOVEFLAG_MOVED
+        else:
+            self.unit.movement_flags |= MoveFlags.MOVEFLAG_MOVED
 
     def _perform_move_home_movement(self, now):
         speed = self.unit.running_speed
-        self.unit.movement_flags = MoveFlags.MOVEFLAG_MOVED
         self.send_move_normal([self.return_home_waypoints[0]], speed, SplineFlags.SPLINEFLAG_RUNMODE)
         self.wait_time = self.pending_splines[-1].total_time
         self.last_movement = now
@@ -72,7 +73,6 @@ class MovementManager:
         if not self.movement_waypoints:
             self.movement_waypoints = self._get_sorted_waypoints_by_distance()
 
-        self.unit.movement_flags |= (MoveFlags.MOVEFLAG_WALK | MoveFlags.MOVEFLAG_MOVED)
         self.send_move_normal([self.movement_waypoints[0]], speed, SplineFlags.SPLINEFLAG_RUNMODE)
         self.wait_time = self.pending_splines[-1].total_time
         self.last_movement = now
@@ -80,7 +80,6 @@ class MovementManager:
     def _perform_fear_movement(self, now):
         speed = self.unit.running_speed
         fear_point = self.unit.location.get_point_in_radius_and_angle(speed * self.fear_timer, 0)
-        self.unit.movement_flags = MoveFlags.MOVEFLAG_MOVED
         self.send_move_normal([fear_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
         self.wait_time = self.pending_splines[-1].total_time
         self.last_movement = now
@@ -101,7 +100,6 @@ class MovementManager:
         if not map_.is_active_cell_for_location(random_point):
             return False
 
-        self.unit.movement_flags = MoveFlags.MOVEFLAG_MOVED
         self.send_move_normal([random_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
         return True
 
@@ -174,7 +172,6 @@ class MovementManager:
             elif MapManager.NAMIGATOR_LOADED:
                 Logger.warning(f'Unable to find navigation path, map {unit.map_id} loc {unit.location} end {combat_location}')
 
-        self.unit.movement_flags = MoveFlags.MOVEFLAG_MOVED
         self.send_move_normal([combat_location], unit.running_speed, SplineFlags.SPLINEFLAG_RUNMODE)
 
     def _can_perform_move_home_movement(self, unit, now):

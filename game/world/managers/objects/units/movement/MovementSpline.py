@@ -1,3 +1,4 @@
+import time
 from struct import pack, unpack
 
 from game.world import WorldManager
@@ -23,7 +24,6 @@ class MovementSpline(object):
         self.guid = guid
         self.facing = facing
         self.speed = speed
-        self.start_time = int(WorldManager.get_seconds_since_startup() * 1000)
         self.elapsed = elapsed
         self.total_time = total_time
         self.points = points
@@ -33,7 +33,7 @@ class MovementSpline(object):
     def update(self, elapsed):
         self.total_waypoint_timer += elapsed
         self.elapsed += elapsed * 1000
-        if self.elapsed > self.total_time:
+        if self.elapsed > self.total_time * 1000:
             self.elapsed = self.total_time
 
         if not self.pending_waypoints:
@@ -127,11 +127,12 @@ class MovementSpline(object):
         if is_initial and self.is_player and self.flags == SplineFlags.SPLINEFLAG_FLYING:
             total_time += 1.0
 
-        # Update total time.
+        # Update remaining spline total time and elapsed.
+        self.elapsed = time.time() - self.unit.last_tick
         self.total_time = total_time
 
         return pack(
-            f'<I2I{len(data)}s',
+            f'<3I{len(data)}s',
             self.flags,
             int(self.total_time * 1000),
             len(waypoints),
@@ -139,7 +140,7 @@ class MovementSpline(object):
         )
 
     def _get_header_bytes(self):
-        start_time = self.get_total_elapsed()
+        start_time = int(WorldManager.get_seconds_since_startup() * 1000)
         location_bytes = self.unit.location.to_bytes(include_orientation=False)
         data = pack(
             f'<Q{len(location_bytes)}sIB',
@@ -156,9 +157,6 @@ class MovementSpline(object):
         elif self.is_type(SplineType.SPLINE_TYPE_FACING_ANGLE):
             data += pack('<f', self.facing)
         return data
-
-    def get_total_elapsed(self):
-        return int(self.start_time + self.elapsed)
 
     @staticmethod
     def from_bytes(unit, spline_bytes):
@@ -194,6 +192,7 @@ class MovementSpline(object):
 
     # TODO: Fix SMSG_UPDATE_OBJECT create movement block.
     #  There is no reason to send monster move packets, spline should be part of the create packet.
+    #  Client always expects at least 3 points for this.
     def to_bytes(self):
         data = pack('<I', self.flags)
 
@@ -204,14 +203,21 @@ class MovementSpline(object):
         if self.flags & SplineFlags.SPLINEFLAG_FACING:
             data += pack('<f', self.facing)
 
+        waypoints = [pending_wp.location for pending_wp in list(self.pending_waypoints)]
+        self._get_payload_bytes(waypoints)
+
         data += pack(
-            '<2Ii',
+            '<3I',
             int(self.elapsed),
-            self.total_time,
-            len(self.points)
+            int(self.total_time * 1000),
+            len(self.pending_waypoints),
         )
 
-        for point in self.points:
-            data += point.to_bytes(include_orientation=False)
+        print(f'Journey {int(self.elapsed)}')
+        print(f'TotalTime {int(self.total_time * 1000)}')
+        print(f'Pending {len(self.pending_waypoints)}')
+
+        for point in self.pending_waypoints:
+            data += point.location.to_bytes(include_orientation=False)
 
         return data
