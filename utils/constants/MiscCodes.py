@@ -351,7 +351,7 @@ class QuestFailedReasons(IntEnum):
 
 class SkillCategories(IntEnum):
     MAX_SKILL = 1  # These are always max when added i.e. language/riding
-    WEAPON_SKILL = 2
+    COMBAT_SKILL = 2
     CLASS_SKILL = 3
     SECONDARY_SKILL = 4
 
@@ -884,7 +884,7 @@ class LockKeyTypes(IntEnum):
     LOCK_KEY_SKILL = 2
 
 
-class LockType(IntEnum):
+class LockTypes(IntEnum):
     LOCKTYPE_NONE = 0
     LOCKTYPE_PICKLOCK = 1
     LOCKTYPE_HERBALISM = 2

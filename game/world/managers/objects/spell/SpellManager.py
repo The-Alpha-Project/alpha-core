@@ -79,11 +79,6 @@ class SpellManager:
         if related_profession_skill and not self.caster.skill_manager.has_skill(related_profession_skill):
             if not self.caster.skill_manager.add_skill(related_profession_skill):
                 return False
-            else:
-                # Check if this profession skill requires a 'cast ui' spell.
-                cast_ui_spell = self.caster.skill_manager.get_cast_ui_spell_for_skill_id(related_profession_skill)
-                if cast_ui_spell and cast_ui_spell.ID != spell_id and self.can_learn_spell(cast_ui_spell.ID):
-                    self.learn_spell(cast_ui_spell.ID)
         # If the player already knows the skill, update max skill level.
         elif related_profession_skill:
             self.caster.skill_manager.update_skills_max_value()
@@ -95,10 +90,13 @@ class SpellManager:
                 return False
 
         # Check if this skill requires a 'cast ui' spell. e.g. Poisons frame.
-        if skill:
-            cast_ui_spell = self.caster.skill_manager.get_cast_ui_spell_for_skill_id(skill.ID)
-            if cast_ui_spell and cast_ui_spell.ID != spell_id and self.can_learn_spell(cast_ui_spell.ID):
-                self.learn_spell(cast_ui_spell.ID)
+        if skill and spell.Effect_1 != SpellEffects.SPELL_EFFECT_SPELL_CAST_UI:
+            cast_ui_spells = self.caster.skill_manager.get_cast_ui_spells_for_skill_id(skill.ID)
+            if cast_ui_spells and not self.spells.keys() & cast_ui_spells:  # Player doesn't have any cast UI for this spell yet.
+                # Get cast UI with lowest spell ID (lowest rank where applicable).
+                cast_ui_spell = min(cast_ui_spells)
+                if self.can_learn_spell(cast_ui_spell):
+                    self.learn_spell(cast_ui_spell)
 
         db_spell = CharacterSpell()
         db_spell.guid = self.caster.guid
@@ -179,8 +177,18 @@ class SpellManager:
 
         spell = self.try_initialize_spell(spell_template, self.caster, SpellTargetMask.SELF,
                                           validate=False)
-        spell.resolve_target_info_for_effects()
+
+        # Don't use actual target resolvers since the caster may not be fully initialized yet.
+        for effect in spell.get_effects():
+            effect.targets.resolved_targets_a = [self.caster]
+            if not spell.object_target_results:
+                spell.object_target_results = effect.targets.get_effect_target_miss_results()
+
         self.apply_spell_effects(spell)
+
+        # Add any passive area auras to casts.
+        if spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
+            self.casting_spells.append(spell)
 
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.caster.guid)

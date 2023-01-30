@@ -35,12 +35,12 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.DuelCodes import *
 from utils.constants.ItemCodes import InventoryTypes
-from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults
+from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults, LockTypes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, \
-    RegenStatsFlags
+    RegenStatsFlags, CreatureTypes, UnitStates
 from utils.constants.UpdateFields import *
 
 MAX_ACTION_BUTTONS = 120
@@ -758,13 +758,52 @@ class PlayerManager(UnitManager):
         # Notify surrounding for proximity checks.
         self._on_relocation()
 
-    def set_root(self, active):
-        super().set_root(active)
-        if active:
+    # override
+    def set_stunned(self, active, index=-1) -> bool:
+        if active and self.pending_taxi_destination:
+            return False  # Ignore on flight path.
+
+        is_stunned = super().set_stunned(active, index)
+        if is_stunned:
+            # Release loot if any.
+            self.interrupt_looting()
+
+        return is_stunned
+
+    # override
+    def set_rooted(self, active, index=-1):
+        was_rooted = self.unit_state & UnitStates.ROOTED
+        is_rooted = super().set_rooted(active, index)
+
+        if is_rooted == was_rooted:
+            return  # No state change.
+
+        if is_rooted and not was_rooted:
             opcode = OpCode.SMSG_FORCE_MOVE_ROOT
         else:
             opcode = OpCode.SMSG_FORCE_MOVE_UNROOT
+
         self.enqueue_packet(PacketWriter.get_packet(opcode))
+
+    def set_tracked_creature_type(self, creature_type, active, index=-1):
+        is_tracking = self._set_effect_flag_state(CreatureTypes, creature_type, active, index)
+        current_flags = self.get_uint32(PlayerFields.PLAYER_TRACK_CREATURES)
+        if is_tracking:
+            current_flags |= (1 << (creature_type - 1))
+        else:
+            current_flags &= ~(1 << (creature_type - 1))
+
+        self.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, current_flags)
+
+    def set_tracked_resource_type(self, lock_type, active, index=-1):
+        is_tracking = self._set_effect_flag_state(LockTypes, lock_type, active, index)
+        current_flags = self.get_uint32(PlayerFields.PLAYER_TRACK_RESOURCES)
+        if is_tracking:
+            current_flags |= (1 << (lock_type - 1))
+        else:
+            current_flags &= ~(1 << (lock_type - 1))
+
+        self.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, current_flags)
 
     # override
     def is_active_object(self):
@@ -852,9 +891,9 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
 
     # override
-    def set_stealthed(self, active):
-        super().set_stealthed(active)
-        if not active:
+    def set_stealthed(self, active, index=-1):
+        stealthed = super().set_stealthed(active, index)
+        if not stealthed:
             # Notify surrounding units about fading stealth for proximity aggro.
             self._on_relocation()
 

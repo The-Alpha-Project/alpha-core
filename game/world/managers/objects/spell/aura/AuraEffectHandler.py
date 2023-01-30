@@ -223,26 +223,14 @@ class AuraEffectHandler:
         if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_CREATURES)
-        if not remove:
-            flag |= (1 << (aura.spell_effect.misc_value - 1))
-        else:
-            flag &= ~(1 << (aura.spell_effect.misc_value - 1))
-
-        effect_target.set_uint32(PlayerFields.PLAYER_TRACK_CREATURES, flag)
+        effect_target.set_tracked_creature_type(aura.spell_effect.misc_value, not remove, aura.index)
 
     @staticmethod
     def handle_track_resources(aura, effect_target, remove):
         if effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        flag = effect_target.get_uint32(PlayerFields.PLAYER_TRACK_RESOURCES)
-        if not remove:
-            flag |= (1 << (aura.spell_effect.misc_value - 1))
-        else:
-            flag &= ~(1 << (aura.spell_effect.misc_value - 1))
-
-        effect_target.set_uint32(PlayerFields.PLAYER_TRACK_RESOURCES, flag)
+        effect_target.set_tracked_resource_type(aura.spell_effect.misc_value, not remove, aura.index)
 
     @staticmethod
     def handle_proc_trigger_damage(aura, effect_target, remove):
@@ -275,51 +263,16 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_disarm(aura, effect_target, remove):
-        if not remove:
-            effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISARMED
-        else:
-            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_DISARMED
-
-        effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
+        effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_DISARMED, not remove, aura.index)
         effect_target.stat_manager.apply_bonuses()
 
     @staticmethod
     def handle_mod_stalked(aura, effect_target, remove):
-        dyn_flags = effect_target.get_uint32(UnitFields.UNIT_DYNAMIC_FLAGS)
-        if not remove:
-            dyn_flags |= UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT
-        else:
-            dyn_flags &= ~ UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT
-
-        effect_target.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, dyn_flags)
+        effect_target.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT, not remove, aura.index)
 
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):
-        # Player specific.
-        if not remove and effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            # Don't stun if player is flying.
-            if effect_target.pending_taxi_destination:
-                return
-            # Release loot if any.
-            effect_target.interrupt_looting()
-
-        # Root (or unroot) unit.
-        effect_target.set_root(not remove)
-
-        if not remove:
-            effect_target.spell_manager.remove_casts(remove_active=False)
-            effect_target.set_current_target(0)
-            effect_target.unit_state |= UnitStates.STUNNED
-            effect_target.unit_flags |= UnitFlags.UNIT_FLAG_DISABLE_ROTATE
-            effect_target.stop_movement()
-        else:
-            # Restore combat target if any.
-            if effect_target.combat_target and effect_target.combat_target.is_alive:
-                effect_target.set_current_target(effect_target.combat_target.guid)
-            effect_target.unit_state &= ~UnitStates.STUNNED
-            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_DISABLE_ROTATE
-
-        effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
+        effect_target.set_stunned(not remove, aura.index)
 
     @staticmethod
     def handle_mod_pacify_silence(aura, effect_target, remove):
@@ -328,19 +281,11 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_silence(aura, effect_target, remove):
-        if remove:
-            effect_target.unit_state &= ~UnitStates.SILENCED
-        else:
-            effect_target.unit_state |= UnitStates.SILENCED
+        effect_target.set_unit_state(UnitStates.SILENCED, not remove, aura.index)
 
     @staticmethod
     def handle_mod_pacify(aura, effect_target, remove):
-        if remove:
-            effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_PACIFIED
-        else:
-            effect_target.unit_flags |= UnitFlags.UNIT_FLAG_PACIFIED
-
-        effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
+        effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_PACIFIED, not remove, aura.index)
 
     @staticmethod
     def handle_transform(aura, effect_target, remove):
@@ -358,11 +303,11 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_root(aura, effect_target, remove):
-        effect_target.set_root(not remove)
+        effect_target.set_rooted(not remove, aura.index)
 
     @staticmethod
     def handle_mod_stealth(aura, effect_target, remove):
-        effect_target.set_stealthed(active=not remove)
+        effect_target.set_stealthed(not remove, aura.index)
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
@@ -381,7 +326,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_invisibility(aura, effect_target, remove):
-        effect_target.set_stealthed(active=not remove)
+        effect_target.set_stealthed(not remove, aura.index)
         if remove:
             effect_target.stat_manager.remove_aura_stat_bonus(aura.index)
             return
