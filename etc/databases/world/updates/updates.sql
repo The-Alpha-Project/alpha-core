@@ -16566,7 +16566,7 @@ begin not atomic
                                          `ai_name`,`movement_type`,`inhabit_type`,`civilian`,`racial_leader`,
                                          `regeneration`,`equipment_id`,`trainer_id`,`vendor_id`,`mechanic_immune_mask`,
                                          `school_immune_mask`,`flags_extra`,`script_name`)
-                                         VALUES (6366,1529,0,0,0,0,'Serpent Totem V',NULL,1101062,0,50,50,2215,2215,
+                                         VALUES (3905,1529,0,0,0,0,'Serpent Totem V',NULL,1101062,0,50,50,2215,2215,
                                                  0,0,0,35,0,1,1,0,18,5,0,0,1,9,9,0,226,1,2000,2000,2,0,0,0,0,0,0,0,
                                                  66.44,91.355,100,10,0,0,0,0,0,0,0,0,0,0,6353,0,0,0,0,0,NULL,27,135,
                                                  '',0,3,0,0,3,0,0,0,0,0,0,'');
