@@ -99,10 +99,15 @@ class EffectTargets:
             return [target]
         return target
 
-    def can_target_friendly(self) -> bool:
-        if self.target_effect.implicit_target_a in FRIENDLY_IMPLICIT_TARGETS or \
-               self.target_effect.implicit_target_b in FRIENDLY_IMPLICIT_TARGETS:
+    def can_target_friendly(self, target=None) -> bool:
+        implicit_targets = {self.target_effect.implicit_target_a, self.target_effect.implicit_target_b}
+
+        if FRIENDLY_IMPLICIT_TARGETS.intersection(implicit_targets):
             return True
+
+        # Neutral targets can target friendly. Use target context if given to resolve.
+        if NEUTRAL_IMPLICIT_TARGETS.intersection(implicit_targets):
+            return not target or not self.casting_spell.spell_caster.can_attack_target(target)
 
         # Spells with implicit target set to 0 can have both friendly and hostile targets.
         # These spells include passives, testing spells and npc spells.
@@ -147,7 +152,6 @@ class EffectTargets:
     def get_resolved_effect_targets_by_type(self, _type) -> list[Union[ObjectManager, Vector]]:
         b_matches_type = False
         # If both A and B are the same type, we should prefer B as it can act as specifying
-        # TODO if issues arise, add table for specifying ImplicitTargets
 
         # Accept B when it's the correct type and not 0.
         # Also check for SPECIFYING_IMPLICIT_TARGETS since in those cases empty targets should still be prioritized.
@@ -566,4 +570,10 @@ FRIENDLY_IMPLICIT_TARGETS = {
     SpellImplicitTargets.TARGET_SINGLE_PARTY,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     # SpellImplicitTargets.TARGET_SCRIPT  # Resolved separately
+}
+
+NEUTRAL_IMPLICIT_TARGETS = {
+    SpellImplicitTargets.TARGET_EFFECT_SELECT,
+    SpellImplicitTargets.TARGET_UNIT,
+    SpellImplicitTargets.TARGET_SCRIPT
 }

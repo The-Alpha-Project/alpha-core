@@ -4,6 +4,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldLoader import WorldLoader
+from game.world.managers.objects.units.player.SkillManager import SkillLineType
 from utils.constants.MiscCodes import SkillCategories, TrainerTypes
 from utils.constants.SpellCodes import SpellImplicitTargets
 from utils.constants.UnitCodes import Races, Classes
@@ -108,7 +109,7 @@ class ClassTrainersSkillGenerator:
     @staticmethod
     def validate_skill(skill, race_mask, class_mask):
         # Only interested in weapon skills.
-        if skill.CategoryID != SkillCategories.WEAPON_SKILL:  # Weapons
+        if skill.CategoryID != SkillCategories.COMBAT_SKILL and skill.SkillType == SkillLineType.PRIMARY:
             return False
 
         skill_race_mask = skill.RaceMask
@@ -121,9 +122,6 @@ class ClassTrainersSkillGenerator:
         if skill_race_mask and not skill_race_mask & race_mask:
             return False
         if skill_class_mask and not skill_class_mask & class_mask:
-            return False
-        # Skip First Aid related.
-        if 'First Aid' in skill.DisplayName_enUS:
             return False
 
         return True
