@@ -62,7 +62,7 @@ class MovementManager:
     def _perform_move_home_movement(self, now):
         speed = self.unit.running_speed
         self.send_move_normal([self.return_home_waypoints[0]], speed, SplineFlags.SPLINEFLAG_RUNMODE)
-        self.wait_time = self.pending_splines[-1].total_time
+        self.wait_time = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
 
     # TODO: No scripts, no wait times, etc.
@@ -74,14 +74,16 @@ class MovementManager:
             self.movement_waypoints = self._get_sorted_waypoints_by_distance()
 
         self.send_move_normal([self.movement_waypoints[0]], speed, SplineFlags.SPLINEFLAG_RUNMODE)
-        self.wait_time = self.pending_splines[-1].total_time
+        self.wait_time = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
 
+    # TODO: Namigator: FindRandomPointAroundCircle (Detour)
+    #  We need a valid path for fear else unexpected collisions can mess things up.
     def _perform_fear_movement(self, now):
         speed = self.unit.running_speed
         fear_point = self.unit.location.get_point_in_radius_and_angle(speed * self.fear_timer, 0)
         self.send_move_normal([fear_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
-        self.wait_time = self.pending_splines[-1].total_time
+        self.wait_time = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
 
     def _perform_random_movement(self, unit, now):
@@ -250,13 +252,14 @@ class MovementManager:
             self.unit.unit_state &= ~UnitStates.DISTRACTED
             # Restore original spawn orientation.
             if not self.is_player and not self.unit.has_wander_type():
-                self.unit.location.o = self.unit.spawn_position.o
-                self.send_face_target(self.unit)
+                self.send_face_angle(self.unit.location.angle(self.unit.spawn_position.o))
 
     def reset(self):
-        # If currently moving, update the current spline before flushing.
+        # If currently moving, update the current spline in order to have latest guessed position before flushing.
         if self.pending_splines:
-            self.pending_splines[0].update(time.time() - self.unit.last_tick)
+            elapsed = time.time() - self.unit.last_tick
+            if elapsed:
+                self.pending_splines[0].update(elapsed)
         self.last_movement = 0
         self.wait_time = 0
         self.pending_splines.clear()
@@ -278,13 +281,14 @@ class MovementManager:
             return self.pending_splines or self.unit.pending_taxi_destination is not None
         return self.pending_splines
 
-    def try_build_movement_packet(self, waypoints=None, is_initial=False):
+    def try_build_movement_packet(self):
         if not self.pending_splines:
             return None
-        return self.pending_splines[0].try_build_movement_packet(waypoints, is_initial)
+        return self.pending_splines[0].try_build_movement_packet()
 
     def _handle_position_change(self, new_position):
-        # MovementType WAYPOINT.
+        # Waypoint type movement, set home position upon waypoint reached.
+        # This is where the unit will return if the path is interrupted.
         if self.movement_waypoints and new_position == self.movement_waypoints[0]:
             self.unit.spawn_position = new_position.copy()  # Set new home.
             self.movement_waypoints.pop(0)
@@ -381,6 +385,9 @@ class MovementManager:
         self._send_move_to(spline)
 
     def send_face_angle(self, angle):
+        # Server side.
+        self.unit.location.o = angle
+
         # Generate face angle spline
         spline = MovementSpline(
             unit=self.unit,
@@ -401,7 +408,8 @@ class MovementManager:
         # Set spline and last position.
         self.unit.movement_spline = spline
 
-        packet = spline.try_build_movement_packet(waypoints=spline.points, is_initial=True)
+        spline.initialize()
+        packet = spline.try_build_movement_packet()
         if packet:
             MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
             self.pending_splines.append(spline)

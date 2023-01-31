@@ -498,7 +498,7 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(creature.generate_create_packet(requester=self))
                 # Get partial movement packet if any.
                 if creature.movement_manager.unit_is_moving():
-                    packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
+                    packet = creature.movement_manager.try_build_movement_packet()
                     if packet:
                         self.enqueue_packet(packet)
                 # We only consider 'known' if its spawned, the details query is still sent.
@@ -538,7 +538,7 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(player_mgr.generate_create_packet(requester=self))
             # Get partial movement packet if any.
             if player_mgr.movement_manager.unit_is_moving():
-                packet = player_mgr.movement_manager.try_build_movement_packet(is_initial=False)
+                packet = player_mgr.movement_manager.try_build_movement_packet()
                 if packet:
                     self.enqueue_packet(packet)
         self.known_objects[player_mgr.guid] = player_mgr
