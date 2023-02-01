@@ -1,5 +1,4 @@
 import math
-import time
 from random import randint
 
 from game.world.managers.abstractions.Vector import Vector
@@ -25,20 +24,20 @@ class MovementManager:
         self.return_home_waypoints = []  # Used for evade.
 
     def update(self, now, elapsed):
-
+        spline = self.get_current_spline()
         # Update any pending spline first.
-        if self.pending_splines:
-            pending_spline = self.pending_splines[0]
-            position_changed, new_position = pending_spline.update(elapsed)
+        if spline:
+            position_changed, new_position = spline.update(elapsed)
 
             if position_changed:
                 self._handle_position_change(new_position)
 
-            if pending_spline.is_complete():
+            if spline.is_complete():
                 self.pending_splines.pop(0)
-                self._handle_flight_end(pending_spline)
+                self._handle_flight_end(spline)
 
         # Remove distracted if necessary.
+        # TODO: Find a better way to remove this, maybe based on mod stun removal.
         if self._should_remove_distracted(elapsed):
             self.set_distracted(0)
 
@@ -57,7 +56,7 @@ class MovementManager:
         if not self.pending_splines:
             self.unit.movement_flags &= ~MoveFlags.MOVEFLAG_MOVED
         else:
-            self.unit.movement_flags |= MoveFlags.MOVEFLAG_MOVED
+            self.unit.movement_flags |= MoveFlags.MOVEFLAG_WALK
 
     def _perform_move_home_movement(self, now):
         speed = self.unit.running_speed
@@ -67,7 +66,6 @@ class MovementManager:
 
     # TODO: No scripts, no wait times, etc.
     def _perform_waypoints_movement(self, now):
-        print('Perform waypoint')
         speed = config.Unit.Defaults.walk_speed
         # Initialize waypoints if needed.
         if not self.movement_waypoints:
@@ -256,22 +254,25 @@ class MovementManager:
 
     def reset(self):
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
-        if self.pending_splines:
-            elapsed = time.time() - self.unit.last_tick
-            if elapsed:
-                self.pending_splines[0].update(elapsed)
+        spline = self.get_current_spline()
+        if spline:
+            spline.update_to_now()
         self.last_movement = 0
         self.wait_time = 0
         self.pending_splines.clear()
         self.unit.movement_spline = None
 
     def get_pending_waypoints_length(self):
-        return 0 if not self.pending_splines else self.pending_splines[0].get_pending_waypoints_length()
+        spline = self.get_current_spline()
+        if not spline:
+            return 0
+        return spline.get_pending_waypoints_length()
 
     def get_waypoint_location(self):
-        if not self.pending_splines:
+        spline = self.get_current_spline()
+        if not spline:
             return self.unit.location
-        return self.pending_splines[0].get_waypoint_location()
+        return spline.get_waypoint_location()
 
     def move_home(self, waypoints):
         self.return_home_waypoints = waypoints
@@ -282,9 +283,15 @@ class MovementManager:
         return self.pending_splines
 
     def try_build_movement_packet(self):
+        spline = self.get_current_spline()
+        if spline:
+            return spline.try_build_movement_packet()
+        return None
+
+    def get_current_spline(self):
         if not self.pending_splines:
             return None
-        return self.pending_splines[0].try_build_movement_packet()
+        return self.pending_splines[0]
 
     def _handle_position_change(self, new_position):
         # Waypoint type movement, set home position upon waypoint reached.
@@ -409,7 +416,7 @@ class MovementManager:
         self.unit.movement_spline = spline
 
         spline.initialize()
-        packet = spline.try_build_movement_packet()
-        if packet:
-            MapManager.send_surrounding(packet, self.unit, include_self=self.is_player)
+        movement_packet = spline.try_build_movement_packet()
+        if movement_packet:
+            MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)
             self.pending_splines.append(spline)

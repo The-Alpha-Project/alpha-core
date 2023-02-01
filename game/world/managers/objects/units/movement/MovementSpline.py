@@ -24,7 +24,6 @@ class MovementSpline(object):
         self.guid = guid
         self.facing = facing
         self.speed = speed
-        self.start_time = int(WorldManager.get_seconds_since_startup() * 1000)
         self.elapsed = elapsed  # Milliseconds.
         self.total_time = total_time  # Milliseconds.
         self.points = points
@@ -59,7 +58,7 @@ class MovementSpline(object):
 
     def update(self, elapsed):
         self.total_waypoint_timer += elapsed
-        self.elapsed += elapsed * 1000
+        self.elapsed += elapsed * 1000  # Milliseconds.
         if self.elapsed > self.total_time:
             self.elapsed = self.total_time
 
@@ -71,7 +70,6 @@ class MovementSpline(object):
 
         is_complete = self.total_waypoint_timer >= current_waypoint.expected_timestamp
         if is_complete:
-            print('WP Complete')
             self.pending_waypoints.pop(0)
 
         new_position = self._get_position(current_waypoint, elapsed, is_complete)
@@ -115,6 +113,12 @@ class MovementSpline(object):
             return self.unit.location
         return self.pending_waypoints[0].location
 
+    # Update spline to current time when someone requests a movement update.
+    def update_to_now(self):
+        elapsed = time.time() - self.unit.last_tick
+        if elapsed:
+            self.update(elapsed)
+
     def try_build_movement_packet(self):
         # Sending no waypoints crashes the client.
         if len(self.pending_waypoints) == 0:
@@ -123,12 +127,8 @@ class MovementSpline(object):
         # Fill header.
         data = self._get_header_bytes()
 
-        # Short circuit on stop spline.
-        if self.is_type(SplineType.SPLINE_TYPE_STOP):
-            return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
-
-        # Fill payload.
-        data += self._get_payload_bytes()
+        if not self.is_type(SplineType.SPLINE_TYPE_STOP):
+            data += self._get_payload_bytes()
 
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
@@ -138,7 +138,7 @@ class MovementSpline(object):
             f'<Q{len(location_bytes)}sIB',
             self.unit.guid,
             location_bytes,
-            self.start_time,
+            int(WorldManager.get_seconds_since_startup() * 1000),
             self.spline_type
         )
         if self.is_type(SplineType.SPLINE_TYPE_FACING_SPOT):
@@ -154,7 +154,7 @@ class MovementSpline(object):
         return pack(
             f'<3I{len(self.waypoints_bytes)}s',
             self.flags,
-            int(self.total_time),
+            int(self.total_time - int(self.elapsed)),
             len(self.points),
             self.waypoints_bytes
         )
@@ -204,18 +204,19 @@ class MovementSpline(object):
         if self.flags & SplineFlags.SPLINEFLAG_FACING:
             data += pack('<f', self.facing)
 
+        len_points = len(self.points) - 1
         data += pack(
             '<3I',
             int(self.elapsed),
             int(self.total_time),
-            len(self.points),
+            len_points,
         )
 
         print(f'Journey {int(self.elapsed)}')  # Milliseconds.
         print(f'TotalTime {int(self.total_time)}')  # Milliseconds.
-        print(f'TotalPoints {len(self.points)}')
+        print(f'TotalPoints {len_points}')
 
-        for point in self.points:
-            data += point.location.to_bytes(include_orientation=False)
+        for point in range(1, len_points):
+            data += self.points[point].to_bytes(include_orientation=False)
 
         return data

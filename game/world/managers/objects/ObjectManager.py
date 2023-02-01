@@ -92,7 +92,7 @@ class ObjectManager:
     def generate_create_packet(self, requester):
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            self.get_object_create_packet(requester)))
+            self.get_object_create_bytes(requester)))
 
     def generate_partial_packet(self, requester):
         if not self.initialized:
@@ -100,9 +100,12 @@ class ObjectManager:
 
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            self.get_partial_update_packet(requester)))
+            self.get_partial_update_bytes(requester)))
 
-    def get_object_create_packet(self, requester):
+    def generate_movement_packet(self):
+        return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_bytes())
+
+    def get_object_create_bytes(self, requester):
         from game.world.managers.objects.units import UnitManager
 
         is_self = requester.guid == self.guid
@@ -135,7 +138,7 @@ class ObjectManager:
 
         return data
 
-    def get_partial_update_packet(self, requester):
+    def get_partial_update_bytes(self, requester):
         # Base structure.
         data = self._get_base_structure(UpdateTypes.PARTIAL)
 
@@ -163,7 +166,7 @@ class ObjectManager:
         )
         return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
 
-    def get_movement_update_packet(self):
+    def get_movement_update_bytes(self):
         # Base structure.
         data = self._get_base_structure(UpdateTypes.MOVEMENT)
 

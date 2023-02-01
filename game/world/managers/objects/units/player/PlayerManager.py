@@ -497,10 +497,9 @@ class PlayerManager(UnitManager):
             if creature.is_spawned:
                 self.enqueue_packet(creature.generate_create_packet(requester=self))
                 # Get partial movement packet if any.
-                if creature.movement_manager.unit_is_moving():
-                    packet = creature.movement_manager.try_build_movement_packet()
-                    if packet:
-                        self.enqueue_packet(packet)
+                movement_packet = creature.movement_manager.try_build_movement_packet()
+                if movement_packet:
+                    self.enqueue_packet(movement_packet)
                 # We only consider 'known' if its spawned, the details query is still sent.
                 self.known_objects[creature.guid] = creature
                 # Add ourselves to creature known players.
@@ -537,10 +536,9 @@ class PlayerManager(UnitManager):
             # Create packet.
             self.enqueue_packet(player_mgr.generate_create_packet(requester=self))
             # Get partial movement packet if any.
-            if player_mgr.movement_manager.unit_is_moving():
-                packet = player_mgr.movement_manager.try_build_movement_packet()
-                if packet:
-                    self.enqueue_packet(packet)
+            movement_packet = player_mgr.movement_manager.try_build_movement_packet()
+            if movement_packet:
+                self.enqueue_packet(movement_packet)
         self.known_objects[player_mgr.guid] = player_mgr
 
     def destroy_near_object(self, guid):
@@ -835,8 +833,7 @@ class PlayerManager(UnitManager):
             data = pack('<f', self.running_speed)
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
             # TODO Move object update to UnitManager
-            MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                                self.get_movement_update_packet()), self)
+            MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
@@ -846,9 +843,7 @@ class PlayerManager(UnitManager):
         self.swim_speed = swim_speed
         data = pack('<f', self.swim_speed)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
-
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                            self.get_movement_update_packet()), self)
+        MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     def change_walk_speed(self, walk_speed=0):
         if walk_speed <= 0:
@@ -858,9 +853,7 @@ class PlayerManager(UnitManager):
         self.walk_speed = walk_speed
         data = pack('<f', self.walk_speed)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
-
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                            self.get_movement_update_packet()), self)
+        MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     def change_turn_speed(self, turn_speed=0):
         if turn_speed <= 0:
@@ -868,9 +861,7 @@ class PlayerManager(UnitManager):
         self.turn_rate = turn_speed
         data = pack('<f', self.turn_rate)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE, data))
-
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                            self.get_movement_update_packet()), self)
+        MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     # override
     def update_power_type(self):
