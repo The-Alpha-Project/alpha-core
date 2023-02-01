@@ -381,6 +381,9 @@ class SpellEffectHandler:
                                                   summoner=caster,
                                                   faction=caster.faction, ttl=duration,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TOTEM)
+        if not creature_manager:
+            Logger.error(f'Creature with entry {totem_entry} not found for spell {casting_spell.spell_entry.ID}.')
+            return
 
         totem_slot = casting_spell.get_totem_slot_type()
         # Remove existing totem in this slot.
