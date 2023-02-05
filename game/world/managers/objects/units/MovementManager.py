@@ -70,9 +70,10 @@ class MovementManager:
                     self.unit.taxi_manager.update_flight_state()
 
                 if not self.is_player:
-                    if self.unit.is_evading:
+                    if self.unit.is_evading or \
+                            self.unit.is_at_home() and \
+                            self.unit.movement_spline.is_type(SplineType.SPLINE_TYPE_NORMAL):
                         self.unit.is_evading = False
-                    if self.unit.is_at_home() and self.unit.movement_spline.is_type(SplineType.SPLINE_TYPE_NORMAL):
                         self.unit.on_at_home()
 
                 self.reset()
