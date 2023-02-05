@@ -23,7 +23,7 @@ from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask
+    SpellSchoolMask, AuraTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -266,6 +266,10 @@ class UnitManager(ObjectManager):
 
         self.set_current_target(victim.guid)
         self.combat_target = victim
+        self.aura_manager.check_aura_interrupts(started_attack=True)
+
+        # Some stealth auras don't have correct interrupt flags set (5916, 6408), but should be removed on attack.
+        self.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_STEALTH)
 
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
