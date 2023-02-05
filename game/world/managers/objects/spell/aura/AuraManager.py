@@ -142,6 +142,11 @@ class AuraManager:
                 self.remove_aura(aura)
                 continue
 
+            # Some stealth auras don't have correct interrupt flags set (5916, 6408), but should be removed on attack.
+            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and started_attack:
+                self.remove_aura(aura)
+                continue
+
             for flag, condition in flag_cases.items():
                 if flag == SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ACTION and \
                      aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \

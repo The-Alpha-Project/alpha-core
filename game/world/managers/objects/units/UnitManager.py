@@ -268,9 +268,6 @@ class UnitManager(ObjectManager):
         self.combat_target = victim
         self.aura_manager.check_aura_interrupts(started_attack=True)
 
-        # Some stealth auras don't have correct interrupt flags set (5916, 6408), but should be removed on attack.
-        self.aura_manager.remove_auras_by_type(AuraTypes.SPELL_AURA_MOD_STEALTH)
-
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
