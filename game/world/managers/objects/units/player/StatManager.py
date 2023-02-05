@@ -777,6 +777,8 @@ class StatManager(object):
             return SpellMissReason.MISS_REASON_EVADED, hit_flags
 
         spell_school = casting_spell.spell_entry.School
+        # TODO Wands should get spell school from the item and use spell formulas.
+
         caster = casting_spell.spell_caster
 
         # Spells cast on friendly targets should always hit.
