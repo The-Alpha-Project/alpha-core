@@ -32,6 +32,9 @@ class CastingSpell:
     source_item = None
     initial_target = None
     targeted_unit_on_cast_start = None
+    triggered = False
+    triggered_by_spell = None
+    creature_spell = None
 
     object_target_results: dict[int, TargetMissInfo] = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
@@ -56,13 +59,15 @@ class CastingSpell:
 
     dynamic_object: Optional[DynamicObjectManager]
 
-    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False, creature_spell=None):
+    def __init__(self, spell, caster, initial_target, target_mask, source_item=None,
+                 triggered=False, triggered_by_spell=None, creature_spell=None):
         self.spell_entry = spell
         self.spell_caster = caster
         self.source_item = source_item
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
-        self.triggered = triggered
+        self.triggered = triggered or triggered_by_spell is not None
+        self.triggered_by_spell = triggered_by_spell
         self.creature_spell = creature_spell
 
         self.dynamic_object = None

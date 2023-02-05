@@ -830,6 +830,9 @@ class StatManager(object):
         skill_value = -1
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             _, skill, _ = caster.skill_manager.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
+            if not skill and casting_spell.triggered_by_spell:
+                # If this spell was triggered by another spell, use the triggering spell's skill.
+                _, skill, _ = caster.skill_manager.get_skill_info_for_spell_id(casting_spell.triggered_by_spell.spell_entry.ID)
             # Use skill level if one exists for the spell, otherwise fall back to max possible skill.
             skill_value = caster.skill_manager.get_total_skill_value(skill.ID) if skill else -1
 
