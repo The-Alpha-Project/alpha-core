@@ -981,10 +981,6 @@ class UnitManager(ObjectManager):
         if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
             return True, False
 
-        # Already attacked by the target.
-        if self.threat_manager.has_aggro_from(target):
-            return True, False
-
         # No distance provided, calculate here.
         if not distance:
             distance = self.location.distance(target.location)
