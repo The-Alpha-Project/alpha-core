@@ -9,7 +9,9 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import EnvVars
 
-realm_info = RealmDatabaseManager.realm_get_info()
+
+REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.get_realmlist()}
+
 
 class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
@@ -18,7 +20,7 @@ class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     def handle(self):
         try:
-            self.serve_realm(self.request)
+            self.serve_realmlist(self.request)
         except OSError:
             pass
         finally:
@@ -29,29 +31,42 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
                 pass
 
     @staticmethod
-    def serve_realm(sck):
-        name_bytes = PacketWriter.string_to_bytes(realm_info.realm_name)
-        forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
-                                    realm_info.proxy_address)
-        address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm_info.proxy_port}')
+    def serve_realmlist(sck):
+        realm_data = pack('<B', len(REALMLIST))
 
-        # TODO: Update RealmDatabaseManager.realm_get_* to handle multiple realms?
-        packet = pack(
-            f'<B{len(name_bytes)}s{len(address_bytes)}sI',
-            1,  # Number of realms
-            name_bytes,
-            address_bytes,
-            RealmDatabaseManager.character_get_online_count()
-        )
+        for realm in REALMLIST.values():
+            is_realm_local = config.Server.Connection.Realm.local_realm_id == realm.realm_id
+
+            name_bytes = PacketWriter.string_to_bytes(realm.realm_name)
+            # Only check if the forward address needs to be overriden this realm is hosted on this same machine.
+            # Docker on Windows hackfix.
+            # https://discord.com/channels/628574828038717470/653374433636909077/840314080073351238
+            if is_realm_local:
+                forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
+                                            realm.proxy_address)
+            else:
+                forward_address = realm.proxy_address
+            address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm.proxy_port}')
+            # TODO: Find a way to get online count of realms not hosted in the same machine?
+            online_count = RealmDatabaseManager.character_get_online_count() if is_realm_local else 0
+
+            realm_data += pack(
+                f'<{len(name_bytes)}s{len(address_bytes)}sI',
+                name_bytes,
+                address_bytes,
+                online_count
+            )
 
         Logger.debug(f'[{sck.getpeername()[0]}] Sending realmlist...')
-        sck.sendall(packet)
+        sck.sendall(realm_data)
 
     @staticmethod
     def start():
         ThreadedLoginServer.allow_reuse_address = True
-        with ThreadedLoginServer((realm_info.realm_address,
-                                  realm_info.realm_port), LoginServerSessionHandler) \
+
+        local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
+        with ThreadedLoginServer((local_realm.realm_address,
+                                  local_realm.realm_port), LoginServerSessionHandler) \
                 as login_instance:
             Logger.success(f'Login server started, listening on {login_instance.server_address[0]}:{login_instance.server_address[1]}')
             # Make sure all characters have online = 0 on realm start.
@@ -97,8 +112,10 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         ThreadedProxyServer.allow_reuse_address = True
-        with ThreadedProxyServer((realm_info.proxy_address,
-                                  realm_info.proxy_port), ProxyServerSessionHandler) \
+
+        local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
+        with ThreadedProxyServer((local_realm.proxy_address,
+                                  local_realm.proxy_port), ProxyServerSessionHandler) \
                 as proxy_instance:
             Logger.success(f'Proxy server started, listening on {proxy_instance.server_address[0]}:{proxy_instance.server_address[1]}')
             try:
@@ -107,4 +124,3 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
                 proxy_session_thread.start()
             except KeyboardInterrupt:
                 Logger.info("Proxy server turned off.")
-

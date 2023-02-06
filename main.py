@@ -14,10 +14,17 @@ from utils.ChatLogManager import ChatLogManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
-#Argument Parser
-parser = argparse.ArgumentParser(description="Alpha-Core help", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-l", help="Usage: -l realm -l world", dest='launch', action='store_true')
-args, unknown = parser.parse_known_args()
+
+# Argument Parser
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '-l', '--launch',
+    help='-l realm to launch realm or -l to launch world, if nothing is specified both are launched',
+    dest='launch',
+    action='store_true'
+)
+args = parser.parse_args()
+
 
 def release_process(process):
     while process.is_alive():
@@ -66,33 +73,31 @@ if __name__ == '__main__':
         if env_var:
             Logger.info(f'Environment variable {env_var_name}: {env_var}')
 
-    if not args.launch:
+    # Process launching starts here.
+
+    launch_realm = not args.launch or args.launch == 'realm'
+    launch_world = not args.launch or args.launch == 'world'
+
+    login_process = None
+    proxy_process = None
+    world_process = None
+
+    if launch_realm:
         login_process = context.Process(target=RealmManager.LoginServerSessionHandler.start)
         login_process.start()
 
         proxy_process = context.Process(target=RealmManager.ProxyServerSessionHandler.start)
         proxy_process.start()
-
+    if launch_world:
         world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
         world_process.start()
-    else:
-        if (argv[-1] == "realm"):
-            login_process = context.Process(target=RealmManager.LoginServerSessionHandler.start)
-            login_process.start()
-        
-            proxy_process = context.Process(target=RealmManager.ProxyServerSessionHandler.start)
-            proxy_process.start()
-        
-        if (argv[-1] == "world"):
-            world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
-            world_process.start()
         
     # noinspection PyBroadException
     try:
         if os.getenv('CONSOLE_MODE', config.Server.Settings.console_mode) in [True, 'True', 'true']:
             while input() != 'exit':
                 Logger.error('Invalid command.')
-        else:
+        elif launch_world and world_process:
             world_process.join()
     except:
         Logger.info('Shutting down the core...')
@@ -101,34 +106,21 @@ if __name__ == '__main__':
     
     # Send SIGTERM to processes.
     # Add checks to send SIGTERM to only running process
-    if argv:
-        if argv[-1] == "world":
-            world_process.terminate()
-            Logger.info('World process terminated.')
-        if argv[-1] == "realm":
-            login_process.terminate()
-            Logger.info('Login process terminated.')
-            proxy_process.terminate()
-            Logger.info('Proxy process terminated.')
-    else:
+    if launch_world:
         world_process.terminate()
         Logger.info('World process terminated.')
-        proxy_process.terminate()
-        Logger.info('Proxy process terminated.')
+    if launch_realm:
         login_process.terminate()
         Logger.info('Login process terminated.')
+        proxy_process.terminate()
+        Logger.info('Proxy process terminated.')
 
     # Release process resources.
     Logger.info('Waiting to release resources...')
-    
-    #These checks are needed to prevent an end of program crash with keyboard interrupt
-    if argv[-1] == "world":
+
+    if launch_world:
         release_process(world_process)
-    elif argv[-1] == "realm":
-        release_process(proxy_process)
-        release_process(login_process)
-    else:
-        release_process(world_process)
+    if launch_realm:
         release_process(proxy_process)
         release_process(login_process)
 

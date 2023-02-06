@@ -24,9 +24,9 @@ class RealmDatabaseManager(object):
     # Realm stuff
     
     @staticmethod
-    def realm_get_info(id=1):
+    def get_realmlist():
         realm_db_session = SessionHolder()
-        realm = realm_db_session.query(Realmlist).filter_by(realm_id=id).first()
+        realm = realm_db_session.query(RealmList).all()
         realm_db_session.close()
         return realm
               
