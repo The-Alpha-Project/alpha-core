@@ -1,7 +1,7 @@
 import multiprocessing
 import os
 import argparse
-from sys import platform, argv
+from sys import platform
 from time import sleep
 
 from game.realm import RealmManager
@@ -15,7 +15,7 @@ from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
 
-# Argument Parser
+# Initialize argument parser.
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-l', '--launch',
@@ -38,7 +38,7 @@ def release_process(process):
 
 
 if __name__ == '__main__':
-    # Initialize path
+    # Initialize path.
     PathManager.set_root_path(os.path.dirname(os.path.realpath(__file__)))
 
     # Validate configuration file version.
