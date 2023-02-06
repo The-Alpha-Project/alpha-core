@@ -69,7 +69,7 @@ class PlayerManager(UnitManager):
         super().__init__(**kwargs)
 
         self.session = session
-        self.pending_teleport_data = None
+        self.pending_teleport_data = []
         self.update_lock = False
         self.possessed_unit = None
         self.known_objects = dict()
@@ -617,19 +617,14 @@ class PlayerManager(UnitManager):
         if self.spell_manager.is_casting():
             self.spell_manager.remove_casts(remove_active=False)
 
-        # TODO: Stop any movement, rotation?
-        previous_failed = self.pending_teleport_data and self.pending_teleport_data.failed
+        pending_teleport = PendingTeleportDataHolder(recovery_percentage=recovery,
+                                                     origin_location=self.location.copy(),
+                                                     origin_map=self.map_id,
+                                                     destination_location=location.copy(),
+                                                     destination_map=map_)
 
-        # If the previous attempt failed, we are reversing that teleport using the existent data.
-        if not previous_failed:
-            destination_location = location.copy()
-            # New destination we will use when we receive an acknowledgment message from client.
-            self.pending_teleport_data = PendingTeleportDataHolder(recovery_percentage=recovery,
-                                                                   origin_location=self.location.copy(),
-                                                                   origin_map=self.map_id,
-                                                                   destination_location=destination_location,
-                                                                   destination_map=map_,
-                                                                   failed=False)
+        self.pending_teleport_data.append(pending_teleport)
+
         if is_instant:
             self.trigger_teleport()
 
@@ -640,8 +635,11 @@ class PlayerManager(UnitManager):
         # If another teleport triggers from a client message, then it will proceed once this TP is done.
         self.update_lock = True
 
+        # Pending teleport information.
+        pending_teleport = self.pending_teleport_data[0]
+
         # Same map.
-        if self.map_id == self.pending_teleport_data.destination_map:
+        if self.map_id == pending_teleport.destination_map:
             data = pack(
                 '<Q9fI',
                 self.transport_id,
@@ -649,10 +647,10 @@ class PlayerManager(UnitManager):
                 self.transport.y,
                 self.transport.z,
                 self.transport.o,
-                self.pending_teleport_data.destination_location.x,
-                self.pending_teleport_data.destination_location.y,
-                self.pending_teleport_data.destination_location.z,
-                self.pending_teleport_data.destination_location.o,
+                pending_teleport.destination_location.x,
+                pending_teleport.destination_location.y,
+                pending_teleport.destination_location.z,
+                pending_teleport.destination_location.o,
                 self.pitch,
                 MoveFlags.MOVEFLAG_NONE,
             )
@@ -675,35 +673,38 @@ class PlayerManager(UnitManager):
 
             data = pack(
                 '<B4f',
-                self.pending_teleport_data.destination_map,
-                self.pending_teleport_data.destination_location.x,
-                self.pending_teleport_data.destination_location.y,
-                self.pending_teleport_data.destination_location.z,
-                self.pending_teleport_data.destination_location.o
+                pending_teleport.destination_map,
+                pending_teleport.destination_location.x,
+                pending_teleport.destination_location.y,
+                pending_teleport.destination_location.z,
+                pending_teleport.destination_location.o
             )
 
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
     def spawn_player_from_teleport(self):
-        # Check if player changed maps before setting the new value.
-        changed_map = self.map_id != self.pending_teleport_data.destination_map
+        # Pending teleport information.
+        pending_teleport = self.pending_teleport_data[0]
 
-        dbc_map = DbcDatabaseManager.map_get_by_id(self.pending_teleport_data.destination_map)
+        # Check if player changed maps before setting the new value.
+        changed_map = self.map_id != pending_teleport.destination_map
+
+        dbc_map = DbcDatabaseManager.map_get_by_id(pending_teleport.destination_map)
         if not dbc_map and changed_map:
-            self.pending_teleport_data.set_failed(True)
-            self.teleport(self.pending_teleport_data.origin_map, self.pending_teleport_data.origin_location, True)
+            self.pending_teleport_data.pop(0)
+            self.teleport(pending_teleport.origin_map, pending_teleport.origin_location, True)
             return
 
         instance_token = InstancesManager.get_or_create_instance_token_by_player(self, dbc_map.ID)
         if changed_map and MapManager.is_dungeon_map_id(dbc_map.ID):
             if not MapManager.get_or_create_instance_map(instance_token):
-                self.pending_teleport_data.set_failed(True)
-                self.teleport(self.pending_teleport_data.origin_map, self.pending_teleport_data.origin_location, True)
+                self.pending_teleport_data.pop(0)
+                self.teleport(pending_teleport.origin_map, pending_teleport.origin_location, True)
                 return
 
-        self.map_id = self.pending_teleport_data.destination_map
+        self.map_id = pending_teleport.destination_map
         self.instance_id = instance_token.id
-        self.location = self.pending_teleport_data.destination_location.copy()
+        self.location = pending_teleport.destination_location.copy()
 
         # Player changed map. Send initial spells, action buttons and create packet.
         if changed_map:
@@ -731,8 +732,8 @@ class PlayerManager(UnitManager):
             self.unmount()
 
         # Repop/Resurrect.
-        if self.pending_teleport_data.recovery_percentage != -1:
-            self.respawn(self.pending_teleport_data.recovery_percentage)
+        if pending_teleport.recovery_percentage != -1:
+            self.respawn(pending_teleport.recovery_percentage)
             self.spirit_release_timer = 0
             self.resurrect_data = None
 
@@ -748,9 +749,6 @@ class PlayerManager(UnitManager):
             heart_beat_packet = self.get_heartbeat_packet()
             MapManager.send_surrounding(heart_beat_packet, self, False)
 
-        self.pending_teleport_data = None
-        self.update_lock = False
-
         # Update managers.
         self.friends_manager.send_update_to_friends()
         if self.group_manager and self.group_manager.is_party_formed():
@@ -758,6 +756,12 @@ class PlayerManager(UnitManager):
 
         # Notify surrounding for proximity checks.
         self._on_relocation()
+
+        # Remove this pending teleport data.
+        self.pending_teleport_data.pop(0)
+
+        # Remove soft lock if there are no pending teleports remaining.
+        self.update_lock = len(self.pending_teleport_data) > 0
 
     # override
     def set_stunned(self, active, index=-1) -> bool:
