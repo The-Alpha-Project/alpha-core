@@ -985,16 +985,29 @@ class UnitManager(ObjectManager):
         if not distance:
             distance = self.location.distance(target.location)
 
-        # Collision.
-        if distance < 1.5:
-            return True, False
-        # TODO: Configurable, max detect distance.
         if distance > 30.0:
             return False, False
 
         self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
 
+        # Invisibility.
+
+        invisibility_skill = target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
+        invisibility_detect_skill = self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION)
+
+        # Handle invisibility detection by raw skill comparison.
+        if invisibility_detect_skill > invisibility_skill:
+            return True, False
+        # Unit has invisibility and was not detected by skill, not detectable.
+        elif invisibility_skill:
+            return False, False
+
+        # Collision.
+        if distance < 1.5:
+            return True, False
+
+        # Stealth.
         if self_is_player and target_is_player:
             visible_distance = 9.0
         elif self_is_player and not target_is_player:
@@ -1009,22 +1022,16 @@ class UnitManager(ObjectManager):
         #  For now, merge stealth and invisibility handling, use greater skill.
         if target_is_player:
             stealth_skill = target.stat_manager.get_total_stat(UnitStats.STEALTH)
-            invisibility_skill = target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
         else:
             stealth_skill = target.level * 5
-            invisibility_skill = target.level * 5
 
         stealth_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION)
-        invisibility_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION)
-
-        total_stealth_skill = max(stealth_skill, invisibility_skill)
-        total_detect_skill = max(stealth_detect_skill, invisibility_detect_skill)
 
         level_diff = abs(target.level - self.level)
         if level_diff > 3:
             yards_per_level *= 2
 
-        visible_distance += (total_detect_skill - total_stealth_skill) * yards_per_level / 5.0
+        visible_distance += (stealth_detect_skill - stealth_skill) * yards_per_level / 5.0
 
         if visible_distance > 30.0:
             visible_distance = 30.0
