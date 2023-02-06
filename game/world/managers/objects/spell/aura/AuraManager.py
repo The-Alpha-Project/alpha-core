@@ -115,14 +115,14 @@ class AuraManager:
         return True
 
     def check_aura_interrupts(self, moved=False, turned=False, changed_stand_state=False, negative_aura_applied=False,
-                              received_damage=False, enter_combat=False, cast_spell: Optional[CastingSpell] = None):
-        # Add once movement information is passed to update.
+                              received_damage=False, enter_combat=False, attacked=False,
+                              cast_spell: Optional[CastingSpell] = None):
         flag_cases = {
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ENTER_COMBAT: enter_combat,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_MOUNTED: self.unit_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_MOVE: moved,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_TURNING: turned,
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST: cast_spell is not None,
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ACTION: cast_spell is not None or attacked,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_ABOVEWATER: self.unit_mgr.is_over_water(),
@@ -141,8 +141,13 @@ class AuraManager:
                 self.remove_aura(aura)
                 continue
 
+            # Some stealth auras don't have correct interrupt flags set (5916, 6408), but should be removed on attack.
+            if aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and attacked:
+                self.remove_aura(aura)
+                continue
+
             for flag, condition in flag_cases.items():
-                if flag == SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_CAST and \
+                if flag == SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ACTION and \
                      aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_MOD_STEALTH and \
                         cast_spell and not cast_spell.cast_breaks_stealth():
                     continue  # Skip cast interrupt for stealth spells for flagged spells.

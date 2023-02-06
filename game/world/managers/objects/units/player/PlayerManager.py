@@ -486,6 +486,7 @@ class PlayerManager(UnitManager):
         # Handle visibility/stealth.
         if not self.can_detect_target(creature)[0]:
             self.known_stealth_units[creature.guid] = (creature, True)
+            creature.known_players[self.guid] = self
             return
         elif creature.guid in self.known_stealth_units:
             del self.known_stealth_units[creature.guid]

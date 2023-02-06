@@ -109,10 +109,19 @@ class AuraEffectHandler:
     def handle_periodic_trigger_spell(aura, effect_target, remove):
         if not aura.is_past_next_period() or remove:
             return
+
         trigger_spell_id = aura.spell_effect.trigger_spell_id
-        spell = aura.source_spell
-        effect_target.spell_manager.handle_cast_attempt(trigger_spell_id, spell.initial_target, spell.spell_target_mask,
-                                                        validate=False, triggered=True)
+        trigger_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trigger_spell_id)
+        source_spell = aura.source_spell
+        initialized_spell = effect_target.spell_manager.try_initialize_spell(trigger_spell,
+                                                                             source_spell.initial_target,
+                                                                             source_spell.spell_target_mask,
+                                                                             triggered_by_spell=source_spell,
+                                                                             validate=False)
+
+        # Also copy initial target selection as periodically triggered spells shouldn't be able to change their target.
+        initialized_spell.targeted_unit_on_cast_start = source_spell.targeted_unit_on_cast_start
+        effect_target.spell_manager.start_spell_cast(initialized_spell=initialized_spell)
 
     @staticmethod
     def handle_periodic_mana_leech(aura, effect_target, remove):
@@ -207,7 +216,7 @@ class AuraEffectHandler:
         caster = aura.target
         spell = caster.spell_manager.try_initialize_spell(new_spell_entry, caster,
                                                           aura.source_spell.spell_target_mask,
-                                                          validate=False, triggered=True)
+                                                          validate=False, triggered_by_spell=aura.source_spell)
 
         # If an effect of this spell can't target friendly, set the cast target to the effect target.
         # Effect target will be set to the second (non-self) target in the proc call. (see AuraManager.check_aura_procs)

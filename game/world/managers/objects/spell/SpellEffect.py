@@ -183,7 +183,7 @@ class SpellEffect:
         return False
 
     def can_miss(self):
-        return self.effect_type not in {SpellEffects.SPELL_EFFECT_LEAP}
+        return self.effect_type not in {SpellEffects.SPELL_EFFECT_LEAP, SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT}
 
     def is_full_miss(self):
         if not self.casting_spell.object_target_results:

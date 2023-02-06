@@ -376,14 +376,14 @@ class SpellChannelInterruptFlags(IntEnum):
 
 class SpellAuraInterruptFlags(IntEnum):
     AURA_INTERRUPT_FLAG_NEGATIVE_SPELL = 0x00000001  # 0 Stealth, sap etc.
-    AURA_INTERRUPT_FLAG_DAMAGE = 0x00000002  # 1    removed by any damage
-    AURA_INTERRUPT_FLAG_CAST = 0x00000004  # 2
-    AURA_INTERRUPT_FLAG_MOVE = 0x00000008  # 3    removed by any movement
-    AURA_INTERRUPT_FLAG_TURNING = 0x00000010  # 4    removed by any turning
-    AURA_INTERRUPT_FLAG_ENTER_COMBAT = 0x00000020  # 5    removed by entering combat
-    AURA_INTERRUPT_FLAG_NOT_MOUNTED = 0x00000040  # 6    removed by unmounting
-    AURA_INTERRUPT_FLAG_NOT_ABOVEWATER = 0x00000080  # 7    removed by entering water
-    AURA_INTERRUPT_FLAG_NOT_UNDERWATER = 0x00000100  # 8    removed by leaving water - aquatic form
+    AURA_INTERRUPT_FLAG_DAMAGE = 0x00000002  # 1  Removed by any damage.
+    AURA_INTERRUPT_FLAG_ACTION = 0x00000004  # 2  Removed by spell cast or attack start.
+    AURA_INTERRUPT_FLAG_MOVE = 0x00000008  # 3  Removed by any movement.
+    AURA_INTERRUPT_FLAG_TURNING = 0x00000010  # 4  Removed by any turning.
+    AURA_INTERRUPT_FLAG_ENTER_COMBAT = 0x00000020  # 5  Removed by entering combat.
+    AURA_INTERRUPT_FLAG_NOT_MOUNTED = 0x00000040  # 6  Removed by unmounting.
+    AURA_INTERRUPT_FLAG_NOT_ABOVEWATER = 0x00000080  # 7  Removed by entering water.
+    AURA_INTERRUPT_FLAG_NOT_UNDERWATER = 0x00000100  # 8  Removed by leaving water - aquatic form.
 
 
 class ShapeshiftForms(IntEnum):
