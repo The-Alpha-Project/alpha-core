@@ -178,6 +178,9 @@ class StatManager(object):
             self.base_stats[UnitStats.RAGE_REGENERATION_PER_5] = -50  # Rage decay out of combat.
         # Creatures.
         else:
+            # Bosses invisibility detection.
+            if self.unit_mgr.creature_template.rank == 3:
+                self.base_stats[UnitStats.INVISIBILITY_DETECTION] = 1000
             self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
             self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
             self.base_stats[UnitStats.SPIRIT] = 1
