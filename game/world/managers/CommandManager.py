@@ -154,7 +154,7 @@ class CommandManager(object):
 
             if success:
                 return 0, f'Teleported to "{location.name}".'
-            return -1, f'map not found ({location.map}).'
+            return -1, f'location not found ({tel_location}, {location.map}).'
         return -1, f'"{tel_name}" not found.'
 
     @staticmethod
@@ -330,14 +330,14 @@ class CommandManager(object):
                 return -1, 'please specify a spell ID.'
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not spell:
-                return -1, 'The spell was not found.'
+                return -1, 'the spell was not found.'
 
             unit = CommandManager._target_or_self(world_session)
             world_session.player_mgr.spell_manager.handle_cast_attempt(spell_id, unit, SpellTargetMask.UNIT,
                                                                        validate=False)
             return 0, ''
         except ValueError:
-            return -1, 'Invalid ID.'
+            return -1, 'invalid ID.'
 
     @staticmethod
     def sskill(world_session, args):
@@ -397,17 +397,17 @@ class CommandManager(object):
             skill_value = int(skill_value)
             skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
             if not skill:
-                return -1, 'Invalid skill.'
+                return -1, 'invalid skill.'
             if skill_value <= 0:
-                return -1, 'Skill value must be greater than 0.'
+                return -1, 'skill value must be greater than 0.'
 
             if not world_session.player_mgr.skill_manager.set_skill(skill_id, skill_value):
-                return -1, "You haven't learned that skill."
+                return -1, 'you haven\'t learned that skill.'
 
             world_session.player_mgr.skill_manager.build_update()
             return 0, 'Skill set.'
         except ValueError:
-            return -1, 'Please specify the skill ID and new value.'
+            return -1, 'please specify the skill ID and new value.'
 
     @staticmethod
     def port(world_session, args):
@@ -418,7 +418,7 @@ class CommandManager(object):
 
             if success:
                 return 0, ''
-            return -1, f'map not found ({int(map_id)}).'
+            return -1, f'invalid location ({args}.'
         except ValueError:
             return -1, 'please use the "x y z map" format.'
 

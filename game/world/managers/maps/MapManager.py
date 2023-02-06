@@ -531,7 +531,6 @@ class MapManager:
                 elif tile.is_loading():
                     return MapTileStates.LOADING
             except:
-                Logger.error(traceback.format_exc())
                 Logger.error(f'Error retrieving tile information for the following position: '
                              f'Map ID: {map_id}, X: {location_x}, Y: {location_y}, '
                              f'Tile X: {map_tile_x}, Tile Y: {map_tile_y}.')
