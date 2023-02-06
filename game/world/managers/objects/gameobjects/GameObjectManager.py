@@ -48,6 +48,7 @@ class GameObjectManager(ObjectManager):
         self.current_scale = 0
         self.faction = 0
         self.lock = 0  # Unlocked.
+        self.unlocked_by = set()
         self.flags = 0
         self.state = 0
 
@@ -392,6 +393,7 @@ class GameObjectManager(ObjectManager):
     def destroy(self):
         if self.spell_manager:
             self.spell_manager.remove_casts()
+        self.unlocked_by.clear()
         self.is_spawned = False
         super().destroy()
 

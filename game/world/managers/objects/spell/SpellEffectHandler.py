@@ -16,7 +16,7 @@ from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.DuelManager import DuelManager
-from game.world.managers.objects.units.player.SkillManager import SkillManager
+from game.world.managers.objects.units.player.SkillManager import SkillManager, SkillTypes
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
@@ -176,6 +176,12 @@ class SpellEffectHandler:
         lock_result = LockManager.can_open_lock(caster, lock_type, lock_id,
                                                 cast_item=casting_spell.source_item,
                                                 bonus_points=bonus_points)
+
+        # Handle unique skill gain per herb node.
+        if lock_result.skill_type == SkillTypes.HERBALISM:
+            if caster.guid in target.unlocked_by:
+                return
+            target.unlocked_by.add(caster.guid)
 
         caster.skill_manager.handle_gather_skill_gain(lock_result.skill_type,
                                                       lock_result.required_skill_value)
