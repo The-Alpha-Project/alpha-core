@@ -14,15 +14,6 @@ Database:
 
 Server:
     Connection:  # Change 0.0.0.0 for 127.0.0.1 if it doesn't work
-        RealmServer:
-            host: 0.0.0.0  # Server machine local IP
-            port: 9100
-            realm_name: alphacore
-
-        RealmProxy:
-            host: 0.0.0.0  # Set this to external IP if needed
-            port: 9090
-
         WorldServer:
             host: 0.0.0.0  # Set this to external IP if needed
             port: 8100
