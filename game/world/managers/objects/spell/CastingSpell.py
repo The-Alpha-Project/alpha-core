@@ -9,7 +9,6 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from game.world.managers.objects.item.Stats import SpellStat
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.EffectTargets import TargetMissInfo, EffectTargets
 from game.world.managers.objects.spell.ExtendedSpellData import TotemHelpers
@@ -23,17 +22,19 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags, \
     SpellCategory
-from utils.constants.UpdateFields import UnitFields
 
 
 class CastingSpell:
     spell_entry: Spell
     cast_state: SpellState
-    cast_flags: SpellCastFlags  # TODO Write proc flag when needed
+    cast_flags: SpellCastFlags
     spell_caster = None
     source_item = None
     initial_target = None
     targeted_unit_on_cast_start = None
+    triggered = False
+    triggered_by_spell = None
+    creature_spell = None
 
     object_target_results: dict[int, TargetMissInfo] = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
@@ -58,13 +59,15 @@ class CastingSpell:
 
     dynamic_object: Optional[DynamicObjectManager]
 
-    def __init__(self, spell, caster, initial_target, target_mask, source_item=None, triggered=False, creature_spell=None):
+    def __init__(self, spell, caster, initial_target, target_mask, source_item=None,
+                 triggered=False, triggered_by_spell=None, creature_spell=None):
         self.spell_entry = spell
         self.spell_caster = caster
         self.source_item = source_item
         self.initial_target = initial_target
         self.spell_target_mask = target_mask
-        self.triggered = triggered
+        self.triggered = triggered or triggered_by_spell is not None
+        self.triggered_by_spell = triggered_by_spell
         self.creature_spell = creature_spell
 
         self.dynamic_object = None
@@ -239,9 +242,6 @@ class CastingSpell:
     def generates_threat(self):
         return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NO_THREAT
 
-    def generates_threat_only_on_miss(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_THREAT_ON_MISS
-
     def requires_implicit_initial_unit_target(self):
         # Some spells are self casts, but require an implicit unit target when casted.
         if self.spell_target_mask != SpellTargetMask.SELF:
@@ -254,9 +254,6 @@ class CastingSpell:
 
         # Return true if the effect has an implicit unit selection target.
         return any([effect.implicit_target_b == SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION for effect in self.get_effects()])
-
-    def has_spell_visual_pre_cast_kit(self):
-        return self.spell_visual_entry and self.spell_visual_entry.PrecastKit > 0
 
     def is_target_power_type_valid(self, target):
         if len(self._effects) == 0:
@@ -274,10 +271,6 @@ class CastingSpell:
             if effect.misc_value != target.power_type or not target.get_max_power_value():
                 return False
         return True
-
-    # TODO: Check 'IsImmuneToDamage' - VMaNGOS
-    def is_target_immune_to_damage(self):
-        return False
 
     def is_target_immune(self):
         if not self.initial_target_is_unit_or_player():
@@ -329,9 +322,6 @@ class CastingSpell:
     def has_pet_target(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_PET
 
-    def is_pick_pocket_spell(self):
-        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_FAILURE_BREAKS_STEALTH
-
     def get_totem_slot_type(self):
         totem_tool_id = self.get_required_tools()[0]
         totem_slot = TotemHelpers.get_totem_slot_type_by_tool(totem_tool_id)
@@ -354,32 +344,6 @@ class CastingSpell:
                 return spell_effect
         return None
 
-    def is_enchantment_spell(self):
-        enchantment_effects = [SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
-                               SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY]
-        return any(effect.effect_type in enchantment_effects for effect in self.get_effects())
-
-    def is_temporary_enchant_spell(self):
-        return any(effect.effect_type == SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY
-                   for effect in self.get_effects())
-
-    def is_duel_spell(self):
-        return any(effect.effect_type == SpellEffects.SPELL_EFFECT_DUEL
-                   for effect in self.get_effects())
-
-    def is_unlocking_spell(self):
-        unlock_effects = [SpellEffects.SPELL_EFFECT_OPEN_LOCK, SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM]
-        return any(effect.effect_type in unlock_effects for effect in self.get_effects())
-
-    def get_lock_effect(self):
-        unlock_effects = [SpellEffects.SPELL_EFFECT_OPEN_LOCK, SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM]
-        for effect in self.get_effects():
-            if effect.effect_type in unlock_effects:
-                return effect
-
-    def is_pickpocket_spell(self):
-        return any(effect.effect_type == SpellEffects.SPELL_EFFECT_PICKPOCKET for effect in self.get_effects())
-
     def is_refreshment_spell(self):
         return self.spell_entry.Category in \
                {SpellCategory.SPELLCATEGORY_ITEM_FOOD, SpellCategory.SPELLCATEGORY_ITEM_DRINK}
@@ -387,15 +351,15 @@ class CastingSpell:
     def is_overpower(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_ENABLE_AT_DODGE
 
-    def has_effect_of_type(self, effect_type: SpellEffects):
-        for effect in self.get_effects():
-            if effect.effect_type == effect_type:
+    def has_effect_of_type(self, *effect_types: SpellEffects):
+        for effect in self._effects:
+            if effect and effect.effect_type in effect_types:
                 return True
         return False
 
-    def get_effect_by_type(self, effect_type: SpellEffects) -> Optional[SpellEffect]:
-        for effect in self.get_effects():
-            if effect.effect_type == effect_type:
+    def get_effect_by_type(self, *effect_types: SpellEffects) -> Optional[SpellEffect]:
+        for effect in self._effects:
+            if effect and effect.effect_type in effect_types:
                 return effect
         return None
 
@@ -540,14 +504,6 @@ class CastingSpell:
                (self.spell_entry.Reagent_3, self.spell_entry.ReagentCount_3), (self.spell_entry.Reagent_4, self.spell_entry.ReagentCount_4), \
                (self.spell_entry.Reagent_5, self.spell_entry.ReagentCount_5), (self.spell_entry.Reagent_6, self.spell_entry.ReagentCount_6), \
                (self.spell_entry.Reagent_7, self.spell_entry.ReagentCount_7), (self.spell_entry.Reagent_8, self.spell_entry.ReagentCount_8)
-
-    def get_item_spell_stats(self) -> Optional[SpellStat]:
-        if not self.source_item:
-            return None
-        for spell_info in self.source_item.spell_stats:
-            if spell_info.spell_id == self.spell_entry.ID:
-                return spell_info
-        return None
 
     def get_required_tools(self):
         return [self.spell_entry.Totem_1, self.spell_entry.Totem_2]

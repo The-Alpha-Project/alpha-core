@@ -43,15 +43,18 @@ class BasicCreatureAI(CreatureAI):
             victim_distance = victim.location.distance(self.creature.location)
             if victim_distance > detection_range:
                 continue
+
             # Sanctuary.
             if victim.unit_state & UnitStates.SANCTUARY:
-                return False
+                continue
+
             # Not while flying.
             if victim.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
-                return False
+                continue
+
             # Check for stealth/invisibility.
             can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
-            if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER and not victim.beast_master:
                 self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
             if not can_detect_victim:
                 continue

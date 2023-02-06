@@ -21,6 +21,15 @@ SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autocommit=Tru
 
 
 class RealmDatabaseManager(object):
+    # Realm stuff
+    
+    @staticmethod
+    def realm_get_info(id=1):
+        realm_db_session = SessionHolder()
+        realm = realm_db_session.query(Realmlist).filter_by(realm_id=id).first()
+        realm_db_session.close()
+        return realm
+              
     # Account stuff
 
     @staticmethod

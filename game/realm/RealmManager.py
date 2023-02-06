@@ -9,6 +9,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants import EnvVars
 
+realm_info = RealmDatabaseManager.realm_get_info()
 
 class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
@@ -29,12 +30,12 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def serve_realm(sck):
-        name_bytes = PacketWriter.string_to_bytes(config.Server.Connection.RealmServer.realm_name)
+        name_bytes = PacketWriter.string_to_bytes(realm_info.realm_name)
         forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
-                                    config.Server.Connection.RealmProxy.host)
-        address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.RealmProxy.port}')
+                                    realm_info.proxy_address)
+        address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm_info.proxy_port}')
 
-        # TODO: Should probably move realms to database at some point, instead of config.yml
+        # TODO: Update RealmDatabaseManager.realm_get_* to handle multiple realms?
         packet = pack(
             f'<B{len(name_bytes)}s{len(address_bytes)}sI',
             1,  # Number of realms
@@ -49,8 +50,8 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         ThreadedLoginServer.allow_reuse_address = True
-        with ThreadedLoginServer((config.Server.Connection.RealmServer.host,
-                                  config.Server.Connection.RealmServer.port), LoginServerSessionHandler) \
+        with ThreadedLoginServer((realm_info.realm_address,
+                                  realm_info.realm_port), LoginServerSessionHandler) \
                 as login_instance:
             Logger.success(f'Login server started, listening on {login_instance.server_address[0]}:{login_instance.server_address[1]}')
             # Make sure all characters have online = 0 on realm start.
@@ -96,8 +97,8 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
     @staticmethod
     def start():
         ThreadedProxyServer.allow_reuse_address = True
-        with ThreadedProxyServer((config.Server.Connection.RealmProxy.host,
-                                  config.Server.Connection.RealmProxy.port), ProxyServerSessionHandler) \
+        with ThreadedProxyServer((realm_info.proxy_address,
+                                  realm_info.proxy_port), ProxyServerSessionHandler) \
                 as proxy_instance:
             Logger.success(f'Proxy server started, listening on {proxy_instance.server_address[0]}:{proxy_instance.server_address[1]}')
             try:

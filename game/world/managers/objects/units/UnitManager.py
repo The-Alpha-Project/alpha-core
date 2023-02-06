@@ -23,7 +23,7 @@ from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask
+    SpellSchoolMask, AuraTypes
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -389,6 +389,7 @@ class UnitManager(ObjectManager):
         if not victim or not self.is_alive or not victim.is_alive or victim.unit_state & UnitStates.SANCTUARY:
             return
 
+        self.aura_manager.check_aura_interrupts(attacked=True)
         if attack_type == AttackTypes.BASE_ATTACK:
             # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
@@ -983,24 +984,33 @@ class UnitManager(ObjectManager):
         if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
             return True, False
 
-        # Already attacked by the target.
-        if self.threat_manager.has_aggro_from(target):
-            return True, False
-
         # No distance provided, calculate here.
         if not distance:
             distance = self.location.distance(target.location)
 
-        # Collision.
-        if distance < 1.5:
-            return True, False
-        # TODO: Configurable, max detect distance.
         if distance > 30.0:
             return False, False
 
         self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         target_is_player = target.get_type_id() == ObjectTypeIds.ID_PLAYER
 
+        # Invisibility.
+
+        invisibility_skill = target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
+        invisibility_detect_skill = self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION)
+
+        # Handle invisibility detection by raw skill comparison.
+        if invisibility_detect_skill > invisibility_skill:
+            return True, False
+        # Unit has invisibility and was not detected by skill, not detectable.
+        elif invisibility_skill:
+            return False, False
+
+        # Collision.
+        if distance < 1.5:
+            return True, False
+
+        # Stealth.
         if self_is_player and target_is_player:
             visible_distance = 9.0
         elif self_is_player and not target_is_player:
@@ -1015,22 +1025,16 @@ class UnitManager(ObjectManager):
         #  For now, merge stealth and invisibility handling, use greater skill.
         if target_is_player:
             stealth_skill = target.stat_manager.get_total_stat(UnitStats.STEALTH)
-            invisibility_skill = target.stat_manager.get_total_stat(UnitStats.INVISIBILITY)
         else:
             stealth_skill = target.level * 5
-            invisibility_skill = target.level * 5
 
         stealth_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.STEALTH_DETECTION)
-        invisibility_detect_skill = self.level * 5 + self.stat_manager.get_total_stat(UnitStats.INVISIBILITY_DETECTION)
-
-        total_stealth_skill = max(stealth_skill, invisibility_skill)
-        total_detect_skill = max(stealth_detect_skill, invisibility_detect_skill)
 
         level_diff = abs(target.level - self.level)
         if level_diff > 3:
             yards_per_level *= 2
 
-        visible_distance += (total_detect_skill - total_stealth_skill) * yards_per_level / 5.0
+        visible_distance += (stealth_detect_skill - stealth_skill) * yards_per_level / 5.0
 
         if visible_distance > 30.0:
             visible_distance = 30.0
@@ -1132,7 +1136,7 @@ class UnitManager(ObjectManager):
         if active:
             effects.add(index)
         else:
-            effects.remove(index)
+            effects.discard(index)
 
         # Clean up empty containers.
         if not effects:

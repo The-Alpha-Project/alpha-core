@@ -77,7 +77,7 @@ class SpellManager:
         # If a profession spell is learned, grant the required skill.
         related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
         if related_profession_skill and not self.caster.skill_manager.has_skill(related_profession_skill):
-            if not self.caster.skill_manager.add_skill(related_profession_skill):
+            if not self.caster.skill_manager.add_skill(related_profession_skill, trigger_spell_id=spell.ID):
                 return False
         # If the player already knows the skill, update max skill level.
         elif related_profession_skill:
@@ -86,13 +86,14 @@ class SpellManager:
         character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
         # Character does not have the skill, but it is a valid skill.
         if not character_skill and skill and not self.caster.skill_manager.has_skill(skill.ID):
-            if not self.caster.skill_manager.add_skill(skill.ID):
+            if not self.caster.skill_manager.add_skill(skill.ID, trigger_spell_id=spell.ID):
                 return False
 
         # Check if this skill requires a 'cast ui' spell. e.g. Poisons frame.
         if skill and spell.Effect_1 != SpellEffects.SPELL_EFFECT_SPELL_CAST_UI:
             cast_ui_spells = self.caster.skill_manager.get_cast_ui_spells_for_skill_id(skill.ID)
-            if cast_ui_spells and not self.spells.keys() & cast_ui_spells:  # Player doesn't have any cast UI for this spell yet.
+            # Player doesn't have any cast UI for this spell yet.
+            if cast_ui_spells and not self.spells.keys() & cast_ui_spells:
                 # Get cast UI with lowest spell ID (lowest rank where applicable).
                 cast_ui_spell = min(cast_ui_spells)
                 if self.can_learn_spell(cast_ui_spell):
@@ -261,8 +262,10 @@ class SpellManager:
         self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
     def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
-                             triggered=False, validate=True, creature_spell=None) -> Optional[CastingSpell]:
-        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item, triggered=triggered,
+                             triggered=False, triggered_by_spell=None,
+                             validate=True, creature_spell=None) -> Optional[CastingSpell]:
+        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item,
+                             triggered=triggered, triggered_by_spell=triggered_by_spell,
                              creature_spell=creature_spell)
         if not validate:
             return spell
@@ -579,7 +582,10 @@ class SpellManager:
         if casting_spell not in self.casting_spells:
             return False
 
-        self.casting_spells.remove(casting_spell)
+        try:
+            self.casting_spells.remove(casting_spell)
+        except ValueError:
+            return False
 
         if casting_spell.dynamic_object:
             casting_spell.dynamic_object.destroy()
@@ -820,13 +826,6 @@ class SpellManager:
         data = pack('<I', 0)
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_CHANNEL_UPDATE, data))
 
-    def play_spell_visual(self, visual_id):
-        # Must match an existing ID in the SpellVisualKit dbc.
-        data = pack('<QI', self.caster.guid, visual_id)
-        packet = PacketWriter.get_packet(OpCode.SMSG_PLAY_SPELL_VISUAL, data)
-        MapManager.send_surrounding(packet, self.caster,
-                                    include_self=self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
-
     def send_login_effect(self):
         chr_race = DbcDatabaseManager.chr_races_get_by_race(self.caster.race)
         self.handle_cast_attempt(chr_race.LoginEffectSpellID, self.caster, SpellTargetMask.SELF, validate=False)
@@ -1064,8 +1063,8 @@ class SpellManager:
 
         # Target validation.
         validation_target = casting_spell.initial_target
-        # In the case of the spell requiring a unit target but being cast on self,
-        # validate the spell against the caster's current unit selection instead or the caster pet.
+        # In the case of the spell requiring another unit target but being cast on self,
+        # validate the spell against the caster's current unit selection or pet instead.
         if casting_spell.spell_target_mask == SpellTargetMask.SELF:
             if casting_spell.requires_implicit_initial_unit_target():
                 validation_target = casting_spell.targeted_unit_on_cast_start
@@ -1084,12 +1083,14 @@ class SpellManager:
             self.send_cast_result(casting_spell, result)
             return False
 
-        if casting_spell.initial_target_is_unit_or_player() and not \
-                (casting_spell.is_area_of_effect_spell() and validation_target is self.caster):
+        # Unit target checks.
+        if casting_spell.initial_target_is_unit_or_player():
             # Basic effect harmfulness/attackability check for fully harmful spells.
             # For unit-targeted AoE spells, skip validation for self casts.
             # The client checks this for player casts, but not pet casts.
-            if not self.caster.can_attack_target(validation_target) and casting_spell.has_only_harmful_effects():
+            if (not casting_spell.is_area_of_effect_spell() or validation_target is not self.caster) and \
+                    casting_spell.has_only_harmful_effects() and \
+                    not self.caster.can_attack_target(validation_target):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
@@ -1108,10 +1109,32 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_UNIT_NOT_INFRONT)
                 return False
 
-        is_terrain = casting_spell.initial_target_is_terrain()
-        is_self = not is_terrain and self.caster == validation_target
+            # Aura bounce check.
+            if not validation_target.aura_manager.are_spell_effects_applicable(casting_spell):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
+                return False
+
+            # Creature type check.
+            if validation_target is not self.caster:
+                req_creature_type_mask = casting_spell.spell_entry.TargetCreatureType
+                target_creature_type_mask = 1 << (validation_target.creature_type - 1)
+                if req_creature_type_mask and not req_creature_type_mask & target_creature_type_mask:
+                    error = SpellCheckCastResult.SPELL_FAILED_TARGET_IS_PLAYER if \
+                        validation_target.get_type_id() == ObjectTypeIds.ID_PLAYER \
+                        else SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS
+
+                    self.send_cast_result(casting_spell, error)
+                    return False
+
+            # Target power type check (mana drain etc.)
+            if not casting_spell.is_target_power_type_valid(validation_target):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
+
         # Range validations. Skip for fishing as generated targets will always be valid.
-        if not casting_spell.is_fishing_spell() and not casting_spell.initial_target_is_item() and not is_self:
+        is_terrain = casting_spell.initial_target_is_terrain()
+        if not casting_spell.is_fishing_spell() and not casting_spell.initial_target_is_item() and \
+                validation_target is not self.caster:
             # Check if the caster is within range of the (world) target to cast the spell.
             target_loc = validation_target if is_terrain else validation_target.location
             if casting_spell.range_entry.RangeMin > 0 or casting_spell.range_entry.RangeMax > 0:
@@ -1149,39 +1172,17 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
-        # Aura bounce check.
-        if casting_spell.initial_target_is_unit_or_player():
-            if not validation_target.aura_manager.are_spell_effects_applicable(casting_spell):
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_AURA_BOUNCED)
-                return False
-
-        # Creature type check.
-        if casting_spell.initial_target_is_unit_or_player() and validation_target is not self.caster:
-            req_creature_type_mask = casting_spell.spell_entry.TargetCreatureType
-            target_creature_type_mask = 1 << (validation_target.creature_type - 1)
-            if req_creature_type_mask and not req_creature_type_mask & target_creature_type_mask:
-                error = SpellCheckCastResult.SPELL_FAILED_TARGET_IS_PLAYER if \
-                    validation_target.get_type_id() == ObjectTypeIds.ID_PLAYER \
-                    else SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS
-
-                self.send_cast_result(casting_spell, error)
-                return False
-
         # Effect-specific validation.
 
-        # Target power type check (mana drain etc.)
-        if casting_spell.initial_target_is_unit_or_player() and \
-                not casting_spell.is_target_power_type_valid(validation_target):
-            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
-            return False
-
         # Enchanting checks.
-        if casting_spell.is_enchantment_spell():
+        has_temporary_enchant_effect = casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
+        if has_temporary_enchant_effect or \
+                casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT):
             # TODO: We don't have EquippedItemInventoryTypeMask, so we have no way to validate inventory slots.
             #  e.g. Enchant bracers would still work on legs, chest, etc. So maybe they had some filtering by name?
 
             # Do not allow temporary enchantments in trade slot.
-            if casting_spell.is_temporary_enchant_spell():
+            if has_temporary_enchant_effect:
                 # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
                 #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
                 if casting_spell.initial_target.get_owner_guid() != casting_spell.spell_caster.guid:
@@ -1256,7 +1257,7 @@ class SpellManager:
             return False
 
         # Pickpocketing target validity check.
-        if casting_spell.is_pickpocket_spell():
+        if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_PICKPOCKET):
             if not self.caster.can_attack_target(validation_target):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_FRIENDLY)
                 return False
@@ -1270,7 +1271,7 @@ class SpellManager:
                 return False
 
         # Duel target check.
-        if casting_spell.is_duel_spell():
+        if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_DUEL):
             # Duel cast attempt on a unit.
             if validation_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
@@ -1284,7 +1285,9 @@ class SpellManager:
                 return False
 
         # Lock/chest checks.
-        if casting_spell.is_unlocking_spell():
+        open_lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
+                                                            SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM)
+        if open_lock_effect:
             # Already unlocked.
             if not validation_target.lock:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
@@ -1302,26 +1305,24 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)
                 return False
 
-            # OPEN_LOCK spells can provide bonus skill.
-            if casting_spell.is_unlocking_spell():
-                lock_effect = casting_spell.get_lock_effect()
-                bonus_skill = lock_effect.get_effect_simple_points()
+            # Unlock spells can provide bonus skill.
+            bonus_skill = open_lock_effect.get_effect_simple_points()
 
-                # Skill checks and random failure chance.
-                if casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING:
-                    # Skill check only on initial validation.
-                    unlock_result = LockManager.can_open_lock(self.caster, lock_effect.misc_value, validation_target.lock,
-                                                              cast_item=casting_spell.source_item, bonus_points=bonus_skill)
-                    unlock_result = unlock_result.result
-                else:
-                    # Include failure chance on cast.
-                    unlock_result = self.caster.skill_manager.get_unlocking_attempt_result(lock_effect.misc_value,
-                                                                                           validation_target.lock,
-                                                                                           used_item=casting_spell.source_item,
-                                                                                           bonus_skill=bonus_skill)
-                if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
-                    self.send_cast_result(casting_spell, unlock_result)
-                    return False
+            # Skill checks and random failure chance.
+            if casting_spell.cast_state == SpellState.SPELL_STATE_PREPARING:
+                # Skill check only on initial validation.
+                unlock_result = LockManager.can_open_lock(self.caster, open_lock_effect.misc_value, validation_target.lock,
+                                                          cast_item=casting_spell.source_item, bonus_points=bonus_skill)
+                unlock_result = unlock_result.result
+            else:
+                # Include failure chance on cast.
+                unlock_result = self.caster.skill_manager.get_unlocking_attempt_result(open_lock_effect.misc_value,
+                                                                                       validation_target.lock,
+                                                                                       used_item=casting_spell.source_item,
+                                                                                       bonus_skill=bonus_skill)
+            if unlock_result != SpellCheckCastResult.SPELL_NO_ERROR:
+                self.send_cast_result(casting_spell, unlock_result)
+                return False
 
         # Special case of Ritual of Summoning.
         summoning_channel_id = 698

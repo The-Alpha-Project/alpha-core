@@ -247,6 +247,7 @@ class MovementManager:
             # TODO: Use spot SplineType, currently crashes.
             self.send_face_angle(self.unit.location.angle(location))
         else:
+
             self.unit.unit_state &= ~UnitStates.DISTRACTED
             # Restore original spawn orientation.
             if not self.is_player and not self.unit.has_wander_type():

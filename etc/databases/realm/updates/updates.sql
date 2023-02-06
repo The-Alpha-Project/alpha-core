@@ -153,5 +153,23 @@ begin not atomic
 	    ALTER TABLE `character_pets` CHANGE COLUMN `renamed` `rename_time` int(11) unsigned NOT NULL DEFAULT 0;
         insert into applied_updates values ('041220221');
     end if;
+
+    -- 22/12/2022 1
+    if (select count(*) from applied_updates where id='091220221') = 0 then
+    DROP TABLE IF EXISTS `realmlist`;
+    CREATE TABLE `realmlist` (
+	`realm_id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`realm_name` VARCHAR(255) NOT NULL DEFAULT '',
+	`proxy_address` VARCHAR(15) NOT NULL DEFAULT '0.0.0.0',
+	`proxy_port` INT(11) UNSIGNED NOT NULL DEFAULT '9090',
+	`realm_address` VARCHAR(15) NOT NULL DEFAULT '0.0.0.0',
+	`realm_port` INT(11) UNSIGNED NOT NULL DEFAULT '9100',
+	PRIMARY KEY (`realm_id`)
+    )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1;
+
+    INSERT INTO `realmlist` (`realm_name`) VALUES ('alphacore');
+
+    insert into applied_updates values ('091220221');
+    end if;
 end $
 delimiter ;
