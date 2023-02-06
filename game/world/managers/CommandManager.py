@@ -418,7 +418,7 @@ class CommandManager(object):
 
             if success:
                 return 0, ''
-            return -1, f'invalid location ({args}.'
+            return -1, f'invalid location ({args}).'
         except ValueError:
             return -1, 'please use the "x y z map" format.'
 
