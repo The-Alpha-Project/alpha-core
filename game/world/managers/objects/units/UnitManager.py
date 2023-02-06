@@ -1133,7 +1133,7 @@ class UnitManager(ObjectManager):
         if active:
             effects.add(index)
         else:
-            effects.remove(index)
+            effects.discard(index)
 
         # Clean up empty containers.
         if not effects:
