@@ -181,8 +181,8 @@ class SpellEffectHandler:
         if lock_result.skill_type == SkillTypes.HERBALISM:
             if caster.guid in target.unlocked_by:
                 return
-            target.unlocked_by.add(caster.guid)
 
+        target.unlocked_by.add(caster.guid)
         caster.skill_manager.handle_gather_skill_gain(lock_result.skill_type,
                                                       lock_result.required_skill_value)
 
