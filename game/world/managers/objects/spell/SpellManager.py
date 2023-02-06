@@ -582,7 +582,10 @@ class SpellManager:
         if casting_spell not in self.casting_spells:
             return False
 
-        self.casting_spells.remove(casting_spell)
+        try:
+            self.casting_spells.remove(casting_spell)
+        except ValueError:
+            return False
 
         if casting_spell.dynamic_object:
             casting_spell.dynamic_object.destroy()
