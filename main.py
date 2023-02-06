@@ -21,7 +21,8 @@ parser.add_argument(
     '-l', '--launch',
     help='-l realm to launch realm or -l to launch world, if nothing is specified both are launched',
     dest='launch',
-    action='store_true'
+    action='store',
+    default=None
 )
 args = parser.parse_args()
 
@@ -88,21 +89,29 @@ if __name__ == '__main__':
 
         proxy_process = context.Process(target=RealmManager.ProxyServerSessionHandler.start)
         proxy_process.start()
+
+        if not launch_world:
+            try:
+                login_process.join()
+            except:
+                Logger.info('Shutting down login processes...')
+
     if launch_world:
         world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
         world_process.start()
-        
-    # noinspection PyBroadException
-    try:
-        if os.getenv('CONSOLE_MODE', config.Server.Settings.console_mode) in [True, 'True', 'true']:
-            while input() != 'exit':
-                Logger.error('Invalid command.')
-        elif launch_world and world_process:
-            world_process.join()
-    except:
-        Logger.info('Shutting down the core...')
 
-    ChatLogManager.exit()
+        # noinspection PyBroadException
+        try:
+            if os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
+                         config.Server.Settings.console_mode) in [True, 'True', 'true']:
+                while input() != 'exit':
+                    Logger.error('Invalid command.')
+            else:
+                world_process.join()
+        except:
+            Logger.info('Shutting down the core...')
+
+        ChatLogManager.exit()
     
     # Send SIGTERM to processes.
     # Add checks to send SIGTERM to only running process

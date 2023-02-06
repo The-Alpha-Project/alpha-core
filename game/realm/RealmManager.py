@@ -32,7 +32,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
 
     @staticmethod
     def serve_realmlist(sck):
-        realm_data = pack('<B', len(REALMLIST))
+        realmlist_bytes = pack('<B', len(REALMLIST))
 
         for realm in REALMLIST.values():
             is_realm_local = config.Server.Connection.Realm.local_realm_id == realm.realm_id
@@ -50,7 +50,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             # TODO: Find a way to get online count of realms not hosted in the same machine?
             online_count = RealmDatabaseManager.character_get_online_count() if is_realm_local else 0
 
-            realm_data += pack(
+            realmlist_bytes += pack(
                 f'<{len(name_bytes)}s{len(address_bytes)}sI',
                 name_bytes,
                 address_bytes,
@@ -58,7 +58,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             )
 
         Logger.debug(f'[{sck.getpeername()[0]}] Sending realmlist...')
-        sck.sendall(realm_data)
+        sck.sendall(realmlist_bytes)
 
     @staticmethod
     def start():
