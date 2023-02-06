@@ -94,7 +94,7 @@ if __name__ == '__main__':
             try:
                 login_process.join()
             except:
-                Logger.info('Shutting down login processes...')
+                Logger.info('Terminating login processes...')
 
     if launch_world:
         world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
