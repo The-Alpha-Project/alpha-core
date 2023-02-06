@@ -77,7 +77,7 @@ class SpellManager:
         # If a profession spell is learned, grant the required skill.
         related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
         if related_profession_skill and not self.caster.skill_manager.has_skill(related_profession_skill):
-            if not self.caster.skill_manager.add_skill(related_profession_skill):
+            if not self.caster.skill_manager.add_skill(related_profession_skill, trigger_spell_id=spell.ID):
                 return False
         # If the player already knows the skill, update max skill level.
         elif related_profession_skill:
@@ -86,13 +86,14 @@ class SpellManager:
         character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
         # Character does not have the skill, but it is a valid skill.
         if not character_skill and skill and not self.caster.skill_manager.has_skill(skill.ID):
-            if not self.caster.skill_manager.add_skill(skill.ID):
+            if not self.caster.skill_manager.add_skill(skill.ID, trigger_spell_id=spell.ID):
                 return False
 
         # Check if this skill requires a 'cast ui' spell. e.g. Poisons frame.
         if skill and spell.Effect_1 != SpellEffects.SPELL_EFFECT_SPELL_CAST_UI:
             cast_ui_spells = self.caster.skill_manager.get_cast_ui_spells_for_skill_id(skill.ID)
-            if cast_ui_spells and not self.spells.keys() & cast_ui_spells:  # Player doesn't have any cast UI for this spell yet.
+            # Player doesn't have any cast UI for this spell yet.
+            if cast_ui_spells and not self.spells.keys() & cast_ui_spells:
                 # Get cast UI with lowest spell ID (lowest rank where applicable).
                 cast_ui_spell = min(cast_ui_spells)
                 if self.can_learn_spell(cast_ui_spell):
