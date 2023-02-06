@@ -301,7 +301,7 @@ class SkillManager(object):
     def has_reached_skills_limit(self):
         return len(self.skills) >= SkillManager.MAX_SKILLS
 
-    def add_skill(self, skill_id):
+    def add_skill(self, skill_id, trigger_spell_id=0):
         if self.has_reached_skills_limit():
             Logger.warning(f'Player {self.player_mgr.get_name()} with guid {self.player_mgr.guid} reached max skills.')
             return False
@@ -322,7 +322,7 @@ class SkillManager(object):
         skill_to_set.guid = self.player_mgr.guid
         skill_to_set.skill = skill_id
         skill_to_set.value = start_rank_value
-        skill_to_set.max = self.get_max_rank(skill_id)
+        skill_to_set.max = self.get_max_rank(skill_id, trigger_spell_id=trigger_spell_id)
 
         RealmDatabaseManager.character_add_skill(skill_to_set)
 
@@ -722,7 +722,7 @@ class SkillManager(object):
             return None
         return DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_line_ability.SkillLine)
 
-    def get_max_rank(self, skill_id, level=-1):
+    def get_max_rank(self, skill_id, level=-1, trigger_spell_id=0):
         skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id)
         if not skill:
             return 0
@@ -738,7 +738,7 @@ class SkillManager(object):
             if skill.CategoryID == SkillCategories.MAX_SKILL:
                 return skill.MaxRank
             # Secondary skills of other categories are all professions.
-            return ExtendedSpellData.ProfessionInfo.get_max_skill_value(skill_id, self.player_mgr)
+            return ExtendedSpellData.ProfessionInfo.get_max_skill_value(skill_id, self.player_mgr, trigger_spell_id)
         return 0
 
     def can_dual_wield(self):

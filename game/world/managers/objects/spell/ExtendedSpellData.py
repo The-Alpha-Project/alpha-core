@@ -222,12 +222,16 @@ class ProfessionInfo:
     }
 
     @staticmethod
-    def get_max_skill_value(skill_id, player):
+    def get_max_skill_value(skill_id, player, trigger_spell_id=0):
         prof_spells = ProfessionInfo._PROFESSION_SPELLS.get(skill_id, ())
         if not prof_spells:
             return 0
 
         known = player.spell_manager.spells.keys() & prof_spells
+
+        if trigger_spell_id:
+            known.add(trigger_spell_id)
+
         if not known:
             return 0
         return (prof_spells.index(max(known)) + 1) * 75
