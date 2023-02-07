@@ -46,6 +46,7 @@ class RealmDatabaseManager(object):
                 account_mgr = AccountManager(account)
 
                 realm_db_session.flush()
+                realm_db_session.commit()
                 realm_db_session.refresh(account)
             else:
                 status = 0
@@ -60,6 +61,7 @@ class RealmDatabaseManager(object):
                           gmlevel=int(config.Server.Settings.auto_create_gm_accounts))
         realm_db_session.add(account)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(account)
         realm_db_session.close()
         return AccountManager(account)
