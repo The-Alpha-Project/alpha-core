@@ -177,11 +177,12 @@ class SpellEffectHandler:
                                                 cast_item=casting_spell.source_item,
                                                 bonus_points=bonus_points)
 
-        # Handle unique skill gain per herb node.
-        if lock_result.skill_type == SkillTypes.HERBALISM and caster.guid in target.unlocked_by:
-            return
+        if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            # Handle unique skill gain per herb node.
+            if lock_result.skill_type == SkillTypes.HERBALISM and caster.guid in target.unlocked_by:
+                return
+            target.unlocked_by.add(caster.guid)
 
-        target.unlocked_by.add(caster.guid)
         caster.skill_manager.handle_gather_skill_gain(lock_result.skill_type,
                                                       lock_result.required_skill_value)
 
