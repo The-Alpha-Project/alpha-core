@@ -2,6 +2,7 @@ import hashlib
 import os
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.realm.RealmModels import *
@@ -10,6 +11,7 @@ from utils.ConfigManager import *
 from utils.constants.ItemCodes import InventorySlots
 from utils.constants.MiscCodes import HighGuid
 
+
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
 DB_HOST = os.getenv('MYSQL_HOST', config.Database.Connection.host)
@@ -17,7 +19,7 @@ DB_REALM_NAME = config.Database.DBNames.realm_db
 
 realm_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_REALM_NAME}?charset=utf8mb4',
                                 pool_pre_ping=True)
-SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autocommit=True, autoflush=False))
+SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autoflush=False))
 
 
 class RealmDatabaseManager(object):
@@ -84,6 +86,7 @@ class RealmDatabaseManager(object):
 
             realm_db_session.merge(account)
             realm_db_session.flush()
+            realm_db_session.commit()
         finally:
             realm_db_session.close()
 
@@ -103,6 +106,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.query(Character).update({Character.online: 0})
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -138,6 +142,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(character)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(character)
         realm_db_session.close()
         return character
@@ -147,6 +152,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(character)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -170,6 +176,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(gift)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(gift)
         realm_db_session.close()
 
@@ -185,6 +192,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.delete(gift)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -194,6 +202,7 @@ class RealmDatabaseManager(object):
         if char_to_delete:
             realm_db_session.delete(char_to_delete)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
             return 0
         return -1
@@ -204,6 +213,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.add(item)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.refresh(item)
             realm_db_session.close()
 
@@ -213,6 +223,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.merge(item)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -221,6 +232,7 @@ class RealmDatabaseManager(object):
         for item in container.sorted_slots.values():
             realm_db_session.merge(item.item_instance)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -229,6 +241,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.delete(item)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -251,6 +264,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(deathbind)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(deathbind)
         realm_db_session.close()
         return deathbind
@@ -261,6 +275,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.merge(deathbind)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -292,6 +307,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.merge(character_social)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -300,6 +316,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.add(character_social)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.refresh(character_social)
             realm_db_session.close()
             return character_social
@@ -310,6 +327,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.delete(character_social)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -325,6 +343,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.add(skill)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.refresh(skill)
             realm_db_session.close()
 
@@ -334,6 +353,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.merge(skill)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -356,6 +376,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.add(spell)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.refresh(spell)
             realm_db_session.close()
 
@@ -365,6 +386,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.merge(spell)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -374,6 +396,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.delete(spell_to_delete)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
             return 0
         return -1
@@ -426,6 +449,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.add(quest_status)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.refresh(quest_status)
             realm_db_session.close()
 
@@ -436,6 +460,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.delete(quest_to_delete)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
             return 0
         return -1
@@ -446,6 +471,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.merge(quest_status)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -461,6 +487,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.merge(reputation)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
 
     @staticmethod
@@ -468,6 +495,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(reputation)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(reputation)
         realm_db_session.close()
 
@@ -495,6 +523,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(character_button)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -502,6 +531,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(character_button)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(character_button)
         realm_db_session.close()
 
@@ -510,6 +540,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.delete(character_button)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     # Spellbook
@@ -536,6 +567,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(character_spell_button)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -543,6 +575,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(character_spell_button)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(character_spell_button)
         realm_db_session.close()
 
@@ -551,6 +584,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.delete(character_spell_button)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     # Pets
@@ -567,6 +601,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(pet)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -574,6 +609,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(character_pet)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(character_pet)
         realm_db_session.close()
 
@@ -584,6 +620,7 @@ class RealmDatabaseManager(object):
         if pet:
             realm_db_session.delete(pet)
             realm_db_session.flush()
+            realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -598,6 +635,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(pet_spell)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(pet_spell)
         realm_db_session.close()
 
@@ -608,6 +646,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(ticket)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -624,6 +663,7 @@ class RealmDatabaseManager(object):
             realm_db_session = SessionHolder()
             realm_db_session.delete(ticket_to_delete)
             realm_db_session.flush()
+            realm_db_session.commit()
             realm_db_session.close()
             return 0
         return -1
@@ -642,6 +682,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(group)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(group)
         realm_db_session.close()
         return group
@@ -651,6 +692,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(group_member)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(group_member)
         realm_db_session.close()
         return group_member
@@ -660,6 +702,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.delete(group_member)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -695,6 +738,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(group)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -702,6 +746,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(group_member)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -709,6 +754,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.delete(group)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     # Guild
@@ -718,6 +764,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(guild)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(guild)
         realm_db_session.close()
         return guild
@@ -727,6 +774,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(guild_member)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(guild_member)
         realm_db_session.close()
         return guild_member
@@ -736,6 +784,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.delete(guild_member)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -767,6 +816,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(guild)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -774,6 +824,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(guild_member)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -781,6 +832,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.delete(guild)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
 
     @staticmethod
@@ -788,6 +840,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.add(petition)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.refresh(petition)
         realm_db_session.close()
         return petition
@@ -818,6 +871,7 @@ class RealmDatabaseManager(object):
         realm_db_session = SessionHolder()
         realm_db_session.merge(petition)
         realm_db_session.flush()
+        realm_db_session.commit()
         realm_db_session.close()
         return petition
 
@@ -825,6 +879,7 @@ class RealmDatabaseManager(object):
     def guild_petition_destroy(petition):
         realm_db_session = SessionHolder()
         realm_db_session.delete(petition)
-        realm_db_session.refresh(petition)
         realm_db_session.flush()
+        realm_db_session.commit()
+        realm_db_session.refresh(petition)
         realm_db_session.close()

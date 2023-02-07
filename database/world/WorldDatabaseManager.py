@@ -3,12 +3,14 @@ from typing import Optional
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureSpellsEntry
 from utils.ConfigManager import *
 from utils.constants.MiscCodes import HighGuid
+
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
@@ -17,7 +19,7 @@ DB_WORLD_NAME = config.Database.DBNames.world_db
 
 world_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_WORLD_NAME}?charset=utf8mb4',
                                 pool_pre_ping=True)
-SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autocommit=True, autoflush=True))
+SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autoflush=True))
 
 
 # noinspection PyUnresolvedReferences
@@ -148,7 +150,7 @@ class WorldDatabaseManager(object):
         world_db_session = SessionHolder()
         applied_item_update = AppliedItemUpdates(entry=entry, version=version)
         world_db_session.add(applied_item_update)
-        world_db_session.flush()
+        world_db_session.commit()
         world_db_session.refresh(applied_item_update)
         world_db_session.close()
 
@@ -156,7 +158,7 @@ class WorldDatabaseManager(object):
     def update_item_applied_update(item_applied_update):
         world_db_session = SessionHolder()
         world_db_session.merge(item_applied_update)
-        world_db_session.flush()
+        world_db_session.commit()
         world_db_session.close()
 
     @staticmethod
