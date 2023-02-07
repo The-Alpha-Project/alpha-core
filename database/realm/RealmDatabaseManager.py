@@ -25,7 +25,7 @@ class RealmDatabaseManager(object):
     # Realm stuff
     
     @staticmethod
-    def get_realmlist():
+    def realm_get_list():
         realm_db_session = SessionHolder()
         realm = realm_db_session.query(RealmList).all()
         realm_db_session.close()

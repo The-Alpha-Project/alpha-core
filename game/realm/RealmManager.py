@@ -10,7 +10,7 @@ from utils.Logger import Logger
 from utils.constants import EnvVars
 
 
-REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.get_realmlist()}
+REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.realm_get_list()}
 
 
 class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
