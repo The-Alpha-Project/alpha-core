@@ -326,11 +326,12 @@ class GroupMember(Base):
     character = relationship('Character', lazy='joined')
     group = relationship('Group', lazy='joined')
 
-class Realmlist(Base):
+
+class RealmList(Base):
     __tablename__ = 'realmlist'
     
     realm_id = Column(INTEGER(11), autoincrement=True, nullable=False, primary_key=True)
-    realm_name = Column(String(255), nullable=False, server_default=text("alphacore"))
+    realm_name = Column(String(255), nullable=False, server_default=text(""))
     proxy_address = Column(String(15), nullable=False, server_default="0.0.0.0")
     proxy_port = Column(INTEGER(11), nullable=False, server_default="9090")
     realm_address = Column(String(15), nullable=False, server_default="0.0.0.0")

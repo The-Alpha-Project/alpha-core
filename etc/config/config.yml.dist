@@ -14,6 +14,9 @@ Database:
 
 Server:
     Connection:  # Change 0.0.0.0 for 127.0.0.1 if it doesn't work
+        Realm:
+            local_realm_id: 1  # id of the realm running on this machine (realmlist table)
+
         WorldServer:
             host: 0.0.0.0  # Set this to external IP if needed
             port: 8100
