@@ -3,7 +3,6 @@ from typing import Optional
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine
-from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *

@@ -3,7 +3,6 @@ from collections import defaultdict
 from typing import Optional
 
 from sqlalchemy import create_engine
-from sqlalchemy.exc import ArgumentError
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.dbc.DbcModels import *
