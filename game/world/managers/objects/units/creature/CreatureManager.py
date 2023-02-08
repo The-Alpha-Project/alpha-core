@@ -13,6 +13,7 @@ from game.world.managers.objects.units.creature.CreaturePickPocketLootManager im
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.items.VirtualItemUtils import VirtualItemsUtils
 from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
+from game.world.managers.objects.units.movement.CreatureGroupManager import CreatureGroupManager
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
@@ -37,6 +38,7 @@ class CreatureManager(UnitManager):
         self.location = None
         self.spawn_position = None
         self.default_waypoints = None
+        self.creature_group = None
         self.map_id = 0
         self.health_percent = 100
         self.mana_percent = 100
@@ -236,11 +238,21 @@ class CreatureManager(UnitManager):
             self.current_scale = self.native_scale
 
             if self.has_waypoints_type() and self.spawn_id:
-                # Load default waypoints if any.
-                self.default_waypoints = WorldDatabaseManager.CreatureMovementHolder.creature_waypoints_by_id(self.spawn_id)
-                if self.default_waypoints:
-                    # Sort by point ID.
-                    self.default_waypoints.sort(key=lambda wp: wp.point)
+                creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
+                self.creature_group = creature_group
+                if self.creature_group:
+                    CreatureGroupManager.add_member(self, self.creature_group)
+                # If not part of a group or self is group leader (Leader has waypoints).
+                if not self.creature_group or self.creature_group.leader_guid == self.spawn_id:
+                    # Load default creature_movement if any.
+                    self.default_waypoints = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_spawn_id(self.spawn_id)
+                    # Cascade into creature_movement_template.
+                    if not self.default_waypoints:
+                        self.default_waypoints = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(self.entry)
+
+            # Found movement data, sort by point ID.
+            if self.default_waypoints:
+                self.default_waypoints.sort(key=lambda wp: wp.point)
 
             # Equipment.
             if self.creature_template.equipment_id > 0:

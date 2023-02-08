@@ -2,6 +2,7 @@ import math
 from random import randint
 
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.units.movement.CreatureGroupManager import CreatureGroupManager
 from game.world.managers.objects.units.movement.MovementSpline import MovementSpline
 from game.world.managers.objects.units.movement.MovementWaypoint import MovementWaypoint
 from utils.ConfigManager import config
@@ -52,6 +53,8 @@ class MovementManager:
             self._perform_move_home_movement(now)
         elif self._can_perform_creature_waypoints(self.unit, now):
             self._perform_waypoints_movement(now)
+        elif self._can_perform_follow_group(self.unit, now):
+            self._perform_follow_group(now)
         elif self._can_perform_wandering(self.unit, now):
             self._perform_random_movement(self.unit, now)
         elif self._can_perform_combat_chase(self.unit):
@@ -67,6 +70,13 @@ class MovementManager:
     def _perform_move_home_movement(self, now):
         speed = self.unit.running_speed
         self.send_move_normal([self.return_home_waypoints[0]], speed, SplineFlags.SPLINEFLAG_RUNMODE)
+        self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
+        self.last_movement = now
+
+    def _perform_follow_group(self, now):
+        speed = config.Unit.Defaults.walk_speed
+        location = CreatureGroupManager.get_follow_position(self.unit.creature_group)
+        self.send_move_normal([location], speed, SplineFlags.SPLINEFLAG_RUNMODE)
         self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
 
@@ -184,6 +194,15 @@ class MovementManager:
     def _can_perform_move_home_movement(self, unit, now):
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
             and unit.is_evading and self.return_home_waypoints \
+            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
+            and now > self.last_movement + self.wait_time_seconds \
+            and not unit.unit_state & UnitStates.DISTRACTED \
+            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+
+    def _can_perform_follow_group(self, unit, now):
+        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
+            and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
+            and not unit.default_waypoints and self.unit.creature_group \
             and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
             and now > self.last_movement + self.wait_time_seconds \
             and not unit.unit_state & UnitStates.DISTRACTED \

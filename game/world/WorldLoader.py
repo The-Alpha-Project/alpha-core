@@ -44,6 +44,8 @@ class WorldLoader:
         # Creature spawns
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_movement()
+            WorldLoader.load_creature_movement_templates()
+            WorldLoader.load_creature_groups()
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creature_on_kill_reputation()
             WorldLoader.load_creature_quest_starters()
@@ -137,15 +139,41 @@ class WorldLoader:
         return length
 
     @staticmethod
+    def load_creature_groups():
+        creature_groups = WorldDatabaseManager.creature_groups_get_all()
+        length = len(creature_groups)
+        count = 0
+
+        for group in creature_groups:
+            WorldDatabaseManager.CreatureGroupsHolder.load_creature_groups(group)
+            count += 1
+            Logger.progress('Loading creature group...', count, length)
+
+        return length
+
+    @staticmethod
     def load_creature_movement():
         creature_movements = WorldDatabaseManager.creature_movement_get_all()
         length = len(creature_movements)
         count = 0
 
         for creature_movement in creature_movements:
-            WorldDatabaseManager.CreatureMovementHolder.load_creature_waypoints(creature_movement)
+            WorldDatabaseManager.CreatureMovementHolder.load_creature_movement(creature_movement)
             count += 1
             Logger.progress('Loading creature movement...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_movement_templates():
+        movements_templates = WorldDatabaseManager.creature_movement_template_get_all()
+        length = len(movements_templates)
+        count = 0
+
+        for movement_template in movements_templates:
+            WorldDatabaseManager.CreatureMovementHolder.load_creature_movement_template(movement_template)
+            count += 1
+            Logger.progress('Loading creature movement template...', count, length)
 
         return length
 
