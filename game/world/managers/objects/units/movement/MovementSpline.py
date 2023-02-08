@@ -192,8 +192,7 @@ class MovementSpline(object):
         return spline
 
     # TODO: Fix SMSG_UPDATE_OBJECT create movement block.
-    #  There is no reason to send monster move packets, spline should be part of the create packet.
-    #  Client always expects at least 3 points for this.
+    #  Client expects at least 3 waypoints for MOVEFLAG_SPLINE_MOVER.
     def to_bytes(self):
         data = pack('<I', self.flags)
 
