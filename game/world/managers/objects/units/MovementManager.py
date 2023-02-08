@@ -1,9 +1,9 @@
 import math
 from random import randint
 
-from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.MovementSpline import MovementSpline
+from game.world.managers.objects.units.movement.MovementWaypoint import MovementWaypoint
 from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
@@ -19,11 +19,17 @@ class MovementManager:
         self.distracted_timer = 0
         self.fear_timer = 0
         self.last_movement = 0  # Wandering, Waypoint.
-        self.wait_time = randint(1, 12)  # Wandering, Fear, Waypoint.
+        self.wait_time_seconds = randint(1, 12)  # Wandering, Fear, Waypoint.
+        self.halt_movement_timer = 0
         self.movement_waypoints = []  # Used for MovementType.WAYPOINT
         self.return_home_waypoints = []  # Used for evade.
 
     def update(self, now, elapsed):
+        self.halt_movement_timer = max(0, self.halt_movement_timer - elapsed)
+        # Skip updates while waiting.
+        if self.halt_movement_timer:
+            return
+
         spline = self.get_current_spline()
         # Update any pending spline first.
         if spline:
@@ -61,7 +67,7 @@ class MovementManager:
     def _perform_move_home_movement(self, now):
         speed = self.unit.running_speed
         self.send_move_normal([self.return_home_waypoints[0]], speed, SplineFlags.SPLINEFLAG_RUNMODE)
-        self.wait_time = self.pending_splines[-1].get_total_time_secs()
+        self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
 
     # TODO: No scripts, no wait times, etc.
@@ -71,8 +77,9 @@ class MovementManager:
         if not self.movement_waypoints:
             self.movement_waypoints = self._get_sorted_waypoints_by_distance()
 
-        self.send_move_normal([self.movement_waypoints[0]], speed, SplineFlags.SPLINEFLAG_RUNMODE)
-        self.wait_time = self.pending_splines[-1].get_total_time_secs()
+        waypoint = self.movement_waypoints[0]
+        self.send_move_normal([waypoint.location()], speed, SplineFlags.SPLINEFLAG_RUNMODE)
+        self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs(offset_milliseconds=waypoint.wait_time())
         self.last_movement = now
 
     # TODO: Namigator: FindRandomPointAroundCircle (Detour)
@@ -81,12 +88,12 @@ class MovementManager:
         speed = self.unit.running_speed
         fear_point = self.unit.location.get_point_in_radius_and_angle(speed * self.fear_timer, 0)
         self.send_move_normal([fear_point], speed, SplineFlags.SPLINEFLAG_RUNMODE)
-        self.wait_time = self.pending_splines[-1].get_total_time_secs()
+        self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
 
     def _perform_random_movement(self, unit, now):
         if self._move_random(unit.spawn_position, unit.wander_distance):
-            self.wait_time = randint(1, 12)
+            self.wait_time_seconds = randint(1, 12)
             self.last_movement = now
 
     # TODO: Namigator: FindRandomPointAroundCircle (Detour)
@@ -178,7 +185,7 @@ class MovementManager:
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
             and unit.is_evading and self.return_home_waypoints \
             and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_movement + self.wait_time \
+            and now > self.last_movement + self.wait_time_seconds \
             and not unit.unit_state & UnitStates.DISTRACTED \
             and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
@@ -187,7 +194,7 @@ class MovementManager:
             and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
             and unit.default_waypoints \
             and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_movement + self.wait_time \
+            and now > self.last_movement + self.wait_time_seconds \
             and not unit.unit_state & UnitStates.DISTRACTED \
             and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
@@ -195,7 +202,7 @@ class MovementManager:
     def _can_perform_fear(self, unit, elapsed, now):
         self.fear_timer = max(0, self.fear_timer - elapsed)
         return self.fear_timer and unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
-            and now > self.last_movement + self.wait_time
+            and now > self.last_movement + self.wait_time_seconds
 
     # noinspection PyMethodMayBeStatic
     def _can_perform_combat_chase(self, unit):
@@ -210,7 +217,7 @@ class MovementManager:
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
             and not unit.combat_target and not unit.is_evading and unit.has_wander_type() \
             and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_movement + self.wait_time \
+            and now > self.last_movement + self.wait_time_seconds \
             and not unit.unit_state & UnitStates.DISTRACTED \
             and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
@@ -220,10 +227,9 @@ class MovementManager:
         self.distracted_timer = max(0, self.distracted_timer - elapsed)
         return self.unit.combat_target or not self.distracted_timer
 
-    def _get_sorted_waypoints_by_distance(self):
-        points = [Vector(wp.position_x, wp.position_y, wp.position_z, wp.orientation)
-                  for wp in self.unit.default_waypoints]
-        closest = min(points, key=lambda point: self.unit.spawn_position.distance(point))
+    def _get_sorted_waypoints_by_distance(self) -> list[MovementWaypoint]:
+        points = [MovementWaypoint(wp) for wp in self.unit.default_waypoints]  # Wrap them.
+        closest = min(points, key=lambda wp: self.unit.spawn_position.distance(wp.location()))
         index = points.index(closest)
         if index:
             points = points[index:] + points[0:index]
@@ -232,7 +238,7 @@ class MovementManager:
     def update_speed(self):
         # This will automatically trigger a new spline heading on the same direction with updated speed.
         self.fear_timer = 0
-        self.wait_time = 0
+        self.wait_time_seconds = 0
 
     def set_feared(self, duration=0):
         self.fear_timer = duration
@@ -259,7 +265,7 @@ class MovementManager:
         if spline:
             spline.update_to_now()
         self.last_movement = 0
-        self.wait_time = 0
+        self.wait_time_seconds = 0
         self.pending_splines.clear()
         self.unit.movement_spline = None
 
@@ -297,9 +303,12 @@ class MovementManager:
     def _handle_position_change(self, new_position):
         # Waypoint type movement, set home position upon waypoint reached.
         # This is where the unit will return if the path is interrupted.
-        if self.movement_waypoints and new_position == self.movement_waypoints[0]:
+        if self.movement_waypoints and new_position == self.movement_waypoints[0].location():
             self.unit.spawn_position = new_position.copy()  # Set new home.
+            current_waypoints = self.movement_waypoints[0]
+            # Handle as circular buffer.
             self.movement_waypoints.pop(0)
+            self.movement_waypoints.append(current_waypoints)
         # Return home.
         elif self.return_home_waypoints and new_position == self.return_home_waypoints[0]:
             self.return_home_waypoints.pop(0)
@@ -372,7 +381,7 @@ class MovementManager:
 
         self._send_move_to(spline)
 
-    def send_face_target(self, target):
+    def send_face_target(self, target, halt_seconds=0.0):
         if not target:
             return
 
@@ -390,7 +399,7 @@ class MovementManager:
             points=[self.unit.location]  # On its own axis.
         )
 
-        self._send_move_to(spline)
+        self._send_move_to(spline, halt_seconds=halt_seconds)
 
     def send_face_angle(self, angle):
         # Server side.
@@ -409,7 +418,7 @@ class MovementManager:
 
         self._send_move_to(spline)
 
-    def _send_move_to(self, spline):
+    def _send_move_to(self, spline, halt_seconds=0.0):
         # Reset old waypoints (if any) before sending new waypoints.
         self.reset()
 
@@ -417,6 +426,8 @@ class MovementManager:
         self.unit.movement_spline = spline
 
         spline.initialize()
+        self.halt_movement_timer = halt_seconds  # Seconds.
+
         movement_packet = spline.try_build_movement_packet()
         if movement_packet:
             MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)

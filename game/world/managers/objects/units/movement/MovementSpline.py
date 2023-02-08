@@ -50,8 +50,8 @@ class MovementSpline(object):
 
         self.total_time = total_time * 1000
 
-    def get_total_time_secs(self):
-        return self.total_time / 1000
+    def get_total_time_secs(self, offset_milliseconds=0):
+        return (self.total_time + offset_milliseconds) / 1000
 
     def get_total_time_ms(self):
         return self.total_time
