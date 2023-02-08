@@ -1,24 +1,56 @@
 version: '3.9'
+
+x-alpha-core-shared-conf: &alpha-core-shared-conf
+  environment:
+    - TZ=Europe/London
+    - MYSQL_HOST=sql
+    - MYSQL_USERNAME=root
+    - MYSQL_PASSWORD=pwd
+    - CONSOLE_MODE=False
+    - FORWARD_ADDRESS_OVERRIDE=127.0.0.1
+  volumes:
+    - .:/var/wow/
+  restart: on-failure
+  depends_on:
+    - sql
+
 services:
   main:
     image: alpha-core:latest
     container_name: alpha-core-main
-    build: .
-    environment:
-      - MYSQL_HOST=sql
-      - MYSQL_USERNAME=root
-      - MYSQL_PASSWORD=pwd
-      - CONSOLE_MODE=False
-      - FORWARD_ADDRESS_OVERRIDE=127.0.0.1
+    build:
+      context: .
+      dockerfile: etc/docker/main/Dockerfile
     ports:
       - "8100:8100"
       - "9090:9090"
       - "9100:9100"
-    volumes:
-      - .:/var/wow/
-    depends_on:
-      - sql
-    restart: on-failure
+    <<: *alpha-core-shared-conf
+
+  world:
+    image: alpha-core:latest
+    container_name: alpha-core-world
+    build:
+      context: .
+      dockerfile: etc/docker/world/Dockerfile
+    ports:
+      - "8100:8100"
+    <<: *alpha-core-shared-conf
+    profiles:
+      - world
+
+  realm:
+    image: alpha-core:latest
+    container_name: alpha-core-realm
+    build:
+      context: .
+      dockerfile: etc/docker/realm/Dockerfile
+    ports:
+      - "9090:9090"
+      - "9100:9100"
+    <<: *alpha-core-shared-conf
+    profiles:
+      - realm
 
   sql:
     image: alpha-mariadb:latest
