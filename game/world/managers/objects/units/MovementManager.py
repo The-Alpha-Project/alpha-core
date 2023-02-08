@@ -426,7 +426,10 @@ class MovementManager:
         self.unit.movement_spline = spline
 
         spline.initialize()
-        self.halt_movement_timer = halt_seconds  # Seconds.
+
+        # Avoid halting movement if unit is in combat.
+        if not self.unit.combat_target:
+            self.halt_movement_timer = halt_seconds  # Seconds.
 
         movement_packet = spline.try_build_movement_packet()
         if movement_packet:

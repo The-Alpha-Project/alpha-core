@@ -24,8 +24,9 @@ class ListInventoryHandler(object):
             vendor: CreatureManager = MapManager.get_surrounding_unit_by_guid(player_mgr, npc_guid)
             if vendor and vendor.location.distance(player_mgr.location) < Formulas.Distances.MAX_SHOP_DISTANCE:
                 if vendor.is_moving():
-                    # There is no way to known when players close dialogs, give it 15 seconds grace.
-                    vendor.movement_manager.send_face_target(player_mgr, halt_seconds=15.0)
+                    # There is no way to known when players close dialogs, give it 3 minute grace.
+                    # From VMaNGOS NPC_MOVEMENT_PAUSE_TIME.
+                    vendor.movement_manager.send_face_target(player_mgr, halt_seconds=180.0)
                 # If vendor is a quest giver and player has an active quest involving this NPC, send quest window
                 # instead of vendor window.
                 if vendor.is_quest_giver():
