@@ -66,7 +66,6 @@ class MovementSpline(object):
             return False, None
 
         current_waypoint = self.pending_waypoints[0]
-        self.unit.location.face_point(current_waypoint.location)
 
         is_complete = self.total_waypoint_timer >= current_waypoint.expected_timestamp
         if is_complete:
@@ -74,8 +73,10 @@ class MovementSpline(object):
 
         new_position = self._get_position(current_waypoint, elapsed, is_complete)
 
-        if new_position and config.Server.Settings.debug_movement:
-            self._debug_position(new_position)
+        if new_position:
+            if config.Server.Settings.debug_movement:
+                self._debug_position(new_position)
+            new_position.face_point(current_waypoint.location)
 
         return new_position is not None, new_position  # Position changed.
 

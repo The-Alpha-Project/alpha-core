@@ -1,5 +1,5 @@
 from database.world.WorldModels import CreatureGroup
-
+from utils.ConfigManager import config
 
 CREATURE_GROUPS: [int, CreatureGroup] = {}
 
@@ -22,8 +22,14 @@ class CreatureGroupManager:
         return CREATURE_GROUPS[creature_group.leader_guid][creature_group.leader_guid].owner
 
     @staticmethod
-    def get_follow_position(creature_group):
+    def get_follow_position_and_speed(creature_group):
+        speed = config.Unit.Defaults.walk_speed
         leader = CreatureGroupManager.get_leader(creature_group)
-        creature = creature_group.owner
         final_location = leader.location.get_point_in_radius_and_angle(creature_group.dist, creature_group.angle)
-        return final_location if final_location else creature.location
+        return final_location, speed
+
+    @staticmethod
+    def should_move(creature_group):
+        leader = CreatureGroupManager.get_leader(creature_group)
+        final_location = leader.location.get_point_in_radius_and_angle(creature_group.dist, creature_group.angle)
+        return creature_group.owner.location.distance(final_location) >= creature_group.dist

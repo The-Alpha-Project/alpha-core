@@ -26,7 +26,7 @@ class MovementManager:
         self.return_home_waypoints = []  # Used for evade.
 
     def update(self, now, elapsed):
-        self.halt_movement_timer = max(0, self.halt_movement_timer - elapsed)
+        self.halt_movement_timer = 0 if self.unit.combat_target else max(0, self.halt_movement_timer - elapsed)
         # Skip updates while waiting.
         if self.halt_movement_timer:
             return
@@ -74,8 +74,7 @@ class MovementManager:
         self.last_movement = now
 
     def _perform_follow_group(self, now):
-        speed = config.Unit.Defaults.walk_speed
-        location = CreatureGroupManager.get_follow_position(self.unit.creature_group)
+        location, speed = CreatureGroupManager.get_follow_position_and_speed(self.unit.creature_group)
         self.send_move_normal([location], speed, SplineFlags.SPLINEFLAG_RUNMODE)
         self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
@@ -206,7 +205,8 @@ class MovementManager:
             and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
             and now > self.last_movement + self.wait_time_seconds \
             and not unit.unit_state & UnitStates.DISTRACTED \
-            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
+            and CreatureGroupManager.should_move(unit.creature_group)
 
     def _can_perform_creature_waypoints(self, unit, now):
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
