@@ -389,7 +389,7 @@ class CreatureManager(UnitManager):
             return
         # Notify creature group.
         if self.creature_group:
-            self.creature_group.on_members_attack_start(self.combat_target)
+            self.creature_group.on_members_attack_start(self, self.combat_target)
 
     # override
     def leave_combat(self):

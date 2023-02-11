@@ -91,7 +91,7 @@ class BasicCreatureAI(CreatureAI):
         # Avoid attacks on characters with Beastmaster flag on.
         if target_is_player and victim.beast_master:
             return False
-        return self.attacked_by(victim)
+        return self.creature.object_ai.attacked_by(victim)
 
     def summon_guard(self, enemy):
         pass
