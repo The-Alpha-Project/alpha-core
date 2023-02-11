@@ -16581,5 +16581,33 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('110220231');
     end if;
+
+    -- 11/02/2023 2
+    if (select count(*) from applied_updates where id='110220232') == 0 then
+        -- Change level of General Marcus Jonathan to 95
+        UPDATE `creature_template` SET `level_min` = 95, `level_max` = 95 WHERE `entry` = 466;
+
+        -- Move Billy to the correct location
+        UPDATE `spawns_creatures` SET `position_x` = -8795.815, `position_y` = 771.774, `orientation` = 1.691 WHERE `spawn_id` = 79700;
+        -- Move Adam to the correct location
+        UPDATE `spawns_creatures` SET `position_x` = -8797.605, `position_y` = 771.589, `orientation` = 1.510 WHERE `spawn_id` = 79702;
+
+        -- Relocate Stockade guards
+        -- Guard 1
+        UPDATE `spawns_creatures` SET `position_x` = -8785.008, `position_y` = 826.591, `position_z` = 97.650, `orientation` = 0.798 WHERE `spawn_id` = 90454;
+        -- Guard 2
+        UPDATE `spawns_creatures` SET `position_x` = -8787.415, `position_y` = 830.132, `position_z` = 97.651, `orientation` = 0.767 WHERE `spawn_id` = 90456;
+        -- Guard 3
+        UPDATE `spawns_creatures` SET `position_x` = -8791.091, `position_y` = 835.497, `position_z` = 97.635, `orientation` = 0.272 WHERE `spawn_id` = 90453;
+        -- Guard 4
+        UPDATE `spawns_creatures` SET `position_x` = -8782.847, `position_y` = 826.419, `position_z` = 97.411, `orientation` = 0.932 WHERE `spawn_id` = 90455;
+        -- Spawn guard 5
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `position_x`, `position_y`,
+                                        `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`)
+                                        VALUES (4995, -8787.91, 832.669,
+                                                97.4384, 0.261799, 540, 540, 0);
+
+        INSERT INTO applied_updates VALUES ('110220232');
+    end if;
 end $
 delimiter ;
