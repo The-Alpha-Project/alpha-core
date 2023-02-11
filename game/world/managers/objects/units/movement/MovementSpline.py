@@ -8,15 +8,16 @@ from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObject
 from game.world.managers.objects.units.movement.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags, MoveType
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
 
 class MovementSpline(object):
-    def __init__(self, unit, spline_type=0, flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0, total_time=0,
+    def __init__(self, unit, move_type, spline_type=0, flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0, total_time=0,
                  points=None):
         self.unit = unit
+        self.move_type = move_type
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.spline_type = spline_type
         self.flags = flags
@@ -63,7 +64,7 @@ class MovementSpline(object):
             self.elapsed = self.total_time
 
         if not self.pending_waypoints:
-            return False, None
+            return False, None, False
 
         current_waypoint = self.pending_waypoints[0]
 
@@ -78,7 +79,8 @@ class MovementSpline(object):
                 self._debug_position(new_position)
             new_position.face_point(current_waypoint.location)
 
-        return new_position is not None, new_position  # Position changed.
+        # Position changed, vector, waypoint completed (Not guessed).
+        return new_position is not None, new_position, is_complete
 
     def _get_position(self, pending_waypoint, elapsed, is_complete=False):
         # Handle players collision due wrong pathing.
@@ -167,7 +169,7 @@ class MovementSpline(object):
 
         bytes_read = 0
 
-        spline = MovementSpline(unit)
+        spline = MovementSpline(unit, MoveType.INSTANT)
         spline.flags = unpack('<I', spline_bytes[:4])[0]
         bytes_read += 4
 

@@ -2,6 +2,7 @@ import math
 
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
+from utils.constants.MiscCodes import MoveType
 from utils.constants.PetCodes import PetCommandState
 from utils.constants.UnitCodes import SplineFlags
 
@@ -92,8 +93,7 @@ class PetAI(CreatureAI):
 
         destination_loc = target_location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
                                                                         PetAI.PET_FOLLOW_ANGLE)
-        self.creature.movement_manager.send_move_normal([destination_loc], self.creature.running_speed,
-                                                        SplineFlags.SPLINEFLAG_RUNMODE)
+        self.creature.movement_manager.send_move_normal([destination_loc], self.creature.running_speed, MoveType.EVADE)
 
     # Handles attack with or without chase and also resets flags for next update / creature kill.
     def do_attack(self, target, chase):

@@ -175,9 +175,10 @@ class CreatureAI:
     def summoned_creatures_despawn(self, creature):
         pass
 
+    # TODO: PlayerAI, route both player and creatures add_thread through AI.
     # Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc).
     def attacked_by(self, attacker):
-        pass
+        self.creature.threat_manager.add_threat(attacker)
 
     # Called when creature attack is expected (if creature can and doesn't have current victim).
     # Note: for reaction at hostile action must be called AttackedBy function.

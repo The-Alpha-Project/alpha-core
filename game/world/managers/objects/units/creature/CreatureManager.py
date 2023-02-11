@@ -1,4 +1,3 @@
-import math
 from random import randint
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
@@ -13,7 +12,7 @@ from game.world.managers.objects.units.creature.CreaturePickPocketLootManager im
 from game.world.managers.objects.units.creature.ThreatManager import ThreatManager
 from game.world.managers.objects.units.creature.items.VirtualItemUtils import VirtualItemsUtils
 from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
-from game.world.managers.objects.units.movement.CreatureGroupManager import CreatureGroupManager
+from game.world.managers.objects.units.creature.groups.CreatureGroupManager import CreatureGroupManager
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import UnitFormulas, Distances
@@ -22,8 +21,7 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, SplineFlags, \
-    CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates, UnitStates
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -239,16 +237,12 @@ class CreatureManager(UnitManager):
 
             if self.has_waypoints_type() and self.spawn_id:
                 creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
-                self.creature_group = creature_group
-                if self.creature_group:
-                    CreatureGroupManager.add_member(self, self.creature_group)
-                # If not part of a group or self is group leader (Leader has waypoints).
-                if not self.creature_group or self.creature_group.leader_guid == self.spawn_id:
+                if creature_group:
+                    self.creature_group = CreatureGroupManager.get_create_group(creature_group)
+                    self.creature_group.add_member(self, creature_group)
+                else:
                     # Load default creature_movement if any.
                     self.default_waypoints = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_spawn_id(self.spawn_id)
-                    # Cascade into creature_movement_template.
-                    if not self.default_waypoints:
-                        self.default_waypoints = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(self.entry)
 
             # Found movement data, sort by point ID.
             if self.default_waypoints:
@@ -390,11 +384,22 @@ class CreatureManager(UnitManager):
         return super().can_parry(attacker_location)
 
     # override
+    def enter_combat(self):
+        if not super().enter_combat():
+            return
+        # Notify creature group.
+        if self.creature_group:
+            self.creature_group.on_members_attack_start(self.combat_target)
+
+    # override
     def leave_combat(self):
         super().leave_combat()
 
         if not self.is_player_controlled_pet():
             self.evade()
+
+        if self.creature_group:
+            self.creature_group.on_leave_combat(self)
 
     def evade(self):
         # Already evading or dead, ignore.
@@ -626,6 +631,9 @@ class CreatureManager(UnitManager):
 
         if self.loot_manager.has_loot():
             self.set_lootable(True)
+
+        if self.creature_group:
+            self.creature_group.on_member_died(self)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
         return super().die(killer)

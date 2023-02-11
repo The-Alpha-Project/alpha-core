@@ -5,6 +5,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.player.taxi.TaxiResumeInformation import TaxiResumeInformation
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
+from utils.constants.MiscCodes import MoveType
 from utils.constants.UnitCodes import Teams, SplineFlags
 
 
@@ -73,7 +74,7 @@ class TaxiManager(object):
                                             remaining_wp=len(waypoints))
 
         # Notify player and surroundings.
-        self.owner.movement_manager.send_move_normal(waypoints, speed, spline)
+        self.owner.movement_manager.send_move_normal(waypoints, speed, MoveType.FLIGHT, spline_flag=spline)
         return True
 
     # Get the proper display_id for the mount.

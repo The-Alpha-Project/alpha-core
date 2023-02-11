@@ -594,6 +594,16 @@ class CreatureGroupFlags(IntEnum):
     OPTION_INFORM_MEMBERS_ON_ANY_DIED = 0x080
 
 
+class MoveType(IntEnum):
+    INSTANT = 0x0
+    WANDER = 0x1
+    WAYPOINTS = 0x2
+    COMBAT_CHASE = 0x3
+    FLIGHT = 0x4
+    EVADE = 0x5
+    FEAR = 0x6
+
+
 class MoveFlags(IntEnum):
     MOVEFLAG_NONE = 0x0
     MOVEFLAG_FORWARD = 0x1

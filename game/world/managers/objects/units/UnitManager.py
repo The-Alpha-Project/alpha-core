@@ -898,12 +898,13 @@ class UnitManager(ObjectManager):
 
     def enter_combat(self):
         if self.in_combat:
-            return
+            return False
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         # Handle enter combat interrupts.
         self.aura_manager.check_aura_interrupts(enter_combat=True)
+        return True
 
     def leave_combat(self):
         if not self.in_combat:
