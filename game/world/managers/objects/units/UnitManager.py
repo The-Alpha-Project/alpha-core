@@ -1595,7 +1595,8 @@ class UnitManager(ObjectManager):
             self.aura_manager.remove_all_auras()
 
         charmer = self.get_charmer_or_summoner()
-        if charmer:
+        # (game objects can spawn creatures, but they don't have a PetManager).
+        if charmer and charmer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             active_pet = charmer.pet_manager.get_active_pet_by_guid(self.guid)
             if active_pet:
                 summon_spell = active_pet.get_pet_data().summon_spell_id
