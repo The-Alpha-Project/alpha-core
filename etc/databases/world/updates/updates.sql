@@ -16573,5 +16573,13 @@ begin not atomic
 
         insert into applied_updates values ('310120231');
     end if;
+
+    -- 11/02/2023 1
+    if (select count(*) from applied_updates where id='110220231') == 0 then
+        -- Change details of quest 1275 
+        UPDATE `quest_template` SET `Objectives` = 'Gershala Nightwhisper in Auberdine wants 30 Corrupt Brain stems.', `ReqItemCount1` = 30 WHERE `entry` = 1275;
+
+        INSERT INTO applied_updates VALUES ('110220231');
+    end if;
 end $
 delimiter ;
