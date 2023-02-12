@@ -16575,7 +16575,7 @@ begin not atomic
     end if;
 
     -- 11/02/2023 1
-    if (select count(*) from applied_updates where id='110220231') == 0 then
+    if (select count(*) from applied_updates where id='110220231') = 0 then
         -- Change details of quest 1275 
         UPDATE `quest_template` SET `Objectives` = 'Gershala Nightwhisper in Auberdine wants 30 Corrupt Brain stems.', `ReqItemCount1` = 30 WHERE `entry` = 1275;
 
@@ -16583,7 +16583,7 @@ begin not atomic
     end if;
 
     -- 11/02/2023 2
-    if (select count(*) from applied_updates where id='110220232') == 0 then
+    if (select count(*) from applied_updates where id='110220232') = 0 then
         -- Change level of General Marcus Jonathan to 95
         UPDATE `creature_template` SET `level_min` = 95, `level_max` = 95 WHERE `entry` = 466;
 
