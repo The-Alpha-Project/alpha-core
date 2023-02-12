@@ -16609,5 +16609,15 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('110220232');
     end if;
+
+    -- 12/02/2023 1
+    if (select count(*) from applied_updates where id = '120220231') = 0 then
+        -- remove placeholder objects from Elwynn Forest
+        DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` = 176793;
+        -- remove placeholder objects from Valley of Trials, Durotar
+        DELETE FROM `spawns_gameobjects` WHERE `spawn_entry` = 175784;
+
+        INSERT INTO applied_updates VALUES ('120220231');
+    end if;
 end $
 delimiter ;
