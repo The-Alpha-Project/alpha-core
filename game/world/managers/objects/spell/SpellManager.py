@@ -1252,9 +1252,14 @@ class SpellManager:
 
         # Permanent pet summon check.
         summon_pet_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_SUMMON_PET)
-        if summon_pet_effect and not summon_pet_effect.misc_value and not len(self.caster.pet_manager.permanent_pets):
-            self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
-            return False
+        if summon_pet_effect:
+            if not summon_pet_effect.misc_value and not len(self.caster.pet_manager.permanent_pets):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
+                return False
+
+            if self.caster.pet_manager.get_active_controlled_pet():
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON)
+                return False
 
         # Pickpocketing target validity check.
         if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_PICKPOCKET):
