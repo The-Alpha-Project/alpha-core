@@ -63,14 +63,16 @@ class CharEnumHandler(object):
     @staticmethod
     def _get_pet_info(character_guid):
         pets = RealmDatabaseManager.character_get_pets(character_guid)
-        pet = pets[0] if pets and len(pets) else None  # TODO Get active pet, not first.
-        if not pet:
-            return [0, 0, 0]
+        for pet in pets:
+            if not pet.is_active:
+                continue
 
-        pet_creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(pet.creature_id)
-        # TODO tamed variant display id? Affects two tamable creatures (8933, 9696).
-        pet_display_id = pet_creature_template.display_id1
-        pet_level = pet.level
-        pet_family = pet_creature_template.beast_family
+            pet_creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
+                pet.creature_id)
+            # TODO tamed variant display id? Affects two tamable creatures (8933, 9696).
+            pet_display_id = pet_creature_template.display_id1
+            pet_level = pet.level
+            pet_family = pet_creature_template.beast_family
+            return [pet_display_id, pet_level, pet_family]
 
-        return [pet_display_id, pet_level, pet_family]
+        return [0, 0, 0]
