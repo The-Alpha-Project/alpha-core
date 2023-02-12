@@ -67,8 +67,7 @@ class CharEnumHandler(object):
             if not pet.is_active:
                 continue
 
-            pet_creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
-                pet.creature_id)
+            pet_creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(pet.creature_id)
             # TODO tamed variant display id? Affects two tamable creatures (8933, 9696).
             pet_display_id = pet_creature_template.display_id1
             pet_level = pet.level
