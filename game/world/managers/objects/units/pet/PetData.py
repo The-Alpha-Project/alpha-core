@@ -16,7 +16,7 @@ class PetData:
 
     def __init__(self, pet_id: int, name: str, rename_time: int, template: CreatureTemplate, owner_guid,
                  level: int, experience: int, summon_spell_id: int, permanent: bool,
-                 spells=None, action_bar=None):
+                 spells=None, action_bar=None, is_active: bool = False):
         self.pet_id = pet_id
 
         self.name = name
@@ -25,6 +25,7 @@ class PetData:
         self.permanent = permanent
         self.summon_spell_id = summon_spell_id
         self.rename_time = rename_time
+        self.is_active = is_active  # Used for tracking pet state between logins. Only set for permanent pets.
 
         self._level = level
         self._experience = experience
@@ -80,6 +81,7 @@ class PetData:
             command_state=int(self.command_state),
             name=self.name,
             rename_time=self.rename_time,
+            is_active=self.is_active,
             health=health,
             mana=mana,
             action_bar=pack('10I', *self.action_bar)
@@ -132,6 +134,13 @@ class PetData:
     def set_name(self, name: str):
         self.name = name
         self.rename_time = int(time.time())
+        self.set_dirty()
+
+    def set_active(self, active: bool):
+        if not self.permanent:
+            return
+
+        self.is_active = active
         self.set_dirty()
 
     def add_spell(self, spell_id) -> bool:

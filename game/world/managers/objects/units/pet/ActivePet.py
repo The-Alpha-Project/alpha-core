@@ -108,6 +108,8 @@ class ActivePet:
             self.creature.replenish_powers()
 
     def attach(self):
+        self.get_pet_data().set_active(True)
+
         if self.is_permanent() or not self.is_controlled():
             # Permanent pet/totem.
             self.creature.set_summoned_by(self._pet_manager.owner, spell_id=self.get_created_by_spell(),

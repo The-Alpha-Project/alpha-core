@@ -242,6 +242,7 @@ class CharacterPet(Base):
 
     name = Column(String(255), nullable=False, server_default=text("''"))
     rename_time = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    is_active = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
     health = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     mana = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
