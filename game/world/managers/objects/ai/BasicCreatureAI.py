@@ -46,6 +46,9 @@ class BasicCreatureAI(CreatureAI):
             # Sanctuary.
             if victim.unit_state & UnitStates.SANCTUARY:
                 continue
+            # Ignore players that are flying.
+            if victim.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+                continue
             # Check for stealth/invisibility.
             can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
             if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER and not victim.beast_master:
