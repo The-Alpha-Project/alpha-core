@@ -16624,6 +16624,8 @@ begin not atomic
     if (select count(*) from applied_updates where id = '130220231') = 0 then
         -- Fix Z position of Lumberjack at Sentinel Hill, Westfall
         UPDATE `spawns_creatures` SET `position_z` = 34.506 WHERE `spawn_id` = 45524;
+        -- Fix Grayson's Torch display ID
+        UPDATE `item_template` SET `display_id` = 6520 WHERE `entry` = 1172;
 
         INSERT INTO applied_updates VALUES ('130220231');
     end if;
