@@ -1516,9 +1516,6 @@ class UnitManager(ObjectManager):
 
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
-    def get_taxi_flying_state(self):
-        return self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT
-
     # override
     def set_display_id(self, display_id):
         super().set_display_id(display_id)

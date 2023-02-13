@@ -607,10 +607,6 @@ class CreatureManager(UnitManager):
 
     # override
     def attack(self, victim: UnitManager):        
-        # ignore players on a taxi
-        if victim.get_type_id() == ObjectTypeIds.ID_PLAYER and victim.get_taxi_flying_state():
-            return
-
         if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
         # Had no target before, notify attack start on ai.
