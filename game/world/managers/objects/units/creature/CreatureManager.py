@@ -606,7 +606,7 @@ class CreatureManager(UnitManager):
         return True
 
     # override
-    def attack(self, victim: UnitManager):        
+    def attack(self, victim: UnitManager):
         if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
         # Had no target before, notify attack start on ai.
