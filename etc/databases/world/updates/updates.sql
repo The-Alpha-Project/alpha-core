@@ -16615,7 +16615,7 @@ begin not atomic
         -- remove placeholder objects from Elwynn Forest
         UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_entry` = 176793;
         -- remove placeholder objects from Valley of Trials, Durotar
-        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_entry` = = 175784;
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_entry` = 175784;
 
         INSERT INTO applied_updates VALUES ('120220231');
     end if;
