@@ -16652,6 +16652,8 @@ begin not atomic
         UPDATE `quest_template` SET `Objectives` = 'Collect 6 Grizzled Bear Hearts and 6 samples of Spider Marrow and deliver them to Master Apothecary Faranell in the Undercity.', `Details` = "Arthas's numbers are overwhelming. But with a New Plague we could eradicate both the Scourge Army and the Human infestation once and for all.$b$bMy studies have proven that spider marrow combined with a toxin derived from a grizzled bear heart results in a deadly elixir. Collect samples from the spiders in the Skittering Dark to the northwest and from the bears wandering throughout Silverpine Forest. Deliver the reagents to Master Apothecary Faranell of the Royal Apothecary Society in the Undercity." WHERE `entry` = 447;
         -- rename Skittering Blood to Spider Marrow
         UPDATE `item_template` SET `name` = 'Spider Marrow' WHERE `entry` = 3254;
+        -- change Frank Ward's faction to friendly
+        UPDATE `creature_template` SET `faction` = 35 WHERE `entry` = 2940;
 
         INSERT INTO applied_updates VALUES ('140220232');
     end if;
