@@ -16630,5 +16630,21 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('130220231');
     end if;
 
+    -- 14/02/2023 1
+    if (select count(*) from applied_updates where id = '140220231') = 0 then
+        -- change Father Gavin's level and faction        
+        UPDATE `creature_template` SET `level_min` = 15, `level_max` = 15, `faction` = 35 WHERE `entry` = 1253;
+        -- change Senir Whitebeard's level to 9
+        UPDATE `creature_template` SET `level_min` = 9, `level_max` = 9 WHERE `entry` = 1252;
+        -- Uneqip Ozzie Togglevolt's tool
+        UPDATE `creature_template` SET `equipment_id` = 0 WHERE `entry` = 1268;
+        -- Unequip Razzle Spysprocket's tool
+        UPDATE `creature_template` SET `equipment_id` = 0 WHERE `entry` = 1269;
+        -- Set Pilot Stonegear's display_id to a proper value
+        UPDATE `creature_template` SET `display_id1` = 115 WHERE `entry` = 1377;
+        
+        INSERT INTO applied_updates VALUES ('140220231');
+    end if;
+
 end $
 delimiter ;
