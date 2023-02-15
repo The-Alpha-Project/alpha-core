@@ -44,7 +44,8 @@ class PetManager:
                 character_pet.created_by_spell,
                 permanent=True,
                 spells=[spell.spell_id for spell in spells],
-                action_bar=list(unpack('10I', character_pet.action_bar))))
+                action_bar=list(unpack('10I', character_pet.action_bar)),
+                is_active=character_pet.is_active))
 
     def save(self):
         [pet.save() for pet in self.permanent_pets]
@@ -154,13 +155,29 @@ class PetManager:
 
         MapManager.spawn_object(world_object_instance=creature_manager)
 
-    def detach_active_pets(self):
-        [pet.detach() for pet in self.active_pets.values()]
+    def detach_active_pets(self, is_logout=False):
+        for pet in self.active_pets.values():
+            if not is_logout:
+                # If this pet is being detached on logout, don't overwrite its activity status.
+                pet.get_pet_data().set_active(False)
+            pet.detach()
+
         self.active_pets.clear()
+
+    def handle_login(self):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        for pet in self.permanent_pets:
+            if not pet.is_active:
+                continue
+            self.summon_permanent_pet(pet.summon_spell_id, pet.creature_template.entry)
+            return
 
     def detach_pet_by_slot(self, pet_slot: PetSlot):
         active_pet = self.active_pets.get(pet_slot)
         if active_pet:
+            active_pet.get_pet_data().set_active(False)
             self.active_pets[pet_slot].detach()
             self.active_pets.pop(pet_slot)
 

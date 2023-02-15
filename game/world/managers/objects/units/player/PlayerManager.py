@@ -293,6 +293,7 @@ class PlayerManager(UnitManager):
             self.group_manager.send_update()
 
         self.spell_manager.send_login_effect()
+        self.pet_manager.handle_login()
 
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
@@ -307,7 +308,7 @@ class PlayerManager(UnitManager):
 
         self.spell_manager.remove_casts()
         self.aura_manager.remove_all_auras()
-        self.pet_manager.detach_active_pets()
+        self.pet_manager.detach_active_pets(is_logout=True)
         self.leave_combat()
 
         # Channels weren't saved on logout until Patch 0.5.5

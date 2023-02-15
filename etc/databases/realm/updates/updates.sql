@@ -171,5 +171,12 @@ begin not atomic
 
         insert into applied_updates values ('221220221');
     end if;
+
+    -- 12/02/2023 1
+	if (select count(*) from applied_updates where id='120220231') = 0 then
+        ALTER TABLE `character_pets` ADD COLUMN `is_active` TINYINT(1) unsigned NOT NULL DEFAULT 0;
+        insert into applied_updates values ('120220231');
+    end if;
+
 end $
 delimiter ;

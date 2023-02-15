@@ -71,6 +71,9 @@ class ActivePet:
 
         pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(pet_data.creature_template.entry,
                                                                                 pet_data.get_level())
+        if not pet_stats:
+            Logger.warning(f'Unable to locate pet level stats for creature entry '
+                           f'{pet_data.creature_template.entry} level {pet_data.get_level()}')
 
         if pet_stats or reset:
             self.creature.stat_manager.base_stats[UnitStats.HEALTH] = self.creature.max_health if reset else pet_stats.hp
@@ -81,9 +84,6 @@ class ActivePet:
             self.creature.stat_manager.base_stats[UnitStats.AGILITY] = 0 if reset else pet_stats.agi
             self.creature.stat_manager.base_stats[UnitStats.STAMINA] = 0 if reset else pet_stats.sta
             self.creature.stat_manager.base_stats[UnitStats.INTELLECT] = 0 if reset else pet_stats.inte
-            if not reset:
-                Logger.warning(f'Unable to locate pet level stats for creature entry '
-                               f'{pet_data.creature_template.entry} level {pet_data.get_level()}')
 
         self.creature.set_melee_damage(int(damage_min), int(damage_max))
         self.creature.stat_manager.apply_bonuses()
@@ -108,6 +108,8 @@ class ActivePet:
             self.creature.replenish_powers()
 
     def attach(self):
+        self.get_pet_data().set_active(True)
+
         if self.is_permanent() or not self.is_controlled():
             # Permanent pet/totem.
             self.creature.set_summoned_by(self._pet_manager.owner, spell_id=self.get_created_by_spell(),
