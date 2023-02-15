@@ -1,75 +1,119 @@
-import math
-from random import randint
-
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.units.movement.MovementSpline import MovementSpline
 from game.world.managers.objects.units.movement.MovementWaypoint import MovementWaypoint
+from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
+from game.world.managers.objects.units.movement.behaviors.ChaseMovement import ChaseMovement
+from game.world.managers.objects.units.movement.behaviors.DistractedMovement import DistractedMovement
+from game.world.managers.objects.units.movement.behaviors.EvadeMovement import EvadeMovement
+from game.world.managers.objects.units.movement.behaviors.FlightMovement import FlightMovement
+from game.world.managers.objects.units.movement.behaviors.WanderingMovement import WanderingMovement
 from utils.ConfigManager import config
-from utils.Formulas import UnitFormulas, Distances
-from utils.Logger import Logger
-from utils.constants.MiscCodes import MoveFlags, ObjectTypeIds, MoveType
-from utils.constants.UnitCodes import SplineFlags, SplineType, UnitStates, UnitFlags
+from utils.constants.MiscCodes import ObjectTypeIds, MoveType
+from utils.constants.UnitCodes import UnitStates, UnitFlags
 
 
 class MovementManager:
     def __init__(self, unit):
         self.unit = unit
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
-        self.pending_splines: list[MovementSpline] = []
-        self.distracted_timer = 0
-        self.fear_timer = 0
-        self.last_movement = 0  # Wandering, Waypoint.
-        self.wait_time_seconds = randint(1, 12)  # Wandering, Fear, Waypoint.
-        self.halt_movement_timer = 0
-        self.movement_waypoints = []  # Used for MovementType.WAYPOINT
-        self.return_home_waypoints = []  # Used for evade.
+        self.movement_behaviors = []
+        # self.pending_splines: list[Spline] = []
+        # self.distracted_timer = 0
+        # self.fear_timer = 0
+        # self.last_movement = 0  # Wandering, Waypoint.
+        # self.wait_time_seconds = randint(1, 12)  # Wandering, Fear, Waypoint.
+        # self.halt_movement_timer = 0
+        # self.movement_waypoints = []  # Used for MovementType.WAYPOINT
+        # self.return_home_waypoints = []  # Used for evade.
+
+    def initialize(self):
+        if self.unit.has_wander_type():
+            self.set_behavior(WanderingMovement(is_default=True, spline_callback=self.spline_callback))
+
+    # Receives a new spline from an active movement behavior.
+    def spline_callback(self, spline):
+        spline.initialize()
+        self.unit.movement_spline = spline
+        movement_packet = spline.try_build_movement_packet()
+        if movement_packet:
+            MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)
+
+    def flush(self):
+        self.movement_behaviors.clear()
+        self.unit = None
 
     def update(self, now, elapsed):
-        self.halt_movement_timer = 0 if self.unit.combat_target else max(0, self.halt_movement_timer - elapsed)
-        # Skip updates while waiting.
-        if self.halt_movement_timer:
+        # Short circuit.
+        if not self._can_move():
             return
 
-        spline = self.get_current_spline()
-        # Update any pending spline first.
-        if spline:
-            position_changed, new_position, wp_complete = spline.update(elapsed)
+        current_movement = self._get_current_movement()
+        # Check if we need to fall back to another movement behavior.
+        while current_movement and current_movement.can_remove():
+            print(f'Remove movement behavior {MoveType(current_movement.move_type).name}.')
+            self.movement_behaviors.remove(current_movement)
+            current_movement.on_removed()
+            current_movement = self._get_current_movement()
+            if current_movement:
+                current_movement.reset()
 
-            if position_changed:
-                self._handle_position_change(spline, new_position, wp_complete)
+        if not current_movement:
+            return
 
-            if spline.is_complete():
-                self.pending_splines.pop(0)
+        current_movement.update(now, elapsed)
 
-        # Remove distracted if necessary.
-        # TODO: Find a better way to remove this, maybe based on mod stun removal.
-        if self._should_remove_distracted(elapsed):
-            self.set_distracted(0)
+        # self.halt_movement_timer = 0 if self.unit.combat_target else max(0, self.halt_movement_timer - elapsed)
+        # # Skip updates while waiting.
+        # if self.halt_movement_timer:
+        #     return
+        #
+        # spline = self.get_current_spline()
+        # # Update any pending spline first.
+        # if spline:
+        #     position_changed, new_position, wp_complete = spline.update(elapsed)
+        #
+        #     if position_changed:
+        #         self._handle_position_change(spline, new_position, wp_complete)
+        #
+        #     if spline.is_complete():
+        #         self.pending_splines.pop(0)
+        #
+        # # Remove distracted if necessary.
+        # # TODO: Find a better way to remove this, maybe based on mod stun removal.
+        # if self._should_remove_distracted(elapsed):
+        #     self.set_distracted(0)
+        #
+        # # Check if we need to trigger any type of new movement.
+        # if self._can_perform_move_home_movement(self.unit, now):
+        #     self._perform_move_home_movement(now)
+        # elif self._can_perform_creature_waypoints(self.unit, now):
+        #     self._perform_waypoints_movement(now)
+        # elif self._can_perform_follow_group(self.unit, now):
+        #     self._perform_follow_group(now, elapsed)
+        # elif self._can_perform_wandering(self.unit, now):
+        #     self._perform_random_movement(self.unit, now)
+        # elif self._can_perform_combat_chase(self.unit):
+        #     self._perform_combat_chase_movement(self.unit)
+        # elif self._can_perform_fear(self.unit, elapsed, now):
+        #     self._perform_fear_movement(now)
+        #
+        # if not self.pending_splines:
+        #     self.unit.movement_flags &= ~MoveFlags.MOVEFLAG_MOVED
+        # else:
+        #     self.unit.movement_flags |= MoveFlags.MOVEFLAG_WALK
 
-        # Check if we need to trigger any type of new movement.
-        if self._can_perform_move_home_movement(self.unit, now):
-            self._perform_move_home_movement(now)
-        elif self._can_perform_creature_waypoints(self.unit, now):
-            self._perform_waypoints_movement(now)
-        elif self._can_perform_follow_group(self.unit, now):
-            self._perform_follow_group(now, elapsed)
-        elif self._can_perform_wandering(self.unit, now):
-            self._perform_random_movement(self.unit, now)
-        elif self._can_perform_combat_chase(self.unit):
-            self._perform_combat_chase_movement(self.unit)
-        elif self._can_perform_fear(self.unit, elapsed, now):
-            self._perform_fear_movement(now)
+    def _get_current_movement(self):
+        return self.movement_behaviors[0] if self.movement_behaviors else None
 
-        if not self.pending_splines:
-            self.unit.movement_flags &= ~MoveFlags.MOVEFLAG_MOVED
-        else:
-            self.unit.movement_flags |= MoveFlags.MOVEFLAG_WALK
-
-    def _perform_move_home_movement(self, now):
-        speed = self.unit.running_speed
-        self.send_move_normal([self.return_home_waypoints[0]], speed, MoveType.EVADE)
-        self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
-        self.last_movement = now
+    def _can_move(self):
+        if not self.movement_behaviors:
+            return False
+        if not self.unit.is_alive:
+            return False
+        if self.unit.unit_state & UnitStates.STUNNED:
+            return False
+        if not self.is_player and self.unit.is_casting():
+            return False
+        return True
 
     def _perform_follow_group(self, now, elapsed):
         location, speed = self.unit.creature_group.get_follow_position_and_speed(self.unit, elapsed)
@@ -99,96 +143,6 @@ class MovementManager:
         self.send_move_normal([fear_point], speed, MoveType.FEAR)
         self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
-
-    def _perform_random_movement(self, unit, now):
-        if self._move_random(unit.spawn_position, unit.wander_distance):
-            self.wait_time_seconds = randint(1, 12)
-            self.last_movement = now
-
-    # TODO: Namigator: FindRandomPointAroundCircle (Detour)
-    def _move_random(self, start_position, radius, speed=config.Unit.Defaults.walk_speed):
-        random_point = start_position.get_random_point_in_radius(radius, map_id=self.unit.map_id)
-        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, start_position, random_point)
-        if failed or len(path) > 1 or in_place:
-            return False
-
-        map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
-        if not map_.is_active_cell_for_location(random_point):
-            return False
-
-        self.send_move_normal([random_point], speed, MoveType.WANDER)
-        return True
-
-    # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
-    #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
-    #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
-    #  couldn't swim before patch 1.3.0:
-    #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
-    #   - Most humanoids NPCs have gained the ability to swim.
-    #  This might only refer to creatures not having swimming animations.
-    def _perform_combat_chase_movement(self, unit):
-        # Check if target is player and is online.
-        target_is_player = unit.combat_target.get_type_id() == ObjectTypeIds.ID_PLAYER
-        if target_is_player and not unit.combat_target.online:
-            unit.threat_manager.remove_unit_threat(unit.combat_target)
-            return
-
-        spawn_distance = unit.location.distance(unit.spawn_position)
-        target_distance = unit.location.distance(unit.combat_target.location)
-        combat_position_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
-        target_under_water = unit.combat_target.is_under_water()
-
-        if not unit.is_pet():
-            # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
-            # From 0.5.4 patch notes:
-            #     "Creature pursuit is now timer based rather than distance based."
-            if spawn_distance > Distances.CREATURE_EVADE_DISTANCE \
-                    or target_distance > Distances.CREATURE_EVADE_DISTANCE:
-                unit.threat_manager.remove_unit_threat(unit.combat_target)
-                return
-
-            # TODO: There are some creatures like crabs or murlocs that apparently couldn't swim in earlier versions
-            #  but are spawned inside the water at this moment since most spawns come from Vanilla data. These mobs
-            #  will currently bug out when you try to engage in combat with them. Also seems like a lot of humanoids
-            #  couldn't swim before patch 1.3.0:
-            #  World of Warcraft Client Patch 1.3.0 (2005-03-22)
-            #   - Most humanoids NPCs have gained the ability to swim.
-            if unit.is_under_water():
-                if not unit.can_swim():
-                    unit.threat_manager.remove_unit_threat(unit.combat_target)
-                    return
-                if not unit.can_exit_water() and not target_under_water:
-                    unit.threat_manager.remove_unit_threat(unit.combat_target)
-                    return
-
-        # If this creature is not facing the attacker, update its orientation.
-        if not unit.location.has_in_arc(unit.combat_target.location, math.pi):
-            unit.movement_manager.send_face_target(unit.combat_target)
-
-        combat_location = unit.combat_target.location.get_point_in_between(combat_position_distance, vector=unit.location)
-        if not combat_location:
-            return
-
-        # Target is within combat distance or already in combat location, don't move.
-        if round(target_distance) <= round(combat_position_distance) or unit.location == combat_location:
-            return
-
-        if unit.is_moving():
-            if unit.movement_manager.get_waypoint_location().distance(combat_location) < 0.1:
-                return
-
-        # Use direct combat location if target is over water.
-        if not target_under_water:
-            failed, in_place, path = MapManager.calculate_path(unit.map_id, unit.location.copy(), combat_location)
-            if not failed and not in_place:
-                combat_location = path[0]
-            elif in_place:
-                return
-            # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
-            elif MapManager.NAMIGATOR_LOADED:
-                Logger.warning(f'Unable to find navigation path, map {unit.map_id} loc {unit.location} end {combat_location}')
-
-        self.send_move_normal([combat_location], unit.running_speed, MoveType.COMBAT_CHASE)
 
     def _can_perform_move_home_movement(self, unit, now):
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
@@ -262,29 +216,29 @@ class MovementManager:
         self.fear_timer = duration
         self.reset()
         if not duration:
-            self.send_move_stop()
+            self.stop()
 
     def set_distracted(self, duration, location=None):
         if duration:
             self.distracted_timer = duration
             self.unit.unit_state |= UnitStates.DISTRACTED
             # TODO: Use spot SplineType, currently crashes.
-            self.send_face_angle(self.unit.location.angle(location))
+            self.face_angle(self.unit.location.angle(location))
         else:
 
             self.unit.unit_state &= ~UnitStates.DISTRACTED
             # Restore original spawn orientation.
             if not self.is_player and not self.unit.has_wander_type():
-                self.send_face_angle(self.unit.location.angle(self.unit.spawn_position.o))
+                self.face_angle(self.unit.location.angle(self.unit.spawn_position.o))
 
     def reset(self):
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
         spline = self.get_current_spline()
         if spline:
             spline.update_to_now()
-        self.last_movement = 0
-        self.wait_time_seconds = 0
-        self.pending_splines.clear()
+        #self.last_movement = 0
+        #self.wait_time_seconds = 0
+        #self.pending_splines.clear()
         self.unit.movement_spline = None
 
     def get_pending_waypoints_length(self):
@@ -299,13 +253,26 @@ class MovementManager:
             return self.unit.location
         return spline.get_waypoint_location()
 
+    def move_distracted(self, duration_seconds, location):
+        angle = self.unit.location.angle(location)
+        self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
+
+    def move_chase(self):
+        self.set_behavior(ChaseMovement(spline_callback=self.spline_callback))
+
     def move_home(self, waypoints):
-        self.return_home_waypoints = waypoints
+        self.set_behavior(EvadeMovement(waypoints, self.spline_callback))
+
+    def move_flight(self, waypoints):
+        self.set_behavior(FlightMovement(waypoints, self.spline_callback))
+
+    def set_behavior(self, movement_behavior):
+        print(f'Set movement behavior {MoveType(movement_behavior.move_type).name}')
+        movement_behavior.initialize(self.unit)
+        self.movement_behaviors.insert(0, movement_behavior)
 
     def unit_is_moving(self):
-        if self.is_player:
-            return self.pending_splines or self.unit.pending_taxi_destination is not None
-        return self.pending_splines
+        return len(self.movement_behaviors) > 0 and self.movement_behaviors[0].spline
 
     def try_build_movement_packet(self):
         spline = self.get_current_spline()
@@ -314,9 +281,9 @@ class MovementManager:
         return None
 
     def get_current_spline(self):
-        if not self.pending_splines:
+        if not self.movement_behaviors:
             return None
-        return self.pending_splines[0]
+        return self.movement_behaviors[0].spline
 
     def _handle_position_change(self, spline, new_position, waypoint_complete):
         # Waypoint type movement, set home position upon waypoint reached.
@@ -336,128 +303,22 @@ class MovementManager:
                 if not self.return_home_waypoints:
                     self.unit.is_evading = False
                     self.unit.on_at_home()
-        elif spline.move_type == MoveType.FLIGHT:
-            if self.is_player and self.unit.pending_taxi_destination:
-                if not waypoint_complete:
-                    self.unit.taxi_manager.update_flight_state()
-                else:
-                    self.unit.set_taxi_flying_state(False)
-                    self.unit.teleport(self.unit.map_id, self.unit.pending_taxi_destination, is_instant=True)
-                    self.unit.pending_taxi_destination = None
-                    self.unit.taxi_manager.update_flight_state()
-
         # Common.
         self.unit.location = new_position
         self.unit.set_has_moved(has_moved=True, has_turned=False)
 
-    def send_move_normal(self, waypoints, speed, move_type, spline_flag=SplineFlags.SPLINEFLAG_RUNMODE,
-                         spline_type=SplineType.SPLINE_TYPE_NORMAL):
+    # Instant.
+    def stop(self):
+        self.spline_callback(SplineBuilder.build_stop_spline(self.unit))
 
-        if self.unit.movement_flags & MoveFlags.MOVEFLAG_ROOTED:
-            return
+    # Instant.
+    def face_target(self, target):
+        self.spline_callback(SplineBuilder.build_face_target_spline(self.unit, target))
 
-        # Face destination vector.
-        self.unit.location.face_point(waypoints[0])
+    # Instant.
+    def face_angle(self, angle):
+        self.spline_callback(SplineBuilder.build_face_angle_spline(self.unit, angle))
 
-        # Generate movement spline.
-        spline = MovementSpline(
-            unit=self.unit,
-            move_type=move_type,
-            spline_type=spline_type,
-            flags=spline_flag,
-            spot=self.unit.location,
-            guid=self.unit.guid,
-            facing=self.unit.location.o,
-            speed=speed,
-            elapsed=0,
-            points=waypoints
-        )
-
-        self._send_move_to(spline)
-
-    def send_move_stop(self):
-        # Generate stop spline.
-        spline = MovementSpline(
-            unit=self.unit,
-            move_type=MoveType.INSTANT,
-            spline_type=SplineType.SPLINE_TYPE_STOP,
-            flags=SplineFlags.SPLINEFLAG_NONE,
-            spot=self.unit.location,
-            guid=self.unit.guid,
-            facing=self.unit.location.o,
-            points=[self.unit.location]
-        )
-
-        self._send_move_to(spline)
-
-    def send_face_spot(self, spot):
-        # Generate face spot spline.
-        spline = MovementSpline(
-            unit=self.unit,
-            move_type=MoveType.INSTANT,
-            spline_type=SplineType.SPLINE_TYPE_FACING_SPOT,
-            flags=SplineFlags.SPLINEFLAG_SPOT,
-            spot=spot,
-            guid=self.unit.guid,
-            facing=spot.o,
-            points=[spot]
-        )
-
-        self._send_move_to(spline)
-
-    def send_face_target(self, target, halt_seconds=0.0):
-        if not target:
-            return
-
-        # Server side.
-        self.unit.location.face_point(target.location)
-
-        # Generate face target spline
-        spline = MovementSpline(
-            unit=self.unit,
-            move_type=MoveType.INSTANT,
-            spline_type=SplineType.SPLINE_TYPE_FACING_TARGET,
-            flags=SplineFlags.SPLINEFLAG_TARGET,
-            spot=target.location,
-            guid=target.guid,
-            facing=target.location.o,
-            points=[self.unit.location]  # On its own axis.
-        )
-
-        self._send_move_to(spline, halt_seconds=halt_seconds)
-
-    def send_face_angle(self, angle):
-        # Server side.
-        self.unit.location.o = angle
-
-        # Generate face angle spline
-        spline = MovementSpline(
-            unit=self.unit,
-            move_type=MoveType.INSTANT,
-            spline_type=SplineType.SPLINE_TYPE_FACING_ANGLE,
-            flags=SplineFlags.SPLINEFLAG_FACING,
-            spot=self.unit.location,
-            guid=self.unit.guid,
-            facing=angle,
-            points=[self.unit.location]
-        )
-
-        self._send_move_to(spline)
-
-    def _send_move_to(self, spline, halt_seconds=0.0):
-        # Reset old waypoints (if any) before sending new waypoints.
-        self.reset()
-
-        # Set spline and last position.
-        self.unit.movement_spline = spline
-
-        spline.initialize()
-
-        # Avoid halting movement if unit is in combat.
-        if not self.unit.combat_target:
-            self.halt_movement_timer = halt_seconds  # Seconds.
-
-        movement_packet = spline.try_build_movement_packet()
-        if movement_packet:
-            MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)
-            self.pending_splines.append(spline)
+    # Instant.
+    def face_spot(self, spot):
+        self.spline_callback(SplineBuilder.build_face_spot_spline(self.unit, spot))

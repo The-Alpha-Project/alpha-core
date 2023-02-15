@@ -94,6 +94,10 @@ class Vector(object):
 
         return -arc / 2 < vector_angle < arc / 2
 
+    def face_angle(self, angle):
+        vector_angle = -angle + math.pi / 2
+        self.o = vector_angle % (2 * math.pi)
+
     def face_point(self, vector):
         # orientation is offset by pi/2 and reversed to atan2.
         vector_angle = -self.angle(vector) + math.pi / 2

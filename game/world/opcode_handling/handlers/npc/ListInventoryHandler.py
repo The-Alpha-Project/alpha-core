@@ -26,7 +26,7 @@ class ListInventoryHandler(object):
                 if vendor.is_moving():
                     # There is no way to known when players close dialogs, give it 3 minute grace.
                     # From VMaNGOS NPC_MOVEMENT_PAUSE_TIME.
-                    vendor.movement_manager.send_face_target(player_mgr, halt_seconds=180.0)
+                    vendor.movement_manager.face_target(player_mgr, halt_seconds=180.0)
                 # If vendor is a quest giver and player has an active quest involving this NPC, send quest window
                 # instead of vendor window.
                 if vendor.is_quest_giver():

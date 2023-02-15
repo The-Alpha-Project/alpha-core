@@ -1187,7 +1187,7 @@ class UnitManager(ObjectManager):
     def stop_movement(self):
         # Stop only if unit has pending waypoints.
         if self.is_moving():
-            self.movement_manager.send_move_stop()
+            self.movement_manager.stop()
 
     # Implemented by Creature/PlayerManager.
     def update_power_type(self):
@@ -1551,12 +1551,6 @@ class UnitManager(ObjectManager):
         self.movement_flags = MoveFlags.MOVEFLAG_NONE
         self.unit_state = UnitStates.NONE
 
-        # Stop movement on death.
-        self.stop_movement()
-
-        # Reset threat table.
-        self.threat_manager.reset()
-
         if self.object_ai:
             self.object_ai.just_died()
 
@@ -1566,7 +1560,15 @@ class UnitManager(ObjectManager):
             if killer_pet:
                 killer_pet.creature.object_ai.killed_unit(self)
 
+        # Leave combat if needed.
         self.leave_combat()
+
+        # Flush movement manager.
+        self.movement_manager.flush()
+
+        # Reset threat manager.
+        self.threat_manager.reset()
+
         self.set_health(0)
 
         self.unit_flags |= UnitFlags.UNIT_MASK_DEAD

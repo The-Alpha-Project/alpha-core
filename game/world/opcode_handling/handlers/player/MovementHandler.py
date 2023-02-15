@@ -47,7 +47,7 @@ class MovementHandler:
 
                     # Unpack spline mover if needed.
                     if flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
-                        player_mgr.movement_spline = MovementManager.MovementSpline.from_bytes(player_mgr, reader.data[48:])
+                        player_mgr.movement_spline = MovementManager.Spline.from_bytes(player_mgr, reader.data[48:])
 
                     # Stand up if player jumps while not standing.
                     if unit_jumped and player_mgr.stand_state != StandState.UNIT_DEAD and \

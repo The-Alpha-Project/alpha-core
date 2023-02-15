@@ -13,14 +13,13 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
 
-class MovementSpline(object):
-    def __init__(self, unit, move_type, spline_type=0, flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0, total_time=0,
-                 points=None):
+class Spline(object):
+    def __init__(self, unit, spline_type=0, spline_flags=0, spot=None, guid=0, facing=0, speed=0, elapsed=0,
+                 total_time=0, points=None, extra_time_seconds=0):
         self.unit = unit
-        self.move_type = move_type
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.spline_type = spline_type
-        self.flags = flags
+        self.spline_flags = spline_flags
         self.spot = spot
         self.guid = guid
         self.facing = facing
@@ -31,6 +30,8 @@ class MovementSpline(object):
         self.pending_waypoints: list[PendingWaypoint] = []
         self.waypoints_bytes = b''
         self.total_waypoint_timer = 0
+        self.extra_time_seconds = extra_time_seconds  # After real time ends, wait n secs.
+        self.initialized = False
 
     def initialize(self):
         self.waypoints_bytes = b''
@@ -45,23 +46,21 @@ class MovementSpline(object):
             self.pending_waypoints.append(PendingWaypoint(self, len(self.pending_waypoints), total_time, wp))
             last_waypoint = wp
 
-        # Player shouldn't instantly dismount after reaching the taxi destination, add 1 extra second.
-        if self.is_player and self.flags == SplineFlags.SPLINEFLAG_FLYING:
-            total_time += 1.0
-
         self.total_time = total_time * 1000
+        self.initialized = True
 
-    def get_total_time_secs(self, offset_milliseconds=0):
-        return (self.total_time + offset_milliseconds) / 1000
+    def get_total_time_secs(self):
+        return self.extra_time_seconds + (self.total_time / 1000)
 
     def get_total_time_ms(self):
-        return self.total_time
+        return self.total_time + (self.extra_time_seconds * 1000)
 
     def update(self, elapsed):
+        if not self.initialized:
+            return False, None, False
+
         self.total_waypoint_timer += elapsed
         self.elapsed += elapsed * 1000  # Milliseconds.
-        if self.elapsed > self.total_time:
-            self.elapsed = self.total_time
 
         if not self.pending_waypoints:
             return False, None, False
@@ -100,13 +99,13 @@ class MovementSpline(object):
         MapManager.spawn_object(world_object_instance=gameobject)
 
     def is_complete(self):
-        return not self.pending_waypoints and self.elapsed >= self.total_time
+        return not self.pending_waypoints and self.elapsed >= self.get_total_time_ms()
 
     def is_type(self, spline_type):
         return spline_type == self.spline_type
 
     def is_flight(self):
-        return self.flags & SplineFlags.SPLINEFLAG_FLYING
+        return self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
 
     def get_pending_waypoints_length(self):
         return len(self.pending_waypoints)
@@ -127,6 +126,10 @@ class MovementSpline(object):
         if len(self.pending_waypoints) == 0:
             return None
 
+        # Initialize if needed.
+        if not self.initialized:
+            self.initialize()
+
         # Fill header.
         data = self._get_header_bytes()
 
@@ -142,7 +145,7 @@ class MovementSpline(object):
             self.unit.guid,
             location_bytes,
             int(WorldManager.get_seconds_since_startup() * 1000),
-            self.spline_type
+            int(self.spline_type)
         )
         if self.is_type(SplineType.SPLINE_TYPE_FACING_SPOT):
             spot_bytes = self.spot.to_bytes(include_orientation=False)
@@ -156,7 +159,7 @@ class MovementSpline(object):
     def _get_payload_bytes(self):
         return pack(
             f'<3I{len(self.waypoints_bytes)}s',
-            self.flags,
+            self.spline_flags,
             int(self.total_time - int(self.elapsed)),
             len(self.points),
             self.waypoints_bytes
@@ -169,7 +172,7 @@ class MovementSpline(object):
 
         bytes_read = 0
 
-        spline = MovementSpline(unit, MoveType.INSTANT)
+        spline = Spline(unit)
         spline.flags = unpack('<I', spline_bytes[:4])[0]
         bytes_read += 4
 

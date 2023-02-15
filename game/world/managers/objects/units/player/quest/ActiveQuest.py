@@ -107,8 +107,8 @@ class ActiveQuest:
 
     def update_timer(self, elapsed):
         if not self.failed:
-            self.db_state.timer = max(0, self.db_state.timer - elapsed)
-            if self.db_state.timer == 0:
+            self.db_state.expected_timestamp = max(0, self.db_state.expected_timestamp - elapsed)
+            if self.db_state.expected_timestamp == 0:
                 self.failed = True
 
     def send_quest_failed(self):
@@ -225,7 +225,7 @@ class ActiveQuest:
             if self.get_quest_state() != QuestState.QUEST_REWARD:
                 return False
 
-        if self.is_timed_quest() and self.db_state.timer <= 0:
+        if self.is_timed_quest() and self.db_state.expected_timestamp <= 0:
             return False
 
         return True
@@ -299,7 +299,7 @@ class ActiveQuest:
     def get_timer(self):
         if not self.is_timed_quest():
             return 0
-        return int(time.time()) + int(self.db_state.timer)
+        return int(time.time()) + int(self.db_state.expected_timestamp)
 
     # What's happening inside get_progress():
     # Required MobKills1 = 5

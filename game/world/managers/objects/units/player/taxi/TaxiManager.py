@@ -63,9 +63,6 @@ class TaxiManager(object):
         self.owner.pending_taxi_destination = Vector(dest_taxi_node.X, dest_taxi_node.Y, dest_taxi_node.Z)
         self.owner.set_taxi_flying_state(True, mount_display_id)
 
-        speed = config.Unit.Player.Defaults.flight_speed
-        spline = SplineFlags.SPLINEFLAG_FLYING
-
         # Update current flight state.
         self.taxi_resume_info.update_fields(start_location=waypoints[0].copy(),
                                             start_node=start_node,
@@ -74,7 +71,7 @@ class TaxiManager(object):
                                             remaining_wp=len(waypoints))
 
         # Notify player and surroundings.
-        self.owner.movement_manager.send_move_normal(waypoints, speed, MoveType.FLIGHT, spline_flag=spline)
+        self.owner.movement_manager.move_flight(waypoints)
         return True
 
     # Get the proper display_id for the mount.

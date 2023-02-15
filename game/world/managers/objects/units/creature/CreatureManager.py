@@ -285,6 +285,9 @@ class CreatureManager(UnitManager):
             self.stat_manager.init_stats()
             self.stat_manager.apply_bonuses(replenish=True)
 
+            # Movement.
+            self.movement_manager.initialize()
+
             self.fully_loaded = True
 
     def get_template_spells(self):
@@ -352,7 +355,7 @@ class CreatureManager(UnitManager):
         # Restore original location including orientation.
         self.location = self.spawn_position.copy()
         # Restore original spawn face position.
-        self.movement_manager.send_face_target(self)
+        self.movement_manager.face_target(self)
         # Scan surrounding for enemies.
         self._on_relocation()
 
@@ -387,6 +390,7 @@ class CreatureManager(UnitManager):
     def enter_combat(self):
         if not super().enter_combat():
             return
+        self.movement_manager.move_chase()
         # Notify creature group.
         if self.creature_group:
             self.creature_group.on_members_attack_start(self, self.combat_target)

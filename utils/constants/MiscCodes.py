@@ -596,12 +596,14 @@ class CreatureGroupFlags(IntEnum):
 
 class MoveType(IntEnum):
     INSTANT = 0x0
-    WANDER = 0x1
-    WAYPOINTS = 0x2
-    COMBAT_CHASE = 0x3
-    FLIGHT = 0x4
-    EVADE = 0x5
-    FEAR = 0x6
+    IDLE = 0x1
+    WANDER = 0x2
+    WAYPOINTS = 0x3
+    CHASE = 0x4
+    FLIGHT = 0x5
+    EVADE = 0x6
+    FEAR = 0x7
+    DISTRACTED = 0x8
 
 
 class MoveFlags(IntEnum):

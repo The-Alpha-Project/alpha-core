@@ -83,7 +83,7 @@ class CreatureAI:
 
         data = pack('<QI', self.creature.guid, ai_reaction)
         packet = PacketWriter.get_packet(OpCode.SMSG_AI_REACTION, data)
-        self.creature.movement_manager.send_face_target(victim)
+        self.creature.movement_manager.face_target(victim)
         victim.enqueue_packet(packet)
         return True
 
