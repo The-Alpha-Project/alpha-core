@@ -16,20 +16,12 @@ class MovementManager:
         self.unit = unit
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.movement_behaviors = []
-        # self.pending_splines: list[Spline] = []
-        # self.distracted_timer = 0
-        # self.fear_timer = 0
-        # self.last_movement = 0  # Wandering, Waypoint.
-        # self.wait_time_seconds = randint(1, 12)  # Wandering, Fear, Waypoint.
-        # self.halt_movement_timer = 0
-        # self.movement_waypoints = []  # Used for MovementType.WAYPOINT
-        # self.return_home_waypoints = []  # Used for evade.
 
     def initialize(self):
         if self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(is_default=True, spline_callback=self.spline_callback))
 
-    # Receives a new spline from an active movement behavior.
+    # Broadcast a new spline from an active movement behavior.
     def spline_callback(self, spline):
         spline.initialize()
         self.unit.movement_spline = spline
@@ -206,7 +198,7 @@ class MovementManager:
     def get_current_spline(self):
         if not self.movement_behaviors:
             return None
-        return self.movement_behaviors[0].spline
+        return self.movement_behaviors[0].spline if self.movement_behaviors[0].spline else None
 
     def _handle_position_change(self, spline, new_position, waypoint_complete):
         # Waypoint type movement, set home position upon waypoint reached.

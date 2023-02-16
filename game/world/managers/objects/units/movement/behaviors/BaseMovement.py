@@ -21,7 +21,8 @@ class BaseMovement:
                 self.spline = None
 
     def on_new_position(self, new_position, waypoint_completed):
-        self.spline.unit.location = new_position
+        self.unit.location = new_position.copy()
+        self.unit.set_has_moved(has_moved=True, has_turned=False)
 
     def on_spline_finished(self):
         pass
