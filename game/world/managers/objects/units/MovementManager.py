@@ -7,7 +7,7 @@ from game.world.managers.objects.units.movement.behaviors.EvadeMovement import E
 from game.world.managers.objects.units.movement.behaviors.FlightMovement import FlightMovement
 from game.world.managers.objects.units.movement.behaviors.WanderingMovement import WanderingMovement
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeIds, MoveType
+from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
 from utils.constants.UnitCodes import UnitStates, UnitFlags
 
 
@@ -42,74 +42,35 @@ class MovementManager:
         self.unit = None
 
     def update(self, now, elapsed):
-        # Short circuit.
         if not self._can_move():
             return
 
+        # Check if we need to remove any movement.
+        self._clean_movement_behaviors()
+        # Grab latest, if any.
         current_movement = self._get_current_movement()
-        # Check if we need to fall back to another movement behavior.
-        while current_movement and current_movement.can_remove():
-            print(f'Remove movement behavior {MoveType(current_movement.move_type).name}.')
-            self.movement_behaviors.remove(current_movement)
-            current_movement.on_removed()
-            current_movement = self._get_current_movement()
-            if current_movement:
-                current_movement.reset()
 
         if not current_movement:
             return
 
         current_movement.update(now, elapsed)
 
-        # self.halt_movement_timer = 0 if self.unit.combat_target else max(0, self.halt_movement_timer - elapsed)
-        # # Skip updates while waiting.
-        # if self.halt_movement_timer:
-        #     return
-        #
-        # spline = self.get_current_spline()
-        # # Update any pending spline first.
-        # if spline:
-        #     position_changed, new_position, wp_complete = spline.update(elapsed)
-        #
-        #     if position_changed:
-        #         self._handle_position_change(spline, new_position, wp_complete)
-        #
-        #     if spline.is_complete():
-        #         self.pending_splines.pop(0)
-        #
-        # # Remove distracted if necessary.
-        # # TODO: Find a better way to remove this, maybe based on mod stun removal.
-        # if self._should_remove_distracted(elapsed):
-        #     self.set_distracted(0)
-        #
-        # # Check if we need to trigger any type of new movement.
-        # if self._can_perform_move_home_movement(self.unit, now):
-        #     self._perform_move_home_movement(now)
-        # elif self._can_perform_creature_waypoints(self.unit, now):
-        #     self._perform_waypoints_movement(now)
-        # elif self._can_perform_follow_group(self.unit, now):
-        #     self._perform_follow_group(now, elapsed)
-        # elif self._can_perform_wandering(self.unit, now):
-        #     self._perform_random_movement(self.unit, now)
-        # elif self._can_perform_combat_chase(self.unit):
-        #     self._perform_combat_chase_movement(self.unit)
-        # elif self._can_perform_fear(self.unit, elapsed, now):
-        #     self._perform_fear_movement(now)
-        #
-        # if not self.pending_splines:
-        #     self.unit.movement_flags &= ~MoveFlags.MOVEFLAG_MOVED
-        # else:
-        #     self.unit.movement_flags |= MoveFlags.MOVEFLAG_WALK
-
     def _get_current_movement(self):
+        if not self.movement_behaviors:
+            return None
         return self.movement_behaviors[0] if self.movement_behaviors else None
+
+    def _clean_movement_behaviors(self):
+        # Check if we need to fall back to another movement behavior.
+        while self.movement_behaviors and self.movement_behaviors[0].can_remove():
+            self._remove_behavior(self.movement_behaviors[0])
 
     def _can_move(self):
         if not self.movement_behaviors:
             return False
         if not self.unit.is_alive:
             return False
-        if self.unit.unit_state & UnitStates.STUNNED:
+        if self.unit.unit_state & UnitStates.STUNNED or self.unit.movement_flags & MoveFlags.MOVEFLAG_ROOTED:
             return False
         if not self.is_player and self.unit.is_casting():
             return False
@@ -144,14 +105,6 @@ class MovementManager:
         self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
         self.last_movement = now
 
-    def _can_perform_move_home_movement(self, unit, now):
-        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
-            and unit.is_evading and self.return_home_waypoints \
-            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_movement + self.wait_time_seconds \
-            and not unit.unit_state & UnitStates.DISTRACTED \
-            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
-
     def _can_perform_follow_group(self, unit, now):
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
             and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
@@ -176,29 +129,6 @@ class MovementManager:
         return self.fear_timer and unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
             and now > self.last_movement + self.wait_time_seconds
 
-    # noinspection PyMethodMayBeStatic
-    def _can_perform_combat_chase(self, unit):
-        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_totem() \
-            and unit.combat_target and not unit.is_evading and unit.combat_target.is_alive \
-            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and not unit.unit_state & UnitStates.DISTRACTED \
-            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
-
-    # noinspection PyMethodMayBeStatic
-    def _can_perform_wandering(self, unit, now):
-        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
-            and not unit.combat_target and not unit.is_evading and unit.has_wander_type() \
-            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_movement + self.wait_time_seconds \
-            and not unit.unit_state & UnitStates.DISTRACTED \
-            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
-
-    def _should_remove_distracted(self, elapsed):
-        if not self.unit.unit_state & UnitStates.DISTRACTED:
-            return False
-        self.distracted_timer = max(0, self.distracted_timer - elapsed)
-        return self.unit.combat_target or not self.distracted_timer
-
     def _get_sorted_waypoints_by_distance(self) -> list[MovementWaypoint]:
         points = [MovementWaypoint(wp) for wp in self.unit.default_waypoints]  # Wrap them.
         closest = min(points, key=lambda wp: self.unit.spawn_position.distance(wp.location()))
@@ -217,19 +147,6 @@ class MovementManager:
         self.reset()
         if not duration:
             self.stop()
-
-    def set_distracted(self, duration, location=None):
-        if duration:
-            self.distracted_timer = duration
-            self.unit.unit_state |= UnitStates.DISTRACTED
-            # TODO: Use spot SplineType, currently crashes.
-            self.face_angle(self.unit.location.angle(location))
-        else:
-
-            self.unit.unit_state &= ~UnitStates.DISTRACTED
-            # Restore original spawn orientation.
-            if not self.is_player and not self.unit.has_wander_type():
-                self.face_angle(self.unit.location.angle(self.unit.spawn_position.o))
 
     def reset(self):
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
@@ -253,8 +170,7 @@ class MovementManager:
             return self.unit.location
         return spline.get_waypoint_location()
 
-    def move_distracted(self, duration_seconds, location):
-        angle = self.unit.location.angle(location)
+    def move_distracted(self, duration_seconds, angle):
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
 
     def move_chase(self):
@@ -267,9 +183,16 @@ class MovementManager:
         self.set_behavior(FlightMovement(waypoints, self.spline_callback))
 
     def set_behavior(self, movement_behavior):
+        self._clean_movement_behaviors()
         print(f'Set movement behavior {MoveType(movement_behavior.move_type).name}')
         movement_behavior.initialize(self.unit)
         self.movement_behaviors.insert(0, movement_behavior)
+
+    def _remove_behavior(self, movement_behavior):
+        if movement_behavior in self.movement_behaviors:
+            print(f'Removed behavior {MoveType(movement_behavior.move_type).name}')
+            self.movement_behaviors.remove(movement_behavior)
+            movement_behavior.on_removed()
 
     def unit_is_moving(self):
         return len(self.movement_behaviors) > 0 and self.movement_behaviors[0].spline

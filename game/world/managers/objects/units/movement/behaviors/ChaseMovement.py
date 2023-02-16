@@ -93,7 +93,7 @@ class ChaseMovement(BaseMovement):
         self.spline_callback(self.spline)
 
     def _can_chase(self):
-        return self.unit.is_alive and self.unit.combat_target and not self.unit.unit_state & UnitStates.STUNNED
+        return self.unit.is_alive and self.unit.combat_target
 
     def can_remove(self):
         return not self.unit.in_combat or self.unit.is_evading or not self.unit.is_alive

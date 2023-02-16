@@ -95,13 +95,15 @@ class Vector(object):
         return -arc / 2 < vector_angle < arc / 2
 
     def face_angle(self, angle):
-        vector_angle = -angle + math.pi / 2
-        self.o = vector_angle % (2 * math.pi)
+        self.o = angle
 
     def face_point(self, vector):
+        self.o = self.get_angle_towards_vector(vector)
+
+    def get_angle_towards_vector(self, vector):
         # orientation is offset by pi/2 and reversed to atan2.
         vector_angle = -self.angle(vector) + math.pi / 2
-        self.o = vector_angle % (2 * math.pi)
+        return vector_angle % (2 * math.pi)
 
     # https://math.stackexchange.com/a/2045181
     # a map_id of -1 will make Z ignore map information.

@@ -700,7 +700,8 @@ class SpellEffectHandler:
             return
 
         duration = casting_spell.get_duration() / 1000
-        target.movement_manager.move_distracted(duration, casting_spell.initial_target)
+        angle = target.location.get_angle_towards_vector(casting_spell.initial_target)
+        target.movement_manager.move_distracted(duration, angle=angle)
 
     @staticmethod
     def handle_interrupt_cast(casting_spell, effect, caster, target):
