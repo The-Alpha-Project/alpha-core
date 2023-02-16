@@ -16658,10 +16658,5 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('140220232');
     end if;
 
-    -- 16/02/2023 1    
-    if (select count(*) from applied_updates where id = '160220232') = 0 then
-
-    end if;
-
 end $
 delimiter ;
