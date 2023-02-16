@@ -5,7 +5,7 @@ from game.world.managers.objects.units.movement.behaviors.BaseMovement import Ba
 
 class EvadeMovement(BaseMovement):
     def __init__(self, waypoints, spline_callback):
-        super().__init__(is_default=False, move_type=MoveType.EVADE, spline_callback=spline_callback)
+        super().__init__(move_type=MoveType.EVADE, spline_callback=spline_callback)
         self.waypoints = waypoints
         self.unit = None
         self.wait_time_seconds = 0
@@ -23,7 +23,6 @@ class EvadeMovement(BaseMovement):
             self._begin_evade()
             self.last_movement = now
             self.wait_time_seconds = self.spline.get_total_time_secs()
-            print(f'Waiting {self.wait_time_seconds}')
 
         super().update(now, elapsed)
 
@@ -37,7 +36,6 @@ class EvadeMovement(BaseMovement):
         # If remaining waypoints, return.
         if self.waypoints:
             return
-        print('At home')
         self.unit.is_evading = False
         self.unit.on_at_home()
         self.path_ended = True
@@ -49,7 +47,6 @@ class EvadeMovement(BaseMovement):
         return self.waypoints and now > self.last_movement + self.wait_time_seconds
 
     def _begin_evade(self):
-        print(f'Moving to {self.waypoints[0]}')
         speed = self.unit.running_speed
         self.spline = SplineBuilder.build_normal_spline(self.unit, [self.waypoints[0]], speed)
         self.spline_callback(self.spline)

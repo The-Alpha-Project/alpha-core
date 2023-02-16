@@ -6,12 +6,11 @@ from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveType, ObjectTypeIds
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
-from utils.constants.UnitCodes import UnitStates
 
 
 class ChaseMovement(BaseMovement):
     def __init__(self, spline_callback):
-        super().__init__(is_default=False, move_type=MoveType.CHASE, spline_callback=spline_callback)
+        super().__init__(move_type=MoveType.CHASE, spline_callback=spline_callback)
         self.unit = None
 
     def initialize(self, unit):

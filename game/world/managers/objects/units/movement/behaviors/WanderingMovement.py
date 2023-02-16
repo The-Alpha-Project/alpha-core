@@ -10,9 +10,8 @@ from game.world.managers.objects.units.movement.behaviors.BaseMovement import Ba
 
 # TODO: Namigator: FindRandomPointAroundCircle (Detour)
 class WanderingMovement(BaseMovement):
-    def __init__(self, is_default, spline_callback):
-        super().__init__(is_default=is_default, move_type=MoveType.WANDER, spline_callback=spline_callback)
-        self.unit = None
+    def __init__(self, spline_callback, is_default):
+        super().__init__(move_type=MoveType.WANDER, spline_callback=spline_callback, is_default=is_default)
         self.wandering_distance = 0
         self.last_wandering_movement = 0
         self.wait_time_seconds = 0

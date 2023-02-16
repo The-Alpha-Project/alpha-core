@@ -7,9 +7,8 @@ from utils.constants.UnitCodes import SplineFlags
 
 class FlightMovement(BaseMovement):
     def __init__(self, waypoints, spline_callback):
-        super().__init__(is_default=False, move_type=MoveType.FLIGHT, spline_callback=spline_callback)
+        super().__init__(move_type=MoveType.FLIGHT, spline_callback=spline_callback)
         self.waypoints = waypoints
-        self.unit = None
         self.flight_ended = False
 
     # override

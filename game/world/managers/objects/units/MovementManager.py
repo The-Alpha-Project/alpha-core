@@ -4,6 +4,7 @@ from game.world.managers.objects.units.movement.SplineBuilder import SplineBuild
 from game.world.managers.objects.units.movement.behaviors.ChaseMovement import ChaseMovement
 from game.world.managers.objects.units.movement.behaviors.DistractedMovement import DistractedMovement
 from game.world.managers.objects.units.movement.behaviors.EvadeMovement import EvadeMovement
+from game.world.managers.objects.units.movement.behaviors.FearMovement import FearMovement
 from game.world.managers.objects.units.movement.behaviors.FlightMovement import FlightMovement
 from game.world.managers.objects.units.movement.behaviors.WanderingMovement import WanderingMovement
 from utils.ConfigManager import config
@@ -19,7 +20,7 @@ class MovementManager:
 
     def initialize(self):
         if self.unit.has_wander_type():
-            self.set_behavior(WanderingMovement(is_default=True, spline_callback=self.spline_callback))
+            self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
 
     # Broadcast a new spline from an active movement behavior.
     def spline_callback(self, spline):
@@ -88,15 +89,6 @@ class MovementManager:
         self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs(offset_milliseconds=waypoint.wait_time())
         self.last_movement = now
 
-    # TODO: Namigator: FindRandomPointAroundCircle (Detour)
-    #  We need a valid path for fear else unexpected collisions can mess things up.
-    def _perform_fear_movement(self, now):
-        speed = self.unit.running_speed
-        fear_point = self.unit.location.get_point_in_radius_and_angle(speed * self.fear_timer, 0)
-        self.send_move_normal([fear_point], speed, MoveType.FEAR)
-        self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
-        self.last_movement = now
-
     def _can_perform_follow_group(self, unit, now):
         return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
             and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
@@ -115,12 +107,6 @@ class MovementManager:
             and not unit.unit_state & UnitStates.DISTRACTED \
             and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
-    # noinspection PyMethodMayBeStatic
-    def _can_perform_fear(self, unit, elapsed, now):
-        self.fear_timer = max(0, self.fear_timer - elapsed)
-        return self.fear_timer and unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
-            and now > self.last_movement + self.wait_time_seconds
-
     def _get_sorted_waypoints_by_distance(self) -> list[MovementWaypoint]:
         points = [MovementWaypoint(wp) for wp in self.unit.default_waypoints]  # Wrap them.
         closest = min(points, key=lambda wp: self.unit.spawn_position.distance(wp.location()))
@@ -133,12 +119,6 @@ class MovementManager:
         # This will automatically trigger a new spline heading on the same direction with updated speed.
         self.fear_timer = 0
         self.wait_time_seconds = 0
-
-    def set_feared(self, duration=0):
-        self.fear_timer = duration
-        self.reset()
-        if not duration:
-            self.stop()
 
     def reset(self):
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
@@ -173,6 +153,9 @@ class MovementManager:
 
     def move_flight(self, waypoints):
         self.set_behavior(FlightMovement(waypoints, self.spline_callback))
+
+    def move_fear(self, duration_seconds):
+        self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback))
 
     def set_behavior(self, movement_behavior):
         self._clean_movement_behaviors()
@@ -210,17 +193,6 @@ class MovementManager:
                 # Handle as circular buffer.
                 self.movement_waypoints.pop(0)
                 self.movement_waypoints.append(current_waypoints)
-        elif spline.move_type == MoveType.EVADE:
-            if waypoint_complete:
-                self.unit.spawn_position = new_position.copy()  # Set new home.
-                self.return_home_waypoints.pop(0)
-                # This was the last wp, set at home.
-                if not self.return_home_waypoints:
-                    self.unit.is_evading = False
-                    self.unit.on_at_home()
-        # Common.
-        self.unit.location = new_position
-        self.unit.set_has_moved(has_moved=True, has_turned=False)
 
     # Instant.
     def stop(self):

@@ -5,10 +5,10 @@ from utils.constants.UnitCodes import UnitStates
 
 
 # Distracted works alongside stunned, meaning splines are not updated, therefor we set state upon initialization
-#  and remove upon behavior removed.
+#  and remove upon behavior removal.
 class DistractedMovement(BaseMovement):
     def __init__(self, wait_time_secs, angle, spline_callback):
-        super().__init__(is_default=False, move_type=MoveType.DISTRACTED, spline_callback=spline_callback)
+        super().__init__(move_type=MoveType.DISTRACTED, spline_callback=spline_callback)
         self.unit = None
         self.expected_timestamp = time.time() + wait_time_secs
         self.angle = angle

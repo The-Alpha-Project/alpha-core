@@ -282,14 +282,13 @@ class AuraEffectHandler:
     def handle_mod_fear(aura, effect_target, remove):
         if remove:
             effect_target.unit_flags &= ~UnitFlags.UNIT_FLAG_FLEEING
-            effect_target.movement_manager.set_feared(duration=0)
         else:
             if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 effect_target.interrupt_looting()
             effect_target.spell_manager.remove_casts(remove_active=False)
             effect_target.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
             duration = aura.source_spell.get_duration() / 1000
-            effect_target.movement_manager.set_feared(duration)
+            effect_target.movement_manager.move_fear(duration)
 
         effect_target.set_uint32(UnitFields.UNIT_FIELD_FLAGS, effect_target.unit_flags)
 

@@ -1,5 +1,5 @@
 class BaseMovement:
-    def __init__(self, is_default, move_type, spline_callback):
+    def __init__(self, move_type, spline_callback, is_default=False):
         self.is_default = is_default
         self.move_type = move_type
         self.spline_callback = spline_callback
