@@ -16658,5 +16658,14 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('140220232');
     end if;
 
+    -- 17/02/2023 1
+    if (select count(*) from applied_updates where id = '170220231') = 0 then
+        -- Relocate Rellian Greenspyre
+        UPDATE `spawns_creatures` SET `position_x` = 9970.631, `position_y` = 2157.618, `position_z` = 1329.220, `orientation` = 3.305 WHERE `spawn_id` = 46904;
+        -- Set Rellian Greenspyre's display ID
+        UPDATE `creature_template` SET `display_id1` = 2572 WHERE `entry` = 3517;
+
+        INSERT INTO applied_updates VALUES ('170220231');
+    end if;
 end $
 delimiter ;
