@@ -28,9 +28,9 @@ class FlightMovement(BaseMovement):
     def _begin_flight(self):
         speed = config.Unit.Player.Defaults.flight_speed
         spline_flags = SplineFlags.SPLINEFLAG_FLYING
-        self.spline = SplineBuilder.build_normal_spline(self.unit, self.waypoints, speed,
-                                                        spline_flags=spline_flags, extra_time_seconds=1.0)
-        self.spline_callback(self.spline)
+        spline = SplineBuilder.build_normal_spline(self.unit, self.waypoints, speed,
+                                                   spline_flags=spline_flags, extra_time_seconds=1.0)
+        self.spline_callback(spline, movement_behavior=self)
 
     def on_new_position(self, new_position, waypoint_completed):
         super().on_new_position(new_position, waypoint_completed)

@@ -48,5 +48,5 @@ class EvadeMovement(BaseMovement):
 
     def _begin_evade(self):
         speed = self.unit.running_speed
-        self.spline = SplineBuilder.build_normal_spline(self.unit, [self.waypoints[0]], speed)
-        self.spline_callback(self.spline)
+        spline = SplineBuilder.build_normal_spline(self.unit, [self.waypoints[0]], speed)
+        self.spline_callback(spline, movement_behavior=self)

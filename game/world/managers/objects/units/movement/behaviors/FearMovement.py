@@ -1,6 +1,8 @@
 import time
+
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
-from utils.constants.MiscCodes import MoveType
+from utils.constants.MiscCodes import MoveType, MoveFlags
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.UnitCodes import UnitFlags
 
@@ -19,6 +21,7 @@ class FearMovement(BaseMovement):
     # override
     def update(self, now, elapsed):
         if self._can_trigger_fear():
+            self.speed_dirty = False
             self._trigger_fear()
 
         self.fear_duration = max(0, self.fear_duration - elapsed)
@@ -26,14 +29,21 @@ class FearMovement(BaseMovement):
         super().update(now, elapsed)
 
     def _trigger_fear(self):
+        self.started = True
         speed = self.unit.running_speed
         fear_point = self.unit.location.get_point_in_radius_and_angle(speed * self.fear_duration, 0)
-        self.spline = SplineBuilder.build_normal_spline(self.unit, points=[fear_point], speed=speed)
-        self.spline_callback(self.spline)
+        spline = SplineBuilder.build_normal_spline(self.unit, points=[fear_point], speed=speed)
+        self.spline_callback(spline, movement_behavior=self)
 
     def _can_trigger_fear(self):
-        return not self.started and self.fear_duration
+        return (self.speed_dirty or not self.started) and self.fear_duration
 
+    # override
     def can_remove(self):
         return not self.fear_duration or not self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
             or time.time() >= self.expected_timestamp
+
+    # override
+    def on_spline_finished(self):
+        self.unit.movement_flags = MoveFlags.MOVEFLAG_NONE
+        MapManager.send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)

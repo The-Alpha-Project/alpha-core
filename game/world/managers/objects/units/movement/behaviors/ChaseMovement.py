@@ -88,8 +88,8 @@ class ChaseMovement(BaseMovement):
                 Logger.warning(f'Unable to find path, map {unit.map_id} loc {unit.location} end {combat_location}')
 
         speed = self.unit.running_speed
-        self.spline = SplineBuilder.build_normal_spline(unit, points=[combat_location], speed=speed)
-        self.spline_callback(self.spline)
+        spline = SplineBuilder.build_normal_spline(unit, points=[combat_location], speed=speed)
+        self.spline_callback(spline, movement_behavior=self)
 
     def _can_chase(self):
         return self.unit.is_alive and self.unit.combat_target

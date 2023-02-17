@@ -148,7 +148,6 @@ class ObjectManager:
         return data
 
     def get_heartbeat_packet(self):
-        movement_flags = self.movement_flags | MoveFlags.MOVEFLAG_MOVED
         data = pack(
             '<2Q9fI',
             self.guid,
@@ -162,7 +161,7 @@ class ObjectManager:
             self.location.z,
             self.location.o,
             self.pitch,
-            movement_flags,
+            self.movement_flags,
         )
         return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
 
@@ -430,18 +429,16 @@ class ObjectManager:
         if target.unit_state & UnitStates.SANCTUARY:
             return False
 
+        # Flight.
+        if target.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+            return False
+
         if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
                 target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
             return False
 
         if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
             return False
-
-        # Unit vs Player only checks.
-        if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            # If player is on a flying path.
-            if target.movement_spline and target.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
-                return False
 
         # Creature only checks.
         elif target.get_type_id() == ObjectTypeIds.ID_UNIT:

@@ -3,6 +3,7 @@ class BaseMovement:
         self.is_default = is_default
         self.move_type = move_type
         self.spline_callback = spline_callback
+        self.speed_dirty = False
         self.spline = None
         self.unit = None
 
@@ -24,6 +25,9 @@ class BaseMovement:
         self.unit.location = new_position.copy()
         self.unit.set_has_moved(has_moved=True, has_turned=False)
 
+    def set_speed_dirty(self):
+        self.speed_dirty = True
+
     def on_spline_finished(self):
         pass
 
@@ -38,8 +42,3 @@ class BaseMovement:
 
     def reset(self):
         pass
-
-    def interrupt(self):
-        if self.spline:
-            self.spline.update_to_now()
-            self.spline = None

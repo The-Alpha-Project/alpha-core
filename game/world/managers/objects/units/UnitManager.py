@@ -974,11 +974,12 @@ class UnitManager(ObjectManager):
         self.stat_manager.base_stats[UnitStats.SPEED_RUNNING] = speed if speed > 0 else config.Unit.Defaults.run_speed
         # Get new total speed.
         speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING)
-        # Handle current spline.
-        if self.is_moving():
-            self.movement_manager.update_speed()
         # Limit to 0-56 and assign object field.
-        return super().change_speed(speed)
+        change_speed = super().change_speed(speed)
+        # Speed was modified, update current spline if needed.
+        if change_speed and self.is_moving():
+            self.movement_manager.set_speed_dirty()
+        return change_speed
 
     # override
     def can_detect_target(self, target, distance=0):

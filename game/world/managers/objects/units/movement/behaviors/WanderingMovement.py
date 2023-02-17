@@ -37,9 +37,9 @@ class WanderingMovement(BaseMovement):
         self.last_wandering_movement = now
         position = self._get_wandering_point()
         speed = config.Unit.Defaults.walk_speed
-        self.spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
-        self.wait_time_seconds = randint(1, 12) + self.spline.get_total_time_secs()
-        self.spline_callback(self.spline)
+        spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
+        self.wait_time_seconds = randint(1, 12) + spline.get_total_time_secs()
+        self.spline_callback(spline, movement_behavior=self)
 
     def _can_wander(self, now):
         return not self.spline and now > self.last_wandering_movement + self.wait_time_seconds

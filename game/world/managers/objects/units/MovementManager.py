@@ -1,3 +1,7 @@
+from utils.ConfigManager import config
+from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
+from utils.constants.UnitCodes import UnitStates, UnitFlags
+
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.MovementWaypoint import MovementWaypoint
 from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
@@ -7,9 +11,6 @@ from game.world.managers.objects.units.movement.behaviors.EvadeMovement import E
 from game.world.managers.objects.units.movement.behaviors.FearMovement import FearMovement
 from game.world.managers.objects.units.movement.behaviors.FlightMovement import FlightMovement
 from game.world.managers.objects.units.movement.behaviors.WanderingMovement import WanderingMovement
-from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
-from utils.constants.UnitCodes import UnitStates, UnitFlags
 
 
 class MovementManager:
@@ -23,16 +24,18 @@ class MovementManager:
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
 
     # Broadcast a new spline from an active movement behavior.
-    def spline_callback(self, spline):
+    def spline_callback(self, spline, movement_behavior=None):
         spline.initialize()
         self.unit.movement_spline = spline
         movement_packet = spline.try_build_movement_packet()
+        if movement_behavior:
+            movement_behavior.spline = spline
         if movement_packet:
             MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)
 
     def flush(self):
         self.movement_behaviors.clear()
-        self.unit = None
+        self.stop()
 
     def update(self, now, elapsed):
         if not self._can_move():
@@ -115,10 +118,10 @@ class MovementManager:
             points = points[index:] + points[0:index]
         return points
 
-    def update_speed(self):
-        # This will automatically trigger a new spline heading on the same direction with updated speed.
-        self.fear_timer = 0
-        self.wait_time_seconds = 0
+    def set_speed_dirty(self):
+        current_movement = self._get_current_movement()
+        if current_movement:
+            current_movement.set_speed_dirty()
 
     def reset(self):
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
