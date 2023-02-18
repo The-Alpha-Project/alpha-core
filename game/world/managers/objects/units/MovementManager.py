@@ -1,10 +1,9 @@
-from game.world.managers.objects.units.movement.behaviors.WaypointMovement import WaypointMovement
-from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
-from utils.constants.UnitCodes import UnitStates, UnitFlags
+from utils.constants.UnitCodes import UnitStates
 
+from game.world.managers.objects.units.movement.behaviors.GroupMovement import GroupMovement
+from game.world.managers.objects.units.movement.behaviors.WaypointMovement import WaypointMovement
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.units.movement.MovementWaypoint import MovementWaypoint
 from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
 from game.world.managers.objects.units.movement.behaviors.ChaseMovement import ChaseMovement
 from game.world.managers.objects.units.movement.behaviors.DistractedMovement import DistractedMovement
@@ -29,9 +28,7 @@ class MovementManager:
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_waypoints_type() and self.unit.spawn_id:
             if self.unit.creature_group:
-                pass
-                # WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(creature_mgr.entry)
-                # self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
+                self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
             else:
                 self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, is_default=True))
 
@@ -47,7 +44,15 @@ class MovementManager:
 
     def flush(self):
         self.movement_behaviors.clear()
+        self.reset()
+
+    def reset(self):
+        # If currently moving, update the current spline in order to have latest guessed position before flushing.
+        spline = self.get_current_spline()
+        if spline:
+            spline.update_to_now()
         self.stop()
+        self.unit.movement_spline = None
 
     def update(self, now, elapsed):
         is_resume = self._handle_out_of_combat_pause(elapsed)
@@ -98,66 +103,10 @@ class MovementManager:
             return False
         return True
 
-    # def _perform_follow_group(self, now, elapsed):
-    #     location, speed = self.unit.creature_group.get_follow_position_and_speed(self.unit, elapsed)
-    #     if not location:
-    #         return
-    #     self.send_move_normal([location], speed, MoveType.WAYPOINTS)
-    #     self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
-    #     self.last_movement = now
-    #
-    # # TODO: No scripts.
-    # def _perform_waypoints_movement(self, now):
-    #     speed = config.Unit.Defaults.walk_speed
-    #     # Initialize waypoints if needed.
-    #     if not self.movement_waypoints:
-    #         self.movement_waypoints = self._get_sorted_waypoints_by_distance()
-    #
-    #     waypoint = self.movement_waypoints[0]
-    #     self.send_move_normal([waypoint.location()], speed, MoveType.WAYPOINTS)
-    #     self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs(offset_milliseconds=waypoint.wait_time())
-    #     self.last_movement = now
-    #
-    # def _can_perform_follow_group(self, unit, now):
-    #     return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
-    #         and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
-    #         and not unit.default_waypoints and self.unit.creature_group and self.unit.creature_group.leader \
-    #         and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-    #         and now > self.last_movement + self.wait_time_seconds \
-    #         and not unit.unit_state & UnitStates.DISTRACTED \
-    #         and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
-    #
-    # def _can_perform_creature_waypoints(self, unit, now):
-    #     return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
-    #         and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
-    #         and unit.default_waypoints \
-    #         and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-    #         and now > self.last_movement + self.wait_time_seconds \
-    #         and not unit.unit_state & UnitStates.DISTRACTED \
-    #         and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
-    #
-    # def _get_sorted_waypoints_by_distance(self) -> list[MovementWaypoint]:
-    #     points = [MovementWaypoint(wp) for wp in self.unit.default_waypoints]  # Wrap them.
-    #     closest = min(points, key=lambda wp: self.unit.spawn_position.distance(wp.location()))
-    #     index = points.index(closest)
-    #     if index:
-    #         points = points[index:] + points[0:index]
-    #     return points
-
     def set_speed_dirty(self):
         current_movement = self._get_current_movement()
         if current_movement:
             current_movement.set_speed_dirty()
-
-    def reset(self):
-        # If currently moving, update the current spline in order to have latest guessed position before flushing.
-        spline = self.get_current_spline()
-        if spline:
-            spline.update_to_now()
-        #self.last_movement = 0
-        #self.wait_time_seconds = 0
-        #self.pending_splines.clear()
-        self.unit.movement_spline = None
 
     def get_pending_waypoints_length(self):
         spline = self.get_current_spline()
@@ -217,17 +166,6 @@ class MovementManager:
         if not self.movement_behaviors:
             return None
         return self.movement_behaviors[0].spline if self.movement_behaviors[0].spline else None
-
-    def _handle_position_change(self, spline, new_position, waypoint_complete):
-        # Waypoint type movement, set home position upon waypoint reached.
-        # This is where the unit will return if the path is interrupted.
-        if spline.move_type == MoveType.WAYPOINTS:
-            self.unit.spawn_position = new_position.copy()  # Set new home.
-            if waypoint_complete and self.movement_waypoints:  # Not guessed location.
-                current_waypoints = self.movement_waypoints[0]
-                # Handle as circular buffer.
-                self.movement_waypoints.pop(0)
-                self.movement_waypoints.append(current_waypoints)
 
     # Instant.
     def stop(self):
