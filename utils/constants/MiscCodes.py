@@ -604,6 +604,7 @@ class MoveType(IntEnum):
     EVADE = 0x6
     FEAR = 0x7
     DISTRACTED = 0x8
+    GROUP = 0x9
 
 
 class MoveFlags(IntEnum):

@@ -20,8 +20,8 @@ class MovementWaypoint:
     def location(self):
         return self._location
 
-    def wait_time(self):
-        return self.creature_movement.waittime
+    def wait_time_seconds(self):
+        return self.creature_movement.waittime / 1000
 
     def script_id(self):
         return self.creature_movement.script_id

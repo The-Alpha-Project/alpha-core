@@ -35,7 +35,6 @@ class CreatureManager(UnitManager):
         self.creature_template = None
         self.location = None
         self.spawn_position = None
-        self.default_waypoints = None
         self.creature_group = None
         self.map_id = 0
         self.health_percent = 100
@@ -235,18 +234,11 @@ class CreatureManager(UnitManager):
                 self.native_scale = self.creature_template.scale
             self.current_scale = self.native_scale
 
-            if self.has_waypoints_type() and self.spawn_id:
-                creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
-                if creature_group:
-                    self.creature_group = CreatureGroupManager.get_create_group(creature_group)
-                    self.creature_group.add_member(self, creature_group)
-                else:
-                    # Load default creature_movement if any.
-                    self.default_waypoints = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_spawn_id(self.spawn_id)
-
-            # Found movement data, sort by point ID.
-            if self.default_waypoints:
-                self.default_waypoints.sort(key=lambda wp: wp.point)
+            # Creature group.
+            creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
+            if creature_group:
+                self.creature_group = CreatureGroupManager.get_create_group(creature_group)
+                self.creature_group.add_member(self, creature_group)
 
             # Equipment.
             if self.creature_template.equipment_id > 0:

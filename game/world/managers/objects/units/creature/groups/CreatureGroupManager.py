@@ -1,5 +1,4 @@
 from random import choice
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.groups.CreatureGroupMember import CreatureGroupMember
 from utils.ConfigManager import config
@@ -13,6 +12,7 @@ class CreatureGroupManager:
     def __init__(self):
         self.original_leader_id = 0
         self.leader = None
+        self.waypoints = None
         self.members: dict[int, CreatureGroupMember] = {}
         self.group_flags = 0
 
@@ -22,16 +22,18 @@ class CreatureGroupManager:
             CREATURE_GROUPS[creature_group.leader_guid] = CreatureGroupManager()
         return CREATURE_GROUPS[creature_group.leader_guid]
 
+    def is_leader(self, creature_mgr):
+        return self.leader and self.leader.guid == creature_mgr.guid
+
     def add_member(self, creature_mgr, creature_group):
         if creature_mgr.guid not in self.members:
             self.members[creature_mgr.guid] = CreatureGroupMember(creature_mgr, creature_group)
         # Set leader.
         if creature_group.leader_guid == creature_mgr.spawn_id:
-            # Load waypoints.
-            waypoints = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(creature_mgr.entry)
-            creature_mgr.default_waypoints = waypoints
             self.leader = creature_mgr
             self.original_leader_id = creature_mgr.guid
+            self._fill_waypoints()
+
         self.group_flags |= creature_group.flags
 
     def remove_member(self, creature_mgr):
@@ -67,11 +69,10 @@ class CreatureGroupManager:
         if is_leader and self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE:
             alive = [member.creature for member in self.members.values() if member.creature.is_alive
                      and member.creature.guid != self.leader.guid]
+            # Set a new leader if possible.
             if alive:
-                alive.default_waypoints = self.leader.default_waypoints
                 self.leader = choice(alive)
-                self.leader.movement_manager.reset()
-            # All death.
+            # All dead.
             else:
                 self.disband()
 
@@ -107,6 +108,11 @@ class CreatureGroupManager:
         if creature_distance > group_member.distance_leader:
             speed += (creature_distance - group_member.distance_leader) * elapsed
         return location, speed
+
+    def _fill_waypoints(self):
+        self.waypoints = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(self.leader.entry)
+        if self.waypoints:
+            self.waypoints.sort(key=lambda wp: wp.point)
 
     # noinspection PyMethodMayBeStatic
     def _assist_member(self, creature, target):

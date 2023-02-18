@@ -1,3 +1,4 @@
+from game.world.managers.objects.units.movement.behaviors.WaypointMovement import WaypointMovement
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
 from utils.constants.UnitCodes import UnitStates, UnitFlags
@@ -17,11 +18,22 @@ class MovementManager:
     def __init__(self, unit):
         self.unit = unit
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+        self.pause_out_of_combat = 0
         self.movement_behaviors = []
 
     def initialize(self):
+        if self.is_player:
+            return
+
         if self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
+        elif self.unit.has_waypoints_type() and self.unit.spawn_id:
+            if self.unit.creature_group:
+                pass
+                # WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(creature_mgr.entry)
+                # self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
+            else:
+                self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, is_default=True))
 
     # Broadcast a new spline from an active movement behavior.
     def spline_callback(self, spline, movement_behavior=None):
@@ -38,6 +50,8 @@ class MovementManager:
         self.stop()
 
     def update(self, now, elapsed):
+        is_resume = self._handle_out_of_combat_pause(elapsed)
+
         if not self._can_move():
             return
 
@@ -49,7 +63,17 @@ class MovementManager:
         if not current_movement:
             return
 
+        if is_resume:
+            current_movement.reset()
+
         current_movement.update(now, elapsed)
+
+    def _handle_out_of_combat_pause(self, elapsed):
+        if self.pause_out_of_combat:
+            self.pause_out_of_combat = max(0, self.pause_out_of_combat - elapsed)
+            if not self.pause_out_of_combat:
+                return True
+        return False
 
     def _get_current_movement(self):
         if not self.movement_behaviors:
@@ -62,6 +86,8 @@ class MovementManager:
             self._remove_behavior(self.movement_behaviors[0])
 
     def _can_move(self):
+        if self.pause_out_of_combat and not self.unit.in_combat:
+            return False
         if not self.movement_behaviors:
             return False
         if not self.unit.is_alive:
@@ -72,51 +98,51 @@ class MovementManager:
             return False
         return True
 
-    def _perform_follow_group(self, now, elapsed):
-        location, speed = self.unit.creature_group.get_follow_position_and_speed(self.unit, elapsed)
-        if not location:
-            return
-        self.send_move_normal([location], speed, MoveType.WAYPOINTS)
-        self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
-        self.last_movement = now
-
-    # TODO: No scripts.
-    def _perform_waypoints_movement(self, now):
-        speed = config.Unit.Defaults.walk_speed
-        # Initialize waypoints if needed.
-        if not self.movement_waypoints:
-            self.movement_waypoints = self._get_sorted_waypoints_by_distance()
-
-        waypoint = self.movement_waypoints[0]
-        self.send_move_normal([waypoint.location()], speed, MoveType.WAYPOINTS)
-        self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs(offset_milliseconds=waypoint.wait_time())
-        self.last_movement = now
-
-    def _can_perform_follow_group(self, unit, now):
-        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
-            and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
-            and not unit.default_waypoints and self.unit.creature_group and self.unit.creature_group.leader \
-            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_movement + self.wait_time_seconds \
-            and not unit.unit_state & UnitStates.DISTRACTED \
-            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
-
-    def _can_perform_creature_waypoints(self, unit, now):
-        return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
-            and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
-            and unit.default_waypoints \
-            and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
-            and now > self.last_movement + self.wait_time_seconds \
-            and not unit.unit_state & UnitStates.DISTRACTED \
-            and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
-
-    def _get_sorted_waypoints_by_distance(self) -> list[MovementWaypoint]:
-        points = [MovementWaypoint(wp) for wp in self.unit.default_waypoints]  # Wrap them.
-        closest = min(points, key=lambda wp: self.unit.spawn_position.distance(wp.location()))
-        index = points.index(closest)
-        if index:
-            points = points[index:] + points[0:index]
-        return points
+    # def _perform_follow_group(self, now, elapsed):
+    #     location, speed = self.unit.creature_group.get_follow_position_and_speed(self.unit, elapsed)
+    #     if not location:
+    #         return
+    #     self.send_move_normal([location], speed, MoveType.WAYPOINTS)
+    #     self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs()
+    #     self.last_movement = now
+    #
+    # # TODO: No scripts.
+    # def _perform_waypoints_movement(self, now):
+    #     speed = config.Unit.Defaults.walk_speed
+    #     # Initialize waypoints if needed.
+    #     if not self.movement_waypoints:
+    #         self.movement_waypoints = self._get_sorted_waypoints_by_distance()
+    #
+    #     waypoint = self.movement_waypoints[0]
+    #     self.send_move_normal([waypoint.location()], speed, MoveType.WAYPOINTS)
+    #     self.wait_time_seconds = self.pending_splines[-1].get_total_time_secs(offset_milliseconds=waypoint.wait_time())
+    #     self.last_movement = now
+    #
+    # def _can_perform_follow_group(self, unit, now):
+    #     return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
+    #         and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
+    #         and not unit.default_waypoints and self.unit.creature_group and self.unit.creature_group.leader \
+    #         and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
+    #         and now > self.last_movement + self.wait_time_seconds \
+    #         and not unit.unit_state & UnitStates.DISTRACTED \
+    #         and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+    #
+    # def _can_perform_creature_waypoints(self, unit, now):
+    #     return not self.is_player and unit.is_alive and not unit.is_casting() and not unit.is_moving() \
+    #         and not unit.combat_target and not unit.is_evading and unit.has_waypoints_type() \
+    #         and unit.default_waypoints \
+    #         and not unit.unit_state & UnitStates.STUNNED and not unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED \
+    #         and now > self.last_movement + self.wait_time_seconds \
+    #         and not unit.unit_state & UnitStates.DISTRACTED \
+    #         and not unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+    #
+    # def _get_sorted_waypoints_by_distance(self) -> list[MovementWaypoint]:
+    #     points = [MovementWaypoint(wp) for wp in self.unit.default_waypoints]  # Wrap them.
+    #     closest = min(points, key=lambda wp: self.unit.spawn_position.distance(wp.location()))
+    #     index = points.index(closest)
+    #     if index:
+    #         points = points[index:] + points[0:index]
+    #     return points
 
     def set_speed_dirty(self):
         current_movement = self._get_current_movement()
@@ -144,6 +170,12 @@ class MovementManager:
         if not spline:
             return self.unit.location
         return spline.get_waypoint_location()
+
+    def try_pause_movement(self, duration_seconds):
+        current_movement = self._get_current_movement()
+        if not self.unit.in_combat and current_movement:
+            self.pause_out_of_combat = duration_seconds
+            self.stop()
 
     def move_distracted(self, duration_seconds, angle):
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))

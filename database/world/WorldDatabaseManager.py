@@ -412,14 +412,12 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureGroupsHolder:
-        CREATURE_GROUPS: [int, list[CreatureGroup]] = {}
         CREATURE_GROUP_BY_MEMBER: dict = {}
 
         @staticmethod
         def load_creature_groups(creature_group):
-            if creature_group.leader_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUPS:
-                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUPS[creature_group.leader_guid] = []
-            WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUPS[creature_group.leader_guid].append(creature_group)
+            if creature_group.leader_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
+                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[creature_group.leader_guid] = creature_group
 
             if creature_group.member_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
                 WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[creature_group.member_guid] = creature_group

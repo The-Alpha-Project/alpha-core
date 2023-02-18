@@ -8,10 +8,9 @@ from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 
-# TODO: Namigator: FindRandomPointAroundCircle (Detour)
-class WanderingMovement(BaseMovement):
+class GroupMovement(BaseMovement):
     def __init__(self, spline_callback, is_default):
-        super().__init__(move_type=MoveType.WANDER, spline_callback=spline_callback, is_default=is_default)
+        super().__init__(move_type=MoveType.GROUP, spline_callback=spline_callback, is_default=is_default)
         self.wandering_distance = 0
         self.last_wandering_movement = 0
         self.wait_time_seconds = 0
@@ -25,21 +24,20 @@ class WanderingMovement(BaseMovement):
     # override
     def update(self, now, elapsed):
         if self._can_wander(now):
-            self._wander()
-            self.last_wandering_movement = now
-            self.wait_time_seconds = randint(1, 12) + self.spline.get_total_time_secs()
+            self._wander(now)
 
         super().update(now, elapsed)
 
     def reset(self):
-        self.spline = None
         self.wait_time_seconds = randint(1, 12)
         self.last_wandering_movement = time.time()
 
-    def _wander(self):
+    def _wander(self, now):
+        self.last_wandering_movement = now
         position = self._get_wandering_point()
         speed = config.Unit.Defaults.walk_speed
         spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
+        self.wait_time_seconds = randint(1, 12) + spline.get_total_time_secs()
         self.spline_callback(spline, movement_behavior=self)
 
     def _can_wander(self, now):
