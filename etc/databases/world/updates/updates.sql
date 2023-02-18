@@ -16609,5 +16609,63 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('110220232');
     end if;
+
+    -- 12/02/2023 1
+    if (select count(*) from applied_updates where id = '120220231') = 0 then
+        -- remove placeholder objects from Elwynn Forest
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_entry` = 176793;
+        -- remove placeholder objects from Valley of Trials, Durotar
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_entry` = 175784;
+
+        INSERT INTO applied_updates VALUES ('120220231');
+    end if;
+
+    -- 13/02/2023 1
+    if (select count(*) from applied_updates where id = '130220231') = 0 then
+        -- Fix Z position of Lumberjack at Sentinel Hill, Westfall
+        UPDATE `spawns_creatures` SET `position_z` = 34.506 WHERE `spawn_id` = 45524;
+        -- Fix Grayson's Torch display ID
+        UPDATE `item_template` SET `display_id` = 6520 WHERE `entry` = 1172;
+
+        INSERT INTO applied_updates VALUES ('130220231');
+    end if;
+
+    -- 14/02/2023 1
+    if (select count(*) from applied_updates where id = '140220231') = 0 then
+        -- change Father Gavin's level and faction        
+        UPDATE `creature_template` SET `level_min` = 15, `level_max` = 15, `faction` = 35 WHERE `entry` = 1253;
+        -- change Senir Whitebeard's max level to 12
+        UPDATE `creature_template` SET `level_max` = 12 WHERE `entry` = 1252;
+        -- Uneqip Ozzie Togglevolt's tool
+        UPDATE `creature_template` SET `equipment_id` = 0 WHERE `entry` = 1268;
+        -- Unequip Razzle Spysprocket's tool
+        UPDATE `creature_template` SET `equipment_id` = 0 WHERE `entry` = 1269;
+        -- Set Pilot Stonegear's display_id to a proper value
+        UPDATE `creature_template` SET `display_id1` = 3232 WHERE `entry` = 1377;
+        
+        INSERT INTO applied_updates VALUES ('140220231');
+    end if;
+
+    -- 14/02/2023 2
+    if (select count(*) from applied_updates where id = '140220232') = 0 then
+        -- Change details of quest 447
+        UPDATE `quest_template` SET `Objectives` = 'Collect 6 Grizzled Bear Hearts and 6 samples of Spider Marrow and deliver them to Master Apothecary Faranell in the Undercity.', `Details` = "Arthas's numbers are overwhelming. But with a New Plague we could eradicate both the Scourge Army and the Human infestation once and for all.$b$bMy studies have proven that spider marrow combined with a toxin derived from a grizzled bear heart results in a deadly elixir. Collect samples from the spiders in the Skittering Dark to the northwest and from the bears wandering throughout Silverpine Forest. Deliver the reagents to Master Apothecary Faranell of the Royal Apothecary Society in the Undercity." WHERE `entry` = 447;
+        -- rename Skittering Blood to Spider Marrow
+        UPDATE `item_template` SET `name` = 'Spider Marrow' WHERE `entry` = 3254;
+        -- change Frank Ward's faction to friendly
+        UPDATE `creature_template` SET `faction` = 11 WHERE `entry` = 2940;
+
+        INSERT INTO applied_updates VALUES ('140220232');
+    end if;
+
+    -- 17/02/2023 1
+    if (select count(*) from applied_updates where id = '170220231') = 0 then
+        -- Relocate Rellian Greenspyre
+        UPDATE `spawns_creatures` SET `position_x` = 9970.631, `position_y` = 2157.618, `position_z` = 1329.220, `orientation` = 3.305 WHERE `spawn_id` = 46904;
+        -- Set Rellian Greenspyre's display ID
+        UPDATE `creature_template` SET `display_id1` = 2572 WHERE `entry` = 3517;
+
+        INSERT INTO applied_updates VALUES ('170220231');
+    end if;
 end $
 delimiter ;
