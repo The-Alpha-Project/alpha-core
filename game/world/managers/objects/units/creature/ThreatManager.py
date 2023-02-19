@@ -104,6 +104,7 @@ class ThreatManager:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
         if source is not self.owner:
+            # Do not enter combat if call was made from die().
             if not from_death:
                 self.owner.enter_combat()
             source_holder = self.holders.get(source.guid)
