@@ -84,7 +84,7 @@ class ThreatManager:
             self.owner.leave_combat()
 
     def add_threat(self, source, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
-                   is_call_for_help: bool = False):
+                   is_call_for_help: bool = False, from_death=False):
         # Only players/units.
         if not source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return False
@@ -104,7 +104,8 @@ class ThreatManager:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
         if source is not self.owner:
-            self.owner.enter_combat()
+            if not from_death:
+                self.owner.enter_combat()
             source_holder = self.holders.get(source.guid)
             # Update existent holder.
             if source_holder:

@@ -1,7 +1,8 @@
 from random import choice
+
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.groups.CreatureGroupMember import CreatureGroupMember
-from utils.ConfigManager import config
+from game.world.managers.objects.units.movement.MovementWaypoint import MovementWaypoint
 from utils.constants.MiscCodes import CreatureGroupFlags
 
 
@@ -10,9 +11,9 @@ CREATURE_GROUPS = {}
 
 class CreatureGroupManager:
     def __init__(self):
-        self.original_leader_id = 0
+        self.original_leader_spawn_id = 0
+        self.waypoints = []
         self.leader = None
-        self.waypoints = None
         self.members: dict[int, CreatureGroupMember] = {}
         self.group_flags = 0
 
@@ -31,8 +32,12 @@ class CreatureGroupManager:
         # Set leader.
         if creature_group.leader_guid == creature_mgr.spawn_id:
             self.leader = creature_mgr
-            self.original_leader_id = creature_mgr.guid
-            self._fill_waypoints()
+            self.original_leader_spawn_id = creature_mgr.spawn_id
+            # Generate waypoints that will be used by the current/temporary leader.
+            creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(creature_mgr.entry)
+            if creature_movement:
+                creature_movement.sort(key=lambda wp: wp.point)
+                self.waypoints = self._get_sorted_waypoints_by_distance(creature_movement)
 
         self.group_flags |= creature_group.flags
 
@@ -55,7 +60,7 @@ class CreatureGroupManager:
             self._assist_member(member.creature, target)
 
     def on_member_died(self, creature_mgr):
-        is_leader = creature_mgr.guid == self.leader.guid
+        is_leader = self.leader and creature_mgr.guid == self.leader.guid
 
         if self.group_flags & CreatureGroupFlags.OPTION_INFORM_LEADER_ON_MEMBER_DIED:
             if self.leader and self.leader.is_alive:
@@ -78,7 +83,6 @@ class CreatureGroupManager:
 
     def on_leave_combat(self, creature_mgr):
         leader_evade = creature_mgr.guid == self.leader.guid
-
         if self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_ANY_EVADE or \
                 (self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_MASTER_EVADE and leader_evade):
             for guid, member in self.members.items():
@@ -94,35 +98,22 @@ class CreatureGroupManager:
         for guid, member in self.members.items():
             member.creature_group = None
         self.members.clear()
-        CREATURE_GROUPS.pop(self.original_leader_id)
+        CREATURE_GROUPS.pop(self.original_leader_spawn_id)
 
-    def get_follow_position_and_speed(self, creature_mgr, elapsed):
-        if creature_mgr.guid not in self.members or not self.leader:
-            return None, 0
-        group_member = self.members[creature_mgr.guid]
-        speed = config.Unit.Defaults.walk_speed
-        leader_distance = max(0.2, group_member.distance_leader - (elapsed * speed))
-        location = self.leader.location.get_point_in_radius_and_angle(leader_distance, group_member.angle)
-        creature_distance = group_member.creature.location.distance(location) - (elapsed * speed)
-        # Catch up if lagging behind. Gibberish maths here.
-        if creature_distance > group_member.distance_leader:
-            speed += (creature_distance - group_member.distance_leader) * elapsed
-        return location, speed
-
-    def _fill_waypoints(self):
-        self.waypoints = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(self.leader.entry)
-        if self.waypoints:
-            self.waypoints.sort(key=lambda wp: wp.point)
+    def _get_sorted_waypoints_by_distance(self, movement_waypoints) -> list[MovementWaypoint]:
+        points = [MovementWaypoint(wp) for wp in movement_waypoints]  # Wrap them.
+        closest = min(points, key=lambda wp: self.leader.spawn_position.distance(wp.location()))
+        index = points.index(closest)
+        if index:
+            points = points[index:] + points[0:index]
+        return points
 
     # noinspection PyMethodMayBeStatic
     def _assist_member(self, creature, target):
-        if not creature.is_alive:
+        if not creature.can_attack_target(target) or not creature.is_hostile_to(target):
             return
-
         if creature.combat_target:
             return
-
         if not creature.object_ai:
             return
-
         creature.object_ai.attacked_by(target)

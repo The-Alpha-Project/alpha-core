@@ -43,6 +43,7 @@ class WaypointMovement(BaseMovement):
             if self.waypoints[-1].script_id():
                 Logger.warning(f'{self.unit.get_name()},  movement script id {self.waypoints[-1].script_id()} missing.')
 
+    # override
     def reset(self):
         self.spline = None
         self.wait_time_seconds = 0

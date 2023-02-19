@@ -61,14 +61,15 @@ class MovementManager:
             return
 
         # Check if we need to remove any movement.
-        self._clean_movement_behaviors()
+        movements_removed = self._clean_movement_behaviors()
         # Grab latest, if any.
         current_movement = self._get_current_movement()
 
         if not current_movement:
             return
 
-        if is_resume:
+        # Resuming or cascaded into a previous movement, reset.
+        if is_resume or movements_removed:
             current_movement.reset()
 
         current_movement.update(now, elapsed)
@@ -86,9 +87,12 @@ class MovementManager:
         return self.movement_behaviors[0] if self.movement_behaviors else None
 
     def _clean_movement_behaviors(self):
+        movements_removed = False
         # Check if we need to fall back to another movement behavior.
         while self.movement_behaviors and self.movement_behaviors[0].can_remove():
+            movements_removed = True
             self._remove_behavior(self.movement_behaviors[0])
+        return movements_removed
 
     def _can_move(self):
         if self.pause_out_of_combat and not self.unit.in_combat:
@@ -142,7 +146,6 @@ class MovementManager:
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback))
 
     def set_behavior(self, movement_behavior):
-        self._clean_movement_behaviors()
         print(f'Set movement behavior {MoveType(movement_behavior.move_type).name}')
         movement_behavior.initialize(self.unit)
         self.movement_behaviors.insert(0, movement_behavior)

@@ -31,6 +31,7 @@ class WanderingMovement(BaseMovement):
 
         super().update(now, elapsed)
 
+    # override
     def reset(self):
         self.spline = None
         self.wait_time_seconds = randint(1, 12)

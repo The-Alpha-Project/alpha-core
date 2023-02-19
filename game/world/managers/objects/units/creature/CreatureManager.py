@@ -599,7 +599,7 @@ class CreatureManager(UnitManager):
 
         # Handle one shot kills leading to player remaining in combat.
         if not self.threat_manager.has_aggro_from(killer):
-            self.threat_manager.add_threat(killer)
+            self.threat_manager.add_threat(killer, from_death=True)
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             charmer_or_summoner = killer.get_charmer_or_summoner()
