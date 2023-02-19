@@ -51,7 +51,7 @@ class CreatureGroupManager:
                 self.leader = None
 
     def on_members_attack_start(self, creature_mgr, target):
-        if not self.group_flags & CreatureGroupFlags.OPTION_AGGRO_TOGETHER:
+        if not target or not self.group_flags & CreatureGroupFlags.OPTION_AGGRO_TOGETHER:
             return
 
         for guid, member in self.members.items():

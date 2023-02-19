@@ -379,13 +379,10 @@ class CreatureManager(UnitManager):
         return super().can_parry(attacker_location)
 
     # override
-    def enter_combat(self):
-        if not super().enter_combat():
+    def enter_combat(self, unit):
+        if not super().enter_combat(unit):
             return
-        self.movement_manager.move_chase()
-        # Notify creature group.
-        if self.creature_group:
-            self.creature_group.on_members_attack_start(self, self.combat_target)
+        self.object_ai.enter_combat(unit)
 
     # override
     def leave_combat(self):

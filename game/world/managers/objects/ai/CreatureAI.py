@@ -379,9 +379,12 @@ class CreatureAI:
     def set_combat_movement(self, enabled):
         pass
 
-    # Called for reaction at enter to combat if not in combat yet (enemy can be None).
+    # Called for reaction at enter combat if not in combat yet (enemy can be None).
     def enter_combat(self, unit):
-        pass
+        self.creature.movement_manager.move_chase()
+        # Notify creature group.
+        if self.creature.creature_group:
+            self.creature.creature_group.on_members_attack_start(self, unit)
 
     # Called when leaving combat.
     def on_combat_stop(self):

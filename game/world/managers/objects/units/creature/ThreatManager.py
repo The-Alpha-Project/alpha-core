@@ -106,7 +106,7 @@ class ThreatManager:
         if source is not self.owner:
             # Do not enter combat if call was made from die().
             if not from_death:
-                self.owner.enter_combat()
+                self.owner.enter_combat(source)
             source_holder = self.holders.get(source.guid)
             # Update existent holder.
             if source_holder:
