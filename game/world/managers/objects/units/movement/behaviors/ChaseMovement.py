@@ -13,9 +13,6 @@ class ChaseMovement(BaseMovement):
         super().__init__(move_type=MoveType.CHASE, spline_callback=spline_callback)
         self.unit = None
 
-    def initialize(self, unit):
-        self.unit = unit
-
     # override
     def update(self, now, elapsed):
         if self._can_chase():
@@ -39,15 +36,17 @@ class ChaseMovement(BaseMovement):
 
         spawn_distance = unit.location.distance(unit.spawn_position)
         target_distance = unit.location.distance(unit.combat_target.location)
+        target_to_spawn_distance = unit.combat_target.location.distance(unit.spawn_position)
         combat_position_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
         target_under_water = unit.combat_target.is_under_water()
+        evade_distance = Distances.CREATURE_EVADE_DISTANCE
 
         if not unit.is_pet():
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
             # From 0.5.4 patch notes:
             #     "Creature pursuit is now timer based rather than distance based."
-            if spawn_distance > Distances.CREATURE_EVADE_DISTANCE \
-                    or target_distance > Distances.CREATURE_EVADE_DISTANCE:
+            if (spawn_distance > evade_distance or target_distance > evade_distance) \
+                    and target_to_spawn_distance > evade_distance:
                 unit.threat_manager.remove_unit_threat(unit.combat_target)
                 return
 

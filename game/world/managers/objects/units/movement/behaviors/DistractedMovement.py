@@ -18,6 +18,7 @@ class DistractedMovement(BaseMovement):
         super().initialize(unit)
         self.unit.unit_state |= UnitStates.DISTRACTED
         self.unit.movement_manager.face_angle(self.angle)
+        return True
 
     # override
     def on_removed(self):

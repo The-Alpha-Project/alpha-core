@@ -9,6 +9,7 @@ class BaseMovement:
 
     def initialize(self, unit):
         self.unit = unit
+        return True
 
     def update(self, now, elapsed):
         if self.spline:

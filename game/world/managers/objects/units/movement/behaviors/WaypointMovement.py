@@ -20,9 +20,15 @@ class WaypointMovement(BaseMovement):
     def initialize(self, unit):
         super().initialize(unit)
         self.creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_spawn_id(unit.spawn_id)
+        if not self.creature_movement:
+            self.creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(unit.entry)
+
         if self.creature_movement:
             self.creature_movement.sort(key=lambda wp: wp.point)
             self.waypoints = self._get_sorted_waypoints_by_distance(self.creature_movement)
+            return True
+
+        return False
 
     # override
     def update(self, now, elapsed):
@@ -50,7 +56,7 @@ class WaypointMovement(BaseMovement):
         self.last_waypoint_movement = 0
 
     def _can_perform_waypoint(self, now):
-        return not self.spline and now > self.last_waypoint_movement + self.wait_time_seconds
+        return self.waypoints and not self.spline and now > self.last_waypoint_movement + self.wait_time_seconds
 
     def _perform_waypoint(self):
         waypoint = self._get_waypoint()

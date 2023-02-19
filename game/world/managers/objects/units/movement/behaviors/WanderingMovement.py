@@ -20,7 +20,7 @@ class WanderingMovement(BaseMovement):
     def initialize(self, unit):
         self.wandering_distance = unit.wander_distance
         self.reset()
-        super().initialize(unit)
+        return super().initialize(unit)
 
     # override
     def update(self, now, elapsed):

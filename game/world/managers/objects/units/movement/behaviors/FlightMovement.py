@@ -12,10 +12,6 @@ class FlightMovement(BaseMovement):
         self.flight_ended = False
 
     # override
-    def initialize(self, unit):
-        super().initialize(unit)
-
-    # override
     def update(self, now, elapsed):
         if self._can_begin_flight():
             self._begin_flight()

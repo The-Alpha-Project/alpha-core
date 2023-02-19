@@ -13,11 +13,6 @@ class EvadeMovement(BaseMovement):
         self.path_ended = False
 
     # override
-    def initialize(self, unit):
-        super().initialize(unit)
-        self.waypoints = self.waypoints
-
-    # override
     def update(self, now, elapsed):
         if self._can_begin_evade(now):
             self._begin_evade()
