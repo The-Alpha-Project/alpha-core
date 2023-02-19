@@ -1,4 +1,5 @@
 from struct import unpack
+from game.world.managers.objects.script.QuestScriptHandler import QuestScriptHandler
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
@@ -42,4 +43,5 @@ class QuestGiverChooseRewardHandler(object):
 
             if is_item or quest_giver.is_within_interactable_distance(player_mgr):
                 player_mgr.quest_manager.handle_choose_reward(quest_giver, quest_id, item_choice)
+                QuestScriptHandler.enqueue_quest_script(quest_id, quest_giver, player_mgr, True)
         return 0

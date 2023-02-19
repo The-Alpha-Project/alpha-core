@@ -1,5 +1,6 @@
 from struct import unpack
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.script.QuestScriptHandler import QuestScriptHandler
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.GuidUtils import GuidUtils
@@ -45,4 +46,7 @@ class QuestGiverAcceptQuestHandler(object):
             elif is_item or quest_giver.is_within_interactable_distance(player_mgr):
                 player_mgr.quest_manager.handle_accept_quest(quest_id, guid, shared=False, quest_giver=quest_giver,
                                                              is_item=is_item)
+                
+                QuestScriptHandler.enqueue_quest_script(quest_id, quest_giver, player_mgr)
+
         return 0

@@ -125,3 +125,12 @@ class ScriptTarget(IntEnum):
     # Param1 = gameobject_entry
     # Param2 = search_radius
     TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY = 27
+
+class ModifyFlagsOptions(IntEnum):
+    SO_MODIFYFLAGS_TOGGLE = 0
+    SO_MODIFYFLAGS_SET = 1
+    SO_MODIFYFLAGS_REMOVE = 2
+
+class TurnToFacingOptions(IntEnum):
+    SO_TURNTO_FACE_TARGET = 0
+    SO_TURNTO_PROVIDED_ORIENTATION = 1

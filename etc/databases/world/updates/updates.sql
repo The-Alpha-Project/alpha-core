@@ -16667,5 +16667,89 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('170220231');
     end if;
+
+    -- 18/02/2023 1
+    if(select count(*) from applied_updates where id = '180220231') = 0 then
+        CREATE TABLE `quest_start_scripts` (
+            `id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `quest_id` MEDIUMINT(5) UNSIGNED NOT NULL DEFAULT '0',
+            `delay` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `priority` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `command` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong2` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong3` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong4` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_param1` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_param2` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_type` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `data_flags` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `dataint` INT(11) NOT NULL DEFAULT '0',
+            `dataint2` INT(11) NOT NULL DEFAULT '0',
+            `dataint3` INT(11) NOT NULL DEFAULT '0',
+            `dataint4` INT(11) NOT NULL DEFAULT '0',
+            `x` FLOAT NOT NULL DEFAULT '0',
+            `y` FLOAT NOT NULL DEFAULT '0',
+            `z` FLOAT NOT NULL DEFAULT '0',
+            `o` FLOAT NOT NULL DEFAULT '0',
+            `condition_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	        `comments` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb3_general_ci',
+            PRIMARY KEY (`id`)            
+        )
+        COLLATE='utf8mb3_general_ci'
+        ENGINE=MyISAM
+        ;
+
+        CREATE TABLE `quest_end_scripts` (
+            `id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `quest_id` MEDIUMINT(5) UNSIGNED NOT NULL DEFAULT '0',
+            `delay` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `priority` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `command` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong2` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong3` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong4` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_param1` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_param2` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_type` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `data_flags` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `dataint` INT(11) NOT NULL DEFAULT '0',
+            `dataint2` INT(11) NOT NULL DEFAULT '0',
+            `dataint3` INT(11) NOT NULL DEFAULT '0',
+            `dataint4` INT(11) NOT NULL DEFAULT '0',
+            `x` FLOAT NOT NULL DEFAULT '0',
+            `y` FLOAT NOT NULL DEFAULT '0',
+            `z` FLOAT NOT NULL DEFAULT '0',
+            `o` FLOAT NOT NULL DEFAULT '0',
+            `condition_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+	        `comments` VARCHAR(255) NULL DEFAULT NULL COLLATE 'utf8mb3_general_ci',
+            PRIMARY KEY (`id`)
+        )
+        COLLATE='utf8mb3_general_ci'
+        ENGINE=MyISAM
+        ;        
+
+        CREATE TABLE `broadcast_text` (
+            `entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `male_text` LONGTEXT NULL DEFAULT NULL COLLATE 'utf8mb3_general_ci',
+            `female_text` LONGTEXT NULL DEFAULT NULL COLLATE 'utf8mb3_general_ci',
+            `chat_type` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `sound_id` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+            `language_id` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `emote_id1` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+            `emote_id2` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+            `emote_id3` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '0',
+            `emote_delay1` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `emote_delay2` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `emote_delay3` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            PRIMARY KEY (`entry`) USING BTREE
+        )
+        COLLATE='utf8mb3_general_ci'
+        ENGINE=MyISAM
+        ;
+
+        INSERT INTO applied_updates VALUES ('180220231');
+    end if;
 end $
 delimiter ;

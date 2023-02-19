@@ -43,6 +43,12 @@ class ChatManager(object):
         ChatLogManager.log_chat(world_session.player_mgr, message, chat_type)
 
     @staticmethod
+    def send_monster_emote_message(sender, guid, language, message, chat_type):
+        MapManager.send_surrounding(ChatManager._get_monster_message_packet(sender.creature_template.name, guid, ChatFlags.CHAT_TAG_NONE, message,
+                                                                    chat_type, language),
+                                    sender, False, None, False)
+
+    @staticmethod
     def send_channel_message(sender, channel_name, message, lang):
         channel = ChannelManager.get_channel(channel_name, sender)
         # Check if channel exists.
@@ -116,4 +122,19 @@ class ChatManager(object):
             data += pack(f'<{len(channel_bytes)}sQ', channel_bytes, guid)
         data += pack(f'<{len(message_bytes)}sB', message_bytes, chat_flags)
 
+        return PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data)
+
+    @staticmethod
+    def _get_monster_message_packet(name, guid, chat_flags, message, chat_type, lang, target_guid=0):
+        message_bytes = PacketWriter.string_to_bytes(message)
+        monster_name_bytes = PacketWriter.string_to_bytes(name)
+
+        data = pack('<BI', chat_type, lang)
+
+        if chat_type == ChatMsgs.CHAT_MSG_MONSTER_EMOTE:
+            data += pack(f'<{len(monster_name_bytes)}sQ', monster_name_bytes, target_guid)
+        elif chat_type == ChatMsgs.CHAT_MSG_MONSTER_SAY or chat_type == ChatMsgs.CHAT_MSG_MONSTER_YELL:
+            data += pack(f'<{len(monster_name_bytes)}sQ', monster_name_bytes, guid)
+
+        data += pack(f'<{len(message_bytes)}sB', message_bytes, chat_flags)
         return PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data)

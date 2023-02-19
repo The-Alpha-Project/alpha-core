@@ -749,6 +749,31 @@ class WorldDatabaseManager(object):
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
             return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.get(entry)
 
+    # Quest scripts stuff.
+
+    @staticmethod
+    def quest_start_script_get_by_quest_id(quest_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestStartScript).filter(QuestStartScript.quest_id == quest_id).all()
+                                                           
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def quest_end_script_get_by_quest_id(quest_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestEndScript).filter(QuestEndScript.quest_id == quest_id).all()
+                                                           
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def broadcast_message_get_by_id(id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(BroadcastText).filter_by(entry=id).first()
+        world_db_session.close()
+        return res
+
     # Trainer stuff.
 
     @staticmethod

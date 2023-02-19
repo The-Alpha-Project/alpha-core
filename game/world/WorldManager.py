@@ -10,6 +10,7 @@ from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.script.QuestScriptHandler import QuestScriptHandler
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketReader import *
@@ -285,6 +286,12 @@ class WorldServerSessionHandler:
             logging_thread = threading.Thread(target=ChatLogManager.process_logs)
             logging_thread.daemon = True
             logging_thread.start()
+
+        # Quest script queue.
+        quest_script_scheduler = BackgroundScheduler()
+        quest_script_scheduler._daemon = True
+        quest_script_scheduler.add_job(QuestScriptHandler.update, 'interval', seconds=0.1, max_instances=1)
+        quest_script_scheduler.start()
 
     @staticmethod
     def start():
