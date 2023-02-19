@@ -445,10 +445,18 @@ class WorldDatabaseManager(object):
             WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_movement_template.entry].append(creature_movement_template)
 
         @staticmethod
+        def get_waypoints_for_creature(creature_mgr):
+            if creature_mgr.spawn_id in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_mgr.spawn_id]
+            if creature_mgr.entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_mgr.etry]
+            return []
+
+        @staticmethod
         def get_waypoints_by_entry(entry):
-            if entry not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
-                return []
-            return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[entry]
+            if entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[entry]
+            return []
 
         @staticmethod
         def load_creature_movement(creature_movement):
@@ -458,9 +466,9 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def get_waypoints_by_spawn_id(spawn_id) -> list[CreatureMovement]:
-            if spawn_id not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
-                return []
-            return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[spawn_id]
+            if spawn_id in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[spawn_id]
+            return []
 
     class CreatureTemplateHolder:
         CREATURE_TEMPLATES: [int, CreatureTemplate] = {}

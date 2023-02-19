@@ -29,8 +29,8 @@ class MovementManager:
             MoveType.FLIGHT: None,
             MoveType.FEAR: None,
             MoveType.DISTRACTED: None,
-            MoveType.PET: None,
             MoveType.CHASE: None,
+            MoveType.PET: None,
             MoveType.GROUP: None,
             MoveType.WAYPOINTS: None,
             MoveType.WANDER: None,
@@ -65,7 +65,8 @@ class MovementManager:
             MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)
 
     def flush(self):
-        self.movement_behaviors.fromkeys(self.movement_behaviors, None)
+        for move_type in self.movement_behaviors.keys():
+            self.movement_behaviors[move_type] = None
 
     def reset(self, clean_behaviors=False):
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
@@ -157,7 +158,6 @@ class MovementManager:
         self.spline_callback(SplineBuilder.build_face_spot_spline(self.unit, spot))
 
     def set_behavior(self, movement_behavior):
-        print(f'Set movement behavior {MoveType(movement_behavior.move_type).name}')
         if movement_behavior.initialize(self.unit):
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()
@@ -206,6 +206,7 @@ class MovementManager:
         for move_type, behavior in list(self.movement_behaviors.items()):
             if behavior:
                 self.active_behavior_type = behavior.move_type
+                break
 
     def _remove_behavior(self, movement_behavior):
         print(f'Removed behavior {MoveType(movement_behavior.move_type).name}')

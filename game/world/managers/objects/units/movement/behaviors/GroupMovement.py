@@ -39,7 +39,7 @@ class GroupMovement(BaseMovement):
             current_wp = self._get_waypoint()
             self._waypoint_push_back()
             if current_wp.script_id():
-                Logger.warning(f'{self.unit.get_name()},  movement script id {current_wp.script_id()} missing.')
+                Logger.warning(f'{self.unit.get_name()}, missing movement script id {current_wp.script_id()}.')
 
     # override
     def reset(self):

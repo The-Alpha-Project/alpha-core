@@ -19,10 +19,7 @@ class WaypointMovement(BaseMovement):
     # override
     def initialize(self, unit):
         super().initialize(unit)
-        self.creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_spawn_id(unit.spawn_id)
-        if not self.creature_movement:
-            self.creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_by_entry(unit.entry)
-
+        self.creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_for_creature(unit)
         if self.creature_movement:
             self.creature_movement.sort(key=lambda wp: wp.point)
             self.waypoints = self._get_sorted_waypoints_by_distance(self.creature_movement)
@@ -47,7 +44,7 @@ class WaypointMovement(BaseMovement):
         if waypoint_completed:
             self._waypoint_push_back()
             if self.waypoints[-1].script_id():
-                Logger.warning(f'{self.unit.get_name()},  movement script id {self.waypoints[-1].script_id()} missing.')
+                Logger.warning(f'{self.unit.get_name()}, missing movement script id {self.waypoints[-1].script_id()}.')
 
     # override
     def reset(self):
