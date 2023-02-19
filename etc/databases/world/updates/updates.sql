@@ -16667,5 +16667,38 @@ begin not atomic
 
         INSERT INTO applied_updates VALUES ('170220231');
     end if;
+
+    if(select count(*) from applied_updates where id = '190220231') = 0 then
+        -- Fix display ID of "Birth of the Lich King" book 
+        UPDATE `gameobject_template` SET `displayId` = 338 WHERE `entry` = 175748;
+        -- Fix display ID of "Kil'jaeden and the Shadow Pact" book 
+        UPDATE `gameobject_template` SET `displayId` = 338 WHERE `entry` = 175741;
+        -- Fix display ID of "Aegwynn and the Dragon Hunt"
+        UPDATE `gameobject_template` SET `displayId` = 417 WHERE `entry` = 175738;	
+        -- Fix Z position of Eliza's Gravestone in Duskwood
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = 41 WHERE `spawn_entry` = 37;
+        -- statue dedicated to "Horatio Montgomery" is spawned below the world (it's a Shane Cube without available model anyway)
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_entry` = 124374;
+        -- Fix display ID of "Kel'Thuzad and the Forming of the Scourge" book (positioning in Southshore is wrong though)
+        UPDATE `gameobject_template` SET `displayId` = 338 WHERE `entry` = 175754;
+        -- Fix display ID of "Lethargy of the Orcs" book
+        UPDATE `gameobject_template` SET `displayId` = 417 WHERE `entry` = 175751;	
+        -- despawn books "Lethargy of the Orcs" and "The New Horde" in Barrens 
+        -- the building they're in doesn't yet exist in 0.5.3        
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_id` = 13535;        
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_id` = 13538;
+        -- fix display ID of "Rise of the Blood Elves" book
+        UPDATE `gameobject_template` SET `displayId` = 417 WHERE `entry` = 175760;	
+        -- fix display ID of "Sargeras and the Betrayal" book
+        UPDATE `gameobject_template` SET `displayId` = 338 WHERE `entry` = 175724;
+        -- despawn book "Sargeras and the Betrayal" in Ratchet, building is inaccessible in 0.5.3
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_id` = 13445;
+        -- fix display ID of "The Founding of Quel'Thalas" book
+        UPDATE `gameobject_template` SET `displayId` = 417 WHERE `entry` = 175733;	
+        -- fix display ID of "Wrath of Soulflayer" book
+        UPDATE `gameobject_template` SET `displayId` = 417 WHERE `entry` = 175856;	
+
+        INSERT INTO applied_updates VALUES ('190220231');
+    end if;
 end $
 delimiter ;
