@@ -11,7 +11,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypeFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
@@ -54,8 +54,13 @@ class CreatureAI:
     def has_spell_list(self):
         return len(self.creature_spells) > 0
 
-    # Called at World update tick.
     def update_ai(self, elapsed):
+        if self.creature and self.creature.threat_manager:
+            target = self.creature.threat_manager.get_hostile_target()
+            # Has a target, check if we need to attack or switch target.
+            if target and self.creature.combat_target != target:
+                self.creature.attack(target)
+
         if self.last_alert_time > 0:
             self.last_alert_time = max(0, self.last_alert_time - elapsed)
 
@@ -179,10 +184,17 @@ class CreatureAI:
     # Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc).
     def attacked_by(self, attacker):
         self.creature.threat_manager.add_threat(attacker)
+        if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            self.send_ai_reaction(attacker, AIReactionStates.AI_REACT_HOSTILE)
 
     # Called when creature attack is expected (if creature can and doesn't have current victim).
     # Note: for reaction at hostile action must be called AttackedBy function.
-    def attack_start(self, victim):
+    def attack_start(self, victim, chase=True):
+        if chase:
+            self.creature.movement_manager.move_chase()
+        # Notify creature group.
+        if self.creature.creature_group:
+            self.creature.creature_group.on_members_attack_start(self, victim)
         self._initialize_spell_list_cooldowns()
 
     def can_cast_spell(self, target, spell_entry, triggered):
@@ -381,10 +393,7 @@ class CreatureAI:
 
     # Called for reaction at enter combat if not in combat yet (enemy can be None).
     def enter_combat(self, unit):
-        self.creature.movement_manager.move_chase()
-        # Notify creature group.
-        if self.creature.creature_group:
-            self.creature.creature_group.on_members_attack_start(self, unit)
+        pass
 
     # Called when leaving combat.
     def on_combat_stop(self):
@@ -411,7 +420,7 @@ class CreatureAI:
         pass
 
     # Called when a unit moves within visibility distance.
-    def move_in_line_of_sight(self, unit: UnitManager):
+    def move_in_line_of_sight(self, unit: Optional[UnitManager] = None):
         pass
 
     # Called for reaction at stopping attack at no attackers or targets.

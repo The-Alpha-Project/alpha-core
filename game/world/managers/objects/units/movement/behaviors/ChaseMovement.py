@@ -95,4 +95,4 @@ class ChaseMovement(BaseMovement):
         return self.unit.is_alive and self.unit.combat_target
 
     def can_remove(self):
-        return not self.unit.in_combat or self.unit.is_evading or not self.unit.is_alive
+        return not self.unit.combat_target or self.unit.is_evading or not self.unit.is_alive

@@ -1885,8 +1885,6 @@ class PlayerManager(UnitManager):
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
             if not unit.threat_manager.has_aggro_from(self) and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
-            if unit.is_unit_pet(self):
-                unit.object_ai.movement_inform()
 
     # override
     def on_cell_change(self):

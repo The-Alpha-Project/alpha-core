@@ -38,7 +38,6 @@ class FlightMovement(BaseMovement):
         self.unit.taxi_manager.update_flight_state()
 
     def on_spline_finished(self):
-        print('Finished')
         self.unit.set_taxi_flying_state(False)
         self.unit.teleport(self.unit.map_id, self.unit.pending_taxi_destination, is_instant=True)
         self.unit.pending_taxi_destination = None

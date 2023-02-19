@@ -1,3 +1,4 @@
+from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
 from utils.constants.UnitCodes import UnitStates
 
@@ -24,7 +25,12 @@ class MovementManager:
         if self.is_player:
             return
 
-        if self.unit.has_wander_type():
+        # Make sure to flush any existent behaviors if this was re-initialized.
+        self.flush()
+
+        if self.unit.is_pet():
+            self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=True))
+        elif self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_waypoints_type() and self.unit.spawn_id:
             if self.unit.creature_group:
@@ -44,15 +50,17 @@ class MovementManager:
 
     def flush(self):
         self.movement_behaviors.clear()
-        self.reset()
 
-    def reset(self):
+    def reset(self, clean_behaviors=False):
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
         spline = self.get_current_spline()
         if spline:
             spline.update_to_now()
-        self.stop()
+            self.stop()
         self.unit.movement_spline = None
+        if clean_behaviors:
+            [self._remove_behavior(behavior) for behavior
+             in list(self.movement_behaviors) if not behavior.is_default]
 
     def update(self, now, elapsed):
         is_resume = self._handle_out_of_combat_pause(elapsed)
@@ -81,12 +89,13 @@ class MovementManager:
                 return True
         return False
 
+    def _get_default_movement(self):
+        return self.movement_behaviors[-1] if self.movement_behaviors else None
+
     def _get_current_movement(self):
-        if not self.movement_behaviors:
-            return None
         return self.movement_behaviors[0] if self.movement_behaviors else None
 
-    def _clean_movement_behaviors(self):
+    def _clean_movement_behaviors(self, force_default=False):
         movements_removed = False
         # Check if we need to fall back to another movement behavior.
         while self.movement_behaviors and self.movement_behaviors[0].can_remove():
@@ -130,6 +139,12 @@ class MovementManager:
             self.pause_out_of_combat = duration_seconds
             self.stop()
 
+    def move_stay(self, state):
+        current_behavior = self._get_default_movement()
+        if not current_behavior or current_behavior.move_type != MoveType.PET:
+            return
+        current_behavior.stay(state=state)
+
     def move_distracted(self, duration_seconds, angle):
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
 
@@ -146,13 +161,11 @@ class MovementManager:
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback))
 
     def set_behavior(self, movement_behavior):
-        print(f'Set movement behavior {MoveType(movement_behavior.move_type).name}')
         movement_behavior.initialize(self.unit)
         self.movement_behaviors.insert(0, movement_behavior)
 
     def _remove_behavior(self, movement_behavior):
         if movement_behavior in self.movement_behaviors:
-            print(f'Removed behavior {MoveType(movement_behavior.move_type).name}')
             self.movement_behaviors.remove(movement_behavior)
             movement_behavior.on_removed()
 

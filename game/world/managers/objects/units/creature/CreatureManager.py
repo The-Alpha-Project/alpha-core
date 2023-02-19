@@ -21,7 +21,8 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, PowerTypes, CreatureFlagsExtra, CreatureReactStates, AIReactionStates
+from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
+    PowerTypes, CreatureFlagsExtra, CreatureReactStates, UnitStates, AIReactionStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -494,11 +495,6 @@ class CreatureManager(UnitManager):
                 # Attack Update.
                 if self.combat_target:
                     self.attack_update(elapsed)
-                # Not in combat, check if threat manager can resolve a target or if unit should switch target.
-                elif self.threat_manager:
-                    target = self.threat_manager.resolve_target()
-                    if target and target != self.combat_target:
-                        self.attack(target)
             # Dead creature with no spawn point, handle destroy.
             elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.
@@ -532,19 +528,13 @@ class CreatureManager(UnitManager):
 
     # override
     def attack(self, victim: UnitManager):
-        if victim.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            self.object_ai.send_ai_reaction(victim, AIReactionStates.AI_REACT_HOSTILE)
-        # Had no target before, notify attack start on ai.
-        if not self.combat_target:
-            self.object_ai.attack_start(victim)
+        had_target = self.combat_target
         super().attack(victim)
+        if not had_target:
+            self.object_ai.attack_start(victim)
 
     # override
     def attack_update(self, elapsed):
-        target = self.threat_manager.get_hostile_target()
-        # Has a target, check if we need to attack or switch target.
-        if target and self.combat_target != target:
-            self.attack(target)
         if super().attack_update(elapsed):
             # Make sure sheath state is set to normal for melee attacks.
             if self.sheath_state != WeaponMode.NORMALMODE:
@@ -699,7 +689,7 @@ class CreatureManager(UnitManager):
 
     def _on_relocation(self):
         self._update_swimming_state()
-        self.object_ai.movement_inform()
+        self.object_ai.move_in_line_of_sight()
 
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):
@@ -715,7 +705,7 @@ class CreatureManager(UnitManager):
 
     # override
     def notify_moved_in_line_of_sight(self, target):
-        self.object_ai.move_in_line_of_sight(target)
+        self.object_ai.move_in_line_of_sight(unit=target)
 
     # override
     def has_mainhand_weapon(self):
