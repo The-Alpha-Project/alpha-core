@@ -214,6 +214,9 @@ class ScriptManager:
             # Sort by distance.
             friendly_players.sort(key=lambda player: caster.location.distance(player.location))
             return friendly_players[0]
+        # TODO: Check this, Serpent Totem Target Type 28..
+        else:
+            return caster.combat_target
 
     @staticmethod
     def _get_search_range(search_range=None, spell_template=None):
