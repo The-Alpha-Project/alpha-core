@@ -75,7 +75,7 @@ class MovementManager:
             self.stop()
         self.unit.movement_spline = None
         if clean_behaviors:
-            self._clean_movement_behaviors()
+            self._remove_invalid_expired_behaviors()
 
     def update(self, now, elapsed):
         is_resume = self._handle_out_of_combat_pause(elapsed)
@@ -84,7 +84,7 @@ class MovementManager:
             return
 
         # Check if we need to remove any movement.
-        movements_removed = self._clean_movement_behaviors()
+        movements_removed = self._remove_invalid_expired_behaviors()
         # Grab latest, if any.
         current_behavior = self._get_current_behavior()
 
@@ -180,7 +180,7 @@ class MovementManager:
                 return True
         return False
 
-    def _clean_movement_behaviors(self):
+    def _remove_invalid_expired_behaviors(self):
         movements_removed = False
         for move_type, behavior in list(self.movement_behaviors.items()):
             if behavior and behavior.can_remove():
