@@ -160,8 +160,7 @@ class QuestScriptHandler():
         if scripts:
             for script in scripts:
                 self.quest_script_queue.append({ 'command': script.command, 'datalong': script.datalong, 'datalong2': script.datalong2,
-                'o': script.o,
-                 'delay': script.delay, 'player_mgr': player_mgr, 'time_added': time.time() })
+                'o': script.o, 'delay': script.delay, 'player_mgr': player_mgr, 'time_added': time.time() })
                 Logger.debug("QuestScriptHandler: added to quest script queue, new length: " + str(len(self.quest_script_queue)))
 
     def reset(self):        
