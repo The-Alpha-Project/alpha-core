@@ -16731,6 +16731,9 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4400;
         UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4401;
 
+        -- despawn a Tin Vein in Redridge Mountains which spawns inside a cliff which was later remodeled
+        UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_id` = 5637;
+
     end if;
 end $
 delimiter ;
