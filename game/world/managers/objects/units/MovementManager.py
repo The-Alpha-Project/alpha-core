@@ -103,17 +103,9 @@ class MovementManager:
         if current_behavior:
             current_behavior.set_speed_dirty()
 
-    def get_pending_waypoints_length(self):
-        spline = self._get_current_spline()
-        if not spline:
-            return 0
-        return spline.get_pending_waypoints_length()
-
     def get_waypoint_location(self):
         spline = self._get_current_spline()
-        if not spline:
-            return self.unit.location
-        return spline.get_waypoint_location()
+        return spline.get_waypoint_location() if spline else self.unit.location
 
     def try_pause_movement(self, duration_seconds):
         current_behavior = self._get_current_behavior()

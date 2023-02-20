@@ -301,8 +301,6 @@ class PlayerManager(UnitManager):
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
 
-        self.taxi_manager.update_flight_state()
-
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 

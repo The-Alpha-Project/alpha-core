@@ -28,16 +28,17 @@ class FlightMovement(BaseMovement):
                                                    spline_flags=spline_flags, extra_time_seconds=1.0)
         self.spline_callback(spline, movement_behavior=self)
 
-    def on_new_position(self, new_position, waypoint_completed):
-        super().on_new_position(new_position, waypoint_completed)
-        # Not finished yet, update current flight state.
-        self.unit.taxi_manager.update_flight_state()
+    # override
+    def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
+        super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
+        # Not a guessed position, update flight state.
+        if waypoint_completed:
+            self.unit.taxi_manager.update_partial_flight_state(current_waypoint=new_position,
+                                                               remaining_waypoints_count=remaining_waypoints)
 
+    # override
     def on_spline_finished(self):
-        self.unit.set_taxi_flying_state(False)
-        self.unit.teleport(self.unit.map_id, self.unit.pending_taxi_destination, is_instant=True)
-        self.unit.pending_taxi_destination = None
-        self.unit.taxi_manager.update_flight_state()
+        self.unit.taxi_manager.flight_end()
         self.flight_ended = True
 
     def can_remove(self):

@@ -88,13 +88,14 @@ class TaxiManager(object):
         else:
             return GRYPHON_DISPLAY_ID
 
-    def update_flight_state(self):
-        if self.owner.movement_manager.unit_is_moving():
-            current_waypoint = self.owner.movement_manager.get_waypoint_location()
-            waypoints_length = self.owner.movement_manager.get_pending_waypoints_length()
-            self.taxi_resume_info.update_fields(start_location=current_waypoint, remaining_wp=waypoints_length)
-        else:
-            self.taxi_resume_info.flush()
+    def update_partial_flight_state(self, current_waypoint, remaining_waypoints_count):
+        self.taxi_resume_info.update_fields(start_location=current_waypoint, remaining_wp=remaining_waypoints_count)
+
+    def flight_end(self):
+        self.owner.set_taxi_flying_state(False)
+        self.owner.teleport(self.owner.map_id, self.owner.pending_taxi_destination, is_instant=True)
+        self.owner.pending_taxi_destination = None
+        self.taxi_resume_info.flush()
 
     # Enable all taxi node bits.
     def enable_all_taxi_nodes(self):

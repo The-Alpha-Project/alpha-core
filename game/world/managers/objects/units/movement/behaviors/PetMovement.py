@@ -22,8 +22,8 @@ class PetMovement(BaseMovement):
         super().update(now, elapsed)
 
     # override
-    def on_new_position(self, new_position, waypoint_completed):
-        super().on_new_position(new_position, waypoint_completed)
+    def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
+        super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         self.unit.object_ai.movement_inform(move_type=1 if new_position == self.home_position else None)
 
     # override

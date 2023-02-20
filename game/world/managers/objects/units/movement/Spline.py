@@ -107,9 +107,6 @@ class Spline(object):
     def is_flight(self):
         return self.spline_flags & SplineFlags.SPLINEFLAG_FLYING
 
-    def get_pending_waypoints_length(self):
-        return len(self.pending_waypoints)
-
     def get_waypoint_location(self):
         if not self.pending_waypoints:
             return self.unit.location

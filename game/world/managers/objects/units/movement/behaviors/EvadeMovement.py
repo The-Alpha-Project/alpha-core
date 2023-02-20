@@ -21,12 +21,14 @@ class EvadeMovement(BaseMovement):
 
         super().update(now, elapsed)
 
-    def on_new_position(self, new_position, waypoint_completed):
-        super().on_new_position(new_position, waypoint_completed)
+    # override
+    def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
+        super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Move to next waypoint.
         if waypoint_completed and self.waypoints:
             self.waypoints.pop(0)
 
+    # override
     def on_spline_finished(self):
         # If remaining waypoints, return.
         if self.waypoints:
@@ -35,6 +37,7 @@ class EvadeMovement(BaseMovement):
         self.unit.on_at_home()
         self.path_ended = True
 
+    # override
     def can_remove(self):
         return self.path_ended
 

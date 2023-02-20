@@ -31,8 +31,8 @@ class GroupMovement(BaseMovement):
         self.wait_time_seconds = self.spline.get_total_time_secs()
 
     # override
-    def on_new_position(self, new_position, waypoint_completed):
-        super().on_new_position(new_position, waypoint_completed)
+    def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
+        super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Always update home position.
         self.unit.spawn_position = new_position.copy()
         if waypoint_completed and self.unit.creature_group.is_leader(self.unit):

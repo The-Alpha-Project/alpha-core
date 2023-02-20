@@ -37,8 +37,8 @@ class WaypointMovement(BaseMovement):
         super().update(now, elapsed)
 
     # override
-    def on_new_position(self, new_position, waypoint_completed):
-        super().on_new_position(new_position, waypoint_completed)
+    def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
+        super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Always update home position.
         self.unit.spawn_position = new_position.copy()
         if waypoint_completed:
