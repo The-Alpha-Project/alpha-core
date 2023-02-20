@@ -20,7 +20,7 @@ class QuestScriptHandler():
             match quest_script['command']:
                 case 0: # talk
                     Logger.debug('QuestScriptHandler: Talk')
-                    broadcast_message = WorldDatabaseManager.broadcast_message_get_by_id(quest_script['datalong'])
+                    broadcast_message = WorldDatabaseManager.broadcast_message_get_by_id(quest_script['dataint'])
 
                     if broadcast_message: 
                         text_to_say = None
@@ -37,6 +37,10 @@ class QuestScriptHandler():
                             if broadcast_message.emote_id1 != 0:                            
                                 self.quest_giver.play_emote(broadcast_message.emote_id1)
                             # neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them
+                        else:
+                            Logger.warning(f'QuestScriptHandler: Broadcast message {quest_script["dataint"]} has no text to say.')
+                    else:
+                        Logger.warning(f'QuestScriptHandler: Broadcast message {quest_script["dataint"]} not found.')
 
                 case 1: # emote
                     Logger.debug('QuestScriptHandler: Emote ' + str(quest_script['datalong']))
@@ -159,8 +163,27 @@ class QuestScriptHandler():
 
         if scripts:
             for script in scripts:
-                self.quest_script_queue.append({ 'command': script.command, 'datalong': script.datalong, 'datalong2': script.datalong2,
-                'o': script.o, 'delay': script.delay, 'player_mgr': player_mgr, 'time_added': time.time() })
+                self.quest_script_queue.append({
+                    'command': script.command, 
+                    'datalong': script.datalong, 
+                    'datalong2': script.datalong2,
+                    'datalong3': script.datalong3, 
+                    'datalong4': script.datalong4, 
+                    'x': script.x,
+                    'y': script.y,
+                    'z': script.z, 
+                    'o': script.o, 
+                    'target_param1': script.target_param1,
+                    'target_param2': script.target_param2,
+                    'target_type': script.target_type,
+                    'data_flags': script.data_flags,
+                    'dataint': script.dataint,
+                    'dataint2': script.dataint2,
+                    'dataint3': script.dataint3,
+                    'delay': script.delay, 
+                    'player_mgr': player_mgr, 
+                    'time_added': time.time() 
+                })
                 Logger.debug("QuestScriptHandler: added to quest script queue, new length: " + str(len(self.quest_script_queue)))
 
     def reset(self):        
