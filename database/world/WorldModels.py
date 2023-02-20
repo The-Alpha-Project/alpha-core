@@ -194,6 +194,20 @@ class CreatureGroup(Base):
     owner = None
 
 
+class CreatureMovementSpecial(Base):
+    __tablename__ = 'creature_movement_special'
+
+    id = Column(INTEGER, primary_key=True, nullable=False)
+    point = Column(MEDIUMINT, primary_key=True, nullable=False, server_default=text("'0'"))
+    position_x = Column(Float, nullable=False, server_default=text("'0'"))
+    position_y = Column(Float, nullable=False, server_default=text("'0'"))
+    position_z = Column(Float, nullable=False, server_default=text("'0'"))
+    orientation = Column(Float, nullable=False, server_default=text("'0'"))
+    waittime = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    wander_distance = Column(Float, nullable=False, server_default=text("'0'"))
+    script_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+
+
 class CreatureMovementTemplate(Base):
     __tablename__ = 'creature_movement_template'
 

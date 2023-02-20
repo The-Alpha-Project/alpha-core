@@ -45,6 +45,7 @@ class WorldLoader:
         if config.Server.Settings.load_creatures:
             WorldLoader.load_creature_movement()
             WorldLoader.load_creature_movement_templates()
+            WorldLoader.load_creature_movement_special()
             WorldLoader.load_creature_groups()
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creature_on_kill_reputation()
@@ -174,6 +175,19 @@ class WorldLoader:
             WorldDatabaseManager.CreatureMovementHolder.load_creature_movement_template(movement_template)
             count += 1
             Logger.progress('Loading creature movement template...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_movement_special():
+        movements_special = WorldDatabaseManager.creature_movement_special_get_all()
+        length = len(movements_special)
+        count = 0
+
+        for movement_special in movements_special:
+            WorldDatabaseManager.CreatureMovementHolder.load_creature_movement_special(movement_special)
+            count += 1
+            Logger.progress('Loading creature movement special...', count, length)
 
         return length
 
