@@ -16668,6 +16668,7 @@ begin not atomic
         INSERT INTO applied_updates VALUES ('170220231');
     end if;
 
+    -- 19/02/2023 1
     if(select count(*) from applied_updates where id = '190220231') = 0 then
         -- Fix display ID of "Birth of the Lich King" book 
         UPDATE `gameobject_template` SET `displayId` = 338 WHERE `entry` = 175748;
@@ -16699,6 +16700,33 @@ begin not atomic
         UPDATE `gameobject_template` SET `displayId` = 417 WHERE `entry` = 175856;	
 
         INSERT INTO applied_updates VALUES ('190220231');
+    end if;
+
+    -- 20/02/2023 1
+    if(select count(*) from applied_updates where id = '200220231') = 0 then
+        -- fix display id of Lupos, rare wolf in Duskwood
+        UPDATE `creature_template` SET `display_id1` = 720 WHERE `entry` = 521;
+        -- despawn several undead creatures in Duskwood which belong in a not yet existant part of the crypts
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4393;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4399;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4405;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4403;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4396;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4398;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4392;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4397;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4387;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4388;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4394;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 5037;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4389;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4989;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4992;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 5971;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4898;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 5973;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4391;
+
     end if;
 end $
 delimiter ;
