@@ -16734,6 +16734,11 @@ begin not atomic
         -- despawn a Tin Vein in Redridge Mountains which spawns inside a cliff which was later remodeled
         UPDATE `spawns_gameobjects` SET `ignored` = 1 WHERE `spawn_id` = 5637;
 
+        -- NPC 1676 "Finbus Geargrind" is supposed to be an engineering trainer yet lacks the trainer_id
+        UPDATE `creature_template` SET `trainer_id` = 510 WHERE `entry` = 1676;
+
+        INSERT INTO applied_updates VALUES ('200220231');
+
     end if;
 end $
 delimiter ;
