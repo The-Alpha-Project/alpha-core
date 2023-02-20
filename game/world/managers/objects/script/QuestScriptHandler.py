@@ -6,18 +6,15 @@ from utils.constants.UnitCodes import UnitFlags
 from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 
-quest_script_queue = []
-
 class QuestScriptHandler():
     def __init__(self, creature_mgr):
+        self.quest_script_queue = []
         self.quest_giver = creature_mgr        
 
     def handle_quest_script(self, quest_script):
 
             if not self.quest_giver or not self.quest_giver.is_alive:
                 return
-
-            print(self.quest_giver.creature_template.name)
 
             match quest_script['command']:
                 case 0: # talk
@@ -139,19 +136,18 @@ class QuestScriptHandler():
 
         if scripts:
             for script in scripts:
-                quest_script_queue.append({ 'command': script.command, 'datalong': script.datalong, 'datalong2': script.datalong2,
+                self.quest_script_queue.append({ 'command': script.command, 'datalong': script.datalong, 'datalong2': script.datalong2,
                 'o': script.o,
                  'delay': script.delay, 'player_mgr': player_mgr, 'time_added': time.time() })
-                print("Added to quest script queue, new length: " + str(len(quest_script_queue)))
+                print("Added to quest script queue, new length: " + str(len(self.quest_script_queue)))
 
-    def reset(self):
-        
-        quest_script_queue.clear()
+    def reset(self):        
+        self.quest_script_queue.clear()
 
     def update(self):
-        if len(quest_script_queue) > 0:
-            for quest_script in quest_script_queue:
+        if len(self.quest_script_queue) > 0:
+            for quest_script in self.quest_script_queue:
                 if time.time() - quest_script["time_added"] >= quest_script["delay"]:
                     QuestScriptHandler.handle_quest_script(self, quest_script)
-                    quest_script_queue.remove(quest_script)
-                    print("Removed from quest script queue, new length: " + str(len(quest_script_queue)))
+                    self.quest_script_queue.remove(quest_script)
+                    print("Removed from quest script queue, new length: " + str(len(self.quest_script_queue)))

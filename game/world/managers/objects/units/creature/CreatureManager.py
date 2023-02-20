@@ -709,6 +709,9 @@ class CreatureManager(UnitManager):
             self.set_lootable(True)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
+
+        self.quest_script_handler.reset(self)
+
         return super().die(killer)
 
     def reward_kill_xp(self, player):
