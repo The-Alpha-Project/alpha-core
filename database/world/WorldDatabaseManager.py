@@ -449,7 +449,7 @@ class WorldDatabaseManager(object):
             if creature_mgr.spawn_id in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
                 return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_mgr.spawn_id]
             if creature_mgr.entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
-                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_mgr.etry]
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_mgr.entry]
             return []
 
         @staticmethod
