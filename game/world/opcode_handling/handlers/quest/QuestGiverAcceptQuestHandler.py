@@ -47,6 +47,6 @@ class QuestGiverAcceptQuestHandler(object):
                 player_mgr.quest_manager.handle_accept_quest(quest_id, guid, shared=False, quest_giver=quest_giver,
                                                              is_item=is_item)
                 
-                QuestScriptHandler.enqueue_quest_script(quest_id, quest_giver, player_mgr)
+                quest_giver.quest_script_handler.enqueue_quest_script(quest_id, player_mgr)
 
         return 0

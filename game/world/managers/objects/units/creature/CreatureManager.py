@@ -6,6 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
+from game.world.managers.objects.script.QuestScriptHandler import QuestScriptHandler
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -71,6 +72,7 @@ class CreatureManager(UnitManager):
         # # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
         self.pickpocket_loot_manager = None
+        self.quest_script_handler = None
 
         # # All creatures can block, parry and dodge by default.
         self.has_block_passive = True
@@ -219,6 +221,9 @@ class CreatureManager(UnitManager):
             # Load pickpocket loot manager if required.
             if self.creature_template.pickpocket_loot_id:
                 self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
+            # Load quest script handler.
+            if self.is_quest_giver():
+                self.quest_script_handler = QuestScriptHandler(self)
 
             display_id = self.current_display_id
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)
@@ -549,6 +554,9 @@ class CreatureManager(UnitManager):
                 self.aura_manager.update(now)
                 # Sanctuary check.
                 self.update_sanctuary(elapsed)
+                # Quest scripts update.
+                if self.is_quest_giver() and self.quest_script_handler is not None:
+                    self.quest_script_handler.update()
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
                 if self.has_moved or self.has_turned:

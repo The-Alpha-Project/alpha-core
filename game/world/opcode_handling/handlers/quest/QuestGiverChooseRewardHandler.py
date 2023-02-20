@@ -43,5 +43,5 @@ class QuestGiverChooseRewardHandler(object):
 
             if is_item or quest_giver.is_within_interactable_distance(player_mgr):
                 player_mgr.quest_manager.handle_choose_reward(quest_giver, quest_id, item_choice)
-                QuestScriptHandler.enqueue_quest_script(quest_id, quest_giver, player_mgr, True)
+                quest_giver.quest_script_handler.enqueue_quest_script(quest_id, player_mgr, True)
         return 0

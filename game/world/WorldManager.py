@@ -287,12 +287,6 @@ class WorldServerSessionHandler:
             logging_thread.daemon = True
             logging_thread.start()
 
-        # Quest script queue.
-        quest_script_scheduler = BackgroundScheduler()
-        quest_script_scheduler._daemon = True
-        quest_script_scheduler.add_job(QuestScriptHandler.update, 'interval', seconds=0.1, max_instances=1)
-        quest_script_scheduler.start()
-
     @staticmethod
     def start():
         WorldLoader.load_data()

@@ -1,4 +1,3 @@
-from logging import Logger
 import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.MiscCodes import ChatMsgs
@@ -9,43 +8,50 @@ from game.world.managers.objects.units.player.ChatManager import ChatManager
 
 quest_script_queue = []
 
-class QuestScriptHandler:
+class QuestScriptHandler():
+    def __init__(self, creature_mgr):
+        self.quest_giver = creature_mgr        
 
-    @staticmethod
-    def handle_quest_script(command, datalong, datalong2, o, quest_giver, player_mgr):
-            
-            match command:
+    def handle_quest_script(self, quest_script):
+
+            if not self.quest_giver or not self.quest_giver.is_alive:
+                return
+
+            print(self.quest_giver.creature_template.name)
+
+            match quest_script['command']:
                 case 0: # talk
                     print('QuestScriptHandler: Talk')
-                    broadcast_message = WorldDatabaseManager.broadcast_message_get_by_id(datalong)
+                    broadcast_message = WorldDatabaseManager.broadcast_message_get_by_id(quest_script['datalong'])
 
                     if broadcast_message: 
-                        text_to_say = ""
-                        if quest_giver.gender == 0 and broadcast_message.male_text is not None:
+                        text_to_say = None
+                        if self.quest_giver.gender == 0 and broadcast_message.male_text is not None:
                             text_to_say = broadcast_message.male_text
-                        elif quest_giver.gender == 1 and broadcast_message.female_text is not None:
+                        elif self.quest_giver.gender == 1 and broadcast_message.female_text is not None:
                             text_to_say = broadcast_message.female_text
                         else:
                             text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
 
-                                            
-                            ChatManager.send_monster_emote_message(quest_giver, quest_giver.guid, broadcast_message.language_id, text_to_say,
+                        if text_to_say is not None:     
+                            print('QuestScriptHandler: Say ' + text_to_say)
+                            ChatManager.send_monster_emote_message(self.quest_giver, self.quest_giver.guid, broadcast_message.language_id, text_to_say,
                             ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
                             if broadcast_message.emote_id1 != 0:                            
-                                quest_giver.object_ai.creature.play_emote(broadcast_message.emote_id1)
+                                self.quest_giver.play_emote(broadcast_message.emote_id1)
                             # neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them
 
                 case 1: # emote
-                    print('QuestScriptHandler: Emote')
-                    quest_giver.object_ai.creature.play_emote(datalong)
+                    print('QuestScriptHandler: Emote ' + str(quest_script['datalong']))
+                    self.quest_giver.play_emote(quest_script['datalong'])
 
                 case 3: # move 
                     pass
                 case 4: # modify NPC flags
                     print('QuestScriptHandler: Modify NPC flags')
-                    if datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
+                    if quest_script['datalong2'] == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
                         pass
-                    elif datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
+                    elif quest_script['datalong2'] == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
                         pass
                     else: 
                         pass
@@ -61,7 +67,11 @@ class QuestScriptHandler:
                 case 11: # unknown
                     pass
                 case 15: # cast spell
-                    quest_giver.spell_manager.handle_cast_attempt(datalong, player_mgr, SpellTargetMask.UNIT, validate=False)                        
+                    print('QuestScriptHandler: Cast spell ' + str(quest_script['datalong']))
+                    if not quest_script['player_mgr']:
+                        print('QuestScriptHandler: No player manager found, aborting cast')
+                        return
+                    self.quest_giver.spell_manager.handle_cast_attempt(quest_script['datalong'], quest_script['player_mgr'], SpellTargetMask.UNIT, validate=False)                        
 
                 case 20: # start waypoint movement
                     pass
@@ -74,16 +84,17 @@ class QuestScriptHandler:
                 case 27: # set quest entry?
                     pass
                 case 28: # set stand state
-                    quest_giver.object_ai.creature.set_stand_state(datalong)
+                    print('QuestScriptHandler: Set stand state to ' + str(quest_script['datalong']))
+                    self.quest_giver.set_stand_state(quest_script['datalong'])
 
                 case 32: # terminate script
                     pass
                 case 35: # set orientation
-                    print('QuestScriptHandler: Set orientation')                    
-                    if datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
-                       quest_giver.movement_manager.send_face_target(player_mgr)
+                    print('QuestScriptHandler: Set orientation') 
+                    if quest_script['datalong'] == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
+                       self.quest_giver.movement_manager.send_face_target(quest_script['player_mgr'])
                     else:
-                       quest_giver.movement_manager.send_face_angle(o)
+                       self.quest_giver.movement_manager.send_face_angle(quest_script['o'])
 
                 case 39: # start script
                     pass
@@ -92,10 +103,11 @@ class QuestScriptHandler:
                 case 44: # set phase
                     pass
                 case 52: # make unkillable
-                    if datalong2 == 1:
-                        quest_giver.object_ai.creature.unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
+                    print('QuestScriptHandler: Make unkillable ' + str(quest_script['datalong2']))
+                    if quest_script['datalong2'] == 1:
+                        self.quest_giver.unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
                     else:
-                        quest_giver.object_ai.creature.unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
+                        self.quest_giver.unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
                 case 55: # add/remove spell list
                     pass
                 case 60: # start waypoints
@@ -114,9 +126,8 @@ class QuestScriptHandler:
                     pass
                 case _:
                     pass
-
-    @staticmethod
-    def enqueue_quest_script(quest_id, quest_giver, player_mgr, end_script=False):
+    
+    def enqueue_quest_script(self, quest_id, player_mgr, end_script=False):
         scripts = None
 
         if not end_script:
@@ -130,16 +141,17 @@ class QuestScriptHandler:
             for script in scripts:
                 quest_script_queue.append({ 'command': script.command, 'datalong': script.datalong, 'datalong2': script.datalong2,
                 'o': script.o,
-                 'delay': script.delay, 'quest_giver': quest_giver, 'player_mgr': player_mgr, 'time_added': time.time() })
+                 'delay': script.delay, 'player_mgr': player_mgr, 'time_added': time.time() })
                 print("Added to quest script queue, new length: " + str(len(quest_script_queue)))
 
-    @staticmethod
-    def update():
+    def reset(self):
+        
+        quest_script_queue.clear()
+
+    def update(self):
         if len(quest_script_queue) > 0:
             for quest_script in quest_script_queue:
                 if time.time() - quest_script["time_added"] >= quest_script["delay"]:
-                    QuestScriptHandler.handle_quest_script(quest_script["command"], quest_script["datalong"], quest_script["datalong2"],
-                    quest_script["o"],
-                     quest_script["quest_giver"], quest_script["player_mgr"])
+                    QuestScriptHandler.handle_quest_script(self, quest_script)
                     quest_script_queue.remove(quest_script)
                     print("Removed from quest script queue, new length: " + str(len(quest_script_queue)))
