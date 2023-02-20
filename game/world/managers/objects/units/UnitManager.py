@@ -1178,6 +1178,7 @@ class UnitManager(ObjectManager):
         self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        return True
 
     def is_moving(self):
         return self.movement_manager.unit_is_moving()

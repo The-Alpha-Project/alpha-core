@@ -275,14 +275,12 @@ class MountResults(IntEnum):
     MOUNTRESULT_RACE_CANT_MOUNT = 7  # You can't mount because of your race!
     MOUNTRESULT_SHAPESHIFTED = 8  # You can't mount while shapeshifted!
     MOUNTRESULT_FORCED_DISMOUNT = 9  # You dismount before continuing.
-    MOUNTRESULT_OK = 10  # Ok.
 
 
 class DismountResults(IntEnum):
     DISMOUNT_RESULT_NO_PET = 0
     DISMOUNT_RESULT_NOT_MOUNTED = 1
     DISMOUNT_RESULT_NOT_YOUR_PET = 2
-    DISMOUNT_RESULT_OK = 3
 
 
 class LootTypes(IntEnum):

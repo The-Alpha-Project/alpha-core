@@ -98,7 +98,8 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mounted(aura, effect_target, remove):  # TODO Summon Nightmare (5784) does not apply for other players ?
         if remove:
-            effect_target.unmount()
+            if effect_target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+                effect_target.unmount()
             return
 
         creature_entry = aura.spell_effect.misc_value

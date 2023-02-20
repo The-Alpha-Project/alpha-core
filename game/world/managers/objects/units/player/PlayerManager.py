@@ -813,23 +813,19 @@ class PlayerManager(UnitManager):
 
     # override
     def mount(self, mount_display_id):
-        if super().mount(mount_display_id):
-            # TODO: validate mount.
-            data = pack('<QI', self.guid, MountResults.MOUNTRESULT_OK)
-            packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
-            self.enqueue_packet(packet)
-        else:
+        # TODO: validate mount. Check MountResults.
+        if not super().mount(mount_display_id):
             data = pack('<QI', self.guid, MountResults.MOUNTRESULT_INVALID_MOUNTEE)
             packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
             self.enqueue_packet(packet)
 
     # override
     def unmount(self):
-        super().unmount()
-        # TODO: validate dismount.
-        data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_OK)
-        packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
-        self.enqueue_packet(packet)
+        # TODO: validate unmount. Check DismountResults.
+        if not super().unmount():
+            data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
+            packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
+            self.enqueue_packet(packet)
 
     # TODO Maybe merge all speed changes in one method
     # override
