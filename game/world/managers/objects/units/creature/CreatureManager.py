@@ -710,7 +710,8 @@ class CreatureManager(UnitManager):
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
 
-        self.quest_script_handler.reset(self)
+        if self.quest_script_handler:
+            self.quest_script_handler.reset(self)
 
         return super().die(killer)
 
