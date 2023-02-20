@@ -45,11 +45,10 @@ class TalentManager(object):
             if not TrainerUtils.player_can_ever_learn_talent(training_spell, spell, skill_line_ability, self.player_mgr):
                 continue
 
-            has_skill = self.player_mgr.skill_manager.has_skill(skill_id=skill_line_ability.SkillLine)
-            skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id=skill_line_ability.SkillLine)
-            # Handle talent skills as known. (Weapon Talents, Attribute Enhancements, Slayer Talents, etc)
-            if not has_skill and skill.SkillType == SkillLineType.TALENTS:
-                has_skill = True
+            has_skill = training_spell.reqskill and self.player_mgr.skill_manager.has_skill(
+                skill_id=training_spell.reqskill)
+            if not has_skill:
+                continue
 
             # Search previous spell.
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
