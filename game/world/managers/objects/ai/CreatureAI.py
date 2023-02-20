@@ -194,7 +194,7 @@ class CreatureAI:
             self.creature.movement_manager.move_chase()
         # Notify creature group.
         if self.creature.creature_group:
-            self.creature.creature_group.on_members_attack_start(self, victim)
+            self.creature.creature_group.on_members_attack_start(self.creature, victim)
         self._initialize_spell_list_cooldowns()
 
     def can_cast_spell(self, target, spell_entry, triggered):

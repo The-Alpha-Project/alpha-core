@@ -110,8 +110,6 @@ class CreatureGroupManager:
 
     # noinspection PyMethodMayBeStatic
     def _assist_member(self, creature, target):
-        if not creature.can_attack_target(target) or not creature.is_hostile_to(target):
-            return
         if creature.combat_target:
             return
         if not creature.object_ai:
