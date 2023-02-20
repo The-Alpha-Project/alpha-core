@@ -5,6 +5,7 @@ from database.dbc.DbcModels import Spell
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
+from game.world.managers.objects.units.player.SkillManager import SkillLineType
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 
@@ -44,15 +45,24 @@ class TalentManager(object):
             if not TrainerUtils.player_can_ever_learn_talent(training_spell, spell, skill_line_ability, self.player_mgr):
                 continue
 
+            has_skill = self.player_mgr.skill_manager.has_skill(skill_id=skill_line_ability.SkillLine)
+            skill = DbcDatabaseManager.SkillHolder.skill_get_by_id(skill_id=skill_line_ability.SkillLine)
+            # Handle talent skills as known. (Weapon Talents, Attribute Enhancements, Slayer Talents, etc)
+            if not has_skill and skill.SkillType == SkillLineType.TALENTS:
+                has_skill = True
+
             # Search previous spell.
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
             
-            talent_points_cost = training_spell.talentpointcost if training_spell.talentpointcost > 0 else TalentManager.get_talent_cost_by_id(training_spell.playerspell)
+            talent_points_cost = training_spell.talentpointcost if training_spell.talentpointcost > 0 else \
+                TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
-                                                                 preceded_spell, self.player_mgr)
+                                                                 preceded_spell, self.player_mgr,
+                                                                 fulfills_skill=has_skill)
 
-            # If the spell before this one exists and is unavailable, don't show this one. (We only want to show the first unavailable spell in a chain).
+            # If the spell before this one exists and is unavailable, don't show this one.
+            # (We only want to show the first unavailable spell in a chain).
             if preceded_spell != 0:
                 preceded_preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(preceded_spell)
                 preceded_preceded_spell = 0 if not preceded_preceded_skill_line else preceded_preceded_skill_line.Spell
@@ -76,7 +86,9 @@ class TalentManager(object):
             talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
                                                         talent_points_cost, 0,  # 0 Skill point cost.
                                                         spell.BaseLevel,
-                                                        training_spell.reqskill, training_spell.reqskillvalue, 0,  # Required skill data.
+                                                        training_spell.reqskill,
+                                                        training_spell.reqskillvalue,
+                                                        0,  # Required skill data.
                                                         preceded_spell)
             talent_count += 1
 
