@@ -1193,7 +1193,7 @@ class PlayerManager(UnitManager):
             return
 
         # Exploration handling (only if player is not flying).
-        if not self.movement_spline or self.movement_spline.spline_flags != SplineFlags.SPLINEFLAG_FLYING:
+        if not self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
             if area_information:
                 # Check if we need to set this zone as explored.
