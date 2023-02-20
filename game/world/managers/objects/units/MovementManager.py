@@ -209,7 +209,6 @@ class MovementManager:
                 break
 
     def _remove_behavior(self, movement_behavior):
-        print(f'Removed behavior {MoveType(movement_behavior.move_type).name}')
         self.movement_behaviors[movement_behavior.move_type] = None
         self._update_active_behavior_type()
         movement_behavior.on_removed()
