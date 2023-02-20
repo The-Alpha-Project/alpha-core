@@ -16726,6 +16726,10 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4898;
         UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 5973;
         UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4391;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4386;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4395;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4400;
+        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id` = 4401;
 
     end if;
 end $
