@@ -339,6 +339,9 @@ class EffectTargets:
         caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         caster_is_unit = caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
         caster_pet = caster.pet_manager.get_active_controlled_pet() if caster_is_unit else None
+        if caster_pet:
+            caster_pet = caster_pet.creature
+
         charmer_or_summoner = caster.get_charmer_or_summoner() if caster_is_unit else None
         party_group = None
         distance = target_effect.get_radius()
