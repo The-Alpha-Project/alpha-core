@@ -159,8 +159,6 @@ class QuestScriptHandler():
         else:
             scripts = WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
 
-        Logger.debug("Found " + str(len(scripts)) + " scripts for quest " + str(quest_id))
-
         if scripts:
             for script in scripts:
                 self.quest_script_queue.append({
@@ -183,8 +181,7 @@ class QuestScriptHandler():
                     'delay': script.delay, 
                     'player_mgr': player_mgr, 
                     'time_added': time.time() 
-                })
-                Logger.debug("QuestScriptHandler: added to quest script queue, new length: " + str(len(self.quest_script_queue)))
+                })                
 
     def reset(self):        
         self.quest_script_queue.clear()
@@ -194,5 +191,4 @@ class QuestScriptHandler():
             for quest_script in self.quest_script_queue:
                 if time.time() - quest_script["time_added"] >= quest_script["delay"]:
                     QuestScriptHandler.handle_quest_script(self, quest_script)
-                    self.quest_script_queue.remove(quest_script)
-                    Logger.debug("Removed from quest script queue, new length: " + str(len(self.quest_script_queue)))
+                    self.quest_script_queue.remove(quest_script)                    
