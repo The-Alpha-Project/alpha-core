@@ -47,7 +47,7 @@ class QuestScriptHandler():
                     self.quest_giver.play_emote(quest_script['datalong'])
 
                 case ScriptCommands.SCRIPT_COMMAND_FIELD_SET: # field set
-                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_FIELD_SET not implemented yet')
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_FIELD_SET not implemented yet')
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_MOVE_TO: # move 
