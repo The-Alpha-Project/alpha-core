@@ -20,7 +20,7 @@ class QuestScriptHandler():
             match quest_script['command']:
                 case ScriptCommands.SCRIPT_COMMAND_TALK: # talk
                     Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_TALK')
-                    broadcast_message = WorldDatabaseManager.broadcast_message_get_by_id(quest_script['dataint'])
+                    broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(quest_script['dataint'])                    
 
                     if broadcast_message: 
                         text_to_say = None

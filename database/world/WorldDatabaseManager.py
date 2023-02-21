@@ -767,13 +767,6 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    @staticmethod
-    def broadcast_message_get_by_id(id):
-        world_db_session = SessionHolder()
-        res = world_db_session.query(BroadcastText).filter_by(entry=id).first()
-        world_db_session.close()
-        return res
-
     # Trainer stuff.
 
     @staticmethod
@@ -934,3 +927,25 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(NpcText).all()
         world_db_session.close()
         return res
+
+    # Gossip.
+
+    class BroadcastTextHolder:
+        BROADCAST_TEXTS: dict[int, BroadcastText] = {}
+
+        @staticmethod
+        def load_broadcast_text(broadcast_text: BroadcastText):
+            WorldDatabaseManager.BroadcastTextHolder.BROADCAST_TEXTS[broadcast_text.entry] = broadcast_text
+
+        @staticmethod
+        def broadcast_text_get_by_id(text_id: int) -> Optional[BroadcastText]:
+            return WorldDatabaseManager.BroadcastTextHolder.BROADCAST_TEXTS.get(text_id)
+
+    @staticmethod
+    def broadcast_text_get_all() -> list[BroadcastText]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(BroadcastText).all()
+        world_db_session.close()
+        return res
+
+

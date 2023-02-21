@@ -52,6 +52,7 @@ class WorldLoader:
             WorldLoader.load_creature_families()
             WorldLoader.load_npc_gossip()
             WorldLoader.load_npc_text()
+            WorldLoader.load_broadcast_text()
         else:
             Logger.info('Skipped creature loading.')
 
@@ -601,6 +602,20 @@ class WorldLoader:
             Logger.progress('Loading npc gossip texts...', count, length)
 
         return length
+
+    @staticmethod
+    def load_broadcast_text():
+        broadcast_texts = WorldDatabaseManager.broadcast_text_get_all()
+        length = len(broadcast_texts)
+        count = 0
+
+        for broadcast_text in broadcast_texts:
+            WorldDatabaseManager.BroadcastTextHolder.load_broadcast_text(broadcast_text)
+
+            count += 1
+            Logger.progress('Loading broadcast texts...', count, length)
+
+        return length        
 
     # Character data holders
 
