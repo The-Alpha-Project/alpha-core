@@ -111,11 +111,14 @@ class QuestScriptHandler():
                     self.quest_giver.spell_manager.handle_cast_attempt(quest_script['datalong'], quest_script['player_mgr'], SpellTargetMask.UNIT, validate=False)                        
 
                 case ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: # play sound
-                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_PLAY_SOUND not implemented yet')
+                    # can't be implemented as opcodes to play sounds are not implemented in 0.5.3                    
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: # create item
-                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_CREATE_ITEM not implemented yet')
+                    if not quest_script['player_mgr'].inventory:
+                        Logger.warning('QuestScriptHandler: No inventory found, aborting SCRIPT_COMMAND_CREATE_ITEM')
+                        return
+                    quest_script['player_mgr'].inventory.add_item(quest_script['datalong'], quest_script['datalong2'])
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: # despawn creature
