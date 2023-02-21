@@ -5,7 +5,6 @@ from database.dbc.DbcModels import Spell
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
-from game.world.managers.objects.units.player.SkillManager import SkillLineType
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 
@@ -45,11 +44,6 @@ class TalentManager(object):
             if not TrainerUtils.player_can_ever_learn_talent(training_spell, spell, skill_line_ability, self.player_mgr):
                 continue
 
-            has_skill = training_spell.reqskill and self.player_mgr.skill_manager.has_skill(
-                skill_id=training_spell.reqskill)
-            if not has_skill:
-                continue
-
             # Search previous spell.
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
@@ -57,8 +51,7 @@ class TalentManager(object):
             talent_points_cost = training_spell.talentpointcost if training_spell.talentpointcost > 0 else \
                 TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
-                                                                 preceded_spell, self.player_mgr,
-                                                                 fulfills_skill=has_skill)
+                                                                 preceded_spell, self.player_mgr)
 
             # If the spell before this one exists and is unavailable, don't show this one.
             # (We only want to show the first unavailable spell in a chain).
