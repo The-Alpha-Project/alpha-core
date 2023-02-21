@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.constants.MiscCodes import ChatMsgs
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
-from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions
+from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions, ScriptCommands
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from utils.Logger import Logger
 
@@ -18,8 +18,8 @@ class QuestScriptHandler():
                 return
 
             match quest_script['command']:
-                case 0: # talk
-                    Logger.debug('QuestScriptHandler: Talk')
+                case ScriptCommands.SCRIPT_COMMAND_TALK: # talk
+                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_TALK')
                     broadcast_message = WorldDatabaseManager.broadcast_message_get_by_id(quest_script['dataint'])
 
                     if broadcast_message: 
@@ -42,15 +42,20 @@ class QuestScriptHandler():
                     else:
                         Logger.warning(f'QuestScriptHandler: Broadcast message {quest_script["dataint"]} not found.')
 
-                case 1: # emote
-                    Logger.debug('QuestScriptHandler: Emote ' + str(quest_script['datalong']))
+                case ScriptCommands.SCRIPT_COMMAND_EMOTE: # emote
+                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_EMOTE ' + str(quest_script['datalong']))
                     self.quest_giver.play_emote(quest_script['datalong'])
 
-                case 3: # move 
-                    Logger.warning('QuestScriptHandler: Move not implemented yet')
+                case ScriptCommands.SCRIPT_COMMAND_FIELD_SET: # field set
+                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_FIELD_SET not implemented yet')
                     pass
-                case 4: # modify NPC flags
-                    Logger.debug('QuestScriptHandler: Modify NPC flags')
+
+                case ScriptCommands.SCRIPT_COMMAND_MOVE_TO: # move 
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_MOVE_TO not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_MODIFY_FLAGS: # modify NPC flags
+                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_MODIFY_FLAGS')
                     if quest_script['datalong2'] == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
                         pass
                     elif quest_script['datalong2'] == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
@@ -58,97 +63,361 @@ class QuestScriptHandler():
                     else: 
                         pass
 
-                case 5: # stop cast
-                    Logger.warning('QuestScriptHandler: Stop cast not implemented yet')
+                case ScriptCommands.SCRIPT_COMMAND_INTERRUPT_CASTS: # stop cast
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_INTERRUPT_CASTS not implemented yet')
                     pass
-                case 7: # complete quest
-                    Logger.warning('QuestScriptHandler: Complete quest not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_TELEPORT_TO: # teleport
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_TELEPORT_TO not implemented yet')
                     pass
-                case 9: # spawn game object
-                    Logger.warning('QuestScriptHandler: Spawn game object not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_QUEST_EXPLORED: # complete quest
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_QUEST_EXPLORED not implemented yet')
                     pass
-                case 10: # summon creature
-                    Logger.warning('QuestScriptHandler: Summon creature not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_KILL_CREDIT: # kill credit
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_KILL_CREDIT not implemented yet')
                     pass
-                case 11: # unknown
-                    Logger.warning('QuestScriptHandler: Unknown command 11')
+
+                case ScriptCommands.SCRIPT_COMMAND_RESPAWN_GAMEOBJECT: # respawn game object
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_RESPAWN_GAMEOBJECT not implemented yet')
                     pass
-                case 15: # cast spell
-                    Logger.debug('QuestScriptHandler: Cast spell ' + str(quest_script['datalong']))
+
+                case ScriptCommands.SCRIPT_COMMAND_TEMP_SUMMON_CREATURE: # summon creature
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_TEMP_SUMMON_CREATURE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_OPEN_DOOR: # open door
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_OPEN_DOOR not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_CLOSE_DOOR: # close door
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_CLOSE_DOOR not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: # activate object
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ACTIVATE_OBJECT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_REMOVE_AURA: # remove aura
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_REMOVE_AURA not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: # cast spell
+                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_CAST_SPELL')
                     if not quest_script['player_mgr']:
                         Logger.warning('QuestScriptHandler: No player manager found, aborting cast')
                         return
                     self.quest_giver.spell_manager.handle_cast_attempt(quest_script['datalong'], quest_script['player_mgr'], SpellTargetMask.UNIT, validate=False)                        
 
-                case 20: # start waypoint movement
-                    Logger.warning('QuestScriptHandler: Start waypoint movement not implemented yet')
+                case ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: # play sound
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_PLAY_SOUND not implemented yet')
                     pass
-                case 22: # set faction
-                    Logger.warning('QuestScriptHandler: Set faction not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: # create item
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_CREATE_ITEM not implemented yet')
                     pass
-                case 25: # set walk
-                    Logger.warning('QuestScriptHandler: Set walk not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: # despawn creature
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_DESPAWN_CREATURE not implemented yet')
                     pass
-                case 26: # attack player                    
-                    Logger.warning('QuestScriptHandler: Attack player not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_EQUIPMENT: # set equipment
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_EQUIPMENT not implemented yet')
                     pass
-                case 27: # set quest entry?
-                    Logger.warning('QuestScriptHandler: Set quest entry not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_MOVEMENT: # start waypoint movement
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_MOVEMENT not implemented yet')
                     pass
-                case 28: # set stand state
-                    Logger.debug('QuestScriptHandler: Set stand state to ' + str(quest_script['datalong']))
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_ACTIVEOBJECT: # set active object
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_ACTIVEOBJECT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_FACTION: # set faction
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_FACTION not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL: # morph to entry or model
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL: # mount to entry or model
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_RUN: # set run
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_RUN not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_ATTACK_START: # attack start                    
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ATTACK_START not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_UPDATE_ENTRY: # update quest entry
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_UPDATE_ENTRY not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_STAND_STATE: # set stand state
+                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_STAND_STATE')
                     self.quest_giver.set_stand_state(quest_script['datalong'])
 
-                case 32: # terminate script
-                    Logger.warning('QuestScriptHandler: Terminate script not implemented yet')
+                case ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: # modify threat
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_MODIFY_THREAT not implemented yet')
                     pass
-                case 35: # set orientation
-                    Logger.debug('QuestScriptHandler: Set orientation') 
+
+                case ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: # send taxi path
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SEND_TAXI_PATH not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_TERMINATE_SCRIPT: # terminate script
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_TERMINATE_SCRIPT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_TERMINATE_CONDITION: # terminate condition
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_TERMINATE_CONDITION not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_ENTER_EVADE_MODE: # enter evade mode
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ENTER_EVADE_MODE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_HOME_POSITION: # set home position
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_HOME_POSITION not implemented yet')
+                    pass                
+
+                case ScriptCommands.SCRIPT_COMMAND_TURN_TO: # turn to target
+                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_TURN_TO') 
                     if quest_script['datalong'] == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
                        self.quest_giver.movement_manager.send_face_target(quest_script['player_mgr'])
                     else:
                        self.quest_giver.movement_manager.send_face_angle(quest_script['o'])
 
-                case 39: # start script
-                    Logger.warning('QuestScriptHandler: Start script not implemented yet')
+                case ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: # meeting stone
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_MEETINGSTONE not implemented yet')
                     pass
-                case 40: # remove from map
-                    Logger.warning('QuestScriptHandler: Remove from map not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA: # set instance data
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_INST_DATA not implemented yet')
                     pass
-                case 44: # set phase
-                    Logger.warning('QuestScriptHandler: Set phase not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA64: # set instance data64
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_INST_DATA64 not implemented yet')
                     pass
-                case 52: # make unkillable
-                    Logger.debug('QuestScriptHandler: Make unkillable ' + str(quest_script['datalong2']))
+
+                case ScriptCommands.SCRIPT_COMMAND_START_SCRIPT: # start script
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_START_SCRIPT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_REMOVE_ITEM: # remove item
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_REMOVE_ITEM not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_REMOVE_OBJECT: # remove object
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_REMOVE_OBJECT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_MELEE_ATTACK: # set melee attack
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_MELEE_ATTACK not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_COMBAT_MOVEMENT: # set combat movement
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_COMBAT_MOVEMENT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_PHASE: # set phase
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_PHASE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANDOM: # set phase random
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_PHASE_RANDOM not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANGE: # set phase range
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_PHASE_RANGE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_FLEE: # flee
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_FLEE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_DEAL_DAMAGE: # deal damage
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: # zone combat pulse
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ZONE_COMBAT_PULSE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: # call for help
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_CALL_FOR_HELP not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_SHEATH: # set sheath
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_SHEATH not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: # make invincible
+                    Logger.debug('QuestScriptHandler: SCRIPT_COMMAND_INVINCIBILITY')
                     if quest_script['datalong2'] == 1:
                         self.quest_giver.unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
                     else:
                         self.quest_giver.unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
-                case 55: # add/remove spell list
-                    Logger.warning('QuestScriptHandler: Add/remove spell list not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_GAME_EVENT: # game event
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_GAME_EVENT not implemented yet')
                     pass
-                case 60: # start waypoints
-                    Logger.warning('QuestScriptHandler: Start waypoints not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_SERVER_VARIABLE: # set server variable
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_SERVER_VARIABLE not implemented yet')
                     pass
-                case 61: # start scripted event
-                    Logger.warning('QuestScriptHandler: Start scripted event not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_CREATURE_SPELLS: # add/remove spell list
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_CREATURE_SPELLS not implemented yet')
                     pass
-                case 69: # change map event condition
-                    Logger.warning('QuestScriptHandler: Change map event condition not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_REMOVE_GUARDIANS: # remove guardians
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_REMOVE_GUARDIANS not implemented yet')
                     pass
-                case 71: # respawn
-                    Logger.warning('QuestScriptHandler: Respawn not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_ADD_SPELL_COOLDOWN: # add spell cooldown
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ADD_SPELL_COOLDOWN not implemented yet')
                     pass
-                case 74: # add aura
-                    Logger.warning('QuestScriptHandler: Add aura not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_REMOVE_SPELL_COOLDOWN: # remove spell cooldown
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_REMOVE_SPELL_COOLDOWN not implemented yet')
                     pass
-                case 76: # unused?
-                    Logger.warning('QuestScriptHandler: Unused command 76')
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_REACT_STATE: # set react state
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_REACT_STATE not implemented yet')
                     pass
-                case 81: # remove from map
-                    Logger.warning('QuestScriptHandler: Remove from map not implemented yet')
+
+                case ScriptCommands.SCRIPT_COMMAND_START_WAYPOINTS: # start waypoints
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_START_WAYPOINTS not implemented yet')
                     pass
+
+                case ScriptCommands.SCRIPT_COMMAND_START_MAP_EVENT: # start scripted event
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_START_MAP_EVENT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_END_MAP_EVENT: # end scripted event
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_END_MAP_EVENT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_ADD_MAP_EVENT_TARGET: # add event target
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ADD_MAP_EVENT_TARGET not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_REMOVE_MAP_EVENT_TARGET: # remove event target
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_REMOVE_MAP_EVENT_TARGET not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_MAP_EVENT_DATA: # set map event data
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_MAP_EVENT_DATA not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SEND_MAP_EVENT: # send map event
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SEND_MAP_EVENT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_DEFAULT_MOVEMENT: # set default movement
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_DEFAULT_MOVEMENT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_START_SCRIPT_FOR_ALL: # start script for all
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_START_SCRIPT_FOR_ALL not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_EDIT_MAP_EVENT: # change map event condition
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_EDIT_MAP_EVENT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_FAIL_QUEST: # fail quest
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_FAIL_QUEST not implemented yet')
+                    pass                
+
+                case ScriptCommands.SCRIPT_COMMAND_RESPAWN_CREATURE: # respawn
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_RESPAWN_CREATURE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_ASSIST_UNIT: # assist unit
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ASSIST_UNIT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_COMBAT_STOP: # combat stop
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_COMBAT_STOP not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_ADD_AURA: # add aura
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ADD_AURA not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_ADD_THREAT: # add threat
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_ADD_THREAT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SUMMON_OBJECT: # summon object
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SUMMON_OBJECT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_FLY: # set flying
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_FLY not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_JOIN_CREATURE_GROUP: # join creature group
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_JOIN_CREATURE_GROUP not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_LEAVE_CREATURE_GROUP: # leave creature group
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_LEAVE_CREATURE_GROUP not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_GO_STATE: # set go state
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_GO_STATE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_DESPAWN_GAMEOBJECT: #  despawn gameobject
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_DESPAWN_GAMEOBJECT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_LOAD_GAMEOBJECT: # load gameobject
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_LOAD_GAMEOBJECT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_QUEST_CREDIT: # quest credit
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_QUEST_CREDIT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: # set gossip menu
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_GOSSIP_MENU not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SEND_SCRIPT_EVENT: # send script event
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SEND_SCRIPT_EVENT not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_PVP: # set pvp
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_PVP not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_RESET_DOOR_OR_BUTTON: # reset door or button
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_RESET_DOOR_OR_BUTTON not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_SET_COMMAND_STATE: # set command state
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_SET_COMMAND_STATE not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_PLAY_CUSTOM_ANIM: # play custom anim
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_PLAY_CUSTOM_ANIM not implemented yet')
+                    pass
+
+                case ScriptCommands.SCRIPT_COMMAND_START_SCRIPT_ON_GROUP: # start script on group
+                    Logger.warning('QuestScriptHandler: SCRIPT_COMMAND_START_SCRIPT_ON_GROUP not implemented yet')
+                    pass
+
                 case _:
+                    Logger.warning('QuestScriptHandler: Unknown script command ' + str(quest_script['command']))
                     pass
     
     def enqueue_quest_script(self, quest_id, player_mgr, end_script=False):
