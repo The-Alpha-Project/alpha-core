@@ -865,7 +865,8 @@ class StatManager(object):
             # (SpellCaster::GetSpellResistChance)
             resist_mod = (8 * rating_difference * skill_value) / 5 / 28
 
-        resist_mod *= max(0.0, min(0.75, 0.15 / (skill_value / 5)))
+        resist_mod *= 0.15 / (skill_value / 5)
+        resist_mod = max(0.0, min(0.75, resist_mod))
 
         # Final application of resist mod (SpellCaster::MagicSpellHitChance, reversed for hit->miss).
         if resist_mod:
