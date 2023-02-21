@@ -9,6 +9,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.EnchantmentHolder import EnchantmentHolder
 from game.world.managers.objects.item.Stats import DamageStat, Stat, SpellStat
+from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from game.world.managers.objects.units.player.EnchantmentManager import MAX_ENCHANTMENTS
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
@@ -70,6 +71,7 @@ class ItemManager(ObjectManager):
         self.lock = 0  # Unlocked (0)
         self.display_id = 0
         self.loot_manager = None  # Optional
+        self.script_handler = None  # Optional
         self.equip_slot = 0
 
         if self.item_template:
@@ -88,6 +90,10 @@ class ItemManager(ObjectManager):
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
             self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template)
             self.lock = self.item_template.lock_id
+
+            # Load script handler if needed.
+            if self.item_template.class_ == ItemClasses.ITEM_CLASS_QUEST:
+                self.script_handler = ScriptHandler(self)
 
             # Load loot_manager if needed.
             if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:

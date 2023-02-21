@@ -10,7 +10,6 @@ from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.script.QuestScriptHandler import QuestScriptHandler
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from game.world.opcode_handling.Definitions import Definitions
 from network.packet.PacketReader import *

@@ -14,6 +14,7 @@ from game.world.managers.objects.gameobjects.managers.SpellFocusManager import S
 from game.world.managers.objects.gameobjects.managers.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
+from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates
@@ -62,6 +63,7 @@ class GameObjectManager(ObjectManager):
         self.goober_manager = None  # Optional.
         self.ritual_manager = None  # Optional.
         self.spell_focus_manager = None  # Optional.
+        self.script_handler = None # Optional.
 
     def initialize_from_gameobject_template(self, gobject_template):
         if not gobject_template:
@@ -120,6 +122,12 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_TRAP or \
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.lock = gobject_template.data0
+
+        # Script handler initialization.
+        if self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER or \
+            self.gobject_template.type == GameObjectTypes.TYPE_BUTTON or \
+            self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
+            self.script_handler = ScriptHandler(self)
 
     # override
     def initialize_field_values(self):

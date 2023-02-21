@@ -6,7 +6,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
-from game.world.managers.objects.script.QuestScriptHandler import QuestScriptHandler
+from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -223,7 +223,7 @@ class CreatureManager(UnitManager):
                 self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
             # Load quest script handler.
             if self.is_quest_giver():
-                self.quest_script_handler = QuestScriptHandler(self)
+                self.script_handler = ScriptHandler(self)
 
             display_id = self.current_display_id
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)

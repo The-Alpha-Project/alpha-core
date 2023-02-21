@@ -1,6 +1,5 @@
 from struct import unpack
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.script.QuestScriptHandler import QuestScriptHandler
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.GuidUtils import GuidUtils
@@ -47,6 +46,6 @@ class QuestGiverAcceptQuestHandler(object):
                 player_mgr.quest_manager.handle_accept_quest(quest_id, guid, shared=False, quest_giver=quest_giver,
                                                              is_item=is_item)
                 
-                quest_giver.quest_script_handler.enqueue_quest_script(quest_id, player_mgr)
+                quest_giver.script_handler.enqueue_script(quest_giver, quest_id, player_mgr)
 
         return 0
