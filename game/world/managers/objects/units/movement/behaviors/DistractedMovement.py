@@ -27,5 +27,6 @@ class DistractedMovement(BaseMovement):
             angle = self.unit.location.get_angle_towards_vector(self.unit.spawn_position)
             self.unit.movement_manager.face_angle(angle)
 
+    # override
     def can_remove(self):
-        return super().can_remove() or self.unit.in_combat or time.time() >= self.expected_timestamp
+        return self.unit.is_alive or self.unit.in_combat or time.time() >= self.expected_timestamp

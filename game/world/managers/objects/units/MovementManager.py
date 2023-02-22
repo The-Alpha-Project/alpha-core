@@ -178,7 +178,7 @@ class MovementManager:
     def _remove_invalid_expired_behaviors(self):
         movements_removed = False
         for move_type, behavior in list(self.movement_behaviors.items()):
-            if behavior and behavior.can_remove():
+            if behavior and behavior.can_remove() and not behavior.is_default:
                 movements_removed = True
                 self._remove_behavior(behavior)
         # Check if we need to fall back to another movement behavior.

@@ -41,5 +41,6 @@ class FlightMovement(BaseMovement):
         self.unit.taxi_manager.flight_end()
         self.flight_ended = True
 
+    # override
     def can_remove(self):
-        return super().can_remove() or self.flight_ended
+        return not self.unit.is_alive or self.flight_ended

@@ -39,7 +39,7 @@ class EvadeMovement(BaseMovement):
 
     # override
     def can_remove(self):
-        return super().can_remove() or self.path_ended
+        return not self.unit.is_alive or self.path_ended
 
     def _can_begin_evade(self, now):
         return self.waypoints and now > self.last_movement + self.wait_time_seconds

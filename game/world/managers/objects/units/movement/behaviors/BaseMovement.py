@@ -33,7 +33,7 @@ class BaseMovement:
         pass
 
     def can_remove(self):
-        return not self.is_default or not self.unit.is_alive
+        pass
 
     def on_removed(self):
         pass

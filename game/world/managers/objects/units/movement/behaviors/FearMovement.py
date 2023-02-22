@@ -40,8 +40,8 @@ class FearMovement(BaseMovement):
 
     # override
     def can_remove(self):
-        return super().can_remove() or not self.fear_duration or not self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING\
-            or time.time() >= self.expected_timestamp
+        return not self.unit.is_alive or not self.fear_duration \
+            or not self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or time.time() >= self.expected_timestamp
 
     # override
     def on_spline_finished(self):
