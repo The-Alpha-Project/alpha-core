@@ -227,8 +227,9 @@ class UnitManager(ObjectManager):
         return super().is_hostile_to(target)
 
     def can_melee_attack(self):
-        return self.has_melee() and not self.is_casting() and not self.unit_state & UnitStates.STUNNED \
-            and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED and not self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+        return self.combat_target and self.has_melee() and not self.is_casting() \
+            and not self.unit_state & UnitStates.STUNNED and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
+            and not self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
     # override
     def can_attack_target(self, target):
@@ -320,10 +321,6 @@ class UnitManager(ObjectManager):
         # If neither main hand attack and off hand attack are ready, return.
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
                 (self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK)):
-            return False
-
-        # If unit is casting, return.
-        if self.spell_manager.is_casting():
             return False
 
         main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
