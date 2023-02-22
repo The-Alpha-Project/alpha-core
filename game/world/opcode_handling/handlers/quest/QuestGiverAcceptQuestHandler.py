@@ -3,7 +3,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.GuidUtils import GuidUtils
-from utils.constants.MiscCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid, ScriptTypes
 from utils.Logger import Logger
 
 
@@ -46,6 +46,6 @@ class QuestGiverAcceptQuestHandler(object):
                 player_mgr.quest_manager.handle_accept_quest(quest_id, guid, shared=False, quest_giver=quest_giver,
                                                              is_item=is_item)
                 
-                quest_giver.script_handler.enqueue_script(quest_giver, quest_id, player_mgr)
+                quest_giver.script_handler.enqueue_script(quest_giver, player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_START, quest_id)
 
         return 0

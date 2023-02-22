@@ -93,7 +93,7 @@ class ItemManager(ObjectManager):
 
             # Load script handler if needed.
             if self.item_template.class_ == ItemClasses.ITEM_CLASS_QUEST:
-                self.script_handler = ScriptHandler(self)
+                self.script_handler = ScriptHandler()
 
             # Load loot_manager if needed.
             if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:

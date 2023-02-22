@@ -127,7 +127,7 @@ class GameObjectManager(ObjectManager):
         if self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER or \
             self.gobject_template.type == GameObjectTypes.TYPE_BUTTON or \
             self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
-            self.script_handler = ScriptHandler(self)
+            self.script_handler = ScriptHandler()
 
     # override
     def initialize_field_values(self):

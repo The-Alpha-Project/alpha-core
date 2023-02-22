@@ -223,7 +223,7 @@ class CreatureManager(UnitManager):
                 self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
             # Load quest script handler.
             if self.is_quest_giver():
-                self.script_handler = ScriptHandler(self)
+                self.script_handler = ScriptHandler()
 
             display_id = self.current_display_id
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)

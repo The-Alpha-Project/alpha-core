@@ -1,6 +1,7 @@
 import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from utils.constants.MiscCodes import ChatMsgs
+from game.world.managers.abstractions.Vector import Vector
+from utils.constants.MiscCodes import ChatMsgs, ScriptTypes
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions, ScriptCommands
@@ -8,14 +9,10 @@ from game.world.managers.objects.units.player.ChatManager import ChatManager
 from utils.Logger import Logger
 
 class ScriptHandler():
-    def __init__(self, creature_mgr):
-        self.script_queue = []
-        self.quest_giver = creature_mgr        
+    def __init__(self):
+        self.script_queue = []       
 
     def handle_script(self, script):
-
-            if not self.quest_giver or not self.quest_giver.is_alive:
-                return
 
             match script['command']:
                 case ScriptCommands.SCRIPT_COMMAND_TALK: # talk
@@ -24,18 +21,21 @@ class ScriptHandler():
 
                     if broadcast_message: 
                         text_to_say = None
-                        if self.quest_giver.gender == 0 and broadcast_message.male_text is not None:
+                        if script['source'].gender is not None and script['source'].gender == 0 and broadcast_message.male_text is not None:
                             text_to_say = broadcast_message.male_text
-                        elif self.quest_giver.gender == 1 and broadcast_message.female_text is not None:
+                        elif script['source'].gender is not None and script['source'].gender == 1 and broadcast_message.female_text is not None:
                             text_to_say = broadcast_message.female_text
                         else:
                             text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
 
                         if text_to_say is not None:     
-                            ChatManager.send_monster_emote_message(self.quest_giver, self.quest_giver.guid, broadcast_message.language_id, text_to_say,
+                            ChatManager.send_monster_emote_message(script['source'], script['source'].guid, broadcast_message.language_id, text_to_say,
                             ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
-                            if broadcast_message.emote_id1 != 0:                            
-                                self.quest_giver.play_emote(broadcast_message.emote_id1)
+                            if broadcast_message.emote_id1 != 0:    
+                                try:                        
+                                    script['source'].play_emote(broadcast_message.emote_id1)
+                                except:
+                                    Logger.warning(f'ScriptHandler: Could not play emote {broadcast_message.emote_id1}')
                             # neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them
                         else:
                             Logger.warning(f'ScriptHandler: Broadcast message {script["dataint"]} has no text to say.')
@@ -44,7 +44,10 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_EMOTE: # emote
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_EMOTE ' + str(script['datalong']))
-                    self.quest_giver.play_emote(script['datalong'])
+                    try:
+                        script['source'].play_emote(script['datalong'])
+                    except:
+                        Logger.warning('ScriptHandler: Could not play emote ' + str(script['datalong']))
 
                 case ScriptCommands.SCRIPT_COMMAND_FIELD_SET: # field set
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_FIELD_SET not implemented yet')
@@ -68,7 +71,11 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_TELEPORT_TO: # teleport
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_TELEPORT_TO not implemented yet')
+                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_TELEPORT_TO')
+                    try:
+                        script['source'].teleport(script['datalong'], Vector(script['x'], script['y'], script['z'], script['o']))
+                    except:
+                        Logger.warning('ScriptHandler: Could not teleport to map ' + str(script['datalong']))
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_QUEST_EXPLORED: # complete quest
@@ -105,20 +112,20 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: # cast spell
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_CAST_SPELL')
-                    if not script['player_mgr']:
-                        Logger.warning('ScriptHandler: No player manager found, aborting cast')
-                        return
-                    self.quest_giver.spell_manager.handle_cast_attempt(script['datalong'], script['player_mgr'], SpellTargetMask.UNIT, validate=False)                        
+                    try:
+                        script['source'].spell_manager.handle_cast_attempt(script['datalong'], script['target'], script['datalong2'], validate=False)                        
+                    except:
+                        Logger.warning('ScriptHandler: Could not cast spell ' + str(script['datalong']))
 
                 case ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: # play sound
                     # can't be implemented as opcodes to play sounds are not implemented in 0.5.3                    
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: # create item
-                    if not script['player_mgr'].inventory:
+                    if not script['source'].inventory:
                         Logger.warning('ScriptHandler: No inventory found, aborting SCRIPT_COMMAND_CREATE_ITEM')
                         return
-                    script['player_mgr'].inventory.add_item(script['datalong'], script['datalong2'])
+                    script['source'].inventory.add_item(script['datalong'], script['datalong2'])
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: # despawn creature
@@ -163,7 +170,10 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_STAND_STATE: # set stand state
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_STAND_STATE')
-                    self.quest_giver.set_stand_state(script['datalong'])
+                    try:
+                        script['source'].set_stand_state(script['datalong'])
+                    except:
+                        Logger.warning('ScriptHandler: Could not set stand state ' + str(script['datalong']))
 
                 case ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: # modify threat
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_MODIFY_THREAT not implemented yet')
@@ -192,9 +202,15 @@ class ScriptHandler():
                 case ScriptCommands.SCRIPT_COMMAND_TURN_TO: # turn to target
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_TURN_TO') 
                     if script['datalong'] == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
-                       self.quest_giver.movement_manager.send_face_target(script['player_mgr'])
-                    else:
-                       self.quest_giver.movement_manager.send_face_angle(script['o'])
+                        try:
+                            script['source'].movement_manager.send_face_target(script['player_mgr'])
+                        except:
+                            Logger.warning('ScriptHandler: Could not turn to face target')
+                        else:
+                            try:
+                                script['source'].movement_manager.send_face_angle(script['o'])
+                            except:
+                                Logger.warning('ScriptHandler: Could not turn to face angle')
 
                 case ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: # meeting stone
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_MEETINGSTONE not implemented yet')
@@ -262,10 +278,13 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: # make invincible
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_INVINCIBILITY')
-                    if script['datalong2'] == 1:
-                        self.quest_giver.unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
-                    else:
-                        self.quest_giver.unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
+                    try:
+                        if script['datalong2'] == 1:
+                            script['source'].unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
+                        else:
+                            script['source'].unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
+                    except:
+                        Logger.warning('ScriptHandler: Could not set invincibility')
 
                 case ScriptCommands.SCRIPT_COMMAND_GAME_EVENT: # game event
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_GAME_EVENT not implemented yet')
@@ -423,13 +442,32 @@ class ScriptHandler():
                     Logger.warning('ScriptHandler: Unknown script command ' + str(script['command']))
                     pass
     
-    def enqueue_script(self, source, quest_id, player_mgr, end_script=False):
+    def enqueue_script(self, source, target, script_type, quest_id = None):
         scripts = None
 
-        if not end_script:
-            scripts = WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)
-        else:
-            scripts = WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
+        match script_type:
+            case ScriptTypes.SCRIPT_TYPE_QUEST_START:
+                scripts = WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)
+            case ScriptTypes.SCRIPT_TYPE_QUEST_END:
+                scripts = WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
+            case ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT:
+                # TODO: Implement
+                pass
+            case ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL:
+                # TODO: Implement
+                pass
+            case ScriptTypes.SCRIPT_TYPE_GAMEOBJECT:
+                # TODO: Implement
+                pass
+            case ScriptTypes.SCRIPT_TYPE_GENERIC:
+                # TODO: Implement
+                pass
+            case ScriptTypes.SCRIPT_TYPE_GOSSIP:
+                # TODO: Implement
+                pass
+            case ScriptTypes.SCRIPT_TYPE_SPELL:
+                # TODO: Implement
+                pass
 
         if scripts:
             for script in scripts:
@@ -451,8 +489,9 @@ class ScriptHandler():
                     'dataint2': script.dataint2,
                     'dataint3': script.dataint3,
                     'delay': script.delay, 
-                    'player_mgr': player_mgr, 
                     'source': source,
+                    'target': target,
+                    'script_type': script_type,
                     'time_added': time.time() 
                 })                
 
