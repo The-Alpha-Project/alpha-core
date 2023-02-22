@@ -40,7 +40,7 @@ class FearMovement(BaseMovement):
 
     # override
     def can_remove(self):
-        return not self.fear_duration or not self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING \
+        return super().can_remove() or not self.fear_duration or not self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING\
             or time.time() >= self.expected_timestamp
 
     # override

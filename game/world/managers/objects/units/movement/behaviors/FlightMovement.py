@@ -42,4 +42,4 @@ class FlightMovement(BaseMovement):
         self.flight_ended = True
 
     def can_remove(self):
-        return self.flight_ended
+        return super().can_remove() or self.flight_ended

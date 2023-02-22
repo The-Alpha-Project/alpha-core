@@ -28,4 +28,4 @@ class DistractedMovement(BaseMovement):
             self.unit.movement_manager.face_angle(angle)
 
     def can_remove(self):
-        return self.unit.in_combat or time.time() >= self.expected_timestamp
+        return super().can_remove() or self.unit.in_combat or time.time() >= self.expected_timestamp

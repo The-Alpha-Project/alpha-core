@@ -48,11 +48,10 @@ class MovementManager:
             self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
+        elif self.unit.creature_group and self.unit.spawn_id:
+            self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_waypoints_type() and self.unit.spawn_id:
-            if self.unit.creature_group:
-                self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
-            else:
-                self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, is_default=True))
+            self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, is_default=True))
 
     # Broadcast a new spline from an active movement behavior.
     def spline_callback(self, spline, movement_behavior=None):
@@ -65,8 +64,10 @@ class MovementManager:
             MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)
 
     def flush(self):
+        self._remove_invalid_expired_behaviors()
         for move_type in self.movement_behaviors.keys():
             self.movement_behaviors[move_type] = None
+        self.stop()
 
     def reset(self, clean_behaviors=False):
         # If currently moving, update the current spline in order to have latest guessed position before flushing.

@@ -12,6 +12,7 @@ class GroupMovement(BaseMovement):
         self.creature_movement = None
         self.last_waypoint_movement = 0
         self.wait_time_seconds = 0
+        self._is_lagging = False
 
     # override
     def update(self, now, elapsed):
@@ -52,7 +53,7 @@ class GroupMovement(BaseMovement):
             and now > self.last_waypoint_movement + self.wait_time_seconds
 
     def _can_perform_follow_movement(self, now):
-        return not self.spline and not self.unit.creature_group.is_leader(self.unit) and \
+        return self._is_lagging or not self.spline and not self.unit.creature_group.is_leader(self.unit) and \
             self.unit.creature_group.leader and now > self.last_waypoint_movement + self.wait_time_seconds
 
     def _perform_waypoint(self):
@@ -78,9 +79,16 @@ class GroupMovement(BaseMovement):
         leader_distance = max(0.2, group_member.distance_leader - (elapsed * speed))
         location = creature_group.leader.location.get_point_in_radius_and_angle(leader_distance, group_member.angle)
         creature_distance = group_member.creature.location.distance(location) - (elapsed * speed)
-        # Catch up if lagging behind. Gibberish maths here.
+
+        # Check if unit is lagging.
         if creature_distance > group_member.distance_leader:
-            speed += (creature_distance - group_member.distance_leader) * elapsed
+            self._is_lagging = group_member.distance_leader - creature_distance > group_member.distance_leader * 2
+        else:
+            self._is_lagging = False
+
+        # Catch up if lagging behind.
+        if self._is_lagging:
+            speed += 0.05 * creature_distance * creature_distance * elapsed
 
         return location, speed
 
