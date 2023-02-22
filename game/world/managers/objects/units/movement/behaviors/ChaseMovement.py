@@ -38,8 +38,6 @@ class ChaseMovement(BaseMovement):
         target_distance = unit.location.distance(unit.combat_target.location)
         target_to_spawn_distance = unit.combat_target.location.distance(unit.spawn_position)
         combat_position_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
-        target_under_water = unit.combat_target.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
-        self_under_water = unit.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
         evade_distance = Distances.CREATURE_EVADE_DISTANCE
 
         if not unit.is_pet():
@@ -51,11 +49,11 @@ class ChaseMovement(BaseMovement):
                 unit.threat_manager.remove_unit_threat(unit.combat_target)
                 return
 
-            if self_under_water:
+            if self.unit.is_swimming():
                 if not unit.can_swim():
                     unit.threat_manager.remove_unit_threat(unit.combat_target)
                     return
-                if not unit.can_exit_water() and not target_under_water:
+                if not unit.can_exit_water() and not unit.combat_target.is_swimming():
                     unit.threat_manager.remove_unit_threat(unit.combat_target)
                     return
 

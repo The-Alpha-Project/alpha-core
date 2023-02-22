@@ -1239,17 +1239,12 @@ class PlayerManager(UnitManager):
         return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
 
     # override
-    def is_over_water(self):
-        if not self.current_cell:
-            return False
-
-        self.liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                                    self.location.z)
-        return self.liquid_information and self.liquid_information.height > self.location.z
+    def is_above_water(self):
+        return not self.is_swimming()
 
     # override
     def is_under_water(self):
-        if self.liquid_information is None or not self.is_swimming():
+        if not self.liquid_information or not self.is_swimming():
             return False
         return self.location.z + (self.current_scale * 2) < self.liquid_information.height
 

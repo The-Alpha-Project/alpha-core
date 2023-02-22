@@ -377,13 +377,8 @@ class ObjectManager:
         pass
 
     # override
-    def is_over_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                               self.location.z)
-        if not liquid_information:
-            return False
-        map_z = MapManager.calculate_z_for_object(self)[0]
-        return liquid_information and map_z < liquid_information.height
+    def is_above_water(self):
+        return False
 
     # override
     def is_under_water(self):
