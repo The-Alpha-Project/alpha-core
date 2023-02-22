@@ -442,6 +442,32 @@ class ScriptHandler():
                     Logger.warning('ScriptHandler: Unknown script command ' + str(script['command']))
                     pass
     
+    def enqueue_ai_script(self, source, script):
+        if script:
+            self.script_queue.append({
+                'command': script.command, 
+                'datalong': script.datalong, 
+                'datalong2': script.datalong2,
+                'datalong3': script.datalong3, 
+                'datalong4': script.datalong4, 
+                'x': script.x,
+                'y': script.y,
+                'z': script.z, 
+                'o': script.o, 
+                'target_param1': script.target_param1,
+                'target_param2': script.target_param2,
+                'target_type': script.target_type,
+                'data_flags': script.data_flags,
+                'dataint': script.dataint,
+                'dataint2': script.dataint2,
+                'dataint3': script.dataint3,
+                'delay': script.delay, 
+                'source': source,
+                'target': None,
+                'time_added': time.time() 
+            })    
+            Logger.debug('ScriptHandler: AI script enqued')
+
     def enqueue_script(self, source, target, script_type, quest_id = None):
         scripts = None
 

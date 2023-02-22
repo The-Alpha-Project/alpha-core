@@ -948,4 +948,19 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Creature AI events
+    @staticmethod
+    def creature_ai_event_get_by_creature_id(creature_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureAIEvent).filter(CreatureAIEvent.creature_id == creature_id).all()
+                                                           
+        world_db_session.close()
+        return res
 
+    @staticmethod
+    def creature_ai_script_get_by_id(id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureAIScript).filter(CreatureAIScript.id == id).first()
+        
+        world_db_session.close()
+        return res

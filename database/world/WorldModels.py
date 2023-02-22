@@ -1109,6 +1109,33 @@ class QuestEndScript(Base):
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     comments = Column(Text)    
 
+class CreatureAIScript(Base):
+    __tablename__ = 'creature_ai_scripts'
+
+    id = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))       
+    quest_id = Column(MEDIUMINT(5), primary_key=False, server_default=text("'0'"))     
+    delay = Column(INTEGER(10), primary_key=False, server_default=text("'0'"))
+    priority = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
+    command = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    datalong = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    datalong2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    datalong3 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    datalong4 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    target_param1 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    target_param2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    target_type = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
+    data_flags = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))    
+    dataint = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    dataint2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    dataint3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    dataint4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    x = Column(Float, nullable=False, server_default=text("'0'"))
+    y = Column(Float, nullable=False, server_default=text("'0'"))
+    z = Column(Float, nullable=False, server_default=text("'0'"))
+    o = Column(Float, nullable=False, server_default=text("'0'"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    comments = Column(Text) 
+
 class BroadcastText(Base):
     __tablename__ = 'broadcast_text'
 
@@ -1124,3 +1151,22 @@ class BroadcastText(Base):
     emote_delay1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     emote_delay2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     emote_delay3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+class CreatureAIEvent(Base):
+    __tablename__ = 'creature_ai_events'
+
+    id = Column(INTEGER(11), primary_key=True, nullable=False)
+    creature_id = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    condition_id = Column(INTEGER(8), nullable=False, server_default=text("'0'"))
+    event_type = Column(TINYINT(5), nullable=False, server_default=text("'0'"))
+    event_inverse_phase_mask = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    event_chance = Column(INTEGER(3), nullable=False, server_default=text("'100'"))
+    event_flags = Column(INTEGER(3), nullable=False, server_default=text("'0'"))
+    event_param1 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    event_param2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    event_param3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    event_param4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    action1_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    action2_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    action3_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    comment = Column(Text)

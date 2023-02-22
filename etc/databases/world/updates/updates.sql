@@ -30038,6 +30038,61 @@ begin not atomic
         INSERT INTO quest_end_scripts (id, quest_id, delay, priority, command, datalong, datalong2, datalong3, datalong4, target_param1, target_param2, target_type, data_flags, dataint, dataint2, dataint3, dataint4, x, y, z, condition_id, comments) VALUES (1526, 8791, 1, 0, 1, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, '0');
         INSERT INTO quest_end_scripts (id, quest_id, delay, priority, command, datalong, datalong2, datalong3, datalong4, target_param1, target_param2, target_type, data_flags, dataint, dataint2, dataint3, dataint4, x, y, z, condition_id, comments) VALUES (1527, 8791, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11355, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, '0');
 
+        CREATE TABLE `creature_ai_events` (
+            `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
+            `creature_id` INT(11) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Creature Template Identifier',
+            `condition_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Condition id from conditions table',
+            `event_type` TINYINT(5) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Event Type',
+            `event_inverse_phase_mask` INT(11) NOT NULL DEFAULT '0' COMMENT 'Mask which phases this event will not trigger in',
+            `event_chance` INT(3) UNSIGNED NOT NULL DEFAULT '100',
+            `event_flags` INT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `event_param1` INT(11) NOT NULL DEFAULT '0',
+            `event_param2` INT(11) NOT NULL DEFAULT '0',
+            `event_param3` INT(11) NOT NULL DEFAULT '0',
+            `event_param4` INT(11) NOT NULL DEFAULT '0',
+            `action1_script` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+            `action2_script` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+            `action3_script` INT(11) UNSIGNED NOT NULL DEFAULT '0',
+            `comment` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Event Comment' COLLATE 'utf8mb3_general_ci',
+            PRIMARY KEY (`id`) USING BTREE
+        )
+        COMMENT='EventAI Scripts'
+        COLLATE='utf8mb3_general_ci'
+        ENGINE=MyISAM
+        ROW_FORMAT=FIXED
+        AUTO_INCREMENT=98800624
+        ;
+
+        CREATE TABLE `creature_ai_scripts` (
+            `id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `delay` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `priority` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `command` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong2` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong3` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `datalong4` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_param1` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_param2` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+            `target_type` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `data_flags` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+            `dataint` INT(11) NOT NULL DEFAULT '0',
+            `dataint2` INT(11) NOT NULL DEFAULT '0',
+            `dataint3` INT(11) NOT NULL DEFAULT '0',
+            `dataint4` INT(11) NOT NULL DEFAULT '0',
+            `x` FLOAT NOT NULL DEFAULT '0',
+            `y` FLOAT NOT NULL DEFAULT '0',
+            `z` FLOAT NOT NULL DEFAULT '0',
+            `o` FLOAT NOT NULL DEFAULT '0',
+            `condition_id` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT '0',
+            `comments` VARCHAR(255) NOT NULL COLLATE 'utf8mb3_general_ci'
+        )
+        COLLATE='utf8mb3_general_ci'
+        ENGINE=MyISAM
+        ;
+
+
+
         INSERT INTO applied_updates VALUES ('180220231');
     end if;
 end $

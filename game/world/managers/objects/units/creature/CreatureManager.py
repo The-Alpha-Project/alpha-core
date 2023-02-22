@@ -72,7 +72,7 @@ class CreatureManager(UnitManager):
         # # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
         self.pickpocket_loot_manager = None
-        self.quest_script_handler = None
+        self.script_handler = None
 
         # # All creatures can block, parry and dodge by default.
         self.has_block_passive = True
@@ -222,8 +222,7 @@ class CreatureManager(UnitManager):
             if self.creature_template.pickpocket_loot_id:
                 self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
             # Load quest script handler.
-            if self.is_quest_giver():
-                self.script_handler = ScriptHandler()
+            self.script_handler = ScriptHandler()
 
             display_id = self.current_display_id
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)
@@ -554,9 +553,8 @@ class CreatureManager(UnitManager):
                 self.aura_manager.update(now)
                 # Sanctuary check.
                 self.update_sanctuary(elapsed)
-                # Quest scripts update.
-                if self.is_quest_giver() and self.quest_script_handler is not None:
-                    self.quest_script_handler.update()
+                # Scripts update.
+                self.script_handler.update()
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
                 if self.has_moved or self.has_turned:
@@ -710,8 +708,8 @@ class CreatureManager(UnitManager):
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
 
-        if self.quest_script_handler:
-            self.quest_script_handler.reset(self)
+        if self.script_handler:
+            self.script_handler.reset()
 
         return super().die(killer)
 

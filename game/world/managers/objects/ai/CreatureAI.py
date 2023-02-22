@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.script.AIEventHandler import AIEventHandler
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
@@ -37,6 +38,7 @@ class CreatureAI:
             self.last_alert_time = 0
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
+            self.ai_event_handler = AIEventHandler()
 
     def load_spell_list(self):
         # Load creature spells if available.
@@ -150,6 +152,9 @@ class CreatureAI:
             if not spell:
                 continue
             self.creature.spell_manager.apply_passive_spell_effects(spell)
+
+        # Run on-spawn AI script
+        self.ai_event_handler.on_spawn(self.creature)
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):
@@ -380,6 +385,7 @@ class CreatureAI:
 
     # Called for reaction at enter to combat if not in combat yet (enemy can be None).
     def enter_combat(self, unit):
+        self.ai_event_handler.on_enter_combat(self.creature)	
         pass
 
     # Called when leaving combat.
