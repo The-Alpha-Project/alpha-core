@@ -1236,7 +1236,7 @@ class PlayerManager(UnitManager):
             self.liquid_information = None
 
     def is_swimming(self):
-        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING and self.is_alive
+        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
 
     # override
     def is_over_water(self):

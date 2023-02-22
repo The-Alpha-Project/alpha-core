@@ -4,7 +4,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
 from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
-from utils.constants.MiscCodes import MoveType, ObjectTypeIds
+from utils.constants.MiscCodes import MoveType, ObjectTypeIds, MoveFlags
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 
@@ -38,7 +38,8 @@ class ChaseMovement(BaseMovement):
         target_distance = unit.location.distance(unit.combat_target.location)
         target_to_spawn_distance = unit.combat_target.location.distance(unit.spawn_position)
         combat_position_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
-        target_under_water = unit.combat_target.is_under_water()
+        target_under_water = unit.combat_target.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
+        self_under_water = unit.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
         evade_distance = Distances.CREATURE_EVADE_DISTANCE
 
         if not unit.is_pet():
@@ -50,7 +51,7 @@ class ChaseMovement(BaseMovement):
                 unit.threat_manager.remove_unit_threat(unit.combat_target)
                 return
 
-            if unit.is_under_water():
+            if self_under_water:
                 if not unit.can_swim():
                     unit.threat_manager.remove_unit_threat(unit.combat_target)
                     return
