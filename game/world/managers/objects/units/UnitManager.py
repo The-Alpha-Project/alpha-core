@@ -227,8 +227,8 @@ class UnitManager(ObjectManager):
         return super().is_hostile_to(target)
 
     def can_melee_attack(self):
-        return not self.has_melee() or self.is_casting() or self.unit_state & UnitStates.STUNNED \
-            or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED or self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+        return self.has_melee() and not self.is_casting() and not self.unit_state & UnitStates.STUNNED \
+            and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED and not self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
     # override
     def can_attack_target(self, target):
