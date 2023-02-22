@@ -42,13 +42,13 @@ class CreatureGroupManager:
         self.group_flags |= creature_group.flags
 
     def remove_member(self, creature_mgr):
-        if creature_mgr.guid in self.members:
-            self.members.pop(creature_mgr.guid)
-        if self.leader == creature_mgr.guid:
-            if len(self.members) > 0:
-                self.leader = list[self.members.values()][0]
-            else:
-                self.leader = None
+        if creature_mgr.guid not in self.members:
+            return
+        if not self.members:
+            self.disband()
+        elif self.is_leader(creature_mgr) and self._is_formation():
+            new_leader = self._pick_new_leader()
+            self.leader = new_leader if new_leader else None
 
     def on_members_attack_start(self, creature_mgr, target):
         if not target or not self.group_flags & CreatureGroupFlags.OPTION_AGGRO_TOGETHER:
@@ -71,15 +71,8 @@ class CreatureGroupManager:
                     continue
                 member.creature.object_ai.group_member_just_died(creature_mgr, is_leader=is_leader)
 
-        if is_leader and self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE:
-            alive = [member.creature for member in self.members.values() if member.creature.is_alive
-                     and member.creature.guid != self.leader.guid]
-            # Set a new leader if possible.
-            if alive:
-                self.leader = choice(alive)
-            # All dead.
-            else:
-                self.disband()
+        # We don't re use creatures instances, remove.
+        self.remove_member(creature_mgr)
 
     def on_leave_combat(self, creature_mgr):
         leader_evade = creature_mgr.guid == self.leader.guid
@@ -107,6 +100,14 @@ class CreatureGroupManager:
         if index:
             points = points[index:] + points[0:index]
         return points
+
+    def _is_formation(self):
+        return self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE
+
+    def _pick_new_leader(self):
+        alive = [member.creature for member in self.members.values() if member.creature.is_alive
+                 and member.creature.guid != self.leader.guid]
+        return choice(alive) if alive else None
 
     # noinspection PyMethodMayBeStatic
     def _assist_member(self, creature, target):
