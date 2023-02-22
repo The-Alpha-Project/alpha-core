@@ -226,6 +226,10 @@ class UnitManager(ObjectManager):
 
         return super().is_hostile_to(target)
 
+    def can_melee_attack(self):
+        return not self.has_melee() or self.is_casting() or self.unit_state & UnitStates.STUNNED \
+            or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED or self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+
     # override
     def can_attack_target(self, target):
         if not target or target is self:
@@ -295,12 +299,8 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
-        # Don't update melee swing timers while casting or stunned.
-        if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
-            return False
-
-        # Some creatures do not have melee capability.
-        if not self.has_melee():
+        # Don't update melee swing timers while casting, stunned, pacified or fleeing..
+        if not self.can_melee_attack():
             return False
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -310,8 +310,8 @@ class UnitManager(ObjectManager):
         return self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
-        if self.unit_state & UnitStates.STUNNED or not self.combat_target \
-                or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+        # Don't update melee swing timers while casting, stunned, pacified or fleeing..
+        if not self.can_melee_attack():
             return False
 
         swing_error = AttackSwingError.NONE
@@ -1182,9 +1182,6 @@ class UnitManager(ObjectManager):
 
     def is_moving(self):
         return self.movement_manager.unit_is_moving()
-
-    def is_casting(self):
-        return self.spell_manager.is_casting()
 
     def stop_movement(self):
         # Stop only if unit has pending waypoints.

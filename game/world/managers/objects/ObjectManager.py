@@ -398,6 +398,9 @@ class ObjectManager:
                                                                self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
+    def is_casting(self):
+        return self.spell_manager.is_casting()
+
     # override
     def is_totem(self):
         return False
@@ -437,14 +440,9 @@ class ObjectManager:
                 target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
             return False
 
-        if self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
-            return False
-
         # Creature only checks.
-        elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            # If the unit is evading.
-            if target.is_evading or not target.is_spawned:
-                return False
+        elif target.get_type_id() == ObjectTypeIds.ID_UNIT and not target.is_spawned:
+            return False
 
         if not target.is_alive:
             return False
