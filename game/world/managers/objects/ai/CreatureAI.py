@@ -39,6 +39,7 @@ class CreatureAI:
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
             self.ai_event_handler = AIEventHandler()
+            self.entered_combat = False
 
     def load_spell_list(self):
         # Load creature spells if available.
@@ -60,6 +61,10 @@ class CreatureAI:
     def update_ai(self, elapsed):
         if self.last_alert_time > 0:
             self.last_alert_time = max(0, self.last_alert_time - elapsed)
+
+        if self.creature.in_combat and not self.entered_combat:
+            self.entered_combat = True
+            self.enter_combat()
 
     # Like UpdateAI, but only when the creature is a dead corpse.
     def update_ai_corpse(self, elapsed):
@@ -91,6 +96,7 @@ class CreatureAI:
 
     # Called when the creature is killed.
     def just_died(self):
+        self.entered_combat = False
         charmer_or_summoner = self.creature.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit
         # (game objects can spawn creatures, but they don't have a PetManager).
@@ -146,6 +152,8 @@ class CreatureAI:
         # Reset spells template to default on respawn.
         # Reset combat movement and melee attack.
 
+        self.entered_combat = False
+
         # Apply passives.
         for spell_id in self.creature.get_template_spells():
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
@@ -153,8 +161,9 @@ class CreatureAI:
                 continue
             self.creature.spell_manager.apply_passive_spell_effects(spell)
 
-        # Run on-spawn AI script
+        # Run on-spawn AI scripts
         self.ai_event_handler.on_spawn(self.creature)
+        self.ai_event_handler.on_idle(self.creature)
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):
@@ -384,7 +393,7 @@ class CreatureAI:
         pass
 
     # Called for reaction at enter to combat if not in combat yet (enemy can be None).
-    def enter_combat(self, unit):
+    def enter_combat(self, unit = None):
         self.ai_event_handler.on_enter_combat(self.creature)	
         pass
 

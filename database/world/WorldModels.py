@@ -1113,7 +1113,6 @@ class CreatureAIScript(Base):
     __tablename__ = 'creature_ai_scripts'
 
     id = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))       
-    quest_id = Column(MEDIUMINT(5), primary_key=False, server_default=text("'0'"))     
     delay = Column(INTEGER(10), primary_key=False, server_default=text("'0'"))
     priority = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
     command = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))

@@ -1,3 +1,4 @@
+import random
 import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
@@ -11,6 +12,14 @@ from utils.Logger import Logger
 class ScriptHandler():
     def __init__(self):
         self.script_queue = []       
+        self.ooc_spawn_min_delay = 0
+        self.ooc_spawn_max_delay = 0
+        self.ooc_repeat_min_delay = 0
+        self.ooc_repeat_max_delay = 0
+        self.ooc_scripts = []
+        self.ooc_event = None
+        self.ooc_last = 0
+        self.ooc_target = None
 
     def handle_script(self, script):
 
@@ -466,7 +475,31 @@ class ScriptHandler():
                 'target': None,
                 'time_added': time.time() 
             })    
-            Logger.debug('ScriptHandler: AI script enqued')
+            Logger.debug('ScriptHandler: AI script enqueued')
+
+    def set_random_ooc_event(self, target, event):
+
+        self.ooc_event = event
+
+        if event.action1_script > 0:
+            self.ooc_scripts.append(event.action1_script)
+        if event.action2_script > 0:
+            self.ooc_scripts.append(event.action2_script)
+        if event.action3_script > 0:
+            self.ooc_scripts.append(event.action3_script)           
+
+        script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(self.ooc_scripts))
+
+        if script:
+            self.ooc_spawn_min_delay = event.event_param1
+            self.ooc_spawn_max_delay = event.event_param2
+            self.ooc_repeat_min_delay = event.event_param3            
+            self.ooc_repeat_max_delay = event.event_param4
+            self.ooc_target = target
+                        
+            script.delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
+            self.ooc_last = time.time() + script.delay
+            self.enqueue_ai_script(self.ooc_target, script)
 
     def enqueue_script(self, source, target, script_type, quest_id = None):
         scripts = None
@@ -523,10 +556,24 @@ class ScriptHandler():
 
     def reset(self):        
         self.script_queue.clear()
+        self.ooc_script = None
+        self.ooc_repeat_min_delay = 0
+        self.ooc_repeat_max_delay = 0
+        self.ooc_last = 0
+        self.ooc_target = None
 
     def update(self):
         if len(self.script_queue) > 0:
             for script in self.script_queue:
                 if time.time() - script["time_added"] >= script["delay"]:
                     ScriptHandler.handle_script(self, script)
-                    self.script_queue.remove(script)                    
+                    self.script_queue.remove(script)   
+
+        if self.ooc_scripts and time.time() - self.ooc_last >= self.ooc_repeat_min_delay:
+            script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(self.ooc_scripts))
+
+            if script:                           
+                self.ooc_script.delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
+                self.ooc_last = time.time() + self.ooc_script.delay
+                self.ooc_script.target = self.ooc_target
+                self.enqueue_ai_script(self.ooc_target, script)
