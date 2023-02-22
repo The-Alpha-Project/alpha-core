@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import random
 import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -8,6 +9,29 @@ from utils.constants.UnitCodes import UnitFlags
 from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions, ScriptCommands
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from utils.Logger import Logger
+
+@dataclass
+class Script:
+    command: int
+    datalong: int
+    datalong2: int
+    datalong3: int
+    datalong4: int
+    x: float
+    y: float
+    z: float
+    o: float
+    target_param1: int
+    target_param2: int
+    target_type: int
+    data_flags: int
+    dataint: int
+    dataint2: int
+    dataint3: int
+    delay: int
+    source: object
+    target: object    
+    time_added: float
 
 class ScriptHandler():
     def __init__(self):
@@ -23,40 +47,40 @@ class ScriptHandler():
 
     def handle_script(self, script):
 
-            match script['command']:
+            match script.command:
                 case ScriptCommands.SCRIPT_COMMAND_TALK: # talk
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_TALK')
-                    broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(script['dataint'])                    
+                    broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(script.dataint)
 
                     if broadcast_message: 
                         text_to_say = None
-                        if script['source'].gender is not None and script['source'].gender == 0 and broadcast_message.male_text is not None:
+                        if script.source.gender is not None and script.source.gender == 0 and broadcast_message.male_text is not None:
                             text_to_say = broadcast_message.male_text
-                        elif script['source'].gender is not None and script['source'].gender == 1 and broadcast_message.female_text is not None:
+                        elif script.source.gender is not None and script.source.gender == 1 and broadcast_message.female_text is not None:
                             text_to_say = broadcast_message.female_text
                         else:
                             text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
 
                         if text_to_say is not None:     
-                            ChatManager.send_monster_emote_message(script['source'], script['source'].guid, broadcast_message.language_id, text_to_say,
+                            ChatManager.send_monster_emote_message(script.source, script.source.guid, broadcast_message.language_id, text_to_say,
                             ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
                             if broadcast_message.emote_id1 != 0:    
                                 try:                        
-                                    script['source'].play_emote(broadcast_message.emote_id1)
+                                    script.source.play_emote(broadcast_message.emote_id1)
                                 except:
                                     Logger.warning(f'ScriptHandler: Could not play emote {broadcast_message.emote_id1}')
                             # neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them
                         else:
-                            Logger.warning(f'ScriptHandler: Broadcast message {script["dataint"]} has no text to say.')
+                            Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} has no text to say.')
                     else:
-                        Logger.warning(f'ScriptHandler: Broadcast message {script["dataint"]} not found.')
+                        Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} not found.')
 
                 case ScriptCommands.SCRIPT_COMMAND_EMOTE: # emote
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_EMOTE ' + str(script['datalong']))
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_EMOTE ' + str(script.datalong))
                     try:
-                        script['source'].play_emote(script['datalong'])
+                        script.source.play_emote(script.datalong)
                     except:
-                        Logger.warning('ScriptHandler: Could not play emote ' + str(script['datalong']))
+                        Logger.warning('ScriptHandler: Could not play emote ' + str(script.datalong))
 
                 case ScriptCommands.SCRIPT_COMMAND_FIELD_SET: # field set
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_FIELD_SET not implemented yet')
@@ -68,9 +92,9 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_MODIFY_FLAGS: # modify NPC flags
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_MODIFY_FLAGS')
-                    if script['datalong2'] == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
+                    if script.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
                         pass
-                    elif script['datalong2'] == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
+                    elif script.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
                         pass
                     else: 
                         pass
@@ -82,7 +106,7 @@ class ScriptHandler():
                 case ScriptCommands.SCRIPT_COMMAND_TELEPORT_TO: # teleport
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_TELEPORT_TO')
                     try:
-                        script['source'].teleport(script['datalong'], Vector(script['x'], script['y'], script['z'], script['o']))
+                        script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o))
                     except:
                         Logger.warning('ScriptHandler: Could not teleport to map ' + str(script['datalong']))
                     pass
@@ -121,20 +145,20 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: # cast spell
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_CAST_SPELL')
-                    try:
-                        script['source'].spell_manager.handle_cast_attempt(script['datalong'], script['target'], script['datalong2'], validate=False)                        
+                    try:                        
+                        script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, script.datalong2, validate=False)                        
                     except:
-                        Logger.warning('ScriptHandler: Could not cast spell ' + str(script['datalong']))
+                        Logger.warning('ScriptHandler: Could not cast spell ' + str(script.datalong))
 
                 case ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: # play sound
                     # can't be implemented as opcodes to play sounds are not implemented in 0.5.3                    
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: # create item
-                    if not script['source'].inventory:
+                    if not script.source.inventory:
                         Logger.warning('ScriptHandler: No inventory found, aborting SCRIPT_COMMAND_CREATE_ITEM')
                         return
-                    script['source'].inventory.add_item(script['datalong'], script['datalong2'])
+                    script.source.inventory.add_item(script.datalong, script.datalong2)
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: # despawn creature
@@ -180,7 +204,7 @@ class ScriptHandler():
                 case ScriptCommands.SCRIPT_COMMAND_STAND_STATE: # set stand state
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_STAND_STATE')
                     try:
-                        script['source'].set_stand_state(script['datalong'])
+                        script.source.set_stand_state(script.datalong)
                     except:
                         Logger.warning('ScriptHandler: Could not set stand state ' + str(script['datalong']))
 
@@ -210,14 +234,14 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_TURN_TO: # turn to target
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_TURN_TO') 
-                    if script['datalong'] == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
+                    if script.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
                         try:
-                            script['source'].movement_manager.send_face_target(script['player_mgr'])
+                            script.source.movement_manager.send_face_target(script.player_mgr)
                         except:
                             Logger.warning('ScriptHandler: Could not turn to face target')
                         else:
                             try:
-                                script['source'].movement_manager.send_face_angle(script['o'])
+                                script.source.movement_manager.send_face_angle(script.o)
                             except:
                                 Logger.warning('ScriptHandler: Could not turn to face angle')
 
@@ -288,10 +312,10 @@ class ScriptHandler():
                 case ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: # make invincible
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_INVINCIBILITY')
                     try:
-                        if script['datalong2'] == 1:
-                            script['source'].unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
+                        if script.datalong2 == 1:
+                            script.source.unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
                         else:
-                            script['source'].unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
+                            script.source.unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
                     except:
                         Logger.warning('ScriptHandler: Could not set invincibility')
 
@@ -448,33 +472,33 @@ class ScriptHandler():
                     pass
 
                 case _:
-                    Logger.warning('ScriptHandler: Unknown script command ' + str(script['command']))
+                    Logger.warning('ScriptHandler: Unknown script command ' + str(script.command))
                     pass
     
     def enqueue_ai_script(self, source, script):
         if script:
-            self.script_queue.append({
-                'command': script.command, 
-                'datalong': script.datalong, 
-                'datalong2': script.datalong2,
-                'datalong3': script.datalong3, 
-                'datalong4': script.datalong4, 
-                'x': script.x,
-                'y': script.y,
-                'z': script.z, 
-                'o': script.o, 
-                'target_param1': script.target_param1,
-                'target_param2': script.target_param2,
-                'target_type': script.target_type,
-                'data_flags': script.data_flags,
-                'dataint': script.dataint,
-                'dataint2': script.dataint2,
-                'dataint3': script.dataint3,
-                'delay': script.delay, 
-                'source': source,
-                'target': None,
-                'time_added': time.time() 
-            })    
+            self.script_queue.append(Script(
+                script.command,
+                script.datalong,
+                script.datalong2,
+                script.datalong3,
+                script.datalong4,
+                script.x,
+                script.y,
+                script.z,
+                script.o,
+                script.target_param1,
+                script.target_param2,
+                script.target_type,
+                script.data_flags,
+                script.dataint,
+                script.dataint2,
+                script.dataint3,
+                script.delay,
+                source,
+                None,
+                time.time()
+            ))    
             Logger.debug('ScriptHandler: AI script enqueued')
 
     def set_random_ooc_event(self, target, event):
@@ -530,33 +554,32 @@ class ScriptHandler():
 
         if scripts:
             for script in scripts:
-                self.script_queue.append({
-                    'command': script.command, 
-                    'datalong': script.datalong, 
-                    'datalong2': script.datalong2,
-                    'datalong3': script.datalong3, 
-                    'datalong4': script.datalong4, 
-                    'x': script.x,
-                    'y': script.y,
-                    'z': script.z, 
-                    'o': script.o, 
-                    'target_param1': script.target_param1,
-                    'target_param2': script.target_param2,
-                    'target_type': script.target_type,
-                    'data_flags': script.data_flags,
-                    'dataint': script.dataint,
-                    'dataint2': script.dataint2,
-                    'dataint3': script.dataint3,
-                    'delay': script.delay, 
-                    'source': source,
-                    'target': target,
-                    'script_type': script_type,
-                    'time_added': time.time() 
-                })                
+                self.script_queue.append(Script(
+                    script.command,
+                    script.datalong,
+                    script.datalong2,
+                    script.datalong3,
+                    script.datalong4,
+                    script.x,
+                    script.y,
+                    script.z,
+                    script.o,
+                    script.target_param1,
+                    script.target_param2,
+                    script.target_type,
+                    script.data_flags,
+                    script.dataint,
+                    script.dataint2,
+                    script.dataint3,
+                    script.delay,
+                    source,
+                    target,
+                    time.time()
+                ))
 
     def reset(self):        
         self.script_queue.clear()
-        self.ooc_script = None
+        self.ooc_scripts = None
         self.ooc_repeat_min_delay = 0
         self.ooc_repeat_max_delay = 0
         self.ooc_last = 0
@@ -565,7 +588,7 @@ class ScriptHandler():
     def update(self):
         if len(self.script_queue) > 0:
             for script in self.script_queue:
-                if time.time() - script["time_added"] >= script["delay"]:
+                if time.time() - script.time_added >= script.delay:
                     ScriptHandler.handle_script(self, script)
                     self.script_queue.remove(script)   
 
@@ -573,7 +596,6 @@ class ScriptHandler():
             script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(self.ooc_scripts))
 
             if script:                           
-                self.ooc_script.delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
-                self.ooc_last = time.time() + self.ooc_script.delay
-                self.ooc_script.target = self.ooc_target
+                script.delay = random.randint(self.ooc_repeat_min_delay, self.ooc_repeat_max_delay)
+                self.ooc_last = time.time() + script.delay                
                 self.enqueue_ai_script(self.ooc_target, script)
