@@ -159,6 +159,8 @@ class MovementManager:
             Logger.warning(f'Failied to initialize movement {movement_behavior.move_type} for unit {self.unit.entry}')
 
     def unit_is_moving(self):
+        if self.is_player and self.unit.movement_flags & MoveFlags.MOVEFLAG_MOVE_MASK:
+            return True
         return True if self._get_current_spline() else False
 
     def try_build_movement_packet(self):
