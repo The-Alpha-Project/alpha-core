@@ -392,7 +392,7 @@ class CreatureManager(UnitManager):
         if not self.is_player_controlled_pet():
             self.evade()
 
-        if self.creature_group:
+        if self.creature_group and self.is_evading:
             self.creature_group.on_leave_combat(self)
 
     def evade(self):
@@ -584,9 +584,15 @@ class CreatureManager(UnitManager):
         if not self.is_alive:
             return False
 
+        was_oneshot = not self.threat_manager.has_aggro_from(killer)
         # Handle one shot kills leading to player remaining in combat.
-        if not self.threat_manager.has_aggro_from(killer):
-            self.threat_manager.add_threat(killer, from_death=True)
+        if was_oneshot and killer:
+            if self.creature_group:
+                # AI will not trigger since NPC was unable to start attacking, make the call for attack start event.
+                self.creature_group.on_members_attack_start(self, killer)
+                # Notify member death.
+                self.creature_group.on_member_died(self)
+            self.threat_manager.add_threat(killer)
 
         if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             charmer_or_summoner = killer.get_charmer_or_summoner()
@@ -614,9 +620,6 @@ class CreatureManager(UnitManager):
 
         if self.loot_manager.has_loot():
             self.set_lootable(True)
-
-        if self.creature_group:
-            self.creature_group.on_member_died(self)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
         return super().die(killer)
