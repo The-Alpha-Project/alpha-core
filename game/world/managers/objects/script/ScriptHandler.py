@@ -10,7 +10,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ChatMsgs, ScriptTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
-from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions, ScriptCommands
+from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions, ScriptCommands, SetHomePositionOptions
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from utils.Logger import Logger
 
@@ -79,7 +79,7 @@ class ScriptHandler():
                         Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} not found.')
 
                 case ScriptCommands.SCRIPT_COMMAND_EMOTE: # emote
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_EMOTE ' + str(script.datalong))
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_EMOTE')
                     script.source.play_emote(script.datalong)
 
                 case ScriptCommands.SCRIPT_COMMAND_FIELD_SET: # field set
@@ -130,11 +130,11 @@ class ScriptHandler():
                         MapManager.spawn_object(world_object_instance = creature_manager)
 
                 case ScriptCommands.SCRIPT_COMMAND_OPEN_DOOR: # open door
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_OPEN_DOOR not implemented yet')
+                    # not used in 0.5.3
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CLOSE_DOOR: # close door
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_CLOSE_DOOR not implemented yet')
+                    # not used in 0.5.3
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: # activate object
@@ -154,12 +154,11 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: # create item
-                    if not script.source.inventory:
+                    if script.source.inventory:
+                        script.source.inventory.add_item(script.datalong, script.datalong2)
+                    else:
                         Logger.warning('ScriptHandler: No inventory found, aborting SCRIPT_COMMAND_CREATE_ITEM')
-                        return
-                    script.source.inventory.add_item(script.datalong, script.datalong2)
-                    pass
-
+                    
                 case ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: # despawn creature
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_DESPAWN_CREATURE not implemented yet')
                     pass
@@ -205,11 +204,11 @@ class ScriptHandler():
                     script.source.set_stand_state(script.datalong)
 
                 case ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: # modify threat
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_MODIFY_THREAT not implemented yet')
+                    # not used in 0.5.3
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: # send taxi path
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SEND_TAXI_PATH not implemented yet')
+                    # not used in 0.5.3
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_TERMINATE_SCRIPT: # terminate script
@@ -229,8 +228,13 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SET_HOME_POSITION: # set home position
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_HOME_POSITION not implemented yet')
-                    pass                
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_SET_HOME_POSITION')
+                    if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
+                        pass
+                        # TODO: Implement
+                    else:                        
+                        # all other options are unused in 0.5.3
+                        pass                
 
                 case ScriptCommands.SCRIPT_COMMAND_TURN_TO: # turn to target
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_TURN_TO') 
@@ -327,7 +331,8 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SET_SHEATH: # set sheath
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_SHEATH not implemented yet')
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_SET_SHEATH')
+                    script.source.set_weapon_mode(script.datalong)
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: # make invincible
@@ -426,7 +431,14 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_ADD_THREAT: # add threat
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT not implemented yet')
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT')
+                    if script.target:
+                        if script.source.is_alive and script.source.in_combat:
+                            script.source.threat_manager.add_threat(script.target, script.datalong)
+                        else:
+                            Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: source is not in combat')
+                    else:
+                        Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: invalid target')
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SUMMON_OBJECT: # summon object
@@ -434,7 +446,7 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SET_FLY: # set flying
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_FLY not implemented yet')
+                    # not used in 0.5.3
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_JOIN_CREATURE_GROUP: # join creature group
@@ -462,7 +474,7 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: # set gossip menu
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_GOSSIP_MENU not implemented yet')
+                    # not implemented in 0.5.3
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SEND_SCRIPT_EVENT: # send script event
