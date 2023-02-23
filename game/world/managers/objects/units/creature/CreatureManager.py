@@ -430,6 +430,7 @@ class CreatureManager(UnitManager):
                 Logger.warning(f'Start: {self.location}')
                 Logger.warning(f'End: {self.spawn_position}')
             self.near_teleport(self.spawn_position)
+            self.is_evading = False
         else:
             self.movement_manager.move_home(waypoints)
 
