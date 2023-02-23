@@ -1,6 +1,4 @@
-from utils.Logger import Logger
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from utils.constants.MiscCodes import CreatureAIEventTypes
 import random
 
