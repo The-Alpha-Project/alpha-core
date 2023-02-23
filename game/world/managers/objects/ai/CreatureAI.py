@@ -38,7 +38,7 @@ class CreatureAI:
             self.last_alert_time = 0
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
-            self.ai_event_handler = AIEventHandler()
+            self.ai_event_handler = AIEventHandler(creature)
             self.entered_combat = False
 
     def load_spell_list(self):
@@ -162,8 +162,8 @@ class CreatureAI:
             self.creature.spell_manager.apply_passive_spell_effects(spell)
 
         # Run on-spawn AI scripts
-        self.ai_event_handler.on_spawn(self.creature)
-        self.ai_event_handler.on_idle(self.creature)
+        self.ai_event_handler.on_spawn()
+        self.ai_event_handler.on_idle()
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):
@@ -394,7 +394,7 @@ class CreatureAI:
 
     # Called for reaction at enter to combat if not in combat yet (enemy can be None).
     def enter_combat(self, unit = None):
-        self.ai_event_handler.on_enter_combat(self.creature)	
+        self.ai_event_handler.on_enter_combat()	
         pass
 
     # Called when leaving combat.
@@ -411,7 +411,7 @@ class CreatureAI:
     # Note: it for recalculation damage or special reaction at damage
     # for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
     def damage_taken(self, attacker, damage):
-        self.ai_event_handler.on_damage_taken(self.creature)
+        self.ai_event_handler.on_damage_taken()
         pass
 
     # Called at any heal cast/item used (call non implemented).
