@@ -30091,7 +30091,23 @@ begin not atomic
         ENGINE=MyISAM
         ;
 
-
+        CREATE TABLE `conditions` (
+            `condition_entry` MEDIUMINT(8) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
+            `type` TINYINT(3) NOT NULL DEFAULT '0' COMMENT 'Type of the condition',
+            `value1` INT(11) NOT NULL DEFAULT '0' COMMENT 'data field one for the condition',
+            `value2` INT(11) NOT NULL DEFAULT '0' COMMENT 'data field two for the condition',
+            `value3` INT(11) NOT NULL DEFAULT '0' COMMENT 'data field three for the condition',
+            `value4` INT(11) NOT NULL DEFAULT '0' COMMENT 'data field four for the condition',
+            `flags` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'general condition flags',
+            PRIMARY KEY (`condition_entry`) USING BTREE,
+            UNIQUE INDEX `unique_conditions` (`type`, `value1`, `value2`, `flags`, `value3`, `value4`) USING BTREE
+        )
+        COMMENT='Condition System'
+        COLLATE='utf8mb3_general_ci'
+        ENGINE=MyISAM
+        ROW_FORMAT=FIXED
+        AUTO_INCREMENT=1678803
+        ;
 
         INSERT INTO applied_updates VALUES ('180220231');
     end if;
