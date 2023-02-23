@@ -3,7 +3,10 @@ import random
 import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.maps import MapManager
 from game.world.managers.objects.units import DamageInfoHolder
+from game.world.managers.objects.units.creature import CreatureBuilder
+from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ChatMsgs, ScriptTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
@@ -113,12 +116,18 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_RESPAWN_GAMEOBJECT: # respawn game object
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_RESPAWN_GAMEOBJECT not implemented yet')
+                    # not implemented for 0.5.3 as it seems to be never used                    
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_TEMP_SUMMON_CREATURE: # summon creature
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_TEMP_SUMMON_CREATURE not implemented yet')
-                    pass
+                    # TODO: add support for datalong3 (unique_limit) and datalong4 (unique_distance)
+
+                    creature_manager = CreatureBuilder.create(script.datalong, script.target, \
+                         script.source.map_id, script.source.instance_id, location = Vector(script.x, script.y, script.z, script.o), \
+                         summoner = script.source, faction = script.source.faction, ttl = script.datalong2, \
+                         subtype = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                    if creature_manager is not None:
+                        MapManager.spawn_object(world_object_instance = creature_manager)
 
                 case ScriptCommands.SCRIPT_COMMAND_OPEN_DOOR: # open door
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_OPEN_DOOR not implemented yet')

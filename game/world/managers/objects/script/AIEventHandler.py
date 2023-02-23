@@ -92,6 +92,6 @@ class AIEventHandler():
                         script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(choices))
                         if script:
                             self.creature.script_handler.enqueue_ai_script(self.creature, script)
+                            break
                     
-                    break
         
