@@ -315,12 +315,15 @@ class InventoryManager(object):
         if dest_container.is_backpack or source_container.is_backpack:
             self.build_update()
 
-    def get_item_count(self, entry):
+    def get_item_count(self, entry, include_bank=False):
         count = 0
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
             for slot, item in list(container.sorted_slots.items()):
+                if not include_bank and self.is_bank_slot(container_slot, slot):
+                    continue
+
                 if item.item_template.entry == entry:
                     count += item.item_instance.stackcount
         return count
@@ -381,9 +384,9 @@ class InventoryManager(object):
         if not swap_item and clear_slot:
             self.owner.quest_manager.pop_item(target_item.item_template.entry)
 
-    def remove_items(self, entry, count):
+    def remove_items(self, entry, count, include_bank=False):
         for container_slot in self.containers:
-            count = self.remove_from_container(entry, count, container_slot)
+            count = self.remove_from_container(entry, count, container_slot, include_bank=include_bank)
             if count == 0:
                 break
 
@@ -407,7 +410,7 @@ class InventoryManager(object):
 
         return item_count  # Return the amount of items not removed
 
-    def remove_from_container(self, item_entry, item_count, container_slot):
+    def remove_from_container(self, item_entry, item_count, container_slot, include_bank=False):
         if item_count == 0:
             return 0
 
@@ -416,6 +419,10 @@ class InventoryManager(object):
             return item_count
 
         for slot, item in list(target_container.sorted_slots.items()):
+            if not include_bank and target_container.is_backpack and \
+                    self.is_bank_slot(InventorySlots.SLOT_INBACKPACK, slot):
+                continue
+
             if item.item_template.entry == item_entry:
                 if item_count < item.item_instance.stackcount:
                     new_stack_count = item.item_instance.stackcount - item_count
@@ -485,7 +492,7 @@ class InventoryManager(object):
         amount = count
 
         # Reached unique limit
-        if 0 < item_template.max_count <= self.get_item_count(item_template.entry):
+        if 0 < item_template.max_count <= self.get_item_count(item_template.entry, include_bank=True):
             return InventoryError.BAG_ITEM_MAX_COUNT_EXCEEDED
 
         # Check bags
