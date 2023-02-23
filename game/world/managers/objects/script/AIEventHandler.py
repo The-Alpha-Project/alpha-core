@@ -55,14 +55,14 @@ class AIEventHandler():
                 if event.event_type == CreatureAIEventTypes.AI_EVENT_TYPE_FLEE_AT_LOW_HP:
                     Logger.debug('AIEventHandler.on_damage_taken() AI_EVENT_TYPE_FLEE_AT_LOW_HP found')
                     # in rare cases event_param1 is not the health breakpoint but something else?
-                    if event.event1_param > 0 and event.event_param1 <= 100 and event.event_param1 <= (creature.health / creature.max_health) * 100 and creature.script_handler.last_flee_event != event: 
+                    if event.event_param1 > 0 and event.event_param1 <= 100 and event.event_param1 <= (creature.health / creature.max_health) * 100 and creature.script_handler.last_flee_event != event: 
                         script = WorldDatabaseManager.creature_ai_script_get_by_id(event.action1_script)
                         if script:
                             creature.script_handler.last_flee_event = event
                             creature.script_handler.enqueue_ai_script(creature, script)
                             Logger.debug(f'AIEventHandler.on_damage_taken() AI_EVENT_TYPE_FLEE_AT_LOW_HP triggered at {str(event.event_param1)}% health')
                     # if event1_param is zero the script should be run on aggro
-                    elif event.event1_param == 0 and creature.script_handler.last_flee_event != event:
+                    elif event.event_param1 == 0 and creature.script_handler.last_flee_event != event:
                         script = WorldDatabaseManager.creature_ai_script_get_by_id(event.action1_script)
                         if script:
                             creature.script_handler.last_flee_event = event
