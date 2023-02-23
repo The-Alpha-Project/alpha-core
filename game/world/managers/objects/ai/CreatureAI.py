@@ -411,6 +411,7 @@ class CreatureAI:
     # Note: it for recalculation damage or special reaction at damage
     # for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
     def damage_taken(self, attacker, damage):
+        self.ai_event_handler.on_damage_taken(self.creature)
         pass
 
     # Called at any heal cast/item used (call non implemented).

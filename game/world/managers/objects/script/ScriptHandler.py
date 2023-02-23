@@ -44,6 +44,7 @@ class ScriptHandler():
         self.ooc_event = None
         self.ooc_last = 0
         self.ooc_target = None
+        self.last_flee_event = None
 
     def handle_script(self, script):
 
@@ -534,22 +535,22 @@ class ScriptHandler():
             case ScriptTypes.SCRIPT_TYPE_QUEST_END:
                 scripts = WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
             case ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT:
-                # TODO: Implement
+                Logger.warning('ScriptHandler: SCRIPT_TYPE_CREATURE_MOVEMENT not implemented yet')
                 pass
             case ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL:
-                # TODO: Implement
+                Logger.warning('ScriptHandler: SCRIPT_TYPE_CREATURE_SPELL not implemented yet')
                 pass
             case ScriptTypes.SCRIPT_TYPE_GAMEOBJECT:
-                # TODO: Implement
+                Logger.warning('ScriptHandler: SCRIPT_TYPE_GAMEOBJECT not implemented yet')
                 pass
             case ScriptTypes.SCRIPT_TYPE_GENERIC:
-                # TODO: Implement
+                Logger.warning('ScriptHandler: SCRIPT_TYPE_GENERIC not implemented yet')
                 pass
             case ScriptTypes.SCRIPT_TYPE_GOSSIP:
-                # TODO: Implement
+                Logger.warning('ScriptHandler: SCRIPT_TYPE_GOSSIP not implemented yet')
                 pass
             case ScriptTypes.SCRIPT_TYPE_SPELL:
-                # TODO: Implement
+                Logger.warning('ScriptHandler: SCRIPT_TYPE_SPELL not implemented yet')
                 pass
 
         if scripts:
@@ -584,6 +585,7 @@ class ScriptHandler():
         self.ooc_repeat_max_delay = 0
         self.ooc_last = 0
         self.ooc_target = None
+        self.last_flee_event = None
 
     def update(self):
         if len(self.script_queue) > 0:

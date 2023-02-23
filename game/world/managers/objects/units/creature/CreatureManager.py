@@ -641,6 +641,8 @@ class CreatureManager(UnitManager):
         if not super().receive_damage(damage_info, source, casting_spell=casting_spell, is_periodic=is_periodic):
             return False
 
+        self.object_ai.damage_taken(source, damage_info)
+
         # Handle COMBAT_PING creature static flag.
         if self.has_combat_ping() and not self.in_combat:
             summoner = self.get_charmer_or_summoner()
