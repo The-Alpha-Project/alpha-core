@@ -419,16 +419,17 @@ class CreatureManager(UnitManager):
         # Get the path we are using to get back to spawn location.
         failed, in_place, waypoints = MapManager.calculate_path(self.map_id, self.location, self.spawn_position)
 
+        # We are at spawn position already.
         if in_place:
             return
 
-        # Destroy instance if too far away from spawn or unable to acquire a valid path.
+        # Near teleport the unit instance if unable to acquire a valid path.
         if failed or self.location.distance(waypoints[-1]) > Distances.CREATURE_EVADE_DISTANCE * 2:
             if failed:
                 Logger.warning(f'Unit: {self.get_name()}, Namigator was unable to provide a valid return home path:')
                 Logger.warning(f'Start: {self.location}')
                 Logger.warning(f'End: {self.spawn_position}')
-            self.destroy()
+            self.near_teleport(self.spawn_position)
         else:
             self.movement_manager.move_home(waypoints)
 
@@ -650,6 +651,16 @@ class CreatureManager(UnitManager):
         else:
             self.dynamic_flags &= ~UnitDynamicTypes.UNIT_DYNAMIC_LOOTABLE
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+
+    def near_teleport(self, location):
+        if not MapManager.validate_teleport_destination(self.map_id, location.x, location.y):
+            return False
+        self.movement_manager.reset()
+        self.location = location.copy()
+        MapManager.send_surrounding(self.get_heartbeat_packet(), self, False)
+        if location == self.spawn_position:
+            self.on_at_home()
+        return True
 
     # override
     def get_name(self):
