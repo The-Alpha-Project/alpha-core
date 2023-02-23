@@ -80,7 +80,17 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_EMOTE: # emote
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_EMOTE')
-                    script.source.play_emote(script.datalong)
+                    emotes = []
+                    if script.datalong != 0:
+                        emotes.append(script.datalong)
+                    if script.datalong2 != 0:
+                        emotes.append(script.datalong2)
+                    if script.datalong3 != 0:
+                        emotes.append(script.datalong3)
+                    if script.datalong4 != 0:
+                        emotes.append(script.datalong4)
+
+                    script.source.play_emote(random.choice(emotes))
 
                 case ScriptCommands.SCRIPT_COMMAND_FIELD_SET: # field set
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_FIELD_SET not implemented yet')
@@ -551,7 +561,7 @@ class ScriptHandler():
 
         if script:
             self.ooc_target = target
-                        
+
             script.delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
 
             # some events have a repeat delay of 0, which means they should not repeat

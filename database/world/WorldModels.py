@@ -1169,3 +1169,15 @@ class CreatureAIEvent(Base):
     action2_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     action3_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     comment = Column(Text)
+
+class Condition(Base):
+    __tablename__ = 'conditions'
+
+    condition_entry = Column(MEDIUMINT(8), primary_key=True, nullable=False)
+    type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    value1 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    value2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    value3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    value4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    flags = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+

@@ -69,6 +69,7 @@ class WorldLoader:
         WorldLoader.load_factions()
         WorldLoader.load_faction_templates()
         WorldLoader.load_locks()
+        WorldLoader.load_conditions()
 
         # Character related data
         WorldLoader.load_groups()
@@ -647,3 +648,17 @@ class WorldLoader:
                 Logger.progress('Loading guilds...', count, length)
 
         return length
+
+    @staticmethod
+    def load_conditions():
+        conditions = WorldDatabaseManager.conditions_get_all()
+        length = len(conditions)
+        count = 0
+
+        for condition in conditions:
+            WorldDatabaseManager.ConditionHolder.load_condition(condition)
+
+            count += 1
+            Logger.progress('Loading conditions...', count, length)
+
+        return length  

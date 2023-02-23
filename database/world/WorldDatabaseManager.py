@@ -964,3 +964,22 @@ class WorldDatabaseManager(object):
 
         world_db_session.close()
         return res
+
+    # Event conditions.
+    class ConditionHolder:
+        CONDITIONS: dict[int, Condition] = {}
+
+        @staticmethod
+        def load_condition(condition: Condition):
+            WorldDatabaseManager.ConditionHolder.CONDITIONS[condition.condition_entry] = condition
+
+        @staticmethod
+        def condition_get_by_id(condition_id: int) -> Optional[Condition]:
+            return WorldDatabaseManager.ConditionHolder.CONDITIONS.get(condition_id)
+
+    @staticmethod
+    def conditions_get_all() -> list[Condition]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(Condition).all()
+        world_db_session.close()
+        return res
