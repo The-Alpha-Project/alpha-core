@@ -107,12 +107,8 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_TELEPORT_TO: # teleport
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_TELEPORT_TO')
-                    try:
-                        script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o))
-                    except:
-                        Logger.warning('ScriptHandler: Could not teleport to map ' + str(script['datalong']))
-                    pass
-
+                    script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o))
+    
                 case ScriptCommands.SCRIPT_COMMAND_QUEST_EXPLORED: # complete quest
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_QUEST_EXPLORED not implemented yet')
                     pass
@@ -146,11 +142,8 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: # cast spell
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_CAST_SPELL')
-                    try:                        
-                        script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, script.datalong2, validate=False)                        
-                    except:
-                        Logger.warning('ScriptHandler: Could not cast spell ' + str(script.datalong))
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_CAST_SPELL')                             
+                    script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, script.datalong2, validate=False)                        
 
                 case ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: # play sound
                     # can't be implemented as opcodes to play sounds are not implemented in 0.5.3                    
@@ -205,10 +198,7 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_STAND_STATE: # set stand state
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_STAND_STATE')
-                    try:
-                        script.source.set_stand_state(script.datalong)
-                    except:
-                        Logger.warning('ScriptHandler: Could not set stand state ' + str(script['datalong']))
+                    script.source.set_stand_state(script.datalong)
 
                 case ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: # modify threat
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_MODIFY_THREAT not implemented yet')
@@ -237,15 +227,9 @@ class ScriptHandler():
                 case ScriptCommands.SCRIPT_COMMAND_TURN_TO: # turn to target
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_TURN_TO') 
                     if script.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
-                        try:
-                            script.source.movement_manager.send_face_target(script.player_mgr)
-                        except:
-                            Logger.warning('ScriptHandler: Could not turn to face target')
-                        else:
-                            try:
-                                script.source.movement_manager.send_face_angle(script.o)
-                            except:
-                                Logger.warning('ScriptHandler: Could not turn to face angle')
+                        script.source.movement_manager.send_face_target(script.player_mgr)
+                    else:
+                        script.source.movement_manager.send_face_angle(script.o)
 
                 case ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: # meeting stone
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_MEETINGSTONE not implemented yet')
@@ -313,13 +297,10 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: # make invincible
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_INVINCIBILITY')
-                    try:
-                        if script.datalong2 == 1:
-                            script.source.unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
-                        else:
-                            script.source.unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
-                    except:
-                        Logger.warning('ScriptHandler: Could not set invincibility')
+                    if script.datalong2 == 1:
+                        script.source.unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
+                    else:
+                        script.source.unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
 
                 case ScriptCommands.SCRIPT_COMMAND_GAME_EVENT: # game event
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_GAME_EVENT not implemented yet')
