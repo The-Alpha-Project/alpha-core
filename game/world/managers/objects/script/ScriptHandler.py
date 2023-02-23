@@ -515,10 +515,10 @@ class ScriptHandler():
         script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(self.ooc_scripts))
 
         if script:
-            self.ooc_spawn_min_delay = event.event_param1
-            self.ooc_spawn_max_delay = event.event_param2
-            self.ooc_repeat_min_delay = event.event_param3            
-            self.ooc_repeat_max_delay = event.event_param4
+            self.ooc_spawn_min_delay = event.event_param1 / 1000
+            self.ooc_spawn_max_delay = event.event_param2 / 1000
+            self.ooc_repeat_min_delay = event.event_param3 / 1000
+            self.ooc_repeat_max_delay = event.event_param4 / 1000
             self.ooc_target = target
                         
             script.delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
