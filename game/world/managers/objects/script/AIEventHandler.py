@@ -19,6 +19,8 @@ class AIEventHandler():
                     break
     
     def on_enter_combat(self):        
+        self.creature.script_handler.reset() # reset any scripts that were queued before combat (e.g. on spawn)
+
         events = WorldDatabaseManager.creature_ai_event_get_by_creature_id(self.creature.entry)
 
         if events:            

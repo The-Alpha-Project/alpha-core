@@ -553,7 +553,13 @@ class ScriptHandler():
             self.ooc_target = target
                         
             script.delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
-            self.ooc_next = time.time() + script.delay
+
+            # some events have a repeat delay of 0, which means they should not repeat
+            if self.ooc_repeat_min_delay > 0 and self.ooc_repeat_max_delay > 0:
+                self.ooc_next = time.time() + script.delay
+            else:
+                self.ooc_next = None
+
             self.enqueue_ai_script(self.ooc_target, script)
 
     def enqueue_script(self, source, target, script_type, quest_id = None):
@@ -626,7 +632,7 @@ class ScriptHandler():
                     self.script_queue.remove(script)   
 
         if self.ooc_scripts:            
-            if time.time() >= self.ooc_next and not self.ooc_running:                
+            if self.ooc_next is not None and time.time() >= self.ooc_next and not self.ooc_running:                
                 self.ooc_running = True
                 script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(self.ooc_scripts))
 
