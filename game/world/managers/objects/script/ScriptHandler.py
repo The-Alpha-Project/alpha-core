@@ -67,11 +67,8 @@ class ScriptHandler():
                         if text_to_say is not None:     
                             ChatManager.send_monster_emote_message(script.source, script.source.guid, broadcast_message.language_id, text_to_say,
                             ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
-                            if broadcast_message.emote_id1 != 0:    
-                                try:                        
+                            if broadcast_message.emote_id1 != 0:                                    
                                     script.source.play_emote(broadcast_message.emote_id1)
-                                except:
-                                    Logger.warning(f'ScriptHandler: Could not play emote {broadcast_message.emote_id1}')
                             # neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them
                         else:
                             Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} has no text to say.')
@@ -80,10 +77,7 @@ class ScriptHandler():
 
                 case ScriptCommands.SCRIPT_COMMAND_EMOTE: # emote
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_EMOTE ' + str(script.datalong))
-                    try:
-                        script.source.play_emote(script.datalong)
-                    except:
-                        Logger.warning('ScriptHandler: Could not play emote ' + str(script.datalong))
+                    script.source.play_emote(script.datalong)
 
                 case ScriptCommands.SCRIPT_COMMAND_FIELD_SET: # field set
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_FIELD_SET not implemented yet')
@@ -218,7 +212,11 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_ENTER_EVADE_MODE: # enter evade mode
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ENTER_EVADE_MODE not implemented yet')
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_ENTER_EVADE_MODE')
+                    if script.source and script.source.object_ai:
+                        script.source.evade()
+                    else:
+                        Logger.warning('ScriptHandler: SCRIPT_COMMAND_ENTER_EVADE_MODE failed, source has no AI')
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SET_HOME_POSITION: # set home position
@@ -233,7 +231,7 @@ class ScriptHandler():
                         script.source.movement_manager.send_face_angle(script.o)
 
                 case ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: # meeting stone
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_MEETINGSTONE not implemented yet')
+                    # not implemented in 0.5.3 as there are no meeting stones
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA: # set instance data
