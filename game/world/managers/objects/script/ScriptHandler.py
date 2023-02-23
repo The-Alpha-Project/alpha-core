@@ -214,7 +214,7 @@ class ScriptHandler():
                 case ScriptCommands.SCRIPT_COMMAND_ENTER_EVADE_MODE: # enter evade mode
                     Logger.debug('ScriptHandler: SCRIPT_COMMAND_ENTER_EVADE_MODE')
                     if script.source and script.source.object_ai:
-                        script.source.evade()
+                        script.source.leave_combat()
                     else:
                         Logger.warning('ScriptHandler: SCRIPT_COMMAND_ENTER_EVADE_MODE failed, source has no AI')
                     pass
