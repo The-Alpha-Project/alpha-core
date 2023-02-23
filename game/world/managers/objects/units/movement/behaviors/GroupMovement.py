@@ -1,3 +1,4 @@
+from game.world.managers.maps.helpers import CellUtils
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveType
@@ -82,7 +83,12 @@ class GroupMovement(BaseMovement):
 
         # Check if unit is lagging.
         if creature_distance > group_member.distance_leader:
-            self._is_lagging = group_member.distance_leader - creature_distance > group_member.distance_leader * 2
+            # If distance is greater than current cell size, teleport the unit to the location.
+            if creature_distance > CellUtils.CELL_SIZE:
+                self.unit.near_teleport(location)
+                return None, 0
+            if not self._is_lagging:
+                self._is_lagging = creature_distance > group_member.distance_leader * 2
         else:
             self._is_lagging = False
 

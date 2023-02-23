@@ -104,6 +104,9 @@ class GridManager:
         cell: Cell = self._get_create_cell(world_object.location, world_object.map_id, world_object.instance_id)
         cell.add_world_object(world_object)
 
+        # TODO: Need to change the way we handle this.
+        #  There must be active/inactive world objects, not cells.
+        #  Do leave maps/navs loading only for players.
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             affected_cells = list(self._get_surrounding_cells_by_object(world_object))
             # Try to load tile maps for affected cells if needed.

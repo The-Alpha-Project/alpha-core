@@ -454,7 +454,7 @@ class CreatureManager(UnitManager):
     # override
     # TODO: Quest active escort npc, other cases?
     def is_active_object(self):
-        return (self.has_waypoints_type() and self.is_moving()) \
+        return (self.has_waypoints_type() or self.creature_group) \
             or len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self)
 
     def has_waypoints_type(self):
@@ -657,6 +657,7 @@ class CreatureManager(UnitManager):
             return False
         self.movement_manager.reset()
         self.location = location.copy()
+        MapManager.update_object(self)
         MapManager.send_surrounding(self.get_heartbeat_packet(), self, False)
         if location == self.spawn_position:
             self.on_at_home()
