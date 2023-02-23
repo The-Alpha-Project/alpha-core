@@ -3,8 +3,9 @@ import random
 import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
+from game.world.managers.objects.units import DamageInfoHolder
 from utils.constants.MiscCodes import ChatMsgs, ScriptTypes
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions, ScriptCommands
 from game.world.managers.objects.units.player.ChatManager import ChatManager
@@ -248,8 +249,20 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_REMOVE_ITEM: # remove item
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_REMOVE_ITEM not implemented yet')
-                    pass
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_REMOVE_ITEM')
+                    src = None
+                    if script.source and not script.target:
+                        src = script.source
+                    elif script.target and not script.source:
+                        src = script.target
+                    elif script.source and script.target:
+                        src = script.source if script.source.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED else \
+                            script.target if script.target.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED else None
+
+                    if src and src.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
+                        src.inventory.remove_items(script.datalong, script.datalong2)
+                    else:
+                        Logger.warning('ScriptHandler: Neither source nor target are a player, aborting SCRIPT_COMMAND_REMOVE_ITEM')
 
                 case ScriptCommands.SCRIPT_COMMAND_REMOVE_OBJECT: # remove object
                     Logger.warning('ScriptHandler: SCRIPT_COMMAND_REMOVE_OBJECT not implemented yet')
@@ -280,15 +293,30 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_DEAL_DAMAGE: # deal damage
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE not implemented yet')
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE')
+                    if script.target:
+                        damage_to_deal = 0
+                        if script.datalong2 == 1:
+                            # damage is a percentage of the target's health
+                            damage_to_deal = int(script.target.health * (script.datalong / 100))
+                        else:
+                            damage_to_deal = script.datalong
+
+                        if damage_to_deal > 0:
+                            damage_info = DamageInfoHolder(attacker = script.source, victim = script.target, damage = damage_to_deal, school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL)
+                            script.source.deal_damage(damage_info)
+                        else:
+                            Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
+                    else:
+                        Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no target')
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: # zone combat pulse
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ZONE_COMBAT_PULSE not implemented yet')
+                    # not implemented because 0.5.3 didn't know combat pulse                    
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: # call for help
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_CALL_FOR_HELP not implemented yet')
+                    # not implemented because 0.5.3 didn't have call for help
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SET_SHEATH: # set sheath
@@ -307,7 +335,7 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_SET_SERVER_VARIABLE: # set server variable
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_SERVER_VARIABLE not implemented yet')
+                    # not used in any way in 0.5.3
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CREATURE_SPELLS: # add/remove spell list
