@@ -142,8 +142,8 @@ class ScriptHandler():
                     pass
 
                 case ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: # cast spell
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_CAST_SPELL')                             
-                    script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, script.datalong2, validate=False)                        
+                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_CAST_SPELL')    
+                    script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, SpellTargetMask.SELF, validate=False)                        
 
                 case ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: # play sound
                     # can't be implemented as opcodes to play sounds are not implemented in 0.5.3                    
