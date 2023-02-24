@@ -54,468 +54,10 @@ class ScriptHandler:
         self.last_flee_event = None
 
     def handle_script(self, script):
-
-            match script.command:
-                case ScriptCommands.SCRIPT_COMMAND_TALK: # talk
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_TALK')
-                    broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(script.dataint)
-
-                    if broadcast_message: 
-                        text_to_say = None
-                        if script.source.gender is not None and script.source.gender == 0 and broadcast_message.male_text is not None:
-                            text_to_say = broadcast_message.male_text
-                        elif script.source.gender is not None and script.source.gender == 1 and broadcast_message.female_text is not None:
-                            text_to_say = broadcast_message.female_text
-                        else:
-                            text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
-
-                        if text_to_say is not None:     
-                            ChatManager.send_monster_emote_message(script.source, script.source.guid, broadcast_message.language_id, text_to_say,
-                            ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
-                            if broadcast_message.emote_id1 != 0:                                    
-                                    script.source.play_emote(broadcast_message.emote_id1)
-                            # neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them
-                        else:
-                            Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} has no text to say.')
-                    else:
-                        Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} not found.')
-
-                case ScriptCommands.SCRIPT_COMMAND_EMOTE: # emote
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_EMOTE')
-                    emotes = []
-                    if script.datalong != 0:
-                        emotes.append(script.datalong)
-                    if script.datalong2 != 0:
-                        emotes.append(script.datalong2)
-                    if script.datalong3 != 0:
-                        emotes.append(script.datalong3)
-                    if script.datalong4 != 0:
-                        emotes.append(script.datalong4)
-
-                    script.source.play_emote(random.choice(emotes))
-
-                case ScriptCommands.SCRIPT_COMMAND_FIELD_SET: # field set
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_FIELD_SET not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_MOVE_TO: # move 
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_MOVE_TO not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_MODIFY_FLAGS: # modify NPC flags
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_MODIFY_FLAGS')
-                    if script.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
-                        pass
-                    elif script.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
-                        pass
-                    else: 
-                        pass
-
-                case ScriptCommands.SCRIPT_COMMAND_INTERRUPT_CASTS: # stop cast
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_INTERRUPT_CASTS not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_TELEPORT_TO: # teleport
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_TELEPORT_TO')
-                    script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o))
-    
-                case ScriptCommands.SCRIPT_COMMAND_QUEST_EXPLORED: # complete quest
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_QUEST_EXPLORED not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_KILL_CREDIT: # kill credit
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_KILL_CREDIT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_RESPAWN_GAMEOBJECT: # respawn game object
-                    # not implemented for 0.5.3 as it seems to be never used                    
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_TEMP_SUMMON_CREATURE: # summon creature
-                    # TODO: add support for datalong3 (unique_limit) and datalong4 (unique_distance)
-
-                    creature_manager = CreatureBuilder.create(script.datalong, script.target, \
-                         script.source.map_id, script.source.instance_id, location = Vector(script.x, script.y, script.z, script.o), \
-                         summoner = script.source, faction = script.source.faction, ttl = script.datalong2, \
-                         subtype = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
-                    if creature_manager is not None:
-                        MapManager.spawn_object(world_object_instance = creature_manager)
-
-                case ScriptCommands.SCRIPT_COMMAND_OPEN_DOOR: # open door
-                    # not used in 0.5.3
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_CLOSE_DOOR: # close door
-                    # not used in 0.5.3
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: # activate object
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ACTIVATE_OBJECT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_REMOVE_AURA: # remove aura
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_REMOVE_AURA not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: # cast spell
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_CAST_SPELL')    
-                    script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, SpellTargetMask.SELF, validate=False)                        
-
-                case ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: # play sound
-                    # can't be implemented as opcodes to play sounds are not implemented in 0.5.3                    
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: # create item
-                    if script.source.inventory:
-                        script.source.inventory.add_item(script.datalong, script.datalong2)
-                    else:
-                        Logger.warning('ScriptHandler: No inventory found, aborting SCRIPT_COMMAND_CREATE_ITEM')
-                    
-                case ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: # despawn creature
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_DESPAWN_CREATURE not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_EQUIPMENT: # set equipment
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_EQUIPMENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_MOVEMENT: # start waypoint movement
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_MOVEMENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_ACTIVEOBJECT: # set active object
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_ACTIVEOBJECT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_FACTION: # set faction
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_FACTION not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL: # morph to entry or model
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL: # mount to entry or model
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_RUN: # set run
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_RUN not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ATTACK_START: # attack start                    
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ATTACK_START not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_UPDATE_ENTRY: # update quest entry
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_UPDATE_ENTRY not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_STAND_STATE: # set stand state
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_STAND_STATE')
-                    script.source.set_stand_state(script.datalong)
-
-                case ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: # modify threat
-                    # not used in 0.5.3
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: # send taxi path
-                    # not used in 0.5.3
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_TERMINATE_SCRIPT: # terminate script
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_TERMINATE_SCRIPT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_TERMINATE_CONDITION: # terminate condition
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_TERMINATE_CONDITION not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ENTER_EVADE_MODE: # enter evade mode
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_ENTER_EVADE_MODE')
-                    if script.source and script.source.object_ai:
-                        script.source.leave_combat()
-                    else:
-                        Logger.warning('ScriptHandler: SCRIPT_COMMAND_ENTER_EVADE_MODE failed, source has no AI')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_HOME_POSITION: # set home position
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_SET_HOME_POSITION')
-                    if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
-                        pass
-                        # TODO: Implement
-                    else:                        
-                        # all other options are unused in 0.5.3
-                        pass                
-
-                case ScriptCommands.SCRIPT_COMMAND_TURN_TO: # turn to target
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_TURN_TO') 
-                    if script.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
-                        script.source.movement_manager.send_face_target(script.player_mgr)
-                    else:
-                        script.source.movement_manager.send_face_angle(script.o)
-
-                case ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: # meeting stone
-                    # not implemented in 0.5.3 as there are no meeting stones
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA: # set instance data
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_INST_DATA not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA64: # set instance data64
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_INST_DATA64 not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_START_SCRIPT: # start script
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_START_SCRIPT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_REMOVE_ITEM: # remove item
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_REMOVE_ITEM')
-                    src = None
-                    if script.source and not script.target:
-                        src = script.source
-                    elif script.target and not script.source:
-                        src = script.target
-                    elif script.source and script.target:
-                        src = script.source if script.source.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED else \
-                            script.target if script.target.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED else None
-
-                    if src and src.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
-                        src.inventory.remove_items(script.datalong, script.datalong2)
-                    else:
-                        Logger.warning('ScriptHandler: Neither source nor target are a player, aborting SCRIPT_COMMAND_REMOVE_ITEM')
-
-                case ScriptCommands.SCRIPT_COMMAND_REMOVE_OBJECT: # remove object
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_REMOVE_OBJECT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_MELEE_ATTACK: # set melee attack
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_MELEE_ATTACK not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_COMBAT_MOVEMENT: # set combat movement
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_COMBAT_MOVEMENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_PHASE: # set phase
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_PHASE not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANDOM: # set phase random
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_PHASE_RANDOM not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANGE: # set phase range
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_PHASE_RANGE not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_FLEE: # flee
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_FLEE not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_DEAL_DAMAGE: # deal damage
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE')
-                    if script.target:
-                        damage_to_deal = 0
-                        if script.datalong2 == 1:
-                            # damage is a percentage of the target's health
-                            damage_to_deal = int(script.target.health * (script.datalong / 100))
-                        else:
-                            damage_to_deal = script.datalong
-
-                        if damage_to_deal > 0:
-                            damage_info = DamageInfoHolder(attacker = script.source, victim = script.target, damage = damage_to_deal, school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL)
-                            script.source.deal_damage(damage_info)
-                        else:
-                            Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
-                    else:
-                        Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no target')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: # zone combat pulse
-                    # not implemented because 0.5.3 didn't know combat pulse                    
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: # call for help
-                    # not implemented because 0.5.3 didn't have call for help
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_SHEATH: # set sheath
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_SET_SHEATH')
-                    script.source.set_weapon_mode(script.datalong)
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: # make invincible
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_INVINCIBILITY')
-                    if script.datalong2 == 1:
-                        script.source.unit_flags += UnitFlags.UNIT_MASK_NON_ATTACKABLE
-                    else:
-                        script.source.unit_flags -= UnitFlags.UNIT_MASK_NON_ATTACKABLE
-
-                case ScriptCommands.SCRIPT_COMMAND_GAME_EVENT: # game event
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_GAME_EVENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_SERVER_VARIABLE: # set server variable
-                    # not used in any way in 0.5.3
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_CREATURE_SPELLS: # add/remove spell list
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_CREATURE_SPELLS not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_REMOVE_GUARDIANS: # remove guardians
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_REMOVE_GUARDIANS not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ADD_SPELL_COOLDOWN: # add spell cooldown
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_SPELL_COOLDOWN not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_REMOVE_SPELL_COOLDOWN: # remove spell cooldown
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_REMOVE_SPELL_COOLDOWN not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_REACT_STATE: # set react state
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_REACT_STATE not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_START_WAYPOINTS: # start waypoints
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_START_WAYPOINTS not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_START_MAP_EVENT: # start scripted event
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_START_MAP_EVENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_END_MAP_EVENT: # end scripted event
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_END_MAP_EVENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ADD_MAP_EVENT_TARGET: # add event target
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_MAP_EVENT_TARGET not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_REMOVE_MAP_EVENT_TARGET: # remove event target
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_REMOVE_MAP_EVENT_TARGET not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_MAP_EVENT_DATA: # set map event data
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_MAP_EVENT_DATA not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SEND_MAP_EVENT: # send map event
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SEND_MAP_EVENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_DEFAULT_MOVEMENT: # set default movement
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_DEFAULT_MOVEMENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_START_SCRIPT_FOR_ALL: # start script for all
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_START_SCRIPT_FOR_ALL not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_EDIT_MAP_EVENT: # change map event condition
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_EDIT_MAP_EVENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_FAIL_QUEST: # fail quest
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_FAIL_QUEST not implemented yet')
-                    pass                
-
-                case ScriptCommands.SCRIPT_COMMAND_RESPAWN_CREATURE: # respawn
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_RESPAWN_CREATURE not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ASSIST_UNIT: # assist unit
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ASSIST_UNIT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_COMBAT_STOP: # combat stop
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_COMBAT_STOP not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ADD_AURA: # add aura
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_AURA not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_ADD_THREAT: # add threat
-                    Logger.debug('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT')
-                    if script.target:
-                        if script.source.is_alive and script.source.in_combat:
-                            script.source.threat_manager.add_threat(script.target, script.datalong)
-                        else:
-                            Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: source is not in combat')
-                    else:
-                        Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: invalid target')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SUMMON_OBJECT: # summon object
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SUMMON_OBJECT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_FLY: # set flying
-                    # not used in 0.5.3
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_JOIN_CREATURE_GROUP: # join creature group
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_JOIN_CREATURE_GROUP not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_LEAVE_CREATURE_GROUP: # leave creature group
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_LEAVE_CREATURE_GROUP not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_GO_STATE: # set go state
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_GO_STATE not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_DESPAWN_GAMEOBJECT: #  despawn gameobject
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_DESPAWN_GAMEOBJECT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_LOAD_GAMEOBJECT: # load gameobject
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_LOAD_GAMEOBJECT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_QUEST_CREDIT: # quest credit
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_QUEST_CREDIT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: # set gossip menu
-                    # not implemented in 0.5.3
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SEND_SCRIPT_EVENT: # send script event
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SEND_SCRIPT_EVENT not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_PVP: # set pvp
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_PVP not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_RESET_DOOR_OR_BUTTON: # reset door or button
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_RESET_DOOR_OR_BUTTON not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_SET_COMMAND_STATE: # set command state
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_SET_COMMAND_STATE not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_PLAY_CUSTOM_ANIM: # play custom anim
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_PLAY_CUSTOM_ANIM not implemented yet')
-                    pass
-
-                case ScriptCommands.SCRIPT_COMMAND_START_SCRIPT_ON_GROUP: # start script on group
-                    Logger.warning('ScriptHandler: SCRIPT_COMMAND_START_SCRIPT_ON_GROUP not implemented yet')
-                    pass
-
-                case _:
-                    Logger.warning('ScriptHandler: Unknown script command ' + str(script.command))
-                    pass
+            if script.command in SCRIPT_COMMANDS:
+                SCRIPT_COMMANDS[script.command](self, script)
+            else:
+                Logger.warning(f'Unknown script command {script.command} for script {script}.')
     
     def enqueue_ai_script(self, source, script):
         if script:
@@ -541,7 +83,6 @@ class ScriptHandler:
                 None,
                 time.time()
             ))    
-            Logger.debug('ScriptHandler: AI script enqueued')
 
     def set_random_ooc_event(self, target, event):
 
@@ -658,3 +199,529 @@ class ScriptHandler:
                     self.enqueue_ai_script(self.ooc_target, script)
                     
                 self.ooc_running = False
+
+    def handle_script_command_talk(self, script):        
+        broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(script.dataint)
+
+        if broadcast_message: 
+            text_to_say = None
+            if script.source.gender is not None and script.source.gender == 0 and broadcast_message.male_text is not None:
+                text_to_say = broadcast_message.male_text
+            elif script.source.gender is not None and script.source.gender == 1 and broadcast_message.female_text is not None:
+                text_to_say = broadcast_message.female_text
+            else:
+                text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
+
+            if text_to_say is not None:     
+                ChatManager.send_monster_emote_message(script.source, script.source.guid, broadcast_message.language_id, text_to_say,
+                ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
+                if broadcast_message.emote_id1 != 0:                                    
+                        script.source.play_emote(broadcast_message.emote_id1)
+                # neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them
+            else:
+                Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} has no text to say.')
+        else:
+            Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} not found.')
+
+
+    def handle_script_command_emote(self, script):
+        emotes = []
+        if script.datalong != 0:
+            emotes.append(script.datalong)
+        if script.datalong2 != 0:
+            emotes.append(script.datalong2)
+        if script.datalong3 != 0:
+            emotes.append(script.datalong3)
+        if script.datalong4 != 0:
+            emotes.append(script.datalong4)
+
+        script.source.play_emote(random.choice(emotes))
+
+    def handle_script_command_field_set(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_field_set not implemented yet')
+        pass
+
+    def handle_script_command_move_to(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_move_to not implemented yet')
+        pass
+
+    def handle_script_command_modify_flags(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_modify_flags not implemented yet')
+        if script.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
+            pass
+        elif script.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
+            pass
+        else: 
+            pass
+
+    def handle_script_command_interrupt_casts(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_interrupt_casts not implemented yet')
+        pass
+
+    def handle_script_command_teleport_to(self, script):
+        script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o))
+
+    def handle_script_command_quest_explored(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_quest_explored not implemented yet')
+        pass
+
+    def handle_script_command_kill_credit(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_kill_credit not implemented yet')
+        pass
+
+    def handle_script_command_respawn_gameobject(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_respawn_gameobject not implemented yet')
+        pass
+
+    def handle_script_command_temp_summon_creature(self, script):
+        # TODO: add support for datalong3 (unique_limit) and datalong4 (unique_distance)
+
+        creature_manager = CreatureBuilder.create(script.datalong, script.target, \
+                script.source.map_id, script.source.instance_id, location = Vector(script.x, script.y, script.z, script.o), \
+                summoner = script.source, faction = script.source.faction, ttl = script.datalong2, \
+                subtype = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+        if creature_manager is not None:
+            MapManager.spawn_object(world_object_instance = creature_manager)
+
+    def handle_script_command_open_door(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_open_door not implemented yet')
+        pass
+
+    def handle_script_command_close_door(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_close_door not implemented yet')
+        pass
+
+    def handle_script_command_activate_object(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_activate_object not implemented yet')
+        pass
+
+    def handle_script_command_remove_aura(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_remove_aura not implemented yet')
+        pass
+
+    def handle_script_command_cast_spell(self, script):
+        script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, SpellTargetMask.SELF, validate=False)
+
+    def handle_script_command_play_sound(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_play_sound not implemented yet')
+        pass
+
+    def handle_script_command_create_item(self, script):
+        if script.source.inventory:
+            script.source.inventory.add_item(script.datalong, script.datalong2)
+        else:
+            Logger.warning('ScriptHandler: No inventory found, aborting SCRIPT_COMMAND_CREATE_ITEM')
+
+    def handle_script_command_despawn_creature(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_despawn_creature not implemented yet')
+        pass
+
+    def handle_script_command_set_equipment(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_equipment not implemented yet')
+        pass
+
+    def handle_script_command_movement(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_movement not implemented yet')
+        pass
+
+    def handle_script_command_set_activeobject(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_activeobject not implemented yet')
+        pass
+
+    def handle_script_command_set_faction(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_faction not implemented yet')
+        pass
+
+    def handle_script_command_morph_to_entry_or_model(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_morph_to_entry_or_model not implemented yet')
+        pass
+
+    def handle_script_command_mount_to_entry_or_model(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_mount_to_entry_or_model not implemented yet')
+        pass
+
+    def handle_script_command_set_run(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_run not implemented yet')
+        pass
+
+    def handle_script_command_attack_start(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_attack_start not implemented yet')
+        pass
+
+    def handle_script_command_update_entry(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
+        pass
+    
+    def handle_script_command_stand_state(self, script):
+        script.source.set_stand_state(script.datalong)
+
+    def handle_script_command_modify_threat(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_modify_threat not implemented yet')
+        pass
+
+    def handle_script_command_send_taxi_path(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_send_taxi_path not implemented yet')
+        pass
+
+    def handle_script_command_terminate_script(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_terminate_script not implemented yet')
+        pass
+
+    def handle_script_command_terminate_condition(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_terminate_condition not implemented yet')
+        pass
+
+    def handle_script_command_enter_evade_mode(self, script):
+        if script.source and script.source.object_ai:
+                        script.source.leave_combat()
+
+    def handle_script_command_set_home_position(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_home_position not implemented yet')
+        if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
+            pass
+            # TODO: Implement
+        else:                        
+            # all other options are unused in 0.5.3
+            pass 
+
+    def handle_script_command_turn_to(self, script):
+        if script.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
+            script.source.movement_manager.send_face_target(script.player_mgr)
+        else:
+            script.source.movement_manager.send_face_angle(script.o)
+
+
+    def handle_script_command_meetingstone(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_meetingstone not implemented yet')
+        pass
+
+    def handle_script_command_set_inst_data(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_inst_data not implemented yet')
+        pass
+
+    def handle_script_command_set_inst_data64(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_inst_data64 not implemented yet')
+        pass
+
+    def handle_script_command_start_script(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_start_script not implemented yet')
+        pass
+
+    def handle_script_command_remove_item(self, script):
+        src = None
+        if script.source and not script.target:
+            src = script.source
+        elif script.target and not script.source:
+            src = script.target
+        elif script.source and script.target:
+            src = script.source if script.source.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED else \
+                script.target if script.target.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED else None
+
+        if src and src.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
+            src.inventory.remove_items(script.datalong, script.datalong2)
+        else:
+            Logger.warning('ScriptHandler: Neither source nor target are a player, aborting SCRIPT_COMMAND_REMOVE_ITEM')
+
+
+    def handle_script_command_remove_object(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_remove_object not implemented yet')
+        pass
+
+    def handle_script_command_set_melee_attack(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_melee_attack not implemented yet')
+        pass
+
+    def handle_script_command_set_combat_movement(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_combat_movement not implemented yet')
+        pass
+
+    def handle_script_command_set_phase(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_phase not implemented yet')
+        pass
+
+    def handle_script_command_set_phase_random(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_phase_random not implemented yet')
+        pass
+
+    def handle_script_command_set_phase_range(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_phase_range not implemented yet')
+        pass
+
+    def handle_script_command_flee(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_flee not implemented yet')
+        pass
+
+    def handle_script_command_deal_damage(self, script):        
+        if script.target:
+            damage_to_deal = 0
+            if script.datalong2 == 1:
+                # damage is a percentage of the target's health
+                damage_to_deal = int(script.target.health * (script.datalong / 100))
+            else:
+                damage_to_deal = script.datalong
+
+            if damage_to_deal > 0:
+                damage_info = DamageInfoHolder(attacker = script.source, victim = script.target, damage = damage_to_deal, school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL)
+                script.source.deal_damage(damage_info)
+            else:
+                Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
+        else:
+            Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no target')        
+
+    def handle_script_command_zone_combat_pulse(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_zone_combat_pulse not implemented yet')
+        pass
+
+    def handle_script_command_call_for_help(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_call_for_help not implemented yet')
+        pass
+
+    def handle_script_command_set_sheath(self, script):
+        script.source.set_weapon_mode(script.datalong)
+
+    def handle_script_command_invincibility(self, script):
+        if script.datalong2 == 1:
+            script.source.unit_flags |= UnitFlags.UNIT_MASK_NON_ATTACKABLE
+        else:
+            script.source.unit_flags &= UnitFlags.UNIT_MASK_NON_ATTACKABLE
+
+    def handle_script_command_game_event(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_game_event not implemented yet')
+        pass
+
+    def handle_script_command_set_server_variable(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_server_variable not implemented yet')
+        pass
+
+    def handle_script_command_remove_guardians(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_remove_guardians not implemented yet')
+        pass
+
+    def handle_script_command_add_spell_cooldown(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_add_spell_cooldown not implemented yet')
+        pass
+
+    def handle_script_command_remove_spell_cooldown(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_remove_spell_cooldown not implemented yet')
+        pass
+
+    def handle_script_command_set_react_state(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_react_state not implemented yet')
+        pass
+
+    def handle_script_command_start_waypoints(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_start_waypoints not implemented yet')
+        pass
+
+    def handle_script_command_start_map_event(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_start_map_event not implemented yet')
+        pass
+
+    def handle_script_command_end_map_event(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_end_map_event not implemented yet')
+        pass
+
+    def handle_script_command_add_map_event_target(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_add_map_event_target not implemented yet')
+        pass
+
+    def handle_script_command_remove_map_event_target(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_remove_map_event_target not implemented yet')
+        pass
+
+    def handle_script_command_set_map_event_data(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_map_event_data not implemented yet')
+        pass
+
+    def handle_script_command_send_map_event(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_send_map_event not implemented yet')
+        pass
+
+    def handle_script_command_set_default_movement(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_default_movement not implemented yet')
+        pass
+
+    def handle_script_command_start_script_for_all(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_start_script_for_all not implemented yet')
+        pass
+
+    def handle_script_command_edit_map_event(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_edit_map_event not implemented yet')
+        pass
+
+    def handle_script_command_fail_quest(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_fail_quest not implemented yet')
+        pass
+
+    def handle_script_command_respawn_creature(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_respawn_creature not implemented yet')
+        pass
+
+    def handle_script_command_assist_unit(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_assist_unit not implemented yet')
+        pass
+
+    def handle_script_command_combat_stop(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_combat_stop not implemented yet')
+        pass
+
+    def handle_script_command_add_aura(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_add_aura not implemented yet')
+        pass
+
+    def handle_script_command_add_threat(self, script):
+        if script.target:
+            if script.source.is_alive and script.source.in_combat:
+                script.source.threat_manager.add_threat(script.target, script.datalong)
+            else:
+                Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: source is not in combat')
+        else:
+            Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: invalid target')        
+
+    def handle_script_command_summon_object(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
+        pass
+
+    def handle_script_command_set_fly(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_fly not implemented yet')
+        pass
+
+    def handle_script_command_join_creature_group(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_join_creature_group not implemented yet')
+        pass
+
+    def handle_script_command_leave_creature_group(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_leave_creature_group not implemented yet')
+        pass
+
+    def handle_script_command_set_go_state(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_go_state not implemented yet')
+        pass
+
+    def handle_script_command_despawn_gameobject(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_despawn_gameobject not implemented yet')
+        pass
+
+    def handle_script_command_quest_credit(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_quest_credit not implemented yet')
+        pass
+
+    def handle_script_command_set_gossip_menu(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_gossip_menu not implemented yet')
+        pass
+
+    def handle_script_command_send_script_event(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_send_script_event not implemented yet')
+        pass
+
+    def handle_script_command_set_pvp(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_pvp not implemented yet')
+        pass    
+
+    def handle_script_command_reset_door_or_button(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_reset_door_or_button not implemented yet')
+        pass
+
+    def handle_script_command_set_command_state(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_set_command_state not implemented yet')
+        pass
+
+    def handle_script_command_play_custom_anim(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_play_custom_anim not implemented yet')
+        pass
+
+    def handle_script_command_start_script_on_group(self, script):
+        Logger.debug('ScriptHandler: handle_script_command_start_script_on_group not implemented yet')
+        pass
+
+SCRIPT_COMMANDS = {
+    ScriptCommands.SCRIPT_COMMAND_TALK: ScriptHandler.handle_script_command_talk,
+    ScriptCommands.SCRIPT_COMMAND_EMOTE: ScriptHandler.handle_script_command_emote,
+    ScriptCommands.SCRIPT_COMMAND_FIELD_SET: ScriptHandler.handle_script_command_field_set,
+    ScriptCommands.SCRIPT_COMMAND_MOVE_TO: ScriptHandler.handle_script_command_move_to,
+    ScriptCommands.SCRIPT_COMMAND_MODIFY_FLAGS: ScriptHandler.handle_script_command_modify_flags,
+    ScriptCommands.SCRIPT_COMMAND_INTERRUPT_CASTS: ScriptHandler.handle_script_command_interrupt_casts,
+    ScriptCommands.SCRIPT_COMMAND_TELEPORT_TO: ScriptHandler.handle_script_command_teleport_to,
+    ScriptCommands.SCRIPT_COMMAND_QUEST_EXPLORED: ScriptHandler.handle_script_command_quest_explored,
+    ScriptCommands.SCRIPT_COMMAND_KILL_CREDIT: ScriptHandler.handle_script_command_kill_credit,
+    ScriptCommands.SCRIPT_COMMAND_RESPAWN_GAMEOBJECT: ScriptHandler.handle_script_command_respawn_gameobject,
+    ScriptCommands.SCRIPT_COMMAND_TEMP_SUMMON_CREATURE: ScriptHandler.handle_script_command_temp_summon_creature,
+    ScriptCommands.SCRIPT_COMMAND_OPEN_DOOR: ScriptHandler.handle_script_command_open_door,
+    ScriptCommands.SCRIPT_COMMAND_CLOSE_DOOR: ScriptHandler.handle_script_command_close_door,
+    ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: ScriptHandler.handle_script_command_activate_object,
+    ScriptCommands.SCRIPT_COMMAND_REMOVE_AURA: ScriptHandler.handle_script_command_remove_aura,
+    ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: ScriptHandler.handle_script_command_cast_spell,
+    ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: ScriptHandler.handle_script_command_play_sound,
+    ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: ScriptHandler.handle_script_command_create_item,
+    ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: ScriptHandler.handle_script_command_despawn_creature,
+    ScriptCommands.SCRIPT_COMMAND_SET_EQUIPMENT: ScriptHandler.handle_script_command_set_equipment,
+    ScriptCommands.SCRIPT_COMMAND_MOVEMENT: ScriptHandler.handle_script_command_movement,
+    ScriptCommands.SCRIPT_COMMAND_SET_ACTIVEOBJECT: ScriptHandler.handle_script_command_set_activeobject,
+    ScriptCommands.SCRIPT_COMMAND_SET_FACTION: ScriptHandler.handle_script_command_set_faction,
+    ScriptCommands.SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL: ScriptHandler.handle_script_command_morph_to_entry_or_model,
+    ScriptCommands.SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL: ScriptHandler.handle_script_command_mount_to_entry_or_model,
+    ScriptCommands.SCRIPT_COMMAND_SET_RUN: ScriptHandler.handle_script_command_set_run,
+    ScriptCommands.SCRIPT_COMMAND_ATTACK_START: ScriptHandler.handle_script_command_attack_start,
+    ScriptCommands.SCRIPT_COMMAND_UPDATE_ENTRY: ScriptHandler.handle_script_command_update_entry,
+    ScriptCommands.SCRIPT_COMMAND_STAND_STATE: ScriptHandler.handle_script_command_stand_state,
+    ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: ScriptHandler.handle_script_command_modify_threat,
+    ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: ScriptHandler.handle_script_command_send_taxi_path,
+    ScriptCommands.SCRIPT_COMMAND_TERMINATE_SCRIPT: ScriptHandler.handle_script_command_terminate_script,
+    ScriptCommands.SCRIPT_COMMAND_TERMINATE_CONDITION: ScriptHandler.handle_script_command_terminate_condition,
+    ScriptCommands.SCRIPT_COMMAND_ENTER_EVADE_MODE: ScriptHandler.handle_script_command_enter_evade_mode,
+    ScriptCommands.SCRIPT_COMMAND_SET_HOME_POSITION: ScriptHandler.handle_script_command_set_home_position,
+    ScriptCommands.SCRIPT_COMMAND_TURN_TO: ScriptHandler.handle_script_command_turn_to,
+    ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: ScriptHandler.handle_script_command_meetingstone,
+    ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA: ScriptHandler.handle_script_command_set_inst_data,
+    ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA64: ScriptHandler.handle_script_command_set_inst_data64,
+    ScriptCommands.SCRIPT_COMMAND_START_SCRIPT: ScriptHandler.handle_script_command_start_script,
+    ScriptCommands.SCRIPT_COMMAND_REMOVE_ITEM: ScriptHandler.handle_script_command_remove_item,
+    ScriptCommands.SCRIPT_COMMAND_REMOVE_OBJECT: ScriptHandler.handle_script_command_remove_object,
+    ScriptCommands.SCRIPT_COMMAND_SET_MELEE_ATTACK: ScriptHandler.handle_script_command_set_melee_attack,
+    ScriptCommands.SCRIPT_COMMAND_SET_COMBAT_MOVEMENT: ScriptHandler.handle_script_command_set_combat_movement,
+    ScriptCommands.SCRIPT_COMMAND_SET_PHASE: ScriptHandler.handle_script_command_set_phase,
+    ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANDOM: ScriptHandler.handle_script_command_set_phase_random,
+    ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANGE: ScriptHandler.handle_script_command_set_phase_range,
+    ScriptCommands.SCRIPT_COMMAND_FLEE: ScriptHandler.handle_script_command_flee,
+    ScriptCommands.SCRIPT_COMMAND_DEAL_DAMAGE: ScriptHandler.handle_script_command_deal_damage,
+    ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: ScriptHandler.handle_script_command_zone_combat_pulse,
+    ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: ScriptHandler.handle_script_command_call_for_help,
+    ScriptCommands.SCRIPT_COMMAND_SET_SHEATH: ScriptHandler.handle_script_command_set_sheath,
+    ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: ScriptHandler.handle_script_command_invincibility,
+    ScriptCommands.SCRIPT_COMMAND_GAME_EVENT: ScriptHandler.handle_script_command_game_event,
+    ScriptCommands.SCRIPT_COMMAND_SET_SERVER_VARIABLE: ScriptHandler.handle_script_command_set_server_variable,
+    ScriptCommands.SCRIPT_COMMAND_REMOVE_GUARDIANS: ScriptHandler.handle_script_command_remove_guardians,
+    ScriptCommands.SCRIPT_COMMAND_ADD_SPELL_COOLDOWN: ScriptHandler.handle_script_command_add_spell_cooldown,
+    ScriptCommands.SCRIPT_COMMAND_REMOVE_SPELL_COOLDOWN: ScriptHandler.handle_script_command_remove_spell_cooldown,
+    ScriptCommands.SCRIPT_COMMAND_SET_REACT_STATE: ScriptHandler.handle_script_command_set_react_state,
+    ScriptCommands.SCRIPT_COMMAND_START_WAYPOINTS: ScriptHandler.handle_script_command_start_waypoints,
+    ScriptCommands.SCRIPT_COMMAND_START_MAP_EVENT: ScriptHandler.handle_script_command_start_map_event,
+    ScriptCommands.SCRIPT_COMMAND_END_MAP_EVENT: ScriptHandler.handle_script_command_end_map_event,
+    ScriptCommands.SCRIPT_COMMAND_ADD_MAP_EVENT_TARGET: ScriptHandler.handle_script_command_add_map_event_target,
+    ScriptCommands.SCRIPT_COMMAND_REMOVE_MAP_EVENT_TARGET: ScriptHandler.handle_script_command_remove_map_event_target,
+    ScriptCommands.SCRIPT_COMMAND_SET_MAP_EVENT_DATA: ScriptHandler.handle_script_command_set_map_event_data,
+    ScriptCommands.SCRIPT_COMMAND_SEND_MAP_EVENT: ScriptHandler.handle_script_command_send_map_event,
+    ScriptCommands.SCRIPT_COMMAND_SET_DEFAULT_MOVEMENT: ScriptHandler.handle_script_command_set_default_movement,
+    ScriptCommands.SCRIPT_COMMAND_START_SCRIPT_FOR_ALL: ScriptHandler.handle_script_command_start_script_for_all,
+    ScriptCommands.SCRIPT_COMMAND_EDIT_MAP_EVENT: ScriptHandler.handle_script_command_edit_map_event,
+    ScriptCommands.SCRIPT_COMMAND_FAIL_QUEST: ScriptHandler.handle_script_command_fail_quest,
+    ScriptCommands.SCRIPT_COMMAND_RESPAWN_CREATURE: ScriptHandler.handle_script_command_respawn_creature,
+    ScriptCommands.SCRIPT_COMMAND_ASSIST_UNIT: ScriptHandler.handle_script_command_assist_unit,
+    ScriptCommands.SCRIPT_COMMAND_COMBAT_STOP: ScriptHandler.handle_script_command_combat_stop,
+    ScriptCommands.SCRIPT_COMMAND_ADD_AURA: ScriptHandler.handle_script_command_add_aura,
+    ScriptCommands.SCRIPT_COMMAND_ADD_THREAT: ScriptHandler.handle_script_command_add_threat,
+    ScriptCommands.SCRIPT_COMMAND_SUMMON_OBJECT: ScriptHandler.handle_script_command_summon_object,
+    ScriptCommands.SCRIPT_COMMAND_SET_FLY: ScriptHandler.handle_script_command_set_fly,
+    ScriptCommands.SCRIPT_COMMAND_JOIN_CREATURE_GROUP: ScriptHandler.handle_script_command_join_creature_group,
+    ScriptCommands.SCRIPT_COMMAND_LEAVE_CREATURE_GROUP: ScriptHandler.handle_script_command_leave_creature_group,
+    ScriptCommands.SCRIPT_COMMAND_SET_GO_STATE: ScriptHandler.handle_script_command_set_go_state,
+    ScriptCommands.SCRIPT_COMMAND_DESPAWN_GAMEOBJECT: ScriptHandler.handle_script_command_despawn_gameobject,
+    ScriptCommands.SCRIPT_COMMAND_QUEST_CREDIT: ScriptHandler.handle_script_command_quest_credit,
+    ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: ScriptHandler.handle_script_command_set_gossip_menu,
+    ScriptCommands.SCRIPT_COMMAND_SEND_SCRIPT_EVENT: ScriptHandler.handle_script_command_send_script_event,
+    ScriptCommands.SCRIPT_COMMAND_SET_PVP: ScriptHandler.handle_script_command_set_pvp,
+    ScriptCommands.SCRIPT_COMMAND_RESET_DOOR_OR_BUTTON: ScriptHandler.handle_script_command_reset_door_or_button,
+    ScriptCommands.SCRIPT_COMMAND_SET_COMMAND_STATE: ScriptHandler.handle_script_command_set_command_state,
+    ScriptCommands.SCRIPT_COMMAND_PLAY_CUSTOM_ANIM: ScriptHandler.handle_script_command_play_custom_anim,
+    ScriptCommands.SCRIPT_COMMAND_START_SCRIPT_ON_GROUP: ScriptHandler.handle_script_command_start_script_on_group
+}
