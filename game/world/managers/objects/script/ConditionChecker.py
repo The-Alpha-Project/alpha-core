@@ -213,7 +213,10 @@ class ConditionChecker:
     def check_condition_cant_path_to_victim(condition_id, source, target):
         # requires Unit source
         # returns True if source cannot path to target
-        # TODO: implement if needed
+        
+        if source and ConditionChecker.is_unit(source) and target and ConditionChecker.is_unit(target):
+            return MapManager.can_reach_object(source, target)[0]
+
         return False
     
     @staticmethod
@@ -457,6 +460,12 @@ class ConditionChecker:
         # requires Map
         # checks the current Map id
         # condition_value1 = map id
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if source:
+            return MapManager.get_map_by_object(source).id == condition.value1
+        
         return False
     
     @staticmethod
@@ -592,6 +601,10 @@ class ConditionChecker:
     def check_condition_is_hostile_to(condition_id, source, target):
         # requires WorldObject source and target
         # checks if the source is hostile to the target
+
+        if source and target:
+            return source.is_hostile_to(target)
+        
         return False
     
     @staticmethod
