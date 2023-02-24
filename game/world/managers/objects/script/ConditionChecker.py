@@ -215,7 +215,7 @@ class ConditionChecker:
         # returns True if source cannot path to target
         
         if source and ConditionChecker.is_unit(source) and target and ConditionChecker.is_unit(target):
-            return MapManager.can_reach_object(source, target)[0]
+            return not MapManager.can_reach_object(source, target)[0]
 
         return False
     
@@ -366,6 +366,15 @@ class ConditionChecker:
         # checks if the source and target are alive and the distance between them
         # condition_value1 = EscortConditionFlags
         # condition_value2 = distance
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if source and source.creature_template and target and ConditionChecker.is_player(target):
+            if source.position.distance(target.position) <= condition.value2 and source.is_alive and target.is_alive:
+                return True
+            
+            # TODO: implement flags
+
         return False
     
     @staticmethod
