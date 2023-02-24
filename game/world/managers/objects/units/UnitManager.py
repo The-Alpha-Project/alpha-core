@@ -226,7 +226,7 @@ class UnitManager(ObjectManager):
 
         return super().is_hostile_to(target)
 
-    def can_melee_attack(self):
+    def can_perform_melee_attack(self):
         return self.combat_target and self.has_melee() and not self.is_casting() \
             and not self.unit_state & UnitStates.STUNNED and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
             and not self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
@@ -301,7 +301,7 @@ class UnitManager(ObjectManager):
 
     def attack_update(self, elapsed):
         # Don't update melee swing timers while casting, stunned, pacified or fleeing..
-        if not self.can_melee_attack():
+        if not self.can_perform_melee_attack():
             return False
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -312,7 +312,7 @@ class UnitManager(ObjectManager):
 
     def update_melee_attacking_state(self):
         # Don't update melee swing timers while casting, stunned, pacified or fleeing..
-        if not self.can_melee_attack():
+        if not self.can_perform_melee_attack():
             return False
 
         swing_error = AttackSwingError.NONE
