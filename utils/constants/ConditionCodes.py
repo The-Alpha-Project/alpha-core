@@ -62,3 +62,7 @@ class ConditionType(IntEnum):
     CONDITION_DISTANCE_TO_POSITION = 54
     CONDITION_OBJECT_GO_STATE = 55
     CONDITION_NEARBY_PLAYER = 56
+
+class EscortConditionFlags(IntEnum):
+    CF_ESCORT_SOURCE_DEAD = 0x1
+    CF_ESCORT_TARGET_DEAD = 0x2
