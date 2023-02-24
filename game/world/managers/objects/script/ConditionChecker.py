@@ -1,10 +1,10 @@
+import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps import MapManager
 from utils.constants.ConditionCodes import ConditionType
-from utils.constants.ItemCodes import LootState
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState
-from utils.constants.UnitCodes import Genders
+from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
 class ConditionChecker:
 
@@ -23,6 +23,10 @@ class ConditionChecker:
     
     def is_unit(target):
         return target and target.get_type_id() == ObjectTypeIds.ID_UNIT
+    
+    # https://blog.finxter.com/how-to-check-if-the-current-time-is-in-a-range-in-python/
+    def time_in_range(start, end, current):
+        return start <= current <= end
 
     @staticmethod
     def check_condition_not(condition_id, source, target):
@@ -535,6 +539,19 @@ class ConditionChecker:
         # checks the target's health percentage
         # condition_value1 = health percentage
         # condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if target:
+            health_percent = target.health / target.max_health * 100
+            match condition.value2:
+                case 0:
+                    return health_percent == condition.value1
+                case 1:
+                    return health_percent >= condition.value1
+                case 2:
+                    return health_percent <= condition.value1
+                
         return False
 
     @staticmethod
@@ -543,12 +560,29 @@ class ConditionChecker:
         # checks the target's mana percentage
         # condition_value1 = mana percentage
         # condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if target and target.power_type == PowerTypes.TYPE_MANA:
+            mana_percent = target.power1 / target.max_power1 * 100
+            match condition.value2:
+                case 0:
+                    return mana_percent == condition.value1
+                case 1:
+                    return mana_percent >= condition.value1
+                case 2:
+                    return mana_percent <= condition.value1
+                
         return False
     
     @staticmethod
     def check_condition_is_in_combat(condition_id, source, target):
         # requires Unit target
         # checks if the target is in combat
+
+        if target:
+            return target.unit_flags & UnitFlags.UNIT_FLAG_IN_COMBAT
+        
         return False
     
     @staticmethod
@@ -561,12 +595,20 @@ class ConditionChecker:
     def check_condition_is_in_group(condition_id, source, target):
         # requires Player target
         # checks if the target is in a group
+
+        if target and ConditionChecker.is_player(target):
+            return target.group_manager is not None
+        
         return False
     
     @staticmethod
     def check_condition_is_alive(condition_id, source, target):
         # requires Unit target
         # checks if the target is alive
+
+        if target:
+            return target.is_alive
+        
         return False
     
     @staticmethod
@@ -582,6 +624,10 @@ class ConditionChecker:
     def check_condition_object_is_spawned(condition_id, source, target):
         # requires GameObject target
         # checks if the target is spawned
+
+        if target:
+            return target.is_spawned
+        
         return False
     
     @staticmethod
@@ -616,6 +662,19 @@ class ConditionChecker:
         # condition_value2 = db_guid (optional)
         # condition_value3 = db_guid (optional)
         # condition_value4 = db_guid (optional)
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if source:
+            if condition.value1 == source.guid:
+                return True
+            elif condition.value2 == source.guid:
+                return True
+            elif condition.value3 == source.guid:
+                return True
+            elif condition.value4 == source.guid:
+                return True
+            
         return False
     
     @staticmethod
@@ -625,7 +684,14 @@ class ConditionChecker:
         # condition_value2 = start minute
         # condition_value3 = end hour
         # condition_value4 = end minute
-        return False
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        current_time = datetime.datetime.now().time()
+        start_time = datetime.time(condition.value1, condition.value2, 0)
+        end_time = datetime.time(condition.value3, condition.value4, 0)
+
+        return ConditionChecker.time_in_range(start_time, end_time, current_time)
     
     @staticmethod
     def check_condition_distance_to_position(condition_id, source, target):
@@ -635,6 +701,12 @@ class ConditionChecker:
         # condition_value2 = y
         # condition_value3 = z
         # condition_value4 = distance
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if target:
+            return source.position.distance(condition.value1, condition.value2, condition.value3) <= condition.value4
+
         return False
     
     @staticmethod
@@ -642,6 +714,12 @@ class ConditionChecker:
         # requires GameObject target
         # checks the target's GO state
         # condition_value1 = GO state (GameObjectStates enum)
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if target:
+            return target.state == condition.value1
+        
         return False
 
     @staticmethod
@@ -650,6 +728,19 @@ class ConditionChecker:
         # checks if a player is within radius
         # condition_value1 = 0 any, 1 hostile, 2 friendly
         # condition_value2 = radius
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if target:
+            units = MapManager.get_surrounding_players(target)
+            for unit in units:
+                if condition.value1 == 0 and unit.position.distance(target.position) <= condition.value2:
+                    return True
+                elif condition.value1 == 1 and unit.is_hostile_to(target) and unit.position.distance(target.position) <= condition.value2:
+                    return True
+                elif condition.value1 == 2 and unit.is_friendly_to(target) and unit.position.distance(target.position) <= condition.value2:
+                    return True
+                
         return False
 
 
