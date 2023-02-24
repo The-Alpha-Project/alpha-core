@@ -10,10 +10,13 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition(condition_id, source, target): 
-        if condition_id in CONDITIONS: 
-            return CONDITIONS[condition_id](condition_id, source, target)
+
+        condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
+
+        if condition.type in CONDITIONS: 
+            return CONDITIONS[condition.type](condition_id, source, target)
         else:
-            Logger.warning(f'ConditionChecker: Condition {condition_id} not implemented')
+            Logger.warning(f'ConditionChecker: Condition {condition.type} not implemented')
             return False
 
     # Helper functions
@@ -723,7 +726,7 @@ class ConditionChecker:
         return False
 
     @staticmethod
-    def check_condition_nearby_players(condition_id, source, target):
+    def check_condition_nearby_player(condition_id, source, target):
         # requires Unit target
         # checks if a player is within radius
         # condition_value1 = 0 any, 1 hostile, 2 friendly

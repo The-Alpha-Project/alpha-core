@@ -63,7 +63,6 @@ class GameObjectManager(ObjectManager):
         self.goober_manager = None  # Optional.
         self.ritual_manager = None  # Optional.
         self.spell_focus_manager = None  # Optional.
-        self.script_handler = None # Optional.
 
     def initialize_from_gameobject_template(self, gobject_template):
         if not gobject_template:
@@ -121,13 +120,7 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_CAMERA or \
                 self.gobject_template.type == GameObjectTypes.TYPE_TRAP or \
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
-            self.lock = gobject_template.data0
-
-        # Script handler initialization.
-        if self.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER or \
-            self.gobject_template.type == GameObjectTypes.TYPE_BUTTON or \
-            self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
-            self.script_handler = ScriptHandler()
+            self.lock = gobject_template.data0            
 
     # override
     def initialize_field_values(self):

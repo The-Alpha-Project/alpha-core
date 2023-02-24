@@ -4,6 +4,7 @@ import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps import MapManager
+from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units import DamageInfoHolder
 from game.world.managers.objects.units.creature import CreatureBuilder
 from utils.constants import CustomCodes
@@ -37,8 +38,9 @@ class Script:
     target: object    
     time_added: float
 
-class ScriptHandler():
-    def __init__(self):
+class ScriptHandler:
+    def __init__(self, object):
+        self.object = object
         self.script_queue = []       
         self.ooc_spawn_min_delay = 0
         self.ooc_spawn_max_delay = 0
@@ -542,6 +544,10 @@ class ScriptHandler():
             Logger.debug('ScriptHandler: AI script enqueued')
 
     def set_random_ooc_event(self, target, event):
+
+        if event.condition_id > 0:
+            if not ConditionChecker.check_condition(event.condition_id, self.object, target):
+                return
 
         self.ooc_event = event
 

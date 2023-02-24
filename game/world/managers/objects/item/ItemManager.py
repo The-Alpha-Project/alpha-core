@@ -70,8 +70,7 @@ class ItemManager(ObjectManager):
         self.spell_stats = []
         self.lock = 0  # Unlocked (0)
         self.display_id = 0
-        self.loot_manager = None  # Optional
-        self.script_handler = None  # Optional
+        self.loot_manager = None  # Optional        
         self.equip_slot = 0
 
         if self.item_template:
@@ -90,10 +89,6 @@ class ItemManager(ObjectManager):
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
             self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template)
             self.lock = self.item_template.lock_id
-
-            # Load script handler if needed.
-            if self.item_template.class_ == ItemClasses.ITEM_CLASS_QUEST:
-                self.script_handler = ScriptHandler()
 
             # Load loot_manager if needed.
             if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:

@@ -3,6 +3,7 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
@@ -69,6 +70,7 @@ class ObjectManager:
         self.last_tick = 0
         self.movement_spline = None
         self.object_ai = None
+        self.script_handler = ScriptHandler(self)
 
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager

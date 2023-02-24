@@ -72,7 +72,6 @@ class CreatureManager(UnitManager):
         # # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
         self.pickpocket_loot_manager = None
-        self.script_handler = None
 
         # # All creatures can block, parry and dodge by default.
         self.has_block_passive = True
@@ -221,8 +220,6 @@ class CreatureManager(UnitManager):
             # Load pickpocket loot manager if required.
             if self.creature_template.pickpocket_loot_id:
                 self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
-            # Load quest script handler.
-            self.script_handler = ScriptHandler()
 
             display_id = self.current_display_id
             creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)
@@ -710,8 +707,7 @@ class CreatureManager(UnitManager):
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
 
-        if self.script_handler:
-            self.script_handler.reset()
+        self.script_handler.reset()
 
         return super().die(killer)
 
