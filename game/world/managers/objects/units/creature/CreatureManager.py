@@ -276,6 +276,26 @@ class CreatureManager(UnitManager):
 
             self.fully_loaded = True
 
+    def set_virtual_equipment(self, slot, item_id):
+        VirtualItemsUtils.set_virtual_item(self, slot, item_id)
+
+    def reset_virtual_equipment(self):
+        creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+            self.creature_template.equipment_id
+        )
+        if creature_equip_template:
+            VirtualItemsUtils.set_virtual_item(self, 0, creature_equip_template.equipentry1)
+            VirtualItemsUtils.set_virtual_item(self, 1, creature_equip_template.equipentry2)
+            VirtualItemsUtils.set_virtual_item(self, 2, creature_equip_template.equipentry3)
+
+    def set_faction(self, faction_id):
+        self.faction = faction_id
+        self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+
+    def reset_faction(self):
+        self.faction = self.creature_template.faction
+        self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+
     def get_template_spells(self):
         return list(filter((0).__ne__, [self.creature_template.spell_id1,
                                         self.creature_template.spell_id2,

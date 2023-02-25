@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import math
 import random
 import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -7,13 +8,15 @@ from game.world.managers.maps import MapManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units import DamageInfoHolder
 from game.world.managers.objects.units.creature import CreatureBuilder
+from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import ChatMsgs, ScriptTypes
+from utils.constants.MiscCodes import ChatMsgs, Languages, ScriptTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
-from utils.constants.ScriptCodes import ModifyFlagsOptions, TurnToFacingOptions, ScriptCommands, SetHomePositionOptions
+from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, SetHomePositionOptions
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from utils.Logger import Logger
+from utils.ConfigManager import config
 
 @dataclass
 class Script:
@@ -52,6 +55,7 @@ class ScriptHandler:
         self.ooc_target = None
         self.ooc_running = False
         self.last_flee_event = None
+        self.CREATURE_FLEE_TEXT = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
 
     def handle_script(self, script):
             if script.command in SCRIPT_COMMANDS:
@@ -226,7 +230,50 @@ class ScriptHandler:
         pass
 
     def handle_script_command_move_to(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_move_to not implemented yet')
+        if script.source and script.source.creature_manager:
+            coordinates_type = script.datalong
+            time = script.datalong2
+            movement_options = script.datalong3 # not used for now
+            move_to_flags = script.datalong4 # not used for now
+            path_id = script.dataint # not used for now
+            speed = config.Unit.Defaults.walk_speed # vmangos sets this to zero by default for whatever reason
+            x, y, z = 0, 0, 0
+            angle = 0
+            
+            if coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_NORMAL:
+                distance = script.source.location.distance(Vector(script.x, script.y, script.z))                
+                speed = distance / time * 0.001 if time > 0 else config.Unit.Defaults.walk_speed
+                x = script.x
+                y = script.y
+                z = script.z                
+                
+            elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RELATIVE_TO_TARGET:
+                x = script.target.location.x + script.x
+                y = script.target.location.y + script.y
+                z = script.target.location.z + script.z
+                
+            elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_DISTANCE_FROM_TARGET:
+                distance = script.x                
+                if script.o < 0:
+                    angle = script.source.location.o
+                else:
+                    angle = random.uniform(0, 2 * math.pi)
+
+                target_point = script.source.location.get_point_in_radius_and_angle(distance, angle)
+                x = target_point.x
+                y = target_point.y
+                z = target_point.z
+                                
+            elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RANDOM_POINT:
+                # unclear how this works as the data doesn't seem to provide any information about the radius
+                pass                
+
+            if angle != 0:
+                script.source.movement_manager.set_face_angle(angle)
+
+            script.source.creature_manager.movement_manager.send_move_normal([Vector(x, y, z)], speed)
+        else:
+            Logger.warning(f'ScriptHandler: handle_script_command_move_to: invalid source.')
         pass
 
     def handle_script_command_modify_flags(self, script):
@@ -260,12 +307,23 @@ class ScriptHandler:
     def handle_script_command_temp_summon_creature(self, script):
         # TODO: add support for datalong3 (unique_limit) and datalong4 (unique_distance)
 
-        creature_manager = CreatureBuilder.create(script.datalong, script.target, \
-                script.source.map_id, script.source.instance_id, location = Vector(script.x, script.y, script.z, script.o), \
-                summoner = script.source, faction = script.source.faction, ttl = script.datalong2, \
-                subtype = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
-        if creature_manager is not None:
-            MapManager.spawn_object(world_object_instance = creature_manager)
+        summoned_count = 0
+        surrounding = MapManager.get_surrounding_units(script.source.location, False)
+        if len(surrounding) > 0:
+            for unit in surrounding:
+                if unit.creature_manager is not None and unit.creature_manager.creature_template.entry == script.datalong \
+                and unit.creature_manager.is_unit_pet(script.source):
+                    summoned_count += 1                                    
+
+        if summoned_count < script.datalong3:
+            creature_manager = CreatureBuilder.create(script.datalong, script.source.map_id, script.source.instance_id, \
+                                                    location = Vector(script.x, script.y, script.z, script.o), \
+                                                    summoner = script.source, faction = script.source.faction, ttl = script.datalong2, \
+                                                    subtype = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+            if creature_manager is not None:
+                MapManager.spawn_object(world_object_instance = creature_manager)
+        else:
+            Logger.warning(f'ScriptHandler: handle_script_command_temp_summon_creature: failed to create creature {script.datalong}.')
 
     def handle_script_command_open_door(self, script):
         Logger.debug('ScriptHandler: handle_script_command_open_door not implemented yet')
@@ -307,8 +365,18 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: No source found or source is dead, aborting SCRIPT_COMMAND_DESPAWN_CREATURE')
 
     def handle_script_command_set_equipment(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_set_equipment not implemented yet')
-        pass
+        if script.source and script.source.creature_manager:
+            if script.datalong == 1:
+                script.source.creature_manager.reset_virtual_equipment()
+            else:
+                if script.dataint > 0:
+                    script.source.creature_manager.set_virtual_equipment(0, script.dataint)
+                if script.dataint2 > 0:
+                    script.source.creature_manager.set_virtual_equipment(1, script.dataint2)
+                if script.dataint3 > 0:
+                    script.source.creature_manager.set_virtual_equipment(2, script.dataint3)  
+        else:
+            Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_EQUIPMENT')
 
     def handle_script_command_movement(self, script):
         Logger.debug('ScriptHandler: handle_script_command_movement not implemented yet')
@@ -319,20 +387,64 @@ class ScriptHandler:
         pass
 
     def handle_script_command_set_faction(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_set_faction not implemented yet')
-        pass
+        if script.source and script.source.creature_manager:
+            if script.datalong == 0:
+                script.source.creature_manager.reset_faction()
+            else:
+                script.source.creature_manager.set_faction(script.datalong)
+        else:
+            Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_FACTION')
 
-    def handle_script_command_morph_to_entry_or_model(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_morph_to_entry_or_model not implemented yet')
-        pass
+    def handle_script_command_morph_to_entry_or_model(self, script):        
+        if script.source and script.source.is_alive and script.source.creature_manager:  
+            creatureOrModelEntry = script.datalong
+            display_id = script.datalong2
+
+            if not creatureOrModelEntry:
+                script.source.reset_display_id()                
+            elif script.display_id:
+                script.source.set_display_id(display_id)
+                pass
+            else:
+                creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creatureOrModelEntry)
+                if creature_template:
+                    script.source.set_display_id(creature_template.display_id)
+                else:
+                    Logger.warning('ScriptHandler: No creature template found, aborting SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL')
+                pass
+            
+        else:
+            Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL')
 
     def handle_script_command_mount_to_entry_or_model(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_mount_to_entry_or_model not implemented yet')
-        pass
+        if script.source and script.source.is_alive and script.source.creature_manager:
+            display_id = script.datalong2
+            creatureOrModelEntry = script.datalong
+
+            if not creatureOrModelEntry and not display_id:
+                display_id = script.source.creature_manager.creature_template.mount_display_id
+                if display_id:
+                    script.source.mount(display_id)
+                else:
+                    script.source.unmount()
+            else:
+                if creatureOrModelEntry:
+                    creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creatureOrModelEntry)
+                    if creature_template:
+                        display_id = creature_template.display_id
+                        if display_id:
+                            script.source.mount(display_id)
+                    else:
+                        script.source.unmount()
+        else:
+            Logger.warning('ScriptHandler: No creature manager found or creature is dead, aborting SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL')
 
     def handle_script_command_set_run(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_set_run not implemented yet')
-        pass
+        if script.source and script.source.creature_manager:
+            script.source.change_speed(script.source.creature_manager.creature_template.speed_run if script.datalong == 1 else \
+                                       script.source.creature_manager.creature_template.speed_walk)
+        else:
+            Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_RUN')        
 
     def handle_script_command_attack_start(self, script):
         Logger.debug('ScriptHandler: handle_script_command_attack_start not implemented yet')
@@ -343,7 +455,10 @@ class ScriptHandler:
         pass
     
     def handle_script_command_stand_state(self, script):
-        script.source.set_stand_state(script.datalong)
+        if script.source and script.source.is_alive:
+            script.source.set_stand_state(script.datalong)
+        else:
+            Logger.warning('ScriptHandler: No source found or source is dead, aborting SCRIPT_COMMAND_STAND_STATE')
 
     def handle_script_command_modify_threat(self, script):
         Logger.debug('ScriptHandler: handle_script_command_modify_threat not implemented yet')
@@ -359,15 +474,17 @@ class ScriptHandler:
 
     def handle_script_command_enter_evade_mode(self, script):
         if script.source and script.source.object_ai:
-                        script.source.leave_combat()
+            script.source.leave_combat()
+        else:
+            Logger.warning('ScriptHandler: Invalid target, aborting SCRIPT_COMMAND_ENTER_EVADE_MODE')
 
     def handle_script_command_set_home_position(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_set_home_position not implemented yet')
-        if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
-            pass
-            # TODO: Implement
+        # all other SetHomePositionOptions are not valid for 0.5.3
+        if script.source and script.source.creature_manager:
+            if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
+                script.source.creature_manager.on_at_home()            
         else:                        
-            # all other options are unused in 0.5.3
+            Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_HOME_POSITION')
             pass 
 
     def handle_script_command_turn_to(self, script):
@@ -429,7 +546,14 @@ class ScriptHandler:
         pass
 
     def handle_script_command_flee(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_flee not implemented yet')
+        if script.source and script.source.is_alive:
+            if not script.source.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+                script.source.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
+                # TODO: how do monster flee emotes work?
+                # actual fleeing movement has to wait until the movement update is implemented
+        else:
+            Logger.warning('ScriptHandler: No source or source is dead, aborting SCRIPT_COMMAND_FLEE')
+
         pass
 
     def handle_script_command_deal_damage(self, script):        
@@ -448,10 +572,6 @@ class ScriptHandler:
                 Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
         else:
             Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no target')        
-
-    def handle_script_command_zone_combat_pulse(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_zone_combat_pulse not implemented yet')
-        pass
 
     def handle_script_command_set_sheath(self, script):
         script.source.set_weapon_mode(script.datalong)
@@ -601,10 +721,12 @@ class ScriptHandler:
 
     ## Script types
 
-    def handle_script_type_quest_start(self, quest_id):
+    @staticmethod
+    def handle_script_type_quest_start(quest_id):
         return WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)
     
-    def handle_script_type_quest_end(self, quest_id):
+    @staticmethod
+    def handle_script_type_quest_end(quest_id):
         return WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
 
 SCRIPT_TYPES = {
