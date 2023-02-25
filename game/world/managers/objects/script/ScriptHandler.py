@@ -17,6 +17,7 @@ from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateType
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
+from utils.constants.UpdateFields import UnitFields
 
 @dataclass
 class Script:
@@ -549,6 +550,7 @@ class ScriptHandler:
         if script.source and script.source.is_alive:
             if not script.source.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
                 script.source.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
+                script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
                 # TODO: how do monster flee emotes work?
                 # actual fleeing movement has to wait until the movement update is implemented
         else:
@@ -579,8 +581,10 @@ class ScriptHandler:
     def handle_script_command_invincibility(self, script):
         if script.datalong2 == 1:
             script.source.unit_flags |= UnitFlags.UNIT_MASK_NON_ATTACKABLE
+            script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
         else:
             script.source.unit_flags &= UnitFlags.UNIT_MASK_NON_ATTACKABLE
+            script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
 
     def handle_script_command_game_event(self, script):
         Logger.debug('ScriptHandler: handle_script_command_game_event not implemented yet')
