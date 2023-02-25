@@ -483,7 +483,10 @@ class ScriptHandler:
         # all other SetHomePositionOptions are not valid for 0.5.3
         if script.source and script.source.creature_manager:
             if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
-                script.source.creature_manager.on_at_home()            
+                if script.source.creature_manager.spawn_id:
+                    spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(script.source.creature_manager.spawn_id)
+                    script.source.creature_manager.spawn_position = Vector(spawn.position_x, spawn.position_y, spawn.position_y, spawn.orientation)
+                    #TODO: actually move the creature to the spawn position
         else:                        
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_HOME_POSITION')
             pass 
@@ -551,7 +554,14 @@ class ScriptHandler:
             if not script.source.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
                 script.source.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
                 script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
-                # TODO: how do monster flee emotes work?
+
+                # I feel so dirty doing this but it's not working otherwise
+                flee_text = self.CREATURE_FLEE_TEXT.male_text
+                flee_text = flee_text.replace('%s ', '')                            
+
+                ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL, flee_text, \
+                    ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
+
                 # actual fleeing movement has to wait until the movement update is implemented
         else:
             Logger.warning('ScriptHandler: No source or source is dead, aborting SCRIPT_COMMAND_FLEE')
