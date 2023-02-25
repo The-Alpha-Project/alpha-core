@@ -120,31 +120,13 @@ class ScriptHandler:
             self.enqueue_ai_script(self.ooc_target, script)
 
     def enqueue_script(self, source, target, script_type, quest_id = None):
-        scripts = None
-
-        match script_type:
-            case ScriptTypes.SCRIPT_TYPE_QUEST_START:
-                scripts = WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)
-            case ScriptTypes.SCRIPT_TYPE_QUEST_END:
-                scripts = WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
-            case ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT:
-                Logger.warning('ScriptHandler: SCRIPT_TYPE_CREATURE_MOVEMENT not implemented yet')
-                pass
-            case ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL:
-                Logger.warning('ScriptHandler: SCRIPT_TYPE_CREATURE_SPELL not implemented yet')
-                pass
-            case ScriptTypes.SCRIPT_TYPE_GAMEOBJECT:
-                Logger.warning('ScriptHandler: SCRIPT_TYPE_GAMEOBJECT not implemented yet')
-                pass
-            case ScriptTypes.SCRIPT_TYPE_GENERIC:
-                Logger.warning('ScriptHandler: SCRIPT_TYPE_GENERIC not implemented yet')
-                pass
-            case ScriptTypes.SCRIPT_TYPE_GOSSIP:
-                Logger.warning('ScriptHandler: SCRIPT_TYPE_GOSSIP not implemented yet')
-                pass
-            case ScriptTypes.SCRIPT_TYPE_SPELL:
-                Logger.warning('ScriptHandler: SCRIPT_TYPE_SPELL not implemented yet')
-                pass
+        
+        if quest_id:
+            if script_type in SCRIPT_TYPES:
+                scripts = SCRIPT_TYPES[script_type](quest_id)
+            else:
+                Logger.warning(f'Unhandled script type {script_type}.')
+                return
 
         if scripts:
             for script in scripts:
@@ -617,6 +599,25 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_start_script_on_group not implemented yet')
         pass
 
+    ## Script types
+
+    def handle_script_type_quest_start(self, quest_id):
+        return WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)
+    
+    def handle_script_type_quest_end(self, quest_id):
+        return WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
+
+SCRIPT_TYPES = {
+    ScriptTypes.SCRIPT_TYPE_QUEST_START: ScriptHandler.handle_script_type_quest_start,
+    ScriptTypes.SCRIPT_TYPE_QUEST_END: ScriptHandler.handle_script_type_quest_end,
+    #ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
+    #ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
+    #ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
+    #ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
+    #ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,
+    #ScriptTypes.SCRIPT_TYPE_SPELL: ScriptHandler.handle_script_type_spell
+}
+      
 SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_TALK: ScriptHandler.handle_script_command_talk,
     ScriptCommands.SCRIPT_COMMAND_EMOTE: ScriptHandler.handle_script_command_emote,

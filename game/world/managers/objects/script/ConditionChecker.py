@@ -393,13 +393,12 @@ class ConditionChecker:
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
 
         if target and target.gender:
-            match condition.value1:
-                case 0:
-                    return target.gender == Genders.GENDER_MALE
-                case 1:
-                    return target.gender == Genders.GENDER_FEMALE
-                case 2: 
-                    return not target.gender == Genders.GENDER_MALE and not target.gender == Genders.GENDER_FEMALE
+            if condition.value1 == 0:
+                return target.gender == Genders.GENDER_MALE
+            elif condition.value1 == 1:
+                return target.gender == Genders.GENDER_FEMALE
+            else:
+                return not target.gender == Genders.GENDER_MALE and not target.gender == Genders.GENDER_FEMALE
                 
         return False
     
@@ -524,13 +523,12 @@ class ConditionChecker:
 
         if source and target:
             distance = source.position.distance(target.position)
-            match condition.value2:
-                case 0:
-                    return distance == condition.value1
-                case 1:
-                    return distance >= condition.value1
-                case 2:
-                    return distance <= condition.value1
+            if condition.value2 == 0:
+                return distance == condition.value1
+            elif condition.value2 == 1:
+                return distance >= condition.value1
+            elif condition.value2 == 2:
+                return distance <= condition.value1
                 
         return False
 
@@ -565,13 +563,12 @@ class ConditionChecker:
 
         if target:
             health_percent = target.health / target.max_health * 100
-            match condition.value2:
-                case 0:
-                    return health_percent == condition.value1
-                case 1:
-                    return health_percent >= condition.value1
-                case 2:
-                    return health_percent <= condition.value1
+            if condition.value2 == 0:
+                return health_percent == condition.value1
+            elif condition.value2 == 1:
+                return health_percent >= condition.value1
+            elif condition.value2 == 2:
+                return health_percent <= condition.value1
                 
         return False
 
@@ -586,13 +583,12 @@ class ConditionChecker:
 
         if target and target.power_type == PowerTypes.TYPE_MANA:
             mana_percent = target.power1 / target.max_power1 * 100
-            match condition.value2:
-                case 0:
-                    return mana_percent == condition.value1
-                case 1:
-                    return mana_percent >= condition.value1
-                case 2:
-                    return mana_percent <= condition.value1
+            if condition.value2 == 0:
+                return mana_percent == condition.value1
+            elif condition.value2 == 1:
+                return mana_percent >= condition.value1
+            elif condition.value2 == 2:
+                return mana_percent <= condition.value1
                 
         return False
     
