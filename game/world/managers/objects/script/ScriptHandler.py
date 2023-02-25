@@ -298,25 +298,31 @@ class ScriptHandler:
         pass
 
     def handle_script_command_remove_aura(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_remove_aura not implemented yet')
-        pass
+        if script.source and script.source.spell_manager:
+            script.source.spell_manager.remove_aura(script.datalong)
+        else:
+            Logger.warning('ScriptHandler: No spell manager found, aborting SCRIPT_COMMAND_REMOVE_AURA')
 
     def handle_script_command_cast_spell(self, script):
-        script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, SpellTargetMask.SELF, validate=False)
-
-    def handle_script_command_play_sound(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_play_sound not implemented yet')
-        pass
+        if script.source and script.source.spell_manager:
+            script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, SpellTargetMask.SELF, validate=False)
+        else:
+            Logger.warning('ScriptHandler: No spell manager found, aborting SCRIPT_COMMAND_CAST_SPELL')
 
     def handle_script_command_create_item(self, script):
-        if script.source.inventory:
+        if script.source and script.source.inventory:
             script.source.inventory.add_item(script.datalong, script.datalong2)
         else:
             Logger.warning('ScriptHandler: No inventory found, aborting SCRIPT_COMMAND_CREATE_ITEM')
 
     def handle_script_command_despawn_creature(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_despawn_creature not implemented yet')
-        pass
+        if script.source and script.source.is_alive:
+            if script.source.creature_manager:
+                script.source.creature_manager.destroy()
+            else:
+                Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_DESPAWN_CREATURE')
+        else:
+            Logger.warning('ScriptHandler: No source found or source is dead, aborting SCRIPT_COMMAND_DESPAWN_CREATURE')
 
     def handle_script_command_set_equipment(self, script):
         Logger.debug('ScriptHandler: handle_script_command_set_equipment not implemented yet')
@@ -361,10 +367,6 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_modify_threat not implemented yet')
         pass
 
-    def handle_script_command_send_taxi_path(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_send_taxi_path not implemented yet')
-        pass
-
     def handle_script_command_terminate_script(self, script):
         Logger.debug('ScriptHandler: handle_script_command_terminate_script not implemented yet')
         pass
@@ -391,11 +393,6 @@ class ScriptHandler:
             script.source.movement_manager.send_face_target(script.player_mgr)
         else:
             script.source.movement_manager.send_face_angle(script.o)
-
-
-    def handle_script_command_meetingstone(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_meetingstone not implemented yet')
-        pass
 
     def handle_script_command_set_inst_data(self, script):
         Logger.debug('ScriptHandler: handle_script_command_set_inst_data not implemented yet')
@@ -472,10 +469,6 @@ class ScriptHandler:
 
     def handle_script_command_zone_combat_pulse(self, script):
         Logger.debug('ScriptHandler: handle_script_command_zone_combat_pulse not implemented yet')
-        pass
-
-    def handle_script_command_call_for_help(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_call_for_help not implemented yet')
         pass
 
     def handle_script_command_set_sheath(self, script):
@@ -584,10 +577,6 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
         pass
 
-    def handle_script_command_set_fly(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_set_fly not implemented yet')
-        pass
-
     def handle_script_command_join_creature_group(self, script):
         Logger.debug('ScriptHandler: handle_script_command_join_creature_group not implemented yet')
         pass
@@ -608,17 +597,9 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_quest_credit not implemented yet')
         pass
 
-    def handle_script_command_set_gossip_menu(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_set_gossip_menu not implemented yet')
-        pass
-
     def handle_script_command_send_script_event(self, script):
         Logger.debug('ScriptHandler: handle_script_command_send_script_event not implemented yet')
         pass
-
-    def handle_script_command_set_pvp(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_set_pvp not implemented yet')
-        pass    
 
     def handle_script_command_reset_door_or_button(self, script):
         Logger.debug('ScriptHandler: handle_script_command_reset_door_or_button not implemented yet')
@@ -653,7 +634,7 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: ScriptHandler.handle_script_command_activate_object,
     ScriptCommands.SCRIPT_COMMAND_REMOVE_AURA: ScriptHandler.handle_script_command_remove_aura,
     ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: ScriptHandler.handle_script_command_cast_spell,
-    ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: ScriptHandler.handle_script_command_play_sound,
+    ## ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: ScriptHandler.handle_script_command_play_sound, opcodes for playing sound not implemented in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: ScriptHandler.handle_script_command_create_item,
     ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: ScriptHandler.handle_script_command_despawn_creature,
     ScriptCommands.SCRIPT_COMMAND_SET_EQUIPMENT: ScriptHandler.handle_script_command_set_equipment,
@@ -667,13 +648,13 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_UPDATE_ENTRY: ScriptHandler.handle_script_command_update_entry,
     ScriptCommands.SCRIPT_COMMAND_STAND_STATE: ScriptHandler.handle_script_command_stand_state,
     ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: ScriptHandler.handle_script_command_modify_threat,
-    ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: ScriptHandler.handle_script_command_send_taxi_path,
+    ## ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: ScriptHandler.handle_script_command_send_taxi_path, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_TERMINATE_SCRIPT: ScriptHandler.handle_script_command_terminate_script,
     ScriptCommands.SCRIPT_COMMAND_TERMINATE_CONDITION: ScriptHandler.handle_script_command_terminate_condition,
     ScriptCommands.SCRIPT_COMMAND_ENTER_EVADE_MODE: ScriptHandler.handle_script_command_enter_evade_mode,
     ScriptCommands.SCRIPT_COMMAND_SET_HOME_POSITION: ScriptHandler.handle_script_command_set_home_position,
     ScriptCommands.SCRIPT_COMMAND_TURN_TO: ScriptHandler.handle_script_command_turn_to,
-    ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: ScriptHandler.handle_script_command_meetingstone,
+    ## ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: ScriptHandler.handle_script_command_meetingstone, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA: ScriptHandler.handle_script_command_set_inst_data,
     ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA64: ScriptHandler.handle_script_command_set_inst_data64,
     ScriptCommands.SCRIPT_COMMAND_START_SCRIPT: ScriptHandler.handle_script_command_start_script,
@@ -686,8 +667,8 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANGE: ScriptHandler.handle_script_command_set_phase_range,
     ScriptCommands.SCRIPT_COMMAND_FLEE: ScriptHandler.handle_script_command_flee,
     ScriptCommands.SCRIPT_COMMAND_DEAL_DAMAGE: ScriptHandler.handle_script_command_deal_damage,
-    ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: ScriptHandler.handle_script_command_zone_combat_pulse,
-    ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: ScriptHandler.handle_script_command_call_for_help,
+    ## ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: ScriptHandler.handle_script_command_zone_combat_pulse, unused in 0.5.3
+    ## ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: ScriptHandler.handle_script_command_call_for_help, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SET_SHEATH: ScriptHandler.handle_script_command_set_sheath,
     ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: ScriptHandler.handle_script_command_invincibility,
     ScriptCommands.SCRIPT_COMMAND_GAME_EVENT: ScriptHandler.handle_script_command_game_event,
@@ -713,15 +694,15 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_ADD_AURA: ScriptHandler.handle_script_command_add_aura,
     ScriptCommands.SCRIPT_COMMAND_ADD_THREAT: ScriptHandler.handle_script_command_add_threat,
     ScriptCommands.SCRIPT_COMMAND_SUMMON_OBJECT: ScriptHandler.handle_script_command_summon_object,
-    ScriptCommands.SCRIPT_COMMAND_SET_FLY: ScriptHandler.handle_script_command_set_fly,
+    ## ScriptCommands.SCRIPT_COMMAND_SET_FLY: ScriptHandler.handle_script_command_set_fly, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_JOIN_CREATURE_GROUP: ScriptHandler.handle_script_command_join_creature_group,
     ScriptCommands.SCRIPT_COMMAND_LEAVE_CREATURE_GROUP: ScriptHandler.handle_script_command_leave_creature_group,
     ScriptCommands.SCRIPT_COMMAND_SET_GO_STATE: ScriptHandler.handle_script_command_set_go_state,
     ScriptCommands.SCRIPT_COMMAND_DESPAWN_GAMEOBJECT: ScriptHandler.handle_script_command_despawn_gameobject,
     ScriptCommands.SCRIPT_COMMAND_QUEST_CREDIT: ScriptHandler.handle_script_command_quest_credit,
-    ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: ScriptHandler.handle_script_command_set_gossip_menu,
+    ## ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: ScriptHandler.handle_script_command_set_gossip_menu, not implemented in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SEND_SCRIPT_EVENT: ScriptHandler.handle_script_command_send_script_event,
-    ScriptCommands.SCRIPT_COMMAND_SET_PVP: ScriptHandler.handle_script_command_set_pvp,
+    ## ScriptCommands.SCRIPT_COMMAND_SET_PVP: ScriptHandler.handle_script_command_set_pvp, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_RESET_DOOR_OR_BUTTON: ScriptHandler.handle_script_command_reset_door_or_button,
     ScriptCommands.SCRIPT_COMMAND_SET_COMMAND_STATE: ScriptHandler.handle_script_command_set_command_state,
     ScriptCommands.SCRIPT_COMMAND_PLAY_CUSTOM_ANIM: ScriptHandler.handle_script_command_play_custom_anim,
