@@ -561,6 +561,9 @@ class ScriptHandler:
 
                 ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL, flee_text, \
                     ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
+                
+                if script.source.spell_manager:
+                    script.source.spell_manager.remove_casts()
 
                 # actual fleeing movement has to wait until the movement update is implemented
         else:
