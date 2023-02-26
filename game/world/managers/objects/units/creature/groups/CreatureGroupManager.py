@@ -46,7 +46,7 @@ class CreatureGroupManager:
             return
         if not self.members:
             self.disband()
-        elif self.is_leader(creature_mgr) and self._is_formation():
+        elif self.is_leader(creature_mgr) and self.is_formation():
             new_leader = self._pick_new_leader()
             self.leader = new_leader if new_leader else None
 
@@ -93,6 +93,9 @@ class CreatureGroupManager:
         self.members.clear()
         CREATURE_GROUPS.pop(self.original_leader_spawn_id)
 
+    def is_formation(self):
+        return self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE
+
     def _get_sorted_waypoints_by_distance(self, movement_waypoints) -> list[MovementWaypoint]:
         points = [MovementWaypoint(wp) for wp in movement_waypoints]  # Wrap them.
         closest = min(points, key=lambda wp: self.leader.spawn_position.distance(wp.location()))
@@ -100,9 +103,6 @@ class CreatureGroupManager:
         if index:
             points = points[index:] + points[0:index]
         return points
-
-    def _is_formation(self):
-        return self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE
 
     def _pick_new_leader(self):
         alive = [member.creature for member in self.members.values() if member.creature.is_alive
