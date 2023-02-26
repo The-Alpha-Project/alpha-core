@@ -767,6 +767,16 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Generic scripts stuff.
+
+    @staticmethod
+    def generic_script_get_by_id(id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(GenericScript).filter(GenericScript.id == id).all()
+                                                           
+        world_db_session.close()
+        return res
+
     # Trainer stuff.
 
     @staticmethod

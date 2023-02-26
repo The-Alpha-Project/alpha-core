@@ -8,7 +8,6 @@ from game.world.managers.maps import MapManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units import DamageInfoHolder
 from game.world.managers.objects.units.creature import CreatureBuilder
-from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ChatMsgs, Languages, ScriptTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
@@ -21,6 +20,7 @@ from utils.constants.UpdateFields import UnitFields
 
 @dataclass
 class Script:
+    id: int
     command: int
     datalong: int
     datalong2: int
@@ -37,7 +37,9 @@ class Script:
     dataint: int
     dataint2: int
     dataint3: int
+    dataint4: int
     delay: int
+    condition_id: int
     source: object
     target: object    
     time_added: float
@@ -67,6 +69,7 @@ class ScriptHandler:
     def enqueue_ai_script(self, source, script):
         if script:
             self.script_queue.append(Script(
+                script.id,
                 script.command,
                 script.datalong,
                 script.datalong2,
@@ -83,11 +86,19 @@ class ScriptHandler:
                 script.dataint,
                 script.dataint2,
                 script.dataint3,
+                script.dataint4,
                 script.delay,
+                script.condition_id,
                 source,
                 None,
                 time.time()
             ))    
+
+    def set_generic_script(self, source, target, script_id):
+        scripts = WorldDatabaseManager.generic_script_get_by_id(script_id)
+
+        for script in scripts:
+            self.enqueue_script(source, target, ScriptTypes.SCRIPT_TYPE_GENERIC, script.id)
 
     def set_random_ooc_event(self, target, event):
 
@@ -124,18 +135,22 @@ class ScriptHandler:
 
             self.enqueue_ai_script(self.ooc_target, script)
 
-    def enqueue_script(self, source, target, script_type, quest_id = None):
-        
-        if quest_id:
-            if script_type in SCRIPT_TYPES:
-                scripts = SCRIPT_TYPES[script_type](quest_id)
-            else:
-                Logger.warning(f'Unhandled script type {script_type}.')
-                return
+    def enqueue_script(self, source, target, script_type, entry_id):                
+        if script_type in SCRIPT_TYPES:
+            scripts = SCRIPT_TYPES[script_type](entry_id)
+        else:
+            Logger.warning(f'Unhandled script type {script_type}.')
+            return
 
         if scripts:
             for script in scripts:
+
+                if script.condition_id > 0:
+                    if not ConditionChecker.check_condition(script.condition_id, self.object, target):
+                        continue
+
                 self.script_queue.append(Script(
+                    script.id,
                     script.command,
                     script.datalong,
                     script.datalong2,
@@ -152,7 +167,9 @@ class ScriptHandler:
                     script.dataint,
                     script.dataint2,
                     script.dataint3,
+                    script.dataint4,
                     script.delay,
+                    script.condition_id,
                     source,
                     target,
                     time.time()
@@ -448,8 +465,18 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_RUN')        
 
     def handle_script_command_attack_start(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_attack_start not implemented yet')
-        pass
+        attacker = script.source
+        victim = script.target    
+
+        if attacker and attacker.is_alive and attacker.object_ai:
+            if victim and victim.is_alive:
+                attacker.attack(victim)
+            elif not victim:
+                from game.world.managers.objects.script.ScriptManager import ScriptManager
+                victim = ScriptManager.get_target_by_type(attacker, victim, script.target_type, script.target_param1, script.target_param2, None)
+                attacker.attack(victim)
+        else:
+            Logger.warning('ScriptHandler: Invalid attacker, aborting SCRIPT_COMMAND_ATTACK_START')
 
     def handle_script_command_update_entry(self, script):
         Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
@@ -506,7 +533,26 @@ class ScriptHandler:
         pass
 
     def handle_script_command_start_script(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_start_script not implemented yet')
+        scripts = [] # datalong to datalong4
+        weights = () # dataint to dataint4
+
+        if script.datalong > 0:
+            scripts.append(script.datalong)
+            weights += (script.dataint,)
+        if script.datalong2 > 0:
+            scripts.append(script.datalong2)
+            weights += (script.dataint2,)
+        if script.datalong3 > 0:
+            scripts.append(script.datalong3)
+            weights += (script.dataint3,)
+        if script.datalong4 > 0:
+            scripts.append(script.datalong4)
+            weights += (script.dataint4,)
+
+        random_script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
+        
+        self.set_generic_script(script.source, script.target, random_script_id)
+
         pass
 
     def handle_script_command_remove_item(self, script):
@@ -530,7 +576,13 @@ class ScriptHandler:
         pass
 
     def handle_script_command_set_melee_attack(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_set_melee_attack not implemented yet')
+        if script.source and script.source.is_alive and script.source:
+            if script.source.has_melee():
+                if script.target and script.target.is_alive:
+                    script.source.attack(script.target)                    
+        else:
+            Logger.warning('ScriptHandler: Invalid source, aborting SCRIPT_COMMAND_SET_MELEE_ATTACK')
+
         pass
 
     def handle_script_command_set_combat_movement(self, script):
@@ -745,6 +797,10 @@ class ScriptHandler:
     @staticmethod
     def handle_script_type_quest_end(quest_id):
         return WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
+    
+    @staticmethod
+    def handle_script_type_generic(script_id):
+        return WorldDatabaseManager.generic_script_get_by_id(script_id)
 
 SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_QUEST_START: ScriptHandler.handle_script_type_quest_start,
@@ -752,7 +808,7 @@ SCRIPT_TYPES = {
     #ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
     #ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
     #ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
-    #ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
+    ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
     #ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,
     #ScriptTypes.SCRIPT_TYPE_SPELL: ScriptHandler.handle_script_type_spell
 }
