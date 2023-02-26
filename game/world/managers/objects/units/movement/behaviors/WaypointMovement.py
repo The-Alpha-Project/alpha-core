@@ -9,7 +9,7 @@ from game.world.managers.objects.units.movement.behaviors.BaseMovement import Ba
 
 
 class WaypointMovement(BaseMovement):
-    def __init__(self, spline_callback, is_default):
+    def __init__(self, spline_callback, is_default=False):
         super().__init__(move_type=MoveType.WAYPOINTS, spline_callback=spline_callback, is_default=is_default)
         self.creature_movement = None
         self.waypoints: list[MovementWaypoint] = []
@@ -42,9 +42,15 @@ class WaypointMovement(BaseMovement):
         # Always update home position.
         self.unit.spawn_position = new_position.copy()
         if waypoint_completed:
-            self._waypoint_push_back()
-            if self.waypoints[-1].script_id():
+            current_wp = self._get_waypoint()
+            if current_wp.script_id():
                 Logger.warning(f'{self.unit.get_name()}, missing movement script id {self.waypoints[-1].script_id()}.')
+            # If this is a default behavior, make it cyclic.
+            if self.is_default:
+                self._waypoint_push_back()
+            # Not default, pop.
+            else:
+                self.waypoints.remove(current_wp)
 
     # override
     def reset(self):
@@ -77,3 +83,7 @@ class WaypointMovement(BaseMovement):
         waypoint = self.waypoints[0]
         self.waypoints.remove(waypoint)
         self.waypoints.append(waypoint)
+
+    def can_remove(self):
+        return not self.unit.is_alive or not self.waypoints
+

@@ -1,5 +1,6 @@
 from typing import Optional
 from game.world.managers.maps.MapManager import MapManager
+from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
@@ -48,7 +49,7 @@ class MovementManager:
             self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
-        elif self.unit.creature_group and self.unit.spawn_id:
+        elif self.unit.creature_group and self.unit.creature_group.is_formation() and self.unit.spawn_id:
             self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_waypoints_type() and self.unit.spawn_id:
             self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, is_default=True))
@@ -134,9 +135,15 @@ class MovementManager:
     def move_fear(self, duration_seconds):
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback))
 
+    def move_waypoints_from_script(self):
+        self.set_behavior(WaypointMovement(spline_callback=self.spline_callback))
+
     # Instant.
     def stop(self):
         self.spline_callback(SplineBuilder.build_stop_spline(self.unit))
+
+    def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
+        self.spline_callback(SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed))
 
     # Instant.
     def face_target(self, target):
