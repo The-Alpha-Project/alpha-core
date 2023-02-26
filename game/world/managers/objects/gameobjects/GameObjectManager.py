@@ -120,7 +120,7 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_CAMERA or \
                 self.gobject_template.type == GameObjectTypes.TYPE_TRAP or \
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
-            self.lock = gobject_template.data0            
+            self.lock = gobject_template.data0
 
     # override
     def initialize_field_values(self):

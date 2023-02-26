@@ -127,7 +127,7 @@ class ScriptHandler:
 
             script.delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
 
-            # some events have a repeat delay of 0, which means they should not repeat
+            # Some events have a repeat delay of 0, which means they should not repeat.
             if self.ooc_repeat_min_delay > 0 and self.ooc_repeat_max_delay > 0:
                 self.ooc_next = time.time() + script.delay
             else:
@@ -223,7 +223,7 @@ class ScriptHandler:
                 ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
                 if broadcast_message.emote_id1 != 0:                                    
                         script.source.play_emote(broadcast_message.emote_id1)
-                # neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them
+                # Neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them.
             else:
                 Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} has no text to say.')
         else:
@@ -251,10 +251,10 @@ class ScriptHandler:
         if script.source and script.source.creature_manager:
             coordinates_type = script.datalong
             time = script.datalong2
-            movement_options = script.datalong3 # not used for now
-            move_to_flags = script.datalong4 # not used for now
-            path_id = script.dataint # not used for now
-            speed = config.Unit.Defaults.walk_speed # vmangos sets this to zero by default for whatever reason
+            movement_options = script.datalong3 # Not used for now.
+            move_to_flags = script.datalong4 # Not used for now.
+            path_id = script.dataint # Not used for now.
+            speed = config.Unit.Defaults.walk_speed # Vmangos sets this to zero by default for whatever reason.
             x, y, z = 0, 0, 0
             angle = 0
             
@@ -283,7 +283,7 @@ class ScriptHandler:
                 z = target_point.z
                                 
             elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RANDOM_POINT:
-                # unclear how this works as the data doesn't seem to provide any information about the radius
+                # Unclear how this works as the data doesn't seem to provide any information about the radius.
                 pass                
 
             if angle != 0:
@@ -323,7 +323,7 @@ class ScriptHandler:
         pass
 
     def handle_script_command_temp_summon_creature(self, script):
-        # TODO: add support for datalong3 (unique_limit) and datalong4 (unique_distance)
+        # TODO: add support for datalong4 (unique_distance).
 
         summoned_count = 0
         surrounding = MapManager.get_surrounding_units(script.source.location, False)
@@ -507,13 +507,13 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: Invalid target, aborting SCRIPT_COMMAND_ENTER_EVADE_MODE')
 
     def handle_script_command_set_home_position(self, script):
-        # all other SetHomePositionOptions are not valid for 0.5.3
+        # All other SetHomePositionOptions are not valid for 0.5.3.
         if script.source and script.source.creature_manager:
             if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
                 if script.source.creature_manager.spawn_id:
                     spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(script.source.creature_manager.spawn_id)
                     script.source.creature_manager.spawn_position = Vector(spawn.position_x, spawn.position_y, spawn.position_y, spawn.orientation)
-                    #TODO: actually move the creature to the spawn position
+                    #TODO: actually move the creature to the spawn position.
         else:                        
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_HOME_POSITION')
             pass 
@@ -533,8 +533,8 @@ class ScriptHandler:
         pass
 
     def handle_script_command_start_script(self, script):
-        scripts = [] # datalong to datalong4
-        weights = () # dataint to dataint4
+        scripts = [] # Datalong to datalong4.
+        weights = () # Dataint to dataint4.
 
         if script.datalong > 0:
             scripts.append(script.datalong)
@@ -607,7 +607,7 @@ class ScriptHandler:
                 script.source.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
                 script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
 
-                # I feel so dirty doing this but it's not working otherwise
+                # I feel so dirty doing this but it's not working otherwise.
                 flee_text = self.CREATURE_FLEE_TEXT.male_text
                 flee_text = flee_text.replace('%s ', '')                            
 
@@ -617,7 +617,7 @@ class ScriptHandler:
                 if script.source.spell_manager:
                     script.source.spell_manager.remove_casts()
 
-                # actual fleeing movement has to wait until the movement update is implemented
+                # TODO: Actual fleeing movement has to wait until the movement update is implemented.
         else:
             Logger.warning('ScriptHandler: No source or source is dead, aborting SCRIPT_COMMAND_FLEE')
 
@@ -627,7 +627,7 @@ class ScriptHandler:
         if script.target:
             damage_to_deal = 0
             if script.datalong2 == 1:
-                # damage is a percentage of the target's health
+                # Damage is a percentage of the target's health.
                 damage_to_deal = int(script.target.health * (script.datalong / 100))
             else:
                 damage_to_deal = script.datalong
@@ -788,7 +788,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_start_script_on_group not implemented yet')
         pass
 
-    ## Script types
+    # Script types.
 
     @staticmethod
     def handle_script_type_quest_start(quest_id):
