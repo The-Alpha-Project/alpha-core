@@ -39,7 +39,7 @@ Server:
         # of Namigator.
         use_nav_tiles: False
         z_resolution: 256  # The resolution used when extracting maps
-        debug_movement: False
+        debug_movement: False  # Moving NPCs will leave a trail of temporary gameobjects.
 
     Logging:
         # Debug level values (you can combine them as a mask):
