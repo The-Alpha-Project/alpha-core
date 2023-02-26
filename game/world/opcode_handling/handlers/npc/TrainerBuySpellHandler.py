@@ -2,6 +2,7 @@ from typing import Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
+from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.constants.SpellCodes import SpellTargetMask
 from network.packet.PacketReader import PacketReader
@@ -44,15 +45,6 @@ class TrainerBuySpellHandler(object):
             TrainerBuySpellHandler.send_trainer_buy_fail(player_mgr, player_mgr.guid, training_spell_id, fail_reason)
             return
 
-        talent_cost = player_mgr.talent_manager.get_talent_cost_by_id(spell_id)
-        fail_reason = -1
-        if talent_cost > player_mgr.talent_points:
-            fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
-        elif spell_id in player_mgr.spell_manager.spells:
-            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-        elif not player_mgr.spell_manager.can_learn_spell(spell_id):
-            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
-
         # Get data required to verify spell status.
         trainer_templates = WorldDatabaseManager.TrainerSpellHolder.TALENTS
 
@@ -61,6 +53,17 @@ class TrainerBuySpellHandler(object):
             if t_template.spell == training_spell_id:
                 trainer_spell = t_template
                 break
+
+        talent_cost = trainer_spell.talentpointcost if trainer_spell.talentpointcost > 0 else \
+            TalentManager.get_talent_cost_by_id(trainer_spell.playerspell)
+
+        fail_reason = -1
+        if talent_cost > player_mgr.talent_points:
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_NOT_ENOUGH_POINTS
+        elif spell_id in player_mgr.spell_manager.spells:
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
+        elif not player_mgr.spell_manager.can_learn_spell(spell_id):
+            fail_reason = TrainingFailReasons.TRAIN_FAIL_UNAVAILABLE
 
         spell: Optional[Spell] = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell.playerspell)
         preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)

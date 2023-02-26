@@ -1,5 +1,5 @@
 Version:
-    current: 7
+    current: 8
 
 Database:
     Connection:
@@ -39,6 +39,7 @@ Server:
         # of Namigator.
         use_nav_tiles: False
         z_resolution: 256  # The resolution used when extracting maps
+        debug_movement: False
 
     Logging:
         # Debug level values (you can combine them as a mask):

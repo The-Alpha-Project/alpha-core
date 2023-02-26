@@ -2,6 +2,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.helpers.Constants import MapType
+from utils.ConfigManager import config
 from utils.Logger import Logger
 
 
@@ -19,6 +20,8 @@ class Map:
         self._load_map_gameobjects()
 
     def _load_map_creatures(self):
+        if not config.Server.Settings.load_creatures:
+            return
         from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
         creature_spawns = WorldDatabaseManager.creature_spawn_get_by_map_id(self.dbc_map.ID)
         if not creature_spawns:
@@ -32,6 +35,8 @@ class Map:
             Logger.progress(f'Loading creatures for map {self.name}, Instance {self.instance_id}...', count, length)
 
     def _load_map_gameobjects(self):
+        if not config.Server.Settings.load_gameobjects:
+            return
         from game.world.managers.objects.gameobjects.GameObjectSpawn import GameObjectSpawn
         gobject_spawns = WorldDatabaseManager.gameobject_get_all_spawns_by_map_id(self.dbc_map.ID)
         if not gobject_spawns:
@@ -53,6 +58,9 @@ class Map:
     # GridManager.
     def is_active_cell(self, cell_coords):
         return self.grid_manager.is_active_cell(cell_coords)
+
+    def is_active_cell_for_location(self, location):
+        return self.grid_manager.is_active_cell_for_location(location)
 
     def spawn_object(self, world_object_spawn=None, world_object_instance=None):
         self.grid_manager.spawn_object(world_object_spawn, world_object_instance)

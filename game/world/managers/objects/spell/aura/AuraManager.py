@@ -125,8 +125,8 @@ class AuraManager:
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_ACTION: cast_spell is not None or attacked,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NEGATIVE_SPELL: negative_aura_applied,
             SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_DAMAGE: received_damage,
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_ABOVEWATER: self.unit_mgr.is_over_water(),
-            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_UNDERWATER: not self.unit_mgr.is_over_water(),
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_ABOVEWATER: self.unit_mgr.is_swimming(),
+            SpellAuraInterruptFlags.AURA_INTERRUPT_FLAG_NOT_UNDERWATER: not self.unit_mgr.is_swimming(),
         }
 
         for aura in list(self.active_auras.values()):

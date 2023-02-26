@@ -39,3 +39,9 @@ class PetSlot(IntEnum):
 	PET_SLOT_CHARM = 1
 	PET_SLOT_TOTEM_START = 2
 	PET_SLOT_END = 6
+
+
+class PetFollowState(IntEnum):
+	AT_HOME = 0
+	RETURNING = 1
+

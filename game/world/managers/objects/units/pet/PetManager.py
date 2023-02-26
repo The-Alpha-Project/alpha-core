@@ -6,10 +6,10 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.ai.PetAI import PetAI
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
+from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
 from game.world.managers.objects.units.pet.ActivePet import ActivePet
 from game.world.managers.objects.units.pet.PetData import PetData
 from network.packet.PacketWriter import PacketWriter
@@ -80,6 +80,7 @@ class PetManager:
         self.active_pets[pet_slot] = active_pet
 
         active_pet.attach()
+        creature.movement_manager.initialize()
         creature.leave_combat()
 
         self.send_pet_spell_info()
@@ -133,9 +134,8 @@ class PetManager:
                     pet_index = i
                     break
 
-        spawn_position = self.owner.location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
-                                                                           PetAI.PET_FOLLOW_ANGLE)
-
+        spawn_position = self.owner.location.get_point_in_radius_and_angle(PetMovement.PET_FOLLOW_DISTANCE,
+                                                                           PetMovement.PET_FOLLOW_ANGLE)
         creature_manager = CreatureBuilder.create(creature_id, spawn_position,
                                                   self.owner.map_id, self.owner.instance_id,
                                                   summoner=self.owner, faction=self.owner.faction,

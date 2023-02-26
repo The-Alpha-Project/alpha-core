@@ -2,38 +2,28 @@ import math
 
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
-from utils.constants.PetCodes import PetCommandState
-from utils.constants.UnitCodes import SplineFlags
+from utils.constants.PetCodes import PetCommandState, PetReactState, PetFollowState
+from utils.constants.UnitCodes import UnitStates
 
 
 class PetAI(CreatureAI):
-    PET_FOLLOW_DISTANCE = 2.0
-    PET_FOLLOW_ANGLE = math.pi / 2
-
     def __init__(self, creature):
         super().__init__(creature)
+        self.follow_state = PetFollowState.AT_HOME
         if creature:
             self.update_allies_timer = 0
             self.allies = ()
             self.update_allies()
-
             self.has_melee = self.creature.has_melee()
-
-            # TODO Current pet behavior is quite temporary.
-            # Pets are still controlled by the existing combat behavior in CreatureManager,
-            # and all movement logic is contained in PetAI.
-            # These may all still change, but the current handling in PetAI is fitting for the time being.
-            self.stay_position = None
-            self.is_at_home = False
 
     # override
     def update_ai(self, elapsed):
-        super().update_ai(elapsed)
-        if self.is_at_home or self.creature.combat_target and \
-                self.creature.can_attack_target(self.creature.combat_target):
-            return
+        if self.creature and self.creature.threat_manager:
+            target = self.creature.threat_manager.get_hostile_target()
+            # Has a target, check if we need to attack or switch target.
+            if target and self.creature.combat_target != target and self._can_attack(target):
+                self.creature.attack(target)
 
-        self.handle_return_movement()
 
     # override
     def permissible(self, creature):
@@ -43,13 +33,54 @@ class PetAI(CreatureAI):
 
     # Called when creature base attack() starts.
     # override
-    def attack_start(self, victim):
-        self.is_at_home = False
+    def attack_start(self, victim, chase=True):
+        chase = self._get_command_state() == PetCommandState.COMMAND_ATTACK
+        super().attack_start(victim, chase=chase)
 
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
     # override
-    def attacked_by(self, attacker):
-        pass
+    def attacked_by(self, target):
+        super().attacked_by(target)
+
+    def _can_attack(self, target):
+        if not target:
+            return
+
+        if not self.creature.can_attack_target(target):
+            return
+
+        react_state = self._get_react_state()
+        command_state = self._get_command_state()
+
+        # Passive - passive pets can attack if told to.
+        if react_state == PetReactState.REACT_PASSIVE:
+            return command_state == PetCommandState.COMMAND_ATTACK
+
+        # TODO: Check HasAuraPetShouldAvoidBreaking.
+        if target.unit_state & UnitStates.FLEEING:
+            return command_state == PetCommandState.COMMAND_ATTACK
+
+        # Returning - pets ignore attacks only if owner clicked follow.
+        if self.follow_state == PetFollowState.RETURNING:
+            return not command_state == PetCommandState.COMMAND_FOLLOW
+
+        # Stay - can attack if target is within range or commanded to.
+        if command_state == PetCommandState.COMMAND_STAY:
+            return self.creature.is_within_interactable_distance(target) \
+                or command_state == PetCommandState.COMMAND_ATTACK
+
+        # Pets attacking something (or chasing) should only switch targets if owner tells them to
+        if command_state == PetCommandState.COMMAND_ATTACK:
+            if self.creature.combat_target and self.creature.combat_target != target:
+                charmer_or_summoner = self.creature.get_charmer_or_summoner()
+                if charmer_or_summoner and charmer_or_summoner.combat_target:
+                    return target.guid == charmer_or_summoner.combat_target.guid
+
+        # Follow.
+        if command_state == PetCommandState.COMMAND_FOLLOW:
+            return self.follow_state != PetFollowState.RETURNING
+
+        return False
 
     # Called from Unit::Kill() in case where pet or owner kills something.
     # If owner killed this victim, pet may still be attacking something else.
@@ -60,7 +91,7 @@ class PetAI(CreatureAI):
     # Receives notification when pet reaches stay or follow owner.
     # override
     def movement_inform(self, move_type=None, data=None):
-        pass
+        self.follow_state = data
 
     # Called when owner takes damage. This function helps keep pets from running off simply due to owner gaining aggro.
     # override
@@ -78,22 +109,6 @@ class PetAI(CreatureAI):
     # The parameter: allowAutoSelect lets us disable aggressive pet auto targeting for certain situations.
     def select_next_target(self, allow_auto_select):
         pass
-
-    # Handles moving the pet back to stay or owner.
-    # Prevent activating movement when under control of spells.
-    def handle_return_movement(self):
-        target_location = self.stay_position if self.stay_position else self.creature.get_charmer_or_summoner().location
-
-        current_distance = self.creature.location.distance(target_location)
-
-        # If target point is within expected distance, don't move.
-        if current_distance <= PetAI.PET_FOLLOW_DISTANCE:
-            return
-
-        destination_loc = target_location.get_point_in_radius_and_angle(PetAI.PET_FOLLOW_DISTANCE,
-                                                                        PetAI.PET_FOLLOW_ANGLE)
-        self.creature.movement_manager.send_move_normal([destination_loc], self.creature.running_speed,
-                                                        SplineFlags.SPLINEFLAG_RUNMODE)
 
     # Handles attack with or without chase and also resets flags for next update / creature kill.
     def do_attack(self, target, chase):
@@ -116,30 +131,28 @@ class PetAI(CreatureAI):
         pass
 
     def stop_attack(self):
-        self.handle_return_movement()
         pass
 
     def command_state_update(self):
-        if not self.creature.combat_target:
-            self.creature.stop_movement()
-            self.creature.movement_manager.pending_waypoints.clear()
+        self.creature.movement_manager.reset(clean_behaviors=True)
 
         if self._get_command_state() != PetCommandState.COMMAND_ATTACK:
             self.creature.attack_stop()  # Always stop attacking if new state isn't attack.
 
         if self._get_command_state() == PetCommandState.COMMAND_STAY:
-            # Stop in place place and update stay position.
-            if not self.creature.combat_target:
-                self.is_at_home = True
-            self.stay_position = self.creature.location.copy()
+            self.creature.movement_manager.move_stay(state=True)
 
         if self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
-            # Clear stay position, constantly follow player.
-            self.stay_position = None
-            self.is_at_home = False
+            self.creature.movement_manager.move_stay(state=False)
 
     def _get_command_state(self):
         controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()
         if not controlled_pet:
             return PetCommandState.COMMAND_FOLLOW
         return controlled_pet.get_pet_data().command_state
+
+    def _get_react_state(self):
+        controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()
+        if not controlled_pet:
+            return PetReactState.REACT_PASSIVE
+        return controlled_pet.get_pet_data().react_state

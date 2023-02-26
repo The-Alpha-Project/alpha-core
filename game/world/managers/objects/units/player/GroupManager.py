@@ -13,12 +13,11 @@ from utils.constants.MiscCodes import WhoPartyStatus, LootMethods, PlayerFlags
 from utils.constants.UpdateFields import PlayerFields
 
 MAX_GROUP_SIZE = 5
+GROUPS = {}
 
 
 # TODO: 0.5.3 has no SMSG_LOOT_MASTER_LIST nor CMSG_LOOT_MASTER_GIVE, how exactly they handled ML?
 class GroupManager(object):
-    GROUPS = {}
-
     def __init__(self, group):
         self.group = group
         self.members: dict[int, GroupMember] = {}
@@ -95,7 +94,7 @@ class GroupManager(object):
                 leader_player = WorldSessionStateHandler.find_player_by_guid(self.group.leader_guid)
                 if leader_player:  # If online, we set leader group status.
                     RealmDatabaseManager.group_create(self.group)
-                    GroupManager.GROUPS[self.group.group_id] = self
+                    GROUPS[self.group.group_id] = self
                     leader = GroupManager._create_new_member(self.group, leader_player)
                     RealmDatabaseManager.group_add_member(leader)
                     self.members[self.group.leader_guid] = leader
@@ -422,8 +421,8 @@ class GroupManager(object):
         self.send_packet_to_members(PacketWriter.get_packet(OpCode.MSG_MINIMAP_PING, pack('<Q2f', guid, x, y)))
 
     def flush(self):
-        if self.group.group_id in GroupManager.GROUPS:
-            GroupManager.GROUPS.pop(self.group.group_id)
+        if self.group.group_id in GROUPS:
+            GROUPS.pop(self.group.group_id)
             RealmDatabaseManager.group_destroy(self.group)
         self.members.clear()
         self.allowed_looters.clear()
@@ -468,13 +467,13 @@ class GroupManager(object):
     def load_group(raw_group):
         group_manager = GroupManager(raw_group)
         if group_manager.load_group_members():
-            GroupManager.GROUPS[raw_group.group_id] = group_manager
+            GROUPS[raw_group.group_id] = group_manager
 
     @staticmethod
     def set_character_group(player_mgr):
         group_id = RealmDatabaseManager.character_get_group_id(player_mgr.player)
-        if group_id >= 0 and group_id in GroupManager.GROUPS:
-            player_mgr.group_manager = GroupManager.GROUPS[group_id]
+        if group_id >= 0 and group_id in GROUPS:
+            player_mgr.group_manager = GROUPS[group_id]
 
     @staticmethod
     def invite_player(player_mgr, target_player_mgr):

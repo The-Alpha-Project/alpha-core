@@ -92,7 +92,7 @@ class ObjectManager:
     def generate_create_packet(self, requester):
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            self.get_object_create_packet(requester)))
+            self.get_object_create_bytes(requester)))
 
     def generate_partial_packet(self, requester):
         if not self.initialized:
@@ -100,9 +100,12 @@ class ObjectManager:
 
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            self.get_partial_update_packet(requester)))
+            self.get_partial_update_bytes(requester)))
 
-    def get_object_create_packet(self, requester):
+    def generate_movement_packet(self):
+        return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_bytes())
+
+    def get_object_create_bytes(self, requester):
         from game.world.managers.objects.units import UnitManager
 
         is_self = requester.guid == self.guid
@@ -135,7 +138,7 @@ class ObjectManager:
 
         return data
 
-    def get_partial_update_packet(self, requester):
+    def get_partial_update_bytes(self, requester):
         # Base structure.
         data = self._get_base_structure(UpdateTypes.PARTIAL)
 
@@ -145,7 +148,6 @@ class ObjectManager:
         return data
 
     def get_heartbeat_packet(self):
-        movement_flags = self.movement_flags | MoveFlags.MOVEFLAG_MOVED
         data = pack(
             '<2Q9fI',
             self.guid,
@@ -159,11 +161,11 @@ class ObjectManager:
             self.location.z,
             self.location.o,
             self.pitch,
-            movement_flags,
+            self.movement_flags,
         )
         return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
 
-    def get_movement_update_packet(self):
+    def get_movement_update_bytes(self):
         # Base structure.
         data = self._get_base_structure(UpdateTypes.MOVEMENT)
 
@@ -245,10 +247,6 @@ class ObjectManager:
             self.movement_flags
         )
 
-        # TODO: NOT WORKING!
-        # if self.movement_spline:
-        #    data += self.movement_spline.to_bytes()
-
         data += pack(
             '<I4f',
             0,  # Fall Time
@@ -257,6 +255,10 @@ class ObjectManager:
             self.swim_speed,
             self.turn_rate
          )
+
+        # TODO: Not working.
+        # if self.movement_flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
+        #     data += self.movement_spline.to_bytes()
 
         return data
 
@@ -375,13 +377,8 @@ class ObjectManager:
         pass
 
     # override
-    def is_over_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                               self.location.z)
-        if not liquid_information:
-            return False
-        map_z = MapManager.calculate_z_for_object(self)[0]
-        return liquid_information and map_z < liquid_information.height
+    def is_above_water(self):
+        return False
 
     # override
     def is_under_water(self):
@@ -395,6 +392,9 @@ class ObjectManager:
         liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
                                                                self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
+
+    def is_casting(self):
+        return self.spell_manager.is_casting()
 
     # override
     def is_totem(self):
@@ -427,21 +427,17 @@ class ObjectManager:
         if target.unit_state & UnitStates.SANCTUARY:
             return False
 
+        # Flight.
+        if target.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+            return False
+
         if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
                 target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
             return False
 
-        # Unit vs Player only checks.
-        if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            # If player is on a flying path.
-            if target.movement_spline and target.movement_spline.flags == SplineFlags.SPLINEFLAG_FLYING:
-                return False
-
         # Creature only checks.
-        elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            # If the unit is evading.
-            if target.is_evading or not target.is_spawned:
-                return False
+        elif target.get_type_id() == ObjectTypeIds.ID_UNIT and not target.is_spawned:
+            return False
 
         if not target.is_alive:
             return False

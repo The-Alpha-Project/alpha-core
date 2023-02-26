@@ -926,11 +926,11 @@ class InventoryManager(object):
     # noinspection PyMethodMayBeStatic
     def _get_single_item_full_update_packet(self, item, requester):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, item.get_object_create_packet(requester)))
+            OpCode.SMSG_UPDATE_OBJECT, item.get_object_create_bytes(requester)))
         return update_packet
 
     # noinspection PyMethodMayBeStatic
     def _get_single_item_partial_update_packet(self, item, requester):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, item.get_partial_update_packet(requester)))
+            OpCode.SMSG_UPDATE_OBJECT, item.get_partial_update_bytes(requester)))
         return update_packet

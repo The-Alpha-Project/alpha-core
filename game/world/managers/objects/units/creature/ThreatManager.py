@@ -104,7 +104,8 @@ class ThreatManager:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
         if source is not self.owner:
-            self.owner.enter_combat()
+            # Do not enter combat if call was made from die().
+            self.owner.enter_combat(source)
             source_holder = self.holders.get(source.guid)
             # Update existent holder.
             if source_holder:
@@ -126,6 +127,8 @@ class ThreatManager:
         return False
 
     def resolve_target(self):
+        if not self.can_resolve_target():
+            return None
         if len(self.holders) > 0:
             return self.get_hostile_target()
         return None
@@ -192,6 +195,20 @@ class ThreatManager:
             for unit in helping_units:
                 unit.threat_manager.add_threat(source, threat, is_call_for_help=True)
 
+    def can_resolve_target(self):
+        if not self.owner.is_alive:
+            return False
+        if self.owner.unit_state & UnitStates.STUNNED:
+            return False
+        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+            return False
+        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED:
+            return False
+        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+            return False
+
+        return True
+
     # 0.5.3 has no faction template flags.
     def unit_can_assist_help_call(self, unit, source):
         if unit == self.owner:
@@ -201,6 +218,8 @@ class ThreatManager:
         elif unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
         elif unit.unit_state & UnitStates.STUNNED:
+            return False
+        elif unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
             return False
         elif self.owner.faction != unit.faction and self.owner.is_hostile_to(unit):
             return False

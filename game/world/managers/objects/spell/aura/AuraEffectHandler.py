@@ -98,7 +98,8 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mounted(aura, effect_target, remove):  # TODO Summon Nightmare (5784) does not apply for other players ?
         if remove:
-            effect_target.unmount()
+            if effect_target.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+                effect_target.unmount()
             return
 
         creature_entry = aura.spell_effect.misc_value
@@ -254,7 +255,6 @@ class AuraEffectHandler:
         aura.target.apply_spell_damage(effect_target, damage, aura.spell_effect)
 
     @staticmethod
-    # TODO: Spell MISS.
     def handle_feign_death(aura, effect_target, remove):
         if not aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
@@ -278,6 +278,17 @@ class AuraEffectHandler:
     @staticmethod
     def handle_mod_stalked(aura, effect_target, remove):
         effect_target.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT, not remove, aura.index)
+
+    @staticmethod
+    def handle_mod_fear(aura, effect_target, remove):
+        if not remove:
+            if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                effect_target.interrupt_looting()
+            effect_target.spell_manager.remove_casts(remove_active=False)
+            duration = aura.source_spell.get_duration() / 1000
+            effect_target.movement_manager.move_fear(duration)
+
+        effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, not remove, aura.index)
 
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):
@@ -789,6 +800,8 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_PACIFY_SILENCE: AuraEffectHandler.handle_mod_pacify_silence,
     AuraTypes.SPELL_AURA_MOD_TAUNT: AuraEffectHandler.handle_taunt,
     AuraTypes.SPELL_AURA_CHANNEL_DEATH_ITEM: AuraEffectHandler.handle_channel_death_item,
+    AuraTypes.SPELL_AURA_MOD_FEAR: AuraEffectHandler.handle_mod_fear,
+
 
     # Immunity modifiers.
     AuraTypes.SPELL_AURA_EFFECT_IMMUNITY: AuraEffectHandler.handle_effect_immunity,
