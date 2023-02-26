@@ -24,9 +24,11 @@ class ConditionChecker:
     def is_player(target):
         return target and target.get_type_id() == ObjectTypeIds.ID_PLAYER
     
+    @staticmethod
     def is_unit(target):
         return target and target.get_type_id() == ObjectTypeIds.ID_UNIT
     
+    @staticmethod
     def time_in_range(start, end, current):
         return start <= current <= end
 
