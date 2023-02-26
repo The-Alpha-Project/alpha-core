@@ -62,6 +62,7 @@ class CreatureAI:
         if self.last_alert_time > 0:
             self.last_alert_time = max(0, self.last_alert_time - elapsed)
 
+        # TODO: Fluglow: Fix me!
         if self.creature.in_combat and not self.entered_combat:
             self.entered_combat = True
             self.enter_combat()
