@@ -899,8 +899,7 @@ class UnitManager(ObjectManager):
     def enter_combat(self):
         if self.in_combat:
             return
-        self.in_combat = True
-        self.object_ai.enter_combat()
+        self.in_combat = True        
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         # Handle enter combat interrupts.
