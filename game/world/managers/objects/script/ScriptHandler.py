@@ -219,7 +219,7 @@ class ScriptHandler:
                 text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
 
             if text_to_say is not None:     
-                ChatManager.send_monster_emote_message(script.source, script.target.guid if script.target.guid else script.source.guid, broadcast_message.language_id, text_to_say,
+                ChatManager.send_monster_emote_message(script.source, script.target.guid if script.target else script.source.guid, broadcast_message.language_id, text_to_say,
                 ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
                 if broadcast_message.emote_id1 != 0:                                    
                         script.source.play_emote(broadcast_message.emote_id1)
