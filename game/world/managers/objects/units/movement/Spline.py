@@ -214,10 +214,6 @@ class Spline(object):
             len_points,
         )
 
-        print(f'Journey {int(self.elapsed)}')  # Milliseconds.
-        print(f'TotalTime {int(self.total_time)}')  # Milliseconds.
-        print(f'TotalPoints {len_points}')
-
         for point in range(1, len_points):
             data += self.points[point].to_bytes(include_orientation=False)
 
