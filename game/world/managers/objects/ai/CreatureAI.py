@@ -39,7 +39,6 @@ class CreatureAI:
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
             self.ai_event_handler = AIEventHandler(creature)
-            self.entered_combat = False
 
     def load_spell_list(self):
         # Load creature spells if available.
@@ -61,10 +60,6 @@ class CreatureAI:
     def update_ai(self, elapsed):
         if self.last_alert_time > 0:
             self.last_alert_time = max(0, self.last_alert_time - elapsed)
-
-        if self.creature.in_combat and not self.entered_combat:
-            self.entered_combat = True
-            self.enter_combat()
 
     # Like UpdateAI, but only when the creature is a dead corpse.
     def update_ai_corpse(self, elapsed):
