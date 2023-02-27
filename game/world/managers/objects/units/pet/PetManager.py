@@ -119,7 +119,8 @@ class PetManager:
             return
 
         # If a creature ID isn't provided, the pet to summon is the player's only pet (hunters).
-        is_warlock_pet = creature_id != 0
+        # Otherwise, the pet is owned by a warlock or a creature.
+        is_creature_summon = creature_id != 0
 
         pet_index = -1
         if not creature_id:
@@ -146,13 +147,13 @@ class PetManager:
                                                   spell_id=spell_id,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
 
-        # Match summoner level for warlock pets. Otherwise, set to the level in PetData.
-        pet_level = self.owner.level if is_warlock_pet else -1
+        # Match summoner level for creature summons. Otherwise, set to the level in PetData.
+        pet_level = self.owner.level if is_creature_summon else -1
         active_pet = self.set_creature_as_pet(creature_manager, spell_id, PetSlot.PET_SLOT_PERMANENT,
                                               pet_level=pet_level, pet_index=pet_index, is_permanent=True)
 
-        # On initial warlock pet summon, teach available spells according to the summon spell's level.
-        if is_warlock_pet and pet_index == -1:
+        # On initial creature summon, teach available spells according to the summon spell's level.
+        if is_creature_summon and pet_index == -1:
             spell_level = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id).SpellLevel
             active_pet.initialize_spells(level_override=spell_level)
 
