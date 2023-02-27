@@ -1,6 +1,6 @@
 import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps import MapManager
+from game.world.managers.maps.MapManager import MapManager
 from utils.constants.ConditionCodes import ConditionType
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState
@@ -755,12 +755,14 @@ class ConditionChecker:
         if target:
             units = MapManager.get_surrounding_players(target)
             for unit in units:
-                if condition.value1 == 0 and unit.position.distance(target.position) <= condition.value2:
-                    return True
-                elif condition.value1 == 1 and unit.is_hostile_to(target) and unit.position.distance(target.position) <= condition.value2:
-                    return True
-                elif condition.value1 == 2 and unit.is_friendly_to(target) and unit.position.distance(target.position) <= condition.value2:
-                    return True
+                player = MapManager.get_surrounding_player_by_guid(unit)
+                if player:
+                    if condition.value1 == 0 and player.position.distance(target.position) <= condition.value2:
+                        return True
+                    elif condition.value1 == 1 and player.is_hostile_to(target) and player.position.distance(target.position) <= condition.value2:
+                        return True
+                    elif condition.value1 == 2 and player.is_friendly_to(target) and player.position.distance(target.position) <= condition.value2:
+                        return True
                 
         return False
 
