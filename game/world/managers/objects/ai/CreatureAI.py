@@ -14,7 +14,8 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, \
+    SpellEffects
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates
 
 if TYPE_CHECKING:
@@ -31,7 +32,7 @@ class CreatureAI:
         if creature:
             self.creature = creature
             self.use_ai_at_control = False
-            self.melee_attack = True  # If we allow melee auto attack.
+            self.has_melee = self.creature.has_melee()  # If we allow melee auto attack.
             self.combat_movement = True  # If we allow targeted movement gen (chasing target).
             self.casting_delay = 0  # Cooldown before updating spell list again.
             self.last_alert_time = 0
@@ -149,12 +150,19 @@ class CreatureAI:
         # Reset spells template to default on respawn.
         # Reset combat movement and melee attack.
 
-        # Apply passives.
+        # Apply passives and cast pet summons.
         for spell_id in self.creature.get_template_spells():
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not spell:
                 continue
-            self.creature.spell_manager.apply_passive_spell_effects(spell)
+
+            spell = self.creature.spell_manager.try_initialize_spell(spell, self.creature,
+                                                                     SpellTargetMask.SELF, validate=False)
+
+            if spell.is_passive():
+                self.creature.spell_manager.apply_passive_spell_effects(spell)
+            elif spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET):
+                self.creature.spell_manager.start_spell_cast(initialized_spell=spell)
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):
@@ -190,7 +198,7 @@ class CreatureAI:
     # Called when creature attack is expected (if creature can and doesn't have current victim).
     # Note: for reaction at hostile action must be called AttackedBy function.
     def attack_start(self, victim, chase=True):
-        if chase:
+        if chase and self.has_melee:
             self.creature.movement_manager.move_chase()
         # Notify creature group.
         if self.creature.creature_group:
@@ -383,7 +391,7 @@ class CreatureAI:
         return self.combat_movement
 
     def is_melee_attack_enabled(self):
-        return self.melee_attack
+        return self.has_melee
 
     def set_melee_attack(self, enabled):
         pass

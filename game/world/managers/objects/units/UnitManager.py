@@ -205,7 +205,6 @@ class UnitManager(ObjectManager):
         self.stat_manager = StatManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
-        # TODO: Support for CreatureManager is not added yet.
         from game.world.managers.objects.units.pet.PetManager import PetManager
         self.pet_manager = PetManager(self)
         # Players/Creatures.
@@ -271,6 +270,10 @@ class UnitManager(ObjectManager):
 
         self.set_current_target(victim.guid)
         self.combat_target = victim
+
+        active_pet = self.pet_manager.get_active_controlled_pet()
+        if active_pet:
+            active_pet.creature.object_ai.owner_attacked(victim)
 
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
@@ -1551,7 +1554,7 @@ class UnitManager(ObjectManager):
             self.object_ai.just_died()
 
         # Notify killer's pet AI about this kill.
-        if killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             killer_pet = killer.pet_manager.get_active_controlled_pet()
             if killer_pet:
                 killer_pet.creature.object_ai.killed_unit(self)
@@ -1564,6 +1567,8 @@ class UnitManager(ObjectManager):
 
         # Reset threat manager.
         self.threat_manager.reset()
+
+        self.pet_manager.detach_active_pets()
 
         self.set_health(0)
 

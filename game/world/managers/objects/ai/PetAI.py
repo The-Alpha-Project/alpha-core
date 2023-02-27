@@ -1,8 +1,8 @@
-import math
-
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.PetCodes import PetCommandState, PetReactState, PetFollowState
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitStates
 
 
@@ -14,16 +14,23 @@ class PetAI(CreatureAI):
             self.update_allies_timer = 0
             self.allies = ()
             self.update_allies()
-            self.has_melee = self.creature.has_melee()
 
     # override
     def update_ai(self, elapsed):
-        if self.creature and self.creature.threat_manager:
-            target = self.creature.threat_manager.get_hostile_target()
-            # Has a target, check if we need to attack or switch target.
-            if target and self.creature.combat_target != target and self._can_attack(target):
-                self.creature.attack(target)
+        owner = self.creature.get_charmer_or_summoner()
+        if not self.creature or not owner:
+            return
 
+        if owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if self.creature.combat_target and not self.creature.combat_target.is_alive:
+                self.creature.combat_target = self.select_next_target()
+            return
+
+        if self.creature.combat_target != owner.combat_target:
+            if owner.combat_target:
+                self.creature.attack(owner.combat_target)
+            else:
+                self.creature.attack_stop()
 
     # override
     def permissible(self, creature):
@@ -31,16 +38,11 @@ class PetAI(CreatureAI):
             return Permits.PERMIT_BASE_SPECIAL
         return Permits.PERMIT_BASE_NO
 
-    # Called when creature base attack() starts.
-    # override
-    def attack_start(self, victim, chase=True):
-        chase = self._get_command_state() == PetCommandState.COMMAND_ATTACK
-        super().attack_start(victim, chase=chase)
-
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
     # override
     def attacked_by(self, target):
-        super().attacked_by(target)
+        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+            self.creature.attack(target)
 
     def _can_attack(self, target):
         if not target:
@@ -96,19 +98,28 @@ class PetAI(CreatureAI):
     # Called when owner takes damage. This function helps keep pets from running off simply due to owner gaining aggro.
     # override
     def owner_attacked_by(self, attacker):
-        pass
+        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+            self.creature.attack(attacker)
 
     # Called when owner attacks something.
     # override
     def owner_attacked(self, target):
-        pass
+        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+            self.creature.attack(target)
 
     # Provides next target selection after current target death.
     # This function should only be called internally by the AI.
     # Targets are not evaluated here for being valid targets, that is done in _CanAttack().
     # The parameter: allowAutoSelect lets us disable aggressive pet auto targeting for certain situations.
-    def select_next_target(self, allow_auto_select):
-        pass
+    def select_next_target(self, allow_auto_select=True):
+        if self._get_react_state() == PetReactState.REACT_PASSIVE:
+            return None
+
+        owner = self.creature.get_charmer_or_summoner()
+        if not owner:
+            return
+
+        return owner.combat_target
 
     # Handles attack with or without chase and also resets flags for next update / creature kill.
     def do_attack(self, target, chase):
@@ -133,17 +144,28 @@ class PetAI(CreatureAI):
     def stop_attack(self):
         pass
 
+    def do_spell_cast(self, spell_id, target):
+        if self.creature.spell_manager.is_casting():
+            return
+
+        target_mask = SpellTargetMask.SELF if target.guid == self.creature.guid else SpellTargetMask.UNIT
+        self.creature.spell_manager.handle_cast_attempt(spell_id, target, target_mask)
+
     def command_state_update(self):
         self.creature.movement_manager.reset(clean_behaviors=True)
 
-        if self._get_command_state() != PetCommandState.COMMAND_ATTACK:
-            self.creature.attack_stop()  # Always stop attacking if new state isn't attack.
+        # TODO Stay shouldn't cause pet to stop attacking, only stop chasing.
+        self.creature.attack_stop()
 
         if self._get_command_state() == PetCommandState.COMMAND_STAY:
             self.creature.movement_manager.move_stay(state=True)
 
         if self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
             self.creature.movement_manager.move_stay(state=False)
+
+    def react_state_update(self):
+        if self._get_react_state() == PetReactState.REACT_PASSIVE:
+            self.creature.attack_stop()
 
     def _get_command_state(self):
         controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()

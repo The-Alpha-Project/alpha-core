@@ -590,7 +590,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, effect.misc_value)

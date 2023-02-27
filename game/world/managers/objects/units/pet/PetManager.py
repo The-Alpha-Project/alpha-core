@@ -30,6 +30,9 @@ class PetManager:
         self.active_pets: dict[PetSlot, ActivePet] = {}
 
     def load_pets(self):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         character_pets = RealmDatabaseManager.character_get_pets(self.owner.guid)
         for character_pet in character_pets:
             spells = RealmDatabaseManager.character_get_pet_spells(self.owner.guid, character_pet.pet_id)
@@ -116,7 +119,8 @@ class PetManager:
             return
 
         # If a creature ID isn't provided, the pet to summon is the player's only pet (hunters).
-        is_warlock_pet = creature_id != 0
+        # Otherwise, the pet is owned by a warlock or a creature.
+        is_creature_summon = creature_id != 0
 
         pet_index = -1
         if not creature_id:
@@ -143,13 +147,13 @@ class PetManager:
                                                   spell_id=spell_id,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
 
-        # Match summoner level for warlock pets. Otherwise, set to the level in PetData.
-        pet_level = self.owner.level if is_warlock_pet else -1
+        # Match summoner level for creature summons. Otherwise, set to the level in PetData.
+        pet_level = self.owner.level if is_creature_summon else -1
         active_pet = self.set_creature_as_pet(creature_manager, spell_id, PetSlot.PET_SLOT_PERMANENT,
                                               pet_level=pet_level, pet_index=pet_index, is_permanent=True)
 
-        # On initial warlock pet summon, teach available spells according to the summon spell's level.
-        if is_warlock_pet and pet_index == -1:
+        # On initial creature summon, teach available spells according to the summon spell's level.
+        if is_creature_summon and pet_index == -1:
             spell_level = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id).SpellLevel
             active_pet.initialize_spells(level_override=spell_level)
 
@@ -227,20 +231,23 @@ class PetManager:
             return
 
         if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
-            target_mask = SpellTargetMask.SELF if target_unit.guid == active_pet_unit.guid else SpellTargetMask.UNIT
-            active_pet_unit.spell_manager.handle_cast_attempt(action_id, target_unit, target_mask)
+            active_pet_unit.object_ai.do_spell_cast(action_id, target_unit)
 
         elif action & (0x01 << 24):
             # Command state action.
-            active_pet.get_pet_data().command_state = action_id
-            active_pet.creature.object_ai.command_state_update()
+            if action_id in {PetCommandState.COMMAND_FOLLOW, PetCommandState.COMMAND_STAY}:
+                active_pet.get_pet_data().command_state = action_id
+                active_pet.creature.object_ai.command_state_update()
+
             if action_id == PetCommandState.COMMAND_ATTACK and target_unit:
                 active_pet.creature.attack(target_unit)
             if action_id == PetCommandState.COMMAND_DISMISS:
                 self.detach_pet_by_slot(active_pet.pet_slot)
 
         else:
+            # Always trigger react state update for stopping pet attack even when already passive.
             active_pet.get_pet_data().react_state = action_id
+            active_pet.creature.object_ai.react_state_update()
 
     def handle_set_action(self, pet_guid, slot, action):
         active_pet = self.get_active_controlled_pet()
@@ -312,6 +319,9 @@ class PetManager:
         active_pet.set_level(self.owner.level, replenish=True)
 
     def handle_cast_result(self, spell_id, result):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         if result == SpellCheckCastResult.SPELL_NO_ERROR:
             return
 
@@ -337,6 +347,9 @@ class PetManager:
         return SpellCheckCastResult.SPELL_NO_ERROR
 
     def _send_tame_result(self, result):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         if result == PetTameResult.TAME_SUCCESS:
             return
 
@@ -370,6 +383,9 @@ class PetManager:
                 return
 
     def send_pet_spell_info(self, reset=False):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         if not reset:
             active_pet = self.get_active_controlled_pet()
             if not active_pet:
