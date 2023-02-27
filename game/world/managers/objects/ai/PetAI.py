@@ -2,6 +2,7 @@ import math
 
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.PetCodes import PetCommandState, PetReactState, PetFollowState
 from utils.constants.UnitCodes import UnitStates
 
@@ -14,28 +15,30 @@ class PetAI(CreatureAI):
             self.update_allies_timer = 0
             self.allies = ()
             self.update_allies()
-            self.has_melee = self.creature.has_melee()
 
     # override
     def update_ai(self, elapsed):
-        if self.creature and self.creature.threat_manager:
-            target = self.creature.threat_manager.get_hostile_target()
-            # Has a target, check if we need to attack or switch target.
-            if target and self.creature.combat_target != target and self._can_attack(target):
-                self.creature.attack(target)
+        owner = self.creature.get_charmer_or_summoner()
+        if not self.creature or not owner:
+            return
 
+        if owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if self.creature.combat_target and not self.creature.combat_target.is_alive:
+                self.creature.combat_target = None
+
+            return
+
+        if self.creature.combat_target != owner.combat_target:
+            if owner.combat_target:
+                self.creature.attack(owner.combat_target)
+            else:
+                self.creature.attack_stop()
 
     # override
     def permissible(self, creature):
         if creature.is_pet():
             return Permits.PERMIT_BASE_SPECIAL
         return Permits.PERMIT_BASE_NO
-
-    # Called when creature base attack() starts.
-    # override
-    def attack_start(self, victim, chase=True):
-        chase = self._get_command_state() == PetCommandState.COMMAND_ATTACK
-        super().attack_start(victim, chase=chase)
 
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
     # override
@@ -136,14 +139,15 @@ class PetAI(CreatureAI):
     def command_state_update(self):
         self.creature.movement_manager.reset(clean_behaviors=True)
 
-        if self._get_command_state() != PetCommandState.COMMAND_ATTACK:
-            self.creature.attack_stop()  # Always stop attacking if new state isn't attack.
-
         if self._get_command_state() == PetCommandState.COMMAND_STAY:
             self.creature.movement_manager.move_stay(state=True)
 
         if self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
             self.creature.movement_manager.move_stay(state=False)
+
+    def react_state_update(self):
+        if self._get_react_state() == PetReactState.REACT_PASSIVE:
+            self.creature.attack_stop()
 
     def _get_command_state(self):
         controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()

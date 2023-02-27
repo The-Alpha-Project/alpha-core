@@ -236,15 +236,20 @@ class PetManager:
 
         elif action & (0x01 << 24):
             # Command state action.
-            active_pet.get_pet_data().command_state = action_id
-            active_pet.creature.object_ai.command_state_update()
+            if action_id in {PetCommandState.COMMAND_FOLLOW, PetCommandState.COMMAND_STAY} and \
+                    active_pet.get_pet_data().command_state != action_id:
+                active_pet.get_pet_data().command_state = action_id
+                active_pet.creature.object_ai.command_state_update()
+
             if action_id == PetCommandState.COMMAND_ATTACK and target_unit:
                 active_pet.creature.attack(target_unit)
             if action_id == PetCommandState.COMMAND_DISMISS:
                 self.detach_pet_by_slot(active_pet.pet_slot)
 
         else:
+            # Always trigger react state update for stopping pet attack even when already passive.
             active_pet.get_pet_data().react_state = action_id
+            active_pet.creature.object_ai.react_state_update()
 
     def handle_set_action(self, pet_guid, slot, action):
         active_pet = self.get_active_controlled_pet()
