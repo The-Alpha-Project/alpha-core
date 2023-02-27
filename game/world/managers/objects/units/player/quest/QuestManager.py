@@ -774,6 +774,8 @@ class QuestManager(object):
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(quest)
 
+        quest_giver.script_handler.enqueue_script(quest_giver, self.player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_START, quest_id)
+
         # If player is in a group and quest has QUEST_FLAGS_PARTY_ACCEPT flag, let other members accept it too.
         if self.player_mgr.group_manager and not shared:
             quest_template = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(quest_id)

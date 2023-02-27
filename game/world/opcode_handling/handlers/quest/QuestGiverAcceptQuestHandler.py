@@ -44,8 +44,6 @@ class QuestGiverAcceptQuestHandler(object):
                 player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTLOG_FULL))
             elif is_item or quest_giver.is_within_interactable_distance(player_mgr):
                 player_mgr.quest_manager.handle_accept_quest(quest_id, guid, shared=False, quest_giver=quest_giver,
-                                                             is_item=is_item)
-                
-                quest_giver.script_handler.enqueue_script(quest_giver, player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_START, quest_id)
+                                                             is_item=is_item)                                
 
         return 0
