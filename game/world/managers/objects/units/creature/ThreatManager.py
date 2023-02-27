@@ -95,12 +95,10 @@ class ThreatManager:
         # If the threat comes from a pet, owner should be added to this unit threat list.
         charmer_or_summoner = source.get_charmer_or_summoner()
         if charmer_or_summoner and not self.has_aggro_from(charmer_or_summoner):
-            # If the charmer/summoner is a player, set him in combat as well.
-            if charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                charmer_or_summoner.attack(self.owner)
+            # Set pet owner in combat as well.
             self.add_threat(charmer_or_summoner)
 
-        # Notify pet pet that owner has been attacked.
+        # Notify pet that owner has been attacked.
         active_pet = self.owner.pet_manager.get_active_controlled_pet()
         if active_pet:
             active_pet.creature.object_ai.owner_attacked_by(source)
