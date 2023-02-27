@@ -628,9 +628,8 @@ class ScriptHandler:
                 script.source.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
                 script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
 
-                # I feel so dirty doing this but it's not working otherwise.
-                flee_text = self.CREATURE_FLEE_TEXT.male_text
-                flee_text = flee_text.replace('%s ', '')                            
+                # In 0.5.3 the name of the unit is present by default, no need to specify it with the %s string.
+                flee_text = self.CREATURE_FLEE_TEXT.male_text.replace('%s ', '')                         
 
                 ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL, flee_text, \
                     ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
