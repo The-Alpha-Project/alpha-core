@@ -61,7 +61,7 @@ class ScriptHandler:
         self.CREATURE_FLEE_TEXT = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
 
     def handle_script(self, script):
-            if script.command in SCRIPT_COMMANDS:
+            if script.command in SCRIPT_COMMANDS:                
                 SCRIPT_COMMANDS[script.command](self, script)
             else:
                 Logger.warning(f'Unknown script command {script.command}.')
@@ -207,7 +207,21 @@ class ScriptHandler:
                 self.ooc_running = False
 
     def handle_script_command_talk(self, script):        
-        broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(script.dataint)
+
+        texts = []
+        if script.dataint > 0:
+            texts.append(script.dataint)
+        if script.dataint2 > 0:
+            texts.append(script.dataint2)
+        if script.dataint3 > 0:
+            texts.append(script.dataint3)
+        if script.dataint4 > 0:
+            texts.append(script.dataint4)
+
+        if len(texts) > 0:
+            text_id = random.choice(texts)
+
+        broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)
 
         if broadcast_message: 
             text_to_say = None
