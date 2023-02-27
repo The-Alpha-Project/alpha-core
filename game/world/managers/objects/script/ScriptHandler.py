@@ -8,8 +8,9 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
+from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import ChatMsgs, Languages, ScriptTypes
+from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, SetHomePositionOptions
@@ -220,8 +221,8 @@ class ScriptHandler:
 
         if len(texts) > 0:
             text_id = random.choice(texts)
-
-        broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)
+        
+        broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)        
 
         if broadcast_message: 
             text_to_say = None
@@ -233,8 +234,19 @@ class ScriptHandler:
                 text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
 
             if text_to_say is not None:     
-                ChatManager.send_monster_emote_message(script.source, script.target.guid if script.target else script.source.guid, broadcast_message.language_id, text_to_say,
-                ChatMsgs.CHAT_MSG_MONSTER_SAY if broadcast_message.chat_type == 0 else ChatMsgs.CHAT_MSG_MONSTER_YELL)
+                chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_SAY
+                lang = broadcast_message.language_id
+                if broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
+                    chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_YELL
+                elif broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
+                    chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
+                    lang = Languages.LANG_UNIVERSAL
+
+                text_to_say = text_to_say.replace('%s ', '') # 0.5.3 client doesn't replace %s to source name.
+
+                ChatManager.send_monster_emote_message(script.source, script.target.guid if script.target else script.source.guid, \
+                                                           lang, GameTextFormatter.format(script.target, text_to_say), chat_msg_type)
+
                 if broadcast_message.emote_id1 != 0:                                    
                         script.source.play_emote(broadcast_message.emote_id1)
                 # Neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them.
@@ -255,7 +267,8 @@ class ScriptHandler:
         if script.datalong4 != 0:
             emotes.append(script.datalong4)
 
-        script.source.play_emote(random.choice(emotes))
+        if len(emotes) > 0:
+            script.source.play_emote(random.choice(emotes))
 
     def handle_script_command_field_set(self, script):
         Logger.debug('ScriptHandler: handle_script_command_field_set not implemented yet')

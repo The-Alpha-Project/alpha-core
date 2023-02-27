@@ -936,3 +936,8 @@ class CreatureAIEventTypes(IntEnum):
     AI_EVENT_TYPE_ON_ENTER_COMBAT = 4
     AI_EVENT_TYPE_ON_DEATH = 6
     AI_EVENT_TYPE_ON_SPAWN = 11    
+
+class BroadcastMessageType(IntEnum):
+    BROADCAST_MSG_SAY = 0
+    BROADCAST_MSG_YELL = 1
+    BROADCAST_MSG_EMOTE = 2
