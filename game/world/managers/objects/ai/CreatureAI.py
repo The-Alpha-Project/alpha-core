@@ -104,6 +104,8 @@ class CreatureAI:
         if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             charmer_or_summoner.pet_manager.detach_pet_by_guid(self.creature.guid)
 
+        self.ai_event_handler.on_death()
+        
     # Called when the creature summon is killed.
     def summoned_creature_just_died(self, creature):
         pass
