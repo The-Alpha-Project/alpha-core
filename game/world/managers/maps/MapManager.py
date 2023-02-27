@@ -274,6 +274,10 @@ class MapManager:
         # We are only interested in the resulting Z near to the Z we know.
         z_values = sorted(z_values, key=lambda _z: abs(current_z - _z))
 
+        # Protect against namigator returning above terrain Z while monsters chase inside caves.
+        if math.fabs(current_z - z_values[0]) >= 3.0 and current_z:
+            return current_z, True
+
         return z_values[0], False
 
     @staticmethod
