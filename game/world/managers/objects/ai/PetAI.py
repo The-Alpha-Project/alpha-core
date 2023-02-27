@@ -4,6 +4,7 @@ from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.PetCodes import PetCommandState, PetReactState, PetFollowState
+from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitStates
 
 
@@ -135,6 +136,13 @@ class PetAI(CreatureAI):
 
     def stop_attack(self):
         pass
+
+    def do_spell_cast(self, spell_id, target):
+        if self.creature.spell_manager.is_casting():
+            return
+
+        target_mask = SpellTargetMask.SELF if target.guid == self.creature.guid else SpellTargetMask.UNIT
+        self.creature.spell_manager.handle_cast_attempt(spell_id, target, target_mask)
 
     def command_state_update(self):
         self.creature.movement_manager.reset(clean_behaviors=True)
