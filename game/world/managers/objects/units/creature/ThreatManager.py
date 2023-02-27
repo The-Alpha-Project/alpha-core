@@ -100,6 +100,11 @@ class ThreatManager:
                 charmer_or_summoner.attack(self.owner)
             self.add_threat(charmer_or_summoner)
 
+        # Notify pet pet that owner has been attacked.
+        active_pet = self.owner.pet_manager.get_active_controlled_pet()
+        if active_pet:
+            active_pet.creature.object_ai.owner_attacked_by(source)
+
         if threat < 0.0:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
