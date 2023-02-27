@@ -19,7 +19,7 @@ from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
-    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid
+    QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid, ScriptTypes
 from utils.constants.UpdateFields import PlayerFields
 
 # Terminology:
@@ -937,6 +937,9 @@ class QuestManager(object):
         # Cast spell if needed.
         if active_quest.quest.RewSpellCast:
             self.cast_reward_spell(quest_giver.guid, active_quest)
+
+        if quest_giver.script_handler:
+                quest_giver.script_handler.enqueue_script(quest_giver, self.player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_END, quest_id)
 
         # Remove from active quests if needed.
         if quest.entry in self.active_quests:
