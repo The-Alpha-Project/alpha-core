@@ -528,7 +528,7 @@ class CreatureManager(UnitManager):
 
     # override
     def attack(self, victim: UnitManager):
-        had_target = self.combat_target
+        had_target = self.combat_target and self.combat_target.is_alive
         super().attack(victim)
         if not had_target:
             self.object_ai.attack_start(victim)
