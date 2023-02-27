@@ -14,7 +14,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, SpellAttributes, \
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, \
     SpellEffects
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates
 
@@ -163,7 +163,6 @@ class CreatureAI:
                 self.creature.spell_manager.apply_passive_spell_effects(spell)
             elif spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET):
                 self.creature.spell_manager.start_spell_cast(initialized_spell=spell)
-
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):
