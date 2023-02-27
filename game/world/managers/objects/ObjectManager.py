@@ -369,6 +369,8 @@ class ObjectManager:
 
     # override
     def destroy(self):
+        if self.object_ai:
+            self.object_ai.just_despawned()
         self.is_spawned = False
         MapManager.remove_object(self)
 
