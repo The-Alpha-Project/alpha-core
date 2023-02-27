@@ -14,7 +14,8 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
-from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags
+from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, SpellAttributes, \
+    SpellEffects
 from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates
 
 if TYPE_CHECKING:
@@ -149,12 +150,20 @@ class CreatureAI:
         # Reset spells template to default on respawn.
         # Reset combat movement and melee attack.
 
-        # Apply passives.
+        # Apply passives and cast pet summons.
         for spell_id in self.creature.get_template_spells():
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not spell:
                 continue
-            self.creature.spell_manager.apply_passive_spell_effects(spell)
+
+            spell = self.creature.spell_manager.try_initialize_spell(spell, self.creature,
+                                                                     SpellTargetMask.SELF, validate=False)
+
+            if spell.is_passive():
+                self.creature.spell_manager.apply_passive_spell_effects(spell)
+            elif spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET):
+                self.creature.spell_manager.start_spell_cast(initialized_spell=spell)
+
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):

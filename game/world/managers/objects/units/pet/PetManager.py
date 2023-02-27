@@ -30,6 +30,9 @@ class PetManager:
         self.active_pets: dict[PetSlot, ActivePet] = {}
 
     def load_pets(self):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         character_pets = RealmDatabaseManager.character_get_pets(self.owner.guid)
         for character_pet in character_pets:
             spells = RealmDatabaseManager.character_get_pet_spells(self.owner.guid, character_pet.pet_id)
@@ -312,6 +315,9 @@ class PetManager:
         active_pet.set_level(self.owner.level, replenish=True)
 
     def handle_cast_result(self, spell_id, result):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         if result == SpellCheckCastResult.SPELL_NO_ERROR:
             return
 
@@ -337,6 +343,9 @@ class PetManager:
         return SpellCheckCastResult.SPELL_NO_ERROR
 
     def _send_tame_result(self, result):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         if result == PetTameResult.TAME_SUCCESS:
             return
 
@@ -370,6 +379,9 @@ class PetManager:
                 return
 
     def send_pet_spell_info(self, reset=False):
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
         if not reset:
             active_pet = self.get_active_controlled_pet()
             if not active_pet:

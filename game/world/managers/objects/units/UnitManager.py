@@ -205,7 +205,6 @@ class UnitManager(ObjectManager):
         self.stat_manager = StatManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
-        # TODO: Support for CreatureManager is not added yet.
         from game.world.managers.objects.units.pet.PetManager import PetManager
         self.pet_manager = PetManager(self)
         # Players/Creatures.
