@@ -23,8 +23,7 @@ class PetAI(CreatureAI):
 
         if owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if self.creature.combat_target and not self.creature.combat_target.is_alive:
-                self.creature.combat_target = None
-
+                self.creature.combat_target = self.select_next_target()
             return
 
         if self.creature.combat_target != owner.combat_target:
@@ -42,7 +41,8 @@ class PetAI(CreatureAI):
     # Called when pet takes damage. This function helps keep pets from running off simply due to gaining aggro.
     # override
     def attacked_by(self, target):
-        super().attacked_by(target)
+        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+            self.creature.attack(target)
 
     def _can_attack(self, target):
         if not target:
@@ -98,19 +98,28 @@ class PetAI(CreatureAI):
     # Called when owner takes damage. This function helps keep pets from running off simply due to owner gaining aggro.
     # override
     def owner_attacked_by(self, attacker):
-        pass
+        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+            self.creature.attack(attacker)
 
     # Called when owner attacks something.
     # override
     def owner_attacked(self, target):
-        pass
+        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
+            self.creature.attack(target)
 
     # Provides next target selection after current target death.
     # This function should only be called internally by the AI.
     # Targets are not evaluated here for being valid targets, that is done in _CanAttack().
     # The parameter: allowAutoSelect lets us disable aggressive pet auto targeting for certain situations.
-    def select_next_target(self, allow_auto_select):
-        pass
+    def select_next_target(self, allow_auto_select=True):
+        if self._get_react_state() == PetReactState.REACT_PASSIVE:
+            return None
+
+        owner = self.creature.get_charmer_or_summoner()
+        if not owner:
+            return
+
+        return owner.combat_target
 
     # Handles attack with or without chase and also resets flags for next update / creature kill.
     def do_attack(self, target, chase):

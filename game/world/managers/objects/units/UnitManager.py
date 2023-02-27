@@ -271,6 +271,10 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
+        active_pet = self.pet_manager.get_active_controlled_pet()
+        if active_pet:
+            active_pet.creature.object_ai.owner_attacked(victim)
+
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
