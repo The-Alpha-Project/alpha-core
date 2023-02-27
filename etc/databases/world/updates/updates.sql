@@ -1,7 +1,7 @@
 delimiter $
 begin not atomic
     -- 27/02/2023 1
-	if (select count(*) from applied_updates where id='270220231') = 0 then
+    if (select count(*) from applied_updates where id='270220231') = 0 then
         update creature_template set faction = 55 where entry in (374, 460, 944, 1228, 1268, 1269, 1676, 2682,
                                                                   2683, 3133, 3181, 3290, 4081, 5100, 5114, 5127,
                                                                   5132, 5144, 5145, 5151, 5152, 5157, 5158, 5162,
