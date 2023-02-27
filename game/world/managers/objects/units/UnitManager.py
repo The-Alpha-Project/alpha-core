@@ -1554,7 +1554,7 @@ class UnitManager(ObjectManager):
             self.object_ai.just_died()
 
         # Notify killer's pet AI about this kill.
-        if killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             killer_pet = killer.pet_manager.get_active_controlled_pet()
             if killer_pet:
                 killer_pet.creature.object_ai.killed_unit(self)
