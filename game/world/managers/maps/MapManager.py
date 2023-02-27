@@ -249,7 +249,7 @@ class MapManager:
                                           world_object.location.z)
 
     @staticmethod
-    def calculate_nav_z(map_id, x, y, current_z=0.0, maps_z=0.0) -> tuple:  # float, z_locked (Could not use map/nav files Z)
+    def calculate_nav_z(map_id, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map/nav files Z)
         # If nav tiles disabled or unable to load Namigator, return current Z as locked.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return current_z, True
@@ -277,11 +277,8 @@ class MapManager:
         # TODO: Namigator returns above caves Z while mobs are chasing inside caves and usually path really close
         #  to walls (probably stepping into an invalid poly).
         # Protect against namigator returning above terrain Z while monsters chase inside caves.
-        # We have maps Z, and it's really close to namigator result, protect.
-        if maps_z > 0.0 and math.fabs(z_values[0] - maps_z) < 1.0:
-            return current_z, True
-        # No maps Z but still found Z is way different from current Z, protect.
-        elif maps_z == 0.0 and math.fabs(current_z - z_values[0]) >= 3.0 and current_z:
+        # Found Z is way different from current Z, protect.
+        if math.fabs(current_z - z_values[0]) >= 4.0 and current_z:
             return current_z, True
 
         return z_values[0], False
@@ -448,7 +445,7 @@ class MapManager:
                 calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
                 # If maps Z is quite different, cascade into nav Z, if that also fails, current Z will be returned.
                 if math.fabs(current_z - calculated_z) >= 1.0 and current_z:
-                    return MapManager.calculate_nav_z(map_id, x, y, current_z, maps_z=calculated_z)
+                    return MapManager.calculate_nav_z(map_id, x, y, current_z)
                 return calculated_z, False
             except:
                 tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
