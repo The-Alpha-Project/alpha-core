@@ -78,9 +78,8 @@ class AIEventHandler():
         if events:
             for event in events:
                 if event.event_type == CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH:                    
-                    chance_roll = random.randint(0, 100)                    
+                    chance_roll = random.randint(0, 100)
                     if chance_roll <= event.event_chance:
-
                         choices = []
                         if event.action1_script > 0:
                             choices.append(event.action1_script)
