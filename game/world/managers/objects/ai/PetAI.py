@@ -1,5 +1,3 @@
-import math
-
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds
@@ -146,6 +144,9 @@ class PetAI(CreatureAI):
 
     def command_state_update(self):
         self.creature.movement_manager.reset(clean_behaviors=True)
+
+        # TODO Stay shouldn't cause pet to stop attacking, only stop chasing.
+        self.creature.attack_stop()
 
         if self._get_command_state() == PetCommandState.COMMAND_STAY:
             self.creature.movement_manager.move_stay(state=True)

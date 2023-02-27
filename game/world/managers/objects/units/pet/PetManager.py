@@ -235,8 +235,7 @@ class PetManager:
 
         elif action & (0x01 << 24):
             # Command state action.
-            if action_id in {PetCommandState.COMMAND_FOLLOW, PetCommandState.COMMAND_STAY} and \
-                    active_pet.get_pet_data().command_state != action_id:
+            if action_id in {PetCommandState.COMMAND_FOLLOW, PetCommandState.COMMAND_STAY}:
                 active_pet.get_pet_data().command_state = action_id
                 active_pet.creature.object_ai.command_state_update()
 
