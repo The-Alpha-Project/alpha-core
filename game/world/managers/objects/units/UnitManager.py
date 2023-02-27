@@ -1564,6 +1564,8 @@ class UnitManager(ObjectManager):
         # Reset threat manager.
         self.threat_manager.reset()
 
+        self.pet_manager.detach_active_pets()
+
         self.set_health(0)
 
         self.unit_flags |= UnitFlags.UNIT_MASK_DEAD
