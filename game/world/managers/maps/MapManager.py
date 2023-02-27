@@ -278,7 +278,8 @@ class MapManager:
         #  to walls (probably stepping into an invalid poly).
         # Protect against namigator returning above terrain Z while monsters chase inside caves.
         # Found Z is way different from current Z, protect.
-        if math.fabs(current_z - z_values[0]) >= 4.0 and current_z:
+        if math.fabs(current_z - z_values[0]) >= 5.0 and current_z:
+            Logger.warning(f'Namigator returned wrong Z: {z_values[0]} for {x} {y} {current_z} Map {map_id}')
             return current_z, True
 
         return z_values[0], False
