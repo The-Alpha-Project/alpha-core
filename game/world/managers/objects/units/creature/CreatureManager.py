@@ -570,8 +570,6 @@ class CreatureManager(UnitManager):
                 self.aura_manager.update(now)
                 # Sanctuary check.
                 self.update_sanctuary(elapsed)
-                # Scripts update.
-                self.script_handler.update()
                 # Movement Updates.
                 self.movement_manager.update_pending_waypoints(elapsed)
                 if self.has_moved or self.has_turned:
@@ -606,6 +604,9 @@ class CreatureManager(UnitManager):
             # Check if this creature object should be updated yet or not.
             if has_changes:
                 MapManager.update_object(self, has_changes=has_changes)
+
+            # Scripts need to be always updated to make on-death scripts possible.
+            self.script_handler.update()
 
         self.last_tick = now
 
