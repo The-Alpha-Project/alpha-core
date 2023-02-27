@@ -4,10 +4,10 @@ import random
 import time
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps import MapManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
-from game.world.managers.objects.units import DamageInfoHolder
-from game.world.managers.objects.units.creature import CreatureBuilder
+from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
+from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ChatMsgs, Languages, ScriptTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
@@ -61,7 +61,7 @@ class ScriptHandler:
         self.CREATURE_FLEE_TEXT = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
 
     def handle_script(self, script):
-            if script.command in SCRIPT_COMMANDS:                
+            if script.command in SCRIPT_COMMANDS:
                 SCRIPT_COMMANDS[script.command](self, script)
             else:
                 Logger.warning(f'Unknown script command {script.command}.')
@@ -337,23 +337,22 @@ class ScriptHandler:
         pass
 
     def handle_script_command_temp_summon_creature(self, script):
-        # TODO: add support for datalong4 (unique_distance).
-
         summoned_count = 0
-        surrounding = MapManager.get_surrounding_units(script.source.location, False)
+        surrounding = MapManager.get_surrounding_units(script.source, False)
         if len(surrounding) > 0:
             for unit in surrounding:
-                if unit.creature_manager is not None and unit.creature_manager.creature_template.entry == script.datalong \
-                and unit.creature_manager.is_unit_pet(script.source):
+                _unit = MapManager.get_surrounding_unit_by_guid(script.source, unit)
+                if _unit and _unit.creature_template.entry == script.datalong \
+                and script.source.position.distance(_unit.position) <= script.datalong4:
                     summoned_count += 1                                    
 
-        if summoned_count < script.datalong3:
-            creature_manager = CreatureBuilder.create(script.datalong, script.source.map_id, script.source.instance_id, \
-                                                    location = Vector(script.x, script.y, script.z, script.o), \
-                                                    summoner = script.source, faction = script.source.faction, ttl = script.datalong2, \
-                                                    subtype = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+        if summoned_count <= script.datalong3:
+            creature_manager = CreatureBuilder.create(script.datalong, Vector(script.x, script.y, script.z, script.o), script.source.map_id, script.source.instance_id,                                                   
+                                                    summoner = None, faction = script.source.faction, ttl = script.datalong2, \
+                                                    subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
             if creature_manager is not None:
                 MapManager.spawn_object(world_object_instance = creature_manager)
+
         else:
             Logger.warning(f'ScriptHandler: handle_script_command_temp_summon_creature: failed to create creature {script.datalong}.')
 
