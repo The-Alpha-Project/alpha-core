@@ -179,7 +179,8 @@ class PetData:
             # TODO Make these pets untamable?
             return []
 
-        skill_lines = [family_entry.SkillLine_1, family_entry.SkillLine_2]  # Include talents for this check (if any).
+        skill_lines = [family_entry.SkillLine_1,
+                       family_entry.SkillLine_2 if self.is_hunter_pet() else 0]  # Include talents for this check (if any).
 
         skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(skill_lines)
         if not skill_line_abilities:
