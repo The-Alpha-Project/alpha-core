@@ -241,11 +241,12 @@ class ScriptHandler:
                 elif broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
                     chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
                     lang = Languages.LANG_UNIVERSAL
+                    text_to_say = GameTextFormatter.format(script.target, text_to_say)
 
                 text_to_say = text_to_say.replace('%s ', '') # 0.5.3 client doesn't replace %s to source name.
 
                 ChatManager.send_monster_emote_message(script.source, script.target.guid if script.target else script.source.guid, \
-                                                           lang, GameTextFormatter.format(script.target, text_to_say), chat_msg_type)
+                                                           lang, text_to_say, chat_msg_type)
 
                 if broadcast_message.emote_id1 != 0:                                    
                         script.source.play_emote(broadcast_message.emote_id1)
