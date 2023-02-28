@@ -46,7 +46,7 @@ class AIEventHandler():
 
         if events:
             for event in events:
-                if event.event_type == CreatureAIEventTypes.AI_EVENT_TYPE_ON_LOW_HP:
+                if event.event_type == CreatureAIEventTypes.AI_EVENT_TYPE_HP:
                     # In rare cases event_param1 is not the health breakpoint but something else?
                     if event.event_param1 > 0 and event.event_param1 <= 100: 
                         current_health_percent = (self.creature.health / self.creature.max_health) * 100                       
