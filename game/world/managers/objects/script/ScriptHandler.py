@@ -243,8 +243,6 @@ class ScriptHandler:
                     lang = Languages.LANG_UNIVERSAL
                     text_to_say = GameTextFormatter.format(script.target, text_to_say)
 
-                text_to_say = text_to_say.replace('%s ', '') # 0.5.3 client doesn't replace %s to source name.
-
                 ChatManager.send_monster_emote_message(script.source, script.target.guid if script.target else script.source.guid, \
                                                            lang, text_to_say, chat_msg_type)
 
@@ -645,10 +643,7 @@ class ScriptHandler:
                 script.source.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
                 script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
 
-                # In 0.5.3 the name of the unit is present by default, no need to specify it with the %s string.
-                flee_text = self.CREATURE_FLEE_TEXT.male_text.replace('%s ', '')                         
-
-                ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL, flee_text, \
+                ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL, self.CREATURE_FLEE_TEXT.male_text, \
                     ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
                 
                 if script.source.spell_manager:
