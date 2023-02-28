@@ -390,10 +390,13 @@ class ScriptHandler:
         pass
 
     def handle_script_command_remove_aura(self, script):
-        if script.source and script.source.spell_manager:
-            script.source.spell_manager.remove_aura(script.datalong)
+        if script.source and script.source.aura_manager:
+            auras = script.source.aura_manager.get_auras_by_spell_id(script.datalong)
+            if auras:
+                for aura in auras:
+                    script.source.aura_manager.remove_aura(aura)
         else:
-            Logger.warning('ScriptHandler: No spell manager found, aborting SCRIPT_COMMAND_REMOVE_AURA')
+            Logger.warning('ScriptHandler: No aura manager found, aborting SCRIPT_COMMAND_REMOVE_AURA')
 
     def handle_script_command_cast_spell(self, script):
         if script.source and script.source.spell_manager:
