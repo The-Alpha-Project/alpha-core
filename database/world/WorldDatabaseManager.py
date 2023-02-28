@@ -840,6 +840,34 @@ class WorldDatabaseManager(object):
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
             return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.get(entry)
 
+    # Quest scripts stuff.
+
+    @staticmethod
+    def quest_start_script_get_by_quest_id(quest_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestStartScript).filter(QuestStartScript.quest_id == quest_id).all()
+                                                           
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def quest_end_script_get_by_quest_id(quest_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestEndScript).filter(QuestEndScript.quest_id == quest_id).all()
+                                                           
+        world_db_session.close()
+        return res
+
+    # Generic scripts stuff.
+
+    @staticmethod
+    def generic_script_get_by_id(id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(GenericScript).filter(GenericScript.id == id).all()
+                                                           
+        world_db_session.close()
+        return res
+
     # Trainer stuff.
 
     @staticmethod
@@ -998,5 +1026,65 @@ class WorldDatabaseManager(object):
     def npc_text_get_all() -> list[NpcText]:
         world_db_session: scoped_session = SessionHolder()
         res = world_db_session.query(NpcText).all()
+        world_db_session.close()
+        return res
+
+    # Gossip.
+
+    class BroadcastTextHolder:
+        BROADCAST_TEXTS: dict[int, BroadcastText] = {}
+
+        @staticmethod
+        def load_broadcast_text(broadcast_text: BroadcastText):
+            # Since the 0.5.3 client adds the speaker name by default we need to remove the placeholder from the 
+            # broadcast text.
+            broadcast_text.male_text = broadcast_text.male_text.replace('%s ', '')
+            broadcast_text.female_text = broadcast_text.female_text.replace('%s ', '')
+            WorldDatabaseManager.BroadcastTextHolder.BROADCAST_TEXTS[broadcast_text.entry] = broadcast_text
+
+        @staticmethod
+        def broadcast_text_get_by_id(text_id: int) -> Optional[BroadcastText]:
+            return WorldDatabaseManager.BroadcastTextHolder.BROADCAST_TEXTS.get(text_id)
+
+    @staticmethod
+    def broadcast_text_get_all() -> list[BroadcastText]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(BroadcastText).all()
+        world_db_session.close()
+        return res
+
+    # Creature AI events
+    @staticmethod
+    def creature_ai_event_get_by_creature_id(creature_id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureAIEvent).filter(CreatureAIEvent.creature_id == creature_id).all()
+                                                           
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_ai_script_get_by_id(id):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureAIScript).filter(CreatureAIScript.id == id).first()
+
+        world_db_session.close()
+        return res
+
+    # Event conditions.
+    class ConditionHolder:
+        CONDITIONS: dict[int, Condition] = {}
+
+        @staticmethod
+        def load_condition(condition: Condition):
+            WorldDatabaseManager.ConditionHolder.CONDITIONS[condition.condition_entry] = condition
+
+        @staticmethod
+        def condition_get_by_id(condition_id: int) -> Optional[Condition]:
+            return WorldDatabaseManager.ConditionHolder.CONDITIONS.get(condition_id)
+
+    @staticmethod
+    def conditions_get_all() -> list[Condition]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(Condition).all()
         world_db_session.close()
         return res

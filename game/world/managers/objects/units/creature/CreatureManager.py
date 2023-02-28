@@ -5,6 +5,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
+from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -283,6 +284,26 @@ class CreatureManager(UnitManager):
 
             self.fully_loaded = True
 
+    def set_virtual_equipment(self, slot, item_id):
+        VirtualItemsUtils.set_virtual_item(self, slot, item_id)
+
+    def reset_virtual_equipment(self):
+        creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+            self.creature_template.equipment_id
+        )
+        if creature_equip_template:
+            VirtualItemsUtils.set_virtual_item(self, 0, creature_equip_template.equipentry1)
+            VirtualItemsUtils.set_virtual_item(self, 1, creature_equip_template.equipentry2)
+            VirtualItemsUtils.set_virtual_item(self, 2, creature_equip_template.equipentry3)
+
+    def set_faction(self, faction_id):
+        self.faction = faction_id
+        self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+
+    def reset_faction(self):
+        self.faction = self.creature_template.faction
+        self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+
     def get_template_spells(self):
         return list(filter((0).__ne__, [self.creature_template.spell_id1,
                                         self.creature_template.spell_id2,
@@ -507,6 +528,9 @@ class CreatureManager(UnitManager):
                 self.set_has_moved(False, False, flush=True)
                 MapManager.update_object(self, has_changes=has_changes)
 
+            # Scripts need to be always updated to make on-death scripts possible.
+            self.script_handler.update()
+
         self.last_tick = now
 
     def _check_destroy(self, elapsed):
@@ -549,6 +573,8 @@ class CreatureManager(UnitManager):
 
         if not super().receive_damage(damage_info, source, casting_spell=casting_spell, is_periodic=is_periodic):
             return False
+
+        self.object_ai.damage_taken(source, damage_info)
 
         # Handle COMBAT_PING creature static flag.
         if self.has_combat_ping() and not self.in_combat:
@@ -622,6 +648,9 @@ class CreatureManager(UnitManager):
             self.set_lootable(True)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
+
+        self.script_handler.reset()
+
         return super().die(killer)
 
     def reward_kill_xp(self, player):

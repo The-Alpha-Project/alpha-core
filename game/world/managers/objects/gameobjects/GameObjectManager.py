@@ -14,6 +14,7 @@ from game.world.managers.objects.gameobjects.managers.SpellFocusManager import S
 from game.world.managers.objects.gameobjects.managers.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
+from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates

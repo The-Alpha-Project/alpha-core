@@ -56,6 +56,7 @@ class WorldLoader:
             WorldLoader.load_creature_families()
             WorldLoader.load_npc_gossip()
             WorldLoader.load_npc_text()
+            WorldLoader.load_broadcast_text()
         else:
             Logger.info('Skipped creature loading.')
 
@@ -72,6 +73,7 @@ class WorldLoader:
         WorldLoader.load_factions()
         WorldLoader.load_faction_templates()
         WorldLoader.load_locks()
+        WorldLoader.load_conditions()
 
         # Character related data
         WorldLoader.load_groups()
@@ -658,6 +660,20 @@ class WorldLoader:
 
         return length
 
+    @staticmethod
+    def load_broadcast_text():
+        broadcast_texts = WorldDatabaseManager.broadcast_text_get_all()
+        length = len(broadcast_texts)
+        count = 0
+
+        for broadcast_text in broadcast_texts:
+            WorldDatabaseManager.BroadcastTextHolder.load_broadcast_text(broadcast_text)
+
+            count += 1
+            Logger.progress('Loading broadcast texts...', count, length)
+
+        return length        
+
     # Character data holders
 
     @staticmethod
@@ -688,3 +704,17 @@ class WorldLoader:
                 Logger.progress('Loading guilds...', count, length)
 
         return length
+
+    @staticmethod
+    def load_conditions():
+        conditions = WorldDatabaseManager.conditions_get_all()
+        length = len(conditions)
+        count = 0
+
+        for condition in conditions:
+            WorldDatabaseManager.ConditionHolder.load_condition(condition)
+
+            count += 1
+            Logger.progress('Loading conditions...', count, length)
+
+        return length  

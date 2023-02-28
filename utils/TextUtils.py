@@ -35,7 +35,7 @@ RACE_TEXT = {
 class GameTextFormatter:
 
     @staticmethod
-    def format(player_mgr, text):
+    def format(unit_mgr, text):
         # TODO: Maybe there's a more efficient way of doing this. :P
         if '$G' in text or '$g' in text:
             text = text.replace('$G', '$g')
@@ -45,18 +45,18 @@ class GameTextFormatter:
                     next_terminator = text.find(';', i)
                     subs = text[i: next_terminator + 1].strip()
                     tmp_list_data = subs.replace('$g', '').replace(';', '').split(':')
-                    tmp_text = tmp_text.replace(subs, tmp_list_data[player_mgr.player.gender].strip())
+                    tmp_text = tmp_text.replace(subs, tmp_list_data[unit_mgr.gender].strip())
             text = tmp_text
 
         return text \
             .replace('$B', '\n') \
             .replace('$b', '\n') \
-            .replace('$N', player_mgr.get_name()) \
-            .replace('$n', player_mgr.get_name()) \
-            .replace('$R', GameTextFormatter.race_to_text(player_mgr.player.race)) \
-            .replace('$r', GameTextFormatter.race_to_text(player_mgr.player.race).lower()) \
-            .replace('$C', GameTextFormatter.class_to_text(player_mgr.player.class_)) \
-            .replace('$c', GameTextFormatter.class_to_text(player_mgr.player.class_).lower())
+            .replace('$N', unit_mgr.get_name()) \
+            .replace('$n', unit_mgr.get_name()) \
+            .replace('$R', GameTextFormatter.race_to_text(unit_mgr.race)) \
+            .replace('$r', GameTextFormatter.race_to_text(unit_mgr.race).lower()) \
+            .replace('$C', GameTextFormatter.class_to_text(unit_mgr.class_)) \
+            .replace('$c', GameTextFormatter.class_to_text(unit_mgr.class_).lower())
 
     @staticmethod
     def class_to_text(class_):

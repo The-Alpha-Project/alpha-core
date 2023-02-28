@@ -1,7 +1,7 @@
 from struct import unpack
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
-from utils.constants.MiscCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid, ScriptTypes
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
 

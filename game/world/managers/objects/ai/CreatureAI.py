@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.script.AIEventHandler import AIEventHandler
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
@@ -38,6 +39,8 @@ class CreatureAI:
             self.last_alert_time = 0
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
+            self.ai_event_handler = AIEventHandler(creature)
+            self.entered_combat = False
 
     def load_spell_list(self):
         # Load creature spells if available.
@@ -64,6 +67,11 @@ class CreatureAI:
 
         if self.last_alert_time > 0:
             self.last_alert_time = max(0, self.last_alert_time - elapsed)
+
+        # TODO: Fluglow: Fix me!
+        if self.creature.in_combat and not self.entered_combat:
+            self.entered_combat = True
+            self.enter_combat()
 
     # Like UpdateAI, but only when the creature is a dead corpse.
     def update_ai_corpse(self, elapsed):
@@ -95,12 +103,15 @@ class CreatureAI:
 
     # Called when the creature is killed.
     def just_died(self):
+        self.entered_combat = False
         charmer_or_summoner = self.creature.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit
         # (game objects can spawn creatures, but they don't have a PetManager).
         if charmer_or_summoner and charmer_or_summoner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             charmer_or_summoner.pet_manager.detach_pet_by_guid(self.creature.guid)
 
+        self.ai_event_handler.on_death()
+        
     # Called when the creature summon is killed.
     def summoned_creature_just_died(self, creature):
         pass
@@ -150,6 +161,8 @@ class CreatureAI:
         # Reset spells template to default on respawn.
         # Reset combat movement and melee attack.
 
+        self.entered_combat = False
+
         # Apply passives and cast pet summons.
         for spell_id in self.creature.get_template_spells():
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
@@ -163,6 +176,10 @@ class CreatureAI:
                 self.creature.spell_manager.apply_passive_spell_effects(spell)
             elif spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET):
                 self.creature.spell_manager.start_spell_cast(initialized_spell=spell)
+
+        # Run on-spawn AI scripts
+        self.ai_event_handler.on_spawn()
+        self.ai_event_handler.on_idle()
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):
@@ -399,8 +416,9 @@ class CreatureAI:
     def set_combat_movement(self, enabled):
         pass
 
-    # Called for reaction at enter combat if not in combat yet (enemy can be None).
-    def enter_combat(self, unit):
+    # Called for reaction at enter to combat if not in combat yet (enemy can be None).
+    def enter_combat(self, unit = None):
+        self.ai_event_handler.on_enter_combat()	
         pass
 
     # Called when leaving combat.
@@ -417,6 +435,7 @@ class CreatureAI:
     # Note: it for recalculation damage or special reaction at damage
     # for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
     def damage_taken(self, attacker, damage):
+        self.ai_event_handler.on_damage_taken()
         pass
 
     # Called at any heal cast/item used (call non implemented).
@@ -433,4 +452,5 @@ class CreatureAI:
 
     # Called for reaction at stopping attack at no attackers or targets.
     def enter_evade_mode(self):
+        self.entered_combat = False
         pass
