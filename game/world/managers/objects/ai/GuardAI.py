@@ -24,7 +24,7 @@ class GuardAI(CreatureAI):
         return Permits.PERMIT_BASE_NO
 
     # override
-    def move_in_line_of_sight(self, unit):
+    def move_in_line_of_sight(self, unit=None):
         pass
 
     # override

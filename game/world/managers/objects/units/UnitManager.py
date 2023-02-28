@@ -205,7 +205,6 @@ class UnitManager(ObjectManager):
         self.stat_manager = StatManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
-        # TODO: Support for CreatureManager is not added yet.
         from game.world.managers.objects.units.pet.PetManager import PetManager
         self.pet_manager = PetManager(self)
         # Players/Creatures.
@@ -225,6 +224,11 @@ class UnitManager(ObjectManager):
             return False
 
         return super().is_hostile_to(target)
+
+    def can_perform_melee_attack(self):
+        return self.combat_target and self.has_melee() and not self.is_casting() \
+            and not self.unit_state & UnitStates.STUNNED and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
+            and not self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
 
     # override
     def can_attack_target(self, target):
@@ -267,6 +271,10 @@ class UnitManager(ObjectManager):
         self.set_current_target(victim.guid)
         self.combat_target = victim
 
+        active_pet = self.pet_manager.get_active_controlled_pet()
+        if active_pet:
+            active_pet.creature.object_ai.owner_attacked(victim)
+
         # Reset offhand weapon attack
         if self.has_offhand_weapon():
             self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, self.offhand_attack_time)
@@ -295,12 +303,8 @@ class UnitManager(ObjectManager):
         MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
-        # Don't update melee swing timers while casting or stunned.
-        if self.is_casting() or self.unit_state & UnitStates.STUNNED or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
-            return False
-
-        # Some creatures do not have melee capability.
-        if not self.has_melee():
+        # Don't update melee swing timers while casting, stunned, pacified or fleeing..
+        if not self.can_perform_melee_attack():
             return False
 
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
@@ -310,8 +314,8 @@ class UnitManager(ObjectManager):
         return self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
-        if self.unit_state & UnitStates.STUNNED or not self.combat_target \
-                or self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+        # Don't update melee swing timers while casting, stunned, pacified or fleeing..
+        if not self.can_perform_melee_attack():
             return False
 
         swing_error = AttackSwingError.NONE
@@ -320,10 +324,6 @@ class UnitManager(ObjectManager):
         # If neither main hand attack and off hand attack are ready, return.
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
                 (self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK)):
-            return False
-
-        # If unit is casting, return.
-        if self.spell_manager.is_casting():
             return False
 
         main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
@@ -896,14 +896,15 @@ class UnitManager(ObjectManager):
         return self.has_dodge_passive and not self.spell_manager.is_casting() and \
                not self.unit_state & UnitStates.STUNNED
 
-    def enter_combat(self):
+    def enter_combat(self, unit):
         if self.in_combat:
-            return
+            return False
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         # Handle enter combat interrupts.
         self.aura_manager.check_aura_interrupts(enter_combat=True)
+        return True
 
     def leave_combat(self):
         if not self.in_combat:
@@ -974,7 +975,11 @@ class UnitManager(ObjectManager):
         # Get new total speed.
         speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING)
         # Limit to 0-56 and assign object field.
-        return super().change_speed(speed)
+        change_speed = super().change_speed(speed)
+        # Speed was modified, update current spline if needed.
+        if change_speed and self.is_moving():
+            self.movement_manager.set_speed_dirty()
+        return change_speed
 
     # override
     def can_detect_target(self, target, distance=0):
@@ -1173,17 +1178,15 @@ class UnitManager(ObjectManager):
         self.unit_flags &= ~UnitFlags.UNIT_MASK_MOUNTED
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        return True
 
     def is_moving(self):
         return self.movement_manager.unit_is_moving()
 
-    def is_casting(self):
-        return self.spell_manager.is_casting()
-
     def stop_movement(self):
         # Stop only if unit has pending waypoints.
-        if len(self.movement_manager.pending_waypoints) > 0:
-            self.movement_manager.send_move_stop()
+        if self.is_moving():
+            self.movement_manager.stop()
 
     # Implemented by Creature/PlayerManager.
     def update_power_type(self):
@@ -1547,22 +1550,26 @@ class UnitManager(ObjectManager):
         self.movement_flags = MoveFlags.MOVEFLAG_NONE
         self.unit_state = UnitStates.NONE
 
-        # Stop movement on death.
-        self.stop_movement()
-
-        # Reset threat table.
-        self.threat_manager.reset()
-
         if self.object_ai:
             self.object_ai.just_died()
 
         # Notify killer's pet AI about this kill.
-        if killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             killer_pet = killer.pet_manager.get_active_controlled_pet()
             if killer_pet:
                 killer_pet.creature.object_ai.killed_unit(self)
 
+        # Leave combat if needed.
         self.leave_combat()
+
+        # Flush movement manager.
+        self.movement_manager.flush()
+
+        # Reset threat manager.
+        self.threat_manager.reset()
+
+        self.pet_manager.detach_active_pets()
+
         self.set_health(0)
 
         self.unit_flags |= UnitFlags.UNIT_MASK_DEAD
@@ -1606,6 +1613,12 @@ class UnitManager(ObjectManager):
 
         self.is_alive = False
         super().destroy()
+
+    def is_swimming(self):
+        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
+
+    def is_above_water(self):
+        return not self.is_swimming()
 
     # override
     def respawn(self):

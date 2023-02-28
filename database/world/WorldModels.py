@@ -183,6 +183,59 @@ t_creature_spells_scripts = Table(
 )
 
 
+class CreatureGroup(Base):
+    __tablename__ = 'creature_groups'
+
+    leader_guid = Column(INTEGER, nullable=False)
+    member_guid = Column(INTEGER, primary_key=True)
+    dist = Column(Float, nullable=False)
+    angle = Column(Float, nullable=False)
+    flags = Column(INTEGER, nullable=False)
+    owner = None
+
+
+class CreatureMovementSpecial(Base):
+    __tablename__ = 'creature_movement_special'
+
+    id = Column(INTEGER, primary_key=True, nullable=False)
+    point = Column(MEDIUMINT, primary_key=True, nullable=False, server_default=text("'0'"))
+    position_x = Column(Float, nullable=False, server_default=text("'0'"))
+    position_y = Column(Float, nullable=False, server_default=text("'0'"))
+    position_z = Column(Float, nullable=False, server_default=text("'0'"))
+    orientation = Column(Float, nullable=False, server_default=text("'0'"))
+    waittime = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    wander_distance = Column(Float, nullable=False, server_default=text("'0'"))
+    script_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+
+
+class CreatureMovementTemplate(Base):
+    __tablename__ = 'creature_movement_template'
+
+    entry = Column(MEDIUMINT, primary_key=True, nullable=False, comment='Creature entry')
+    point = Column(MEDIUMINT, primary_key=True, nullable=False, server_default=text("'0'"))
+    position_x = Column(Float, nullable=False, server_default=text("'0'"))
+    position_y = Column(Float, nullable=False, server_default=text("'0'"))
+    position_z = Column(Float, nullable=False, server_default=text("'0'"))
+    orientation = Column(Float, nullable=False, server_default=text("'0'"))
+    waittime = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    wander_distance = Column(Float, nullable=False, server_default=text("'0'"))
+    script_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+
+
+class CreatureMovement(Base):
+    __tablename__ = 'creature_movement'
+
+    id = Column(INTEGER, primary_key=True, nullable=False, comment='Creature GUID')
+    point = Column(MEDIUMINT, primary_key=True, nullable=False, server_default=text("'0'"))
+    position_x = Column(Float, nullable=False, server_default=text("'0'"))
+    position_y = Column(Float, nullable=False, server_default=text("'0'"))
+    position_z = Column(Float, nullable=False, server_default=text("'0'"))
+    orientation = Column(Float, nullable=False, server_default=text("'0'"))
+    waittime = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    wander_distance = Column(Float, nullable=False, server_default=text("'0'"))
+    script_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+
+
 class CreatureTemplate(Base):
     __tablename__ = 'creature_template'
 

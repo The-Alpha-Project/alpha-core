@@ -48,11 +48,13 @@ class TalentManager(object):
             preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(spell.ID)
             preceded_spell = 0 if not preceded_skill_line else preceded_skill_line.Spell
             
-            talent_points_cost = training_spell.talentpointcost if training_spell.talentpointcost > 0 else TalentManager.get_talent_cost_by_id(training_spell.playerspell)
+            talent_points_cost = training_spell.talentpointcost if training_spell.talentpointcost > 0 else \
+                TalentManager.get_talent_cost_by_id(training_spell.playerspell)
             status = TrainerUtils.get_training_list_spell_status(spell, training_spell, spell.BaseLevel,
                                                                  preceded_spell, self.player_mgr)
 
-            # If the spell before this one exists and is unavailable, don't show this one. (We only want to show the first unavailable spell in a chain).
+            # If the spell before this one exists and is unavailable, don't show this one.
+            # (We only want to show the first unavailable spell in a chain).
             if preceded_spell != 0:
                 preceded_preceded_skill_line = DbcDatabaseManager.SkillLineAbilityHolder.skill_line_abilities_get_preceded_by_spell(preceded_spell)
                 preceded_preceded_spell = 0 if not preceded_preceded_skill_line else preceded_preceded_skill_line.Spell
@@ -76,7 +78,9 @@ class TalentManager(object):
             talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
                                                         talent_points_cost, 0,  # 0 Skill point cost.
                                                         spell.BaseLevel,
-                                                        training_spell.reqskill, training_spell.reqskillvalue, 0,  # Required skill data.
+                                                        training_spell.reqskill,
+                                                        training_spell.reqskillvalue,
+                                                        0,  # Required skill data.
                                                         preceded_spell)
             talent_count += 1
 

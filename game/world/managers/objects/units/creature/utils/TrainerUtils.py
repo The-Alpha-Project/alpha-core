@@ -125,17 +125,17 @@ class TrainerUtils:
                                        preceded_spell: int, player_mgr, fulfills_skill: bool = True):
         trainer_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(trainer_spell_template.spell)
         is_taught_to_pet = trainer_spell.Effect_1 == SpellEffects.SPELL_EFFECT_LEARN_PET_SPELL
-        pet_info = player_mgr.pet_manager.get_active_permanent_pet()
-        if is_taught_to_pet and not pet_info:
+        active_pet = player_mgr.pet_manager.get_active_permanent_pet()
+        if is_taught_to_pet and not active_pet:
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE
 
-        target_spells = pet_info.spells if is_taught_to_pet else player_mgr.spell_manager.spells
+        target_spells = active_pet.get_pet_data().spells if is_taught_to_pet else player_mgr.spell_manager.spells
         if spell.ID in target_spells:
             return TrainerServices.TRAINER_SERVICE_USED
 
         if not fulfills_skill or (preceded_spell and preceded_spell not in target_spells) or \
             trainer_spell_template.reqskill != 0 and \
-                (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) or \
+                (not player_mgr.skill_manager.has_skill(trainer_spell_template.reqskill) or
                     player_mgr.skill_manager.get_total_skill_value(trainer_spell_template.reqskill)
                     < trainer_spell_template.reqskillvalue):
             return TrainerServices.TRAINER_SERVICE_UNAVAILABLE

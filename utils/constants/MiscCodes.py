@@ -275,14 +275,12 @@ class MountResults(IntEnum):
     MOUNTRESULT_RACE_CANT_MOUNT = 7  # You can't mount because of your race!
     MOUNTRESULT_SHAPESHIFTED = 8  # You can't mount while shapeshifted!
     MOUNTRESULT_FORCED_DISMOUNT = 9  # You dismount before continuing.
-    MOUNTRESULT_OK = 10  # Ok.
 
 
 class DismountResults(IntEnum):
     DISMOUNT_RESULT_NO_PET = 0
     DISMOUNT_RESULT_NOT_MOUNTED = 1
     DISMOUNT_RESULT_NOT_YOUR_PET = 2
-    DISMOUNT_RESULT_OK = 3
 
 
 class LootTypes(IntEnum):
@@ -581,6 +579,31 @@ class Languages(IntEnum):
     LANG_KALIMAG = 12
     LANG_GNOMISH = 13
     LANG_TROLL = 14
+
+
+class CreatureGroupFlags(IntEnum):
+    OPTION_FORMATION_MOVE = 0x001
+    OPTION_AGGRO_TOGETHER = 0x002
+    OPTION_EVADE_TOGETHER = 0x004
+    OPTION_RESPAWN_TOGETHER = 0x008
+    OPTION_RESPAWN_ALL_ON_MASTER_EVADE = 0x010
+    OPTION_RESPAWN_ALL_ON_ANY_EVADE = 0x020
+    OPTION_INFORM_LEADER_ON_MEMBER_DIED = 0x040
+    OPTION_INFORM_MEMBERS_ON_ANY_DIED = 0x080
+
+
+class MoveType(IntEnum):
+    INSTANT = 0x0
+    IDLE = 0x1
+    WANDER = 0x2
+    WAYPOINTS = 0x3
+    CHASE = 0x4
+    FLIGHT = 0x5
+    EVADE = 0x6
+    FEAR = 0x7
+    DISTRACTED = 0x8
+    GROUP = 0x9
+    PET = 0x10
 
 
 class MoveFlags(IntEnum):

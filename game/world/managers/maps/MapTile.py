@@ -1,3 +1,4 @@
+import traceback
 from enum import IntEnum
 from os import path
 from struct import unpack
@@ -76,6 +77,7 @@ class MapTile(object):
             self.has_navigation = True
             return True
         except:
+            Logger.error(traceback.format_exc())
             return False
 
     def load_maps_data(self):

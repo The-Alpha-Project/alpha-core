@@ -33,7 +33,7 @@ class TotemAI(CreatureAI):
         super().just_despawned()
 
     # override
-    def move_in_line_of_sight(self, unit):
+    def move_in_line_of_sight(self, unit=None):
         pass
 
     # override
@@ -41,5 +41,5 @@ class TotemAI(CreatureAI):
         pass
 
     # override
-    def attack_start(self, victim):
+    def attack_start(self, victim, chase=True):
         pass

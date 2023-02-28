@@ -34,37 +34,15 @@ class BasicCreatureAI(CreatureAI):
 
     # override
     def movement_inform(self, move_type=None, data=None, units=None):
-        if not self._is_ready_for_new_attack():
-            return
-        detection_range = self.creature.creature_template.detection_range
-        source_units = list(self.creature.known_players.values()) if not units else units
-        hostile_units = [unit for unit in source_units if self.creature.is_hostile_to(unit)]
-        for victim in hostile_units:
-            victim_distance = victim.location.distance(self.creature.location)
-            if victim_distance > detection_range:
-                continue
-            # Sanctuary.
-            if victim.unit_state & UnitStates.SANCTUARY:
-                continue
-            # Ignore players that are flying.
-            if victim.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
-                continue
-            # Check for stealth/invisibility.
-            can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
-            if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER and not victim.beast_master:
-                self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
-            if not can_detect_victim:
-                continue
-            # Basic LoS check.
-            if not MapManager.los_check(victim.map_id, self.creature.get_ray_position(), victim.get_ray_position()):
-                continue
-            # Attempt to begin attack, break upon succeeding.
-            if self._start_proximity_aggro_attack(victim, target_is_player=True):
-                break
+        pass
 
     # override
-    def move_in_line_of_sight(self, unit):
-        self.movement_inform(units=[unit])
+    def move_in_line_of_sight(self, unit=None):
+        if not self._is_ready_for_new_attack():
+            return
+        unit = self._get_proximity_target(unit=unit)
+        if unit:
+            self.creature.object_ai.attacked_by(unit)
 
     # override
     def just_respawned(self):
@@ -84,11 +62,40 @@ class BasicCreatureAI(CreatureAI):
     def _is_aggressive(self):
         return self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE
 
-    def _start_proximity_aggro_attack(self, victim, target_is_player=False):
-        # Avoid attacks on characters with Beastmaster flag on.
-        if target_is_player and victim.beast_master:
-            return False
-        return self.creature.threat_manager.add_threat(victim)
-
     def summon_guard(self, enemy):
         pass
+
+    # TODO: Find proper place for this?
+    def _get_proximity_target(self, unit=None):
+        detection_range = self.creature.creature_template.detection_range
+        source_units = list(self.creature.known_players.values()) if not unit else [unit]
+        hostile_units = []
+        for unit in source_units:
+            if unit.beast_master:
+                continue
+            if not self.creature.is_hostile_to(unit):
+                continue
+            hostile_units.append(unit)
+            active_pet = unit.pet_manager.get_active_controlled_pet()
+            if active_pet:
+                hostile_units.append(active_pet.creature)
+        for victim in hostile_units:
+            victim_distance = victim.location.distance(self.creature.location)
+            if victim_distance > detection_range:
+                continue
+            # Sanctuary.
+            if victim.unit_state & UnitStates.SANCTUARY:
+                continue
+            # Not while flying.
+            if victim.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+                continue
+            # Check for stealth/invisibility.
+            can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
+            if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER and not victim.beast_master:
+                self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
+            if not can_detect_victim:
+                continue
+            # Basic LoS check.
+            if not MapManager.los_check(victim.map_id, self.creature.get_ray_position(), victim.get_ray_position()):
+                continue
+            return victim

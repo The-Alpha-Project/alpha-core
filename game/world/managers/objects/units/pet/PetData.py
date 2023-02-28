@@ -7,6 +7,8 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterPet, CharacterPetSpell
 from database.world.WorldModels import CreatureTemplate
 from utils import Formulas
+from utils.GuidUtils import GuidUtils
+from utils.constants.MiscCodes import HighGuid
 from utils.constants.PetCodes import PetReactState, PetCommandState, PetActionBarIndex
 from utils.constants.SpellCodes import SpellAttributes
 
@@ -41,7 +43,7 @@ class PetData:
         self._dirty = pet_id == -1
 
     def save(self, creature_instance=None):
-        if not self.permanent or not self._dirty:
+        if not self.permanent or not self._dirty or not self._is_player_owned():
             return
 
         health = -1 if not creature_instance else creature_instance.health
@@ -58,7 +60,7 @@ class PetData:
         self._dirty = False
 
     def delete(self):
-        if not self.permanent:
+        if not self.permanent or not self._is_player_owned():
             return
         RealmDatabaseManager.character_delete_pet(self.pet_id)
 
@@ -149,6 +151,9 @@ class PetData:
 
         self.spells.append(spell_id)
 
+        if not self._is_player_owned():
+            return True
+
         button = CharacterPetSpell(guid=self.owner_guid, pet_id=self.pet_id, spell_id=spell_id)
         RealmDatabaseManager.character_add_pet_spell(button)
         return True
@@ -174,7 +179,8 @@ class PetData:
             # TODO Make these pets untamable?
             return []
 
-        skill_lines = [family_entry.SkillLine_1, family_entry.SkillLine_2]  # Include talents for this check (if any).
+        skill_lines = [family_entry.SkillLine_1,
+                       family_entry.SkillLine_2 if self.is_hunter_pet() else 0]  # Include talents for this check (if any).
 
         skill_line_abilities = DbcDatabaseManager.skill_line_ability_get_by_skill_lines(skill_lines)
         if not skill_line_abilities:
@@ -221,6 +227,9 @@ class PetData:
 
     def is_hunter_pet(self):
         return self.permanent and self.summon_spell_id == PetData.SUMMON_PET_SPELL_ID
+
+    def _is_player_owned(self):
+        return GuidUtils.extract_high_guid(self.owner_guid) == HighGuid.HIGHGUID_PLAYER
 
     @staticmethod
     def get_action_button_for(spell_id: int, auto_cast: bool = False, castable: bool = True):
