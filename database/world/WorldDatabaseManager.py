@@ -945,6 +945,8 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_broadcast_text(broadcast_text: BroadcastText):
+            # Since the 0.5.3 client adds the speaker name by default we need to remove the placeholder from the 
+            # broadcast text.
             broadcast_text.male_text = broadcast_text.male_text.replace('%s ', '')
             broadcast_text.female_text = broadcast_text.female_text.replace('%s ', '')
             WorldDatabaseManager.BroadcastTextHolder.BROADCAST_TEXTS[broadcast_text.entry] = broadcast_text
