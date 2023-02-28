@@ -390,6 +390,97 @@ class WorldDatabaseManager(object):
 
     # Creature stuff.
 
+    @staticmethod
+    def creature_movement_get_all() -> list[CreatureMovement]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureMovement).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_movement_template_get_all() -> list[CreatureMovementTemplate]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureMovementTemplate).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_movement_special_get_all() -> list[CreatureMovementSpecial]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureMovementSpecial).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_groups_get_all() -> list[CreatureGroup]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureGroup).all()
+        world_db_session.close()
+        return res
+
+    class CreatureGroupsHolder:
+        CREATURE_GROUP_BY_MEMBER: dict = {}
+
+        @staticmethod
+        def load_creature_groups(creature_group):
+            if creature_group.leader_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
+                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[creature_group.leader_guid] = creature_group
+
+            if creature_group.member_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
+                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[creature_group.member_guid] = creature_group
+
+        @staticmethod
+        def get_group_by_member_spawn_id(spawn_id):
+            if spawn_id in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
+                return WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[spawn_id]
+            return []
+
+    class CreatureMovementHolder:
+        CREATURE_WAYPOINTS: [int, list[CreatureMovement]] = {}
+        CREATURE_MOVEMENT_TEMPLATES: [int, list[CreatureMovementTemplate]] = {}
+        CREATURE_MOVEMENT_SPECIAL: [int, list[CreatureMovementSpecial]] = {}
+
+        @staticmethod
+        def load_creature_movement_template(creature_movement_template):
+            if creature_movement_template.entry not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
+                WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_movement_template.entry] = []
+            WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_movement_template.entry].append(creature_movement_template)
+
+        @staticmethod
+        def load_creature_movement(creature_movement):
+            if creature_movement.id not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_movement.id] = []
+            WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_movement.id].append(creature_movement)
+
+        @staticmethod
+        def load_creature_movement_special(creature_movement_special):
+            if creature_movement_special.id not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL:
+                WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[creature_movement_special.id] = []
+            WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[creature_movement_special.id].append(
+                creature_movement_special)
+
+        @staticmethod
+        def get_waypoints_for_creature(creature_mgr):
+            if creature_mgr.spawn_id in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_mgr.spawn_id]
+            if creature_mgr.entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_mgr.entry]
+            if creature_mgr.entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[creature_mgr.entry]
+            return []
+
+        @staticmethod
+        def get_waypoints_by_entry(entry):
+            if entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[entry]
+            return []
+
+        @staticmethod
+        def get_waypoints_by_spawn_id(spawn_id) -> list[CreatureMovement]:
+            if spawn_id in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[spawn_id]
+            return []
+
     class CreatureTemplateHolder:
         CREATURE_TEMPLATES: [int, CreatureTemplate] = {}
 

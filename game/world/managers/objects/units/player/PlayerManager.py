@@ -301,8 +301,6 @@ class PlayerManager(UnitManager):
         self.logout_timer = -1
         self.mirror_timers_manager.stop_all()
 
-        self.taxi_manager.update_flight_state()
-
         if self.duel_manager:
             self.duel_manager.force_duel_end(self)
 
@@ -499,10 +497,9 @@ class PlayerManager(UnitManager):
             if creature.is_spawned:
                 self.enqueue_packet(creature.generate_create_packet(requester=self))
                 # Get partial movement packet if any.
-                if creature.movement_manager.unit_is_moving():
-                    packet = creature.movement_manager.try_build_movement_packet(is_initial=False)
-                    if packet:
-                        self.enqueue_packet(packet)
+                movement_packet = creature.movement_manager.try_build_movement_packet()
+                if movement_packet:
+                    self.enqueue_packet(movement_packet)
                 # We only consider 'known' if its spawned, the details query is still sent.
                 self.known_objects[creature.guid] = creature
                 # Add ourselves to creature known players.
@@ -539,10 +536,9 @@ class PlayerManager(UnitManager):
             # Create packet.
             self.enqueue_packet(player_mgr.generate_create_packet(requester=self))
             # Get partial movement packet if any.
-            if player_mgr.movement_manager.unit_is_moving():
-                packet = player_mgr.movement_manager.try_build_movement_packet(is_initial=False)
-                if packet:
-                    self.enqueue_packet(packet)
+            movement_packet = player_mgr.movement_manager.try_build_movement_packet()
+            if movement_packet:
+                self.enqueue_packet(movement_packet)
         self.known_objects[player_mgr.guid] = player_mgr
 
     def destroy_near_object(self, guid):
@@ -817,23 +813,19 @@ class PlayerManager(UnitManager):
 
     # override
     def mount(self, mount_display_id):
-        if super().mount(mount_display_id):
-            # TODO: validate mount.
-            data = pack('<QI', self.guid, MountResults.MOUNTRESULT_OK)
-            packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
-            self.enqueue_packet(packet)
-        else:
+        # TODO: validate mount. Check MountResults.
+        if not super().mount(mount_display_id):
             data = pack('<QI', self.guid, MountResults.MOUNTRESULT_INVALID_MOUNTEE)
             packet = PacketWriter.get_packet(OpCode.SMSG_MOUNTRESULT, data)
             self.enqueue_packet(packet)
 
     # override
     def unmount(self):
-        super().unmount()
-        # TODO: validate dismount.
-        data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_OK)
-        packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
-        self.enqueue_packet(packet)
+        # TODO: validate unmount. Check DismountResults.
+        if not super().unmount():
+            data = pack('<QI', self.guid, DismountResults.DISMOUNT_RESULT_NOT_MOUNTED)
+            packet = PacketWriter.get_packet(OpCode.SMSG_DISMOUNTRESULT, data)
+            self.enqueue_packet(packet)
 
     # TODO Maybe merge all speed changes in one method
     # override
@@ -842,8 +834,7 @@ class PlayerManager(UnitManager):
             data = pack('<f', self.running_speed)
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
             # TODO Move object update to UnitManager
-            MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                                self.get_movement_update_packet()), self)
+            MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
@@ -853,9 +844,7 @@ class PlayerManager(UnitManager):
         self.swim_speed = swim_speed
         data = pack('<f', self.swim_speed)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
-
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                            self.get_movement_update_packet()), self)
+        MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     def change_walk_speed(self, walk_speed=0):
         if walk_speed <= 0:
@@ -865,9 +854,7 @@ class PlayerManager(UnitManager):
         self.walk_speed = walk_speed
         data = pack('<f', self.walk_speed)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
-
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                            self.get_movement_update_packet()), self)
+        MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     def change_turn_speed(self, turn_speed=0):
         if turn_speed <= 0:
@@ -875,9 +862,7 @@ class PlayerManager(UnitManager):
         self.turn_rate = turn_speed
         data = pack('<f', self.turn_rate)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE, data))
-
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT,
-                                                            self.get_movement_update_packet()), self)
+        MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     # override
     def update_power_type(self):
@@ -1202,7 +1187,7 @@ class PlayerManager(UnitManager):
             return
 
         # Exploration handling (only if player is not flying).
-        if not self.movement_spline or self.movement_spline.flags != SplineFlags.SPLINEFLAG_FLYING:
+        if not self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
             if area_information:
                 # Check if we need to set this zone as explored.
@@ -1251,20 +1236,15 @@ class PlayerManager(UnitManager):
             self.liquid_information = None
 
     def is_swimming(self):
-        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING and self.is_alive
+        return self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING
 
     # override
-    def is_over_water(self):
-        if not self.current_cell:
-            return False
-
-        self.liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                                    self.location.z)
-        return self.liquid_information and self.liquid_information.height > self.location.z
+    def is_above_water(self):
+        return not self.is_swimming()
 
     # override
     def is_under_water(self):
-        if self.liquid_information is None or not self.is_swimming():
+        if not self.liquid_information or not self.is_swimming():
             return False
         return self.location.z + (self.current_scale * 2) < self.liquid_information.height
 
@@ -1670,7 +1650,7 @@ class PlayerManager(UnitManager):
             self.quest_manager.update(elapsed)
 
             # Waypoints (mostly flying paths) update.
-            self.movement_manager.update_pending_waypoints(elapsed)
+            self.movement_manager.update(now, elapsed)
 
             # Duel tick.
             if self.duel_manager:
@@ -1755,8 +1735,6 @@ class PlayerManager(UnitManager):
             if killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 death_notify_packet = PacketWriter.get_packet(OpCode.SMSG_DEATH_NOTIFY, pack('<Q', killer.guid))
                 self.enqueue_packet(death_notify_packet)
-
-        self.pet_manager.detach_active_pets()
 
         TradeManager.cancel_trade(self)
         self.spirit_release_timer = 0
@@ -1894,8 +1872,6 @@ class PlayerManager(UnitManager):
             # Skip notify if the unit is already in combat with self, not alive or not spawned.
             if not unit.threat_manager.has_aggro_from(self) and unit.is_alive and unit.is_spawned:
                 unit.notify_moved_in_line_of_sight(self)
-            if unit.is_unit_pet(self):
-                unit.object_ai.movement_inform()
 
     # override
     def on_cell_change(self):

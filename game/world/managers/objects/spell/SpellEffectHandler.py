@@ -26,7 +26,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     GameObjectStates, DynamicObjectTypes
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, UnitStates
 
 
 class SpellEffectHandler:
@@ -590,7 +590,7 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_summon_pet(casting_spell, effect, caster, target):
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
         caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, effect.misc_value)
@@ -690,6 +690,18 @@ class SpellEffectHandler:
         # TODO: Threat calculation considering spell school and crit.
         threat = effect.get_effect_simple_points()
         target.threat_manager.add_threat(caster, threat)
+
+    @staticmethod
+    def handle_distract(casting_spell, effect, caster, target):
+        if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            return
+
+        if target.combat_target or target.unit_state & UnitStates.DISTRACTED:
+            return
+
+        duration = casting_spell.get_duration() / 1000
+        angle = target.location.get_angle_towards_vector(casting_spell.initial_target)
+        target.movement_manager.move_distracted(duration, angle=angle)
 
     @staticmethod
     def handle_interrupt_cast(casting_spell, effect, caster, target):
@@ -932,6 +944,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_THREAT: SpellEffectHandler.handle_threat,
     SpellEffects.SPELL_EFFECT_STUCK: SpellEffectHandler.handle_stuck,
     SpellEffects.SPELL_EFFECT_INTERRUPT_CAST: SpellEffectHandler.handle_interrupt_cast,
+    SpellEffects.SPELL_EFFECT_DISTRACT: SpellEffectHandler.handle_distract,
+
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

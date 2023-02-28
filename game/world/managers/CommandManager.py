@@ -15,7 +15,6 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
-from utils.constants import CustomCodes
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import PlayerFields
@@ -139,6 +138,48 @@ class CommandManager(object):
                   f'Z: {player_z:.3f}, ' \
                   f'MapZ: {maps_z_str}, ' \
                   f'O: {player_o:.3f}'
+
+    @staticmethod
+    def activate_script_waypoints(world_session, args):
+        try:
+            unit = CommandManager._target_or_self(world_session)
+            if unit == world_session.player_mgr:
+                return -1, f'invalid unit selection.'
+            unit.movement_manager.move_waypoints_from_script()
+            return 0, ''
+        except:
+            return -1, 'invalid unit selection.'
+
+    @staticmethod
+    def move_unit(world_session, args):
+        try:
+            unit = CommandManager._target_or_self(world_session)
+            if unit == world_session.player_mgr:
+                return -1, f'invalid unit selection.'
+
+            x, y, z = args.split()
+            location = Vector(float(x), float(y), float(z))
+            unit.movement_manager.move_to_point(location, speed=unit.running_speed)
+            return 0, ''
+        except ValueError:
+            return -1, 'please use the "x y z" format.'
+
+    @staticmethod
+    def tel_unit(world_session, args):
+        try:
+            unit = CommandManager._target_or_self(world_session)
+            if unit == world_session.player_mgr:
+                return -1, f'invalid unit selection.'
+
+            x, y, z = args.split()
+            tel_location = Vector(float(x), float(y), float(z))
+            success = unit.near_teleport(tel_location)
+
+            if success:
+                return 0, ''
+            return -1, f'invalid location ({args}).'
+        except ValueError:
+            return -1, 'please use the "x y z" format.'
 
     @staticmethod
     def tel(world_session, args):
@@ -534,7 +575,8 @@ class CommandManager(object):
     @staticmethod
     def unmount(world_session, args):
         player_mgr = CommandManager._target_or_self(world_session, only_players=True)
-        player_mgr.unmount()
+        if player_mgr.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
+            player_mgr.unmount()
         return 0, ''
 
     @staticmethod
@@ -829,9 +871,12 @@ PLAYER_COMMAND_DEFINITIONS = {
 GM_COMMAND_DEFINITIONS = {
     'speed': [CommandManager.speed, 'change your run speed'],
     'swimspeed': [CommandManager.swim_speed, 'change your swim speed'],
+    'scriptwp': [CommandManager.activate_script_waypoints, 'tries to active the selected unit script waypoints'],
     'gps': [CommandManager.gps, 'display information about your location'],
     'tel': [CommandManager.tel, 'teleport you to a location'],
     'stel': [CommandManager.stel, 'search for a location where you can teleport'],
+    'telunit': [CommandManager.tel_unit, 'teleport a unit to a given location in the same map'],
+    'moveunit': [CommandManager.move_unit, 'command a unit to move to a given location'],
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],

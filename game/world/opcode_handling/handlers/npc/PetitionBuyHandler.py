@@ -28,7 +28,7 @@ class PetitionBuyHandler(object):
                 elif guild_name in GuildManager.GUILDS or RealmDatabaseManager.guild_petition_get_by_name(guild_name):
                     GuildManager.send_guild_command_result(player_mgr, GuildTypeCommand.GUILD_CREATE_S, guild_name,
                                                            GuildCommandResults.GUILD_NAME_EXISTS)
-                elif player_mgr.inventory.get_item_count(PetitionManager.CHARTER_ENTRY) > 0:
+                elif player_mgr.inventory.get_item_count(PetitionManager.CHARTER_ENTRY, include_bank=True) > 0:
                     player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_CARRY_MORE,
                                                         PetitionManager.CHARTER_ENTRY, npc_guid, 1)
                 elif player_mgr.coinage <= PetitionManager.CHARTER_COST:

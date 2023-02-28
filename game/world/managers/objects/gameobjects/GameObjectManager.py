@@ -395,7 +395,6 @@ class GameObjectManager(ObjectManager):
         if self.spell_manager:
             self.spell_manager.remove_casts()
         self.unlocked_by.clear()
-        self.is_spawned = False
         super().destroy()
 
     # override

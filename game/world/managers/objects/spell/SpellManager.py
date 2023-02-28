@@ -271,7 +271,7 @@ class SpellManager:
             return spell
         return spell if self.validate_cast(spell) else None
 
-    def start_spell_cast(self, spell: Optional[Spell]=None, spell_target=None, target_mask=SpellTargetMask.SELF,
+    def start_spell_cast(self, spell: Optional[Spell] = None, spell_target=None, target_mask=SpellTargetMask.SELF,
                          source_item=None, triggered=False, initialized_spell: Optional[CastingSpell]=None):
         casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item, triggered=triggered) \
             if not initialized_spell else initialized_spell

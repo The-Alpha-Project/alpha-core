@@ -5,6 +5,7 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.player.taxi.TaxiResumeInformation import TaxiResumeInformation
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ConfigManager import config
+from utils.constants.MiscCodes import MoveType
 from utils.constants.UnitCodes import Teams, SplineFlags
 
 
@@ -62,9 +63,6 @@ class TaxiManager(object):
         self.owner.pending_taxi_destination = Vector(dest_taxi_node.X, dest_taxi_node.Y, dest_taxi_node.Z)
         self.owner.set_taxi_flying_state(True, mount_display_id)
 
-        speed = config.Unit.Player.Defaults.flight_speed
-        spline = SplineFlags.SPLINEFLAG_FLYING
-
         # Update current flight state.
         self.taxi_resume_info.update_fields(start_location=waypoints[0].copy(),
                                             start_node=start_node,
@@ -73,7 +71,7 @@ class TaxiManager(object):
                                             remaining_wp=len(waypoints))
 
         # Notify player and surroundings.
-        self.owner.movement_manager.send_move_normal(waypoints, speed, spline)
+        self.owner.movement_manager.move_flight(waypoints)
         return True
 
     # Get the proper display_id for the mount.
@@ -90,13 +88,14 @@ class TaxiManager(object):
         else:
             return GRYPHON_DISPLAY_ID
 
-    def update_flight_state(self):
-        if self.owner.movement_manager.unit_is_moving():
-            current_waypoint = self.owner.movement_manager.pending_waypoints[0].location
-            waypoints_length = len(self.owner.movement_manager.pending_waypoints)
-            self.taxi_resume_info.update_fields(start_location=current_waypoint, remaining_wp=waypoints_length)
-        else:
-            self.taxi_resume_info.flush()
+    def update_partial_flight_state(self, current_waypoint, remaining_waypoints_count):
+        self.taxi_resume_info.update_fields(start_location=current_waypoint, remaining_wp=remaining_waypoints_count)
+
+    def flight_end(self):
+        self.owner.set_taxi_flying_state(False)
+        self.owner.teleport(self.owner.map_id, self.owner.pending_taxi_destination, is_instant=True)
+        self.owner.pending_taxi_destination = None
+        self.taxi_resume_info.flush()
 
     # Enable all taxi node bits.
     def enable_all_taxi_nodes(self):

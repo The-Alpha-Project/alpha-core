@@ -31,11 +31,11 @@ class ActivateTaxiHandler(object):
             if world_session.player_mgr.coinage < taxi_path.Cost:
                 result = ActivateTaxiReplies.ERR_TAXINOTENOUGHMONEY
 
-            data = pack('<I', result)
-            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ACTIVATETAXIREPLY, data))
-
             if result == ActivateTaxiReplies.ERR_TAXIOK:
                 world_session.player_mgr.mod_money(-taxi_path.Cost)
                 world_session.player_mgr.taxi_manager.begin_taxi_flight(taxi_path, start_node, dest_node, flight_master=flight_master)
+
+            data = pack('<I', result)
+            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ACTIVATETAXIREPLY, data))
 
         return 0
