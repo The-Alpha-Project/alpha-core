@@ -774,7 +774,10 @@ class QuestManager(object):
         self.add_to_quest_log(quest_id, active_quest)
         self.send_quest_query_response(quest)
 
-        quest_giver.script_handler.enqueue_script(quest_giver, self.player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_START, quest_id)
+        # Don't run scripts if not directly taken from NPC (either by sharing or .qadd command).
+        # Otherwise the quest_giver would be None and this leads to a crash.
+        if quest_giver:
+            quest_giver.script_handler.enqueue_script(quest_giver, self.player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_START, quest_id)
 
         # If player is in a group and quest has QUEST_FLAGS_PARTY_ACCEPT flag, let other members accept it too.
         if self.player_mgr.group_manager and not shared:
