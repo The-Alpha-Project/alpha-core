@@ -932,7 +932,7 @@ class TeleportToOptions(IntEnum):
 
 class CreatureAIEventTypes(IntEnum):
     AI_EVENT_TYPE_OUT_OF_COMBAT = 1
-    AI_EVENT_TYPE_ON_LOW_HP = 2
+    AI_EVENT_TYPE_HP = 2
     AI_EVENT_TYPE_ON_ENTER_COMBAT = 4
     AI_EVENT_TYPE_ON_DEATH = 6
     AI_EVENT_TYPE_ON_SPAWN = 11    
