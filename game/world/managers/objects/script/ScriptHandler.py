@@ -443,7 +443,8 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_EQUIPMENT')
 
     def handle_script_command_movement(self, script):
-        Logger.debug('ScriptHandler: handle_script_command_movement not implemented yet')
+        if script.source:
+            script.source.movement_manager.move_waypoints_from_script()
         pass
 
     def handle_script_command_set_activeobject(self, script):
