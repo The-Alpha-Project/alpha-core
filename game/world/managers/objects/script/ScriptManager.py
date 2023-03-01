@@ -49,7 +49,7 @@ class ScriptManager:
                 for t in targets:
                     if t.entry == param1:
                         return t
-            pass
+            return None
         elif target_type == ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY:
             # TODO: entry -> object type identification.
             #  Based on objects high guids.

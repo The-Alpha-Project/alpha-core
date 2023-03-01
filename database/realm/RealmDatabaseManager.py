@@ -22,7 +22,7 @@ SessionHolder = scoped_session(sessionmaker(bind=realm_db_engine, autoflush=Fals
 
 
 class RealmDatabaseManager(object):
-    # Realm stuff
+    # Realm.
     
     @staticmethod
     def realm_get_list():
@@ -31,7 +31,7 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
         return realm
               
-    # Account stuff
+    # Account-
 
     @staticmethod
     def account_try_login(username, password, ip):
@@ -100,7 +100,7 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
         return characters if characters else []
 
-    # Character stuff
+    # Character.
 
     @staticmethod
     def character_set_all_offline():
@@ -640,7 +640,7 @@ class RealmDatabaseManager(object):
         realm_db_session.refresh(pet_spell)
         realm_db_session.close()
 
-    # Ticket stuff
+    # Ticket.
 
     @staticmethod
     def ticket_add(ticket):

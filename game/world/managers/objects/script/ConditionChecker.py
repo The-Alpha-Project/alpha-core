@@ -6,8 +6,8 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
-class ConditionChecker:
 
+class ConditionChecker:
     @staticmethod
     def check_condition(condition_id, source, target): 
 
@@ -20,6 +20,7 @@ class ConditionChecker:
             return False
 
     # Helper functions.
+
     @staticmethod
     def is_player(target):
         return target and target.get_type_id() == ObjectTypeIds.ID_PLAYER
@@ -33,17 +34,15 @@ class ConditionChecker:
         return start <= current <= end
 
     @staticmethod
+    # Deprecated but still used in some scripts.
     def check_condition_not(condition_id, source, target):
-        # Deprecated but still used in some scripts.
-
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
 
         return not ConditionChecker.check_condition(condition.value1, source, target)
     
     @staticmethod
+    # Returns true if any of the conditions are true.
     def check_condition_or(condition_id, source, target):
-        # Returns true if any of the conditions are true.
-
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
 
         return ConditionChecker.check_condition(condition.value1, source, target) or \
@@ -51,9 +50,8 @@ class ConditionChecker:
             ConditionChecker.check_condition(condition.value3, source, target)   
     
     @staticmethod
+    # Returns true if all of the conditions are true.
     def check_condition_and(condition_id, source, target):
-        # Returns true if all of the conditions are true.
-
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
 
         return ConditionChecker.check_condition(condition.value1, source, target) and \
@@ -295,7 +293,7 @@ class ConditionChecker:
         return False
     
     @staticmethod
-    def check_condition_questavailable(condition_id, source, target):
+    def check_condition_quest_available(condition_id, source, target):
         # Requires Player target.
         # Checks if the player can take the quest.
         # Condition_value1 = quest id.
@@ -465,7 +463,7 @@ class ConditionChecker:
         return False
     
     @staticmethod
-    def check_condition_mapid(condition_id, source, target):
+    def check_condition_map_id(condition_id, source, target):
         # Requires Map.
         # Checks the current Map id.
         # Condition_value1 = map id.
@@ -754,8 +752,7 @@ class ConditionChecker:
 
         if target:
             units = MapManager.get_surrounding_players(target)
-            for unit in units:
-                player = MapManager.get_surrounding_player_by_guid(unit)
+            for player in units:
                 if player:
                     if condition.value1 == 0 and player.position.distance(target.position) <= condition.value2:
                         return True
@@ -790,7 +787,7 @@ CONDITIONS = {
     ConditionType.CONDITION_SOURCE_ENTRY: ConditionChecker.check_condition_source_entry,
     ConditionType.CONDITION_SPELL: ConditionChecker.check_condition_spell,
     ConditionType.CONDITION_INSTANCE_SCRIPT: ConditionChecker.check_condition_instance_script,
-    ConditionType.CONDITION_QUESTAVAILABLE: ConditionChecker.check_condition_questavailable,
+    ConditionType.CONDITION_QUESTAVAILABLE: ConditionChecker.check_condition_quest_available,
     ConditionType.CONDITION_NEARBY_CREATURE: ConditionChecker.check_condition_nearby_creature,
     ConditionType.CONDITION_NEARBY_GAMEOBJECT: ConditionChecker.check_condition_nearby_gameobject,
     ConditionType.CONDITION_QUEST_NONE: ConditionChecker.check_condition_quest_none,
@@ -804,7 +801,7 @@ CONDITIONS = {
     ConditionType.CONDITION_REPUTATION_RANK_MAX: ConditionChecker.check_condition_reputation_rank_max,
     ConditionType.CONDITION_HAS_FLAG: ConditionChecker.check_condition_has_flag,
     ConditionType.CONDITION_LAST_WAYPOINT: ConditionChecker.check_condition_last_waypoint,
-    ConditionType.CONDITION_MAPID: ConditionChecker.check_condition_mapid,
+    ConditionType.CONDITION_MAPID: ConditionChecker.check_condition_map_id,
     ConditionType.CONDITION_INSTANCE_DATA: ConditionChecker.check_condition_instance_data,
     ConditionType.CONDITION_MAP_EVENT_DATA: ConditionChecker.check_condition_map_event_data,
     ConditionType.CONDITION_MAP_EVENT_ACTIVE: ConditionChecker.check_condition_map_event_active,

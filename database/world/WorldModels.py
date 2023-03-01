@@ -1108,6 +1108,7 @@ class CreatureAddon(Base):
     emote_state = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     auras = Column(Text)
 
+
 class QuestStartScript(Base):
     __tablename__ = 'quest_start_scripts'
 
@@ -1134,6 +1135,7 @@ class QuestStartScript(Base):
     o = Column(Float, nullable=False, server_default=text("'0'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     comments = Column(Text)
+
 
 class QuestEndScript(Base):
     __tablename__ = 'quest_end_scripts'
@@ -1162,6 +1164,7 @@ class QuestEndScript(Base):
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     comments = Column(Text)    
 
+
 class GenericScript(Base):
     __tablename__ = 'generic_scripts'
 
@@ -1187,6 +1190,7 @@ class GenericScript(Base):
     o = Column(Float, nullable=False, server_default=text("'0'"))
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     comments = Column(Text)    
+
 
 class CreatureAIScript(Base):
     __tablename__ = 'creature_ai_scripts'
@@ -1214,6 +1218,7 @@ class CreatureAIScript(Base):
     condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     comments = Column(Text) 
 
+
 class BroadcastText(Base):
     __tablename__ = 'broadcast_text'
 
@@ -1229,6 +1234,7 @@ class BroadcastText(Base):
     emote_delay1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     emote_delay2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     emote_delay3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
 
 class CreatureAIEvent(Base):
     __tablename__ = 'creature_ai_events'
@@ -1249,6 +1255,7 @@ class CreatureAIEvent(Base):
     action3_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     comment = Column(Text)
 
+
 class Condition(Base):
     __tablename__ = 'conditions'
 
@@ -1259,4 +1266,3 @@ class Condition(Base):
     value3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     value4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     flags = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
-

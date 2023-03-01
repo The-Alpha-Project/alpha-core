@@ -13,11 +13,13 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
-from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, SetHomePositionOptions
+from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
+    SetHomePositionOptions
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
 from utils.constants.UpdateFields import UnitFields
+
 
 @dataclass
 class Script:
@@ -42,13 +44,15 @@ class Script:
     delay: int
     condition_id: int
     source: object
-    target: object    
+    target: object
     time_added: float
 
+
+# noinspection PyMethodMayBeStatic
 class ScriptHandler:
-    def __init__(self, object):
-        self.object = object
-        self.script_queue = []       
+    def __init__(self, object_manager):
+        self.object = object_manager
+        self.script_queue = []
         self.ooc_spawn_min_delay = 0
         self.ooc_spawn_max_delay = 0
         self.ooc_repeat_min_delay = 0
@@ -58,15 +62,16 @@ class ScriptHandler:
         self.ooc_next = 0
         self.ooc_target = None
         self.ooc_running = False
-        self.last_low_hp_event = None
+        self.last_hp_event = None
         self.CREATURE_FLEE_TEXT = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
 
     def handle_script(self, script):
-            if script.command in SCRIPT_COMMANDS:
-                SCRIPT_COMMANDS[script.command](self, script)
-            else:
-                Logger.warning(f'Unknown script command {script.command}.')
-    
+        if script.command in SCRIPT_COMMANDS:
+            # noinspection PyArgumentList
+            SCRIPT_COMMANDS[script.command](self, script)
+        else:
+            Logger.warning(f'Unknown script command {script.command}.')
+
     def enqueue_ai_script(self, source, script):
         if script:
             self.script_queue.append(Script(
@@ -93,7 +98,7 @@ class ScriptHandler:
                 source,
                 None,
                 time.time()
-            ))    
+            ))
 
     def set_generic_script(self, source, target, script_id):
         scripts = WorldDatabaseManager.generic_script_get_by_id(script_id)
@@ -114,7 +119,7 @@ class ScriptHandler:
         if event.action2_script > 0:
             self.ooc_scripts.append(event.action2_script)
         if event.action3_script > 0:
-            self.ooc_scripts.append(event.action3_script)           
+            self.ooc_scripts.append(event.action3_script)
 
         self.ooc_spawn_min_delay = event.event_param1 / 1000
         self.ooc_spawn_max_delay = event.event_param2 / 1000
@@ -136,7 +141,7 @@ class ScriptHandler:
 
             self.enqueue_ai_script(self.ooc_target, script)
 
-    def enqueue_script(self, source, target, script_type, entry_id):                
+    def enqueue_script(self, source, target, script_type, entry_id):
         if script_type in SCRIPT_TYPES:
             scripts = SCRIPT_TYPES[script_type](entry_id)
         else:
@@ -176,7 +181,7 @@ class ScriptHandler:
                     time.time()
                 ))
 
-    def reset(self):        
+    def reset(self):
         self.script_queue.clear()
         self.ooc_scripts = None
         self.ooc_repeat_min_delay = 0
@@ -184,31 +189,30 @@ class ScriptHandler:
         self.ooc_next = 0
         self.ooc_target = None
         self.ooc_running = False
-        self.last_low_hp_event = None
+        self.last_hp_event = None
 
     def update(self):
         if len(self.script_queue) > 0:
             for script in self.script_queue:
                 if time.time() - script.time_added >= script.delay:
-                    ScriptHandler.handle_script(self, script)    
+                    ScriptHandler.handle_script(self, script)
 
-                    if script in self.script_queue:                
-                        self.script_queue.remove(script)   
+                    if script in self.script_queue:
+                        self.script_queue.remove(script)
 
-        if self.ooc_scripts:            
-            if self.ooc_next is not None and time.time() >= self.ooc_next and not self.ooc_running:                
+        if self.ooc_scripts:
+            if self.ooc_next is not None and time.time() >= self.ooc_next and not self.ooc_running:
                 self.ooc_running = True
                 script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(self.ooc_scripts))
 
-                if script:                                               
+                if script:
                     script.delay = random.randint(self.ooc_repeat_min_delay, self.ooc_repeat_max_delay)
-                    self.ooc_next = time.time() + script.delay                
+                    self.ooc_next = time.time() + script.delay
                     self.enqueue_ai_script(self.ooc_target, script)
-                    
+
                 self.ooc_running = False
 
-    def handle_script_command_talk(self, script):        
-
+    def handle_script_command_talk(self, script):
         texts = []
         if script.dataint > 0:
             texts.append(script.dataint)
@@ -221,11 +225,11 @@ class ScriptHandler:
 
         if len(texts) > 0:
             text_id = random.choice(texts)
-        
-        broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)        
+            broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)
+        else:
+            broadcast_message = None
 
-        if broadcast_message: 
-            text_to_say = None
+        if broadcast_message:
             if script.source.gender is not None and script.source.gender == 0 and broadcast_message.male_text is not None:
                 text_to_say = broadcast_message.male_text
             elif script.source.gender is not None and script.source.gender == 1 and broadcast_message.female_text is not None:
@@ -233,7 +237,7 @@ class ScriptHandler:
             else:
                 text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
 
-            if text_to_say is not None:     
+            if text_to_say is not None:
                 chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_SAY
                 lang = broadcast_message.language_id
                 if broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
@@ -243,17 +247,17 @@ class ScriptHandler:
                     lang = Languages.LANG_UNIVERSAL
                     text_to_say = GameTextFormatter.format(script.target, text_to_say)
 
-                ChatManager.send_monster_emote_message(script.source, script.target.guid if script.target else script.source.guid, \
-                                                           lang, text_to_say, chat_msg_type)
+                ChatManager.send_monster_emote_message(script.source,
+                                                       script.target.guid if script.target else script.source.guid,
+                                                       lang, text_to_say, chat_msg_type)
 
-                if broadcast_message.emote_id1 != 0:                                    
-                        script.source.play_emote(broadcast_message.emote_id1)
+                if broadcast_message.emote_id1 != 0:
+                    script.source.play_emote(broadcast_message.emote_id1)
                 # Neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them.
             else:
                 Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} has no text to say.')
         else:
             Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} not found.')
-
 
     def handle_script_command_emote(self, script):
         emotes = []
@@ -276,28 +280,28 @@ class ScriptHandler:
     def handle_script_command_move_to(self, script):
         if script.source and script.source.creature_manager:
             coordinates_type = script.datalong
-            time = script.datalong2
-            movement_options = script.datalong3 # Not used for now.
-            move_to_flags = script.datalong4 # Not used for now.
-            path_id = script.dataint # Not used for now.
-            speed = config.Unit.Defaults.walk_speed # Vmangos sets this to zero by default for whatever reason.
+            time_ = script.datalong2
+            movement_options = script.datalong3  # Not used for now.
+            move_to_flags = script.datalong4  # Not used for now.
+            path_id = script.dataint  # Not used for now.
+            speed = config.Unit.Defaults.walk_speed  # VMaNGOS sets this to zero by default for whatever reason.
             x, y, z = 0, 0, 0
             angle = 0
-            
+
             if coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_NORMAL:
-                distance = script.source.location.distance(Vector(script.x, script.y, script.z))                
-                speed = distance / time * 0.001 if time > 0 else config.Unit.Defaults.walk_speed
+                distance = script.source.location.distance(Vector(script.x, script.y, script.z))
+                speed = distance / time_ * 0.001 if time_ > 0 else config.Unit.Defaults.walk_speed
                 x = script.x
                 y = script.y
-                z = script.z                
-                
+                z = script.z
+
             elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RELATIVE_TO_TARGET:
                 x = script.target.location.x + script.x
                 y = script.target.location.y + script.y
                 z = script.target.location.z + script.z
-                
+
             elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_DISTANCE_FROM_TARGET:
-                distance = script.x                
+                distance = script.x
                 if script.o < 0:
                     angle = script.source.location.o
                 else:
@@ -307,10 +311,10 @@ class ScriptHandler:
                 x = target_point.x
                 y = target_point.y
                 z = target_point.z
-                                
+
             elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RANDOM_POINT:
                 # Unclear how this works as the data doesn't seem to provide any information about the radius.
-                pass                
+                pass
 
             if angle != 0:
                 script.source.movement_manager.set_face_angle(angle)
@@ -326,7 +330,7 @@ class ScriptHandler:
             pass
         elif script.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
             pass
-        else: 
+        else:
             pass
 
     def handle_script_command_interrupt_casts(self, script):
@@ -355,16 +359,18 @@ class ScriptHandler:
             for unit in surrounding:
                 _unit = MapManager.get_surrounding_unit_by_guid(script.source, unit)
                 if _unit and _unit.creature_template.entry == script.datalong \
-                and script.source.position.distance(_unit.position) <= script.datalong4:
-                    summoned_count += 1                                    
+                        and script.source.position.distance(_unit.position) <= script.datalong4:
+                    summoned_count += 1
 
         if summoned_count <= script.datalong3:
-            creature_manager = CreatureBuilder.create(script.datalong, Vector(script.x, script.y, script.z, script.o), script.source.map_id, script.source.instance_id,                                                   
-                                                    summoner = None, faction = script.source.faction, ttl = script.datalong2, \
-                                                    subtype = CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
+            creature_manager = CreatureBuilder.create(script.datalong, Vector(script.x, script.y, script.z, script.o),
+                                                      script.source.map_id, script.source.instance_id,
+                                                      summoner=None, faction=script.source.faction,
+                                                      ttl=script.datalong2,
+                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
             if creature_manager is not None:
-                MapManager.spawn_object(world_object_instance = creature_manager)
-                
+                MapManager.spawn_object(world_object_instance=creature_manager)
+
                 # Dataint2 > 0 means a generic script needs to be executed after the creature is summoned.
                 if script.dataint2 > 0:
                     self.enqueue_script(creature_manager, None, ScriptTypes.SCRIPT_TYPE_GENERIC, script.dataint2)
@@ -374,7 +380,8 @@ class ScriptHandler:
                 # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
 
         else:
-            Logger.warning(f'ScriptHandler: handle_script_command_temp_summon_creature: failed to create creature {script.datalong}.')
+            Logger.warning(f'ScriptHandler: handle_script_command_temp_summon_creature: '
+                           f'failed to create creature {script.datalong}.')
 
     def handle_script_command_open_door(self, script):
         Logger.debug('ScriptHandler: handle_script_command_open_door not implemented yet')
@@ -399,7 +406,9 @@ class ScriptHandler:
 
     def handle_script_command_cast_spell(self, script):
         if script.source and script.source.spell_manager:
-            script.source.spell_manager.handle_cast_attempt(script.datalong, script.target if not script.target == None else script.source, SpellTargetMask.SELF, validate=False)
+            script.source.spell_manager.handle_cast_attempt(script.datalong,
+                                                            script.target if not script.target is None else script.source,
+                                                            SpellTargetMask.SELF, validate=False)
         else:
             Logger.warning('ScriptHandler: No spell manager found, aborting SCRIPT_COMMAND_CAST_SPELL')
 
@@ -428,7 +437,7 @@ class ScriptHandler:
                 if script.dataint2 > 0:
                     script.source.creature_manager.set_virtual_equipment(1, script.dataint2)
                 if script.dataint3 > 0:
-                    script.source.creature_manager.set_virtual_equipment(2, script.dataint3)  
+                    script.source.creature_manager.set_virtual_equipment(2, script.dataint3)
         else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_EQUIPMENT')
 
@@ -449,41 +458,44 @@ class ScriptHandler:
         else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_FACTION')
 
-    def handle_script_command_morph_to_entry_or_model(self, script):        
-        if script.source and script.source.is_alive and script.source.creature_manager:  
-            creatureOrModelEntry = script.datalong
+    def handle_script_command_morph_to_entry_or_model(self, script):
+        if script.source and script.source.is_alive and script.source.creature_manager:
+            creature_or_model_entry = script.datalong
             display_id = script.datalong2
 
-            if not creatureOrModelEntry:
-                script.source.reset_display_id()                
+            if not creature_or_model_entry:
+                script.source.reset_display_id()
             elif script.display_id:
                 script.source.set_display_id(display_id)
                 pass
             else:
-                creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creatureOrModelEntry)
+                creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
+                    creature_or_model_entry)
                 if creature_template:
                     script.source.set_display_id(creature_template.display_id)
                 else:
-                    Logger.warning('ScriptHandler: No creature template found, aborting SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL')
+                    Logger.warning(
+                        'ScriptHandler: No creature template found, aborting SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL')
                 pass
-            
+
         else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL')
 
     def handle_script_command_mount_to_entry_or_model(self, script):
         if script.source and script.source.is_alive and script.source.creature_manager:
             display_id = script.datalong2
-            creatureOrModelEntry = script.datalong
+            creature_or_model_entry = script.datalong
 
-            if not creatureOrModelEntry and not display_id:
+            if not creature_or_model_entry and not display_id:
                 display_id = script.source.creature_manager.creature_template.mount_display_id
                 if display_id:
                     script.source.mount(display_id)
                 else:
                     script.source.unmount()
             else:
-                if creatureOrModelEntry:
-                    creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creatureOrModelEntry)
+                if creature_or_model_entry:
+                    creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
+                        creature_or_model_entry)
                     if creature_template:
                         display_id = creature_template.display_id
                         if display_id:
@@ -491,25 +503,28 @@ class ScriptHandler:
                     else:
                         script.source.unmount()
         else:
-            Logger.warning('ScriptHandler: No creature manager found or creature is dead, aborting SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL')
+            Logger.warning('ScriptHandler: No creature manager found or creature is dead, '
+                           'aborting SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL')
 
     def handle_script_command_set_run(self, script):
         if script.source and script.source.creature_manager:
-            script.source.change_speed(script.source.creature_manager.creature_template.speed_run if script.datalong == 1 else \
-                                       script.source.creature_manager.creature_template.speed_walk)
+            script.source.change_speed(
+                script.source.creature_manager.creature_template.speed_run if script.datalong == 1 else
+                script.source.creature_manager.creature_template.speed_walk)
         else:
-            Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_RUN')        
+            Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_RUN')
 
     def handle_script_command_attack_start(self, script):
         attacker = script.source
-        victim = script.target    
+        victim = script.target
 
         if attacker and attacker.is_alive and attacker.object_ai:
             if victim and victim.is_alive:
                 attacker.attack(victim)
             elif not victim:
                 from game.world.managers.objects.script.ScriptManager import ScriptManager
-                victim = ScriptManager.get_target_by_type(attacker, victim, script.target_type, script.target_param1, script.target_param2, None)
+                victim = ScriptManager.get_target_by_type(attacker, victim, script.target_type, script.target_param1,
+                                                          script.target_param2, None)
                 attacker.attack(victim)
         else:
             Logger.warning('ScriptHandler: Invalid attacker, aborting SCRIPT_COMMAND_ATTACK_START')
@@ -517,7 +532,7 @@ class ScriptHandler:
     def handle_script_command_update_entry(self, script):
         Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
         pass
-    
+
     def handle_script_command_stand_state(self, script):
         if script.source and script.source.is_alive:
             script.source.set_stand_state(script.datalong)
@@ -548,11 +563,12 @@ class ScriptHandler:
             if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
                 if script.source.creature_manager.spawn_id:
                     spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(script.source.creature_manager.spawn_id)
-                    script.source.creature_manager.spawn_position = Vector(spawn.position_x, spawn.position_y, spawn.position_y, spawn.orientation)
-                    #TODO: actually move the creature to the spawn position.
-        else:                        
+                    script.source.creature_manager.spawn_position = Vector(spawn.position_x, spawn.position_y,
+                                                                           spawn.position_y, spawn.orientation)
+                    # TODO: actually move the creature to the spawn position.
+        else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_HOME_POSITION')
-            pass 
+            pass
 
     def handle_script_command_turn_to(self, script):
         if script.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
@@ -569,8 +585,8 @@ class ScriptHandler:
         pass
 
     def handle_script_command_start_script(self, script):
-        scripts = [] # Datalong to datalong4.
-        weights = () # Dataint to dataint4.
+        scripts = []  # Datalong to datalong4.
+        weights = ()  # Dataint to dataint4.
 
         if script.datalong > 0:
             scripts.append(script.datalong)
@@ -586,7 +602,7 @@ class ScriptHandler:
             weights += (script.dataint4,)
 
         random_script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
-        
+
         self.set_generic_script(script.source, script.target, random_script_id)
 
         pass
@@ -606,7 +622,6 @@ class ScriptHandler:
         else:
             Logger.warning('ScriptHandler: Neither source nor target are a player, aborting SCRIPT_COMMAND_REMOVE_ITEM')
 
-
     def handle_script_command_remove_object(self, script):
         Logger.debug('ScriptHandler: handle_script_command_remove_object not implemented yet')
         pass
@@ -615,7 +630,7 @@ class ScriptHandler:
         if script.source and script.source.is_alive and script.source:
             if script.source.has_melee():
                 if script.target and script.target.is_alive:
-                    script.source.attack(script.target)                    
+                    script.source.attack(script.target)
         else:
             Logger.warning('ScriptHandler: Invalid source, aborting SCRIPT_COMMAND_SET_MELEE_ATTACK')
 
@@ -643,9 +658,10 @@ class ScriptHandler:
                 script.source.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
                 script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
 
-                ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL, self.CREATURE_FLEE_TEXT.male_text, \
-                    ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
-                
+                ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL,
+                                                       self.CREATURE_FLEE_TEXT.male_text, \
+                                                       ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
+
                 if script.source.spell_manager:
                     script.source.spell_manager.remove_casts()
 
@@ -655,7 +671,7 @@ class ScriptHandler:
 
         pass
 
-    def handle_script_command_deal_damage(self, script):        
+    def handle_script_command_deal_damage(self, script):
         if script.target:
             damage_to_deal = 0
             if script.datalong2 == 1:
@@ -665,12 +681,13 @@ class ScriptHandler:
                 damage_to_deal = script.datalong
 
             if damage_to_deal > 0:
-                damage_info = DamageInfoHolder(attacker = script.source, victim = script.target, damage = damage_to_deal, school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL)
+                damage_info = DamageInfoHolder(attacker=script.source, victim=script.target, damage=damage_to_deal,
+                                               school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_ALL)
                 script.source.deal_damage(damage_info)
             else:
                 Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
         else:
-            Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no target')        
+            Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no target')
 
     def handle_script_command_set_sheath(self, script):
         script.source.set_weapon_mode(script.datalong)
@@ -774,7 +791,7 @@ class ScriptHandler:
             else:
                 Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: source is not in combat')
         else:
-            Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: invalid target')        
+            Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: invalid target')
 
     def handle_script_command_summon_object(self, script):
         Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
@@ -825,26 +842,27 @@ class ScriptHandler:
     @staticmethod
     def handle_script_type_quest_start(quest_id):
         return WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)
-    
+
     @staticmethod
     def handle_script_type_quest_end(quest_id):
         return WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
-    
+
     @staticmethod
     def handle_script_type_generic(script_id):
         return WorldDatabaseManager.generic_script_get_by_id(script_id)
 
+
 SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_QUEST_START: ScriptHandler.handle_script_type_quest_start,
     ScriptTypes.SCRIPT_TYPE_QUEST_END: ScriptHandler.handle_script_type_quest_end,
-    #ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
-    #ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
-    #ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
+    # ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
+    # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
+    # ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
     ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
-    #ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,
-    #ScriptTypes.SCRIPT_TYPE_SPELL: ScriptHandler.handle_script_type_spell
+    # ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,
+    # ScriptTypes.SCRIPT_TYPE_SPELL: ScriptHandler.handle_script_type_spell
 }
-      
+
 SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_TALK: ScriptHandler.handle_script_command_talk,
     ScriptCommands.SCRIPT_COMMAND_EMOTE: ScriptHandler.handle_script_command_emote,
@@ -862,7 +880,7 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: ScriptHandler.handle_script_command_activate_object,
     ScriptCommands.SCRIPT_COMMAND_REMOVE_AURA: ScriptHandler.handle_script_command_remove_aura,
     ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: ScriptHandler.handle_script_command_cast_spell,
-    ## ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: ScriptHandler.handle_script_command_play_sound, opcodes for playing sound not implemented in 0.5.3
+    # ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: ScriptHandler.handle_script_command_play_sound, opcodes for playing sound not implemented in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: ScriptHandler.handle_script_command_create_item,
     ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: ScriptHandler.handle_script_command_despawn_creature,
     ScriptCommands.SCRIPT_COMMAND_SET_EQUIPMENT: ScriptHandler.handle_script_command_set_equipment,
@@ -876,13 +894,13 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_UPDATE_ENTRY: ScriptHandler.handle_script_command_update_entry,
     ScriptCommands.SCRIPT_COMMAND_STAND_STATE: ScriptHandler.handle_script_command_stand_state,
     ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: ScriptHandler.handle_script_command_modify_threat,
-    ## ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: ScriptHandler.handle_script_command_send_taxi_path, unused in 0.5.3
+    # ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: ScriptHandler.handle_script_command_send_taxi_path, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_TERMINATE_SCRIPT: ScriptHandler.handle_script_command_terminate_script,
     ScriptCommands.SCRIPT_COMMAND_TERMINATE_CONDITION: ScriptHandler.handle_script_command_terminate_condition,
     ScriptCommands.SCRIPT_COMMAND_ENTER_EVADE_MODE: ScriptHandler.handle_script_command_enter_evade_mode,
     ScriptCommands.SCRIPT_COMMAND_SET_HOME_POSITION: ScriptHandler.handle_script_command_set_home_position,
     ScriptCommands.SCRIPT_COMMAND_TURN_TO: ScriptHandler.handle_script_command_turn_to,
-    ## ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: ScriptHandler.handle_script_command_meetingstone, unused in 0.5.3
+    # ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: ScriptHandler.handle_script_command_meetingstone, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA: ScriptHandler.handle_script_command_set_inst_data,
     ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA64: ScriptHandler.handle_script_command_set_inst_data64,
     ScriptCommands.SCRIPT_COMMAND_START_SCRIPT: ScriptHandler.handle_script_command_start_script,
@@ -895,8 +913,8 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANGE: ScriptHandler.handle_script_command_set_phase_range,
     ScriptCommands.SCRIPT_COMMAND_FLEE: ScriptHandler.handle_script_command_flee,
     ScriptCommands.SCRIPT_COMMAND_DEAL_DAMAGE: ScriptHandler.handle_script_command_deal_damage,
-    ## ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: ScriptHandler.handle_script_command_zone_combat_pulse, unused in 0.5.3
-    ## ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: ScriptHandler.handle_script_command_call_for_help, unused in 0.5.3
+    # ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: ScriptHandler.handle_script_command_zone_combat_pulse, unused in 0.5.3
+    # ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: ScriptHandler.handle_script_command_call_for_help, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SET_SHEATH: ScriptHandler.handle_script_command_set_sheath,
     ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: ScriptHandler.handle_script_command_invincibility,
     ScriptCommands.SCRIPT_COMMAND_GAME_EVENT: ScriptHandler.handle_script_command_game_event,
@@ -922,15 +940,15 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_ADD_AURA: ScriptHandler.handle_script_command_add_aura,
     ScriptCommands.SCRIPT_COMMAND_ADD_THREAT: ScriptHandler.handle_script_command_add_threat,
     ScriptCommands.SCRIPT_COMMAND_SUMMON_OBJECT: ScriptHandler.handle_script_command_summon_object,
-    ## ScriptCommands.SCRIPT_COMMAND_SET_FLY: ScriptHandler.handle_script_command_set_fly, unused in 0.5.3
+    # ScriptCommands.SCRIPT_COMMAND_SET_FLY: ScriptHandler.handle_script_command_set_fly, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_JOIN_CREATURE_GROUP: ScriptHandler.handle_script_command_join_creature_group,
     ScriptCommands.SCRIPT_COMMAND_LEAVE_CREATURE_GROUP: ScriptHandler.handle_script_command_leave_creature_group,
     ScriptCommands.SCRIPT_COMMAND_SET_GO_STATE: ScriptHandler.handle_script_command_set_go_state,
     ScriptCommands.SCRIPT_COMMAND_DESPAWN_GAMEOBJECT: ScriptHandler.handle_script_command_despawn_gameobject,
     ScriptCommands.SCRIPT_COMMAND_QUEST_CREDIT: ScriptHandler.handle_script_command_quest_credit,
-    ## ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: ScriptHandler.handle_script_command_set_gossip_menu, not implemented in 0.5.3
+    # ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: ScriptHandler.handle_script_command_set_gossip_menu, not implemented in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SEND_SCRIPT_EVENT: ScriptHandler.handle_script_command_send_script_event,
-    ## ScriptCommands.SCRIPT_COMMAND_SET_PVP: ScriptHandler.handle_script_command_set_pvp, unused in 0.5.3
+    # ScriptCommands.SCRIPT_COMMAND_SET_PVP: ScriptHandler.handle_script_command_set_pvp, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_RESET_DOOR_OR_BUTTON: ScriptHandler.handle_script_command_reset_door_or_button,
     ScriptCommands.SCRIPT_COMMAND_SET_COMMAND_STATE: ScriptHandler.handle_script_command_set_command_state,
     ScriptCommands.SCRIPT_COMMAND_PLAY_CUSTOM_ANIM: ScriptHandler.handle_script_command_play_custom_anim,

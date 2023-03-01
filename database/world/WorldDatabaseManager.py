@@ -23,7 +23,7 @@ SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autoflush=True
 
 # noinspection PyUnresolvedReferences
 class WorldDatabaseManager(object):
-    # Player stuff.
+    # Player.
 
     @staticmethod
     def player_create_info_get(race, class_) -> Optional[Playercreateinfo]:
@@ -67,7 +67,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Pet stuff.
+    # Pet.
 
     @staticmethod
     def get_pet_level_stats_by_entry_and_level(entry, level):
@@ -76,7 +76,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Area stuff.
+    # Area.
 
     @staticmethod
     def area_trigger_teleport_get_by_id(trigger_id) -> Optional[AreatriggerTeleport]:
@@ -106,7 +106,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Exploration stuff.
+    # Exploration.
 
     @staticmethod
     def exploration_base_xp_get_by_level(level) -> Optional[ExplorationBaseXP]:
@@ -115,7 +115,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res.base_xp
 
-    # Worldport stuff.
+    # Worldport.
 
     @staticmethod
     def worldport_get_by_name(name, return_all=False) -> [list, Optional[Worldports]]:
@@ -135,7 +135,7 @@ class WorldDatabaseManager(object):
                 best_matching_location = location
         return best_matching_location
 
-    # Item stuff.
+    # Item.
 
     @staticmethod
     def get_item_applied_update(entry):
@@ -272,7 +272,7 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[entry] \
                 if entry in WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES else []
 
-    # Page text stuff.
+    # Page text.
 
     @staticmethod
     def page_text_get_by_id(page_id) -> Optional[PageText]:
@@ -281,7 +281,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Gameobject stuff.
+    # Gameobject.
 
     class GameobjectTemplateHolder:
         GAMEOBJECT_TEMPLATES: [int, GameobjectTemplate] = {}
@@ -388,7 +388,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Creature stuff.
+    # Creature.
 
     @staticmethod
     def creature_movement_get_all() -> list[CreatureMovement]:
@@ -684,7 +684,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Quest stuff.
+    # Quest.
 
     @staticmethod
     def quest_get_greeting_for_entry(entry):
@@ -840,13 +840,12 @@ class WorldDatabaseManager(object):
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
             return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.get(entry)
 
-    # Quest scripts stuff.
+    # Quest scripts.
 
     @staticmethod
     def quest_start_script_get_by_quest_id(quest_id):
         world_db_session = SessionHolder()
         res = world_db_session.query(QuestStartScript).filter(QuestStartScript.quest_id == quest_id).all()
-                                                           
         world_db_session.close()
         return res
 
@@ -858,17 +857,16 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Generic scripts stuff.
+    # Generic scripts.
 
     @staticmethod
-    def generic_script_get_by_id(id):
+    def generic_script_get_by_id(script_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(GenericScript).filter(GenericScript.id == id).all()
-                                                           
+        res = world_db_session.query(GenericScript).filter(GenericScript.id == script_id).all()
         world_db_session.close()
         return res
 
-    # Trainer stuff.
+    # Trainer.
 
     @staticmethod
     def get_npc_trainer_greeting(entry):
@@ -924,11 +922,8 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def trainer_spells_get_by_trainer(trainer_entry_id: int) -> list[TrainerTemplate]:
-            trainer_spells: list[TrainerTemplate] = []
-
             creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
                 trainer_entry_id)
-            trainer_template_id = creature_template.trainer_id
             return WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer_id(creature_template.trainer_id)
 
         @staticmethod
@@ -963,7 +958,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Spell chain / trainer stuff (for chaining together spell ranks)
+    # Spell chain / trainer stuff (for chaining together spell ranks).
 
     class SpellChainHolder:
         SPELL_CHAINS: dict[int, SpellChain] = {}
@@ -992,7 +987,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Gossip.
+    # Quest Gossip.
 
     class QuestGossipHolder:
         NPC_GOSSIPS: dict[int, NpcGossip] = {}
@@ -1029,7 +1024,7 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Gossip.
+    # Broadcast Text.
 
     class BroadcastTextHolder:
         BROADCAST_TEXTS: dict[int, BroadcastText] = {}
@@ -1053,12 +1048,12 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Creature AI events
+    # Creature AI events.
+
     @staticmethod
     def creature_ai_event_get_by_creature_id(creature_id):
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureAIEvent).filter(CreatureAIEvent.creature_id == creature_id).all()
-                                                           
         world_db_session.close()
         return res
 
@@ -1066,11 +1061,11 @@ class WorldDatabaseManager(object):
     def creature_ai_script_get_by_id(id):
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureAIScript).filter(CreatureAIScript.id == id).first()
-
         world_db_session.close()
         return res
 
     # Event conditions.
+
     class ConditionHolder:
         CONDITIONS: dict[int, Condition] = {}
 

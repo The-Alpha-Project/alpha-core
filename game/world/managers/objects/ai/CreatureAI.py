@@ -177,7 +177,7 @@ class CreatureAI:
             elif spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET):
                 self.creature.spell_manager.start_spell_cast(initialized_spell=spell)
 
-        # Run on-spawn AI scripts
+        # Run on-spawn AI scripts.
         self.ai_event_handler.on_spawn()
         self.ai_event_handler.on_idle()
 
@@ -416,8 +416,8 @@ class CreatureAI:
     def set_combat_movement(self, enabled):
         pass
 
-    # Called for reaction at enter to combat if not in combat yet (enemy can be None).
-    def enter_combat(self, unit = None):
+    # Called for reaction on enter combat if not in combat yet (enemy can be None).
+    def enter_combat(self, unit=None):
         self.ai_event_handler.on_enter_combat()	
         pass
 
