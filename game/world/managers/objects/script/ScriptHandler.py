@@ -653,8 +653,8 @@ class ScriptHandler:
                 damage_to_deal = script.datalong
 
             if damage_to_deal > 0:
-                damage_info = DamageInfoHolder(attacker=script.source, victim=script.target, damage=damage_to_deal,
-                                               school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_ALL)
+                damage_info = DamageInfoHolder(attacker=script.source, target=script.target,
+                                               total_damage=damage_to_deal)
                 script.source.deal_damage(damage_info)
             else:
                 Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
