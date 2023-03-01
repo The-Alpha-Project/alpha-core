@@ -384,10 +384,6 @@ class ScriptHandler:
                 # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
                 # For now we just use TEMP_SUMMON if dataint4 is not 0 and SUBTYPE_GENERIC if it is.
 
-        else:
-            Logger.warning(f'ScriptHandler: handle_script_command_temp_summon_creature: '
-                           f'failed to create creature {script.datalong}.')
-
     def handle_script_command_open_door(self, script):
         Logger.debug('ScriptHandler: handle_script_command_open_door not implemented yet')
         pass
