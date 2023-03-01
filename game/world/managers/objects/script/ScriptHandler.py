@@ -362,7 +362,6 @@ class ScriptHandler:
             if len(surrounding) > 0:
                 for unit in surrounding:
                     _unit = MapManager.get_surrounding_unit_by_guid(script.source, unit)
-                    Logger.debug(_unit.creature_template.entry)
                     if _unit and _unit.creature_template.entry == script.datalong:
                         if script.source.location.distance(_unit.location) <= script.datalong4:
                             summoned_count += 1
