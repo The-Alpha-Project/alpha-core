@@ -910,7 +910,7 @@ class SpellEffectHandler:
             return
 
         target.quest_manager.complete_quest(target.quest_manager.active_quests[effect.misc_value], notify=True)
-        ## TODO: for some reason this doesn't update the quest log accordingly.
+        # TODO: implement quest completion by spell in the QuestManager (devwar)
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
