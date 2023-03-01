@@ -10,7 +10,7 @@ from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes
+from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ObjectTypeFlags, ScriptTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
@@ -353,17 +353,24 @@ class ScriptHandler:
         pass
 
     def handle_script_command_temp_summon_creature(self, script):
-        summoned_count = 0
-        surrounding = MapManager.get_surrounding_units(script.source, False)
-        if len(surrounding) > 0:
-            for unit in surrounding:
-                _unit = MapManager.get_surrounding_unit_by_guid(script.source, unit)
+        can_summon = True
 
-                if _unit and _unit.creature_template.entry == script.datalong \
-                        and self.source.location.distance(_unit.position) <= script.datalong4:
-                    summoned_count += 1
+        # Summons of the same creature entry are limited to datalong3 (count) within datalong4 (radius).
+        if script.datalong3 > 0:
+            summoned_count = 0
+            surrounding = MapManager.get_surrounding_units(script.source, False)
+            if len(surrounding) > 0:
+                for unit in surrounding:
+                    _unit = MapManager.get_surrounding_unit_by_guid(script.source, unit)
+                    Logger.debug(_unit.creature_template.entry)
+                    if _unit and _unit.creature_template.entry == script.datalong:
+                        if script.source.location.distance(_unit.location) <= script.datalong4:
+                            summoned_count += 1
 
-        if summoned_count <= script.datalong3:
+            if summoned_count >= script.datalong3:
+                can_summon = False
+
+        if can_summon:
             creature_manager = CreatureBuilder.create(script.datalong, Vector(script.x, script.y, script.z, script.o),
                                                       script.source.map_id, script.source.instance_id,
                                                       summoner=None, faction=script.source.faction, ttl=script.datalong2,
@@ -381,10 +388,6 @@ class ScriptHandler:
                 # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
                 # For now we just use TEMP_SUMMON if dataint4 is not 0 and SUBTYPE_GENERIC if it is.
 
-        else:
-            Logger.warning(f'ScriptHandler: handle_script_command_temp_summon_creature: '
-                           f'failed to create creature {script.datalong}.')
-
     def handle_script_command_open_door(self, script):
         Logger.debug('ScriptHandler: handle_script_command_open_door not implemented yet')
         pass
@@ -398,7 +401,7 @@ class ScriptHandler:
         pass
 
     def handle_script_command_remove_aura(self, script):
-        if script.source and script.source.aura_manager:
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             auras = script.source.aura_manager.get_auras_by_spell_id(script.datalong)
             if auras:
                 for aura in auras:
