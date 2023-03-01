@@ -357,11 +357,10 @@ class ScriptHandler:
 
         if script.datalong3 > 0:
             summoned_count = 0
-            surrounding = MapManager.get_surrounding_units_by_location(script.source.location, script.source.map_id, script.source.instance_id, script.datalong4, False)
-            if len(surrounding) > 0:
-                for unit in surrounding:
-                    _unit = MapManager.get_surrounding_unit_by_guid(script.source, unit)
-                    if _unit and _unit.creature_template.entry == script.datalong:
+            surrounding_units = MapManager.get_surrounding_units_by_location(script.source.location, script.source.map_id, script.source.instance_id, script.datalong4, False)
+            if len(surrounding_units) > 0:
+                for unit in surrounding_units.values():
+                    if unit.is_alive and unit.creature_template.entry == script.datalong:
                         summoned_count += 1
 
             if summoned_count >= script.datalong3:
