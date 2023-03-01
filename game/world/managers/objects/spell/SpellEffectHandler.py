@@ -1,6 +1,5 @@
 from random import sample
 from struct import pack
-import pprint
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
