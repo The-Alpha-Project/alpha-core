@@ -107,7 +107,6 @@ class ScriptHandler:
             self.enqueue_script(source, target, ScriptTypes.SCRIPT_TYPE_GENERIC, script.id)
 
     def set_random_ooc_event(self, target, event):
-
         if event.condition_id > 0:
             if not ConditionChecker.check_condition(event.condition_id, self.object, target):
                 return
@@ -397,10 +396,7 @@ class ScriptHandler:
 
     def handle_script_command_remove_aura(self, script):
         if script.source and script.source.aura_manager:
-            auras = script.source.aura_manager.get_auras_by_spell_id(script.datalong)
-            if auras:
-                for aura in auras:
-                    script.source.aura_manager.remove_aura(aura)
+            script.source.aura_manager.cancel_auras_by_spell_id(script.datalong)
         else:
             Logger.warning('ScriptHandler: No aura manager found, aborting SCRIPT_COMMAND_REMOVE_AURA')
 
