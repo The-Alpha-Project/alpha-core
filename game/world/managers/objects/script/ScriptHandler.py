@@ -12,7 +12,7 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags
+from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
     SetHomePositionOptions
 from game.world.managers.objects.units.player.ChatManager import ChatManager
@@ -212,6 +212,9 @@ class ScriptHandler:
                 self.ooc_running = False
 
     def handle_script_command_talk(self, script):
+        if not script.source:
+            return
+
         texts = []
         if script.dataint > 0:
             texts.append(script.dataint)
@@ -229,9 +232,9 @@ class ScriptHandler:
             broadcast_message = None
 
         if broadcast_message:
-            if script.source.gender is not None and script.source.gender == 0 and broadcast_message.male_text is not None:
+            if script.source.gender == Genders.GENDER_MALE and broadcast_message.male_text is not None:
                 text_to_say = broadcast_message.male_text
-            elif script.source.gender is not None and script.source.gender == 1 and broadcast_message.female_text is not None:
+            elif script.source.gender == Genders.GENDER_FEMALE and broadcast_message.female_text is not None:
                 text_to_say = broadcast_message.female_text
             else:
                 text_to_say = broadcast_message.male_text if broadcast_message.male_text is not None else broadcast_message.female_text
@@ -244,6 +247,8 @@ class ScriptHandler:
                 elif broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
                     chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
                     lang = Languages.LANG_UNIVERSAL
+
+                if script.target:
                     text_to_say = GameTextFormatter.format(script.target, text_to_say)
 
                 ChatManager.send_monster_emote_message(script.source,
@@ -259,6 +264,9 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} not found.')
 
     def handle_script_command_emote(self, script):
+        if not script.source:
+            return
+
         emotes = []
         if script.datalong != 0:
             emotes.append(script.datalong)
@@ -279,9 +287,9 @@ class ScriptHandler:
         if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             coordinates_type = script.datalong
             time_ = script.datalong2
-            movement_options = script.datalong3  # Not used for now.
-            move_to_flags = script.datalong4  # Not used for now.
-            path_id = script.dataint  # Not used for now.
+            # movement_options = script.datalong3  # Not used for now.
+            # move_to_flags = script.datalong4  # Not used for now.
+            # path_id = script.dataint  # Not used for now.
             speed = config.Unit.Defaults.walk_speed  # VMaNGOS sets this to zero by default for whatever reason.
             x, y, z = 0, 0, 0
             angle = 0
@@ -293,7 +301,7 @@ class ScriptHandler:
                 y = script.y
                 z = script.z
 
-            elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RELATIVE_TO_TARGET:
+            elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RELATIVE_TO_TARGET and script.target:
                 x = script.target.location.x + script.x
                 y = script.target.location.y + script.y
                 z = script.target.location.z + script.z
@@ -334,7 +342,8 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_interrupt_casts not implemented yet')
 
     def handle_script_command_teleport_to(self, script):
-        script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o))
+        if script.source:
+            script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o))
 
     def handle_script_command_quest_explored(self, script):
         Logger.debug('ScriptHandler: handle_script_command_quest_explored not implemented yet')
@@ -346,6 +355,9 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_respawn_gameobject not implemented yet')
 
     def handle_script_command_temp_summon_creature(self, script):
+        if not script.source:
+            return
+
         summoned_count = 0
         surrounding = MapManager.get_surrounding_units(script.source, False)
         if len(surrounding) > 0:
@@ -547,6 +559,9 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_HOME_POSITION')
 
     def handle_script_command_turn_to(self, script):
+        if not script.source:
+            return
+
         if script.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
             script.source.movement_manager.send_face_target(script.player_mgr)
         else:
@@ -598,10 +613,9 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_remove_object not implemented yet')
 
     def handle_script_command_set_melee_attack(self, script):
-        if script.source and script.source.is_alive and script.source:
-            if script.source.has_melee():
-                if script.target and script.target.is_alive:
-                    script.source.attack(script.target)
+        if script.source and script.source.is_alive and script.source.has_melee() and \
+                script.target and script.target.is_alive():
+            script.source.attack(script.target)
         else:
             Logger.warning('ScriptHandler: Invalid source, aborting SCRIPT_COMMAND_SET_MELEE_ATTACK')
 
@@ -631,8 +645,7 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: No source or source is dead, aborting SCRIPT_COMMAND_FLEE')
 
     def handle_script_command_deal_damage(self, script):
-        if script.target:
-            damage_to_deal = 0
+        if script.source and script.target:
             if script.datalong2 == 1:
                 # Damage is a percentage of the target's health.
                 damage_to_deal = int(script.target.health * (script.datalong / 100))
@@ -646,18 +659,18 @@ class ScriptHandler:
             else:
                 Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
         else:
-            Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no target')
+            Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no source or target')
 
     def handle_script_command_set_sheath(self, script):
-        script.source.set_weapon_mode(script.datalong)
+        if script.source:
+            script.source.set_weapon_mode(script.datalong)
 
     def handle_script_command_invincibility(self, script):
-        if script.datalong2 == 1:
-            script.source.unit_flags |= UnitFlags.UNIT_MASK_NON_ATTACKABLE
-            script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
-        else:
-            script.source.unit_flags &= UnitFlags.UNIT_MASK_NON_ATTACKABLE
-            script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
+        if not script.source:
+            return
+
+        # TODO HP should be locked according to data - see VMaNGOS.
+        script.source.set_unit_flag(UnitFlags.UNIT_MASK_NON_ATTACKABLE, remove=script.datalong == 0)
 
     def handle_script_command_game_event(self, script):
         Logger.debug('ScriptHandler: handle_script_command_game_event not implemented yet')
@@ -723,7 +736,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_add_aura not implemented yet')
 
     def handle_script_command_add_threat(self, script):
-        if script.target:
+        if script.source and script.target:
             if script.source.is_alive and script.source.in_combat:
                 script.source.threat_manager.add_threat(script.target, script.datalong)
             else:
