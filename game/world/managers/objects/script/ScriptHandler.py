@@ -403,8 +403,9 @@ class ScriptHandler:
     def handle_script_command_cast_spell(self, script):
         if script.source and script.source.spell_manager:
             script.source.spell_manager.handle_cast_attempt(script.datalong,
-                                                            script.target if not script.target is None else script.source,
-                                                            SpellTargetMask.SELF, validate=False)
+                                                            script.target if script.target is not None else script.source,
+                                                            SpellTargetMask.UNIT if script.target else SpellTargetMask.SELF,
+                                                            validate=False)
         else:
             Logger.warning('ScriptHandler: No spell manager found, aborting SCRIPT_COMMAND_CAST_SPELL')
 
