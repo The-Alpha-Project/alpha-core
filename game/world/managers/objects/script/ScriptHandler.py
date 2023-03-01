@@ -369,7 +369,7 @@ class ScriptHandler:
             creature_manager = CreatureBuilder.create(script.datalong, Vector(script.x, script.y, script.z, script.o),
                                                       script.source.map_id, script.source.instance_id,
                                                       summoner=None, faction=script.source.faction,
-                                                      ttl=script.datalong2,
+                                                      ttl=script.datalong2 / 1000,
                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC if script.dataint4 > 0 else \
                                                           CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
             if creature_manager is not None:
