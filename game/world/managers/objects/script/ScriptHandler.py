@@ -62,7 +62,7 @@ class ScriptHandler:
         self.ooc_next = 0
         self.ooc_target = None
         self.ooc_running = False
-        self.last_hp_event = None
+        self.last_hp_event_id = -1
         self.CREATURE_FLEE_TEXT = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
 
     def handle_script(self, script):
@@ -188,7 +188,7 @@ class ScriptHandler:
         self.ooc_next = 0
         self.ooc_target = None
         self.ooc_running = False
-        self.last_hp_event = None
+        self.last_hp_event_id = -1
 
     def update(self):
         if len(self.script_queue) > 0:

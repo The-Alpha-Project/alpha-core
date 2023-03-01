@@ -48,16 +48,16 @@ class AIEventHandler:
         # In rare cases event_param1 is not the health breakpoint but something else?
         if 0 < event.event_param1 <= 100:
             current_health_percent = (self.creature.health / self.creature.max_health) * 100
-            if current_health_percent <= event.event_param1 and self.creature.script_handler.last_hp_event != event:
+            if current_health_percent <= event.event_param1 and self.creature.script_handler.last_hp_event_id != event.id:
                 script = WorldDatabaseManager.creature_ai_script_get_by_id(event.action1_script)
                 if script:
-                    self.creature.script_handler.last_hp_event = event
+                    self.creature.script_handler.last_hp_event_id = event.id
                     self.creature.script_handler.enqueue_ai_script(self.creature, script)
             # If event1_param is zero the script should be run on aggro.
-            elif event.event_param1 == 0 and self.creature.script_handler.last_hp_event != event:
+            elif event.event_param1 == 0 and self.creature.script_handler.last_hp_event_id != event.id:
                 script = WorldDatabaseManager.creature_ai_script_get_by_id(event.action1_script)
                 if script:
-                    self.creature.script_handler.last_hp_event = event
+                    self.creature.script_handler.last_hp_event_id = event.id
                     self.creature.script_handler.enqueue_ai_script(self.creature, script)
 
     def on_idle(self):
