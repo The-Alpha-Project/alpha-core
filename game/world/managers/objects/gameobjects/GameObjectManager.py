@@ -1,3 +1,4 @@
+from logging import Logger
 import math
 from math import pi, cos, sin
 from struct import pack
@@ -121,6 +122,9 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_TRAP or \
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.lock = gobject_template.data0
+
+        # Game objects can run scripts.
+        self.script_handler = ScriptHandler(self)
 
     # override
     def initialize_field_values(self):
@@ -418,8 +422,9 @@ class GameObjectManager(ObjectManager):
                         self.fishing_node_manager.update(elapsed)
                     if self.spell_focus_manager:
                         self.spell_focus_manager.update(elapsed)
-                    if self.script_handler:
-                        self.script_handler.update()
+
+                # ScriptHandler update.
+                self.script_handler.update()
 
                 # SpellManager update.
                 self.spell_manager.update(now)

@@ -140,6 +140,9 @@ class CreatureManager(UnitManager):
 
         self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
 
+        # Creatures can use scripts.
+        self.script_handler = ScriptHandler(self)
+
         # Reset pickpocket state.
         if self.pickpocket_loot_manager:
             self.pickpocket_loot_manager.already_pickpocketed = False
