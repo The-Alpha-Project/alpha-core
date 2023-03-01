@@ -418,6 +418,8 @@ class GameObjectManager(ObjectManager):
                         self.fishing_node_manager.update(elapsed)
                     if self.spell_focus_manager:
                         self.spell_focus_manager.update(elapsed)
+                    if self.script_handler:
+                        self.script_handler.update()
 
                 # SpellManager update.
                 self.spell_manager.update(now)
