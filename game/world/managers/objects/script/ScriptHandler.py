@@ -358,16 +358,17 @@ class ScriptHandler:
         if len(surrounding) > 0:
             for unit in surrounding:
                 _unit = MapManager.get_surrounding_unit_by_guid(script.source, unit)
+
                 if _unit and _unit.creature_template.entry == script.datalong \
-                        and script.source.position.distance(_unit.position) <= script.datalong4:
+                        and self.source.location.distance(_unit.position) <= script.datalong4:
                     summoned_count += 1
 
         if summoned_count <= script.datalong3:
             creature_manager = CreatureBuilder.create(script.datalong, Vector(script.x, script.y, script.z, script.o),
                                                       script.source.map_id, script.source.instance_id,
-                                                      summoner=None, faction=script.source.faction,
-                                                      ttl=script.datalong2,
-                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC)
+                                                      summoner=None, faction=script.source.faction, ttl=script.datalong2,
+                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC if script.dataint4 > 0 \
+                                                      else CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
             if creature_manager is not None:
                 MapManager.spawn_object(world_object_instance=creature_manager)
 
@@ -378,6 +379,7 @@ class ScriptHandler:
                 # TODO: dataint3 = attack_target. We'll need an entire new system to determine and get the requested target.
                 # TODO: dataint = flags. Needs an enum and handling.
                 # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
+                # For now we just use TEMP_SUMMON if dataint4 is not 0 and SUBTYPE_GENERIC if it is.
 
         else:
             Logger.warning(f'ScriptHandler: handle_script_command_temp_summon_creature: '

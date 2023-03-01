@@ -1,5 +1,7 @@
 from random import sample
+import random
 from struct import pack
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -744,6 +746,26 @@ class SpellEffectHandler:
         FarSightManager.add_camera(dyn_object, caster)
 
     @staticmethod
+    def handle_summon_guardian(casting_spell, effect, caster, target):
+        creature_entry = effect.misc_value
+        if not creature_entry:
+            return
+
+        duration = casting_spell.duration_entry.Duration / 1000
+
+        template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
+
+        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_id, caster.instance_id,
+                                                  summoner=caster,
+                                                  spell_id=casting_spell.spell_entry.ID,
+                                                  faction=caster.faction, ttl=duration,
+                                                  level=random.choice(range(template.level_min, template.level_max + 1)),
+                                                  possessed=False,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+
+        MapManager.spawn_object(world_object_instance=creature_manager)
+
+    @staticmethod
     def handle_skill_step(casting_spell, effect, caster, target):
         if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
@@ -751,12 +773,12 @@ class SpellEffectHandler:
         step = effect.get_effect_points()
         if step < 0:
             return
-        
+
         skill_max = (step * 5)
         skill_id = casting_spell.spell_entry.EffectMiscValue_2
         if skill_id <= 0:
             return
-        
+
         if not target.skill_manager.has_skill(skill_id):
             target.skill_manager.add_skill(skill_id)
 
@@ -933,6 +955,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
     SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
+    SpellEffects.SPELL_EFFECT_SUMMON_GUARDIAN: SpellEffectHandler.handle_summon_guardian,
     SpellEffects.SPELL_EFFECT_SKILL_STEP: SpellEffectHandler.handle_skill_step,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
