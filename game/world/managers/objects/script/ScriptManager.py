@@ -41,7 +41,15 @@ class ScriptManager:
         elif target_type == ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY:
             # TODO: entry -> object type identification.
             #  Based on objects high guids.
-            pass
+
+            targets = ScriptManager._get_surrounding_units_and_players(caster, friends_only=False)
+            if not targets:
+                return None
+            else:
+                for t in targets:
+                    if t.entry == param1:
+                        return t
+            return None
         elif target_type == ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY:
             # TODO: entry -> object type identification.
             #  Based on objects high guids.
