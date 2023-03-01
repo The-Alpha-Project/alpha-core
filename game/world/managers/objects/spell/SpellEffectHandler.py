@@ -1,5 +1,6 @@
 from random import sample
 from struct import pack
+import pprint
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -896,11 +897,27 @@ class SpellEffectHandler:
         SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA
     }
 
+    @staticmethod
+    def handle_quest_complete(casting_spell, effect, caster, target):
+        # Effect.misc_value = quest_entry.
+        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+
+        quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(effect.misc_value)
+        if not quest:
+            return
+
+        if effect.misc_value not in target.quest_manager.active_quests:
+            return
+
+        target.quest_manager.complete_quest(target.quest_manager.active_quests[effect.misc_value], notify=True)
+        ## TODO: for some reason this doesn't update the quest log accordingly.
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
     SpellEffects.SPELL_EFFECT_HEAL_MAX_HEALTH: SpellEffectHandler.handle_heal_max_health,
+    SpellEffects.SPELL_EFFECT_QUEST_COMPLETE: SpellEffectHandler.handle_quest_complete,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_WEAPON_DAMAGE_PLUS: SpellEffectHandler.handle_weapon_damage,
     SpellEffects.SPELL_EFFECT_ADD_COMBO_POINTS: SpellEffectHandler.handle_add_combo_points,
