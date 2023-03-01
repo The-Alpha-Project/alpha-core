@@ -44,6 +44,11 @@ class FearMovement(BaseMovement):
             or not self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or time.time() >= self.expected_timestamp
 
     # override
+    def on_removed(self):
+        # Remove fleeing flag if not caused by auras (ie. scripted flee).
+        self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, False)
+
+    # override
     def on_spline_finished(self):
         self.unit.movement_flags = MoveFlags.MOVEFLAG_NONE
         MapManager.send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)

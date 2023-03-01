@@ -651,22 +651,16 @@ class ScriptHandler:
 
     def handle_script_command_flee(self, script):
         if script.source and script.source.is_alive:
-            if not script.source.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
-                script.source.unit_flags |= UnitFlags.UNIT_FLAG_FLEEING
-                script.source.set_uint32(UnitFields.UNIT_FIELD_FLAGS, script.source.unit_flags)
+            script.source.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
+            ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL,
+                                                   self.CREATURE_FLEE_TEXT.male_text,
+                                                   ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
 
-                ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL,
-                                                       self.CREATURE_FLEE_TEXT.male_text, \
-                                                       ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
-
-                if script.source.spell_manager:
-                    script.source.spell_manager.remove_casts()
-
-                # TODO: Actual fleeing movement has to wait until the movement update is implemented.
+            if script.source.spell_manager:
+                script.source.spell_manager.remove_casts(remove_active=False)
+            script.source.movement_manager.move_fear(7)  # Flee for 7 seconds.
         else:
             Logger.warning('ScriptHandler: No source or source is dead, aborting SCRIPT_COMMAND_FLEE')
-
-        pass
 
     def handle_script_command_deal_damage(self, script):
         if script.target:
