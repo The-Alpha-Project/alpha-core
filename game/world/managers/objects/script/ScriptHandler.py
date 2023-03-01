@@ -10,7 +10,7 @@ from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes
+from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
@@ -276,7 +276,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_field_set not implemented yet')
 
     def handle_script_command_move_to(self, script):
-        if script.source and script.source.creature_manager:
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             coordinates_type = script.datalong
             time_ = script.datalong2
             movement_options = script.datalong3  # Not used for now.
@@ -317,7 +317,7 @@ class ScriptHandler:
             if angle != 0:
                 script.source.movement_manager.set_face_angle(angle)
 
-            script.source.creature_manager.movement_manager.send_move_normal([Vector(x, y, z)], speed)
+            script.source.movement_manager.send_move_normal([Vector(x, y, z)], speed)
         else:
             Logger.warning(f'ScriptHandler: handle_script_command_move_to: invalid source.')
 
@@ -407,25 +407,22 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: No inventory found, aborting SCRIPT_COMMAND_CREATE_ITEM')
 
     def handle_script_command_despawn_creature(self, script):
-        if script.source and script.source.is_alive:
-            if script.source.creature_manager:
-                script.source.creature_manager.destroy()
-            else:
-                Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_DESPAWN_CREATURE')
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and script.source.is_alive:
+            script.source.destroy()
         else:
-            Logger.warning('ScriptHandler: No source found or source is dead, aborting SCRIPT_COMMAND_DESPAWN_CREATURE')
+            Logger.warning('ScriptHandler: No valid source found or source is dead, aborting SCRIPT_COMMAND_DESPAWN_CREATURE')
 
     def handle_script_command_set_equipment(self, script):
-        if script.source and script.source.creature_manager:
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             if script.datalong == 1:
-                script.source.creature_manager.reset_virtual_equipment()
+                script.source.reset_virtual_equipment()
             else:
                 if script.dataint > 0:
-                    script.source.creature_manager.set_virtual_equipment(0, script.dataint)
+                    script.source.set_virtual_equipment(0, script.dataint)
                 if script.dataint2 > 0:
-                    script.source.creature_manager.set_virtual_equipment(1, script.dataint2)
+                    script.source.set_virtual_equipment(1, script.dataint2)
                 if script.dataint3 > 0:
-                    script.source.creature_manager.set_virtual_equipment(2, script.dataint3)
+                    script.source.set_virtual_equipment(2, script.dataint3)
         else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_EQUIPMENT')
 
@@ -436,22 +433,22 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_set_activeobject not implemented yet')
 
     def handle_script_command_set_faction(self, script):
-        if script.source and script.source.creature_manager:
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             if script.datalong == 0:
-                script.source.creature_manager.reset_faction()
+                script.source.reset_faction()
             else:
-                script.source.creature_manager.set_faction(script.datalong)
+                script.source.set_faction(script.datalong)
         else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_FACTION')
 
     def handle_script_command_morph_to_entry_or_model(self, script):
-        if script.source and script.source.is_alive and script.source.creature_manager:
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and script.source.is_alive:
             creature_or_model_entry = script.datalong
             display_id = script.datalong2
 
             if not creature_or_model_entry:
                 script.source.reset_display_id()
-            elif script.display_id:
+            elif display_id:
                 script.source.set_display_id(display_id)
             else:
                 creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
@@ -466,12 +463,12 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL')
 
     def handle_script_command_mount_to_entry_or_model(self, script):
-        if script.source and script.source.is_alive and script.source.creature_manager:
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and script.source.is_alive:
             display_id = script.datalong2
             creature_or_model_entry = script.datalong
 
             if not creature_or_model_entry and not display_id:
-                display_id = script.source.creature_manager.creature_template.mount_display_id
+                display_id = script.source.creature_template.mount_display_id
                 if display_id:
                     script.source.mount(display_id)
                 else:
@@ -491,10 +488,10 @@ class ScriptHandler:
                            'aborting SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL')
 
     def handle_script_command_set_run(self, script):
-        if script.source and script.source.creature_manager:
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             script.source.change_speed(
-                script.source.creature_manager.creature_template.speed_run if script.datalong == 1 else
-                script.source.creature_manager.creature_template.speed_walk)
+                script.source.creature_template.speed_run if script.datalong == 1 else
+                script.source.creature_template.speed_walk)
         else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_RUN')
 
@@ -539,12 +536,12 @@ class ScriptHandler:
 
     def handle_script_command_set_home_position(self, script):
         # All other SetHomePositionOptions are not valid for 0.5.3.
-        if script.source and script.source.creature_manager:
+        if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             if script.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
-                if script.source.creature_manager.spawn_id:
-                    spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(script.source.creature_manager.spawn_id)
-                    script.source.creature_manager.spawn_position = Vector(spawn.position_x, spawn.position_y,
-                                                                           spawn.position_y, spawn.orientation)
+                if script.source.spawn_id:
+                    spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(script.source.spawn_id)
+                    script.source.spawn_position = Vector(spawn.position_x, spawn.position_y,
+                                                          spawn.position_y, spawn.orientation)
                     # TODO: actually move the creature to the spawn position.
         else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_SET_HOME_POSITION')
