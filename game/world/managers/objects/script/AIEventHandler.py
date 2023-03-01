@@ -6,9 +6,11 @@ import random
 class AIEventHandler:
     def __init__(self, creature):
         self.creature = creature
+        self._events = {event.event_type: event for event in
+                        WorldDatabaseManager.creature_ai_event_get_by_creature_id(self.creature.entry)}
 
     def on_spawn(self):
-        event = self._get_event_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
+        event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
         if not event:
             return
 
@@ -21,7 +23,7 @@ class AIEventHandler:
     def on_enter_combat(self):
         self.creature.script_handler.reset()  # Reset any scripts that were queued before combat (e.g. on spawn).
 
-        event = self._get_event_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
+        event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
         if not event:
             return
 
@@ -41,7 +43,7 @@ class AIEventHandler:
                 self.creature.script_handler.enqueue_ai_script(self.creature, script)
 
     def on_damage_taken(self):
-        event = self._get_event_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
+        event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
         if not event:
             return
 
@@ -61,12 +63,12 @@ class AIEventHandler:
                     self.creature.script_handler.enqueue_ai_script(self.creature, script)
 
     def on_idle(self):
-        event = self._get_event_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
+        event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
         if event:
             self.creature.script_handler.set_random_ooc_event(self.creature, event)
 
     def on_death(self):
-        event = self._get_event_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
+        event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
         if not event:
             return
 
@@ -83,12 +85,3 @@ class AIEventHandler:
             script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(choices))
             if script:
                 self.creature.script_handler.enqueue_ai_script(self.creature, script)
-
-    def _get_event_by_type(self, event_type):
-        events = WorldDatabaseManager.creature_ai_event_get_by_creature_id(self.creature.entry)
-        if events:
-            for event in events:
-                if event.event_type == event_type:
-                    return event
-
-        return None
