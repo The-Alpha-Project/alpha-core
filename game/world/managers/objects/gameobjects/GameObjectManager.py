@@ -30,6 +30,7 @@ class GameObjectManager(ObjectManager):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.script_handler = None
         self.spawn_id = 0
         self.entry = 0
         self.guid = 0
@@ -121,6 +122,9 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_TRAP or \
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.lock = gobject_template.data0
+
+        # Game objects can run scripts.
+        self.script_handler = ScriptHandler(self)
 
     # override
     def initialize_field_values(self):
@@ -418,6 +422,9 @@ class GameObjectManager(ObjectManager):
                         self.fishing_node_manager.update(elapsed)
                     if self.spell_focus_manager:
                         self.spell_focus_manager.update(elapsed)
+
+                # ScriptHandler update.
+                self.script_handler.update()
 
                 # SpellManager update.
                 self.spell_manager.update(now)

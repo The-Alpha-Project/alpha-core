@@ -791,15 +791,18 @@ class CommandManager(object):
         os_platform = f'{platform.system()} {platform.release()} ({platform.version()})'
         message = f'Platform: {os_platform}.\n'
 
+        python_version = f'{platform.python_version()}'
+        message += f'Python Version: {python_version}.\n'
+
+        current_commit_hash = GitUtils.get_current_commit_hash()
+        current_branch = GitUtils.get_current_branch()
+        message += f'Commit: [{current_branch}] {current_commit_hash}.\n'
+
         server_time = f'{datetime.now()}'
         message += f'Server Time: {server_time}.\n'
 
         server_uptime = timedelta(seconds=WorldManager.get_seconds_since_startup())
-        message += f'Uptime: {server_uptime}.\n'
-
-        current_commit_hash = GitUtils.get_current_commit_hash()
-        current_branch = GitUtils.get_current_branch()
-        message += f'Commit: [{current_branch}] {current_commit_hash}.'
+        message += f'Uptime: {server_uptime}.'
 
         return 0, message
 

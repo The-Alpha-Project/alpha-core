@@ -31,6 +31,7 @@ from utils.constants.UpdateFields import ObjectFields, UnitFields
 class CreatureManager(UnitManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.script_handler = None
         self.spawn_id = 0
         self.entry = 0
         self.guid = 0
@@ -139,6 +140,9 @@ class CreatureManager(UnitManager):
         self.power_1 = int((self.mana_percent / 100) * self.max_power_1)
 
         self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
+
+        # Creatures can use scripts.
+        self.script_handler = ScriptHandler(self)
 
         # Reset pickpocket state.
         if self.pickpocket_loot_manager:
