@@ -1,4 +1,4 @@
-from utils.constants.MiscCodes import QuestSpecialFlags, QuestMethod
+from utils.constants.MiscCodes import QuestSpecialFlags, QuestMethod, QuestFlags
 
 
 class QuestHelpers:
@@ -17,8 +17,20 @@ class QuestHelpers:
         return quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
 
     @staticmethod
-    def is_quest_scripted(quest_template):
+    def is_event_quest(quest_template):
         return quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_SCRIPT
+
+    @staticmethod
+    def is_exploration_quest(quest_template):
+        return quest_template.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION
+
+    @staticmethod
+    def is_exploration_or_event(quest_template):
+        return QuestHelpers.is_exploration_quest(quest_template) or QuestHelpers.is_event_quest(quest_template)
+
+    @staticmethod
+    def is_timed_quest(quest_template):
+        return quest_template.LimitTime > 0
 
     @staticmethod
     # noinspection PyUnusedLocal

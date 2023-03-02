@@ -1068,10 +1068,18 @@ class QuestManager(object):
 
     def reward_quest_exploration(self, area_trigger_id):
         for quest_id, active_quest in self.active_quests.items():
-            if active_quest.is_exploration_quest() and active_quest.apply_exploration_completion(area_trigger_id):
+            if QuestHelpers.is_exploration_quest(active_quest.quest) \
+                    and active_quest.apply_exploration_completion(area_trigger_id):
                 if active_quest.can_complete_quest():
                     self.update_single_quest(quest_id)
                     self.complete_quest(active_quest, update_surrounding=True, notify=True)
+
+    def complete_quest_by_id(self, quest_id):
+        if quest_id not in self.active_quests:
+            return
+        active_quest = self.active_quests.get(quest_id)
+        self.complete_quest(active_quest, update_surrounding=True, notify=True)
+        self.update_single_quest(quest_id)
 
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
@@ -1104,7 +1112,7 @@ class QuestManager(object):
         # Every second.
         if self.last_timer_update >= 1:
             for active_quest in list(self.active_quests.values()):
-                if active_quest.is_timed_quest():
+                if QuestHelpers.is_timed_quest(active_quest.quest):
                     active_quest.update_timer(self.last_timer_update)
 
             self.last_timer_update = 0

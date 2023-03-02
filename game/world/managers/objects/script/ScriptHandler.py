@@ -18,7 +18,6 @@ from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateType
 from game.world.managers.objects.units.player.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
-from utils.constants.UpdateFields import UnitFields
 
 
 @dataclass
@@ -63,7 +62,7 @@ class ScriptHandler:
         self.ooc_target = None
         self.ooc_running = False
         self.last_hp_event_id = -1
-        self.CREATURE_FLEE_TEXT = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
+        self.flee_text = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
 
     def handle_script(self, script):
         if script.command in SCRIPT_COMMANDS:
@@ -637,7 +636,7 @@ class ScriptHandler:
         if script.source and script.source.is_alive:
             script.source.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
             ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL,
-                                                   self.CREATURE_FLEE_TEXT.male_text,
+                                                   self.flee_text.male_text,
                                                    ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
 
             if script.source.spell_manager:

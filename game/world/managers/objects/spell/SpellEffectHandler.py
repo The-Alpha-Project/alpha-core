@@ -898,7 +898,6 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_quest_complete(casting_spell, effect, caster, target):
-        # Effect.misc_value = quest_entry.
         if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
@@ -906,11 +905,10 @@ class SpellEffectHandler:
         if not quest:
             return
 
-        if effect.misc_value not in target.quest_manager.active_quests:
+        if quest.entry not in target.quest_manager.active_quests:
             return
 
-        target.quest_manager.complete_quest(target.quest_manager.active_quests[effect.misc_value], notify=True)
-        # TODO: implement quest completion by spell in the QuestManager (devwar)
+        target.quest_manager.complete_quest_by_id(quest_id=quest.entry)
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
