@@ -70,7 +70,6 @@ class ObjectManager:
         self.last_tick = 0
         self.movement_spline = None
         self.object_ai = None
-        self.script_handler = ScriptHandler(self)
 
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager
