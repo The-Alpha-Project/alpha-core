@@ -310,7 +310,7 @@ class ActiveQuest:
     # Bit before last ON (LE) = Completed
     def get_progress(self):
 
-        # Handle exploration. (Read 'Extras')
+        # Handle exploration / event. (Read 'Extras')
         if QuestHelpers.is_exploration_or_event(self.quest) and self.get_quest_state() == QuestState.QUEST_REWARD:
             return 1 << 30
 
