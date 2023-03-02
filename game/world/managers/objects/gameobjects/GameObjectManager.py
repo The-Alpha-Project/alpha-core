@@ -123,7 +123,7 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.lock = gobject_template.data0
 
-        # Game objects can run scripts.
+        # Gameobjects can run scripts.
         self.script_handler = ScriptHandler(self)
 
     # override

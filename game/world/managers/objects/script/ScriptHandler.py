@@ -375,19 +375,20 @@ class ScriptHandler:
                                                       script.source.map_id, script.source.instance_id,
                                                       summoner=None, faction=script.source.faction,
                                                       ttl=script.datalong2 / 1000,
-                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC if script.dataint4 > 0 else \
-                                                          CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
+                                                      if script.dataint4 > 0
+                                                      else CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
             if creature_manager is not None:
                 MapManager.spawn_object(world_object_instance=creature_manager)
 
-                # Dataint2 > 0 means a generic script needs to be executed after the creature is summoned.
+                # dataint2 > 0 means a generic script needs to be executed after the creature is summoned.
                 if script.dataint2 > 0:
                     self.enqueue_script(creature_manager, None, ScriptTypes.SCRIPT_TYPE_GENERIC, script.dataint2)
 
                 # TODO: dataint3 = attack_target. We'll need an entire new system to determine and get the requested target.
                 # TODO: dataint = flags. Needs an enum and handling.
                 # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
-                # For now we just use TEMP_SUMMON if dataint4 is not 0 and SUBTYPE_GENERIC if it is.
+                #  For now we just use TEMP_SUMMON if dataint4 is not 0 and SUBTYPE_GENERIC if it is.
 
     def handle_script_command_open_door(self, script):
         Logger.debug('ScriptHandler: handle_script_command_open_door not implemented yet')
@@ -472,7 +473,6 @@ class ScriptHandler:
                 else:
                     Logger.warning(
                         'ScriptHandler: No creature template found, aborting SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL')
-
         else:
             Logger.warning('ScriptHandler: No creature manager found, aborting SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL')
 
@@ -576,8 +576,8 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_set_inst_data64 not implemented yet')
 
     def handle_script_command_start_script(self, script):
-        scripts = []  # Datalong to datalong4.
-        weights = ()  # Dataint to dataint4.
+        scripts = []  # datalong to datalong4.
+        weights = ()  # dataint to dataint4.
 
         if script.datalong > 0:
             scripts.append(script.datalong)
@@ -655,9 +655,10 @@ class ScriptHandler:
                 damage_to_deal = script.datalong
 
             if damage_to_deal > 0:
-                damage_info = DamageInfoHolder(attacker=script.source, target=script.target,
-                                               total_damage=damage_to_deal)
-                script.source.deal_damage(damage_info)
+                attacker = script.source if script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else None
+                damage_info = DamageInfoHolder(attacker=attacker, target=script.target, total_damage=damage_to_deal,
+                                               damage_school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_NORMAL)
+                script.source.deal_damage(script.target, damage_info)
             else:
                 Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
         else:

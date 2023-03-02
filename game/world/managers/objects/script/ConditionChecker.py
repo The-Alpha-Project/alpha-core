@@ -8,6 +8,9 @@ from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
 
 class ConditionChecker:
+    def __init__(self):
+        pass
+
     @staticmethod
     def check_condition(condition_id, source, target): 
 
