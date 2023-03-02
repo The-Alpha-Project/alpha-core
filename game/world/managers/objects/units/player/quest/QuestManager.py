@@ -944,7 +944,7 @@ class QuestManager(object):
             self.cast_reward_spell(quest_giver.guid, active_quest)
 
         if quest_giver.script_handler:
-                quest_giver.script_handler.enqueue_script(quest_giver, self.player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_END, quest_id)
+            quest_giver.script_handler.enqueue_script(quest_giver, self.player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_END, quest_id)
 
         # Remove from active quests if needed.
         if quest.entry in self.active_quests:
