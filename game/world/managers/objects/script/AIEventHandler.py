@@ -6,6 +6,9 @@ import random
 class AIEventHandler:
     def __init__(self, creature):
         self.creature = creature
+        self._events = None
+
+    def initialize(self):
         self._events = {event.event_type: event for event in
                         WorldDatabaseManager.creature_ai_event_get_by_creature_id(self.creature.entry)}
 

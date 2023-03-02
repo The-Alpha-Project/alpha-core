@@ -20,7 +20,7 @@ class ActiveQuest:
         self.quest = quest
         self.area_triggers = None
         self.failed = False
-        if self.is_exploration_quest():
+        if QuestHelpers.is_exploration_quest(quest):
             self.load_area_triggers()
 
     def load_area_triggers(self):
@@ -28,12 +28,6 @@ class ActiveQuest:
             self.area_triggers = WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[self.quest.entry]
         else:
             Logger.warning(f'Unable to locate area trigger(s) for quest {self.quest.entry}')
-
-    def is_exploration_quest(self):
-        return self.quest.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION
-
-    def is_timed_quest(self):
-        return self.quest.LimitTime > 0
 
     def is_quest_complete(self, quest_giver_guid):
         quest_giver = None
@@ -221,11 +215,12 @@ class ActiveQuest:
                 return False
 
         # Handle exploration.
-        if self.quest.QuestFlags & QuestFlags.QUEST_FLAGS_EXPLORATION:
+        if QuestHelpers.is_exploration_or_event(self.quest):
             if self.get_quest_state() != QuestState.QUEST_REWARD:
                 return False
 
-        if self.is_timed_quest() and self.db_state.timer <= 0:
+        # Timed quests.
+        if QuestHelpers.is_timed_quest(self.quest) and self.db_state.timer <= 0:
             return False
 
         return True
@@ -297,7 +292,7 @@ class ActiveQuest:
         return item_entry in req_items or item_entry in req_src_items
 
     def get_timer(self):
-        if not self.is_timed_quest():
+        if not QuestHelpers.is_timed_quest(self.quest):
             return 0
         return int(time.time()) + int(self.db_state.timer)
 
@@ -315,8 +310,8 @@ class ActiveQuest:
     # Bit before last ON (LE) = Completed
     def get_progress(self):
 
-        # Handle exploration. (Read 'Extras')
-        if self.is_exploration_quest() and self.get_quest_state() == QuestState.QUEST_REWARD:
+        # Handle exploration / event. (Read 'Extras')
+        if QuestHelpers.is_exploration_or_event(self.quest) and self.get_quest_state() == QuestState.QUEST_REWARD:
             return 1 << 30
 
         total_count = 0

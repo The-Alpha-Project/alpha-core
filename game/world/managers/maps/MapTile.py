@@ -1,3 +1,4 @@
+import os
 import traceback
 from enum import IntEnum
 from os import path
@@ -135,8 +136,11 @@ class MapTile(object):
     @staticmethod
     def validate_version():
         # Use the first available tile map.
-        filename = '0000000.map'
-        maps_path = PathManager.get_map_file_path(filename)
+        map_file = os.listdir(PathManager.get_maps_path())[0]
+        if not map_file:
+            return False
+
+        maps_path = PathManager.get_map_file_path(map_file)
 
         if not path.exists(maps_path):
             return False
