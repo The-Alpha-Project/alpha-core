@@ -126,14 +126,17 @@ class ScriptTarget(IntEnum):
     # Param2 = search_radius
     TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY = 27
 
+
 class ModifyFlagsOptions(IntEnum):
     SO_MODIFYFLAGS_TOGGLE = 0
     SO_MODIFYFLAGS_SET = 1
     SO_MODIFYFLAGS_REMOVE = 2
 
+
 class TurnToFacingOptions(IntEnum):
     SO_TURNTO_FACE_TARGET = 0
     SO_TURNTO_PROVIDED_ORIENTATION = 1
+
 
 class ScriptCommands(IntEnum):
     SCRIPT_COMMAND_TALK = 0
@@ -228,10 +231,12 @@ class ScriptCommands(IntEnum):
     SCRIPT_COMMAND_PLAY_CUSTOM_ANIM = 89
     SCRIPT_COMMAND_START_SCRIPT_ON_GROUP = 90
 
+
 class SetHomePositionOptions(IntEnum):
     SET_HOME_PROVIDED_POSITION = 0
     SET_HOME_CURRENT_POSITION = 1
     SET_HOME_DEFAULT_POSITION = 2
+
 
 class MoveToCoordinateTypes(IntEnum):
     SO_MOVETO_COORDINATES_NORMAL = 0

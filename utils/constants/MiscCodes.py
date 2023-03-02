@@ -935,6 +935,7 @@ class ReputationSourceGain(IntEnum):
     REPUTATION_SOURCE_QUEST = 1
     REPUTATION_SOURCE_SPELL = 2
 
+
 class ScriptTypes(IntEnum):
     SCRIPT_TYPE_QUEST_START = 0
     SCRIPT_TYPE_QUEST_END = 1
@@ -945,6 +946,7 @@ class ScriptTypes(IntEnum):
     SCRIPT_TYPE_GOSSIP = 6
     SCRIPT_TYPE_SPELL = 7
 
+
 class TeleportToOptions(IntEnum):
     TELE_TO_GM_MODE = 1
     TELE_TO_NOT_LEAVE_TRANSPORT = 2
@@ -953,12 +955,14 @@ class TeleportToOptions(IntEnum):
     TELE_TO_SPELL = 0x10
     TELE_TO_FORCE_MAP_CHANGE = 0x20
 
+
 class CreatureAIEventTypes(IntEnum):
     AI_EVENT_TYPE_OUT_OF_COMBAT = 1
     AI_EVENT_TYPE_HP = 2
     AI_EVENT_TYPE_ON_ENTER_COMBAT = 4
     AI_EVENT_TYPE_ON_DEATH = 6
     AI_EVENT_TYPE_ON_SPAWN = 11    
+
 
 class BroadcastMessageType(IntEnum):
     BROADCAST_MSG_SAY = 0

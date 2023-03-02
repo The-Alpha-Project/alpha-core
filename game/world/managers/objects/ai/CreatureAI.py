@@ -173,7 +173,7 @@ class CreatureAI:
                                                                      SpellTargetMask.SELF, validate=False)
 
             if spell.is_passive():
-                self.creature.spell_manager.apply_passive_spell_effects(spell)
+                self.creature.spell_manager.apply_passive_spell_effects(spell.spell_entry)
             elif spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_SUMMON_PET):
                 self.creature.spell_manager.start_spell_cast(initialized_spell=spell)
 
