@@ -1071,8 +1071,8 @@ class QuestManager(object):
             if QuestHelpers.is_exploration_quest(active_quest.quest) \
                     and active_quest.apply_exploration_completion(area_trigger_id):
                 if active_quest.can_complete_quest():
-                    self.update_single_quest(quest_id)
                     self.complete_quest(active_quest, update_surrounding=True, notify=True)
+                    self.update_single_quest(quest_id)
 
     def complete_quest_by_id(self, quest_id):
         if quest_id not in self.active_quests:
