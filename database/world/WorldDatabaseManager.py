@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from database.world.WorldModels import *
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureSpellsEntry
 from utils.ConfigManager import *
+from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid, Languages
 
 
