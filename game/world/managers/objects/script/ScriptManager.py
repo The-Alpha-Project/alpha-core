@@ -14,7 +14,7 @@ class ScriptManager:
 
     @staticmethod
     # This can return either UnitManager or GameObjectManager. (Both have spell managers and aura managers)
-    def get_target_by_type(caster, target, target_type, param1, param2, spell_template):
+    def get_target_by_type(caster, target, target_type, param1=None, param2=None, spell_template=None):
         if target_type == ScriptTarget.TARGET_T_PROVIDED_TARGET:
             return target
         elif target_type == ScriptTarget.TARGET_T_HOSTILE:
