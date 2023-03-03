@@ -125,16 +125,15 @@ class ScriptHandler:
         if event.action3_script > 0:
             self.ooc_scripts.append(event.action3_script)
 
-        self.ooc_spawn_min_delay = int(event.event_param1 / 1000)
-        self.ooc_spawn_max_delay = int(event.event_param2 / 1000)
-        self.ooc_repeat_min_delay = int(event.event_param3 / 1000)
-        self.ooc_repeat_max_delay = int(event.event_param4 / 1000)
+        self.ooc_spawn_min_delay = event.event_param1 / 1000
+        self.ooc_spawn_max_delay = event.event_param2 / 1000
+        self.ooc_repeat_min_delay = event.event_param3 / 1000
+        self.ooc_repeat_max_delay = event.event_param4 / 1000
 
         script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(self.ooc_scripts))
         if script:
             self.ooc_target = target
-
-            script.delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
+            script.delay = random.uniform(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
 
             # Some events have a repeat delay of 0, which means they should not repeat.
             if self.ooc_repeat_min_delay > 0 and self.ooc_repeat_max_delay > 0:
