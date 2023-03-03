@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from database.world.WorldModels import *
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureSpellsEntry
 from utils.ConfigManager import *
-from utils.constants.MiscCodes import HighGuid
+from utils.constants.MiscCodes import HighGuid, Languages
 
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
