@@ -599,7 +599,7 @@ class ScriptHandler:
                 script.target and script.target.is_alive():
             script.source.attack(script.target)
         else:
-            Logger.warning('ScriptHandler: Invalid source, aborting SCRIPT_COMMAND_SET_MELEE_ATTACK')
+            Logger.warning('ScriptHandler: Invalid source or target, aborting SCRIPT_COMMAND_SET_MELEE_ATTACK')
 
     def handle_script_command_set_combat_movement(self, script):
         Logger.debug('ScriptHandler: handle_script_command_set_combat_movement not implemented yet')
