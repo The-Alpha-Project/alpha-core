@@ -28,7 +28,7 @@ class GuardAI(CreatureAI):
         pass
 
     # override
-    def enter_combat(self, unit):
+    def enter_combat(self, source=None):
         pass
 
     # Returns whether the Unit is currently attacking other players or friendly units.

@@ -896,9 +896,10 @@ class UnitManager(ObjectManager):
         return self.has_dodge_passive and not self.spell_manager.is_casting() and \
                not self.unit_state & UnitStates.STUNNED
 
-    def enter_combat(self, unit):
+    def enter_combat(self, source=None):
         if self.in_combat:
             return False
+
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)

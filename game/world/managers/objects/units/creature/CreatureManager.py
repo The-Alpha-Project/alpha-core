@@ -408,10 +408,11 @@ class CreatureManager(UnitManager):
         return super().can_parry(attacker_location)
 
     # override
-    def enter_combat(self, unit):
-        if not super().enter_combat(unit):
-            return
-        self.object_ai.enter_combat(unit)
+    def enter_combat(self, source=None):
+        if not super().enter_combat(source):
+            return False
+
+        self.object_ai.enter_combat(source)
 
     # override
     def leave_combat(self):
