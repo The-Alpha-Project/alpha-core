@@ -46,6 +46,12 @@ class Script:
     target: object
     time_added: float
 
+    def get_filtered_dataint(self):
+        return list(filter((0).__ne__, [self.dataint, self.dataint2, self.dataint3, self.dataint4]))
+
+    def get_filtered_datalong(self):
+        return list(filter((0).__ne__, [self.datalong, self.datalong2, self.datalong3, self.datalong4]))
+
 
 # noinspection PyMethodMayBeStatic
 class ScriptHandler:
@@ -214,16 +220,7 @@ class ScriptHandler:
         if not script.source:
             return
 
-        texts = []
-        if script.dataint > 0:
-            texts.append(script.dataint)
-        if script.dataint2 > 0:
-            texts.append(script.dataint2)
-        if script.dataint3 > 0:
-            texts.append(script.dataint3)
-        if script.dataint4 > 0:
-            texts.append(script.dataint4)
-
+        texts = script.get_filtered_dataint()
         if len(texts) > 0:
             text_id = random.choice(texts)
             broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)
@@ -266,16 +263,7 @@ class ScriptHandler:
         if not script.source:
             return
 
-        emotes = []
-        if script.datalong != 0:
-            emotes.append(script.datalong)
-        if script.datalong2 != 0:
-            emotes.append(script.datalong2)
-        if script.datalong3 != 0:
-            emotes.append(script.datalong3)
-        if script.datalong4 != 0:
-            emotes.append(script.datalong4)
-
+        emotes = script.get_filtered_datalong()
         if len(emotes) > 0:
             script.source.play_emote(random.choice(emotes))
 
@@ -423,7 +411,8 @@ class ScriptHandler:
         if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and script.source.is_alive:
             script.source.destroy()
         else:
-            Logger.warning('ScriptHandler: No valid source found or source is dead, aborting SCRIPT_COMMAND_DESPAWN_CREATURE')
+            Logger.warning('ScriptHandler: No valid source found or source is dead, '
+                           'aborting SCRIPT_COMMAND_DESPAWN_CREATURE')
 
     def handle_script_command_set_equipment(self, script):
         if script.source and script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
@@ -592,7 +581,6 @@ class ScriptHandler:
             weights += (script.dataint4,)
 
         random_script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
-
         self.set_generic_script(script.source, script.target, random_script_id)
 
     def handle_script_command_remove_item(self, script):
