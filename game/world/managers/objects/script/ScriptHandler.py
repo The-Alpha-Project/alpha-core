@@ -343,12 +343,12 @@ class ScriptHandler:
                 return
 
         creature_manager = CreatureBuilder.create(script.datalong, Vector(script.x, script.y, script.z, script.o),
-                                                    script.source.map_id, script.source.instance_id,
-                                                    summoner=None, faction=script.source.faction,
-                                                    ttl=script.datalong2 / 1000,
-                                                    subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
-                                                    if script.dataint4 > 0
-                                                    else CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                                                  script.source.map_id, script.source.instance_id,
+                                                  summoner=None, faction=script.source.faction,
+                                                  ttl=script.datalong2 / 1000,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
+                                                  if script.dataint4 > 0
+                                                  else CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
         if not creature_manager:
             return
         MapManager.spawn_object(world_object_instance=creature_manager)
