@@ -356,7 +356,7 @@ class ScriptHandler:
         if script.dataint3:
             from game.world.managers.objects.script.ScriptManager import ScriptManager
             attack_target = ScriptManager.get_target_by_type(script.source, script.target, script.dataint3)
-            if attack_target:
+            if attack_target and attack_target.is_alive:
                 creature_manager.attack(attack_target)
 
         # TODO: dataint = flags. Needs an enum and handling.
@@ -490,8 +490,8 @@ class ScriptHandler:
             script.source.creature_template.speed_walk)
 
     def handle_script_command_attack_start(self, script):
-        if not script.source or not script.target or not script.target.is_alive:
-            Logger.warning('ScriptHandler: Invalid attacker or target, SCRIPT_COMMAND_ATTACK_START')
+        if not script.source:
+            Logger.warning('ScriptHandler: Invalid attacker, SCRIPT_COMMAND_ATTACK_START')
             return
 
         attacker = script.source
@@ -502,8 +502,10 @@ class ScriptHandler:
             from game.world.managers.objects.script.ScriptManager import ScriptManager
             target = ScriptManager.get_target_by_type(attacker, victim, script.target_type, param1=script.target_param1,
                                                       param2=script.target_param2)
-        if target:
+        if target and target.is_alive:
             attacker.attack(target)
+        else:
+            Logger.warning('ScriptHandler: Unable to resolve target, SCRIPT_COMMAND_ATTACK_START')
 
     def handle_script_command_update_entry(self, script):
         Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
