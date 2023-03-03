@@ -3,7 +3,7 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.ChatManager import ChatManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
 from utils.constants.UnitCodes import UnitFlags

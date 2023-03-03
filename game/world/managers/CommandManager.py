@@ -9,7 +9,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
-from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.ChatManager import ChatManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from utils.ConfigManager import config

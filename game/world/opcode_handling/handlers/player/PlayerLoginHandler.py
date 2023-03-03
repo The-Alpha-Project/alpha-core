@@ -6,7 +6,7 @@ from struct import unpack
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import *
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.ChatManager import ChatManager
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import *

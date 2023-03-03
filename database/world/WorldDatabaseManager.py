@@ -1035,6 +1035,12 @@ class WorldDatabaseManager(object):
             # broadcast text.
             broadcast_text.male_text = broadcast_text.male_text.replace('%s ', '')
             broadcast_text.female_text = broadcast_text.female_text.replace('%s ', '')
+            # Default to LANG_UNIVERSAL for non existent languages to prevent client crash.
+            if broadcast_text.language_id > Languages.LANG_TROLL:
+                Logger.warning(f'Invalid language id {broadcast_text.language_id} for '
+                               f'broadcast text {broadcast_text.entry}.')
+                broadcast_text.language_id = Languages.LANG_UNIVERSAL
+
             WorldDatabaseManager.BroadcastTextHolder.BROADCAST_TEXTS[broadcast_text.entry] = broadcast_text
 
         @staticmethod

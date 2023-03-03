@@ -15,7 +15,7 @@ from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
     SetHomePositionOptions
-from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
 
@@ -222,7 +222,7 @@ class ScriptHandler:
             text_id = random.choice(texts)
             broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)
         else:
-            Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} not found.')
+            Logger.warning(f'ScriptHandler: Broadcast messages for {script.id} not found.')
             return
 
         if script.source.gender == Genders.GENDER_MALE and broadcast_message.male_text:
@@ -233,7 +233,7 @@ class ScriptHandler:
             text_to_say = broadcast_message.male_text if broadcast_message.male_text else broadcast_message.female_text
 
         if not text_to_say:
-            Logger.warning(f'ScriptHandler: Broadcast message {script.dataint} has no text to say.')
+            Logger.warning(f'ScriptHandler: Broadcast message {text_id} has no text to say.')
             return
 
         chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_SAY
@@ -243,9 +243,6 @@ class ScriptHandler:
         elif broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
-
-        # TODO: Using languages crashes the client with some races.
-        lang = Languages.LANG_UNIVERSAL
 
         if script.target:
             text_to_say = GameTextFormatter.format(script.target, text_to_say)

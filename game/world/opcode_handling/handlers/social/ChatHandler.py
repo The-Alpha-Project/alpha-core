@@ -1,6 +1,6 @@
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.CommandManager import CommandManager
-from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.ChatManager import ChatManager
 from network.packet.PacketReader import *
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import ChatMsgs, Languages

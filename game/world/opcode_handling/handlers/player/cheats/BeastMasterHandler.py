@@ -1,6 +1,6 @@
 from struct import unpack
 
-from game.world.managers.objects.units.player.ChatManager import ChatManager
+from game.world.managers.objects.units.ChatManager import ChatManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from utils.Logger import Logger
