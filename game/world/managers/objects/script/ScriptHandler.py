@@ -358,9 +358,10 @@ class ScriptHandler:
             self.enqueue_script(creature_manager, None, ScriptTypes.SCRIPT_TYPE_GENERIC, script.dataint2)
         # Attack target.
         if script.dataint3:
+            from game.world.managers.objects.script.ScriptManager import ScriptManager
             attack_target = ScriptManager.get_target_by_type(script.source, script.target, script.dataint3)
             if attack_target:
-                creature_manager.object_ai.attack_start(attack_target)
+                creature_manager.attack(attack_target)
 
         # TODO: dataint = flags. Needs an enum and handling.
         # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
@@ -506,7 +507,7 @@ class ScriptHandler:
             target = ScriptManager.get_target_by_type(attacker, victim, script.target_type, param1=script.target_param1,
                                                       param2=script.target_param2)
         if target:
-            attacker.object_ai.attack_start(target)
+            attacker.attack(target)
 
     def handle_script_command_update_entry(self, script):
         Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
