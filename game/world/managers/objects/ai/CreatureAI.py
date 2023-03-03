@@ -40,7 +40,6 @@ class CreatureAI:
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
             self.ai_event_handler = AIEventHandler(creature)
-            self.entered_combat = False
 
     def load_spell_list(self):
         # Load creature spells if available.
@@ -67,11 +66,6 @@ class CreatureAI:
 
         if self.last_alert_time > 0:
             self.last_alert_time = max(0, self.last_alert_time - elapsed)
-
-        # TODO: Fluglow: Fix me!
-        if self.creature.in_combat and not self.entered_combat:
-            self.entered_combat = True
-            self.enter_combat()
 
     # Like UpdateAI, but only when the creature is a dead corpse.
     def update_ai_corpse(self, elapsed):
@@ -103,7 +97,6 @@ class CreatureAI:
 
     # Called when the creature is killed.
     def just_died(self):
-        self.entered_combat = False
         charmer_or_summoner = self.creature.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit
         # (game objects can spawn creatures, but they don't have a PetManager).
@@ -158,11 +151,6 @@ class CreatureAI:
 
     # Called when creature is spawned or respawned (for resetting variables).
     def just_respawned(self):
-        # Reset spells template to default on respawn.
-        # Reset combat movement and melee attack.
-
-        self.entered_combat = False
-
         # Apply passives and cast pet summons.
         for spell_id in self.creature.get_template_spells():
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
@@ -447,9 +435,4 @@ class CreatureAI:
 
     # Called when a unit moves within visibility distance.
     def move_in_line_of_sight(self, unit: Optional[UnitManager] = None):
-        pass
-
-    # Called for reaction at stopping attack at no attackers or targets.
-    def enter_evade_mode(self):
-        self.entered_combat = False
         pass
