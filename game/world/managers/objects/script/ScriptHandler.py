@@ -241,6 +241,9 @@ class ScriptHandler:
                     chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
                     lang = Languages.LANG_UNIVERSAL
 
+                # TODO: Using languages crashes the client with some races.
+                lang = Languages.LANG_UNIVERSAL
+
                 if script.target:
                     text_to_say = GameTextFormatter.format(script.target, text_to_say)
 

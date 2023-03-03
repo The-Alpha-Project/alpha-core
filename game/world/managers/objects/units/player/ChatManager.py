@@ -44,10 +44,9 @@ class ChatManager(object):
 
     @staticmethod
     def send_monster_emote_message(sender, guid, language, message, chat_type):
-        MapManager.send_surrounding(ChatManager._get_monster_message_packet(sender.creature_template.name, guid,
-                                                                            ChatFlags.CHAT_TAG_NONE, message,
-                                                                            chat_type, language),
-                                    sender, False, None, False)
+        packet = ChatManager._get_monster_message_packet(sender.creature_template.name, guid,
+                                                         ChatFlags.CHAT_TAG_NONE, message, chat_type, language)
+        MapManager.send_surrounding(packet, sender, False)
 
     @staticmethod
     def send_channel_message(sender, channel_name, message, lang):
