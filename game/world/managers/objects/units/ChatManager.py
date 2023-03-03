@@ -43,10 +43,10 @@ class ChatManager(object):
         ChatLogManager.log_chat(world_session.player_mgr, message, chat_type)
 
     @staticmethod
-    def send_monster_emote_message(sender, guid, language, message, chat_type):
+    def send_monster_emote_message(sender, guid, message, chat_type, lang, range_):
         packet = ChatManager._get_monster_message_packet(sender.creature_template.name, guid,
-                                                         ChatFlags.CHAT_TAG_NONE, message, chat_type, language)
-        MapManager.send_surrounding(packet, sender, False)
+                                                         ChatFlags.CHAT_TAG_NONE, message, chat_type, lang)
+        MapManager.send_surrounding_in_range(packet, sender, range_, use_ignore=False)
 
     @staticmethod
     def send_channel_message(sender, channel_name, message, lang):
@@ -82,7 +82,8 @@ class ChatManager(object):
             sender_packet = ChatManager._get_message_packet(sender.guid, sender.chat_flags, message, chat_type, lang)
 
             if chat_type == ChatMsgs.CHAT_MSG_GUILD:
-                sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_ALL, source=sender)
+                sender.guild_manager.send_message_to_guild(sender_packet, GuildChatMessageTypes.G_MSGTYPE_ALL,
+                                                           source=sender)
                 ChatLogManager.log_chat(sender, message, chat_type)
             else:
                 if sender.guild_manager.get_rank(sender.guid) > GuildRank.GUILDRANK_OFFICER:

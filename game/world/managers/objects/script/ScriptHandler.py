@@ -8,6 +8,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
+from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags
@@ -248,7 +249,8 @@ class ScriptHandler:
             text_to_say = GameTextFormatter.format(script.target, text_to_say)
 
         target = script.target.guid if script.target else script.source.guid
-        ChatManager.send_monster_emote_message(script.source, target, lang, text_to_say, chat_msg_type)
+        ChatManager.send_monster_emote_message(script.source, target, text_to_say, chat_msg_type, lang,
+                                               ChatHandler.get_range_by_type(chat_msg_type))
 
         # Neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them.
         if broadcast_message.emote_id1 != 0:
@@ -489,7 +491,7 @@ class ScriptHandler:
 
     def handle_script_command_attack_start(self, script):
         if not script.source or not script.target or not script.target.is_alive:
-            Logger.warning('ScriptHandler: Invalid attacker, SCRIPT_COMMAND_ATTACK_START')
+            Logger.warning('ScriptHandler: Invalid attacker or target, SCRIPT_COMMAND_ATTACK_START')
             return
 
         attacker = script.source
@@ -614,9 +616,9 @@ class ScriptHandler:
     def handle_script_command_flee(self, script):
         if script.source and script.source.is_alive:
             script.source.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
-            ChatManager.send_monster_emote_message(script.source, script.source.guid, Languages.LANG_UNIVERSAL,
-                                                   self.flee_text.male_text,
-                                                   ChatMsgs.CHAT_MSG_MONSTER_EMOTE)
+            ChatManager.send_monster_emote_message(script.source, script.source.guid, self.flee_text.male_text,
+                                                   ChatMsgs.CHAT_MSG_MONSTER_EMOTE, Languages.LANG_UNIVERSAL,
+                                                   ChatHandler.get_range_by_type(ChatMsgs.CHAT_MSG_MONSTER_EMOTE))
 
             if script.source.spell_manager:
                 script.source.spell_manager.remove_casts(remove_active=False)

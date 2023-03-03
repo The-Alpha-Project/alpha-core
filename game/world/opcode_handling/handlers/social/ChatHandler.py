@@ -77,7 +77,7 @@ class ChatHandler(object):
 
     @staticmethod
     def get_range_by_type(chat_type):
-        if chat_type == ChatMsgs.CHAT_MSG_YELL:
+        if chat_type == ChatMsgs.CHAT_MSG_YELL or chat_type == ChatMsgs.CHAT_MSG_MONSTER_YELL:
             return config.World.Chat.ChatRange.yell_range
         else:
             return config.World.Chat.ChatRange.say_range
