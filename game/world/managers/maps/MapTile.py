@@ -135,13 +135,15 @@ class MapTile(object):
 
     @staticmethod
     def validate_version():
-        # Use the first available tile map.
-        map_file = os.listdir(PathManager.get_maps_path())[0]
-        if not map_file:
+        # Try to use the first available tile map.
+        try:
+            map_file = os.listdir(PathManager.get_maps_path())[0]
+            if not map_file:
+                return False
+        except IndexError:
             return False
 
         maps_path = PathManager.get_map_file_path(map_file)
-
         if not path.exists(maps_path):
             return False
 
