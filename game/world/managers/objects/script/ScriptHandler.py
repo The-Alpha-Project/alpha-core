@@ -332,14 +332,11 @@ class ScriptHandler:
         if not script.source:
             return
         
-        if script.datalong3 > 0:
-            summoned_count = 0
-            surrounding_units = MapManager.get_surrounding_units_by_location(script.source.location, script.source.map_id, script.source.instance_id, script.datalong4, False)
-            for unit in surrounding_units.values():
-                if unit.is_alive and unit.creature_template.entry == script.datalong:
-                    summoned_count += 1
-
-            if summoned_count >= script.datalong3:
+        if script.datalong3:
+            units = MapManager.get_surrounding_units_by_location(script.source.location, script.source.map_id,
+                                                                 script.source.instance_id, script.datalong4)
+            summoned = [unit for unit in units if unit.creature_template.entry == script.datalong]
+            if summoned and len(summoned) >= script.datalong3:
                 return
 
         creature_manager = CreatureBuilder.create(script.datalong, Vector(script.x, script.y, script.z, script.o),
