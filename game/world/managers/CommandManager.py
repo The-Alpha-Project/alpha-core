@@ -874,7 +874,7 @@ PLAYER_COMMAND_DEFINITIONS = {
 GM_COMMAND_DEFINITIONS = {
     'speed': [CommandManager.speed, 'change your run speed'],
     'swimspeed': [CommandManager.swim_speed, 'change your swim speed'],
-    'scriptwp': [CommandManager.activate_script_waypoints, 'tries to active the selected unit script waypoints'],
+    'scriptwp': [CommandManager.activate_script_waypoints, 'tries to activate the selected unit script waypoints'],
     'gps': [CommandManager.gps, 'display information about your location'],
     'tel': [CommandManager.tel, 'teleport you to a location'],
     'stel': [CommandManager.stel, 'search for a location where you can teleport'],
