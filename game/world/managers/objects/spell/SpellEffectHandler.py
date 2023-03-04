@@ -23,7 +23,7 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
-    GameObjectStates, DynamicObjectTypes
+    GameObjectStates, DynamicObjectTypes, GameObjectTypes
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
 from utils.constants.UnitCodes import UnitFlags, UnitStates
@@ -37,10 +37,15 @@ class SpellEffectHandler:
                          f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
             return
 
+        allowed_effects_on_death = {
+            SpellEffects.SPELL_EFFECT_RESURRECT,
+            SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD  # Allow spells to summon an object on creature death.
+        }
+
         from game.world.managers.objects.units.UnitManager import UnitManager
         if target and isinstance(target, UnitManager):
-            # Do not apply spell effects on dead targets unless it's a resurrection effect.
-            if not target.is_alive and effect.effect_type != SpellEffects.SPELL_EFFECT_RESURRECT:
+            # Do not apply spell effects on dead targets unless it's an allowed effect.
+            if not target.is_alive and effect.effect_type not in allowed_effects_on_death:
                 return
 
         SPELL_EFFECTS[effect.effect_type](casting_spell, effect, caster, target)
@@ -421,11 +426,16 @@ class SpellEffectHandler:
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
 
+        faction = caster.faction
+        # For chests the object needs to have a faction that's not hostile or it can't be interacted with.
+        if go_template.type == GameObjectTypes.TYPE_CHEST:
+            faction = go_template.faction
+
         gameobject = GameObjectBuilder.create(object_entry, target, caster.map_id, caster.instance_id,
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=caster,
                                               spell_id=casting_spell.spell_entry.ID,
-                                              faction=caster.faction, ttl=duration)
+                                              faction=faction, ttl=duration)
         MapManager.spawn_object(world_object_instance=gameobject)
 
     @staticmethod
@@ -631,13 +641,15 @@ class SpellEffectHandler:
                     pz = location.z
 
             # Spawn the summoned unit.
-            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_id, caster.instance_id,
+            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_id,
+                                                      caster.instance_id,
                                                       summoner=caster, faction=caster.faction, ttl=duration,
                                                       spell_id=casting_spell.spell_entry.ID,
                                                       subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
 
             if not creature_manager:
-                Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
+                Logger.error(
+                    f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
                 return
 
             MapManager.spawn_object(world_object_instance=creature_manager)
@@ -751,16 +763,17 @@ class SpellEffectHandler:
         step = effect.get_effect_points()
         if step < 0:
             return
-        
+
         skill_max = (step * 5)
         skill_id = casting_spell.spell_entry.EffectMiscValue_2
         if skill_id <= 0:
             return
-        
+
         if not target.skill_manager.has_skill(skill_id):
             target.skill_manager.add_skill(skill_id)
 
-        target.skill_manager.set_skill(skill_id, max(1, target.skill_manager.get_total_skill_value(skill_id)), skill_max)
+        target.skill_manager.set_skill(skill_id, max(1, target.skill_manager.get_total_skill_value(skill_id)),
+                                       skill_max)
         target.skill_manager.build_update()
 
     @staticmethod
@@ -910,6 +923,7 @@ class SpellEffectHandler:
 
         target.quest_manager.complete_quest_by_id(quest_id=quest.entry)
 
+
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
@@ -959,7 +973,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_STUCK: SpellEffectHandler.handle_stuck,
     SpellEffects.SPELL_EFFECT_INTERRUPT_CAST: SpellEffectHandler.handle_interrupt_cast,
     SpellEffects.SPELL_EFFECT_DISTRACT: SpellEffectHandler.handle_distract,
-
+    SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD: SpellEffectHandler.handle_summon_object,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,
