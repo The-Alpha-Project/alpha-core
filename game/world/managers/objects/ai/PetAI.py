@@ -159,7 +159,7 @@ class PetAI(CreatureAI):
             casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target, target_mask, validate=False)
             range_max = casting_spell.range_entry.RangeMax
             if self.creature.location.distance(target.location) > range_max:
-                self.creature.movement_manager.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
+                self.creature.movement_manager.pet_move_in_range(target, range_max, casting_spell.get_cast_time_secs())
                 self.pending_spell_cast = spell_id
                 return
 
