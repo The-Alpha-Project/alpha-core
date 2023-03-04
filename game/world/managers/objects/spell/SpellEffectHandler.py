@@ -39,7 +39,8 @@ class SpellEffectHandler:
 
         allowed_effects_on_death = {
             SpellEffects.SPELL_EFFECT_RESURRECT,
-            SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD  # Allow spells to summon an object on creature death.
+            SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD,  # Allow spells to summon an object on creature death.
+            SpellEffects.SPELL_EFFECT_SUMMON_WILD # Allow spells to summon another creature on creature death.
         }
 
         from game.world.managers.objects.units.UnitManager import UnitManager
@@ -922,7 +923,6 @@ class SpellEffectHandler:
             return
 
         target.quest_manager.complete_quest_by_id(quest_id=quest.entry)
-
 
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
