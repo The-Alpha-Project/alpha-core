@@ -138,7 +138,7 @@ class MovementManager:
     def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
         self.spline_callback(SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed))
 
-    def move_in_range(self, target, range_: SpellRange, delay: int):
+    def pet_move_in_range(self, target, range_: SpellRange, delay: int):
         pet_movement = self.movement_behaviors.get(MoveType.PET, None)
         if pet_movement:
             pet_movement.move_in_range(target=target, range_=range_, delay=delay)
