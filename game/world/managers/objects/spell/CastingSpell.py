@@ -76,7 +76,7 @@ class CastingSpell:
 
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
 
-        self.cast_end_timestamp = self.get_cast_time_secs() + time.time()
+        self.cast_end_timestamp = self.get_cast_time_ms() / 1000 + time.time()
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
         if self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
