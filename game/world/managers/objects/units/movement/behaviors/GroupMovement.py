@@ -3,7 +3,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveType
 
-from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
+from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 

@@ -1,10 +1,10 @@
 import math
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
+from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
-from utils.constants.MiscCodes import MoveType, ObjectTypeIds, MoveFlags
+from utils.constants.MiscCodes import MoveType, ObjectTypeIds
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 

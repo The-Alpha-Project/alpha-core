@@ -1,7 +1,7 @@
 from struct import error
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.units import MovementManager
+from game.world.managers.objects.units.movement import MovementManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *

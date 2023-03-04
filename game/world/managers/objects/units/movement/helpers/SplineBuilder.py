@@ -1,4 +1,4 @@
-from game.world.managers.objects.units.movement.Spline import Spline
+from game.world.managers.objects.units.movement.helpers.Spline import Spline
 from utils.constants.UnitCodes import SplineType, SplineFlags
 
 

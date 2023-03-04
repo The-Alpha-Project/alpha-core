@@ -410,6 +410,9 @@ class CastingSpell:
             level = self.spell_entry.BaseLevel
         return max(level - self.spell_entry.SpellLevel, 0)
 
+    def get_cast_time_secs(self):
+        return int(self.get_cast_time() / 1000)
+
     def get_cast_time(self):
         if self.cast_time_ is not None:
             return self.cast_time_

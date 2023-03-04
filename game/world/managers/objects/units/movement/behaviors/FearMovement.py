@@ -1,7 +1,7 @@
 import time
 
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
+from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.constants.MiscCodes import MoveType, MoveFlags
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from utils.constants.UnitCodes import UnitFlags

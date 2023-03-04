@@ -5,10 +5,10 @@ from game.world import WorldManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
-from game.world.managers.objects.units.movement.PendingWaypoint import PendingWaypoint
+from game.world.managers.objects.units.movement.helpers.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags, MoveType
+from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 

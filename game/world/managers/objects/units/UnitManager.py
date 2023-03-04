@@ -12,7 +12,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.aura.AuraManager import AuraManager
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
-from game.world.managers.objects.units.MovementManager import MovementManager
+from game.world.managers.objects.units.movement.MovementManager import MovementManager
 from game.world.managers.objects.units.player.StatManager import StatManager, UnitStats
 from network.packet.PacketWriter import PacketWriter, OpCode
 from utils.ByteUtils import ByteUtils

@@ -231,6 +231,8 @@ class PetManager:
             return
 
         if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
+            # Should pet enter combat here? We need this for delayed spell casting.
+            active_pet_unit.combat_target = target_unit
             active_pet_unit.object_ai.do_spell_cast(action_id, target_unit)
 
         elif action & (0x01 << 24):

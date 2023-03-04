@@ -37,29 +37,30 @@ class ConditionChecker:
         return start <= current <= end
 
     @staticmethod
+    def get_filtered_condition_values(condition):
+        return list(filter((0).__ne__, [condition.value1, condition.value2, condition.value3, condition.value4]))
+
+    @staticmethod
     # Deprecated but still used in some scripts.
     def check_condition_not(condition_id, source, target):
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
-
         return not ConditionChecker.check_condition(condition.value1, source, target)
     
     @staticmethod
-    # Returns true if any of the conditions are true.
+    # Returns True if any condition is met.
     def check_condition_or(condition_id, source, target):
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
-
-        return ConditionChecker.check_condition(condition.value1, source, target) or \
-            ConditionChecker.check_condition(condition.value2, source, target) or \
-            ConditionChecker.check_condition(condition.value3, source, target)   
+        condition_values = ConditionChecker.get_filtered_condition_values(condition)
+        return any([ConditionChecker.check_condition(condition_value, source, target)
+                    for condition_value in condition_values])
     
     @staticmethod
-    # Returns true if all of the conditions are true.
+    # Returns True if all conditions are met.
     def check_condition_and(condition_id, source, target):
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
-
-        return ConditionChecker.check_condition(condition.value1, source, target) and \
-            ConditionChecker.check_condition(condition.value2, source, target) and \
-            ConditionChecker.check_condition(condition.value3, source, target)
+        condition_values = ConditionChecker.get_filtered_condition_values(condition)
+        return all([ConditionChecker.check_condition(condition_value, source, target)
+                    for condition_value in condition_values])
 
     @staticmethod
     def check_condition_none(condition_id, source, target):
@@ -72,9 +73,7 @@ class ConditionChecker:
         # Returns True if target has aura.
         # Spell_id = condition_value1.
         # Effect_index = condition_value2.
-
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
-
         if target and ConditionChecker.is_unit(target) and target.aura_manager:
             return target.aura_manager.has_aura_by_spell_id(condition.value1)
             # TODO: Effect index
@@ -100,9 +99,7 @@ class ConditionChecker:
         # Requires Player target.
         # Returns True if target has item equipped.
         # Item_id = condition_value1.
-
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
-
         if target and ConditionChecker.is_player(target) and target.inventory:
             containers = target.inventory.containers
             for container in containers:

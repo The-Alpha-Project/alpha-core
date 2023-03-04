@@ -1,8 +1,10 @@
 from typing import Optional
+
+from database.dbc.DbcModels import SpellRange
 from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from game.world.managers.objects.units.movement.SplineBuilder import SplineBuilder
+from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
 from utils.constants.UnitCodes import UnitStates
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
@@ -115,11 +117,6 @@ class MovementManager:
             self.pause_out_of_combat = duration_seconds
             self.stop()
 
-    def move_stay(self, state):
-        pet_movement: Optional[PetMovement] = self.movement_behaviors[MoveType.PET]
-        if pet_movement:
-            pet_movement.stay(state=state)
-
     def move_distracted(self, duration_seconds, angle):
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
 
@@ -138,12 +135,22 @@ class MovementManager:
     def move_waypoints_from_script(self):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback))
 
+    def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
+        self.spline_callback(SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed))
+
+    def move_in_range(self, target, range_: SpellRange, delay: int):
+        pet_movement = self.movement_behaviors.get(MoveType.PET, None)
+        if pet_movement:
+            pet_movement.move_in_range(target=target, range_=range_, delay=delay)
+
+    def pet_move_stay(self, state):
+        pet_movement = self.movement_behaviors.get(MoveType.PET, None)
+        if pet_movement:
+            pet_movement.stay(state=state)
+
     # Instant.
     def stop(self):
         self.spline_callback(SplineBuilder.build_stop_spline(self.unit))
-
-    def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
-        self.spline_callback(SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed))
 
     # Instant.
     def face_target(self, target):
@@ -224,11 +231,11 @@ class MovementManager:
     def _get_current_behavior(self) -> Optional[BaseMovement]:
         if not self.active_behavior_type:
             return None
-        movement_behavior = self.movement_behaviors[self.active_behavior_type]
+        movement_behavior = self.movement_behaviors.get(self.active_behavior_type, None)
         return movement_behavior if movement_behavior else None
 
     def _get_default_behavior(self):
         if not self.default_behavior_type:
             return None
-        movement_behavior = self.movement_behaviors[self.default_behavior_type]
+        movement_behavior = self.movement_behaviors.get(self.default_behavior_type, None)
         return movement_behavior if movement_behavior else None
