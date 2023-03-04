@@ -96,9 +96,6 @@ class MapManager:
 
     @staticmethod
     def enqueue_adt_tile_initialization(map_id, raw_x, raw_y):
-        if not config.Server.Settings.use_map_tiles:
-            return
-
         with QUEUE_LOCK:
             adt_x, adt_y = MapManager.get_tile(raw_x, raw_y)
 
@@ -210,6 +207,12 @@ class MapManager:
             return False
 
         return True
+
+    @staticmethod
+    def get_unit_tile(world_object):
+        tile_x, tile_y = MapManager.get_tile(world_object.location.x, world_object.location.y)
+        tile = MAPS_TILES[world_object.map_id][tile_x][tile_y]
+        return tile
 
     @staticmethod
     def get_tile(x, y):
@@ -433,6 +436,10 @@ class MapManager:
             # No tile data available or busy loading.
             if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
                 return current_z, False
+
+            # No map files enabled but namigator enabled.
+            if not config.Server.Settings.use_map_tiles:
+                return MapManager.calculate_nav_z(map_id, x, y, current_z)
 
             try:
                 x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - map_tile_x) - tile_local_x
