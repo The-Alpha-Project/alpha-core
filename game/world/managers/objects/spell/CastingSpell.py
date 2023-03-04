@@ -76,7 +76,7 @@ class CastingSpell:
 
         self.cast_time_entry = DbcDatabaseManager.spell_cast_time_get_by_id(spell.CastingTimeIndex)
 
-        self.cast_end_timestamp = self.get_cast_time() / 1000 + time.time()
+        self.cast_end_timestamp = self.get_cast_time_secs() + time.time()
         self.spell_visual_entry = DbcDatabaseManager.spell_visual_get_by_id(spell.SpellVisualID)
 
         if self.spell_caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
@@ -93,7 +93,7 @@ class CastingSpell:
             self.spell_attack_type = AttackTypes.RANGED_ATTACK if self.is_ranged_weapon_attack() else AttackTypes.BASE_ATTACK
 
         # Resolve cast time and duration on init (ie. apply any cast time modifiers on cast start).
-        self.cast_time_ = self.get_cast_time()
+        self.cast_time_ = self.get_cast_time_ms()
         self.duration_ = self.get_duration()
         self.base_duration_ = self.get_duration(apply_mods=False)
 
@@ -411,9 +411,9 @@ class CastingSpell:
         return max(level - self.spell_entry.SpellLevel, 0)
 
     def get_cast_time_secs(self):
-        return int(self.get_cast_time() / 1000)
+        return int(self.get_cast_time_ms() / 1000)
 
-    def get_cast_time(self):
+    def get_cast_time_ms(self):
         if self.cast_time_ is not None:
             return self.cast_time_
 
@@ -543,7 +543,7 @@ class CastingSpell:
 
         elif self.cast_state == SpellState.SPELL_STATE_CASTING:
             final_opcode = OpCode.SMSG_SPELL_DELAYED
-            cast_progress = self.get_cast_time() - remaining_cast_before_pushback
+            cast_progress = self.get_cast_time_ms() - remaining_cast_before_pushback
             pushback_length = min(cast_progress, 500)  # Push back 0.5s or to beginning of cast.
 
             self.cast_end_timestamp += pushback_length / 1000
