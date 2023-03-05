@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import math
 import random
 import time
+
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
@@ -380,10 +382,18 @@ class ScriptHandler:
 
     def handle_script_command_cast_spell(self, script):
         if script.source and script.source.spell_manager:
-            script.source.spell_manager.handle_cast_attempt(script.datalong,
-                                                            script.target if script.target is not None else script.source,
-                                                            SpellTargetMask.UNIT if script.target else SpellTargetMask.SELF,
-                                                            validate=False)
+            spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(script.datalong)
+            if not spell_entry:
+                Logger.warning(f'ScriptHandler: No spell found for id {script.datalong}, aborting SCRIPT_COMMAND_CAST_SPELL')
+                return
+
+            target = script.target if script.target else script.source
+            target_mask = SpellTargetMask.UNIT if script.target else SpellTargetMask.SELF
+            if spell_entry.Targets & SpellTargetMask.CAN_TARGET_TERRAIN:
+                target = target.location
+                target_mask = SpellTargetMask.DEST_LOCATION
+
+            script.source.spell_manager.handle_cast_attempt(script.datalong, target, target_mask, validate=False)
         else:
             Logger.warning('ScriptHandler: No spell manager found, aborting SCRIPT_COMMAND_CAST_SPELL')
 
