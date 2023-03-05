@@ -289,7 +289,10 @@ class CreatureAI:
                 # Validate spell cast.
                 cast_result = self.try_to_cast(unit_target, casting_spell, cast_flags, chance)
                 if cast_result == SpellCheckCastResult.SPELL_NO_ERROR:
-                    do_not_cast = not cast_flags & CastFlags.CF_TRIGGERED
+                    is_triggered = cast_flags & CastFlags.CF_TRIGGERED
+                    if is_triggered:
+                        casting_spell.force_instant_cast()
+                    do_not_cast = not is_triggered
 
                     # Stop if ranged spell or movement interrupt flag.
                     if casting_spell.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT \

@@ -17,7 +17,7 @@ from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages,
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
-    SetHomePositionOptions
+    SetHomePositionOptions, CastFlags
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
@@ -384,7 +384,6 @@ class ScriptHandler:
         if script.source and script.source.spell_manager:
             spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(script.datalong)
             if not spell_entry:
-                Logger.warning(f'ScriptHandler: No spell found for id {script.datalong}, aborting SCRIPT_COMMAND_CAST_SPELL')
                 return
 
             target = script.target if script.target else script.source
@@ -393,7 +392,11 @@ class ScriptHandler:
                 target = target.location
                 target_mask = SpellTargetMask.DEST_LOCATION
 
-            script.source.spell_manager.handle_cast_attempt(script.datalong, target, target_mask, validate=False)
+            spell = script.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
+            if script.datalong2 & CastFlags.CF_TRIGGERED:
+                spell.force_instant_cast()
+
+            script.source.spell_manager.start_spell_cast(initialized_spell=spell)
         else:
             Logger.warning('ScriptHandler: No spell manager found, aborting SCRIPT_COMMAND_CAST_SPELL')
 

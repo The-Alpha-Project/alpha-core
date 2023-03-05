@@ -40,7 +40,7 @@ class CastingSpell:
     spell_target_mask: SpellTargetMask
     range_entry: SpellRange
     duration_entry: SpellDuration
-    cast_time_entry: SpellCastTimes
+    cast_time_entry: Optional[SpellCastTimes]
     spell_visual_entry: SpellVisual
     _effects: list[Optional[SpellEffect]]
 
@@ -517,6 +517,10 @@ class CastingSpell:
             item_count = abs(effect.get_effect_points())
             conjured_items.append([effect.item_type, item_count])
         return tuple(conjured_items)
+
+    def force_instant_cast(self):
+        self.cast_time_entry = None
+        self.cast_time_ = 0
 
     def handle_partial_interrupt(self):
         if not self.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_PARTIAL:
