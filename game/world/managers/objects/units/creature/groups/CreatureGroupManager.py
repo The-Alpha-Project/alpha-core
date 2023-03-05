@@ -2,7 +2,7 @@ from random import choice
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.groups.CreatureGroupMember import CreatureGroupMember
-from game.world.managers.objects.units.movement.MovementWaypoint import MovementWaypoint
+from game.world.managers.objects.units.movement.helpers.MovementWaypoint import MovementWaypoint
 from utils.constants.MiscCodes import CreatureGroupFlags
 
 

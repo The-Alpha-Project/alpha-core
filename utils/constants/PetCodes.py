@@ -41,7 +41,8 @@ class PetSlot(IntEnum):
 	PET_SLOT_END = 6
 
 
-class PetFollowState(IntEnum):
+class PetMoveState(IntEnum):
 	AT_HOME = 0
 	RETURNING = 1
-
+	MOVE_RANGE = 2
+	AT_RANGE = 3

@@ -737,7 +737,7 @@ class SpellManager:
             cast_flags |= SpellCastFlags.CAST_FLAG_PROC
 
         data = [source_guid, self.caster.guid,
-                casting_spell.spell_entry.ID, cast_flags, casting_spell.get_cast_time(),
+                casting_spell.spell_entry.ID, cast_flags, casting_spell.get_cast_time_ms(),
                 casting_spell.spell_target_mask]
 
         signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).

@@ -167,9 +167,9 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
-    def spell_cast_time_get_by_id(range_index):
+    def spell_cast_time_get_by_id(casting_time_index):
         dbc_db_session = SessionHolder()
-        res = dbc_db_session.query(SpellCastTimes).filter_by(ID=range_index).first()
+        res = dbc_db_session.query(SpellCastTimes).filter_by(ID=casting_time_index).first()
         dbc_db_session.close()
         return res
 
