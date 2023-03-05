@@ -151,7 +151,7 @@ class EnchantmentManager(object):
                 if not spell:
                     Logger.warning(f'Unable to validate proc enchantment spell {spell_template.ID}.')
                     continue
-                spell.cast_time_entry = None
+                spell.force_instant_cast()
                 self.unit_mgr.spell_manager.start_spell_cast(initialized_spell=spell)
             else:
                 Logger.warning(f'Unable to locate enchantment proc spell {proc_spell_id}.')
