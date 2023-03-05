@@ -425,7 +425,7 @@ class SpellEffectHandler:
         duration = casting_spell.get_duration()
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
-        faction = go_template.faction if faction_override is not None else faction_override
+        faction = faction_override if faction_override is not None else go_template.faction
         gameobject = GameObjectBuilder.create(object_entry, target, caster.map_id, caster.instance_id,
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=caster,
