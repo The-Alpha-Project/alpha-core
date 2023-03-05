@@ -398,7 +398,15 @@ class SpellEffectHandler:
         MapManager.spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
+    def handle_summon_object_wild(casting_spell, effect, caster, target):
+        SpellEffectHandler._summon_object(casting_spell, effect, caster, target)
+
+    @staticmethod
     def handle_summon_object(casting_spell, effect, caster, target):
+        SpellEffectHandler._summon_object(casting_spell, effect, caster, target, faction_override=caster.faction)
+
+    @staticmethod
+    def _summon_object(casting_spell, effect, caster, target, faction_override=None):
         object_entry = effect.misc_value
 
         # Validate go template existence.
@@ -407,11 +415,8 @@ class SpellEffectHandler:
             Logger.error(f'Gameobject with entry {object_entry} not found for spell {casting_spell.spell_entry.ID}.')
             return
 
-        target = None
-        if isinstance(effect.targets.resolved_targets_a[0], ObjectManager):
-            target = effect.targets.resolved_targets_a[0].location
-        elif isinstance(effect.targets.resolved_targets_a[0], Vector):
-            target = effect.targets.resolved_targets_a[0]
+        if isinstance(target, ObjectManager):
+            target = target.location
 
         if not target:
             Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
@@ -420,12 +425,12 @@ class SpellEffectHandler:
         duration = casting_spell.get_duration()
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
-
+        faction = go_template.faction if faction_override is not None else faction_override
         gameobject = GameObjectBuilder.create(object_entry, target, caster.map_id, caster.instance_id,
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=caster,
                                               spell_id=casting_spell.spell_entry.ID,
-                                              faction=caster.faction, ttl=duration)
+                                              faction=faction, ttl=duration)
         MapManager.spawn_object(world_object_instance=gameobject)
 
     @staticmethod
@@ -652,8 +657,8 @@ class SpellEffectHandler:
             return
 
         # Store resurrection data for target.
-        from game.world.managers.objects.units.player import PlayerManager
-        target.resurrect_data = PlayerManager.ResurrectionRequestDataHolder(
+        from game.world.managers.maps.helpers.ResurrectionRequestDataHolder import ResurrectionRequestDataHolder
+        target.resurrect_data = ResurrectionRequestDataHolder(
             caster.guid, effect.get_effect_points() / 100, caster.location.copy(), caster.map_id
         )
 
@@ -910,6 +915,7 @@ class SpellEffectHandler:
 
         target.quest_manager.complete_quest_by_id(quest_id=quest.entry)
 
+
 SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SCHOOL_DAMAGE: SpellEffectHandler.handle_school_damage,
     SpellEffects.SPELL_EFFECT_HEAL: SpellEffectHandler.handle_heal,
@@ -939,6 +945,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_SUMMON_TOTEM: SpellEffectHandler.handle_summon_totem,
     SpellEffects.SPELL_EFFECT_SCRIPT_EFFECT: SpellEffectHandler.handle_script_effect,
     SpellEffects.SPELL_EFFECT_SUMMON_OBJECT: SpellEffectHandler.handle_summon_object,
+    SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD: SpellEffectHandler.handle_summon_object_wild,
     SpellEffects.SPELL_EFFECT_SUMMON_PLAYER: SpellEffectHandler.handle_summon_player,
     SpellEffects.SPELL_EFFECT_CREATE_HOUSE: SpellEffectHandler.handle_summon_object,
     SpellEffects.SPELL_EFFECT_SUMMON_POSSESSED: SpellEffectHandler.handle_summon_possessed,
