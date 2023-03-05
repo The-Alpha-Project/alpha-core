@@ -41,7 +41,8 @@ class SpellEffectHandler:
             SpellEffects.SPELL_EFFECT_RESURRECT, # Resurrection requires a dead target.
             SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD,  # Allow spells to summon an object on creature death.
             SpellEffects.SPELL_EFFECT_SUMMON_WILD, # Allow spells to summon another creature on creature death.
-            SPELL_EFFECT_SCHOOL_DAMAGE # Allow spells to deal damage after a creature's death.
+            SPELL_EFFECT_SCHOOL_DAMAGE, # Allow spells to deal damage after a creature's death.
+            SPELL_EFFECT_APPLY_AURA # Allow spells to apply an aura to the corpse (poison cloud for example).
         }
 
         from game.world.managers.objects.units.UnitManager import UnitManager
