@@ -81,7 +81,7 @@ class ScriptHandler:
         else:
             Logger.warning(f'Unknown script command {script.command}.')
 
-    def enqueue_ai_script(self, source, target, script):
+    def enqueue_ai_script(self, source, script, target=None):
         if not script:
             return
 
@@ -149,7 +149,7 @@ class ScriptHandler:
             else:
                 self.ooc_next = None
 
-            self.enqueue_ai_script(self.ooc_target, None, script)
+            self.enqueue_ai_script(self.ooc_target, script)
 
     def enqueue_scripts(self, source, target, script_type, entry_id):
         if script_type in SCRIPT_TYPES:
@@ -164,7 +164,7 @@ class ScriptHandler:
                 if script.condition_id > 0:
                     if not ConditionChecker.check_condition(script.condition_id, self.object, target):
                         continue
-                self.enqueue_ai_script(source, target, script)
+                self.enqueue_ai_script(source, script, target=target)
 
     def reset(self):
         self.script_queue.clear()
@@ -193,7 +193,7 @@ class ScriptHandler:
                 if script:
                     script.delay = random.randint(self.ooc_repeat_min_delay, self.ooc_repeat_max_delay)
                     self.ooc_next = time.time() + script.delay
-                    self.enqueue_ai_script(self.ooc_target, None, script)
+                    self.enqueue_ai_script(self.ooc_target, script)
 
                 self.ooc_running = False
 
