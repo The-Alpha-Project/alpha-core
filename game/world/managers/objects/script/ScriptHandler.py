@@ -177,13 +177,12 @@ class ScriptHandler:
         self.last_hp_event_id = -1
 
     def update(self):
-        if len(self.script_queue) > 0:
-            for script in self.script_queue:
-                if time.time() - script.time_added >= script.delay:
-                    ScriptHandler.handle_script(self, script)
+        for script in self.script_queue:
+            if time.time() - script.time_added >= script.delay:
+                ScriptHandler.handle_script(self, script)
 
-                    if script in self.script_queue:
-                        self.script_queue.remove(script)
+                if script in self.script_queue:
+                    self.script_queue.remove(script)
 
         if self.ooc_scripts:
             if self.ooc_next is not None and time.time() >= self.ooc_next and not self.ooc_running:
