@@ -75,10 +75,10 @@ class ScriptHandler:
         self.flee_text = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
 
     def handle_script(self, script):
-        if script.command in SCRIPT_COMMANDS:
+        try:
             # noinspection PyArgumentList
             SCRIPT_COMMANDS[script.command](self, script)
-        else:
+        except IndexError:
             Logger.warning(f'Unknown script command {script.command}.')
 
     def enqueue_ai_script(self, source, script, target=None):
