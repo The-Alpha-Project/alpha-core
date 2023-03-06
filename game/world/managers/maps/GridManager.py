@@ -26,18 +26,12 @@ class GridManager:
         if not world_object_spawn and not world_object_instance:
             Logger.warning(f'Spawn object called with None arguments.')
 
-    def update_object(self, world_object, old_map, has_changes=False, has_inventory_changes=False):
+    def update_object(self, world_object, has_changes=False, has_inventory_changes=False):
         source_cell_key = world_object.current_cell
         current_cell_key = CellUtils.get_cell_key_for_object(world_object)
 
-        # Handle teleport between different maps.
-        if old_map and old_map != self:
-            # Remove from old location.
-            old_map.remove_object(world_object)
-            # Add to new location.
-            self._add_world_object(world_object)
         # Handle cell change within the same map.
-        elif current_cell_key != source_cell_key:
+        if current_cell_key != source_cell_key:
             # Remove from old location and Add to new location.
             if source_cell_key:
                 self.remove_object(world_object, update_players=False)
@@ -59,7 +53,7 @@ class GridManager:
                 world_object.inventory.reset_fields_older_than(now)
 
         # Notify cell changed if needed.
-        if old_map and old_map != self or current_cell_key != source_cell_key:
+        if current_cell_key != source_cell_key:
             world_object.on_cell_change()
 
     # Remove a world_object from its cell and notify surrounding players if required.

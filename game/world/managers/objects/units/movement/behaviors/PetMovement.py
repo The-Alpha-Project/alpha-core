@@ -1,4 +1,6 @@
 import math
+
+from game.world.managers.maps.helpers import CellUtils
 from game.world.managers.objects.units.movement.helpers.PetRangeMove import PetRangeMove
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.constants.MiscCodes import MoveType
@@ -37,6 +39,8 @@ class PetMovement(BaseMovement):
         self.unit.object_ai.movement_inform(data=self.follow_state)
         if self.follow_state == PetMoveState.AT_HOME and not self.stay_position:
             charmer_or_summoner = self.unit.get_charmer_or_summoner()
+            if self.unit.location.o == charmer_or_summoner.location.o:
+                return
             self.unit.movement_manager.face_angle(charmer_or_summoner.location.o)
 
     # override
@@ -88,6 +92,10 @@ class PetMovement(BaseMovement):
                 or (self.spline and self.spline.get_waypoint_location() == target_location):
             return False, None
 
+        # get_point_in_between can return None.
+        if not target_location:
+            return False, None
+
         self.pet_range_move.location = target_location
 
         return True, self.pet_range_move.location
@@ -110,4 +118,10 @@ class PetMovement(BaseMovement):
 
         self.home_position = target_location.get_point_in_radius_and_angle(PetMovement.PET_FOLLOW_DISTANCE,
                                                                            PetMovement.PET_FOLLOW_ANGLE)
+
+        # Near teleport if lagging above cell size, this can probably be less or half cell.
+        if current_distance > CellUtils.CELL_SIZE:
+            self.unit.near_teleport(self.home_position)
+            return False, None
+
         return True, self.home_position

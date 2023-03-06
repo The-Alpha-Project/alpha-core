@@ -65,8 +65,8 @@ class Map:
     def spawn_object(self, world_object_spawn=None, world_object_instance=None):
         self.grid_manager.spawn_object(world_object_spawn, world_object_instance)
 
-    def update_object(self, world_object, old_map, has_changes=False, has_inventory_changes=False):
-        self.grid_manager.update_object(world_object, old_map, has_changes, has_inventory_changes)
+    def update_object(self, world_object, has_changes=False, has_inventory_changes=False):
+        self.grid_manager.update_object(world_object, has_changes, has_inventory_changes)
 
     def remove_object(self, world_object, update_players=True):
         self.grid_manager.remove_object(world_object, update_players)
