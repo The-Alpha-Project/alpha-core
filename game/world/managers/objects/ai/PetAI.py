@@ -1,3 +1,5 @@
+from typing import Optional
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
@@ -11,7 +13,7 @@ class PetAI(CreatureAI):
     def __init__(self, creature):
         super().__init__(creature)
         self.move_state = PetMoveState.AT_HOME
-        self.pending_spell_cast = None
+        self.pending_spell_cast: Optional[tuple[int, object]] = None
         if creature:
             self.update_allies_timer = 0
             self.allies = ()
@@ -24,9 +26,10 @@ class PetAI(CreatureAI):
             return
 
         if self.move_state == PetMoveState.AT_RANGE and self.pending_spell_cast:
+            spell_id, target = self.pending_spell_cast
             self.pending_spell_cast = None
             if self.creature.combat_target:
-                self.do_spell_cast(self.pending_spell_cast, self.creature.combat_target, validate_range=False)
+                self.do_spell_cast(spell_id, target, validate_range=False)
 
         if owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if self.creature.combat_target and not self.creature.combat_target.is_alive:
@@ -149,7 +152,7 @@ class PetAI(CreatureAI):
         pass
 
     def do_spell_cast(self, spell_id, target, validate_range=True):
-        if self.creature.spell_manager.is_casting() or not target:
+        if self.creature.spell_manager.is_casting():
             return
 
         target_mask = SpellTargetMask.SELF if target.guid == self.creature.guid else SpellTargetMask.UNIT
@@ -164,7 +167,7 @@ class PetAI(CreatureAI):
             range_max = casting_spell.range_entry.RangeMax
             if self.creature.location.distance(target.location) > range_max:
                 pet_movement.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
-                self.pending_spell_cast = spell_id
+                self.pending_spell_cast = (spell_id, target)
                 return
 
         self.creature.spell_manager.handle_cast_attempt(spell_id, target, target_mask)
