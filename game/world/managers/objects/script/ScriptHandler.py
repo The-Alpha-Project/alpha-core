@@ -152,19 +152,17 @@ class ScriptHandler:
             self.enqueue_ai_script(self.ooc_target, script)
 
     def enqueue_scripts(self, source, target, script_type, entry_id):
-        if script_type in SCRIPT_TYPES:
+        try:
             scripts = SCRIPT_TYPES[script_type](entry_id)
-        else:
+        except IndexError:
             Logger.warning(f'Unhandled script type {script_type}.')
             return
 
-        if scripts:
-            from game.world.managers.objects.script.ScriptManager import ScriptManager
-            for script in scripts:
-                if script.condition_id > 0:
-                    if not ConditionChecker.check_condition(script.condition_id, self.object, target):
-                        continue
-                self.enqueue_ai_script(source, script, target=target)
+        for script in scripts:
+            if script.condition_id > 0:
+                if not ConditionChecker.check_condition(script.condition_id, self.object, target):
+                    continue
+            self.enqueue_ai_script(source, script, target=target)
 
     def reset(self):
         self.script_queue.clear()
@@ -181,6 +179,7 @@ class ScriptHandler:
             if time.time() - script.time_added >= script.delay:
                 ScriptHandler.handle_script(self, script)
 
+                # TODO: Removing item from list while iterating? Something doesn't look correct, please change.
                 if script in self.script_queue:
                     self.script_queue.remove(script)
 
