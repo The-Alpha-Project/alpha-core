@@ -1211,12 +1211,13 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
                     return False  # No pet (or temporary charm).
 
-                if any([spell in pet.spells for spell in taught_spells]):
+                pet_data = pet.get_pet_data()
+                if any([spell in pet_data.spells for spell in taught_spells]):
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_SPELL_LEARNED)
                     return False
 
-                if any([not pet.can_learn_spell(spell) for spell in taught_spells]):
-                    is_low_level = any([pet.can_ever_learn_spell(spell) for spell in taught_spells])
+                if any([not pet_data.can_learn_spell(spell) for spell in taught_spells]):
+                    is_low_level = any([pet_data.can_ever_learn_spell(spell) for spell in taught_spells])
                     reason = SpellCheckCastResult.SPELL_FAILED_SPELL_UNAVAILABLE if not is_low_level \
                         else SpellCheckCastResult.SPELL_FAILED_LOWLEVEL
                     self.send_cast_result(casting_spell, reason)
