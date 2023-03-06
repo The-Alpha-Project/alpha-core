@@ -11,7 +11,8 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags
+from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
+    ObjectTypeIds
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
@@ -237,6 +238,10 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Broadcast message {text_id} has no text to say.')
             return
 
+        # Format text if target is a player.
+        if script.target and script.target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            text_to_say = GameTextFormatter.format(script.target, text_to_say)
+
         chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_SAY
         lang = broadcast_message.language_id
         if broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
@@ -244,9 +249,6 @@ class ScriptHandler:
         elif broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
-
-        if script.target:
-            text_to_say = GameTextFormatter.format(script.target, text_to_say)
 
         target = script.target.guid if script.target else script.source.guid
         ChatManager.send_monster_emote_message(script.source, target, text_to_say, chat_msg_type, lang,
