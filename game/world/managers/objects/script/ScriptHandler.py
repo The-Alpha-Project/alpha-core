@@ -155,6 +155,7 @@ class ScriptHandler:
             return
 
         if scripts:
+            from game.world.managers.objects.script.ScriptManager import ScriptManager
             for script in scripts:
                 if script.condition_id > 0:
                     if not ConditionChecker.check_condition(script.condition_id, self.object, target):
@@ -182,7 +183,8 @@ class ScriptHandler:
                     script.delay,
                     script.condition_id,
                     source,
-                    target,
+                    ScriptManager.get_target_by_type(source, target, script.target_type, script.target_param1,
+                                                     script.target_param2),
                     time.time()
                 ))
 
@@ -511,14 +513,9 @@ class ScriptHandler:
 
         attacker = script.source
         victim = script.target
-        target = victim
 
-        if not victim or not victim.is_alive:
-            from game.world.managers.objects.script.ScriptManager import ScriptManager
-            target = ScriptManager.get_target_by_type(attacker, victim, script.target_type, param1=script.target_param1,
-                                                      param2=script.target_param2)
-        if target and target.is_alive:
-            attacker.attack(target)
+        if victim and victim.is_alive:
+            attacker.attack(victim)
         else:
             Logger.warning('ScriptHandler: Unable to resolve target, SCRIPT_COMMAND_ATTACK_START')
 

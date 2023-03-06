@@ -1065,9 +1065,9 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
-    def creature_ai_script_get_by_id(id):
+    def creature_ai_script_get_by_id(script_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureAIScript).filter(CreatureAIScript.id == id).first()
+        res = world_db_session.query(CreatureAIScript).filter(CreatureAIScript.id == script_id).first()
         world_db_session.close()
         return res
 
