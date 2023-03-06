@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import math
 import random
 import time
+
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
@@ -16,7 +18,7 @@ from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages,
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
-    SetHomePositionOptions
+    SetHomePositionOptions, CastFlags
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
@@ -382,10 +384,21 @@ class ScriptHandler:
 
     def handle_script_command_cast_spell(self, script):
         if script.source and script.source.spell_manager:
-            script.source.spell_manager.handle_cast_attempt(script.datalong,
-                                                            script.target if script.target is not None else script.source,
-                                                            SpellTargetMask.UNIT if script.target else SpellTargetMask.SELF,
-                                                            validate=False)
+            spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(script.datalong)
+            if not spell_entry:
+                return
+
+            target = script.target if script.target else script.source
+            target_mask = SpellTargetMask.UNIT if script.target else SpellTargetMask.SELF
+            if spell_entry.Targets & SpellTargetMask.CAN_TARGET_TERRAIN:
+                target = target.location
+                target_mask = SpellTargetMask.DEST_LOCATION
+
+            spell = script.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
+            if script.datalong2 & CastFlags.CF_TRIGGERED:
+                spell.force_instant_cast()
+
+            script.source.spell_manager.start_spell_cast(initialized_spell=spell)
         else:
             Logger.warning('ScriptHandler: No spell manager found, aborting SCRIPT_COMMAND_CAST_SPELL')
 
