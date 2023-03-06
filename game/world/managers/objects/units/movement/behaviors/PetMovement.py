@@ -90,6 +90,10 @@ class PetMovement(BaseMovement):
                 or (self.spline and self.spline.get_waypoint_location() == target_location):
             return False, None
 
+        # get_point_in_between can return None.
+        if not target_location:
+            return False, None
+
         self.pet_range_move.location = target_location
 
         return True, self.pet_range_move.location
