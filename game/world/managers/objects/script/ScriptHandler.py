@@ -81,39 +81,43 @@ class ScriptHandler:
         else:
             Logger.warning(f'Unknown script command {script.command}.')
 
-    def enqueue_ai_script(self, source, script):
-        if script:
-            self.script_queue.append(Script(
-                script.id,
-                script.command,
-                script.datalong,
-                script.datalong2,
-                script.datalong3,
-                script.datalong4,
-                script.x,
-                script.y,
-                script.z,
-                script.o,
-                script.target_param1,
-                script.target_param2,
-                script.target_type,
-                script.data_flags,
-                script.dataint,
-                script.dataint2,
-                script.dataint3,
-                script.dataint4,
-                script.delay,
-                script.condition_id,
-                source,
-                None,
-                time.time()
-            ))
+    def enqueue_ai_script(self, source, target, script):
+        if not script:
+            return
+
+        from game.world.managers.objects.script.ScriptManager import ScriptManager
+        self.script_queue.append(Script(
+            script.id,
+            script.command,
+            script.datalong,
+            script.datalong2,
+            script.datalong3,
+            script.datalong4,
+            script.x,
+            script.y,
+            script.z,
+            script.o,
+            script.target_param1,
+            script.target_param2,
+            script.target_type,
+            script.data_flags,
+            script.dataint,
+            script.dataint2,
+            script.dataint3,
+            script.dataint4,
+            script.delay,
+            script.condition_id,
+            source,
+            ScriptManager.get_target_by_type(source, target, script.target_type, script.target_param1,
+                                             script.target_param2),
+            time.time()
+        ))
 
     def set_generic_script(self, source, target, script_id):
         scripts = WorldDatabaseManager.generic_script_get_by_id(script_id)
 
         for script in scripts:
-            self.enqueue_script(source, target, ScriptTypes.SCRIPT_TYPE_GENERIC, script.id)
+            self.enqueue_scripts(source, target, ScriptTypes.SCRIPT_TYPE_GENERIC, script.id)
 
     def set_random_ooc_event(self, target, event):
         if event.condition_id > 0:
@@ -145,9 +149,9 @@ class ScriptHandler:
             else:
                 self.ooc_next = None
 
-            self.enqueue_ai_script(self.ooc_target, script)
+            self.enqueue_ai_script(self.ooc_target, None, script)
 
-    def enqueue_script(self, source, target, script_type, entry_id):
+    def enqueue_scripts(self, source, target, script_type, entry_id):
         if script_type in SCRIPT_TYPES:
             scripts = SCRIPT_TYPES[script_type](entry_id)
         else:
@@ -160,33 +164,7 @@ class ScriptHandler:
                 if script.condition_id > 0:
                     if not ConditionChecker.check_condition(script.condition_id, self.object, target):
                         continue
-
-                self.script_queue.append(Script(
-                    script.id,
-                    script.command,
-                    script.datalong,
-                    script.datalong2,
-                    script.datalong3,
-                    script.datalong4,
-                    script.x,
-                    script.y,
-                    script.z,
-                    script.o,
-                    script.target_param1,
-                    script.target_param2,
-                    script.target_type,
-                    script.data_flags,
-                    script.dataint,
-                    script.dataint2,
-                    script.dataint3,
-                    script.dataint4,
-                    script.delay,
-                    script.condition_id,
-                    source,
-                    ScriptManager.get_target_by_type(source, target, script.target_type, script.target_param1,
-                                                     script.target_param2),
-                    time.time()
-                ))
+                self.enqueue_ai_script(source, target, script)
 
     def reset(self):
         self.script_queue.clear()
@@ -215,7 +193,7 @@ class ScriptHandler:
                 if script:
                     script.delay = random.randint(self.ooc_repeat_min_delay, self.ooc_repeat_max_delay)
                     self.ooc_next = time.time() + script.delay
-                    self.enqueue_ai_script(self.ooc_target, script)
+                    self.enqueue_ai_script(self.ooc_target, None, script)
 
                 self.ooc_running = False
 
@@ -357,7 +335,7 @@ class ScriptHandler:
 
         # Generic script.
         if script.dataint2:
-            self.enqueue_script(creature_manager, None, ScriptTypes.SCRIPT_TYPE_GENERIC, script.dataint2)
+            self.enqueue_scripts(creature_manager, None, ScriptTypes.SCRIPT_TYPE_GENERIC, script.dataint2)
         # Attack target.
         if script.dataint3:
             from game.world.managers.objects.script.ScriptManager import ScriptManager

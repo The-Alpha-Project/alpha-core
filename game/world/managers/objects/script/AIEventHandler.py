@@ -21,7 +21,7 @@ class AIEventHandler:
         if chance_roll <= event.event_chance:
             script = WorldDatabaseManager.creature_ai_script_get_by_id(event.action1_script)
             if script:
-                self.creature.script_handler.enqueue_ai_script(self.creature, script)
+                self.creature.script_handler.enqueue_ai_script(self.creature, None, script)
 
     def on_enter_combat(self):
         self.creature.script_handler.reset()  # Reset any scripts that were queued before combat (e.g. on spawn).
@@ -43,7 +43,7 @@ class AIEventHandler:
             script = WorldDatabaseManager.creature_ai_script_get_by_id(
                 choices[random.randint(0, len(choices) - 1)])
             if script:
-                self.creature.script_handler.enqueue_ai_script(self.creature, script)
+                self.creature.script_handler.enqueue_ai_script(self.creature, None, script)
 
     def on_damage_taken(self):
         event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
@@ -57,13 +57,13 @@ class AIEventHandler:
                 script = WorldDatabaseManager.creature_ai_script_get_by_id(event.action1_script)
                 if script:
                     self.creature.script_handler.last_hp_event_id = event.id
-                    self.creature.script_handler.enqueue_ai_script(self.creature, script)
+                    self.creature.script_handler.enqueue_ai_script(self.creature, None, script)
             # If event1_param is zero the script should be run on aggro.
             elif event.event_param1 == 0 and self.creature.script_handler.last_hp_event_id != event.id:
                 script = WorldDatabaseManager.creature_ai_script_get_by_id(event.action1_script)
                 if script:
                     self.creature.script_handler.last_hp_event_id = event.id
-                    self.creature.script_handler.enqueue_ai_script(self.creature, script)
+                    self.creature.script_handler.enqueue_ai_script(self.creature, None, script)
 
     def on_idle(self):
         event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
@@ -87,4 +87,4 @@ class AIEventHandler:
 
             script = WorldDatabaseManager.creature_ai_script_get_by_id(random.choice(choices))
             if script:
-                self.creature.script_handler.enqueue_ai_script(self.creature, script)
+                self.creature.script_handler.enqueue_ai_script(self.creature, None, script)
