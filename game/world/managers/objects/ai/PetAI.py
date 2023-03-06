@@ -1,7 +1,7 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, MoveType
 from utils.constants.PetCodes import PetCommandState, PetReactState, PetMoveState
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitStates
@@ -24,9 +24,9 @@ class PetAI(CreatureAI):
             return
 
         if self.move_state == PetMoveState.AT_RANGE and self.pending_spell_cast:
+            self.pending_spell_cast = None
             if self.creature.combat_target:
                 self.do_spell_cast(self.pending_spell_cast, self.creature.combat_target, validate_range=False)
-            self.pending_spell_cast = None
 
         if owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if self.creature.combat_target and not self.creature.combat_target.is_alive:
@@ -149,38 +149,47 @@ class PetAI(CreatureAI):
         pass
 
     def do_spell_cast(self, spell_id, target, validate_range=True):
-        if self.creature.spell_manager.is_casting():
+        if self.creature.spell_manager.is_casting() or not target:
             return
 
         target_mask = SpellTargetMask.SELF if target.guid == self.creature.guid else SpellTargetMask.UNIT
 
         if validate_range:
+            pet_movement = self._get_pet_movement_behavior()
+            if not pet_movement:
+                return
+
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target, target_mask, validate=False)
             range_max = casting_spell.range_entry.RangeMax
             if self.creature.location.distance(target.location) > range_max:
-                self.creature.movement_manager.pet_move_in_range(target, range_max, casting_spell.get_cast_time_secs())
+                pet_movement.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
                 self.pending_spell_cast = spell_id
                 return
 
         self.creature.spell_manager.handle_cast_attempt(spell_id, target, target_mask)
 
     def command_state_update(self):
+        self.creature.spell_manager.remove_casts()
         self.pending_spell_cast = None
         self.creature.movement_manager.reset(clean_behaviors=True)
+        pet_movement = self._get_pet_movement_behavior()
 
         # TODO Stay shouldn't cause pet to stop attacking, only stop chasing.
         self.creature.attack_stop()
 
-        if self._get_command_state() == PetCommandState.COMMAND_STAY:
-            self.creature.movement_manager.pet_move_stay(state=True)
+        if pet_movement and self._get_command_state() == PetCommandState.COMMAND_STAY:
+            pet_movement.stay(state=True)
 
-        if self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
-            self.creature.movement_manager.pet_move_stay(state=False)
+        if pet_movement and self._get_command_state() == PetCommandState.COMMAND_FOLLOW:
+            pet_movement.stay(state=False)
 
     def react_state_update(self):
         if self._get_react_state() == PetReactState.REACT_PASSIVE:
             self.creature.attack_stop()
+
+    def _get_pet_movement_behavior(self):
+        return self.creature.movement_manager.get_move_behavior_by_type(MoveType.PET)
 
     def _get_command_state(self):
         controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()

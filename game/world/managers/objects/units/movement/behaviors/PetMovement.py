@@ -37,6 +37,8 @@ class PetMovement(BaseMovement):
         self.unit.object_ai.movement_inform(data=self.follow_state)
         if self.follow_state == PetMoveState.AT_HOME and not self.stay_position:
             charmer_or_summoner = self.unit.get_charmer_or_summoner()
+            if self.unit.location.o == charmer_or_summoner.location.o:
+                return
             self.unit.movement_manager.face_angle(charmer_or_summoner.location.o)
 
     # override
