@@ -1,4 +1,6 @@
 import math
+
+from game.world.managers.maps.helpers import CellUtils
 from game.world.managers.objects.units.movement.helpers.PetRangeMove import PetRangeMove
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.constants.MiscCodes import MoveType
@@ -116,4 +118,10 @@ class PetMovement(BaseMovement):
 
         self.home_position = target_location.get_point_in_radius_and_angle(PetMovement.PET_FOLLOW_DISTANCE,
                                                                            PetMovement.PET_FOLLOW_ANGLE)
+
+        # Near teleport if lagging above cell size, this can probably be less or half cell.
+        if current_distance > CellUtils.CELL_SIZE:
+            self.unit.near_teleport(self.home_position)
+            return False, None
+
         return True, self.home_position

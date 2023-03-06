@@ -191,7 +191,8 @@ class CommandManager(object):
 
         if location:
             tel_location = Vector(location.x, location.y, location.z, location.o)
-            success = world_session.player_mgr.teleport(location.map, tel_location)
+            success = world_session.player_mgr.teleport(location.map, tel_location,
+                                                        is_instant=location.map == world_session.player_mgr.map_id)
 
             if success:
                 return 0, f'Teleported to "{location.name}".'

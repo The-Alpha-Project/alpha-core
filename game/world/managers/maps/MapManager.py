@@ -601,18 +601,9 @@ class MapManager:
 
     @staticmethod
     def update_object(world_object, has_changes=False, has_inventory_changes=False):
-        if world_object.current_cell:
-            key_split = world_object.current_cell.split(':')
-            old_map_id = int(key_split[-2])
-            old_instance_id = int(key_split[-1])
-            old_map = MapManager.get_map(old_map_id, old_instance_id)
-        else:
-            old_map = None
-
         map_ = MapManager.get_map_by_object(world_object)
         try:
-            map_.update_object(world_object, old_map, has_changes=has_changes,
-                               has_inventory_changes=has_inventory_changes)
+            map_.update_object(world_object, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
         except AttributeError:
             Logger.warning(f'Did not find Map {world_object.map_id}, update_object()')
 
