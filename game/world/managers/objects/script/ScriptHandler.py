@@ -253,7 +253,7 @@ class ScriptHandler:
 
     def handle_script_command_move_to(self, script):
         if not script.source or not script.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            Logger.warning(f'ScriptHandler: handle_script_command_move_to: invalid source.')
+            Logger.warning(f'ScriptHandler: handle_script_command_move_to: invalid source (script {script.id}).')
             return
 
         coordinates_type = script.datalong
@@ -591,7 +591,8 @@ class ScriptHandler:
                 script.target and script.target.is_alive():
             script.source.attack(script.target)
         else:
-            Logger.warning('ScriptHandler: Invalid source or target, aborting SCRIPT_COMMAND_SET_MELEE_ATTACK')
+            Logger.warning(f'ScriptHandler: Invalid source or target (script {script.id})'
+                           f', aborting SCRIPT_COMMAND_SET_MELEE_ATTACK.')
 
     def handle_script_command_set_combat_movement(self, script):
         Logger.debug('ScriptHandler: handle_script_command_set_combat_movement not implemented yet')
