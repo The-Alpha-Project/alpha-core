@@ -28,8 +28,7 @@ class PetAI(CreatureAI):
         if self.move_state == PetMoveState.AT_RANGE and self.pending_spell_cast:
             spell_id, target = self.pending_spell_cast
             self.pending_spell_cast = None
-            if self.creature.combat_target:
-                self.do_spell_cast(spell_id, target, validate_range=False)
+            self.do_spell_cast(spell_id, target, validate_range=False)
 
         if owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if self.creature.combat_target and not self.creature.combat_target.is_alive:
