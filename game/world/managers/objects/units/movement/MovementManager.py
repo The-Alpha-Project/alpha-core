@@ -142,15 +142,8 @@ class MovementManager:
     def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
         self.spline_callback(SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed))
 
-    def pet_move_in_range(self, target, range_: SpellRange, delay: int):
-        pet_movement = self.movement_behaviors.get(MoveType.PET, None)
-        if pet_movement:
-            pet_movement.move_in_range(target=target, range_=range_, delay=delay)
-
-    def pet_move_stay(self, state):
-        pet_movement = self.movement_behaviors.get(MoveType.PET, None)
-        if pet_movement:
-            pet_movement.stay(state=state)
+    def get_move_behavior_by_type(self, move_type) -> Optional[BaseMovement]:
+        return self.movement_behaviors.get(move_type, None)
 
     # Instant.
     def stop(self):

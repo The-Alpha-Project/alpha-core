@@ -92,17 +92,18 @@ class WorldSessionStateHandler(object):
     def update_players():
         now = time.time()
         for session in WORLD_SESSIONS:
-            if session.player_mgr and session.player_mgr.online:
-                if not session.player_mgr.update_lock:
-                    session.player_mgr.update(now)
+            if session.player_mgr and session.player_mgr.online and not session.player_mgr.update_lock:
+                session.player_mgr.update(now)
 
     @staticmethod
     def update_known_players_objects():
         for session in WORLD_SESSIONS:
-            if session.player_mgr and session.player_mgr.online:
-                if not session.player_mgr.update_lock and session.player_mgr.update_known_objects_on_tick:
-                    session.player_mgr.update_known_objects_on_tick = False
-                    session.player_mgr.update_known_world_objects()
+            if not session.player_mgr or not session.player_mgr.online:
+                continue
+            if session.player_mgr.update_lock or not session.player_mgr.update_known_objects_on_tick:
+                continue
+            session.player_mgr.update_known_objects_on_tick = False
+            session.player_mgr.update_known_world_objects()
 
     @staticmethod
     def save_characters():
