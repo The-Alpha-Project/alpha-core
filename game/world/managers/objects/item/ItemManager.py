@@ -48,6 +48,14 @@ AVAILABLE_EQUIP_SLOTS = [
     InventorySlots.SLOT_RANGED  # Ranged right
 ]
 
+GIFT_ENTRY_RELATIONSHIP = {
+    5014: 5015,  # Wrapping Paper (PT) -> Wrapped Item (PT).
+    5042: 5043,  # Red Ribboned Wrapping Paper -> Red Ribboned Gift.
+    5047: 5045,  # Skull Wrapping Paper -> Skull Gift.
+    5048: 5044,  # Blue Ribboned Wrapping Paper -> Blue Ribboned Gift.
+    5049: 5046   # Self-locking Ironpaper -> Locked Gift.
+}
+
 
 class ItemManager(ObjectManager):
     def __init__(self,
@@ -393,8 +401,9 @@ class ItemManager(ObjectManager):
         return self.item_instance.item_flags & flag
 
     # Transform an item into the wrapped item using the same item instance.
-    def set_wrapped(self, player_mgr):
-        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(5043)  # TODO: fixed red gift.
+    def set_wrapped(self, player_mgr, wrapper_item_entry):
+        gift_entry = GIFT_ENTRY_RELATIONSHIP.get(wrapper_item_entry)
+        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(gift_entry)
         if item_template:
             character_gift = CharacterGifts()
             character_gift.creator = self.get_creator_guid()  # Creator of the original item.

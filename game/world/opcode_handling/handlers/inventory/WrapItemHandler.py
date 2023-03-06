@@ -20,6 +20,7 @@ class WrapItemHandler(object):
             wrapper_item = world_session.player_mgr.inventory.get_item(wrapper_container_slot, wrapper_item_slot)
             if not wrapper_item:
                 world_session.player_mgr.inventory.send_equip_error(InventoryError.BAG_ITEM_NOT_FOUND)
+                return 0
 
             # To wrap item.
             to_wrap_item = world_session.player_mgr.inventory.get_item(item_container_slot, item_slot)
@@ -39,7 +40,7 @@ class WrapItemHandler(object):
                 world_session.player_mgr.inventory.send_equip_error(InventoryError.BAG_CANT_WRAP_UNIQUE)
             elif world_session.player_mgr.spell_manager.is_casting():  # Prevent wrap while cast.
                 world_session.player_mgr.inventory.send_equip_error(InventoryError.BAG_ERROR)
-            elif to_wrap_item.set_wrapped(world_session.player_mgr):  # Actual wrap succeeds.
+            elif to_wrap_item.set_wrapped(world_session.player_mgr, wrapper_item.item_template.entry):  # Actual wrap succeeds.
                 # Remove wrapper item stack or item.
                 world_session.player_mgr.inventory.remove_from_container_by_slots(wrapper_container_slot,
                                                                                   wrapper_item_slot, item_count=1)
