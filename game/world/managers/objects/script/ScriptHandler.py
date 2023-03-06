@@ -586,11 +586,11 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_remove_object not implemented yet')
 
     def handle_script_command_set_melee_attack(self, script):
-        if script.source and script.source.is_alive and script.source.has_melee() and \
-                script.target and script.target.is_alive():
-            script.source.attack(script.target)
+        if script.source and script.source.is_alive:
+            pass
+            # TODO: This command enables or disables melee combat.
         else:
-            Logger.warning(f'ScriptHandler: Invalid source or target (script {script.id})'
+            Logger.warning(f'ScriptHandler: Invalid source (script {script.id})'
                            f', aborting SCRIPT_COMMAND_SET_MELEE_ATTACK.')
 
     def handle_script_command_set_combat_movement(self, script):
