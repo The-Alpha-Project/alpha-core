@@ -846,14 +846,14 @@ class WorldDatabaseManager(object):
     @staticmethod
     def quest_start_script_get_by_quest_id(quest_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(QuestStartScript).filter(QuestStartScript.quest_id == quest_id).all()
+        res = world_db_session.query(QuestStartScript).filter_by(quest_id= quest_id).all()
         world_db_session.close()
         return res
 
     @staticmethod
     def quest_end_script_get_by_quest_id(quest_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(QuestEndScript).filter(QuestEndScript.quest_id == quest_id).all()
+        res = world_db_session.query(QuestEndScript).filter_by(quest_id=quest_id).all()
                                                            
         world_db_session.close()
         return res
@@ -863,7 +863,7 @@ class WorldDatabaseManager(object):
     @staticmethod
     def generic_script_get_by_id(script_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(GenericScript).filter(GenericScript.id == script_id).all()
+        res = world_db_session.query(t_generic_scripts).filter_by(id=script_id).all()
         world_db_session.close()
         return res
 
@@ -1060,14 +1060,14 @@ class WorldDatabaseManager(object):
     @staticmethod
     def creature_ai_event_get_by_creature_id(creature_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureAIEvent).filter(CreatureAIEvent.creature_id == creature_id).all()
+        res = world_db_session.query(CreatureAiEvent).filter_by(creature_id=creature_id).all()
         world_db_session.close()
         return res
 
     @staticmethod
-    def creature_ai_script_get_by_id(script_id):
+    def creature_ai_scripts_get_by_id(script_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureAIScript).filter(CreatureAIScript.id == script_id).first()
+        res = world_db_session.query(t_creature_ai_scripts).filter_by(id=script_id).all()
         world_db_session.close()
         return res
 

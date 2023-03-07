@@ -71,6 +71,8 @@ class UnitStats(IntFlag):
     FOCUS_REGENERATION_PER_5 = auto()
     ENERGY_REGENERATION_PER_5 = auto()
 
+    INVINCIBILITY_HEALTH_LEVEL = auto()
+
     ATTACK_SPEED = auto()
     THREAT_GENERATION = auto()
     STEALTH = auto()

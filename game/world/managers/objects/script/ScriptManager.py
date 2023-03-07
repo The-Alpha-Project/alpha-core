@@ -56,9 +56,13 @@ class ScriptManager:
                         return t
             return None
         elif target_type == ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY:
-            # TODO: entry -> object type identification.
-            #  Based on objects high guids.
-            pass
+            search_range: Optional[float] = param1
+            entry: Optional[int] = param2
+            units = ScriptManager._get_surrounding_units(caster, search_range=search_range, include_players=False)
+            for unit in units:
+                if unit.entry == entry:
+                    return unit
+            return None
         elif target_type == ScriptTarget.TARGET_T_CREATURE_WITH_GUID:
             # TODO: might need to do some guid conversion between low and high?
             unit_guid: Optional[int] = param1
