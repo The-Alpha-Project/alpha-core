@@ -267,12 +267,14 @@ class ScriptHandler:
             pass
         else:
             pass
-
+    
+    # TODO: Missing delayed handling.
     def handle_script_command_interrupt_casts(self, script):
         # source = Unit
         # datalong = (bool) with_delayed
         # datalong2 = spell_id (optional)
-        Logger.debug('ScriptHandler: handle_script_command_interrupt_casts not implemented yet')
+        if script.datalong2 > 0:
+            script.source.spell_manager.remove_cast_by_id(script.datalong2, interrupted=True)
 
     def handle_script_command_teleport_to(self, script):
         # source = Unit
