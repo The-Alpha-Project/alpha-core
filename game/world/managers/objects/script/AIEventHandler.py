@@ -55,15 +55,14 @@ class AIEventHandler:
             current_health_percent = (self.creature.health / self.creature.max_health) * 100
             if current_health_percent <= event.event_param1 and self.creature.script_handler.last_hp_event_id != event.id:
                 db_scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(event.action1_script)
-                self.creature.script_handler.last_hp_event_id = event.id
             # If event1_param is zero the script should be run on aggro.
             elif event.event_param1 == 0 and self.creature.script_handler.last_hp_event_id != event.id:
                 db_scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(event.action1_script)
-                self.creature.script_handler.last_hp_event_id = event.id
 
         if not db_scripts:
             return
 
+        self.creature.script_handler.last_hp_event_id = event.id
         for db_script in db_scripts:
             self.creature.script_handler.enqueue_ai_script(self.creature, Script(db_script=db_script))
 
