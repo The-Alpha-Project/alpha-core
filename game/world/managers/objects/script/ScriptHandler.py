@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import math
 import random
 import time
@@ -98,8 +97,6 @@ class ScriptHandler:
                 self.ooc_next = None
 
             self.enqueue_ai_script(self.ooc_target, script)
-            # Should this be multiple too?
-            break
 
     def enqueue_scripts(self, source, target, script_type, entry_id):
         try:
@@ -342,7 +339,7 @@ class ScriptHandler:
         if script.dataint2:
             self.enqueue_scripts(creature_manager, None, ScriptTypes.SCRIPT_TYPE_GENERIC, script.dataint2)
         # Attack target.
-        if script.dataint3:
+        if script.dataint3 > 0:  # Can be -1.
             from game.world.managers.objects.script.ScriptManager import ScriptManager
             attack_target = ScriptManager.get_target_by_type(script.source, script.target, script.dataint3)
             if attack_target and attack_target.is_alive:
