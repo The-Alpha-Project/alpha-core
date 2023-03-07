@@ -280,7 +280,7 @@ class ScriptHandler:
         # datalong2 = teleport_options (see enum TeleportToOptions)
         # x/y/z/o = coordinates
         if script.source:
-            script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o))
+            script.source.teleport(script.datalong, Vector(script.x, script.y, script.z, script.o), is_instant=True)
 
     def handle_script_command_quest_explored(self, script):
         # source = Player (from provided source or target)
