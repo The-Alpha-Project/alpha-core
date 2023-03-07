@@ -32,7 +32,7 @@ class Map:
             creature_spawn = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
             creature_spawn.spawn_creature()
             count += 1
-            Logger.progress(f'Loading creatures for map {self.name}, Instance {self.instance_id}...', count, length)
+            Logger.progress(f'Loading creatures for Map {self.name}, Instance {self.instance_id}...', count, length)
 
     def _load_map_gameobjects(self):
         if not config.Server.Settings.load_gameobjects:

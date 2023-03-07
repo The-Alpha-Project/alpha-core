@@ -99,21 +99,6 @@ class WorldLoader:
         return length
 
     @staticmethod
-    def load_gameobjects_spawns():
-        gobject_spawns = WorldDatabaseManager.gameobject_get_all_spawns()
-        length = len(gobject_spawns)
-        count = 0
-
-        for gobject_spawn in gobject_spawns:
-            gameobject_spawn = GameObjectSpawn(gobject_spawn)
-            gameobject_spawn.spawn_gameobject()
-            count += 1
-
-            Logger.progress('Loading gameobject spawns...', count, length)
-
-        return length
-
-    @staticmethod
     def load_gameobject_quest_starters():
         gameobject_quest_starters = WorldDatabaseManager.gameobject_quest_starter_get_all()
         length = len(gameobject_quest_starters)
@@ -203,20 +188,6 @@ class WorldLoader:
             WorldDatabaseManager.CreatureEquipmentHolder.load_creature_equip_template(creature_equip_template)
             count += 1
             Logger.progress('Loading creature equipment templates...', count, length)
-
-        return length
-
-    @staticmethod
-    def load_creature_spawns():
-        creature_spawns = WorldDatabaseManager.creature_get_all_spawns()
-        length = len(creature_spawns)
-        count = 0
-
-        for creature_spawn in creature_spawns:
-            creature_spawn = CreatureSpawn(creature_spawn)
-            creature_spawn.spawn_creature()
-            count += 1
-            Logger.progress('Loading creature spawns...', count, length)
 
         return length
 
