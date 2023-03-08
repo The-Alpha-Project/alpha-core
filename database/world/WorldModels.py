@@ -974,10 +974,25 @@ class SpellTargetPosition(Base):
     target_orientation = Column(Float, nullable=False, server_default=text("0"))
 
 
-class NpcVendor(Base):
+class NpcVendorTemplateBase:
+    pass
+
+
+class NpcVendor(NpcVendorTemplateBase, Base):
     __tablename__ = 'npc_vendor'
 
     entry = Column(ForeignKey('creature_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, server_default=text("'0'"))
+    item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
+    maxcount = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    incrtime = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    itemflags = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    slot = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+
+
+class NpcVendorTemplate(NpcVendorTemplateBase, Base):
+    __tablename__ = 'npc_vendor_template'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("'0'"))
     item = Column(ForeignKey('item_template.entry', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     maxcount = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     incrtime = Column(INTEGER(10), nullable=False, server_default=text("'0'"))

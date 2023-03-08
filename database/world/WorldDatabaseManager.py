@@ -615,11 +615,18 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # TODO: Move vendor stuff to holders?
     @staticmethod
     def creature_get_vendor_data(entry) -> [Optional[list[NpcVendor]], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(NpcVendor).filter_by(entry=entry).order_by(NpcVendor.slot.asc()).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_get_vendor_template_data(vendor_id) -> [Optional[list[NpcVendorTemplate]], scoped_session]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(NpcVendorTemplate).filter_by(entry=vendor_id).order_by(
+            NpcVendorTemplate.slot.asc()).all()
         world_db_session.close()
         return res
 
