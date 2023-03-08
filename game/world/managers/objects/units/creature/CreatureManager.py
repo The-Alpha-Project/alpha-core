@@ -330,7 +330,7 @@ class CreatureManager(UnitManager):
         return self.creature_template.type == CreatureTypes.AMBIENT
 
     def has_melee(self):
-        return not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
+        return super().has_melee() and not self.creature_template.static_flags & CreatureStaticFlags.NO_MELEE
 
     def is_pet(self):
         return (self.summoner or self.charmer) \
@@ -537,7 +537,7 @@ class CreatureManager(UnitManager):
                 MapManager.update_object(self, has_changes=has_changes)
 
             # Scripts need to be always updated to make on-death scripts possible.
-            self.script_handler.update()
+            self.script_handler.update(now)
 
         self.last_tick = now
 

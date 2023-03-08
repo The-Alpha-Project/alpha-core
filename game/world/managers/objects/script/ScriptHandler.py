@@ -42,24 +42,27 @@ class ScriptHandler:
         self.last_hp_event_id = -1
         self.flee_text = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
 
-    def handle_script(self, script):
+    def handle_script(self, source, target, script_type, script_id, delay=0):
+        try:
+            scripts = SCRIPT_TYPES[script_type](script_id)
+        except IndexError:
+            Logger.warning(f'Unhandled script type {script_type}.')
+            return
+
+        for script in scripts:
+            if script.condition_id > 0:
+                if not ConditionChecker.check_condition(script.condition_id, self.object, target):
+                    continue
+            script = Script(db_script=script, delay=delay)
+            script.initialize(source, target)
+            self.script_queue.append(script)
+
+    def handle_script_command(self, script):
         try:
             # noinspection PyArgumentList
             SCRIPT_COMMANDS[script.command](self, script)
         except IndexError:
             Logger.warning(f'Unknown script command {script.command}.')
-
-    def enqueue_ai_script(self, source, script: Script, target=None):
-        if not script:
-            return
-
-        script.initialize(source, target)
-        self.script_queue.append(script)
-
-    def set_generic_script(self, source, target, script_id):
-        db_scripts = WorldDatabaseManager.GenericScriptsHolder.generic_scripts_get_by_id(script_id)
-        for db_script in db_scripts:
-            self.enqueue_scripts(source, target, ScriptTypes.SCRIPT_TYPE_GENERIC, db_script.id)
 
     def set_random_ooc_event(self, target, event):
         if event.condition_id > 0:
@@ -81,36 +84,18 @@ class ScriptHandler:
         self.ooc_repeat_max_delay = event.event_param4 / 1000
 
         random_script = random.choice(self.ooc_scripts)
-        db_scripts = WorldDatabaseManager.CreatureAiScriptHolder.creature_ai_scripts_get_by_id(random_script)
-        if not db_scripts:
-            return
-        for db_script in db_scripts:
-            self.ooc_target = target
-
-            script = Script(db_script=db_script)
-            script.delay = random.uniform(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
-
-            # Some events have a repeat delay of 0, which means they should not repeat.
-            if self.ooc_repeat_min_delay > 0 and self.ooc_repeat_max_delay > 0:
-                self.ooc_next = time.time() + script.delay
-            else:
-                self.ooc_next = None
-
-            self.enqueue_ai_script(self.ooc_target, script)
-
-    def enqueue_scripts(self, source, target, script_type, entry_id):
-        try:
-            scripts = SCRIPT_TYPES[script_type](entry_id)
-        except IndexError:
-            Logger.warning(f'Unhandled script type {script_type}.')
+        if not random_script:
             return
 
-        for db_script in scripts:
-            if db_script.condition_id > 0:
-                if not ConditionChecker.check_condition(db_script.condition_id, self.object, target):
-                    continue
-            script = Script(db_script=db_script)
-            self.enqueue_ai_script(source, script, target=target)
+        self.ooc_target = target
+        delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
+        self.handle_script(target, None, ScriptTypes.SCRIPT_TYPE_AI, random_script, delay=delay)
+
+        # Some events have a repeat delay of 0, which means they should not repeat.
+        if self.ooc_repeat_min_delay > 0 and self.ooc_repeat_max_delay > 0:
+            self.ooc_next = time.time() + delay
+        else:
+            self.ooc_next = None
 
     def reset(self):
         self.script_queue.clear()
@@ -122,32 +107,29 @@ class ScriptHandler:
         self.ooc_running = False
         self.last_hp_event_id = -1
 
-    def update(self):
+    def update(self, now):
         for script in list(self.script_queue):
-            if time.time() - script.time_added < script.delay:
+            if now - script.time_added < script.delay:
                 return
-            ScriptHandler.handle_script(self, script)
             self.script_queue.remove(script)
+            ScriptHandler.handle_script_command(self, script)
 
         if not self.ooc_scripts:
             return
 
-        if self.ooc_next is None or time.time() >= self.ooc_next or self.ooc_running:
+        if self.ooc_next is None or now >= self.ooc_next or self.ooc_running:
             return
 
         self.ooc_running = True
         random_script = random.choice(self.ooc_scripts)
-        db_scripts = WorldDatabaseManager.CreatureAiScriptHolder.creature_ai_scripts_get_by_id(random_script)
-        if not db_scripts:
+        if not random_script:
             return
-
-        for db_script in db_scripts:
-            script = Script(db_script=db_script)
-            script.delay = random.randint(self.ooc_repeat_min_delay, self.ooc_repeat_max_delay)
-            self.ooc_next = time.time() + script.delay
-            self.enqueue_ai_script(self.ooc_target, script)
-
+        delay = random.randint(self.ooc_repeat_min_delay, self.ooc_repeat_max_delay)
+        self.handle_script(self.ooc_target, None, ScriptTypes.SCRIPT_TYPE_AI, random_script, delay=delay)
+        self.ooc_next = now + delay
         self.ooc_running = False
+
+    # Handlers
 
     def handle_script_command_talk(self, script):
         # source = WorldObject
@@ -202,7 +184,6 @@ class ScriptHandler:
         # dataint = (bool) is_targeted
         if not script.source:
             return
-
         emotes = script.get_filtered_datalong()
         if emotes:
             script.source.play_emote(random.choice(emotes))
@@ -340,7 +321,7 @@ class ScriptHandler:
 
         # Generic script.
         if script.dataint2:
-            self.enqueue_scripts(creature_manager, None, ScriptTypes.SCRIPT_TYPE_GENERIC, script.dataint2)
+            self.handle_script(creature_manager, None, ScriptTypes.SCRIPT_TYPE_GENERIC, script.dataint2)
         # Attack target.
         if script.dataint3 > 0:  # Can be -1.
             from game.world.managers.objects.script.ScriptManager import ScriptManager
@@ -659,7 +640,7 @@ class ScriptHandler:
             weights += (script.dataint4,)
 
         random_script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
-        self.set_generic_script(script.source, script.target, random_script_id)
+        self.handle_script(script.source, script.target, ScriptTypes.SCRIPT_TYPE_GENERIC, random_script_id)
 
     def handle_script_command_remove_item(self, script):
         # source = Player (from provided source or target)
@@ -688,7 +669,7 @@ class ScriptHandler:
         # source = Creature
         # datalong = (bool) 0 = off, 1 = on
         if script.source and script.source.is_alive:
-            script.source.object_ai.has_melee = script.datalong
+            script.source.melee_disabled = not script.datalong
         else:
             Logger.warning(f'ScriptHandler: Invalid source (script {script.id})'
                            f', aborting SCRIPT_COMMAND_SET_MELEE_ATTACK.')
@@ -764,8 +745,8 @@ class ScriptHandler:
         # datalong2 = (bool) is_percent
         if not script.source:
             return
-        invincibility_hp_level = script.source.max_health * script.datalong / 100 if script.datalong2 else script.datalong
-        script.source.stat_manager.base_stats[UnitStats.INVINCIBILITY_HEALTH_LEVEL] = int(invincibility_hp_level)
+        invincibility_hp_lvl = script.source.max_health * script.datalong / 100 if script.datalong2 else script.datalong
+        script.source.invincibility_hp_level = invincibility_hp_lvl
 
     def handle_script_command_game_event(self, script):
         # source = None
@@ -986,18 +967,23 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_type_quest_start(quest_id):
-        return [WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)]
+        return WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)
 
     @staticmethod
     def handle_script_type_quest_end(quest_id):
-        return [WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)]
+        return WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
 
     @staticmethod
     def handle_script_type_generic(script_id):
         return WorldDatabaseManager.GenericScriptsHolder.generic_scripts_get_by_id(script_id)
 
+    @staticmethod
+    def handle_script_type_ai(script_id):
+        return WorldDatabaseManager.CreatureAiScriptHolder.creature_ai_scripts_get_by_id(script_id)
+
 
 SCRIPT_TYPES = {
+    ScriptTypes.SCRIPT_TYPE_AI: ScriptHandler.handle_script_type_ai,
     ScriptTypes.SCRIPT_TYPE_QUEST_START: ScriptHandler.handle_script_type_quest_start,
     ScriptTypes.SCRIPT_TYPE_QUEST_END: ScriptHandler.handle_script_type_quest_end,
     # ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
@@ -1025,7 +1011,6 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_ACTIVATE_OBJECT: ScriptHandler.handle_script_command_activate_object,
     ScriptCommands.SCRIPT_COMMAND_REMOVE_AURA: ScriptHandler.handle_script_command_remove_aura,
     ScriptCommands.SCRIPT_COMMAND_CAST_SPELL: ScriptHandler.handle_script_command_cast_spell,
-    # ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: ScriptHandler.handle_script_command_play_sound, opcodes for playing sound not implemented in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_CREATE_ITEM: ScriptHandler.handle_script_command_create_item,
     ScriptCommands.SCRIPT_COMMAND_DESPAWN_CREATURE: ScriptHandler.handle_script_command_despawn_creature,
     ScriptCommands.SCRIPT_COMMAND_SET_EQUIPMENT: ScriptHandler.handle_script_command_set_equipment,
@@ -1039,13 +1024,11 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_UPDATE_ENTRY: ScriptHandler.handle_script_command_update_entry,
     ScriptCommands.SCRIPT_COMMAND_STAND_STATE: ScriptHandler.handle_script_command_stand_state,
     ScriptCommands.SCRIPT_COMMAND_MODIFY_THREAT: ScriptHandler.handle_script_command_modify_threat,
-    # ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: ScriptHandler.handle_script_command_send_taxi_path, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_TERMINATE_SCRIPT: ScriptHandler.handle_script_command_terminate_script,
     ScriptCommands.SCRIPT_COMMAND_TERMINATE_CONDITION: ScriptHandler.handle_script_command_terminate_condition,
     ScriptCommands.SCRIPT_COMMAND_ENTER_EVADE_MODE: ScriptHandler.handle_script_command_enter_evade_mode,
     ScriptCommands.SCRIPT_COMMAND_SET_HOME_POSITION: ScriptHandler.handle_script_command_set_home_position,
     ScriptCommands.SCRIPT_COMMAND_TURN_TO: ScriptHandler.handle_script_command_turn_to,
-    # ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: ScriptHandler.handle_script_command_meetingstone, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA: ScriptHandler.handle_script_command_set_inst_data,
     ScriptCommands.SCRIPT_COMMAND_SET_INST_DATA64: ScriptHandler.handle_script_command_set_inst_data64,
     ScriptCommands.SCRIPT_COMMAND_START_SCRIPT: ScriptHandler.handle_script_command_start_script,
@@ -1058,8 +1041,6 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_SET_PHASE_RANGE: ScriptHandler.handle_script_command_set_phase_range,
     ScriptCommands.SCRIPT_COMMAND_FLEE: ScriptHandler.handle_script_command_flee,
     ScriptCommands.SCRIPT_COMMAND_DEAL_DAMAGE: ScriptHandler.handle_script_command_deal_damage,
-    # ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: ScriptHandler.handle_script_command_zone_combat_pulse, unused in 0.5.3
-    # ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: ScriptHandler.handle_script_command_call_for_help, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SET_SHEATH: ScriptHandler.handle_script_command_set_sheath,
     ScriptCommands.SCRIPT_COMMAND_INVINCIBILITY: ScriptHandler.handle_script_command_invincibility,
     ScriptCommands.SCRIPT_COMMAND_GAME_EVENT: ScriptHandler.handle_script_command_game_event,
@@ -1085,17 +1066,23 @@ SCRIPT_COMMANDS = {
     ScriptCommands.SCRIPT_COMMAND_ADD_AURA: ScriptHandler.handle_script_command_add_aura,
     ScriptCommands.SCRIPT_COMMAND_ADD_THREAT: ScriptHandler.handle_script_command_add_threat,
     ScriptCommands.SCRIPT_COMMAND_SUMMON_OBJECT: ScriptHandler.handle_script_command_summon_object,
-    # ScriptCommands.SCRIPT_COMMAND_SET_FLY: ScriptHandler.handle_script_command_set_fly, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_JOIN_CREATURE_GROUP: ScriptHandler.handle_script_command_join_creature_group,
     ScriptCommands.SCRIPT_COMMAND_LEAVE_CREATURE_GROUP: ScriptHandler.handle_script_command_leave_creature_group,
     ScriptCommands.SCRIPT_COMMAND_SET_GO_STATE: ScriptHandler.handle_script_command_set_go_state,
     ScriptCommands.SCRIPT_COMMAND_DESPAWN_GAMEOBJECT: ScriptHandler.handle_script_command_despawn_gameobject,
     ScriptCommands.SCRIPT_COMMAND_QUEST_CREDIT: ScriptHandler.handle_script_command_quest_credit,
-    # ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: ScriptHandler.handle_script_command_set_gossip_menu, not implemented in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_SEND_SCRIPT_EVENT: ScriptHandler.handle_script_command_send_script_event,
-    # ScriptCommands.SCRIPT_COMMAND_SET_PVP: ScriptHandler.handle_script_command_set_pvp, unused in 0.5.3
     ScriptCommands.SCRIPT_COMMAND_RESET_DOOR_OR_BUTTON: ScriptHandler.handle_script_command_reset_door_or_button,
     ScriptCommands.SCRIPT_COMMAND_SET_COMMAND_STATE: ScriptHandler.handle_script_command_set_command_state,
     ScriptCommands.SCRIPT_COMMAND_PLAY_CUSTOM_ANIM: ScriptHandler.handle_script_command_play_custom_anim,
     ScriptCommands.SCRIPT_COMMAND_START_SCRIPT_ON_GROUP: ScriptHandler.handle_script_command_start_script_on_group
+    # Unused in 0.5.3.
+    # ScriptCommands.SCRIPT_COMMAND_PLAY_SOUND: ScriptHandler.handle_script_command_play_sound
+    # ScriptCommands.SCRIPT_COMMAND_SEND_TAXI_PATH: ScriptHandler.handle_script_command_send_taxi_path,
+    # ScriptCommands.SCRIPT_COMMAND_ZONE_COMBAT_PULSE: ScriptHandler.handle_script_command_zone_combat_pulse,
+    # ScriptCommands.SCRIPT_COMMAND_CALL_FOR_HELP: ScriptHandler.handle_script_command_call_for_help,
+    # ScriptCommands.SCRIPT_COMMAND_SET_FLY: ScriptHandler.handle_script_command_set_fly
+    # ScriptCommands.SCRIPT_COMMAND_SET_GOSSIP_MENU: ScriptHandler.handle_script_command_set_gossip_menu,
+    # ScriptCommands.SCRIPT_COMMAND_MEETINGSTONE: ScriptHandler.handle_script_command_meeting_stone,
+    # ScriptCommands.SCRIPT_COMMAND_SET_PVP: ScriptHandler.handle_script_command_set_pvp,
 }

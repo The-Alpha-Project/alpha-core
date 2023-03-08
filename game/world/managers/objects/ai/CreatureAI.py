@@ -33,7 +33,6 @@ class CreatureAI:
         if creature:
             self.creature = creature
             self.use_ai_at_control = False
-            self.has_melee = self.creature.has_melee()  # If we allow melee auto attack.
             self.combat_movement = True  # If we allow targeted movement gen (chasing target).
             self.casting_delay = 0  # Cooldown before updating spell list again.
             self.last_alert_time = 0
@@ -203,7 +202,7 @@ class CreatureAI:
     # Called when creature attack is expected (if creature can and doesn't have current victim).
     # Note: for reaction at hostile action must be called AttackedBy function.
     def attack_start(self, victim, chase=True):
-        if chase and self.has_melee:
+        if chase and self.creature.has_melee():
             self.creature.movement_manager.move_chase()
         # Notify creature group.
         if self.creature.creature_group:
@@ -399,7 +398,7 @@ class CreatureAI:
         return self.combat_movement
 
     def is_melee_attack_enabled(self):
-        return self.has_melee
+        return self.creature.has_melee()
 
     def set_melee_attack(self, enabled):
         pass

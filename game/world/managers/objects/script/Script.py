@@ -2,7 +2,7 @@ import time
 
 
 class Script:
-    def __init__(self, db_script):
+    def __init__(self, db_script, delay=0):
         self.id: int = db_script.id
         self.command: int = db_script.command
         self.datalong: int = db_script.datalong
@@ -21,18 +21,17 @@ class Script:
         self.dataint2: int = db_script.dataint2
         self.dataint3: int = db_script.dataint3
         self.dataint4: int = db_script.dataint4
-        self.delay: int = db_script.delay
+        self.delay: int = db_script.delay if not delay else delay
         self.condition_id: int = db_script.condition_id
         self.source: object = None
         self.target: object = None
-        self.time_added: float = 0.0
+        self.time_added: float = time.time()
 
     def initialize(self, source, target):
         from game.world.managers.objects.script.ScriptManager import ScriptManager
         self.source = source
         self.target = ScriptManager.get_target_by_type(
             source, target, self.target_type, self.target_param1, self.target_param2)
-        self.time_added = time.time()
 
     def get_filtered_dataint(self):
         return list(filter((0).__ne__, [self.dataint, self.dataint2, self.dataint3, self.dataint4]))

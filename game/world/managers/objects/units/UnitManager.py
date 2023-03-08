@@ -202,6 +202,9 @@ class UnitManager(ObjectManager):
         self.has_moved = False
         self.has_turned = False
 
+        self.invincibility_hp_level = 0
+        self.melee_disabled = False
+
         self.stat_manager = StatManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
@@ -490,12 +493,12 @@ class UnitManager(ObjectManager):
             damage_info.total_damage = damage_info.base_damage
 
         # Invincibility.
-        invincibility_hp_level = victim.stat_manager.get_base_stat(UnitStats.INVINCIBILITY_HEALTH_LEVEL)
+        invincibility_hp_level = victim.invincibility_hp_level
         if invincibility_hp_level and victim.health < invincibility_hp_level + damage_info.total_damage:
             if victim.health <= invincibility_hp_level:
                 damage_info.total_damage = 0
             else:
-                damage_info.total_damage = victim.health - invincibility_hp_level
+                damage_info.total_damage = int(victim.health - invincibility_hp_level)
 
         # Generate rage (if needed).
         self.generate_rage(damage_info, is_attacking=True)
@@ -1511,7 +1514,7 @@ class UnitManager(ObjectManager):
 
     # Implemented by CreatureManager
     def has_melee(self):
-        return True
+        return not self.melee_disabled
 
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form
