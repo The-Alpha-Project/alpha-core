@@ -88,7 +88,7 @@ class ScriptHandler:
             return
 
         self.ooc_target = target
-        delay = random.randint(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
+        delay = random.uniform(self.ooc_spawn_min_delay, self.ooc_spawn_max_delay)
         self.handle_script(target, None, ScriptTypes.SCRIPT_TYPE_AI, random_script, delay=delay)
 
         # Some events have a repeat delay of 0, which means they should not repeat.
@@ -124,7 +124,7 @@ class ScriptHandler:
         random_script = random.choice(self.ooc_scripts)
         if not random_script:
             return
-        delay = random.randint(self.ooc_repeat_min_delay, self.ooc_repeat_max_delay)
+        delay = random.uniform(self.ooc_repeat_min_delay, self.ooc_repeat_max_delay)
         self.handle_script(self.ooc_target, None, ScriptTypes.SCRIPT_TYPE_AI, random_script, delay=delay)
         self.ooc_next = now + delay
         self.ooc_running = False
