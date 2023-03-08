@@ -36,7 +36,6 @@ class VendorUtils:
 
             if not vendor_db_data:
                 Logger.error(f'No inventory found for vendor with entry {creature_mgr.entry}.')
-                return
 
             vendor_data = VendorData(vendor_db_data)
             VendorUtils.VENDOR_DATA[creature_mgr.guid] = vendor_data
