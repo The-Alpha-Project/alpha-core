@@ -18,14 +18,16 @@ class LimitedItem:
         self.expected_timestamp = 0
 
 
+# noinspection PyUnresolvedReferences
 class VendorData:
     def __init__(self, vendor_data: Optional[list[NpcVendorTemplateBase]]):
         self.vendor_items = OrderedDict()
         self.limited_items = {}
-        for entry in vendor_data:
-            if entry.maxcount:
-                self.limited_items[entry.item] = LimitedItem(entry.item, entry.maxcount, 0)
-            self.vendor_items[entry.item] = entry
+        if vendor_data:
+            for entry in vendor_data:
+                if entry.maxcount:
+                    self.limited_items[entry.item] = LimitedItem(entry.item, entry.maxcount, 0)
+                self.vendor_items[entry.item] = entry
 
     def is_limited_item(self, item_entry):
         return item_entry in self.limited_items
