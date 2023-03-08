@@ -945,6 +945,7 @@ class ScriptTypes(IntEnum):
     SCRIPT_TYPE_GENERIC = 5
     SCRIPT_TYPE_GOSSIP = 6
     SCRIPT_TYPE_SPELL = 7
+    SCRIPT_TYPE_AI = 8
 
 
 class TeleportToOptions(IntEnum):

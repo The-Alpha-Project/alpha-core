@@ -202,6 +202,9 @@ class UnitManager(ObjectManager):
         self.has_moved = False
         self.has_turned = False
 
+        self.invincibility_hp_level = 0
+        self.melee_disabled = False
+
         self.stat_manager = StatManager(self)
         self.aura_manager = AuraManager(self)
         self.movement_manager = MovementManager(self)
@@ -488,6 +491,14 @@ class UnitManager(ObjectManager):
             if damage_info.hit_info & HitInfo.CRITICAL_HIT:
                 damage_info.proc_ex = ProcFlagsExLegacy.CRITICAL_HIT
             damage_info.total_damage = damage_info.base_damage
+
+        # Invincibility.
+        invincibility_hp_level = victim.invincibility_hp_level
+        if invincibility_hp_level and victim.health < invincibility_hp_level + damage_info.total_damage:
+            if victim.health <= invincibility_hp_level:
+                damage_info.total_damage = 0
+            else:
+                damage_info.total_damage = int(victim.health - invincibility_hp_level)
 
         # Generate rage (if needed).
         self.generate_rage(damage_info, is_attacking=True)
@@ -900,6 +911,11 @@ class UnitManager(ObjectManager):
         if self.in_combat:
             return False
 
+        # Make sure pet enters combat as well.
+        pet = self.pet_manager.get_active_controlled_pet()
+        if pet and not pet.creature.in_combat:
+            pet.creature.enter_combat()
+
         self.in_combat = True
         self.unit_flags |= UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
@@ -911,7 +927,12 @@ class UnitManager(ObjectManager):
         if not self.in_combat:
             return
 
-        self.send_attack_stop(self.combat_target.guid if self.combat_target else self.guid)
+        # Make sure pet leaves combat if it has no aggro.
+        pet = self.pet_manager.get_active_controlled_pet()
+        if pet and not pet.creature.threat_manager.has_aggro():
+            pet.creature.leave_combat()
+
+        self.attack_stop()
         self.swing_error = 0
         self.extra_attacks = 0
 
@@ -1493,7 +1514,7 @@ class UnitManager(ObjectManager):
 
     # Implemented by CreatureManager
     def has_melee(self):
-        return True
+        return not self.melee_disabled
 
     def has_form(self, shapeshift_form):
         return self.shapeshift_form == shapeshift_form

@@ -424,7 +424,7 @@ class GameObjectManager(ObjectManager):
                         self.spell_focus_manager.update(elapsed)
 
                 # ScriptHandler update.
-                self.script_handler.update()
+                self.script_handler.update(now)
 
                 # SpellManager update.
                 self.spell_manager.update(now)

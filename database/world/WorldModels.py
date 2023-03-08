@@ -1112,157 +1112,162 @@ class CreatureAddon(Base):
 class QuestStartScript(Base):
     __tablename__ = 'quest_start_scripts'
 
-    id = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))    
-    quest_id = Column(MEDIUMINT(5), primary_key=False, server_default=text("'0'"))    
-    delay = Column(INTEGER(10), primary_key=False, server_default=text("'0'"))
-    priority = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
-    command = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    datalong = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    datalong2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    datalong3 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    datalong4 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_param1 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_param2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_type = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
-    data_flags = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))    
-    dataint = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    id = Column(MEDIUMINT, primary_key=True, server_default=text("'0'"))
+    quest_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    delay = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    priority = Column(TINYINT, nullable=False, server_default=text("'0'"))
+    command = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    datalong = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    datalong2 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    datalong3 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    datalong4 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    target_param1 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    target_param2 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    target_type = Column(TINYINT, nullable=False, server_default=text("'0'"))
+    data_flags = Column(TINYINT, nullable=False, server_default=text("'0'"))
+    dataint = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    dataint2 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    dataint3 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    dataint4 = Column(INTEGER, nullable=False, server_default=text("'0'"))
     x = Column(Float, nullable=False, server_default=text("'0'"))
     y = Column(Float, nullable=False, server_default=text("'0'"))
     z = Column(Float, nullable=False, server_default=text("'0'"))
     o = Column(Float, nullable=False, server_default=text("'0'"))
-    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    comments = Column(Text)
+    condition_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    comments = Column(String(255))
 
 
 class QuestEndScript(Base):
     __tablename__ = 'quest_end_scripts'
 
-    id = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))       
-    quest_id = Column(MEDIUMINT(5), primary_key=False, server_default=text("'0'"))     
-    delay = Column(INTEGER(10), primary_key=False, server_default=text("'0'"))
-    priority = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
-    command = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    datalong = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    datalong2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    datalong3 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    datalong4 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_param1 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_param2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_type = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
-    data_flags = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))    
-    dataint = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+    id = Column(MEDIUMINT, primary_key=True, server_default=text("'0'"))
+    quest_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    delay = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    priority = Column(TINYINT, nullable=False, server_default=text("'0'"))
+    command = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    datalong = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    datalong2 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    datalong3 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    datalong4 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    target_param1 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    target_param2 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    target_type = Column(TINYINT, nullable=False, server_default=text("'0'"))
+    data_flags = Column(TINYINT, nullable=False, server_default=text("'0'"))
+    dataint = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    dataint2 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    dataint3 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    dataint4 = Column(INTEGER, nullable=False, server_default=text("'0'"))
     x = Column(Float, nullable=False, server_default=text("'0'"))
     y = Column(Float, nullable=False, server_default=text("'0'"))
     z = Column(Float, nullable=False, server_default=text("'0'"))
     o = Column(Float, nullable=False, server_default=text("'0'"))
-    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    comments = Column(Text)    
+    condition_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    comments = Column(String(255))
 
 
-class GenericScript(Base):
-    __tablename__ = 'generic_scripts'
+t_generic_scripts = Table(
+    'generic_scripts', metadata,
+    Column('id', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('delay', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('priority', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('command', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('datalong', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('datalong2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('datalong3', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('datalong4', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_param1', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_param2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_type', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('data_flags', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('dataint', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint3', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint4', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('x', Float, nullable=False, server_default=text("'0'")),
+    Column('y', Float, nullable=False, server_default=text("'0'")),
+    Column('z', Float, nullable=False, server_default=text("'0'")),
+    Column('o', Float, nullable=False, server_default=text("'0'")),
+    Column('condition_id', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('comments', String(255), nullable=False)
+)
 
-    id = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))                
-    delay = Column(INTEGER(10), primary_key=False, server_default=text("'0'"))
-    priority = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
-    command = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    datalong = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    datalong2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    datalong3 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    datalong4 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_param1 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_param2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_type = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
-    data_flags = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))    
-    dataint = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    x = Column(Float, nullable=False, server_default=text("'0'"))
-    y = Column(Float, nullable=False, server_default=text("'0'"))
-    z = Column(Float, nullable=False, server_default=text("'0'"))
-    o = Column(Float, nullable=False, server_default=text("'0'"))
-    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    comments = Column(Text)    
 
-
-class CreatureAIScript(Base):
-    __tablename__ = 'creature_ai_scripts'
-
-    id = Column(MEDIUMINT(8), primary_key=True, server_default=text("'0'"))       
-    delay = Column(INTEGER(10), primary_key=False, server_default=text("'0'"))
-    priority = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
-    command = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    datalong = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    datalong2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    datalong3 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    datalong4 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_param1 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_param2 = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    target_type = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))
-    data_flags = Column(TINYINT(3), primary_key=False, server_default=text("'0'"))    
-    dataint = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    dataint4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    x = Column(Float, nullable=False, server_default=text("'0'"))
-    y = Column(Float, nullable=False, server_default=text("'0'"))
-    z = Column(Float, nullable=False, server_default=text("'0'"))
-    o = Column(Float, nullable=False, server_default=text("'0'"))
-    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    comments = Column(Text) 
+t_creature_ai_scripts = Table(
+    'creature_ai_scripts', metadata,
+    Column('id', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('delay', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('priority', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('command', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('datalong', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('datalong2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('datalong3', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('datalong4', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_param1', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_param2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('target_type', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('data_flags', TINYINT, nullable=False, server_default=text("'0'")),
+    Column('dataint', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint2', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint3', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('dataint4', INTEGER, nullable=False, server_default=text("'0'")),
+    Column('x', Float, nullable=False, server_default=text("'0'")),
+    Column('y', Float, nullable=False, server_default=text("'0'")),
+    Column('z', Float, nullable=False, server_default=text("'0'")),
+    Column('o', Float, nullable=False, server_default=text("'0'")),
+    Column('condition_id', MEDIUMINT, nullable=False, server_default=text("'0'")),
+    Column('comments', INTEGER(255), nullable=False)
+)
 
 
 class BroadcastText(Base):
     __tablename__ = 'broadcast_text'
 
-    entry = Column(MEDIUMINT(8), primary_key=True)
-    male_text = Column(LONGTEXT, nullable=True)
-    female_text = Column(LONGTEXT, nullable=True)
-    chat_type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
-    sound_id = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
-    language_id = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
-    emote_id1 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
-    emote_id2 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
-    emote_id3 = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
-    emote_delay1 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    emote_delay2 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    emote_delay3 = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    entry = Column(MEDIUMINT, primary_key=True, server_default=text("'0'"))
+    male_text = Column(LONGTEXT)
+    female_text = Column(LONGTEXT)
+    chat_type = Column(TINYINT, nullable=False, server_default=text("'0'"))
+    sound_id = Column(SMALLINT, nullable=False, server_default=text("'0'"))
+    language_id = Column(TINYINT, nullable=False, server_default=text("'0'"))
+    emote_id1 = Column(SMALLINT, nullable=False, server_default=text("'0'"))
+    emote_id2 = Column(SMALLINT, nullable=False, server_default=text("'0'"))
+    emote_id3 = Column(SMALLINT, nullable=False, server_default=text("'0'"))
+    emote_delay1 = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    emote_delay2 = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
+    emote_delay3 = Column(MEDIUMINT, nullable=False, server_default=text("'0'"))
 
 
-class CreatureAIEvent(Base):
+class CreatureAiEvent(Base):
     __tablename__ = 'creature_ai_events'
+    __table_args__ = {'comment': 'EventAI Scripts'}
 
-    id = Column(INTEGER(11), primary_key=True, nullable=False)
-    creature_id = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    condition_id = Column(INTEGER(8), nullable=False, server_default=text("'0'"))
-    event_type = Column(TINYINT(5), nullable=False, server_default=text("'0'"))
-    event_inverse_phase_mask = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    event_chance = Column(INTEGER(3), nullable=False, server_default=text("'100'"))
-    event_flags = Column(INTEGER(3), nullable=False, server_default=text("'0'"))
-    event_param1 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    event_param2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    event_param3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    event_param4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    action1_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    action2_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    action3_script = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    comment = Column(Text)
+    id = Column(INTEGER, primary_key=True, comment='Identifier')
+    creature_id = Column(INTEGER, nullable=False, server_default=text("'0'"), comment='Creature Template Identifier')
+    condition_id = Column(MEDIUMINT, nullable=False, server_default=text("'0'"), comment='Condition id from conditions table')
+    event_type = Column(TINYINT, nullable=False, server_default=text("'0'"), comment='Event Type')
+    event_inverse_phase_mask = Column(INTEGER, nullable=False, server_default=text("'0'"), comment='Mask which phases this event will not trigger in')
+    event_chance = Column(INTEGER, nullable=False, server_default=text("'100'"))
+    event_flags = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    event_param1 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    event_param2 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    event_param3 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    event_param4 = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    action1_script = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    action2_script = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    action3_script = Column(INTEGER, nullable=False, server_default=text("'0'"))
+    comment = Column(String(255), nullable=False, server_default=text("''"), comment='Event Comment')
 
 
 class Condition(Base):
     __tablename__ = 'conditions'
+    __table_args__ = (
+        Index('unique_conditions', 'type', 'value1', 'value2', 'flags', 'value3', 'value4', unique=True),
+        {'comment': 'Condition System'}
+    )
 
-    condition_entry = Column(MEDIUMINT(8), primary_key=True, nullable=False)
-    type = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
-    value1 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    value2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    value3 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    value4 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
-    flags = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    condition_entry = Column(MEDIUMINT, primary_key=True, comment='Identifier')
+    type = Column(TINYINT, nullable=False, server_default=text("'0'"), comment='Type of the condition')
+    value1 = Column(INTEGER, nullable=False, server_default=text("'0'"), comment='data field one for the condition')
+    value2 = Column(INTEGER, nullable=False, server_default=text("'0'"), comment='data field two for the condition')
+    value3 = Column(INTEGER, nullable=False, server_default=text("'0'"), comment='data field three for the condition')
+    value4 = Column(INTEGER, nullable=False, server_default=text("'0'"), comment='data field four for the condition')
+    flags = Column(TINYINT, nullable=False, server_default=text("'0'"), comment='general condition flags')

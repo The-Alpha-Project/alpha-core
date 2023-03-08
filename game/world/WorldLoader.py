@@ -34,6 +34,11 @@ class WorldLoader:
         WorldLoader.load_spells()
         WorldLoader.load_creature_spells()
 
+        #  Scripts.
+        WorldLoader.load_generic_scripts()
+        WorldLoader.load_creature_ai_events()
+        WorldLoader.load_creature_ai_scripts()
+
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobject_quest_starters()
@@ -84,6 +89,58 @@ class WorldLoader:
         MapManager.initialize_area_tables()
 
     # World data holders
+
+    @staticmethod
+    def load_creature_ai_scripts():
+        creature_ai_scripts = WorldDatabaseManager.creature_ai_scripts_get_all()
+        length = len(creature_ai_scripts)
+        count = 0
+
+        for creature_ai_script in creature_ai_scripts:
+            WorldDatabaseManager.CreatureAiScriptHolder.load_creature_ai_script(creature_ai_script)
+            count += 1
+            Logger.progress('Loading creature ai scripts...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_ai_events():
+        creature_ai_avents = WorldDatabaseManager.creature_ai_event_get_all()
+        length = len(creature_ai_avents)
+        count = 0
+
+        for creature_ai_event in creature_ai_avents:
+            WorldDatabaseManager.CreatureAiEventHolder.load_creature_ai_event(creature_ai_event)
+            count += 1
+            Logger.progress('Loading creature ai events...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_generic_scripts():
+        generic_scripts = WorldDatabaseManager.generic_scripts_get_all()
+        length = len(generic_scripts)
+        count = 0
+
+        for generic_script in generic_scripts:
+            WorldDatabaseManager.GenericScriptsHolder.load_generic_script(generic_script)
+            count += 1
+            Logger.progress('Loading generic scripts...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_conditions():
+        conditions = WorldDatabaseManager.conditions_get_all()
+        length = len(conditions)
+        count = 0
+
+        for condition in conditions:
+            WorldDatabaseManager.ConditionHolder.load_condition(condition)
+            count += 1
+            Logger.progress('Loading conditions...', count, length)
+
+        return length
 
     @staticmethod
     def load_gameobject_templates():
@@ -675,17 +732,3 @@ class WorldLoader:
                 Logger.progress('Loading guilds...', count, length)
 
         return length
-
-    @staticmethod
-    def load_conditions():
-        conditions = WorldDatabaseManager.conditions_get_all()
-        length = len(conditions)
-        count = 0
-
-        for condition in conditions:
-            WorldDatabaseManager.ConditionHolder.load_condition(condition)
-
-            count += 1
-            Logger.progress('Loading conditions...', count, length)
-
-        return length  
