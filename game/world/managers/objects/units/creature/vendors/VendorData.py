@@ -1,7 +1,7 @@
 import time
 from collections import OrderedDict
 from typing import Optional
-from database.world.WorldModels import NpcVendor
+from database.world.WorldModels import NpcVendorTemplateBase
 
 
 class LimitedItem:
@@ -19,7 +19,7 @@ class LimitedItem:
 
 
 class VendorData:
-    def __init__(self, vendor_data: Optional[list[NpcVendor]]):
+    def __init__(self, vendor_data: Optional[list[NpcVendorTemplateBase]]):
         self.vendor_items = OrderedDict()
         self.limited_items = {}
         for entry in vendor_data:

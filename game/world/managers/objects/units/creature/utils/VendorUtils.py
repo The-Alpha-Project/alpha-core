@@ -6,6 +6,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.creature.vendors.VendorData import VendorData
 from network.packet.PacketWriter import PacketWriter
+from utils.Logger import Logger
 from utils.constants.MiscCodes import BuyResults
 from utils.constants.OpCodes import OpCode
 
@@ -25,10 +26,22 @@ class VendorUtils:
     def send_inventory_list(creature_mgr, player_mgr):
         # Initialize this vendor data if needed.
         if creature_mgr.guid not in VendorUtils.VENDOR_DATA:
-            vendor_data = WorldDatabaseManager.creature_get_vendor_data(creature_mgr.entry)
-            VendorUtils.VENDOR_DATA[creature_mgr.guid] = VendorData(vendor_data)
+            # Prioritize inventory list specific for this creature.
+            if creature_mgr.creature_template.vendor_id == 0:
+                vendor_db_data = WorldDatabaseManager.creature_get_vendor_data(creature_mgr.entry)
+            # Otherwise, try to load vendor template data.
+            else:
+                vendor_db_data = WorldDatabaseManager.creature_get_vendor_template_data(
+                    creature_mgr.creature_template.vendor_id)
 
-        vendor_data = VendorUtils.VENDOR_DATA[creature_mgr.guid]
+            if not vendor_db_data:
+                Logger.error(f'No inventory found for vendor with entry {creature_mgr.entry}.')
+                return
+
+            vendor_data = VendorData(vendor_db_data)
+            VendorUtils.VENDOR_DATA[creature_mgr.guid] = vendor_data
+        else:
+            vendor_data = VendorUtils.VENDOR_DATA[creature_mgr.guid]
 
         item_templates = []
         items_data = b''

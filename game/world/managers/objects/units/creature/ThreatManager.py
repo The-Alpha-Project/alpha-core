@@ -87,16 +87,10 @@ class ThreatManager:
                    is_call_for_help: bool = False):
         # Only players/units.
         if not source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            return False
+            return
 
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
-            return False
-
-        # If the threat comes from a pet, owner should be added to this unit threat list.
-        charmer_or_summoner = source.get_charmer_or_summoner()
-        if charmer_or_summoner and not self.has_aggro_from(charmer_or_summoner):
-            # Set pet owner in combat as well.
-            self.add_threat(charmer_or_summoner)
+            return
 
         # Notify pet that owner has been attacked.
         active_pet = self.owner.pet_manager.get_active_controlled_pet()
@@ -107,7 +101,6 @@ class ThreatManager:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
         if source is not self.owner:
-            # Do not enter combat if call was made from die().
             self.owner.enter_combat(source)
             source_holder = self.holders.get(source.guid)
             # Update existent holder.
@@ -115,19 +108,20 @@ class ThreatManager:
                 new_threat = source_holder.total_raw_threat + threat
                 source_holder.total_raw_threat = max(new_threat, 0.0)
                 source_holder.threat_mod = threat_mod
-                return True
             # New holder.
             elif threat >= 0.0:
                 if not is_call_for_help:
                     self._call_for_help(source, threat)
                 self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
-                # If source is a player, force it to be linked to the other unit through threat.
-                source_is_player = source.get_type_id() == ObjectTypeIds.ID_PLAYER
-                if source_is_player and not source.threat_manager.has_aggro_from(self.owner):
+                # Force both units to be linked through threat.
+                if not source.threat_manager.has_aggro_from(self.owner):
                     source.threat_manager.add_threat(self.owner)
-                return True
 
-        return False
+        # If the threat comes from a pet, owner should be added to this unit threat list.
+        charmer_or_summoner = source.get_charmer_or_summoner()
+        if charmer_or_summoner and not self.has_aggro_from(charmer_or_summoner):
+            # Set pet owner in combat as well.
+            self.add_threat(charmer_or_summoner)
 
     def resolve_target(self):
         if not self.can_resolve_target():
