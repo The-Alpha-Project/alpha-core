@@ -11,8 +11,11 @@ class AIEventHandler:
         self._events = None
 
     def initialize(self):
-        self._events = {event.event_type: event for event in
-                        WorldDatabaseManager.creature_ai_event_get_by_creature_id(self.creature.entry)}
+        self._events = {
+            event.event_type: event for event in
+            WorldDatabaseManager.CreatureAiEventHolder.creature_ai_events_get_by_creature_entry(self.creature.entry)}
+        if len(self._events) > 0:
+            print('Here')
 
     def on_spawn(self):
         event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
@@ -21,7 +24,7 @@ class AIEventHandler:
 
         if randint(0, 100) > event.event_chance:
             return
-        db_scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(event.action1_script)
+        db_scripts = AIEventHandler._get_ai_scripts_by_id(event.action1_script)
         if not db_scripts:
             return
         for db_script in db_scripts:
@@ -38,7 +41,8 @@ class AIEventHandler:
             return
 
         choices = list(filter((0).__ne__, [event.action1_script, event.action2_script, event.action3_script]))
-        db_scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(choice(choices))
+        random_script = choice(choices)
+        db_scripts = AIEventHandler._get_ai_scripts_by_id(random_script)
         if not db_scripts:
             return
         for db_script in db_scripts:
@@ -54,10 +58,10 @@ class AIEventHandler:
         if 0 < event.event_param1 <= 100:
             current_health_percent = (self.creature.health / self.creature.max_health) * 100
             if current_health_percent <= event.event_param1 and self.creature.script_handler.last_hp_event_id != event.id:
-                db_scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(event.action1_script)
+                db_scripts = AIEventHandler._get_ai_scripts_by_id(event.action1_script)
             # If event1_param is zero the script should be run on aggro.
             elif event.event_param1 == 0 and self.creature.script_handler.last_hp_event_id != event.id:
-                db_scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(event.action1_script)
+                db_scripts = AIEventHandler._get_ai_scripts_by_id(event.action1_script)
 
         if not db_scripts:
             return
@@ -79,7 +83,8 @@ class AIEventHandler:
         if randint(0, 100) > event.event_chance:
             return
         choices = list(filter((0).__ne__, [event.action1_script, event.action2_script, event.action3_script]))
-        db_scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(choice(choices))
+        random_script = choice(choices)
+        db_scripts = AIEventHandler._get_ai_scripts_by_id(random_script)
 
         if not db_scripts:
             return
@@ -87,3 +92,7 @@ class AIEventHandler:
         for db_script in db_scripts:
             self.creature.script_handler.last_hp_event_id = event.id
             self.creature.script_handler.enqueue_ai_script(self.creature, Script(db_script=db_script))
+
+    @staticmethod
+    def _get_ai_scripts_by_id(script_id):
+        return WorldDatabaseManager.CreatureAiScriptHolder.creature_ai_scripts_get_by_id(script_id)

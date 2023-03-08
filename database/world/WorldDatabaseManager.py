@@ -854,18 +854,102 @@ class WorldDatabaseManager(object):
     def quest_end_script_get_by_quest_id(quest_id):
         world_db_session = SessionHolder()
         res = world_db_session.query(QuestEndScript).filter_by(quest_id=quest_id).all()
-                                                           
         world_db_session.close()
         return res
+
+    # Creature AI scripts.
+
+    @staticmethod
+    def creature_ai_scripts_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_creature_ai_scripts).all()
+        world_db_session.close()
+        return res
+
+    class CreatureAiScriptHolder:
+        SCRIPTS: dict[int, list[t_creature_ai_scripts]] = {}
+
+        @staticmethod
+        def load_creature_ai_script(ai_script):
+            if ai_script.id not in WorldDatabaseManager.CreatureAiScriptHolder.SCRIPTS:
+                WorldDatabaseManager.CreatureAiScriptHolder.SCRIPTS[ai_script.id] = []
+            WorldDatabaseManager.CreatureAiScriptHolder.SCRIPTS[ai_script.id].append(ai_script)
+
+        @staticmethod
+        def creature_ai_scripts_get_by_id(script_id):
+            return WorldDatabaseManager.CreatureAiScriptHolder.SCRIPTS.get(script_id, [])
+
+    # Creature AI events.
+
+    @staticmethod
+    def creature_ai_event_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreatureAiEvent).all()
+        world_db_session.close()
+        return res
+
+    class CreatureAiEventHolder:
+        EVENTS_BY_ID: dict[int, CreatureAiEvent] = {}
+        EVENTS_BY_CREATURE_ID: dict[int, list[CreatureAiEvent]] = {}
+
+        @staticmethod
+        def load_creature_ai_event(ai_event):
+            if ai_event.id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID:
+                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID[ai_event.id] = ai_event
+
+            if ai_event.creature_id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID:
+                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[ai_event.creature_id] = []
+            WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[ai_event.creature_id].append(ai_event)
+
+        @staticmethod
+        def creature_ai_events_get_by_creature_entry(creature_id):
+            return WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID.get(creature_id, [])
+
+        @staticmethod
+        def creature_ai_event_get_by_event_id(event_id):
+            return WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID.get(event_id, None)
+
+    # Event conditions.
+
+    @staticmethod
+    def conditions_get_all() -> list[Condition]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(Condition).all()
+        world_db_session.close()
+        return res
+
+    class ConditionHolder:
+        CONDITIONS: dict[int, Condition] = {}
+
+        @staticmethod
+        def load_condition(condition: Condition):
+            WorldDatabaseManager.ConditionHolder.CONDITIONS[condition.condition_entry] = condition
+
+        @staticmethod
+        def condition_get_by_id(condition_id: int) -> Optional[Condition]:
+            return WorldDatabaseManager.ConditionHolder.CONDITIONS.get(condition_id)
 
     # Generic scripts.
 
     @staticmethod
-    def generic_script_get_by_id(script_id):
+    def generic_scripts_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(t_generic_scripts).filter_by(id=script_id).all()
+        res = world_db_session.query(t_generic_scripts).all()
         world_db_session.close()
         return res
+
+    class GenericScriptsHolder:
+        GENERIC_SCRIPTS: [int, list[t_generic_scripts]] = {}
+
+        @staticmethod
+        def load_generic_script(generic_script):
+            if generic_script.id not in WorldDatabaseManager.GenericScriptsHolder.GENERIC_SCRIPTS:
+                WorldDatabaseManager.GenericScriptsHolder.GENERIC_SCRIPTS[generic_script.id] = []
+            WorldDatabaseManager.GenericScriptsHolder.GENERIC_SCRIPTS[generic_script.id].append(generic_script)
+
+        @staticmethod
+        def generic_scripts_get_by_id(script_id):
+            return WorldDatabaseManager.GenericScriptsHolder.GENERIC_SCRIPTS.get(script_id, [])
 
     # Trainer.
 
@@ -1052,41 +1136,5 @@ class WorldDatabaseManager(object):
     def broadcast_text_get_all() -> list[BroadcastText]:
         world_db_session: scoped_session = SessionHolder()
         res = world_db_session.query(BroadcastText).all()
-        world_db_session.close()
-        return res
-
-    # Creature AI events.
-
-    @staticmethod
-    def creature_ai_event_get_by_creature_id(creature_id):
-        world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureAiEvent).filter_by(creature_id=creature_id).all()
-        world_db_session.close()
-        return res
-
-    @staticmethod
-    def creature_ai_scripts_get_by_id(script_id):
-        world_db_session = SessionHolder()
-        res = world_db_session.query(t_creature_ai_scripts).filter_by(id=script_id).all()
-        world_db_session.close()
-        return res
-
-    # Event conditions.
-
-    class ConditionHolder:
-        CONDITIONS: dict[int, Condition] = {}
-
-        @staticmethod
-        def load_condition(condition: Condition):
-            WorldDatabaseManager.ConditionHolder.CONDITIONS[condition.condition_entry] = condition
-
-        @staticmethod
-        def condition_get_by_id(condition_id: int) -> Optional[Condition]:
-            return WorldDatabaseManager.ConditionHolder.CONDITIONS.get(condition_id)
-
-    @staticmethod
-    def conditions_get_all() -> list[Condition]:
-        world_db_session: scoped_session = SessionHolder()
-        res = world_db_session.query(Condition).all()
         world_db_session.close()
         return res

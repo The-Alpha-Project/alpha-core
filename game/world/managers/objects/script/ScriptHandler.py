@@ -57,10 +57,9 @@ class ScriptHandler:
         self.script_queue.append(script)
 
     def set_generic_script(self, source, target, script_id):
-        scripts = WorldDatabaseManager.generic_script_get_by_id(script_id)
-
-        for script in scripts:
-            self.enqueue_scripts(source, target, ScriptTypes.SCRIPT_TYPE_GENERIC, script.id)
+        db_scripts = WorldDatabaseManager.GenericScriptsHolder.generic_scripts_get_by_id(script_id)
+        for db_script in db_scripts:
+            self.enqueue_scripts(source, target, ScriptTypes.SCRIPT_TYPE_GENERIC, db_script.id)
 
     def set_random_ooc_event(self, target, event):
         if event.condition_id > 0:
@@ -81,10 +80,11 @@ class ScriptHandler:
         self.ooc_repeat_min_delay = event.event_param3 / 1000
         self.ooc_repeat_max_delay = event.event_param4 / 1000
 
-        scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(random.choice(self.ooc_scripts))
-        if not scripts:
+        random_script = random.choice(self.ooc_scripts)
+        db_scripts = WorldDatabaseManager.CreatureAiScriptHolder.creature_ai_scripts_get_by_id(random_script)
+        if not db_scripts:
             return
-        for db_script in scripts:
+        for db_script in db_scripts:
             self.ooc_target = target
 
             script = Script(db_script=db_script)
@@ -136,7 +136,8 @@ class ScriptHandler:
             return
 
         self.ooc_running = True
-        db_scripts = WorldDatabaseManager.creature_ai_scripts_get_by_id(random.choice(self.ooc_scripts))
+        random_script = random.choice(self.ooc_scripts)
+        db_scripts = WorldDatabaseManager.CreatureAiScriptHolder.creature_ai_scripts_get_by_id(random_script)
         if not db_scripts:
             return
 
@@ -267,7 +268,7 @@ class ScriptHandler:
             pass
         else:
             pass
-    
+
     # TODO: Missing delayed handling.
     def handle_script_command_interrupt_casts(self, script):
         # source = Unit
@@ -985,15 +986,15 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_type_quest_start(quest_id):
-        return WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)
+        return [WorldDatabaseManager.quest_start_script_get_by_quest_id(quest_id)]
 
     @staticmethod
     def handle_script_type_quest_end(quest_id):
-        return WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
+        return [WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)]
 
     @staticmethod
     def handle_script_type_generic(script_id):
-        return WorldDatabaseManager.generic_script_get_by_id(script_id)
+        return WorldDatabaseManager.GenericScriptsHolder.generic_scripts_get_by_id(script_id)
 
 
 SCRIPT_TYPES = {
