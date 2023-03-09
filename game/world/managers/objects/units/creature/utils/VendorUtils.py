@@ -111,16 +111,16 @@ class VendorUtils:
         else:
             succeed = player_mgr.inventory.add_item(item_template=item_template, count=real_count)
 
-        # If item was successfully added to player inventory.
-        if succeed:
-            player_mgr.mod_money(total_cost * -1)
-            if vendor_data.is_limited_item(item_id):
-                vendor_data.update_limited_item(item_id, qty=count)
-                # Available count changed, update vendor.
-                vendor_slot = vendor_data.get_item_slot(item_id)
-                max_count = vendor_data.get_max_count(item_id)
-                data = pack('<Q3I', vendor.guid, vendor_slot, max_count, count)
-                packet = PacketWriter.get_packet(OpCode.SMSG_BUY_ITEM, data)
-                MapManager.send_surrounding(packet, player_mgr)
-        else:
-            player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_CANT_CARRY_MORE, item_id, vendor.guid)
+        # Don't continue if item was not successfully added to the inventory.
+        if not succeed:
+            return
+
+        player_mgr.mod_money(total_cost * -1)
+        if vendor_data.is_limited_item(item_id):
+            vendor_data.update_limited_item(item_id, qty=count)
+            # Available count changed, update vendor.
+            vendor_slot = vendor_data.get_item_slot(item_id)
+            max_count = vendor_data.get_max_count(item_id)
+            data = pack('<Q3I', vendor.guid, vendor_slot, max_count, count)
+            packet = PacketWriter.get_packet(OpCode.SMSG_BUY_ITEM, data)
+            MapManager.send_surrounding(packet, player_mgr)
