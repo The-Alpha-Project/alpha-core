@@ -23,7 +23,7 @@ class AIEventHandler:
 
         script_id = event.action1_script
         if script_id:
-            self.creature.script_handler.handle_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
+            self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
 
     def on_enter_combat(self):
         self.creature.script_handler.reset()  # Reset any scripts that were queued before combat (e.g. on spawn).
@@ -39,7 +39,7 @@ class AIEventHandler:
         random_script = choice(choices)
 
         if random_script:
-            self.creature.script_handler.handle_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, random_script)
+            self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, random_script)
 
     def on_damage_taken(self):
         event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
@@ -58,7 +58,7 @@ class AIEventHandler:
         script_id = event.action1_script
         if script_id:
             self.creature.script_handler.last_hp_event_id = event.id
-            self.creature.script_handler.handle_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
+            self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
 
     def on_idle(self):
         event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
@@ -77,4 +77,4 @@ class AIEventHandler:
 
         if random_script:
             self.creature.script_handler.last_hp_event_id = event.id
-            self.creature.script_handler.handle_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, random_script)
+            self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, random_script)
