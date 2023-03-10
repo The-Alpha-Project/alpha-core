@@ -40,7 +40,7 @@ class ScriptHandler:
         # Grab start script command.
         script_commands = self.resolve_script_actions(script_type, script_id)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay)
-        Logger.error(f'{script_id} with {len(script_commands)} commands.')
+        Logger.error(f'Script {script_id} enqueued, has {len(script_commands) + 1} commands.')
         self.script_queue.append(new_script)
 
     # noinspection PyMethodMayBeStatic

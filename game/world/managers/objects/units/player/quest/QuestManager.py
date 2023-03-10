@@ -133,7 +133,8 @@ class QuestManager(object):
             if not quest:
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
-            if quest_state == QuestState.QUEST_REWARD or QuestHelpers.is_instant_complete_quest(quest) and self.check_quest_requirements(quest):
+            if (quest_state == QuestState.QUEST_REWARD or QuestHelpers.is_instant_complete_quest(quest)) \
+                    and self.check_quest_requirements(quest):
                 new_dialog_status = QuestGiverStatus.QUEST_GIVER_REWARD
             if new_dialog_status > dialog_status:
                 dialog_status = new_dialog_status
