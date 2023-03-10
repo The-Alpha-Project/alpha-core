@@ -46,13 +46,14 @@ class AIEventHandler:
         if not event:
             return
 
+        last_hp_event = self.creature.script_handler.last_hp_event_id
         # On rare occasions event_param1 is not the health breakpoint but something else?
         if 0 < event.event_param1 <= 100:
             current_hp_percent = (self.creature.health / self.creature.max_health) * 100
-            if current_hp_percent <= event.event_param1 and self.creature.script_handler.last_hp_event_id != event.id:
+            if current_hp_percent <= event.event_param1 and last_hp_event != event.id:
                 return
             # If event1_param is zero the script should be run on aggro.
-            elif event.event_param1 == 0 and self.creature.script_handler.last_hp_event_id != event.id:
+            elif event.event_param1 == 0 and last_hp_event != event.id:
                 return
 
         script_id = event.action1_script

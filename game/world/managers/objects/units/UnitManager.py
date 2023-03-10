@@ -98,6 +98,7 @@ class UnitManager(ObjectManager):
                  **kwargs):
         super().__init__(**kwargs)
 
+        self.spawn_id = 0
         self.combat_target = combat_target
         self.channel_spell = channel_spell
         self.channel_object = channel_object

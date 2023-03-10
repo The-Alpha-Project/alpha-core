@@ -32,7 +32,6 @@ class CreatureManager(UnitManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.script_handler = None
-        self.spawn_id = 0
         self.entry = 0
         self.guid = 0
         self.creature_template = None
