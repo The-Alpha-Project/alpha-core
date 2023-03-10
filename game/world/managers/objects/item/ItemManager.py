@@ -260,7 +260,7 @@ class ItemManager(ObjectManager):
             item_template.quality,
             item_template.flags,
             item_template.buy_price,
-            int(max(1, item_template.sell_price / item_template.buy_count)),  # Unitary price.
+            item_template.sell_price,
             item_template.inventory_type,
             item_template.allowable_class,
             item_template.allowable_race,
