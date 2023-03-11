@@ -31,7 +31,6 @@ class GameObjectManager(ObjectManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.script_handler = None
-        self.spawn_id = 0
         self.entry = 0
         self.guid = 0
         self.gobject_template = None

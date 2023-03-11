@@ -98,6 +98,7 @@ class UnitManager(ObjectManager):
                  **kwargs):
         super().__init__(**kwargs)
 
+        self.spawn_id = 0
         self.combat_target = combat_target
         self.channel_spell = channel_spell
         self.channel_object = channel_object
@@ -1089,7 +1090,7 @@ class UnitManager(ObjectManager):
 
         if is_rooted:
             # Stop movement if needed.
-            self.stop_movement()
+            self.movement_manager.stop()
 
         return is_rooted
 
@@ -1204,11 +1205,6 @@ class UnitManager(ObjectManager):
 
     def is_moving(self):
         return self.movement_manager.unit_is_moving()
-
-    def stop_movement(self):
-        # Stop only if unit has pending waypoints.
-        if self.is_moving():
-            self.movement_manager.stop()
 
     # Implemented by Creature/PlayerManager.
     def update_power_type(self):

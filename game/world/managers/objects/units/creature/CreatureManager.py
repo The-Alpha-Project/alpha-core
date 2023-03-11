@@ -32,7 +32,6 @@ class CreatureManager(UnitManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.script_handler = None
-        self.spawn_id = 0
         self.entry = 0
         self.guid = 0
         self.creature_template = None
@@ -595,7 +594,7 @@ class CreatureManager(UnitManager):
         if not_attacked_by_gameobject:
             if not self.combat_target:
                 # Make sure to first stop any movement right away.
-                self.stop_movement()
+                self.movement_manager.stop()
 
         return True
 

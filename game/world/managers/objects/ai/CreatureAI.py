@@ -84,8 +84,7 @@ class CreatureAI:
             if self.last_alert_time > 0:
                 return False
             # Stop creature movement if needed.
-            if self.creature.is_moving():
-                self.creature.stop_movement()
+            self.creature.movement_manager.stop()
             self.last_alert_time = 10  # Seconds.
 
         data = pack('<QI', self.creature.guid, ai_reaction)
@@ -296,7 +295,7 @@ class CreatureAI:
                     # Stop if ranged spell or movement interrupt flag.
                     if casting_spell.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT \
                             or cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
-                        self.creature.stop_movement()
+                        self.creature.movement_manager.stop()
 
                     # TODO: Run script if available.
                     # if script_id:
@@ -425,7 +424,6 @@ class CreatureAI:
     # for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
     def damage_taken(self, attacker, damage):
         self.ai_event_handler.on_damage_taken()
-        pass
 
     # Called at any heal cast/item used (call non implemented).
     def healed_by(self):

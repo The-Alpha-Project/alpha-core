@@ -133,7 +133,8 @@ class QuestManager(object):
             if not quest:
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
-            if quest_state == QuestState.QUEST_REWARD or QuestHelpers.is_instant_complete_quest(quest) and self.check_quest_requirements(quest):
+            if (quest_state == QuestState.QUEST_REWARD or QuestHelpers.is_instant_complete_quest(quest)) \
+                    and self.check_quest_requirements(quest):
                 new_dialog_status = QuestGiverStatus.QUEST_GIVER_REWARD
             if new_dialog_status > dialog_status:
                 dialog_status = new_dialog_status
@@ -775,10 +776,11 @@ class QuestManager(object):
         self.send_quest_query_response(quest)
 
         # Don't run scripts if not directly taken from NPC (either by sharing or .qadd command).
-        # Otherwise the quest_giver would be None and this leads to a crash.
+        # Otherwise, the quest_giver would be None and this leads to a crash.
         if quest_giver:
-            quest_giver.script_handler.handle_script(quest_giver, self.player_mgr,
-                                                     ScriptTypes.SCRIPT_TYPE_QUEST_START, quest_id)
+            quest_giver.script_handler.enqueue_script(source=quest_giver, target=self.player_mgr,
+                                                      script_type=ScriptTypes.SCRIPT_TYPE_QUEST_START,
+                                                      script_id=quest_id)
 
         # If player is in a group and quest has QUEST_FLAGS_PARTY_ACCEPT flag, let other members accept it too.
         if self.player_mgr.group_manager and not shared:
@@ -944,9 +946,11 @@ class QuestManager(object):
         if active_quest.quest.RewSpellCast:
             self.cast_reward_spell(quest_giver.guid, active_quest)
 
+        # Handle quest end script, if any.
         if quest_giver.script_handler:
-            quest_giver.script_handler.handle_script(quest_giver, self.player_mgr, ScriptTypes.SCRIPT_TYPE_QUEST_END,
-                                                     quest_id)
+            quest_giver.script_handler.enqueue_script(source=quest_giver, target=self.player_mgr,
+                                                      script_type=ScriptTypes.SCRIPT_TYPE_QUEST_END,
+                                                      script_id=quest_id)
 
         # Remove from active quests if needed.
         if quest.entry in self.active_quests:

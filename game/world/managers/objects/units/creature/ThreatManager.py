@@ -92,6 +92,11 @@ class ThreatManager:
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return
 
+        # TODO: Maybe MapManager get surrounding should always filter initialized units only.
+        if self.owner.get_type_id() == ObjectTypeIds.ID_UNIT and not self.owner.initialized:
+            self.owner.initialize_field_values()
+            Logger.warning(f'Forced lazy initialization on {self.owner.get_name()} id {self.owner.spawn_id}.')
+
         # Notify pet that owner has been attacked.
         active_pet = self.owner.pet_manager.get_active_controlled_pet()
         if active_pet:
@@ -181,16 +186,13 @@ class ThreatManager:
 
     # Creatures only.
     def _call_for_help(self, source, threat):
-        if self._call_for_help_range:
-            units = MapManager.get_surrounding_units_by_location(self.owner.location,
-                                                                 self.owner.map_id,
-                                                                 self.owner.instance_id,
-                                                                 self._call_for_help_range)[0].values()
-
-            helping_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
-
-            for unit in helping_units:
-                unit.threat_manager.add_threat(source, threat, is_call_for_help=True)
+        if not self._call_for_help_range:
+            return
+        units = MapManager.get_surrounding_units_by_location(self.owner.location, self.owner.map_id,
+                                                             self.owner.instance_id,
+                                                             self._call_for_help_range)[0].values()
+        helping_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
+        [unit.threat_manager.add_threat(source, threat, is_call_for_help=True) for unit in helping_units]
 
     def can_resolve_target(self):
         if not self.owner.is_alive:

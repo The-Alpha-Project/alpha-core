@@ -19,7 +19,7 @@ class CreatureSpawn:
         self.mana_percent = creature_spawn.mana_percent
         self.map_id = creature_spawn.map
         self.instance_id = instance_id
-        self.location = self._get_location()
+        self.location = self.get_default_location()
         self.addon = creature_spawn.addon
         self.creature_instance: Optional[CreatureManager] = None
         self.respawn_timer = 0
@@ -71,7 +71,7 @@ class CreatureSpawn:
                            f'Spawn id:{self.creature_spawn.spawn_id}. ')
             return False
 
-        creature_location = self._get_location()
+        creature_location = self.get_default_location()
         self.respawn_timer = 0
         self.respawn_time = randint(self.creature_spawn.spawntimesecsmin, self.creature_spawn.spawntimesecsmax)
         self.creature_instance = CreatureBuilder.create(creature_template_id, creature_location,
@@ -99,7 +99,7 @@ class CreatureSpawn:
         if self.respawn_timer >= self.respawn_time:
             self.spawn_creature()
 
-    def _get_location(self):
+    def get_default_location(self):
         return Vector(self.creature_spawn.position_x, self.creature_spawn.position_y,
                       self.creature_spawn.position_z, self.creature_spawn.orientation)
 

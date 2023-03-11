@@ -58,14 +58,16 @@ class ScriptManager:
 
     @staticmethod
     def handle_nearest_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
+        entry: Optional[int] = param1
         targets = ScriptManager._get_surrounding_units(caster, friends_only=False, include_players=False)
-        if targets:
-            # Sort by distance.
-            targets.sort(key=lambda unit_target: caster.location.distance(unit_target.location))
-            for t in targets:
-                if t.entry != param1:
-                    continue
-                return t
+        if not targets:
+            return None
+        # Sort by distance.
+        targets.sort(key=lambda unit_target: caster.location.distance(unit_target.location))
+        for target in targets:
+            if target.entry != entry:
+                continue
+            return target
         return None
 
     @staticmethod
@@ -73,12 +75,13 @@ class ScriptManager:
         search_range: Optional[float] = param1
         entry: Optional[int] = param2
         units = ScriptManager._get_surrounding_units(caster, search_range=search_range, include_players=False)
-        if units:
-            shuffle(units)
-            for unit in units:
-                if unit.entry != entry:
-                    continue
-                return unit
+        if not units:
+            return None
+        shuffle(units)
+        for unit in units:
+            if unit.entry != entry:
+                continue
+            return unit
         return None
 
     @staticmethod
@@ -96,26 +99,29 @@ class ScriptManager:
 
     @staticmethod
     def handle_nearest_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
+        entry: Optional[int] = param1
         go_objects = MapManager.get_surrounding_gameobjects(caster).values()
-        if go_objects:
-            # Sort by distance.
-            go_objects.sort(key=lambda go_target: caster.location.distance(go_target.location))
-            for t in go_objects:
-                if t.entry != param1:
-                    continue
-                return t
+        if not go_objects:
+            return None
+        # Sort by distance.
+        go_objects.sort(key=lambda go_target: caster.location.distance(go_target.location))
+        for target in go_objects:
+            if target.entry != entry:
+                continue
+            return target
         return None
 
     @staticmethod
     def handle_random_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param2
         go_objects = MapManager.get_surrounding_gameobjects(caster).values()
-        if go_objects:
-            shuffle(go_objects)
-            for go_object in go_objects:
-                if go_object.entry != entry:
-                    continue
-                return go_object
+        if not go_objects:
+            return None
+        shuffle(go_objects)
+        for go_object in go_objects:
+            if go_object.entry != entry:
+                continue
+            return go_object
         return None
 
     @staticmethod
@@ -282,14 +288,13 @@ class ScriptManager:
 
     @staticmethod
     def _get_search_range(search_range=None, spell_template=None):
-        if not search_range:
-            if not spell_template:
-                return 30.0
-            range_index = spell_template.RangeIndex
-            range_entry = DbcDatabaseManager.spell_range_get_by_id(range_index)
-            return range_entry.RangeMax
-        else:
+        if search_range:
             return search_range
+        if not spell_template:
+            return 30.0
+        range_index = spell_template.RangeIndex
+        range_entry = DbcDatabaseManager.spell_range_get_by_id(range_index)
+        return range_entry.RangeMax
 
     @staticmethod
     def _validate_is_unit(world_object):

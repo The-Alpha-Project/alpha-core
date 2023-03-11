@@ -81,7 +81,7 @@ class Cell:
         with self.cell_lock:
             # Try to stop movement from all creatures in this cell.
             for guid, creature in list(self.creatures.items()):
-                creature.stop_movement()
+                creature.movement_manager.stop()
 
     def update_gameobjects(self, now):
         with self.cell_lock:
