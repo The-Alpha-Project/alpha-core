@@ -605,17 +605,20 @@ class ScriptHandler:
         # source = Creature
         # datalong = eSetHomePositionOptions
         # x/y/z/o = coordinates
+        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
+
+        if not command.source.spawn_id:
+            Logger.warning(f'ScriptHandler: No spawn id, aborting {command.get_info()}.')
 
         # All other SetHomePositionOptions are not valid for 0.5.3.
-        if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            if command.datalong == SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
-                if command.source.spawn_id:
-                    spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(command.source.spawn_id)
-                    command.source.spawn_position = Vector(spawn.position_x, spawn.position_y,
-                                                           spawn.position_y, spawn.orientation)
-                    # TODO: actually move the creature to the spawn position.
-        else:
-            Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
+        if command.datalong != SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
+            return
+
+        spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(command.source.spawn_id)
+        if not spawn:
+            Logger.warning(f'ScriptHandler: Unable to locate spawn, aborting {command.get_info()}.')
+        command.source.spawn_position = spawn.get_default_location()
 
     @staticmethod
     def handle_script_command_turn_to(command):
@@ -623,6 +626,7 @@ class ScriptHandler:
         # target = WorldObject
         # datalong = eTurnToFacingOptions
         if not command.source:
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}).')
             return
 
         if not command.target:
@@ -680,10 +684,10 @@ class ScriptHandler:
     def handle_script_command_set_melee_attack(command):
         # source = Creature
         # datalong = (bool) 0 = off, 1 = on
-        if command.source and command.source.is_alive:
-            command.source.melee_disabled = not command.datalong
-        else:
-            Logger.warning(f'ScriptHandler: Invalid source aborting {command.get_info()}.')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
+            return
+        command.source.melee_disabled = not command.datalong
 
     @staticmethod
     def handle_script_command_set_combat_movement(command):
