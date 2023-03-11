@@ -110,8 +110,8 @@ class ScriptHandler:
         # source = Map
         # datalong1-4 = event_script id
         # dataint1-4 = chance (total cant be above 100)
-        scripts = [datalong for datalong in ScriptHelpers.get_filtered_datalong(command) if datalong]
-        weights = [dataint for dataint in ScriptHelpers.get_filtered_dataint(command) if dataint]
+        scripts = [datalong for datalong in ScriptHelpers.get_filtered_datalong(command)]
+        weights = [dataint for dataint in ScriptHelpers.get_filtered_dataint(command)]
         script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
         command.source.script_handler.enqueue_script(source=command.source, target=command.target,
                                                      script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
