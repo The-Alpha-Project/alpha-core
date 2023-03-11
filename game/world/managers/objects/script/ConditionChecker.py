@@ -610,7 +610,7 @@ class ConditionChecker:
         # Condition_value2 = db_guid (optional).
         # Condition_value3 = db_guid (optional).
         # Condition_value4 = db_guid (optional).
-        if not source:
+        if not source or source.get_type_id() != ObjectTypeIds.ID_UNIT:
             return False
 
         if condition.value1 == source.spawn_id:

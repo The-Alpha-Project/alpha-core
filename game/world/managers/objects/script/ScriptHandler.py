@@ -605,7 +605,7 @@ class ScriptHandler:
         # source = Creature
         # datalong = eSetHomePositionOptions
         # x/y/z/o = coordinates
-        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not command.source or not command.source.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
 
         if not command.source.spawn_id:
