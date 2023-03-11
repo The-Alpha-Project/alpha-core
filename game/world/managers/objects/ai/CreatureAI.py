@@ -17,7 +17,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, \
     SpellEffects
-from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates
+from utils.constants.UnitCodes import UnitFlags, UnitStates, AIReactionStates, CreatureReactStates
 
 if TYPE_CHECKING:
     from game.world.managers.objects.units.UnitManager import UnitManager
@@ -400,7 +400,7 @@ class CreatureAI:
         return self.creature.has_melee()
 
     def set_melee_attack(self, enabled):
-        pass
+        self.creature.melee_disabled = not enabled
 
     def set_combat_movement(self, enabled):
         pass
@@ -436,3 +436,44 @@ class CreatureAI:
     # Called when a unit moves within visibility distance.
     def move_in_line_of_sight(self, unit: Optional[UnitManager] = None):
         pass
+
+    def is_ready_for_new_attack(self):
+        return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0 \
+               and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
+               and not self.creature.in_combat and not self.creature.is_evading \
+               and not self.creature.unit_state & UnitStates.STUNNED \
+               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
+
+    def get_proximity_target(self, unit=None):
+        detection_range = self.creature.creature_template.detection_range
+        source_units = list(self.creature.known_players.values()) if not unit else [unit]
+        hostile_units = []
+        for unit in source_units:
+            if unit.beast_master:
+                continue
+            if not self.creature.is_hostile_to(unit):
+                continue
+            hostile_units.append(unit)
+            active_pet = unit.pet_manager.get_active_controlled_pet()
+            if active_pet:
+                hostile_units.append(active_pet.creature)
+        for victim in hostile_units:
+            victim_distance = victim.location.distance(self.creature.location)
+            if victim_distance > detection_range:
+                continue
+            # Sanctuary.
+            if victim.unit_state & UnitStates.SANCTUARY:
+                continue
+            # Not while flying.
+            if victim.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+                continue
+            # Check for stealth/invisibility.
+            can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
+            if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER and not victim.beast_master:
+                self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
+            if not can_detect_victim:
+                continue
+            # Basic LoS check.
+            if not MapManager.los_check(victim.map_id, self.creature.get_ray_position(), victim.get_ray_position()):
+                continue
+            return victim

@@ -864,6 +864,28 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Movement scripts.
+
+    @staticmethod
+    def creature_movement_scripts_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_creature_movement_scripts).all()
+        world_db_session.close()
+        return res
+
+    class CreatureMovementScriptHolder:
+        SCRIPTS: dict[int, list[t_creature_movement_scripts]] = {}
+
+        @staticmethod
+        def load_creature_movement_script(movement_script):
+            if movement_script.id not in WorldDatabaseManager.CreatureMovementScriptHolder.SCRIPTS:
+                WorldDatabaseManager.CreatureMovementScriptHolder.SCRIPTS[movement_script.id] = []
+            WorldDatabaseManager.CreatureMovementScriptHolder.SCRIPTS[movement_script.id].append(movement_script)
+
+        @staticmethod
+        def creature_movement_scripts_get_by_id(script_id):
+            return WorldDatabaseManager.CreatureMovementScriptHolder.SCRIPTS.get(script_id, [])
+
     # Creature AI scripts.
 
     @staticmethod
