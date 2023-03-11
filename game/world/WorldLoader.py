@@ -4,8 +4,6 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.gameobjects.GameObjectSpawn import GameObjectSpawn
-from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
@@ -36,6 +34,7 @@ class WorldLoader:
 
         #  Scripts.
         WorldLoader.load_generic_scripts()
+        WorldLoader.load_creature_movement_scripts()
         WorldLoader.load_creature_ai_events()
         WorldLoader.load_creature_ai_scripts()
 
@@ -100,6 +99,19 @@ class WorldLoader:
             WorldDatabaseManager.CreatureAiScriptHolder.load_creature_ai_script(creature_ai_script)
             count += 1
             Logger.progress('Loading creature ai scripts...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_movement_scripts():
+        creature_movement_scripts = WorldDatabaseManager.creature_movement_scripts_get_all()
+        length = len(creature_movement_scripts)
+        count = 0
+
+        for creature_movement_script in creature_movement_scripts:
+            WorldDatabaseManager.CreatureMovementScriptHolder.load_creature_movement_script(creature_movement_script)
+            count += 1
+            Logger.progress('Loading creature movement scripts...', count, length)
 
         return length
 

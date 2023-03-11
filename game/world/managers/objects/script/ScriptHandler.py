@@ -1043,12 +1043,16 @@ class ScriptHandler:
     def handle_script_type_ai(script_id):
         return WorldDatabaseManager.CreatureAiScriptHolder.creature_ai_scripts_get_by_id(script_id)
 
+    @staticmethod
+    def handle_script_type_creature_movement(script_id):
+        return WorldDatabaseManager.CreatureMovementScriptHolder.creature_movement_scripts_get_by_id(script_id)
+
 
 SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_AI: ScriptHandler.handle_script_type_ai,
     ScriptTypes.SCRIPT_TYPE_QUEST_START: ScriptHandler.handle_script_type_quest_start,
     ScriptTypes.SCRIPT_TYPE_QUEST_END: ScriptHandler.handle_script_type_quest_end,
-    # ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
+    ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
     # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
     # ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
     ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,

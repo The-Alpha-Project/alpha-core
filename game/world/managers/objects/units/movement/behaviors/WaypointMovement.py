@@ -1,6 +1,6 @@
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from utils.constants.MiscCodes import MoveType
+from utils.constants.MiscCodes import MoveType, ScriptTypes
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.movement.helpers.MovementWaypoint import MovementWaypoint
@@ -44,7 +44,9 @@ class WaypointMovement(BaseMovement):
         if waypoint_completed:
             current_wp = self._get_waypoint()
             if current_wp.script_id():
-                Logger.warning(f'{self.unit.get_name()}, missing movement script id {current_wp.script_id()}.')
+                print(f'Move script {current_wp.script_id()}')
+                self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
+                                                        current_wp.script_id(), )
             # If this is a default behavior, make it cyclic.
             if self.is_default:
                 self._waypoint_push_back()

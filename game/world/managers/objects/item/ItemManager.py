@@ -9,7 +9,6 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.EnchantmentHolder import EnchantmentHolder
 from game.world.managers.objects.item.Stats import DamageStat, Stat, SpellStat
-from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from game.world.managers.objects.units.player.EnchantmentManager import MAX_ENCHANTMENTS
 from network.packet.PacketWriter import PacketWriter, OpCode
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager

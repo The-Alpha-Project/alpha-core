@@ -23,7 +23,7 @@ class ConditionChecker:
     @staticmethod
     def _check_condition(condition, source, target):
         if condition.type in CONDITIONS:
-            return CONDITIONS[int(condition.type)](condition, source, target)
+            return CONDITIONS[condition.type](condition, source, target)
         else:
             Logger.warning(f'ConditionChecker: Condition {condition.type} not implemented')
             return False
@@ -53,14 +53,14 @@ class ConditionChecker:
     # Returns True if any condition is met.
     def check_condition_or(condition, source, target):
         condition_values = ConditionChecker.get_filtered_condition_values(condition)
-        return any([ConditionChecker._check_condition(condition_value, source, target)
+        return any([ConditionChecker.check_condition(condition_value, source, target)
                     for condition_value in condition_values])
     
     @staticmethod
     # Returns True if all conditions are met.
     def check_condition_and(condition, source, target):
         condition_values = ConditionChecker.get_filtered_condition_values(condition)
-        return all([ConditionChecker._check_condition(condition_value, source, target)
+        return all([ConditionChecker.check_condition(condition_value, source, target)
                     for condition_value in condition_values])
 
     @staticmethod
