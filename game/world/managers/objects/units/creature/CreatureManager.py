@@ -31,10 +31,10 @@ from utils.constants.UpdateFields import ObjectFields, UnitFields
 class CreatureManager(UnitManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.spawn_id = 0
         self.script_handler = None
         self.entry = 0
         self.guid = 0
-        self.spawn_id = 0
         self.creature_template = None
         self.location = None
         self.spawn_position = None
