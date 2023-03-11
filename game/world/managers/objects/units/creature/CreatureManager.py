@@ -594,7 +594,7 @@ class CreatureManager(UnitManager):
         if not_attacked_by_gameobject:
             if not self.combat_target:
                 # Make sure to first stop any movement right away.
-                self.stop_movement()
+                self.movement_manager.stop()
 
         return True
 

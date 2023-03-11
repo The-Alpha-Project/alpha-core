@@ -25,7 +25,7 @@ class ListInventoryHandler(object):
             if vendor and vendor.location.distance(player_mgr.location) < Formulas.Distances.MAX_SHOP_DISTANCE:
                 # There is no way to known when players close dialogs, give it 3 minute grace.
                 # From VMaNGOS NPC_MOVEMENT_PAUSE_TIME.
-                vendor.movement_manager.try_pause_movement(duration_seconds=180)
+                vendor.movement_manager.try_pause_ooc_movement(duration_seconds=180)
                 # If vendor is a quest giver and player has an active quest involving this NPC, send quest window
                 # instead of vendor window.
                 if vendor.is_quest_giver():

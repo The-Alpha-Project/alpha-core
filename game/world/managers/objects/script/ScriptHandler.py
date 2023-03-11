@@ -25,16 +25,13 @@ from utils.Logger import Logger
 from utils.ConfigManager import config
 
 
-FLEE_TEXT = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
-
-
 class ScriptHandler:
+
     def __init__(self, world_object):
         self.world_object = world_object
         self.script_queue = []
         self.ooc_ignore = set()
         self.ooc_event = None
-        self.last_hp_event_id = -1
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0):
         # Grab start script command.
@@ -61,7 +58,6 @@ class ScriptHandler:
     def reset(self):
         self.script_queue.clear()
         self.ooc_event = None
-        self.last_hp_event_id = -1
 
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
@@ -119,8 +115,8 @@ class ScriptHandler:
         weights = [dataint for dataint in ScriptHelpers.get_filtered_dataint(command) if dataint]
         script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
         command.source.script_handler.enqueue_script(source=command.source, target=command.target,
-                                                    script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                    script_id=script_id)
+                                                     script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                                     script_id=script_id)
 
     @staticmethod
     def handle_script_command_talk(command):
@@ -129,6 +125,7 @@ class ScriptHandler:
         # datalong = chat_type (see enum ChatType)
         # dataint = broadcast_text id. dataint2-4 optional for random selected text.
         if not command.source:
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
             return
 
         texts = ScriptHelpers.get_filtered_dataint(command)
@@ -136,7 +133,7 @@ class ScriptHandler:
             text_id = random.choice(texts)
             broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)
         else:
-            Logger.warning(f'ScriptHandler: Broadcast messages for {command.script_id} not found.')
+            Logger.warning(f'ScriptHandler: Broadcast messages for {command.get_info()}, not found.')
             return
 
         if command.source.gender == Genders.GENDER_MALE and broadcast_message.male_text:
@@ -176,6 +173,7 @@ class ScriptHandler:
         # datalong1-4 = emote_id
         # dataint = (bool) is_targeted
         if not command.source:
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
             return
         emotes = ScriptHelpers.get_filtered_datalong(command)
         if emotes:
@@ -252,8 +250,10 @@ class ScriptHandler:
         # source = Unit
         # datalong = (bool) with_delayed
         # datalong2 = spell_id (optional)
-        if command.datalong2 > 0:
-            command.source.spell_manager.remove_cast_by_id(command.datalong2, interrupted=True)
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
+            return
+        command.source.spell_manager.remove_cast_by_id(command.datalong2, interrupted=True)
 
     @staticmethod
     def handle_script_command_teleport_to(command):
@@ -263,6 +263,7 @@ class ScriptHandler:
         # x/y/z/o = coordinates
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
+            return
         command.source.teleport(command.datalong, Vector(command.x, command.y, command.z, command.o), is_instant=True)
 
     @staticmethod
@@ -328,11 +329,13 @@ class ScriptHandler:
                                                            script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
                                                            script_id=command.dataint2)
         # Attack target.
-        if command.dataint3 > 0:  # Can be -1.
-            from game.world.managers.objects.script.ScriptManager import ScriptManager
-            attack_target = ScriptManager.get_target_by_type(command.source, command.target, command.dataint3)
-            if attack_target and attack_target.is_alive:
-                creature_manager.attack(attack_target)
+        if command.dataint3 <= 0:  # Can be -1.
+            return
+
+        from game.world.managers.objects.script.ScriptManager import ScriptManager
+        attack_target = ScriptManager.get_target_by_type(command.source, command.target, command.dataint3)
+        if attack_target and attack_target.is_alive:
+            creature_manager.attack(attack_target)
 
         # TODO: dataint = flags. Needs an enum and handling.
         # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
@@ -713,17 +716,18 @@ class ScriptHandler:
     def handle_script_command_flee(command):
         # source = Creature
         # datalong = seek_assistance (bool) 0 = off, 1 = on
-        if command.source and command.source.is_alive:
-            command.source.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
-            ChatManager.send_monster_emote_message(command.source, command.source.guid, FLEE_TEXT.male_text,
-                                                   ChatMsgs.CHAT_MSG_MONSTER_EMOTE, Languages.LANG_UNIVERSAL,
-                                                   ChatHandler.get_range_by_type(ChatMsgs.CHAT_MSG_MONSTER_EMOTE))
+        if not command.source or not command.source.is_alive:
+            Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
+            return
 
-            if command.source.spell_manager:
-                command.source.spell_manager.remove_casts(remove_active=False)
-            command.source.movement_manager.move_fear(7)  # Flee for 7 seconds.
-        else:
-            Logger.warning('ScriptHandler: No source or source is dead, aborting SCRIPT_COMMAND_FLEE')
+        flee_text = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
+        command.source.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
+        ChatManager.send_monster_emote_message(command.source, command.source.guid, flee_text.male_text,
+                                               ChatMsgs.CHAT_MSG_MONSTER_EMOTE, Languages.LANG_UNIVERSAL,
+                                               ChatHandler.get_range_by_type(ChatMsgs.CHAT_MSG_MONSTER_EMOTE))
+        if command.source.spell_manager:
+            command.source.spell_manager.remove_casts(remove_active=False)
+        command.source.movement_manager.move_fear(7)  # Flee for 7 seconds.
 
     @staticmethod
     def handle_script_command_deal_damage(command):
@@ -731,29 +735,33 @@ class ScriptHandler:
         # target = Unit
         # datalong = damage
         # datalong2 = (bool) is_percent
-        if command.source and command.target:
-            if command.datalong2 == 1:
-                # Damage is a percentage of the target's health.
-                damage_to_deal = int(command.target.health * (command.datalong / 100))
-            else:
-                damage_to_deal = command.datalong
+        if not command.source or not command.target:
+            Logger.warning(f'ScriptHandler: No source or no target, aborting {command.get_info()}')
+            return
 
-            if damage_to_deal > 0:
-                attacker = command.source if command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else None
-                damage_info = DamageInfoHolder(attacker=attacker, target=command.target, total_damage=damage_to_deal,
-                                               damage_school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_NORMAL)
-                command.source.deal_damage(command.target, damage_info)
-            else:
-                Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to deal 0 damage')
+        if command.datalong2 == 1:
+            # Damage is a percentage of the target's health.
+            damage_to_deal = int(command.target.health * (command.datalong / 100))
         else:
-            Logger.warning('ScriptHandler: SCRIPT_COMMAND_DEAL_DAMAGE attempted to run with no source or target')
+            damage_to_deal = command.datalong
+
+        if damage_to_deal > 0:
+            attacker = command.source if command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else None
+            damage_info = DamageInfoHolder(attacker=attacker, target=command.target, total_damage=damage_to_deal,
+                                           damage_school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_NORMAL)
+            command.source.deal_damage(command.target, damage_info)
+        else:
+            Logger.warning(f'ScriptHandler: Attempted to deal 0 damage, aborting {command.get_info()}')
+
 
     @staticmethod
     def handle_script_command_set_sheath(command):
         # source = Unit
         # datalong = see enum SheathState
-        if command.source:
-            command.source.set_weapon_mode(command.datalong)
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
+            return
+        command.source.set_weapon_mode(command.datalong)
 
     @staticmethod
     def handle_script_command_invincibility(command):
@@ -761,6 +769,7 @@ class ScriptHandler:
         # datalong = health
         # datalong2 = (bool) is_percent
         if not command.source:
+            Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
             return
         invincibility_hp_lvl = command.source.max_health * command.datalong / 100 if command.datalong2 else command.datalong
         command.source.invincibility_hp_level = invincibility_hp_lvl
@@ -932,13 +941,13 @@ class ScriptHandler:
     def handle_script_command_add_threat(command):
         # source = Creature
         # target = Unit
-        if command.source and command.target:
-            if command.source.is_alive and command.source.in_combat:
-                command.source.threat_manager.add_threat(command.target)
-            else:
-                Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: source is not in combat')
+        if not command.source or not command.target:
+            Logger.warning(f'ScriptHandler: No source or target, aborting {command.get_info()}')
+            return
+        if command.source.is_alive and command.source.in_combat:
+            command.source.threat_manager.add_threat(command.target)
         else:
-            Logger.warning('ScriptHandler: SCRIPT_COMMAND_ADD_THREAT: invalid target')
+            Logger.warning(f'ScriptHandler: Source is not in combat, aborting {command.get_info()}')
 
     @staticmethod
     def handle_script_command_summon_object(command):

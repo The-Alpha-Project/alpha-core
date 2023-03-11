@@ -1090,7 +1090,7 @@ class UnitManager(ObjectManager):
 
         if is_rooted:
             # Stop movement if needed.
-            self.stop_movement()
+            self.movement_manager.stop()
 
         return is_rooted
 
@@ -1205,11 +1205,6 @@ class UnitManager(ObjectManager):
 
     def is_moving(self):
         return self.movement_manager.unit_is_moving()
-
-    def stop_movement(self):
-        # Stop only if unit has pending waypoints.
-        if self.is_moving():
-            self.movement_manager.stop()
 
     # Implemented by Creature/PlayerManager.
     def update_power_type(self):

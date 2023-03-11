@@ -1,6 +1,5 @@
 from typing import Optional
 
-from database.dbc.DbcModels import SpellRange
 from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -73,6 +72,7 @@ class MovementManager:
         self.stop()
 
     def reset(self, clean_behaviors=False):
+        self.pause_out_of_combat = 0
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
         spline = self._get_current_spline()
         if spline:
@@ -83,7 +83,7 @@ class MovementManager:
             self._remove_invalid_expired_behaviors()
 
     def update(self, now, elapsed):
-        is_resume = self._handle_out_of_combat_pause(elapsed)
+        is_resume = self._handle_ooc_pause(elapsed)
 
         if not self._can_move():
             return
@@ -111,7 +111,7 @@ class MovementManager:
         spline = self._get_current_spline()
         return spline.get_waypoint_location() if spline else self.unit.location
 
-    def try_pause_movement(self, duration_seconds):
+    def try_pause_ooc_movement(self, duration_seconds):
         current_behavior = self._get_current_behavior()
         if not self.unit.in_combat and current_behavior:
             self.pause_out_of_combat = duration_seconds
@@ -147,7 +147,8 @@ class MovementManager:
 
     # Instant.
     def stop(self):
-        self.spline_callback(SplineBuilder.build_stop_spline(self.unit))
+        if self.unit.is_moving():
+            self.spline_callback(SplineBuilder.build_stop_spline(self.unit))
 
     # Instant.
     def face_target(self, target):
@@ -179,10 +180,10 @@ class MovementManager:
         spline = self._get_current_spline()
         return spline.try_build_movement_packet() if spline else None
 
-    def _handle_out_of_combat_pause(self, elapsed):
+    def _handle_ooc_pause(self, elapsed):
         if self.pause_out_of_combat:
             self.pause_out_of_combat = max(0, self.pause_out_of_combat - elapsed)
-            if not self.pause_out_of_combat:
+            if not self.pause_out_of_combat or self.unit.in_combat:
                 return True
         return False
 
@@ -196,7 +197,7 @@ class MovementManager:
         return movements_removed
 
     def _can_move(self):
-        if self.pause_out_of_combat and not self.unit.in_combat:
+        if self.pause_out_of_combat:
             return False
         if not self.movement_behaviors:
             return False
