@@ -605,11 +605,13 @@ class ScriptHandler:
         # source = Creature
         # datalong = eSetHomePositionOptions
         # x/y/z/o = coordinates
-        if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if not command.source or command.source.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
+            return
 
         if not command.source.spawn_id:
             Logger.warning(f'ScriptHandler: No spawn id, aborting {command.get_info()}.')
+            return
 
         # All other SetHomePositionOptions are not valid for 0.5.3.
         if command.datalong != SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
@@ -618,6 +620,8 @@ class ScriptHandler:
         spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(command.source.spawn_id)
         if not spawn:
             Logger.warning(f'ScriptHandler: Unable to locate spawn, aborting {command.get_info()}.')
+            return
+
         command.source.spawn_position = spawn.get_default_location()
 
     @staticmethod
