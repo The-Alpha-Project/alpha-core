@@ -726,7 +726,7 @@ class ScriptHandler:
                                                ChatHandler.get_range_by_type(ChatMsgs.CHAT_MSG_MONSTER_EMOTE))
         if command.source.spell_manager:
             command.source.spell_manager.remove_casts(remove_active=False)
-        command.source.movement_manager.move_fear(7)  # Flee for 7 seconds.
+        command.source.movement_manager.move_fear(duration_seconds=7)  # Flee for 7 seconds.
 
     @staticmethod
     def handle_script_command_deal_damage(command):
