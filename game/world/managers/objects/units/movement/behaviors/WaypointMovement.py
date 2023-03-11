@@ -44,7 +44,6 @@ class WaypointMovement(BaseMovement):
         if waypoint_completed:
             current_wp = self._get_waypoint()
             if current_wp.script_id():
-                print(f'Move script {current_wp.script_id()}')
                 self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
                                                         current_wp.script_id(), )
             # If this is a default behavior, make it cyclic.
