@@ -18,13 +18,16 @@ class EventLock:
 class AIEventHandler:
     def __init__(self, creature):
         self.creature = creature
-        self._events = {}
+        self._events = None
         self.event_locks: dict[int: EventLock] = {}
 
     def initialize(self):
-        self._events = {
-            event.event_type: event for event in
-            WorldDatabaseManager.CreatureAiEventHolder.creature_ai_events_get_by_creature_entry(self.creature.entry)}
+        _events = \
+            {
+                event.event_type: event for event in
+                WorldDatabaseManager.CreatureAiEventHolder.creature_ai_events_get_by_creature_entry(self.creature.entry)
+            }
+        self._events = _events if _events else {}
 
     def on_spawn(self):
         event = self._events.get(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)

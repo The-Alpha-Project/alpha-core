@@ -5,7 +5,7 @@ from typing import Optional
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
+from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates, UnitStates, UnitFlags
 
@@ -91,11 +91,6 @@ class ThreatManager:
 
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return
-
-        # TODO: Maybe MapManager get surrounding should always filter initialized units only.
-        if self.owner.get_type_id() == ObjectTypeIds.ID_UNIT and not self.owner.initialized:
-            self.owner.initialize_field_values()
-            Logger.warning(f'Forced lazy initialization on {self.owner.get_name()} id {self.owner.spawn_id}.')
 
         # Notify pet that owner has been attacked.
         active_pet = self.owner.pet_manager.get_active_controlled_pet()

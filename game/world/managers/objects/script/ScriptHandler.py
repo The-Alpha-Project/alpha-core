@@ -687,7 +687,7 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
             return
-        command.source.melee_disabled = not command.datalong
+        command.source.object_ai.set_melee_attack(command.datalong > 0)
 
     @staticmethod
     def handle_script_command_set_combat_movement(command):
