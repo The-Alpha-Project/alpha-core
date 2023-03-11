@@ -3,7 +3,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from utils.constants.ConditionCodes import ConditionType
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds, QuestState
+from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
 
@@ -31,11 +31,19 @@ class ConditionChecker:
     @staticmethod
     def is_player(target):
         return target and target.get_type_id() == ObjectTypeIds.ID_PLAYER
-    
+
+    @staticmethod
+    def is_creature(target):
+        return target and target.get_type_id() == ObjectTypeIds.ID_UNIT
+
     @staticmethod
     def is_unit(target):
-        return target and target.get_type_id() == ObjectTypeIds.ID_UNIT
-    
+        return target and target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+
+    @staticmethod
+    def is_gameobject(target):
+        return target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+
     @staticmethod
     def time_in_range(start, end, current):
         return start <= current <= end
@@ -48,14 +56,14 @@ class ConditionChecker:
     # Deprecated but still used in some scripts.
     def check_condition_not(condition, source, target):
         return not ConditionChecker.check_condition(condition.value1, source, target)
-    
+
     @staticmethod
     # Returns True if any condition is met.
     def check_condition_or(condition, source, target):
         condition_values = ConditionChecker.get_filtered_condition_values(condition)
         return any([ConditionChecker.check_condition(condition_value, source, target)
                     for condition_value in condition_values])
-    
+
     @staticmethod
     # Returns True if all conditions are met.
     def check_condition_and(condition, source, target):
@@ -66,14 +74,14 @@ class ConditionChecker:
     @staticmethod
     def check_condition_none(condition, source, target):
         return True
-    
+
     @staticmethod
     def check_condition_aura(condition, source, target):
         # Requires Unit target.
         # Returns True if target has aura.
         # Spell_id = condition_value1.
         # Effect_index = condition_value2.
-        if not target or not ConditionChecker.is_unit(target):
+        if not ConditionChecker.is_unit(target):
             return False
         # TODO: Effect index.
         return target.aura_manager.has_aura_by_spell_id(condition.value1)
@@ -84,7 +92,7 @@ class ConditionChecker:
         # Returns True if target has item.
         # Item_id = condition_value1.
         # Count = condition_value2.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         return target.inventory.get_item_count(condition.value1) > condition.value2
 
@@ -93,7 +101,7 @@ class ConditionChecker:
         # Requires Player target.
         # Returns True if target has item equipped.
         # Item_id = condition_value1.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
 
         for item in list(target.inventory.get_backpack().sorted_slots.values()):
@@ -101,7 +109,7 @@ class ConditionChecker:
                 return True
 
         return False
-    
+
     @staticmethod
     def check_condition_areaid(condition, source, target):
         # Requires WorldObject target or source.
@@ -120,13 +128,13 @@ class ConditionChecker:
         # Rank = condition_value2.
         # Not used in 0.5.3.
         return False
-    
+
     @staticmethod
     def check_condition_team(condition, source, target):
         # Requires Player target.
         # Returns True if target is on team.
         # Team = condition_value1 (469 = alliance, 67 = horde).
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         return target.team == condition.value1
 
@@ -136,7 +144,7 @@ class ConditionChecker:
         # Returns True if target has skill >= value.
         # Skill_id = condition_value1.
         # Value = condition_value2.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         return target.skill_manager.get_total_skill_value(condition.value1) >= condition.value2
 
@@ -145,7 +153,7 @@ class ConditionChecker:
         # Requires Player target.
         # Returns True if target has completed quest.
         # Quest_id = condition_value1.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         return target.quest_manager.get_quest_state(condition.value1) == QuestState.QUEST_REWARD
 
@@ -155,7 +163,7 @@ class ConditionChecker:
         # Returns True if target has taken quest.
         # Quest_id = condition_value1.
         # Condition_value2: 0 any state, 1 incomplete, 2 complete.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         quest_state = target.quest_manager.get_quest_state(condition.value1)
         if condition.value2 == 0:
@@ -166,14 +174,14 @@ class ConditionChecker:
             return quest_state == QuestState.QUEST_REWARD
 
         return False
-    
+
     @staticmethod
     def check_condition_ad_commission_aura(condition, source, target):
         # Requires Player target.
         # Returns True if player has Argent Dawn Commission aura.
         # Unused in 0.5.3.
         return False
-    
+
     @staticmethod
     def check_condition_saved_variable(condition, source, target):
         # Checks a global saved variable.
@@ -181,21 +189,21 @@ class ConditionChecker:
         # Value = condition_value2.
         # TODO: implement if the need ever arises. We don't have any saved variables yet.
         return False
-    
+
     @staticmethod
     def check_condition_active_game_event(condition, source, target):
         # Checks if a game event is active.
         # Event_id = condition_value1.
         # TODO: implement if needed.
         return False
-    
+
     @staticmethod
     def check_condition_cant_path_to_victim(condition, source, target):
         # Requires Unit source.
         # Returns True if source cannot path to target.
-        if not target or not ConditionChecker.is_unit(target):
+        if not ConditionChecker.is_unit(target):
             return False
-        if not source or not ConditionChecker.is_unit(source):
+        if not ConditionChecker.is_unit(source):
             return False
 
         return not MapManager.can_reach_object(source, target)
@@ -205,7 +213,7 @@ class ConditionChecker:
         # Requires Player target.
         # Condition_value1 = race mask.
         # Condition_value2 = class mask.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         return target.race_mask & condition.value1 and target.class_mask & condition.value2
 
@@ -214,7 +222,7 @@ class ConditionChecker:
         # Requires Unit target.
         # Value = condition_value1.
         # Condition_value2: 0 any state, 1 equal or higher, 2 equal or lower.
-        if not target or not ConditionChecker.is_unit(target):
+        if not ConditionChecker.is_unit(target):
             return False
 
         if condition.value2 == 0:
@@ -225,7 +233,7 @@ class ConditionChecker:
             return target.level <= condition.value1
 
         return False
-    
+
     @staticmethod
     def check_condition_source_entry(condition, source, target):
         # Requires WorldObject source.
@@ -234,8 +242,8 @@ class ConditionChecker:
         # Condition_value2 = entry 2.
         # Condition_value3 = entry 3.
         # Condition_value4 = entry 4.
-        if not source or not source.entry:
-            return
+        if not source:
+            return False
 
         return source.entry == condition.value1 or source.entry == condition.value2 \
             or source.entry == condition.value3 or source.entry == condition.value4
@@ -246,16 +254,16 @@ class ConditionChecker:
         # Checks if the player has learned the spell.
         # Condition_value1 = spell id.
         # Condition_value2 = 0 has spell, 1 hasn't spell.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
 
         if condition.value2 == 0:
             return condition.value1 in target.spell_manager.spells
         elif condition.value2 == 1:
             return condition.value1 not in target.spell_manager.spells
-            
+
         return False
-    
+
     @staticmethod
     def check_condition_instance_script(condition, source, target):
         # Requires Map.
@@ -263,13 +271,13 @@ class ConditionChecker:
         # Condition_value2 = instance condition id.
         # TODO: implement if needed.
         return False
-    
+
     @staticmethod
     def check_condition_quest_available(condition, source, target):
         # Requires Player target.
         # Checks if the player can take the quest.
         # Condition_value1 = quest id.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(condition.value1)
         return target.quest_manager.check_quest_requirements(quest) \
@@ -284,7 +292,7 @@ class ConditionChecker:
         # Condition_value3 = dead.
         # Condition_value4 = not self.
         return False
-    
+
     @staticmethod
     def check_condition_nearby_gameobject(condition, source, target):
         # Requires WorldObject target.
@@ -292,23 +300,23 @@ class ConditionChecker:
         # Condition_value1 = gameobject entry.
         # Condition_value2 = distance.
         return False
-    
+
     @staticmethod
     def check_condition_quest_none(condition, source, target):
         # Requires Player target.
         # Checks if the player has not taken or completed the quest.
         # Condition_value1 = quest id.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         return condition.value1 not in target.quest_manager.completed_quests
-    
+
     @staticmethod
     def check_condition_item_with_bank(condition, source, target):
         # Requires Player target.
         # Checks if the player has the item in inventory or bank.
         # Condition_value1 = item id.
         # Condition_value2 = count.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         return target.inventory_manager.get_item_count(condition.value1) >= condition.value2
 
@@ -319,35 +327,35 @@ class ConditionChecker:
         # Condition_value2 = 0 equal, 1 equal and higher, 2 equal and lower.
         # Not used in 0.5.3.
         return False
-    
+
     @staticmethod
     def check_condition_escort(condition, source, target):
         # Requirements: None, optionally player target, creature source.
         # Checks if the source and target are alive and the distance between them.
         # Condition_value1 = EscortConditionFlags.
         # Condition_value2 = distance.
-        if not source or not source.creature_template or not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_creature(source) or not ConditionChecker.is_player(target):
             return False
 
         if source.position.distance(target.position) <= condition.value2 and source.is_alive and target.is_alive:
             return True
-            
-        # TODO: implement EscortConditionFlags.
+
+        # TODO: implement EscortConditionFlags + handle optional source/target.
         return False
-    
+
     @staticmethod
     def check_condition_active_holiday(condition, source, target):
         # Checks if a given holiday is active.
         # Condition_value1 = holiday id.
         # Not used in 0.5.3.
         return False
-    
+
     @staticmethod
     def check_condition_gender(condition, source, target):
-        # Requires WorldObject target.
+        # Requires Unit target.
         # Checks the target's gender.
         # Condition_value1 = gender (0 male, 1 female, 2 none).
-        if not target or not target.gender:
+        if not ConditionChecker.is_unit(target):
             return False
 
         if condition.value1 == 0:
@@ -370,7 +378,7 @@ class ConditionChecker:
         elif condition.value1 == 1:
             charmer_or_summoner = target.get_charmer_or_summoner()
             return ConditionChecker.is_player(target) or ConditionChecker.is_player(charmer_or_summoner)
-            
+
         return False
 
     @staticmethod
@@ -380,14 +388,14 @@ class ConditionChecker:
         # And the skill is below the specified value.
         # Condition_value1 = skill id.
         # Condition_value2 = skill value (if 1 then True if the player does not know the skill).
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
 
         if condition.value2 == 1 and condition.value1 not in target.skill_manager.skills:
             return True
         else:
             return target.skill_manager.get_total_skill_value(condition.value1) < condition.value2
-    
+
     @staticmethod
     def check_condition_reputation_rank_max(condition, source, target):
         # Requires Player target.
@@ -396,7 +404,7 @@ class ConditionChecker:
         # Condition_value2 = reputation rank.
         # Not used in 0.5.3.
         return False
-    
+
     @staticmethod
     def check_condition_has_flag(condition, source, target):
         # Requires WorldObject source.
@@ -405,7 +413,7 @@ class ConditionChecker:
         # Condition_value2 = flag.
         # Almost certainly unused in 0.5.3.
         return False
-    
+
     @staticmethod
     def check_condition_last_waypoint(condition, source, target):
         # Requires Creature source.
@@ -413,7 +421,7 @@ class ConditionChecker:
         # Condition_value1 = waypoint id.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
         return False
-    
+
     @staticmethod
     def check_condition_map_id(condition, source, target):
         # Requires Map.
@@ -431,7 +439,7 @@ class ConditionChecker:
         # Condition_value2 = data.
         # Condition_value3 = 0 equal, 1 equal or higher, 2 equal or lower.
         return False
-    
+
     @staticmethod
     def check_condition_map_event_data(condition, source, target):
         # Requires Map.
@@ -441,14 +449,14 @@ class ConditionChecker:
         # Condition_value3 = data.
         # Condition_value4 = 0 equal, 1 equal or higher, 2 equal or lower.
         return False
-    
+
     @staticmethod
     def check_condition_map_event_active(condition, source, target):
         # Requires Map.
         # Checks if a scripted Map event is active.
         # Condition_value1 = event id.
         return False
-    
+
     @staticmethod
     def check_condition_line_of_sight(condition, source, target):
         # Requires WorldObject source and target.
@@ -473,14 +481,14 @@ class ConditionChecker:
             return distance >= condition.value1
         elif condition.value2 == 2:
             return distance <= condition.value1
-                
+
         return False
 
     @staticmethod
     def check_condition_is_moving(condition, source, target):
         # Requires WorldObject target.
         # Checks if the target is moving.
-        if not target:
+        if not ConditionChecker.is_unit(target):
             return False
         return target.is_moving()
 
@@ -488,7 +496,7 @@ class ConditionChecker:
     def check_condition_has_pet(condition, source, target):
         # Requires Unit target.
         # Checks if the target has a pet.
-        if not target:
+        if not ConditionChecker.is_unit(target):
             return False
         return target.pet_manager.get_active_controlled_pet()
 
@@ -498,7 +506,7 @@ class ConditionChecker:
         # Checks the target's health percentage.
         # Condition_value1 = health percentage.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
-        if not target:
+        if not ConditionChecker.is_unit(target):
             return False
 
         health_percent = target.health / target.max_health * 100
@@ -508,7 +516,7 @@ class ConditionChecker:
             return health_percent >= condition.value1
         elif condition.value2 == 2:
             return health_percent <= condition.value1
-                
+
         return False
 
     @staticmethod
@@ -517,7 +525,7 @@ class ConditionChecker:
         # Checks the target's mana percentage.
         # Condition_value1 = mana percentage.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
-        if not target or not target.power_type == PowerTypes.TYPE_MANA:
+        if not ConditionChecker.is_unit(target) or target.power_type != PowerTypes.TYPE_MANA:
             return False
 
         mana_percent = target.power1 / target.max_power1 * 100
@@ -529,12 +537,12 @@ class ConditionChecker:
             return mana_percent <= condition.value1
 
         return False
-    
+
     @staticmethod
     def check_condition_is_in_combat(condition, source, target):
         # Requires Unit target.
         # Checks if the target is in combat.
-        if not target:
+        if not ConditionChecker.is_unit(target):
             return False
         return target.unit_flags & UnitFlags.UNIT_FLAG_IN_COMBAT
 
@@ -550,7 +558,7 @@ class ConditionChecker:
     def check_condition_is_in_group(condition, source, target):
         # Requires Player target.
         # Checks if the target is in a group.
-        if not target or not ConditionChecker.is_player(target):
+        if not ConditionChecker.is_player(target):
             return False
         return target.group_manager
 
@@ -558,10 +566,10 @@ class ConditionChecker:
     def check_condition_is_alive(condition, source, target):
         # Requires Unit target.
         # Checks if the target is alive.
-        if not target:
+        if not ConditionChecker.is_unit(target):
             return False
         return target.is_alive
-    
+
     @staticmethod
     def check_condition_map_event_targets(condition, source, target):
         # Requires Map.
@@ -574,7 +582,7 @@ class ConditionChecker:
     def check_condition_object_is_spawned(condition, source, target):
         # Requires GameObject target.
         # Checks if the target is spawned.
-        if not target:
+        if not ConditionChecker.is_gameobject(target):
             return False
         return target.is_spawned
 
@@ -584,7 +592,7 @@ class ConditionChecker:
         # Checks the target's loot state.
         # Condition_value1 = loot state (LootState enum).
         return False
-    
+
     @staticmethod
     def check_condition_object_fit_condition(condition, source, target):
         # Requires Map.
@@ -592,7 +600,7 @@ class ConditionChecker:
         # Condition_value1 = object guid.
         # Condition_value2 = condition id.
         return False
-    
+
     @staticmethod
     def check_condition_pvp_rank(condition, source, target):
         # Requires Player target.
@@ -610,7 +618,7 @@ class ConditionChecker:
         # Condition_value2 = db_guid (optional).
         # Condition_value3 = db_guid (optional).
         # Condition_value4 = db_guid (optional).
-        if not source or source.get_type_id() != ObjectTypeIds.ID_UNIT:
+        if not ConditionChecker.is_gameobject(source) or not ConditionChecker.is_creature(target):
             return False
 
         if condition.value1 == source.spawn_id:
@@ -621,9 +629,9 @@ class ConditionChecker:
             return True
         elif condition.value4 == source.spawn_id:
             return True
-            
+
         return False
-    
+
     @staticmethod
     def check_condition_local_time(condition, source, target):
         # Checks if the local time is i.n the given range.
@@ -635,7 +643,7 @@ class ConditionChecker:
         start_time = datetime.time(condition.value1, condition.value2, 0)
         end_time = datetime.time(condition.value3, condition.value4, 0)
         return ConditionChecker.time_in_range(start_time, end_time, current_time)
-    
+
     @staticmethod
     def check_condition_distance_to_position(condition, source, target):
         # Requires WorldObject target.
@@ -653,7 +661,7 @@ class ConditionChecker:
         # Requires GameObject target.
         # Checks the target's GO state.
         # Condition_value1 = GO state (GameObjectStates enum).
-        if not target:
+        if not ConditionChecker.is_gameobject(target):
             return False
         return target.state == condition.value1
 
@@ -663,7 +671,7 @@ class ConditionChecker:
         # Checks if a player is within radius.
         # Condition_value1 = 0 any, 1 hostile, 2 friendly.
         # Condition_value2 = radius.
-        if not target:
+        if not ConditionChecker.is_unit(target):
             return False
         radius = condition.value2
         units = MapManager.get_surrounding_players(target)
