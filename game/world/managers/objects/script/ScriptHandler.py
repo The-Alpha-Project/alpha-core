@@ -124,7 +124,7 @@ class ScriptHandler:
         # datalong = chat_type (see enum ChatType)
         # dataint = broadcast_text id. dataint2-4 optional for random selected text.
         if not command.source:
-            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
 
         texts = ScriptHelpers.get_filtered_dataint(command)
@@ -135,9 +135,14 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Broadcast messages for {command.get_info()}, not found.')
             return
 
-        if command.source.gender == Genders.GENDER_MALE and broadcast_message.male_text:
+        speaker = command.target if command.target else command.source
+        if speaker.get_type_id() != ObjectTypeIds.ID_UNIT:
+            Logger.warning(f'ScriptHandler: Wrong target type, aborting {command.get_info()}.')
+            return
+
+        if speaker.gender == Genders.GENDER_MALE and broadcast_message.male_text:
             text_to_say = broadcast_message.male_text
-        elif command.source.gender == Genders.GENDER_FEMALE and broadcast_message.female_text:
+        elif speaker.gender == Genders.GENDER_FEMALE and broadcast_message.female_text:
             text_to_say = broadcast_message.female_text
         else:
             text_to_say = broadcast_message.male_text if broadcast_message.male_text else broadcast_message.female_text
@@ -146,10 +151,6 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Broadcast message {text_id} has no text to say.')
             return
 
-        # Format text if target is a player.
-        if command.target and command.target.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            text_to_say = GameTextFormatter.format(command.target, text_to_say)
-
         chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_SAY
         lang = broadcast_message.language_id
         if broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_YELL:
@@ -157,14 +158,13 @@ class ScriptHandler:
         elif broadcast_message.chat_type == BroadcastMessageType.BROADCAST_MSG_EMOTE:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
-
-        target = command.target.guid if command.target else command.source.guid
-        ChatManager.send_monster_emote_message(command.source, target, text_to_say, chat_msg_type, lang,
+        
+        ChatManager.send_monster_emote_message(speaker, speaker.guid, text_to_say, chat_msg_type, lang,
                                                ChatHandler.get_range_by_type(chat_msg_type))
 
         # Neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them.
         if broadcast_message.emote_id1 != 0:
-            command.source.play_emote(broadcast_message.emote_id1)
+            speaker.play_emote(broadcast_message.emote_id1)
 
     @staticmethod
     def handle_script_command_emote(command):
@@ -172,7 +172,7 @@ class ScriptHandler:
         # datalong1-4 = emote_id
         # dataint = (bool) is_targeted
         if not command.source:
-            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
         emotes = ScriptHelpers.get_filtered_datalong(command)
         if emotes:
@@ -196,7 +196,7 @@ class ScriptHandler:
         # dataint = path_id
         # x/y/z/o = coordinates
         if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
             return
 
         coordinates_type = command.datalong
@@ -250,7 +250,7 @@ class ScriptHandler:
         # datalong = (bool) with_delayed
         # datalong2 = spell_id (optional)
         if not command.source:
-            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
         command.source.spell_manager.remove_cast_by_id(command.datalong2, interrupted=True)
 
@@ -261,7 +261,7 @@ class ScriptHandler:
         # datalong2 = teleport_options (see enum TeleportToOptions)
         # x/y/z/o = coordinates
         if not command.source:
-            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
         command.source.teleport(command.datalong, Vector(command.x, command.y, command.z, command.o), is_instant=True)
 
@@ -369,7 +369,7 @@ class ScriptHandler:
         if command.source and command.source.aura_manager:
             command.source.aura_manager.cancel_auras_by_spell_id(command.datalong)
         else:
-            Logger.warning(f'ScriptHandler: No aura manager found, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No aura manager found, aborting {command.get_info()}.')
 
     @staticmethod
     def handle_script_command_cast_spell(command):
@@ -378,7 +378,7 @@ class ScriptHandler:
         # datalong = spell_id
         # datalong2 = eCastSpellFlags
         if not command.source:
-            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
 
         spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(command.datalong)
@@ -405,7 +405,7 @@ class ScriptHandler:
         if command.source and command.source.inventory:
             command.source.inventory.add_item(command.datalong, command.datalong2)
         else:
-            Logger.warning(f'ScriptHandler: No inventory found, aborting aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No inventory found, aborting aborting {command.get_info()}.')
 
     @staticmethod
     def handle_script_command_despawn_creature(command):
@@ -414,7 +414,7 @@ class ScriptHandler:
         if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and command.source.is_alive:
             command.source.destroy()
         else:
-            Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info()}.')
 
     @staticmethod
     def handle_script_command_set_equipment(command):
@@ -424,7 +424,7 @@ class ScriptHandler:
         # dataint2 = off-hand item_id
         # dataint3 = ranged item_id
         if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
             return
 
         if command.datalong == 1:
@@ -447,7 +447,7 @@ class ScriptHandler:
         # x = distance (only for some motion types)
         # o = angle (only for some motion types)
         if not command.source:
-            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info}.')
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
         command.source.movement_manager.move_waypoints_from_script()
 
