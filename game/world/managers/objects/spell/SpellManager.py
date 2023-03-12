@@ -356,12 +356,12 @@ class SpellManager:
             casting_spell.cast_state = SpellState.SPELL_STATE_DELAYED
             return
 
-        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
         if casting_spell.is_channeled() and not casting_spell.is_target_immune_to_effects():
             # Channeled spells require more setup before effect application.
             # If the target is immune, no channel needs to be started and the spell can be resolved normally.
             self.handle_channel_start(casting_spell)
         else:
+            casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
             self.apply_spell_effects(casting_spell)  # Apply effects
             # Some spell effect handlers will set the spell state to active as the handler needs to be called on updates
             if casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
@@ -587,6 +587,8 @@ class SpellManager:
         except ValueError:
             return False
 
+        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
+
         if casting_spell.dynamic_object:
             casting_spell.dynamic_object.destroy()
         [effect.area_aura_holder.destroy() for effect in casting_spell.get_effects() if effect.area_aura_holder]
@@ -777,7 +779,9 @@ class SpellManager:
 
         self.apply_spell_effects(casting_spell)
 
-        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER or \
+                casting_spell.cast_state != SpellState.SPELL_STATE_ACTIVE:
+            # State will be changed to finished if the cast was removed during effect application (resist).
             return
 
         data = pack('<2i', casting_spell.spell_entry.ID, casting_spell.get_duration())
