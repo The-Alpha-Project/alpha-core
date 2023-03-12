@@ -152,8 +152,8 @@ class ActivePet:
         if self.is_controlled():
             self._pet_manager.send_pet_spell_info(reset=True)
 
-        # Orphan creature, destroy.
-        if not self.creature.spawn_id:
+        # Orphan creature. In some cases, the creature may already be destroyed.
+        if self.creature.is_spawned and not self.creature.spawn_id:
             self.creature.destroy()
 
         # Releasing a pet. Restore state.

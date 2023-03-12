@@ -160,13 +160,13 @@ class PetManager:
         MapManager.spawn_object(world_object_instance=creature_manager)
 
     def detach_active_pets(self, is_logout=False):
-        for pet in self.active_pets.values():
+        for index, pet in list(self.active_pets.items()):
             if not is_logout:
                 # If this pet is being detached on logout, don't overwrite its activity status.
                 pet.get_pet_data().set_active(False)
-            pet.detach()
 
-        self.active_pets.clear()
+            self.active_pets.pop(index)
+            pet.detach()
 
     def handle_login(self):
         if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
@@ -182,8 +182,8 @@ class PetManager:
         active_pet = self.active_pets.get(pet_slot)
         if active_pet:
             active_pet.get_pet_data().set_active(False)
-            self.active_pets[pet_slot].detach()
             self.active_pets.pop(pet_slot)
+            active_pet.detach()
 
     def detach_totem(self, totem_slot: TotemSlots):
         self.detach_pet_by_slot(PetSlot.PET_SLOT_TOTEM_START + totem_slot)
