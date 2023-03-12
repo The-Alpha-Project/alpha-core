@@ -55,7 +55,7 @@ class GridManager:
         # Notify cell changed if needed.
         if current_cell_key != source_cell_key:
             if current_cell_key not in self.active_cell_keys:
-                self._active_cell_by_world_object(world_object)
+                self._activate_cell_by_world_object(world_object)
                 Logger.warning(f'Unit {world_object.get_name()} triggered inactive cell {current_cell_key}')
             world_object.on_cell_change()
 
@@ -105,7 +105,7 @@ class GridManager:
         #  There must be active/inactive world objects, not cells.
         #  Do leave maps/navs loading only for players.
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            self._active_cell_by_world_object(world_object)
+            self._activate_cell_by_world_object(world_object)
 
         # Notify surrounding players.
         if update_players:
@@ -117,7 +117,7 @@ class GridManager:
 
             self._update_players_surroundings(cell.key)
 
-    def _active_cell_by_world_object(self, world_object):
+    def _activate_cell_by_world_object(self, world_object):
         affected_cells = list(self._get_surrounding_cells_by_object(world_object))
         # Try to load tile maps for affected cells if needed.
         self._load_maps_for_cells(affected_cells)
