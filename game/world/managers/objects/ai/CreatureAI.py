@@ -239,7 +239,6 @@ class CreatureAI:
         for creature_spell in self.creature_spells:
             cast_flags = creature_spell.cast_flags
             chance = creature_spell.chance
-            script_id = creature_spell.script_id
             # Check cooldown and if self is casting this spell at the moment.
             if not self.creature.spell_manager.is_on_cooldown(creature_spell.spell) and \
                     not self.creature.spell_manager.is_casting_spell(creature_spell.spell.ID):
@@ -296,10 +295,6 @@ class CreatureAI:
                     if casting_spell.spell_entry.InterruptFlags & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT \
                             or cast_flags & CastFlags.CF_MAIN_RANGED_SPELL:
                         self.creature.movement_manager.stop()
-
-                    # TODO: Run script if available.
-                    # if script_id:
-                    #     should run script.
 
                     # Trigger the cast.
                     self.creature.spell_manager.start_spell_cast(initialized_spell=casting_spell)

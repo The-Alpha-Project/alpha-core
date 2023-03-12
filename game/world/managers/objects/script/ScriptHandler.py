@@ -96,12 +96,12 @@ class ScriptHandler:
         occ_event = ScriptOocEvent(event, target)
         # Has no scripts, ignore.
         if not occ_event.scripts:
-            self.ooc_ignore.add(event.event_id)
+            self.ooc_ignore.add(event.id)
             return
 
         self.ooc_event = occ_event
         if not occ_event.should_repeat:
-            self.ooc_ignore.add(event.event_id)
+            self.ooc_ignore.add(event.id)
 
     # Handlers
 

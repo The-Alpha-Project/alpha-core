@@ -1,7 +1,7 @@
 from game.world.managers.maps.helpers import CellUtils
 from utils.ConfigManager import config
 from utils.Logger import Logger
-from utils.constants.MiscCodes import MoveType
+from utils.constants.MiscCodes import MoveType, ScriptTypes
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
@@ -37,11 +37,13 @@ class GroupMovement(BaseMovement):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Always update home position.
         self.unit.spawn_position = new_position.copy()
-        if waypoint_completed and self.unit.creature_group.is_leader(self.unit):
-            current_wp = self._get_waypoint()
-            self._waypoint_push_back()
-            if current_wp.script_id():
-                Logger.warning(f'{self.unit.get_name()}, missing movement script id {current_wp.script_id()}.')
+        if not waypoint_completed or not self.unit.creature_group.is_leader(self.unit):
+            return
+        current_wp = self._get_waypoint()
+        self._waypoint_push_back()
+        if current_wp.script_id():
+            self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
+                                                    current_wp.script_id())
 
     # override
     def reset(self):

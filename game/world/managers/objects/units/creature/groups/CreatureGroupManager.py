@@ -12,7 +12,7 @@ CREATURE_GROUPS = {}
 class CreatureGroupManager:
     def __init__(self):
         self.original_leader_spawn_id = 0
-        self.waypoints = []
+        self.waypoints: list[MovementWaypoint] = []
         self.leader = None
         self.members: dict[int, CreatureGroupMember] = {}
         self.group_flags = 0

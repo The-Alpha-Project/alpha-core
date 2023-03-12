@@ -281,14 +281,13 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_mod_fear(aura, effect_target, remove):
+        effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, not remove, aura.index)
         if not remove:
             if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 effect_target.interrupt_looting()
             effect_target.spell_manager.remove_casts(remove_active=False)
             duration = aura.source_spell.get_duration() / 1000
             effect_target.movement_manager.move_fear(duration)
-
-        effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, not remove, aura.index)
 
     @staticmethod
     def handle_mod_stun(aura, effect_target, remove):

@@ -97,3 +97,7 @@ class ChaseMovement(BaseMovement):
     def can_remove(self):
         return not self.unit.combat_target or not self.unit.combat_target.is_alive \
             or self.unit.is_evading or not self.unit.is_alive
+
+    # override
+    def reset(self):
+        self.spline = None
