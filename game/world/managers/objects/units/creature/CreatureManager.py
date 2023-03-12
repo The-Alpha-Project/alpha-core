@@ -262,7 +262,11 @@ class CreatureManager(UnitManager):
 
             if self.addon:
                 self.set_stand_state(self.addon.stand_state)
-                self.set_weapon_mode(self.addon.sheath_state)
+                # 0.5.3 weapon modes for sheathed and unsheathed status are swapped compared to later versions.
+                # In order to keep full compatibility with VMaNGOS creature_addon table, we do the swap here instead of
+                # changing the value in the database.
+                weapon_mode = self.addon.sheath_state ^ 1 if self.addon.sheath_state < 2 else self.addon.sheath_state
+                self.set_weapon_mode(weapon_mode)
 
                 # Set emote state if available.
                 if self.addon.emote_state:

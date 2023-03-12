@@ -760,7 +760,6 @@ class ScriptHandler:
         else:
             Logger.warning(f'ScriptHandler: Attempted to deal 0 damage, aborting {command.get_info()}')
 
-
     @staticmethod
     def handle_script_command_set_sheath(command):
         # source = Unit
@@ -768,7 +767,11 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
             return
-        command.source.set_weapon_mode(command.datalong)
+        # 0.5.3 weapon modes for sheathed and unsheathed status are swapped compared to later versions.
+        # In order to keep full compatibility with VMaNGOS scripts, we do the swap here instead of changing the value
+        # in the database.
+        weapon_mode = command.datalong ^ 1 if command.datalong < 2 else command.datalong
+        command.source.set_weapon_mode(weapon_mode)
 
     @staticmethod
     def handle_script_command_invincibility(command):
