@@ -43,6 +43,8 @@ class WaypointMovement(BaseMovement):
         self.unit.spawn_position = new_position.copy()
         if waypoint_completed:
             current_wp = self._get_waypoint()
+            if current_wp.orientation():
+                self.unit.movement_manager.face_angle(current_wp.orientation())
             if current_wp.script_id():
                 Logger.warning(f'{self.unit.get_name()}, missing movement script id {current_wp.script_id()}.')
             # If this is a default behavior, make it cyclic.
