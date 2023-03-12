@@ -86,6 +86,7 @@ class MovementManager:
         is_resume = self._handle_ooc_pause(elapsed)
 
         if not self._can_move():
+            self.stop()
             return
 
         # Check if we need to remove any movement.
@@ -148,6 +149,10 @@ class MovementManager:
     # Instant.
     def stop(self):
         if self.unit.is_moving():
+            current_behavior = self._get_current_behavior()
+            # Make sure the current behavior spline does not update an extra tick.
+            if current_behavior:
+                current_behavior.reset()
             self.spline_callback(SplineBuilder.build_stop_spline(self.unit))
 
     # Instant.

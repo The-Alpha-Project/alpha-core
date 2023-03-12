@@ -12,15 +12,16 @@ class BaseMovement:
         return True
 
     def update(self, now, elapsed):
-        if self.spline:
-            position_changed, new_position, wp_complete = self.spline.update(elapsed)
-            # Position changed either guessed or wp complete.
-            if position_changed:
-                self.on_new_position(new_position, wp_complete, len(self.spline.pending_waypoints))
-            # Spline ended.
-            if self.spline.is_complete():
-                self.on_spline_finished()
-                self.spline = None
+        if not self.spline:
+            return
+        position_changed, new_position, wp_complete = self.spline.update(elapsed)
+        # Position changed either guessed or wp complete.
+        if position_changed:
+            self.on_new_position(new_position, wp_complete, len(self.spline.pending_waypoints))
+        # Spline ended.
+        if self.spline.is_complete():
+            self.on_spline_finished()
+            self.spline = None
 
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
         self.unit.location = new_position.copy()
