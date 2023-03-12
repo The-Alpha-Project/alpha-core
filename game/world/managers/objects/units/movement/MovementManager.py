@@ -148,12 +148,13 @@ class MovementManager:
 
     # Instant.
     def stop(self):
-        if self.unit.is_moving():
-            current_behavior = self._get_current_behavior()
-            # Make sure the current behavior spline does not update an extra tick.
-            if current_behavior:
-                current_behavior.reset()
-            self.spline_callback(SplineBuilder.build_stop_spline(self.unit))
+        if not self.unit.is_moving():
+            return
+        current_behavior = self._get_current_behavior()
+        # Make sure the current behavior spline does not update an extra tick.
+        if current_behavior:
+            current_behavior.reset()
+        self.spline_callback(SplineBuilder.build_stop_spline(self.unit))
 
     # Instant.
     def face_target(self, target):
