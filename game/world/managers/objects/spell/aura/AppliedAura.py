@@ -26,11 +26,13 @@ class AppliedAura:
         for effect in casting_spell.get_effects():
             if effect.effect_index >= spell_effect.effect_index:
                 break
-            if effect.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and \
-                    effect.implicit_target_a == self.spell_effect.implicit_target_a:
-                # Some buffs/debuffs have multiple effects in one aura, in which case they're merged in the UI
-                # If this spell has an effect with a lower index already applies an aura,
-                # this aura is set to passive to not display twice in client.
+            if effect.effect_type != SpellEffects.SPELL_EFFECT_APPLY_AURA:
+                continue
+
+            # Some buffs/debuffs have multiple effects in one aura, in which case they're merged in the UI
+            # If this spell has an effect with a lower index that already applies an aura,
+            # this aura is set to passive to not display twice in client.
+            if self.target in effect.targets.get_resolved_effect_targets_by_type(type(self.target)):
                 self.passive = True
                 break
 
