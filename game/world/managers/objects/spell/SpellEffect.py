@@ -160,7 +160,7 @@ class SpellEffect:
                 return not can_target_friendly and \
                        self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
 
-        return not can_target_friendly  # TODO this may not cover all cases.
+        return not can_target_friendly
 
     def is_target_immune(self, target):
         # Validate target and check harmfulness.
