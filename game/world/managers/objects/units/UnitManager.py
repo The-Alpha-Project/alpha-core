@@ -411,12 +411,9 @@ class UnitManager(ObjectManager):
         if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
-        # Victim will not die with this hit.
-        if not damage_info.hit_info & HitInfo.UNIT_DEAD:
-            # The hit was successful, check melee attack procs.
-            if damage_info.hit_info & HitInfo.SUCCESS:
-                self.handle_melee_attack_procs(damage_info)
-        else:  # Victim will die after this hit, reset extra attacks.
+        self.handle_melee_attack_procs(damage_info)
+
+        if damage_info.hit_info & HitInfo.UNIT_DEAD:
             self.extra_attacks = 0
 
         self.send_attack_state_update(damage_info)
