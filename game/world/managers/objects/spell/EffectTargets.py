@@ -576,6 +576,7 @@ FRIENDLY_IMPLICIT_TARGETS = {
 }
 
 NEUTRAL_IMPLICIT_TARGETS = {
+    SpellImplicitTargets.TARGET_INITIAL,
     SpellImplicitTargets.TARGET_EFFECT_SELECT,
     SpellImplicitTargets.TARGET_UNIT,
     SpellImplicitTargets.TARGET_SCRIPT
