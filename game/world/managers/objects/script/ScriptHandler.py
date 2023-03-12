@@ -764,7 +764,7 @@ class ScriptHandler:
     @staticmethod
     def handle_script_command_set_sheath(command):
         # source = Unit
-        # datalong = see enum SheathState
+        # datalong = see enum WeaponMode
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
             return
