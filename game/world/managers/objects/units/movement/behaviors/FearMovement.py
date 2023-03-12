@@ -22,7 +22,7 @@ class FearMovement(BaseMovement):
     def __init__(self, fear_duration_secs, spline_callback):
         super().__init__(move_type=MoveType.FEAR, spline_callback=spline_callback)
         self.fear_duration = fear_duration_secs
-        self.waypoints = []
+        self.waypoints: list[Vector] = []
         self.can_move = True
         self.expected_fear_end_timestamp = time.time() + fear_duration_secs
 
