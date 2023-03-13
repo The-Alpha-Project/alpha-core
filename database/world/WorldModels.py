@@ -322,6 +322,33 @@ class CreatureTemplate(Base):
     quest_relation = relationship('QuestTemplate', secondary='creature_quest_starter')
 
 
+t_gameobject_scripts = Table(
+    'gameobject_scripts', metadata,
+    Column('id', MEDIUMINT(8), nullable=False, server_default=text("0")),
+    Column('delay', INTEGER(10), nullable=False, server_default=text("0")),
+    Column('priority', TINYINT(3), nullable=False, server_default=text("0")),
+    Column('command', MEDIUMINT(8), nullable=False, server_default=text("0")),
+    Column('datalong', MEDIUMINT(8), nullable=False, server_default=text("0")),
+    Column('datalong2', INTEGER(10), nullable=False, server_default=text("0")),
+    Column('datalong3', INTEGER(10), nullable=False, server_default=text("0")),
+    Column('datalong4', INTEGER(10), nullable=False, server_default=text("0")),
+    Column('target_param1', INTEGER(10), nullable=False, server_default=text("0")),
+    Column('target_param2', INTEGER(10), nullable=False, server_default=text("0")),
+    Column('target_type', TINYINT(3), nullable=False, server_default=text("0")),
+    Column('data_flags', TINYINT(3), nullable=False, server_default=text("0")),
+    Column('dataint', INTEGER(11), nullable=False, server_default=text("0")),
+    Column('dataint2', INTEGER(11), nullable=False, server_default=text("0")),
+    Column('dataint3', INTEGER(11), nullable=False, server_default=text("0")),
+    Column('dataint4', INTEGER(11), nullable=False, server_default=text("0")),
+    Column('x', Float, nullable=False, server_default=text("0")),
+    Column('y', Float, nullable=False, server_default=text("0")),
+    Column('z', Float, nullable=False, server_default=text("0")),
+    Column('o', Float, nullable=False, server_default=text("0")),
+    Column('condition_id', MEDIUMINT(8), nullable=False, server_default=text("0")),
+    Column('comments', String(255), nullable=False)
+)
+
+
 class GameobjectTemplate(Base):
     __tablename__ = 'gameobject_template'
 

@@ -34,19 +34,20 @@ class WorldLoader:
 
         #  Scripts.
         WorldLoader.load_generic_scripts()
-        WorldLoader.load_creature_movement_scripts()
-        WorldLoader.load_creature_ai_events()
-        WorldLoader.load_creature_ai_scripts()
 
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
             WorldLoader.load_gameobject_quest_starters()
             WorldLoader.load_gameobject_quest_finishers()
+            WorldLoader.load_gameobject_scripts()
         else:
             Logger.info('Skipped game object loading.')
 
         # Creature spawns
         if config.Server.Settings.load_creatures:
+            WorldLoader.load_creature_movement_scripts()
+            WorldLoader.load_creature_ai_events()
+            WorldLoader.load_creature_ai_scripts()
             WorldLoader.load_creature_movement()
             WorldLoader.load_creature_movement_templates()
             WorldLoader.load_creature_movement_special()
@@ -90,13 +91,26 @@ class WorldLoader:
     # World data holders
 
     @staticmethod
+    def load_gameobject_scripts():
+        gameobject_scripts = WorldDatabaseManager.gameobject_scripts_get_all()
+        length = len(gameobject_scripts)
+        count = 0
+
+        for gameobject_script in gameobject_scripts:
+            WorldDatabaseManager.GameobjectScriptHolder.load_gameobject_script(gameobject_script)
+            count += 1
+            Logger.progress('Loading gameobject scripts...', count, length)
+
+        return length
+
+    @staticmethod
     def load_creature_ai_scripts():
         creature_ai_scripts = WorldDatabaseManager.creature_ai_scripts_get_all()
         length = len(creature_ai_scripts)
         count = 0
 
         for creature_ai_script in creature_ai_scripts:
-            WorldDatabaseManager.CreatureAiScriptHolder.load_creature_ai_script(creature_ai_script)
+            WorldDatabaseManager.CreatureAIScriptHolder.load_creature_ai_script(creature_ai_script)
             count += 1
             Logger.progress('Loading creature ai scripts...', count, length)
 

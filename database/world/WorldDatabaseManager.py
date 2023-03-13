@@ -1,11 +1,12 @@
 import os
-from typing import Optional
+from typing import Optional, List, Type
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *
+from database.world.WorldModels import Condition
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureSpellsEntry
 from utils.ConfigManager import *
 from utils.Logger import Logger
@@ -864,7 +865,29 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    # Movement scripts.
+    # Gameobject scripts.
+
+    @staticmethod
+    def gameobject_scripts_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_gameobject_scripts).all()
+        world_db_session.close()
+        return res
+
+    class GameobjectScriptHolder:
+        SCRIPTS: dict[int, list[t_gameobject_scripts]] = {}
+
+        @staticmethod
+        def load_gameobject_script(script):
+            if script.id not in WorldDatabaseManager.GameobjectScriptHolder.SCRIPTS:
+                WorldDatabaseManager.GameobjectScriptHolder.SCRIPTS[script.id] = []
+            WorldDatabaseManager.GameobjectScriptHolder.SCRIPTS[script.id].append(script)
+
+        @staticmethod
+        def gameobject_scripts_get_by_id(script_id):
+            return WorldDatabaseManager.GameobjectScriptHolder.SCRIPTS.get(script_id, [])
+
+    # Creature movement scripts.
 
     @staticmethod
     def creature_movement_scripts_get_all():
@@ -895,18 +918,18 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
-    class CreatureAiScriptHolder:
+    class CreatureAIScriptHolder:
         SCRIPTS: dict[int, list[t_creature_ai_scripts]] = {}
 
         @staticmethod
         def load_creature_ai_script(ai_script):
-            if ai_script.id not in WorldDatabaseManager.CreatureAiScriptHolder.SCRIPTS:
-                WorldDatabaseManager.CreatureAiScriptHolder.SCRIPTS[ai_script.id] = []
-            WorldDatabaseManager.CreatureAiScriptHolder.SCRIPTS[ai_script.id].append(ai_script)
+            if ai_script.id not in WorldDatabaseManager.CreatureAIScriptHolder.SCRIPTS:
+                WorldDatabaseManager.CreatureAIScriptHolder.SCRIPTS[ai_script.id] = []
+            WorldDatabaseManager.CreatureAIScriptHolder.SCRIPTS[ai_script.id].append(ai_script)
 
         @staticmethod
         def creature_ai_scripts_get_by_id(script_id):
-            return WorldDatabaseManager.CreatureAiScriptHolder.SCRIPTS.get(script_id, [])
+            return WorldDatabaseManager.CreatureAIScriptHolder.SCRIPTS.get(script_id, [])
 
     # Creature AI events.
 
@@ -945,7 +968,7 @@ class WorldDatabaseManager(object):
     # Event conditions.
 
     @staticmethod
-    def conditions_get_all() -> list[Condition]:
+    def conditions_get_all() -> list[Type[Condition]]:
         world_db_session: scoped_session = SessionHolder()
         res = world_db_session.query(Condition).all()
         world_db_session.close()
