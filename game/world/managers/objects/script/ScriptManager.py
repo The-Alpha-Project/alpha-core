@@ -17,8 +17,6 @@ class ScriptManager:
     # This can return either UnitManager or GameObjectManager. (Both have spell managers and aura managers)
     def get_target_by_type(caster, target, target_type, param1=None, param2=None, spell_template=None):
         try:
-            if not ScriptManager._validate_is_unit(caster):
-                return None
             return SCRIPT_TARGETS[target_type](caster, target, param1, param2, spell_template)
         except KeyError:
             Logger.warning(f'Unknown target type {target_type}.')
@@ -100,7 +98,7 @@ class ScriptManager:
     @staticmethod
     def handle_nearest_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param1
-        go_objects = MapManager.get_surrounding_gameobjects(caster).values()
+        go_objects = list(MapManager.get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
         # Sort by distance.
@@ -114,7 +112,7 @@ class ScriptManager:
     @staticmethod
     def handle_random_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param2
-        go_objects = MapManager.get_surrounding_gameobjects(caster).values()
+        go_objects = list(MapManager.get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
         shuffle(go_objects)
