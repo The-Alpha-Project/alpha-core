@@ -149,7 +149,8 @@ class SpellEffect:
         # Effect harmfulness is resolved before actual target resolution.
         # Instead of analyzing resolved targets,
         # take into account initial target friendliness and the nature of the effect's implicit targets.
-        can_target_friendly = self.targets.can_target_friendly(target=self.casting_spell.initial_target)
+        target = self.casting_spell.initial_target if self.casting_spell.initial_target_is_unit_or_player() else None
+        can_target_friendly = self.targets.can_target_friendly(unit_target=target)
 
         if self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA:
             if self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
