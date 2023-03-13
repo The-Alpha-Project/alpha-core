@@ -362,7 +362,7 @@ class ScriptHandler:
                 command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
             command.source.use()
 
-        if command.target and command.target.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
+        if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
                 command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
             command.target.use()
 
@@ -390,7 +390,7 @@ class ScriptHandler:
                 command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
             command.source.set_ready()
 
-        if command.target and command.target.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
+        if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
                 command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
             command.target.set_ready()
 
