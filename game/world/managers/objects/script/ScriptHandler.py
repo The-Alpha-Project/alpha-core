@@ -358,8 +358,7 @@ class ScriptHandler:
                                f'Gameobject with Spawn ID {provided_spawn_id} not found.')
                 return
             gobject_spawn.gameobject_instance.use()
-        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
-                command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT:
             command.source.use()
 
         if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
@@ -386,8 +385,7 @@ class ScriptHandler:
                                f'Gameobject with Spawn ID {provided_spawn_id} not found.')
                 return
             gobject_spawn.gameobject_instance.set_ready()
-        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
-                command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT:
             command.source.set_ready()
 
         if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
