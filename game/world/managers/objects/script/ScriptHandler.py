@@ -135,7 +135,8 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Broadcast messages for {command.get_info()}, not found.')
             return
 
-        speaker = command.target if command.target else command.source
+        speaker = command.target if command.target and command.target.get_type_id() == ObjectTypeIds.ID_UNIT \
+            else command.source
         if speaker.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Wrong target type, aborting {command.get_info()}.')
             return
