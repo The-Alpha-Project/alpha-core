@@ -17,7 +17,7 @@ from game.world.managers.objects.guids.GuidManager import GuidManager
 from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
-    GameObjectStates
+    GameObjectStates, ScriptTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason
@@ -296,6 +296,9 @@ class GameObjectManager(ObjectManager):
             self._handle_use_quest_giver(player, target)
         elif self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
             self._handle_fishing_node(player)
+
+        # TODO: Do we need separate AI handler for gameobjects?
+        self.script_handler.enqueue_script(self, None, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)
 
     def set_state(self, state):
         self.state = state

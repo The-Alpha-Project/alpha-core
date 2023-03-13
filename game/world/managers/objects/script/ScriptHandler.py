@@ -15,7 +15,7 @@ from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds, GameObjectTypes
+    ObjectTypeIds, GameObjectTypes, GameObjectStates
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
@@ -358,8 +358,7 @@ class ScriptHandler:
                                f'Gameobject with Spawn ID {provided_spawn_id} not found.')
                 return
             gobject_spawn.gameobject_instance.use()
-        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
-                command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT:
             command.source.use()
 
         if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
@@ -386,8 +385,7 @@ class ScriptHandler:
                                f'Gameobject with Spawn ID {provided_spawn_id} not found.')
                 return
             gobject_spawn.gameobject_instance.set_ready()
-        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
-                command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT:
             command.source.set_ready()
 
         if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
@@ -400,7 +398,19 @@ class ScriptHandler:
     def handle_script_command_activate_object(command):
         # source = GameObject
         # target = Unit
-        Logger.debug('ScriptHandler: handle_script_command_activate_object not implemented yet')
+        if command.target:
+            target = command.target
+        elif command.source:
+            target = command.source
+        else:
+            Logger.warning(f'ScriptHandler: No source or target, aborting {command.get_info()}')
+            return
+
+        if target.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+            Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
+            return
+
+        target.use()
 
     @staticmethod
     def handle_script_command_remove_aura(command):
@@ -1025,7 +1035,19 @@ class ScriptHandler:
     def handle_script_command_set_go_state(command):
         # source = GameObject
         # datalong = GOState
-        Logger.debug('ScriptHandler: handle_script_command_set_go_state not implemented yet')
+        if command.target:
+            target = command.target
+        elif command.source:
+            target = command.source
+        else:
+            Logger.warning(f'ScriptHandler: No source or target, aborting {command.get_info()}')
+            return
+
+        if target.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+            Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
+            return
+
+        target.set_state(GameObjectStates(command.datalong))
 
     @staticmethod
     def handle_script_command_despawn_gameobject(command):
@@ -1083,12 +1105,16 @@ class ScriptHandler:
         return WorldDatabaseManager.quest_end_script_get_by_quest_id(quest_id)
 
     @staticmethod
+    def handle_script_type_gameobject(spawn_id):
+        return WorldDatabaseManager.GameobjectScriptHolder.gameobject_scripts_get_by_id(spawn_id)
+
+    @staticmethod
     def handle_script_type_generic(script_id):
         return WorldDatabaseManager.GenericScriptsHolder.generic_scripts_get_by_id(script_id)
 
     @staticmethod
     def handle_script_type_ai(script_id):
-        return WorldDatabaseManager.CreatureAiScriptHolder.creature_ai_scripts_get_by_id(script_id)
+        return WorldDatabaseManager.CreatureAIScriptHolder.creature_ai_scripts_get_by_id(script_id)
 
     @staticmethod
     def handle_script_type_creature_movement(script_id):
@@ -1101,7 +1127,7 @@ SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_QUEST_END: ScriptHandler.handle_script_type_quest_end,
     ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
     # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
-    # ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
+    ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
     ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
     # ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,
     # ScriptTypes.SCRIPT_TYPE_SPELL: ScriptHandler.handle_script_type_spell

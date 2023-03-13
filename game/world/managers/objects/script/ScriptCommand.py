@@ -27,6 +27,7 @@ class ScriptCommand:
         self.target = None
 
     def resolve_target(self, source, target):
+        # TODO: Take ScriptFlags into account (for example to swap source and target etc).
         self.source = source
         from game.world.managers.objects.script.ScriptManager import ScriptManager
         self.target = ScriptManager.get_target_by_type(
