@@ -102,6 +102,9 @@ class PetMovement(BaseMovement):
 
     def _should_move(self):
         charmer_or_summoner = self.unit.get_charmer_or_summoner()
+        if not charmer_or_summoner:
+            return False, None
+
         target_location = self.stay_position if self.stay_position else charmer_or_summoner.location
         current_distance = self.unit.location.distance(target_location)
 
