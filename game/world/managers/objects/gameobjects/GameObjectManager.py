@@ -277,7 +277,7 @@ class GameObjectManager(ObjectManager):
         target.send_spell_cast_debug_info(damage_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(value, self)
 
-    def use(self, player, target=None):
+    def use(self, player=None, target=None):
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
             self._handle_use_door(player)
         if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON:

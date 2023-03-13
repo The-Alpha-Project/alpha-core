@@ -99,7 +99,7 @@ class EffectTargets:
             return [target]
         return target
 
-    def can_target_friendly(self, target=None) -> bool:
+    def can_target_friendly(self, unit_target=None) -> bool:
         implicit_targets = {self.target_effect.implicit_target_a, self.target_effect.implicit_target_b}
 
         if FRIENDLY_IMPLICIT_TARGETS.intersection(implicit_targets):
@@ -107,7 +107,7 @@ class EffectTargets:
 
         # Neutral targets can target friendly. Use target context if given to resolve.
         if NEUTRAL_IMPLICIT_TARGETS.intersection(implicit_targets):
-            return not target or not self.casting_spell.spell_caster.can_attack_target(target)
+            return not unit_target or not self.casting_spell.spell_caster.can_attack_target(unit_target)
 
         # Spells with implicit target set to 0 can have both friendly and hostile targets.
         # These spells include passives, testing spells and npc spells.

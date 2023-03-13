@@ -919,20 +919,24 @@ class WorldDatabaseManager(object):
 
     class CreatureAiEventHolder:
         EVENTS_BY_ID: dict[int, CreatureAiEvent] = {}
-        EVENTS_BY_CREATURE_ID: dict[int, list[CreatureAiEvent]] = {}
+        EVENTS_BY_CREATURE_ID: dict[int, dict[int, CreatureAiEvent]] = {}
 
         @staticmethod
-        def load_creature_ai_event(ai_event):
-            if ai_event.id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID:
-                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID[ai_event.id] = ai_event
+        def load_creature_ai_event(event):
+            if event.id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID:
+                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID[event.id] = event
 
-            if ai_event.creature_id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID:
-                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[ai_event.creature_id] = []
-            WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[ai_event.creature_id].append(ai_event)
+            if event.creature_id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID:
+                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id] = {}
+
+            if event.event_type not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id]:
+                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id][event.event_type] = event
 
         @staticmethod
-        def creature_ai_events_get_by_creature_entry(creature_id):
-            return WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID.get(creature_id, [])
+        def creature_ai_events_get_by_creature_entry(entry):
+            if entry not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID:
+                return {}
+            return WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[entry]
 
         @staticmethod
         def creature_ai_event_get_by_event_id(event_id):

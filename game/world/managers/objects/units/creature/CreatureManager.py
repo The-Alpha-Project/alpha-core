@@ -290,9 +290,6 @@ class CreatureManager(UnitManager):
             # Movement.
             self.movement_manager.initialize()
 
-            # AI Event handler.
-            self.object_ai.ai_event_handler.initialize()
-
             self.fully_loaded = True
 
     def set_virtual_equipment(self, slot, item_id):

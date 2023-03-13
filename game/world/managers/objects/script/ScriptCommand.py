@@ -1,4 +1,3 @@
-from utils.Logger import Logger
 from utils.constants.ScriptCodes import ScriptCommands
 
 
@@ -32,8 +31,6 @@ class ScriptCommand:
         from game.world.managers.objects.script.ScriptManager import ScriptManager
         self.target = ScriptManager.get_target_by_type(
             self.source, target, self.target_type, self.target_param1, self.target_param2)
-        if not self.target:
-            Logger.warning(f'{self.get_info()} was unable to resolve a target.')
 
     def get_info(self):
         return f'ScriptID: {self.script_id}, Command {ScriptCommands(self.command).name}'

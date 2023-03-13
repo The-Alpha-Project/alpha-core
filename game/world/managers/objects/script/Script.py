@@ -24,11 +24,13 @@ class Script:
                 return
             self.commands.remove(script_command)
 
-            # Resolve target. TODO: 'ConditionTargetsInternal' VmANGOS.
+            # TODO: 'ConditionTargetsInternal' VMaNGOS.
+            # Try to resolve a target.
             script_command.resolve_target(self.source, self.target)
 
             # Condition is not met, skip.
-            if not ConditionChecker.check_condition(script_command.condition_id, source=self.source, target=self.target):
+            if not ConditionChecker.check_condition(script_command.condition_id, source=self.source,
+                                                    target=self.target):
                 continue
 
             # Execute action.
