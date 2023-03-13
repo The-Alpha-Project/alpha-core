@@ -17,8 +17,6 @@ class ScriptManager:
     # This can return either UnitManager or GameObjectManager. (Both have spell managers and aura managers)
     def get_target_by_type(caster, target, target_type, param1=None, param2=None, spell_template=None):
         try:
-            if not ScriptManager._validate_is_unit(caster):
-                return None
             return SCRIPT_TARGETS[target_type](caster, target, param1, param2, spell_template)
         except KeyError:
             Logger.warning(f'Unknown target type {target_type}.')

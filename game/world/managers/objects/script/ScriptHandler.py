@@ -15,7 +15,7 @@ from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds
+    ObjectTypeIds, GameObjectTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
@@ -346,7 +346,27 @@ class ScriptHandler:
         # If provided target is BUTTON GameObject, command is run on it too.
         # datalong = db_guid
         # datalong2 = reset_delay
-        Logger.debug('ScriptHandler: handle_script_command_open_door not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
+            return
+
+        provided_spawn_id = command.datalong
+        if provided_spawn_id:
+            gobject_spawn = MapManager.get_surrounding_gameobject_by_spawn_id(command.source, provided_spawn_id)
+            if not gobject_spawn:
+                Logger.warning(f'ScriptHandler: Aborting {command.get_info()}, '
+                               f'Gameobject with Spawn ID {provided_spawn_id} not found.')
+                return
+            gobject_spawn.gameobject_instance.use()
+        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
+                command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+            command.source.use()
+
+        if command.target and command.target.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
+                command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+            command.target.use()
+
+        # TODO: Handle reset_delay
 
     @staticmethod
     def handle_script_command_close_door(command):
@@ -354,7 +374,27 @@ class ScriptHandler:
         # If provided target is BUTTON GameObject, command is run on it too.
         # datalong = db_guid
         # datalong2 = reset_delay
-        Logger.debug('ScriptHandler: handle_script_command_close_door not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
+            return
+
+        provided_spawn_id = command.datalong
+        if provided_spawn_id:
+            gobject_spawn = MapManager.get_surrounding_gameobject_by_spawn_id(command.source, provided_spawn_id)
+            if not gobject_spawn:
+                Logger.warning(f'ScriptHandler: Aborting {command.get_info()}, '
+                               f'Gameobject with Spawn ID {provided_spawn_id} not found.')
+                return
+            gobject_spawn.gameobject_instance.set_ready()
+        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
+                command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+            command.source.set_ready()
+
+        if command.target and command.target.get_type_id == ObjectTypeIds.ID_GAMEOBJECT and \
+                command.target.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
+            command.target.set_ready()
+
+        # TODO: Handle reset_delay
 
     @staticmethod
     def handle_script_command_activate_object(command):
