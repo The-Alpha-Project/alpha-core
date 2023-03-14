@@ -10,13 +10,14 @@ class GameObjectBuilder:
 
     @staticmethod
     def create(entry_id, location, map_id, instance_id, state, summoner=None, rot0=0, rot1=0, rot2=0, rot3=0, faction=0,
-               spell_id=0, ttl=0, spawn_id=0):
+               spell_id=0, ttl=0, spawn_id=0, is_spawned=True):
 
         gobject_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry_id)
         if not gobject_template:
             return None
 
         gameobject_instance = GameObjectManager()
+        gameobject_instance.is_spawned = is_spawned
         gameobject_instance.spawn_id = spawn_id
         gameobject_instance.entry = gobject_template.entry
         gameobject_instance.guid = gameobject_instance.generate_object_guid(GameObjectBuilder.GUID_MANAGER.get_new_guid())
@@ -43,19 +44,4 @@ class GameObjectBuilder:
         if summoner:
             gameobject_instance.flags |= GameObjectFlags.TRIGGERED
 
-        return gameobject_instance
-
-    @staticmethod
-    def create_from_spawn_id(spawn_id, instance_id, ttl=0):
-        gameobject_spawn = WorldDatabaseManager.gameobject_spawn_get_by_spawn_id(spawn_id)
-        location = Vector(gameobject_spawn.spawn_positionX, gameobject_spawn.spawn_positionY,
-                          gameobject_spawn.spawn_positionZ, gameobject_spawn.spawn_orientation)
-        gameobject_instance = GameObjectBuilder.create(gameobject_spawn.spawn_entry, location,
-                                                       gameobject_spawn.spawn_map, instance_id,
-                                                       gameobject_spawn.spawn_state,
-                                                       rot0=gameobject_spawn.spawn_rotation0,
-                                                       rot1=gameobject_spawn.spawn_rotation1,
-                                                       rot2=gameobject_spawn.spawn_rotation2,
-                                                       rot3=gameobject_spawn.spawn_rotation3,
-                                                       ttl=ttl)
         return gameobject_instance

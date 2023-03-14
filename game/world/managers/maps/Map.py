@@ -45,7 +45,7 @@ class Map:
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
             gameobject_spawn = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
-            gameobject_spawn.spawn_gameobject()
+            gameobject_spawn.spawn()
             count += 1
             Logger.progress(f'Loading gameobjects Map {self.name}, Instance {self.instance_id}...', count, length)
 

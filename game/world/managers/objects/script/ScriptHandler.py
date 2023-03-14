@@ -290,11 +290,11 @@ class ScriptHandler:
         # target = GameObject (from datalong, provided source or target)
         # datalong = db_guid
         # datalong2 = despawn_delay
-        from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
-        gameobject = GameObjectBuilder.create_from_spawn_id(spawn_id=command.datalong,
-                                                            instance_id=command.source.instance_id,
-                                                            ttl=command.datalong2)
-        MapManager.spawn_object(world_object_instance=gameobject)
+        go_spawn = MapManager.get_surrounding_gameobject_by_spawn_id(command.source, command.datalong)
+        if not go_spawn:
+            Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
+            return
+        go_spawn.spawn()
 
     @staticmethod
     def handle_script_command_temp_summon_creature(command):
