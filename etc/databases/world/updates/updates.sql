@@ -621,6 +621,31 @@ begin not atomic
         insert into applied_updates values ('130320232');
     end if;
 	
+	-- 13/03/2023 1
+    if(select count(*) from applied_updates where id = '130320231') = 0 then
+
+        -- Set guesstimated display_id for Timber.
+        update creature_template set display_id1 = 720 where entry = 1132;
+
+        -- Set display_id for Captured Leper Gnome. Since there are only 4
+        -- leper gnome display_ids available and he spawns as a random one
+        -- out of 4 we'll just take all of them.
+        update creature_template set display_id1 = 1101, display_id2 = 2490, display_id3 = 352, display_id4 = 836 where entry = 5568;
+
+        -- Also fix Captured Leper Gnome's Z as he's supposed to stand in the cage,
+        -- not below it.
+        update spawns_creatures set position_z = 397 where spawn_id = 186;
+
+        -- Fix faction for several NPCs in Ironforge (was 1217):
+        -- Bogus Thunderbrew <Food and Drink>
+        -- Lana Thunderbrew <Blacksmithing Supplies>
+        -- Jonivera Farmountain <Cartography Trainer>
+        -- Svalbrad Farmountain <Cartography Supplier>
+        update creature_template set faction = 57 where entry in(4255, 4257, 5134, 5135);
+
+        insert into applied_updates values ('130320231');
+    end if;
+	
     -- 14/03/2023 1
     if(select count(*) from applied_updates where id = '140320232') = 0 then
 		-- Spanwed by quest_end_script 308.
