@@ -621,7 +621,7 @@ begin not atomic
         insert into applied_updates values ('130320232');
     end if;
 	
-	-- 13/03/2023 1
+    -- 13/03/2023 1
     if(select count(*) from applied_updates where id = '130320231') = 0 then
 
         -- Set guesstimated display_id for Timber.
