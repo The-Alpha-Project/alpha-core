@@ -33,10 +33,11 @@ class ScriptHandler:
         self.ooc_event = None
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0):
-        # Grab start script command.
+        # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
-        if script_commands:
-            script_commands.sort(key=lambda command: command.delay)
+        if not script_commands:
+            return
+        script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay)
         self.script_queue.append(new_script)
 
@@ -53,7 +54,7 @@ class ScriptHandler:
             return SCRIPT_TYPES[script_type](script_id)
         except IndexError:
             Logger.warning(f'Unknown script type: {script_type}.')
-            return []
+            return None
 
     def reset(self):
         self.script_queue.clear()
