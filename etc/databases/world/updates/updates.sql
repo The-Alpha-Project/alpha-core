@@ -646,11 +646,5 @@ begin not atomic
         insert into applied_updates values ('130320231');
     end if;
 	
-    -- 14/03/2023 1
-    if(select count(*) from applied_updates where id = '140320232') = 0 then
-		-- Spanwed by quest_end_script 308.
-        UPDATE `alpha_world`.`spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '35875');       
-        insert into applied_updates values ('140320232');
-    end if;		
 end $
 delimiter ;
