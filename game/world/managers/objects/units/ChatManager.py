@@ -43,8 +43,9 @@ class ChatManager(object):
         ChatLogManager.log_chat(world_session.player_mgr, message, chat_type)
 
     @staticmethod
-    def send_monster_emote_message(sender, guid, message, chat_type, lang, range_):
-        packet = ChatManager._get_monster_message_packet(sender.creature_template.name, guid,
+    def send_monster_message(sender, message, chat_type, lang, range_, target=None):
+        target_guid = target.guid if target else sender.guid
+        packet = ChatManager._get_monster_message_packet(sender.creature_template.name, target_guid,
                                                          ChatFlags.CHAT_TAG_NONE, message, chat_type, lang)
         MapManager.send_surrounding_in_range(packet, sender, range_, use_ignore=False)
 
@@ -126,16 +127,13 @@ class ChatManager(object):
         return PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data)
 
     @staticmethod
-    def _get_monster_message_packet(name, guid, chat_flags, message, chat_type, lang, target_guid=0):
+    def _get_monster_message_packet(name, target_guid, chat_flags, message, chat_type, lang):
         message_bytes = PacketWriter.string_to_bytes(message)
         monster_name_bytes = PacketWriter.string_to_bytes(name)
 
-        data = pack('<BI', chat_type, lang)
+        data = pack(
+            f'<BI{len(monster_name_bytes)}sQ{len(message_bytes)}sB',
+            chat_type, lang, monster_name_bytes, target_guid, message_bytes, chat_flags
+        )
 
-        if chat_type == ChatMsgs.CHAT_MSG_MONSTER_EMOTE:
-            data += pack(f'<{len(monster_name_bytes)}sQ', monster_name_bytes, target_guid)
-        elif chat_type == ChatMsgs.CHAT_MSG_MONSTER_SAY or chat_type == ChatMsgs.CHAT_MSG_MONSTER_YELL:
-            data += pack(f'<{len(monster_name_bytes)}sQ', monster_name_bytes, guid)
-
-        data += pack(f'<{len(message_bytes)}sB', message_bytes, chat_flags)
         return PacketWriter.get_packet(OpCode.SMSG_MESSAGECHAT, data)
