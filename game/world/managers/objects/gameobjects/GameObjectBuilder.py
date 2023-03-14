@@ -1,4 +1,5 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
 from utils.constants.MiscFlags import GameObjectFlags
@@ -42,4 +43,19 @@ class GameObjectBuilder:
         if summoner:
             gameobject_instance.flags |= GameObjectFlags.TRIGGERED
 
+        return gameobject_instance
+
+    @staticmethod
+    def create_from_spawn_id(spawn_id, instance_id, ttl=0):
+        gameobject_spawn = WorldDatabaseManager.gameobject_spawn_get_by_spawn_id(spawn_id)
+        location = Vector(gameobject_spawn.spawn_positionX, gameobject_spawn.spawn_positionY,
+                          gameobject_spawn.spawn_positionZ, gameobject_spawn.spawn_orientation)
+        gameobject_instance = GameObjectBuilder.create(gameobject_spawn.spawn_entry, location,
+                                                       gameobject_spawn.spawn_map, instance_id,
+                                                       gameobject_spawn.spawn_state,
+                                                       rot0=gameobject_spawn.spawn_rotation0,
+                                                       rot1=gameobject_spawn.spawn_rotation1,
+                                                       rot2=gameobject_spawn.spawn_rotation2,
+                                                       rot3=gameobject_spawn.spawn_rotation3,
+                                                       ttl=ttl)
         return gameobject_instance

@@ -145,7 +145,7 @@ class CommandManager(object):
             unit = CommandManager._target_or_self(world_session)
             if unit == world_session.player_mgr:
                 return -1, f'invalid unit selection.'
-            unit.movement_manager.move_waypoints_from_script()
+            unit.movement_manager.move_automatic_waypoints_from_script()
             return 0, ''
         except:
             return -1, 'invalid unit selection.'

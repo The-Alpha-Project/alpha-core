@@ -97,8 +97,9 @@ class CreatureGroupManager:
         return self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE
 
     def _get_sorted_waypoints_by_distance(self, movement_waypoints) -> list[MovementWaypoint]:
-        points = [MovementWaypoint(wp) for wp in movement_waypoints]  # Wrap them.
-        closest = min(points, key=lambda wp: self.leader.spawn_position.distance(wp.location()))
+        points = [MovementWaypoint(wp.point, wp.position_x, wp.position_y, wp.position_z, wp.orientation,
+                                   wp.waittime / 1000, wp.script_id) for wp in movement_waypoints]  # Wrap them.
+        closest = min(points, key=lambda wp: self.leader.spawn_position.distance(wp.location))
         index = points.index(closest)
         if index:
             points = points[index:] + points[0:index]

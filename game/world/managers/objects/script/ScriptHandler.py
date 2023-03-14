@@ -12,7 +12,6 @@ from game.world.managers.objects.script.ScriptOocEvent import ScriptOocEvent
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
-from utils.TextUtils import GameTextFormatter
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
     ObjectTypeIds, GameObjectTypes, GameObjectStates
@@ -36,6 +35,8 @@ class ScriptHandler:
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0):
         # Grab start script command.
         script_commands = self.resolve_script_actions(script_type, script_id)
+        if script_commands:
+            script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay)
         self.script_queue.append(new_script)
 
@@ -212,15 +213,15 @@ class ScriptHandler:
         if coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_NORMAL:
             distance = command.source.location.distance(Vector(command.x, command.y, command.z))
             speed = distance / time_ * 0.001 if time_ > 0 else config.Unit.Defaults.walk_speed
-            location = Vector(command.x, command.y, command.z)
+            location = Vector(command.x, command.y, command.z, command.o)
         elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RELATIVE_TO_TARGET and command.target:
             location = Vector(command.target.location.x + command.x, command.target.location.y + command.y,
-                              command.target.location.z + command.z)
+                              command.target.location.z + command.z, command.o)
         elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_DISTANCE_FROM_TARGET:
             distance = command.x
             angle = command.source.location.o if command.o < 0 else random.uniform(0, 2 * math.pi)
             target_point = command.source.location.get_point_in_radius_and_angle(distance, angle)
-            location = Vector(target_point.x, target_point.y, target_point.z)
+            location = Vector(target_point.x, target_point.y, target_point.z, command.o)
         elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RANDOM_POINT:
             # Unclear how this works as the data doesn't seem to provide any information about the radius.
             return
@@ -288,7 +289,11 @@ class ScriptHandler:
         # target = GameObject (from datalong, provided source or target)
         # datalong = db_guid
         # datalong2 = despawn_delay
-        Logger.debug('ScriptHandler: handle_script_command_respawn_gameobject not implemented yet')
+        from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
+        gameobject = GameObjectBuilder.create_from_spawn_id(spawn_id=command.datalong,
+                                                            instance_id=command.source.instance_id,
+                                                            ttl=command.datalong2)
+        MapManager.spawn_object(world_object_instance=gameobject)
 
     @staticmethod
     def handle_script_command_temp_summon_creature(command):
@@ -500,7 +505,7 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
-        command.source.movement_manager.move_waypoints_from_script()
+        command.source.movement_manager.move_automatic_waypoints_from_script()
 
     @staticmethod
     def handle_script_command_set_activeobject(command):

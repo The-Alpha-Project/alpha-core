@@ -1,3 +1,4 @@
+import time
 from typing import Optional
 
 from game.world.managers.maps.MapManager import MapManager
@@ -137,11 +138,11 @@ class MovementManager:
             return
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback))
 
-    def move_waypoints_from_script(self):
+    def move_automatic_waypoints_from_script(self):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback))
 
     def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
-        self.spline_callback(SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed))
+        self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, waypoints=[location], speed=speed))
 
     def get_move_behavior_by_type(self, move_type) -> Optional[BaseMovement]:
         return self.movement_behaviors.get(move_type, None)

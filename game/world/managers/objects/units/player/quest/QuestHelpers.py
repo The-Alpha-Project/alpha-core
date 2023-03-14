@@ -13,6 +13,11 @@ class QuestHelpers:
                not QuestHelpers.requires_items_or_gos(quest_template)
 
     @staticmethod
+    def requires_items(quest_template):
+        req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest_template)))
+        return len(req_items) > 0
+
+    @staticmethod
     def is_quest_repeatable(quest_template):
         return quest_template.SpecialFlags & QuestSpecialFlags.QUEST_SPECIAL_FLAG_REPEATABLE
 

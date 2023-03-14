@@ -1,6 +1,5 @@
 from game.world.managers.maps.helpers import CellUtils
 from utils.ConfigManager import config
-from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveType, ScriptTypes
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
@@ -41,9 +40,9 @@ class GroupMovement(BaseMovement):
             return
         current_wp = self._get_waypoint()
         self._waypoint_push_back()
-        if current_wp.script_id():
+        if current_wp.script_id:
             self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
-                                                    current_wp.script_id())
+                                                    current_wp.script_id)
 
     # override
     def reset(self):
@@ -62,8 +61,8 @@ class GroupMovement(BaseMovement):
     def _perform_waypoint(self):
         waypoint = self._get_waypoint()
         speed = config.Unit.Defaults.walk_speed
-        spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint.location()], speed=speed,
-                                                   extra_time_seconds=waypoint.wait_time_seconds())
+        spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint.location], speed=speed,
+                                                   extra_time_seconds=waypoint.wait_time_seconds)
         self.spline_callback(spline, movement_behavior=self)
 
     def _perform_follow_movement(self, elapsed):

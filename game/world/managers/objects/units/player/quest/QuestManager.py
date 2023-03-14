@@ -842,7 +842,7 @@ class QuestManager(object):
                 self.send_quest_giver_request_items(quest, quest_giver_guid, close_on_cancel=False)
                 return
 
-        if quest_id in self.active_quests and self.active_quests[quest_id].requires_items():
+        if QuestHelpers.requires_items(quest):
             self.send_quest_giver_request_items(quest, quest_giver_guid, close_on_cancel=False)
         else:
             self.send_quest_giver_offer_reward(quest, quest_giver_guid, True)
