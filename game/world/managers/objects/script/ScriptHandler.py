@@ -162,8 +162,8 @@ class ScriptHandler:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
         
-        ChatManager.send_monster_emote_message(speaker, speaker.guid, text_to_say, chat_msg_type, lang,
-                                               ChatHandler.get_range_by_type(chat_msg_type))
+        ChatManager.send_monster_message(speaker, text_to_say, chat_msg_type, lang,
+                                         ChatHandler.get_range_by_type(chat_msg_type), command.target)
 
         # Neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them.
         if broadcast_message.emote_id1 != 0:
@@ -786,9 +786,10 @@ class ScriptHandler:
 
         flee_text = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
         command.source.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
-        ChatManager.send_monster_emote_message(command.source, command.source.guid, flee_text.male_text,
-                                               ChatMsgs.CHAT_MSG_MONSTER_EMOTE, Languages.LANG_UNIVERSAL,
-                                               ChatHandler.get_range_by_type(ChatMsgs.CHAT_MSG_MONSTER_EMOTE))
+        ChatManager.send_monster_message(command.source, flee_text.male_text,
+                                         ChatMsgs.CHAT_MSG_MONSTER_EMOTE, Languages.LANG_UNIVERSAL,
+                                         ChatHandler.get_range_by_type(ChatMsgs.CHAT_MSG_MONSTER_EMOTE),
+                                         command.target)
         if command.source.spell_manager:
             command.source.spell_manager.remove_casts(remove_active=False)
         command.source.movement_manager.move_fear(duration_seconds=7)  # Flee for 7 seconds.
