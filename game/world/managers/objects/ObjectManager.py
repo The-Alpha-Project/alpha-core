@@ -64,6 +64,7 @@ class ObjectManager:
 
         self.initialized = False
         self.is_spawned = True
+        self.is_default = True
         self.summoner = None
         self.charmer = None
         self.current_cell = ''
@@ -369,15 +370,23 @@ class ObjectManager:
         pass
 
     # override
-    def destroy(self):
+    def despawn(self):
         self.is_spawned = False
+        if self.spell_manager:
+            self.spell_manager.remove_casts()
         if self.object_ai:
             self.object_ai.just_despawned()
-        MapManager.remove_object(self)
+        # Destroy completely.
+        if self.is_default:
+            MapManager.remove_object(self)
+            return
+        # Despawn (De-activate)
+        MapManager.update_object(self, has_changes=True)
 
     # override
     def respawn(self):
-        pass
+        self.is_spawned = True
+        MapManager.update_object(world_object=self, has_changes=True)
 
     # override
     def is_above_water(self):

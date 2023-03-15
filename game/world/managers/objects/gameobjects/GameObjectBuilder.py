@@ -1,5 +1,4 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
 from utils.constants.MiscFlags import GameObjectFlags
@@ -10,13 +9,14 @@ class GameObjectBuilder:
 
     @staticmethod
     def create(entry_id, location, map_id, instance_id, state, summoner=None, rot0=0, rot1=0, rot2=0, rot3=0, faction=0,
-               spell_id=0, ttl=0, spawn_id=0, is_spawned=True):
+               spell_id=0, ttl=0, spawn_id=0, is_spawned=True, is_default=False):
 
         gobject_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry_id)
         if not gobject_template:
             return None
 
         gameobject_instance = GameObjectManager()
+        gameobject_instance.is_default = is_default
         gameobject_instance.is_spawned = is_spawned
         gameobject_instance.spawn_id = spawn_id
         gameobject_instance.entry = gobject_template.entry

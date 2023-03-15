@@ -24,9 +24,9 @@ class GameObjectSpawn:
 
     def update(self, now):
         if now > self.last_tick > 0:
-            # Non default objects are manually triggered by scripts/events.
             if not self.is_default:
                 return
+
             elapsed = now - self.last_tick
             gameobject = self.gameobject_instance
             if gameobject:
@@ -40,19 +40,24 @@ class GameObjectSpawn:
     def spawn(self, ttl=0):
         # New instance for default objects.
         if self.is_default:
-            self.gameobject_instance = self._generate_gameobject_instance(is_spawned=True)
+            self.gameobject_instance = self._generate_gameobject_instance()
         # Triggered objects uses the existent instance.
         elif not self.gameobject_instance:
-            self.gameobject_instance = self._generate_gameobject_instance(ttl=ttl, is_spawned=False)
+            self.gameobject_instance = self._generate_gameobject_instance(ttl=ttl)
+        # Inactive object, just activate.
+        elif not self.is_default:
+            self.gameobject_instance.time_to_live_timer = ttl
+            self.gameobject_instance.respawn()
+            return
 
         MapManager.spawn_object(world_object_spawn=self, world_object_instance=self.gameobject_instance)
 
     def despawn(self):
         if not self.gameobject_instance or not self.gameobject_instance.is_spawned:
             return
-        self.gameobject_instance.destroy()
+        self.gameobject_instance.despawn()
 
-    def _generate_gameobject_instance(self, ttl=0, is_spawned=True):
+    def _generate_gameobject_instance(self, ttl=0):
         gameobject_template_id = self._generate_gameobject_template()
 
         if not gameobject_template_id:
@@ -70,7 +75,8 @@ class GameObjectSpawn:
                                                        rot1=self.gameobject_spawn.spawn_rotation1,
                                                        rot2=self.gameobject_spawn.spawn_rotation2,
                                                        rot3=self.gameobject_spawn.spawn_rotation3,
-                                                       spawn_id=self.spawn_id, ttl=ttl, is_spawned=is_spawned)
+                                                       spawn_id=self.spawn_id, ttl=ttl, is_spawned=self.is_default,
+                                                       is_default=self.is_default)
         return gameobject_instance
 
     def _update_respawn(self, elapsed):

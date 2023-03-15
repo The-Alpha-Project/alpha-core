@@ -18,7 +18,7 @@ class MiningNodeManager(object):
 
         # Max attempts, despawn.
         if self.attempts >= max_amount:
-            self.mining_node.destroy()
+            self.mining_node.despawn()
             return
 
         # 100% chance until min uses.
@@ -36,7 +36,7 @@ class MiningNodeManager(object):
 
         # Failed chance roll, despawn.
         if not succeed_roll:
-            self.mining_node.destroy()
+            self.mining_node.despawn()
             return
 
         # Node still alive, regenerate loot.

@@ -164,7 +164,7 @@ class GameObjectManager(ObjectManager):
     def handle_loot_release(self, player):
         # On loot release, always despawn the fishing bobber regardless of it still having loot or not.
         if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
-            self.destroy()
+            self.despawn()
             return
 
         if self.loot_manager:
@@ -174,7 +174,7 @@ class GameObjectManager(ObjectManager):
                 if self.loot_manager.has_loot():
                     self.set_ready()
                 else:  # Despawn or destroy.
-                    self.destroy()
+                    self.despawn()
             # Mining node.
             else:
                 self.mining_node_manager.handle_looted(player)
@@ -393,20 +393,14 @@ class GameObjectManager(ObjectManager):
             self.time_to_live_timer -= elapsed
             # Time to live expired, destroy.
             if self.time_to_live_timer <= 0:
-                self.destroy()
+                self.despawn()
                 return False
         return True
 
     # override
-    def destroy(self):
-        if self.spell_manager:
-            self.spell_manager.remove_casts()
+    def despawn(self):
         self.unlocked_by.clear()
-        super().destroy()
-
-    # override
-    def respawn(self):
-        pass
+        super().despawn()
 
     # override
     def update(self, now):

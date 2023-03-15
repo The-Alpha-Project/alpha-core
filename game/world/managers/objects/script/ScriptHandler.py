@@ -294,7 +294,7 @@ class ScriptHandler:
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
             return
-        go_spawn.spawn()
+        go_spawn.spawn(ttl=command.datalong2)
 
     @staticmethod
     def handle_script_command_temp_summon_creature(command):
