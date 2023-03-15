@@ -39,7 +39,7 @@ class GameObjectBuilder:
         gameobject_instance.state = state
         gameobject_instance.time_to_live_timer = ttl
 
-        if summoner:
-            gameobject_instance.flags |= GameObjectFlags.TRIGGERED
+        # if summoner:
+        #     gameobject_instance.flags |= GameObjectFlags.TRIGGERED
 
         return gameobject_instance
