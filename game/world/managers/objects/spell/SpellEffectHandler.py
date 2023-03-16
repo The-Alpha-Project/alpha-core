@@ -953,6 +953,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_LEAP: SpellEffectHandler.handle_leap,
     SpellEffects.SPELL_EFFECT_TAME_CREATURE: SpellEffectHandler.handle_tame_creature,
     SpellEffects.SPELL_EFFECT_SUMMON_PET: SpellEffectHandler.handle_summon_pet,
+    SpellEffects.SPELL_EFFECT_SUMMON: SpellEffectHandler.handle_summon_pet,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT: SpellEffectHandler.handle_permanent_enchant,
     SpellEffects.SPELL_EFFECT_SKILL_STEP: SpellEffectHandler.handle_skill_step,
     SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY: SpellEffectHandler.handle_temporary_enchant,
