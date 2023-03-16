@@ -1,7 +1,6 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
-from utils.constants.MiscFlags import GameObjectFlags
 
 
 class GameObjectBuilder:

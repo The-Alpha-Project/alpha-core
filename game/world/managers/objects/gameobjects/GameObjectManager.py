@@ -398,7 +398,7 @@ class GameObjectManager(ObjectManager):
         return True
 
     # override
-    def despawn(self):
+    def despawn(self, ttl=0):
         self.unlocked_by.clear()
         super().despawn()
 

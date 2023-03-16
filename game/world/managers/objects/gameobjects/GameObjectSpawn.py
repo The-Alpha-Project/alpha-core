@@ -24,9 +24,6 @@ class GameObjectSpawn:
 
     def update(self, now):
         if now > self.last_tick > 0:
-            if not self.is_default:
-                return
-
             elapsed = now - self.last_tick
             gameobject = self.gameobject_instance
             if gameobject:
@@ -52,10 +49,13 @@ class GameObjectSpawn:
 
         MapManager.spawn_object(world_object_spawn=self, world_object_instance=self.gameobject_instance)
 
-    def despawn(self):
+    def despawn(self, ttl=0):
         if not self.gameobject_instance or not self.gameobject_instance.is_spawned:
             return
-        self.gameobject_instance.despawn()
+        if ttl:
+            self.respawn_timer = 0
+            self.respawn_time = ttl
+        self.gameobject_instance.despawn(ttl=ttl)
 
     def _generate_gameobject_instance(self, ttl=0):
         gameobject_template_id = self._generate_gameobject_template()
@@ -80,6 +80,8 @@ class GameObjectSpawn:
         return gameobject_instance
 
     def _update_respawn(self, elapsed):
+        if self.respawn_time <= 0:
+            return
         self.respawn_timer += elapsed
         # Spawn a new gameobject instance when needed.
         if self.respawn_timer >= self.respawn_time:

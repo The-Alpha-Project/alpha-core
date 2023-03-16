@@ -14,7 +14,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds, GameObjectTypes, GameObjectStates
+    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, ScriptCommands, \
@@ -27,7 +27,8 @@ from utils.ConfigManager import config
 class ScriptHandler:
 
     def __init__(self, world_object):
-        self.world_object = world_object
+        self.owner = world_object
+        self.is_quest_giver = world_object.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and self.owner.is_quest_giver()
         self.script_queue = []
         self.ooc_ignore = set()
         self.ooc_event = None
@@ -63,17 +64,25 @@ class ScriptHandler:
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
         for script in list(self.script_queue):
+            # TODO: Fix modify flags command.
+            if not script.started and self.is_quest_giver:
+                self.owner.set_npc_flag(NpcFlags.NPC_FLAG_QUESTGIVER, state=False)
+
             script.update(now)
             if not script.is_complete():
                 continue
             # Finished all actions, remove.
             self.script_queue.remove(script)
 
+            # TODO: Fix modify flags command.
+            if self.is_quest_giver:
+                self.owner.set_npc_flag(NpcFlags.NPC_FLAG_QUESTGIVER, state=True)
+
         # Check if we need to initialize or remove ooc event.
         self._check_occ_event(now)
 
     def _check_occ_event(self, now):
-        if not self.ooc_event or self.world_object.in_combat or self.world_object.is_evading:
+        if not self.ooc_event or self.owner.in_combat or self.owner.is_evading:
             return
         # Check if we should remove the ongoing ooc event.
         if self.ooc_event.started and self.ooc_event.is_complete(now):
@@ -84,11 +93,11 @@ class ScriptHandler:
         elif not self.ooc_event.started:
             # Initialize the ooc event, will pick one random script.
             self.ooc_event.initialize(now)
-            self.enqueue_script(self.world_object, self.ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
+            self.enqueue_script(self.owner, self.ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
                                 script_id=self.ooc_event.script_id, delay=self.ooc_event.delay)
 
     def set_random_ooc_event(self, target, event):
-        if not ConditionChecker.check_condition(event.condition_id, self.world_object, target):
+        if not ConditionChecker.check_condition(event.condition_id, self.owner, target):
             return
 
         # Ignored or already running a script.
@@ -212,9 +221,9 @@ class ScriptHandler:
         location = None
 
         if coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_NORMAL:
-            distance = command.source.location.distance(Vector(command.x, command.y, command.z))
-            speed = distance / time_ * 0.001 if time_ > 0 else config.Unit.Defaults.walk_speed
             location = Vector(command.x, command.y, command.z, command.o)
+            distance = command.source.location.distance(location)
+            speed = distance / time_ * 0.001 if time_ > 0 else config.Unit.Defaults.walk_speed
         elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RELATIVE_TO_TARGET and command.target:
             location = Vector(command.target.location.x + command.x, command.target.location.y + command.y,
                               command.target.location.z + command.z, command.o)
@@ -230,23 +239,25 @@ class ScriptHandler:
         if angle:
             command.source.movement_manager.set_face_angle(angle)
         if location:
+
             command.source.movement_manager.move_to_point(location, speed)
 
+    # TODO: This is not compatible with 0.5.3.
     @staticmethod
     def handle_script_command_modify_flags(command):
         # source = Object
         # datalong = field_id
-        # datalong2 = bitmask
-        # datalong3 = eModifyFlagsOptions
+        # datalong2 = raw bitmask
+        # datalong3 = ModifyFlagsOptions
+        if command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
+            pass
+        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
+            pass
+        elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_TOGGLE:
+            pass
         Logger.debug('ScriptHandler: handle_script_command_modify_flags not implemented yet')
-        if command.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
-            pass
-        elif command.datalong2 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
-            pass
-        else:
-            pass
 
-    # TODO: Missing delayed handling.
+    # TODO: Missing delayed handling. (SPELL_STATE_DELAYED)
     @staticmethod
     def handle_script_command_interrupt_casts(command):
         # source = Unit
@@ -290,11 +301,19 @@ class ScriptHandler:
         # target = GameObject (from datalong, provided source or target)
         # datalong = db_guid
         # datalong2 = despawn_delay
-        go_spawn = MapManager.get_surrounding_gameobject_by_spawn_id(command.source, command.datalong)
+        go_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
             return
         go_spawn.spawn(ttl=command.datalong2)
+
+    @staticmethod
+    def handle_script_command_despawn_gameobject(command):
+        go_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
+        if not go_spawn:
+            Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
+            return
+        go_spawn.despawn(ttl=command.datalong2)
 
     @staticmethod
     def handle_script_command_temp_summon_creature(command):
@@ -359,7 +378,7 @@ class ScriptHandler:
 
         provided_spawn_id = command.datalong
         if provided_spawn_id:
-            gobject_spawn = MapManager.get_surrounding_gameobject_by_spawn_id(command.source, provided_spawn_id)
+            gobject_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, provided_spawn_id)
             if not gobject_spawn:
                 Logger.warning(f'ScriptHandler: Aborting {command.get_info()}, '
                                f'Gameobject with Spawn ID {provided_spawn_id} not found.')
@@ -386,7 +405,7 @@ class ScriptHandler:
 
         provided_spawn_id = command.datalong
         if provided_spawn_id:
-            gobject_spawn = MapManager.get_surrounding_gameobject_by_spawn_id(command.source, provided_spawn_id)
+            gobject_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, provided_spawn_id)
             if not gobject_spawn:
                 Logger.warning(f'ScriptHandler: Aborting {command.get_info()}, '
                                f'Gameobject with Spawn ID {provided_spawn_id} not found.')
@@ -1056,13 +1075,6 @@ class ScriptHandler:
             return
 
         target.set_state(GameObjectStates(command.datalong))
-
-    @staticmethod
-    def handle_script_command_despawn_gameobject(command):
-        # source = GameObject (from datalong, provided source or target)
-        # datalong = db_guid
-        # datalong2 = despawn_delay
-        Logger.debug('ScriptHandler: handle_script_command_despawn_gameobject not implemented yet')
 
     @staticmethod
     def handle_script_command_quest_credit(command):

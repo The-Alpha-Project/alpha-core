@@ -106,6 +106,20 @@ class QuestManager(object):
 
         return False
 
+    def remove_quest(self, quest_id):
+        if quest_id in self.active_quests:
+            self.remove_from_quest_log(quest_id)
+            return
+        if quest_id in self.completed_quests:
+            quest_db_states = RealmDatabaseManager.character_get_quests(self.player_mgr.guid)
+            for quest_db_state in quest_db_states:
+                if quest_db_state.quest != quest_id:
+                    continue
+                self.completed_quests.remove(quest_id)
+                RealmDatabaseManager.character_delete_quest(quest_db_state.guid, quest_id)
+                self.update_surrounding_quest_status()
+                break
+
     def get_dialog_status(self, quest_giver):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
         new_dialog_status = QuestGiverStatus.QUEST_GIVER_NONE

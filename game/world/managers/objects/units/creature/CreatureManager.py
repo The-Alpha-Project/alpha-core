@@ -700,6 +700,14 @@ class CreatureManager(UnitManager):
             self.on_at_home()
         return True
 
+    def set_npc_flag(self, flag, state):
+        if not state:
+            self.npc_flags &= ~flag
+        else:
+            self.npc_flags |= flag
+        self.bytes_1 = self.get_bytes_1()
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+
     # override
     def get_name(self):
         return self.creature_template.name

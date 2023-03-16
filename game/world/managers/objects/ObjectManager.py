@@ -370,14 +370,14 @@ class ObjectManager:
         pass
 
     # override
-    def despawn(self):
+    def despawn(self, ttl=0):
         self.is_spawned = False
         if self.spell_manager:
             self.spell_manager.remove_casts()
         if self.object_ai:
             self.object_ai.just_despawned()
         # Destroy completely.
-        if self.is_default:
+        if self.is_default and not ttl:
             MapManager.remove_object(self)
             return
         # Despawn (De-activate)

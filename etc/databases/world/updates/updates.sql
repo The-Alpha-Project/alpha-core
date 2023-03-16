@@ -655,6 +655,35 @@ begin not atomic
 
         insert into applied_updates values ('140320231');
     end if;
+	
+    -- 15/03/2023 1
+	if(select count(*) from applied_updates where id = '150320231') = 0 then
+		UPDATE `quest_template` SET `SpecialFlags` = '1' WHERE (`entry` = '308');
+
+        DELETE FROM `quest_end_scripts` WHERE `id`=308;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (308, 0, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5600.98, -540.38, 392.42, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 3, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5597.71, -543.117, 392.42, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 5, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5598.95, -549.48, 395.48, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 6, 0, 81, 1037, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Distracting Jarven: Guarded Thunder Ale Barrel - Despawn'),
+        (308, 6, 0, 9, 35875, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Distracting Jarven: Unguarded Thunder Ale Barrel - Respawn'),
+        (308, 8, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5605.31, -549.33, 399.09, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 11, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5607.55, -546.63, 399.09, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 13, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5597.52, -538.75, 399.09, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 19, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5597.62, -530.24, 399.65, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 23, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5603.67, -529.91, 399.65, 3.16, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 125, 0, 0, 0, 0, 0, 0, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Say Text'),
+        (308, 41, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5597.62, -530.24, 399.65, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 43, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5597.52, -539.75, 399.09, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 46, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5607.55, -545.63, 399.09, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 51, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5605.31, -549.33, 399.09, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 54, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5598, -549.326, 395.48, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 57, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5597.59, -543.05, 392.42, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 60, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5599.94, -540.04, 392.42, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
+        (308, 63, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5605.96, -544.45, 392.43, 0.9, 0, 'Distracting Jarven: Jarven Thunderbrew - Move');
+		
+        insert into applied_updates values ('150320231');
+    end if;
 
 end $
 delimiter ;

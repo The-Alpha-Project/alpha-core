@@ -735,6 +735,17 @@ class CommandManager(object):
         return 0, f'{len(quests)} quests found.'
 
     @staticmethod
+    def qdel(world_session, args):
+        try:
+            quest_id = int(args)
+            player_mgr = CommandManager._target_or_self(world_session, only_players=True)
+            player_mgr.quest_manager.remove_quest(quest_id)
+
+            return 0, ''
+        except ValueError:
+            return -1, 'please specify a valid quest entry.'
+
+    @staticmethod
     def qadd(world_session, args):
         try:
             quest_id = int(args)
@@ -918,7 +929,8 @@ GM_COMMAND_DEFINITIONS = {
     'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
     'alltaxis': [CommandManager.alltaxis, 'discover all flightpaths'],
     'squest': [CommandManager.squest, 'search quests'],
-    'qadd': [CommandManager.qadd, 'adds a quest to your log']
+    'qadd': [CommandManager.qadd, 'adds a quest to your log'],
+    'qdel': [CommandManager.qdel, 'delete active or completed quest']
 }
 
 DEV_COMMAND_DEFINITIONS = {

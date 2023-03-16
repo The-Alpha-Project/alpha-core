@@ -653,6 +653,10 @@ class MapManager:
         return MapManager.get_map(map_id, instance_id).get_creature_spawn_by_id(spawn_id)
 
     @staticmethod
+    def get_gameobject_spawn_by_id(map_id, instance_id, spawn_id):
+        return MapManager.get_map(map_id, instance_id).get_gameobject_spawn_by_id(spawn_id)
+
+    @staticmethod
     def get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id):
         return MapManager.get_map_by_object(world_object).get_surrounding_creature_spawn_by_spawn_id(
             world_object, spawn_id)
@@ -691,8 +695,8 @@ class MapManager:
         return MapManager.get_map_by_object(world_object).get_surrounding_gameobject_by_guid(world_object, guid)
 
     @staticmethod
-    def get_surrounding_gameobject_by_spawn_id(world_object, spawn_id):
-        return MapManager.get_map_by_object(world_object).get_surrounding_gameobject_by_spawn_id(world_object, spawn_id)
+    def get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id):
+        return MapManager.get_map_by_object(world_object).get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id)
 
     @staticmethod
     def update_creatures():
