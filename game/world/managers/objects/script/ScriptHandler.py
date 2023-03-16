@@ -239,7 +239,6 @@ class ScriptHandler:
         if angle:
             command.source.movement_manager.set_face_angle(angle)
         if location:
-
             command.source.movement_manager.move_to_point(location, speed)
 
     # TODO: This is not compatible with 0.5.3.
