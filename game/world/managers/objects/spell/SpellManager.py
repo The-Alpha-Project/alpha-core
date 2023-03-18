@@ -590,7 +590,7 @@ class SpellManager:
         casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
 
         if casting_spell.dynamic_object:
-            casting_spell.dynamic_object.destroy()
+            casting_spell.dynamic_object.despawn()
         [effect.area_aura_holder.destroy() for effect in casting_spell.get_effects() if effect.area_aura_holder]
 
         # Cancel auras applied by an active spell if the spell was interrupted.

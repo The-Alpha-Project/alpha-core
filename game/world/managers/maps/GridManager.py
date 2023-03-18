@@ -255,6 +255,13 @@ class GridManager:
                 return spawn_found
         return None
 
+    def get_gameobject_spawn_by_id(self, spawn_id):
+        for cell in set(self.cells.values()):
+            spawn_found = cell.gameobject_spawns.get(spawn_id)
+            if spawn_found:
+                return spawn_found
+        return None
+
     def _get_surrounding_creature_spawns(self, world_object):
         spawns = {}
         location = world_object.location
@@ -332,7 +339,7 @@ class GridManager:
         except KeyError:
             return None
 
-    def get_surrounding_gameobject_by_spawn_id(self, world_object, spawn_id_):
+    def get_surrounding_gameobject_spawn_by_spawn_id(self, world_object, spawn_id_):
         surrounding_gameobjects_spawns = self._get_surrounding_gameobjects_spawns(world_object)
         try:
             return surrounding_gameobjects_spawns[spawn_id_]

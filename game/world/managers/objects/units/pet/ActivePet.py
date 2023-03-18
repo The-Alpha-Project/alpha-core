@@ -154,7 +154,7 @@ class ActivePet:
 
         # Orphan creature. In some cases, the creature may already be destroyed.
         if self.creature.is_spawned and not self.creature.spawn_id:
-            self.creature.destroy()
+            self.creature.despawn()
 
         # Releasing a pet. Restore state.
         if self.is_permanent() or not self.is_controlled():

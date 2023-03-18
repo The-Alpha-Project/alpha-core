@@ -282,10 +282,6 @@ class ActiveQuest:
         else:
             self.update_quest_state(QuestState.QUEST_ACCEPTED)
 
-    def requires_items(self):
-        req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
-        return len(req_items) > 0
-
     def requires_item(self, item_entry):
         req_items = QuestHelpers.generate_req_item_list(self.quest)
         req_src_items = QuestHelpers.generate_req_source_list(self.quest)

@@ -45,7 +45,7 @@ class Map:
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
             gameobject_spawn = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
-            gameobject_spawn.spawn_gameobject()
+            gameobject_spawn.spawn()
             count += 1
             Logger.progress(f'Loading gameobjects Map {self.name}, Instance {self.instance_id}...', count, length)
 
@@ -92,6 +92,9 @@ class Map:
     def get_creature_spawn_by_id(self, spawn_id):
         return self.grid_manager.get_creature_spawn_by_id(spawn_id)
 
+    def get_gameobject_spawn_by_id(self, spawn_id):
+        return self.grid_manager.get_gameobject_spawn_by_id(spawn_id)
+
     def get_surrounding_units_by_location(self, vector, target_map, target_instance, range_, include_players=False):
         return self.grid_manager.get_surrounding_units_by_location(vector, target_map, target_instance, range_, include_players)
 
@@ -113,8 +116,8 @@ class Map:
     def get_surrounding_gameobject_by_guid(self, world_object, guid):
         return self.grid_manager.get_surrounding_gameobject_by_guid(world_object, guid)
 
-    def get_surrounding_gameobject_by_spawn_id(self, world_object, spawn_id):
-        return self.grid_manager.get_surrounding_gameobject_by_spawn_id(world_object, spawn_id)
+    def get_surrounding_gameobject_spawn_by_spawn_id(self, world_object, spawn_id):
+        return self.grid_manager.get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id)
 
     def update_creatures(self):
         self.grid_manager.update_creatures()

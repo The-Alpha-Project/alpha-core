@@ -546,7 +546,7 @@ class CreatureManager(UnitManager):
         if self.summoner and not self.is_alive and self.is_spawned and self.initialized:
             self.destroy_timer += elapsed
             if self.destroy_timer >= self.destroy_time:
-                self.destroy()
+                self.despawn()
                 return False
         return True
 
@@ -555,7 +555,7 @@ class CreatureManager(UnitManager):
             self.time_to_live_timer -= elapsed
             # Time to live expired, destroy.
             if self.time_to_live_timer <= 0:
-                self.destroy()
+                self.despawn()
                 return False
         return True
 
@@ -699,6 +699,14 @@ class CreatureManager(UnitManager):
         if location == self.spawn_position:
             self.on_at_home()
         return True
+
+    def set_npc_flag(self, flag, state):
+        if not state:
+            self.npc_flags &= ~flag
+        else:
+            self.npc_flags |= flag
+        self.bytes_1 = self.get_bytes_1()
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
 
     # override
     def get_name(self):

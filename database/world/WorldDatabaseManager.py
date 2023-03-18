@@ -854,14 +854,14 @@ class WorldDatabaseManager(object):
     @staticmethod
     def quest_start_script_get_by_quest_id(quest_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(QuestStartScript).filter_by(quest_id=quest_id).all()
+        res = world_db_session.query(t_quest_start_scripts).filter_by(id=quest_id).all()
         world_db_session.close()
         return res
 
     @staticmethod
     def quest_end_script_get_by_quest_id(quest_id):
         world_db_session = SessionHolder()
-        res = world_db_session.query(QuestEndScript).filter_by(quest_id=quest_id).all()
+        res = world_db_session.query(t_quest_end_scripts).filter_by(id=quest_id).all()
         world_db_session.close()
         return res
 
