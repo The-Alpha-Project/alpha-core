@@ -10,6 +10,6 @@ class GooberManager(object):
         if self.has_custom_animation:
             self.goober_object.send_custom_animation(0)
         if self.is_consumable:
-            self.goober_object.destroy()
+            self.goober_object.despawn()
         if self.quest_id:
             player.quest_manager.handle_goober_use(self.goober_object, self.quest_id)

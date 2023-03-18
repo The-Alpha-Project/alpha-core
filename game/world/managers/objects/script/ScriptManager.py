@@ -125,7 +125,7 @@ class ScriptManager:
     @staticmethod
     def handle_gameobject_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
         spawn_id: Optional[int] = param1
-        spawn = MapManager.get_surrounding_gameobject_by_spawn_id(caster, spawn_id)
+        spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(caster, spawn_id)
         if not spawn or not spawn.gameobject_instance or not spawn.gameobject_instance.is_spawned:
             return None
         return spawn.gameobject_instance

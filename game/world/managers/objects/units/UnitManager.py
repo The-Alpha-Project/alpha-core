@@ -308,13 +308,18 @@ class UnitManager(ObjectManager):
     def attack_update(self, elapsed):
         # Don't update melee swing timers while casting, stunned, pacified or fleeing..
         if not self.can_perform_melee_attack():
+            # Timers must be updated when out of combat.
+            if not self.in_combat:
+                self.update_attack_timers(elapsed)
             return False
 
+        self.update_attack_timers(elapsed)
+        return self.update_melee_attacking_state()
+
+    def update_attack_timers(self, elapsed):
         self.update_attack_time(AttackTypes.BASE_ATTACK, elapsed * 1000.0)
         if self.has_offhand_weapon():
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
-
-        return self.update_melee_attacking_state()
 
     def update_melee_attacking_state(self):
         # Don't update melee swing timers while casting, stunned, pacified or fleeing..
@@ -1609,7 +1614,7 @@ class UnitManager(ObjectManager):
         return True
 
     # override
-    def destroy(self):
+    def despawn(self):
         # Make sure to remove casts from units that are destroyed but not necessarily killed. e.g. Totems.
         if self.spell_manager:
             self.spell_manager.remove_casts()
@@ -1626,7 +1631,7 @@ class UnitManager(ObjectManager):
                 charmer.spell_manager.unlock_spell_cooldown(summon_spell)
 
         self.is_alive = False
-        super().destroy()
+        super().despawn()
 
         charmer_or_summoner = self.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit

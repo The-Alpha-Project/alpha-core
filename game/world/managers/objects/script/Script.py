@@ -12,11 +12,13 @@ class Script:
         self.script_handler = script_handler
         self.delay: float = delay
         self.time_added: float = time.time()
+        self.started = False
 
     def update(self, now):
         # Check initial delay for command sequence.
         if now - self.time_added < self.delay:
             return
+        self.started = True
 
         for script_command in list(self.commands):
             # Check if it's time to execute the command action.
@@ -35,7 +37,6 @@ class Script:
 
             # Execute action.
             self.script_handler.handle_script_command_execution(script_command)
-            break
 
     def abort(self):
         self.commands.clear()

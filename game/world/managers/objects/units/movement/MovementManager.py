@@ -1,3 +1,4 @@
+import time
 from typing import Optional
 
 from game.world.managers.maps.MapManager import MapManager
@@ -66,18 +67,16 @@ class MovementManager:
             MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)
 
     def flush(self):
-        self._remove_invalid_expired_behaviors()
+        self.reset(clean_behaviors=True)
         for move_type in self.movement_behaviors.keys():
             self.movement_behaviors[move_type] = None
-        self.stop()
 
     def reset(self, clean_behaviors=False):
         self.pause_ooc_timer = 0
         # If currently moving, update the current spline in order to have latest guessed position before flushing.
         spline = self._get_current_spline()
         if spline:
-            spline.update_to_now()
-            self.stop()
+            self.stop(force=True)
         self.unit.movement_spline = None
         if clean_behaviors:
             self._remove_invalid_expired_behaviors()
@@ -137,18 +136,18 @@ class MovementManager:
             return
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback))
 
-    def move_waypoints_from_script(self):
+    def move_automatic_waypoints_from_script(self):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback))
 
     def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
-        self.spline_callback(SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed))
+        self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, waypoints=[location], speed=speed))
 
     def get_move_behavior_by_type(self, move_type) -> Optional[BaseMovement]:
         return self.movement_behaviors.get(move_type, None)
 
     # Instant.
-    def stop(self):
-        if not self.unit.is_moving():
+    def stop(self, force=False):
+        if not force and not self.unit.is_moving():
             return
         current_behavior = self._get_current_behavior()
         # Make sure the current behavior spline does not update an extra tick.

@@ -53,7 +53,7 @@ class DynamicObjectManager(ObjectManager):
             if self.ttl > 0:
                 self.ttl = max(0, self.ttl - elapsed)
                 if self.ttl == 0:
-                    self.destroy()
+                    self.despawn()
 
         self.last_tick = now
 
