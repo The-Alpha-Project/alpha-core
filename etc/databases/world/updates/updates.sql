@@ -685,5 +685,12 @@ begin not atomic
         insert into applied_updates values ('150320231');
     end if;
 
+    -- 15/03/2023 1
+    if(select count(*) from applied_updates where id = '150320231') = 0 then
+        -- Fix Grom'gol camp fire.
+        update gameobject_template set displayId = 192 where entry = 176504;
+
+        insert into applied_updates values ('150320231');
+    end if;
 end $
 delimiter ;
