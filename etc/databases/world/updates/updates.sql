@@ -658,8 +658,6 @@ begin not atomic
 
     -- 15/03/2023 1
 	if(select count(*) from applied_updates where id = '150320231') = 0 then
-		UPDATE `quest_template` SET `SpecialFlags` = '1' WHERE (`entry` = '308');
-
         DELETE FROM `quest_end_scripts` WHERE `id`=308;
         INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (308, 0, 0, 3, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, -5600.98, -540.38, 392.42, 0, 0, 'Distracting Jarven: Jarven Thunderbrew - Move'),
