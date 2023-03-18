@@ -1609,7 +1609,7 @@ class UnitManager(ObjectManager):
         return True
 
     # override
-    def destroy(self):
+    def despawn(self):
         # Make sure to remove casts from units that are destroyed but not necessarily killed. e.g. Totems.
         if self.spell_manager:
             self.spell_manager.remove_casts()
@@ -1626,7 +1626,7 @@ class UnitManager(ObjectManager):
                 charmer.spell_manager.unlock_spell_cooldown(summon_spell)
 
         self.is_alive = False
-        super().destroy()
+        super().despawn()
 
         charmer_or_summoner = self.get_charmer_or_summoner()
         # Detach from controller if this unit is an active pet and the summoner is a unit

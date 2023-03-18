@@ -79,7 +79,7 @@ class CreatureGroupManager:
         if self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_ANY_EVADE or \
                 (self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_MASTER_EVADE and leader_evade):
             for guid, member in self.members.items():
-                member.creature.destroy()
+                member.creature.despawn()
             self.disband()
         elif self.group_flags & CreatureGroupFlags.OPTION_EVADE_TOGETHER:
             for guid, member in self.members.items():
