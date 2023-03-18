@@ -885,6 +885,12 @@ begin not atomic
         update spawns_gameobjects set spawn_positionX = -3716.220, spawn_positionY = -800.334, spawn_positionZ = 26.48 where spawn_id = 14567;
         -- Fix placement of book "The Battle of Grim Batol" in Menethil Harbor
         update spawns_gameobjects set spawn_positionX = -3823.855, spawn_positionY = -836.920, spawn_positionZ = 18.22 where spawn_id = 14569;
+        -- Fix Z placement of Hargin Mundar
+        update spawns_creatures set position_z = 9.592 where spawn_id = 9535;
+        -- Fix Z placement of Innkeeper Helbrek
+        update spawns_creatures set position_z = 10.215 where spawn_id = 9460;
+        -- Fix Z placement of Junder Brokk
+        update spawns_creatures set position_z = 10.219 where spawn_id = 9526;
 
         insert into applied_updates values ('160320231');
     end if;
