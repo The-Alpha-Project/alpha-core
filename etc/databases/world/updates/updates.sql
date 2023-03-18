@@ -881,6 +881,8 @@ begin not atomic
         -- Fix spells/abilities for Dun Modr siege dwarves.
         update creature_ai_scripts set datalong = 1485 where id in(107201, 107401); -- Shoot
         update creature_ai_scripts set datalong = 4061 where id = 107301; -- Throw Dynamite (replaced by Coarse Dynamite)
+        -- Fix placement of book "Charge of the Dragonflights" in Menethil Harbor
+        update spawns_gameobjects set spawn_positionX = -3716.220, spawn_positionY = -800.334, spawn_positionZ = 26.48 where spawn_id = 14567;
 
         insert into applied_updates values ('160320231');
     end if;
