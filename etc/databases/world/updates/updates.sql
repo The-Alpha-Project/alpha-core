@@ -878,6 +878,9 @@ begin not atomic
         update spawns_creatures set movement_type = 0 where spawn_id = 9793;
         -- Set faction for Cave Stalker to 22 (Spider).
         update creature_template set faction = 22 where entry = 4040;
+        -- Fix spells/abilities for Dun Modr siege dwarves.
+        update creature_ai_scripts set datalong = 1485 where id in(107201, 107401); -- Shoot
+        update creature_ai_scripts set datalong = 4061 where id = 107301; -- Throw Dynamite (replaced by Coarse Dynamite)
 
         insert into applied_updates values ('160320231');
     end if;
