@@ -876,6 +876,8 @@ begin not atomic
         -- Set one Dragonmaw Scout's spawn to idle instead of waypoints.
         -- The waypoints are from vanilla and don't work with the alpha terrain.
         update spawns_creatures set movement_type = 0 where spawn_id = 9793;
+        -- Set faction for Cave Stalker to 22 (Spider).
+        update creature_template set faction = 22 where entry = 4040;
 
         insert into applied_updates values ('160320231');
     end if;
