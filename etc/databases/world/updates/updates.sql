@@ -883,6 +883,8 @@ begin not atomic
         update creature_ai_scripts set datalong = 4061 where id = 107301; -- Throw Dynamite (replaced by Coarse Dynamite)
         -- Fix placement of book "Charge of the Dragonflights" in Menethil Harbor
         update spawns_gameobjects set spawn_positionX = -3716.220, spawn_positionY = -800.334, spawn_positionZ = 26.48 where spawn_id = 14567;
+        -- Fix placement of book "The Battle of Grim Batol" in Menethil Harbor
+        update spawns_gameobjects set spawn_positionX = -3823.855, spawn_positionY = -836.920, spawn_positionZ = 18.22 where spawn_id = 14569;
 
         insert into applied_updates values ('160320231');
     end if;
