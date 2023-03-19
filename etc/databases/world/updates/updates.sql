@@ -707,9 +707,17 @@ begin not atomic
         -- Set faction for Talar <Bear Trainer> to Darnassus
         update creature_template set faction = 79 where entry = 4206;
         -- Spawn Talar's bear pet
-        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) VALUES (4247, 1, 10280.859, 2431.779, 1336.394, 2.145);
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4247, 1, 10280.859, 2431.779, 1336.394, 2.145);
         -- Set faction for Talar's pet to Darnassus
         update creature_template set faction = 79 where entry = 4247;
+        -- Move Kysandia <Cat Trainer> to Darnassus
+        update spawns_creatures set position_x = 10303.513, position_y = 2466.350, position_z = 1335.591, orientation = 3.070 where spawn_entry1 = 4153;
+        -- Set faction for Kysandia to Darnassus
+        update creature_template set faction = 79 where entry = 4153;
+        -- Spawn Kysandia's pet
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values(4246, 1, 10303.368, 2464.388, 1335.797, 3.068);
+        -- Set faction for Kysandia's pet to Darnassus
+        update creature_template set faction = 79 where entry = 4246;
 
         insert into applied_updates values ('190320231');
     end if;
