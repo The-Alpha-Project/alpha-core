@@ -703,6 +703,14 @@ begin not atomic
         -- Set placeholder display_id for Race Master Kronkrider.
         update creature_template set display_id1 = 2584 where entry = 4419;
 
+        -- Darnassus
+        -- Set faction for Talar <Bear Trainer> to Darnassus
+        update creature_template set faction = 79 where entry = 4206;
+        -- Spawn Talar's bear pet
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) VALUES (4247, 1, 10280.859, 2431.779, 1336.394, 2.145);
+        -- Set faction for Talar's pet to Darnassus
+        update creature_template set faction = 79 where entry = 4247;
+
         insert into applied_updates values ('190320231');
     end if;
 
