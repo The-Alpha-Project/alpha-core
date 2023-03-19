@@ -1,4 +1,3 @@
-from pyquaternion import Quaternion
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import TransportAnimation
 from game.world import WorldManager
@@ -13,7 +12,6 @@ class ElevatorManager:
     def __init__(self, owner):
         self.owner = owner
         self.entry = owner.gobject_template.entry
-        self.stationary_location = None
         self.path_progress = 0
         self.total_time = 0
         self.current_segment = 0
@@ -41,9 +39,6 @@ class ElevatorManager:
         return None
 
     def update(self):
-        if not self.stationary_location:
-            self.stationary_location = self.owner.location.copy()
-
         self.path_progress = self._get_time()
         next_node = self.get_next_node(self.path_progress)
         prev_node = self.get_previous_node(self.path_progress)
@@ -64,11 +59,13 @@ class ElevatorManager:
             location = Vector(time_elapsed * velocity_x, time_elapsed * velocity_y, time_elapsed * velocity_z)
             location += prev_pos
 
-        rotation_quat = self._get_rotation()
-        rotation = rotation_quat.rotate((location.x, location.y, location.z))
-        self.owner.location = self.stationary_location + Vector(rotation[0], rotation[1], rotation[2])
+        # TODO: Find a way to tell clients about elevator real position upon creation.
+        #  All clients must receive the original spawn location and then somehow we must tell them in which
+        #  part of the animation node paths the object is standing.
+        #  Compared to vanilla, we have no 'GAMEOBJECT_ANIMPROGRESS' nor 'UPDATEFLAG_TRANSPORT' for create packets.
+        current_anim_location = self.owner.location + location
         if config.Server.Settings.debug_transport:
-            self._debug_position(self.owner.location)
+            self._debug_position(current_anim_location)
 
     def _debug_position(self, location):
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
@@ -78,9 +75,5 @@ class ElevatorManager:
                                               ttl=1)
         MapManager.spawn_object(world_object_instance=gameobject)
 
-    def _get_rotation(self):
-        return Quaternion(x=self.owner.rot0, y=self.owner.rot1, z=self.owner.rot2, w=self.owner.rot3)
-
     def _get_time(self):
         return int(WorldManager.get_seconds_since_startup() * 1000) % self.total_time
-
