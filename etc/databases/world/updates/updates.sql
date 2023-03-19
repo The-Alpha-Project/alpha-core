@@ -719,6 +719,12 @@ begin not atomic
         -- Set faction for Kysandia's pet to Darnassus
         update creature_template set faction = 79 where entry = 4246;
 
+        -- Dun Morogh
+        -- move Durdek Karrin to outside of Misty Pine Refuge
+        update spawns_creatures set position_x = -5349.492, position_y = -1052.303, position_z = 393.588, orientation = 1.831 where spawn_id = 400069;
+        -- grant Durdek the spell to summon his pet bear
+        update creature_template set spell_id1 = 7903 where entry = 2881;
+
         insert into applied_updates values ('190320231');
     end if;
 
