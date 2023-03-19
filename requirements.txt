@@ -1,6 +1,7 @@
-bitarray
-PyYAML
-colorama
-SQLAlchemy
+bitarray~=2.7.3
+PyYAML~=6.0
+colorama~=0.4.6
+SQLAlchemy~=2.0.6
 pymysql
-apscheduler
+apscheduler~=3.10.1
+pyquaternion~=0.9.9

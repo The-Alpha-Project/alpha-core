@@ -1,5 +1,5 @@
 Version:
-    current: 8
+    current: 9
 
 Database:
     Connection:
@@ -40,6 +40,7 @@ Server:
         use_nav_tiles: False
         z_resolution: 256  # The resolution used when extracting maps
         debug_movement: False  # Moving NPCs will leave a trail of temporary gameobjects.
+        debug_transport: True  # Elevators will leave a trail of temporary gameobjects.
 
     Logging:
         # Debug level values (you can combine them as a mask):

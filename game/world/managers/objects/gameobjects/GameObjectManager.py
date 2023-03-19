@@ -1,10 +1,12 @@
 import math
+import time
 from math import pi, cos, sin
 from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
+from game.world.managers.objects.gameobjects.managers.ElevatorManager import ElevatorManager
 from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager
@@ -60,6 +62,7 @@ class GameObjectManager(ObjectManager):
         self.loot_manager = None  # Optional.
         self.trap_manager = None  # Optional.
         self.fishing_node_manager = None  # Optional.
+        self.elevator_manager = None  # Optional.
         self.mining_node_manager = None  # Optional.
         self.goober_manager = None  # Optional.
         self.ritual_manager = None  # Optional.
@@ -91,6 +94,10 @@ class GameObjectManager(ObjectManager):
         # Fishing node initialization.
         if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
             self.fishing_node_manager = FishingNodeManager(self)
+
+        # Elevator
+        if self.gobject_template.type == GameObjectTypes.TYPE_TRANSPORT:
+            self.elevator_manager = ElevatorManager(self)
 
         # Ritual initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
@@ -159,6 +166,7 @@ class GameObjectManager(ObjectManager):
             self.set_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
             self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
+            self.update(time.time())
             self.initialized = True
 
     def handle_loot_release(self, player):
@@ -247,7 +255,7 @@ class GameObjectManager(ObjectManager):
 
     # override
     def is_active_object(self):
-        return len(self.known_players) > 0
+        return len(self.known_players) > 0 or self.gobject_template.type == GameObjectTypes.TYPE_TRANSPORT
 
     def apply_spell_damage(self, target, damage, spell_effect, is_periodic=False):
         # Skip if target is invalid or already dead.
@@ -419,6 +427,8 @@ class GameObjectManager(ObjectManager):
                         self.fishing_node_manager.update(elapsed)
                     if self.spell_focus_manager:
                         self.spell_focus_manager.update(elapsed)
+                    if self.elevator_manager:
+                        self.elevator_manager.update()
 
                 # ScriptHandler update.
                 self.script_handler.update(now)

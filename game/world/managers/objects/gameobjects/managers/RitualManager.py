@@ -5,8 +5,7 @@ from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
 
 
-class RitualManager(object):
-
+class RitualManager:
     def __init__(self, ritual_object):
         self.ritual_object = ritual_object
         self.required_participants = ritual_object.gobject_template.data0 - 1  # -1 to include caster.
