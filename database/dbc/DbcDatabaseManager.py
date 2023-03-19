@@ -516,6 +516,24 @@ class DbcDatabaseManager:
         dbc_db_session.close()
         return res
 
+    # Transports
+
+    class TransportAnimationHolder:
+        TRANSPORT_ANIMATIONS = {}
+
+        @staticmethod
+        def load_transport_animation(t_animation):
+            if t_animation.TransportID not in DbcDatabaseManager.TransportAnimationHolder.TRANSPORT_ANIMATIONS:
+                DbcDatabaseManager.TransportAnimationHolder.TRANSPORT_ANIMATIONS[t_animation.TransportID] = []
+            DbcDatabaseManager.TransportAnimationHolder.TRANSPORT_ANIMATIONS[t_animation.TransportID].append(t_animation)
+
+    @staticmethod
+    def transport_animation_get_all():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(TransportAnimation).all()
+        dbc_db_session.close()
+        return res
+
     # Faction
 
     class FactionHolder:
