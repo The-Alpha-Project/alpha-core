@@ -531,6 +531,7 @@ class DbcDatabaseManager:
         def animations_by_entry(entry):
             return DbcDatabaseManager.TransportAnimationHolder.TRANSPORT_ANIMATIONS.get(entry, [])
 
+
     @staticmethod
     def transport_animation_get_all():
         dbc_db_session = SessionHolder()
