@@ -72,9 +72,9 @@ class ScriptHandler:
             self.script_queue.remove(script)
 
         # Check if we need to initialize or remove ooc event.
-        self._check_occ_event(now)
+        self._check_ooc_event(now)
 
-    def _check_occ_event(self, now):
+    def _check_ooc_event(self, now):
         if not self.ooc_event or self.owner.in_combat or self.owner.is_evading:
             return
         # Check if we should remove the ongoing ooc event.
