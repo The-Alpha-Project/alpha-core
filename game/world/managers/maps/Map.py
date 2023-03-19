@@ -44,8 +44,6 @@ class Map:
         count = 0
         length = len(gobject_spawns)
         for gobject_spawn in gobject_spawns:
-            if gobject_spawn.spawn_id != 18298:
-                continue
             gameobject_spawn = GameObjectSpawn(gobject_spawn, instance_id=self.instance_id)
             gameobject_spawn.spawn()
             count += 1
