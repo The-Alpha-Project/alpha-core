@@ -690,5 +690,15 @@ begin not atomic
 
         insert into applied_updates values ('150320232');
     end if;
+
+    -- 19/03/2023 1
+    if(select count(*) from applied_updates where id = '190320231') = 0 then
+        -- Wetlands
+        -- Fix Naela Trance, she's a vendor, not a trainer.
+        update creature_template set npc_flags = 1 where entry = 1459;
+
+        insert into applied_updates values ('190320231');
+    end if;
+
 end $
 delimiter ;
