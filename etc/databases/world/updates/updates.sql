@@ -699,6 +699,10 @@ begin not atomic
         -- Fix Fen Creeper's display_id according to sniffs.
         update creature_template set display_id1 = 2023 where entry = 1040;
 
+        -- Thousand Needles
+        -- Set placeholder display_id for Race Master Kronkrider.
+        update creature_template set display_id1 = 2584 where entry = 4419;
+
         insert into applied_updates values ('190320231');
     end if;
 
