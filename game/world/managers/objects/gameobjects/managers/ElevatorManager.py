@@ -67,9 +67,8 @@ class ElevatorManager:
         rotation_quat = self._get_rotation()
         rotation = rotation_quat.rotate((location.x, location.y, location.z))
         self.owner.location = self.stationary_location + Vector(rotation[0], rotation[1], rotation[2])
-
         if config.Server.Settings.debug_transport:
-            self._debug_position(location)
+            self._debug_position(self.owner.location)
 
     def _debug_position(self, location):
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
