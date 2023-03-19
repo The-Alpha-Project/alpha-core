@@ -64,19 +64,12 @@ class ScriptHandler:
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
         for script in list(self.script_queue):
-            # TODO: Fix modify flags command.
-            if not script.started and self.is_quest_giver:
-                self.owner.set_npc_flag(NpcFlags.NPC_FLAG_QUESTGIVER, state=False)
 
             script.update(now)
             if not script.is_complete():
                 continue
             # Finished all actions, remove.
             self.script_queue.remove(script)
-
-            # TODO: Fix modify flags command.
-            if self.is_quest_giver:
-                self.owner.set_npc_flag(NpcFlags.NPC_FLAG_QUESTGIVER, state=True)
 
         # Check if we need to initialize or remove ooc event.
         self._check_occ_event(now)
