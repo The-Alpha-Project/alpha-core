@@ -696,6 +696,8 @@ begin not atomic
         -- Wetlands
         -- Fix Naela Trance, she's a vendor, not a trainer.
         update creature_template set npc_flags = 1 where entry = 1459;
+        -- Fix Fen Creeper's display_id according to sniffs.
+        update creature_template set display_id1 = 2023 where entry = 1040;
 
         insert into applied_updates values ('190320231');
     end if;
