@@ -897,5 +897,13 @@ begin not atomic
         insert into applied_updates values ('160320231');
     end if;
 
+    -- 20/03/2023 1
+    if(select count(*) from applied_updates where id = '200320231') = 0 then
+        -- Fix faction for Rebald Yorglun and have him spawn his pet raptor
+        update creature_template set faction = 57, spell_id1 = 7910 where entry = 4621;
+
+        insert into applied_updates values ('200320231');
+    end if;
+
 end $
 delimiter ;
