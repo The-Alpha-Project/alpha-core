@@ -276,6 +276,11 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
+        # Units.
+        if command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
+            command.source.near_teleport(Vector(command.x, command.y, command.z, command.o))
+            return
+        # Players.
         command.source.teleport(command.datalong, Vector(command.x, command.y, command.z, command.o), is_instant=True)
 
     @staticmethod

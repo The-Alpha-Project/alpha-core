@@ -2,7 +2,7 @@ from game.world.managers.maps.MapManager import MapManager
 from utils.constants.SpellCodes import SpellTargetMask
 
 
-class TrapManager(object):
+class TrapManager:
     TRIGGERED_BY_CREATURES = {
         3355  # zzOldSnare Trap Effect
     }

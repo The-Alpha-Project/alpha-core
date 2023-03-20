@@ -4,8 +4,7 @@ from game.world.managers.maps.MapManager import MapManager
 from utils.constants.SpellCodes import SpellTargetMask
 
 
-class SpellFocusManager(object):
-
+class SpellFocusManager:
     def __init__(self, gameobject):
         self.gameobject = gameobject
         self.spell_focus_object = DbcDatabaseManager.spell_get_focus_by_id(gameobject.gobject_template.data0)

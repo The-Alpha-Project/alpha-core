@@ -35,6 +35,17 @@ class AreaTable(Base):
     AreaName_Mask = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
 
 
+class TransportAnimation(Base):
+    __tablename__ = 'TransportAnimation'
+
+    ID = Column(INTEGER(11), primary_key=True)
+    TransportID = Column(INTEGER(11), nullable=False)
+    TimeIndex = Column(INTEGER(11), nullable=False)
+    X = Column(Float, nullable=False)
+    Y = Column(Float, nullable=False)
+    Z = Column(Float, nullable=False)
+
+
 class AreaTrigger(Base):
     __tablename__ = 'AreaTrigger'
 

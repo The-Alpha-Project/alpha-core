@@ -37,6 +37,7 @@ class WorldLoader:
 
         # Gameobject spawns
         if config.Server.Settings.load_gameobjects:
+            WorldLoader.load_transport_animations()
             WorldLoader.load_gameobject_quest_starters()
             WorldLoader.load_gameobject_quest_finishers()
             WorldLoader.load_gameobject_scripts()
@@ -182,6 +183,19 @@ class WorldLoader:
         return length
 
     @staticmethod
+    def load_transport_animations():
+        transport_animations = DbcDatabaseManager.transport_animation_get_all()
+        length = len(transport_animations)
+        count = 0
+
+        for transport_animation in transport_animations:
+            DbcDatabaseManager.TransportAnimationHolder.load_transport_animation(transport_animation)
+            count += 1
+            Logger.progress('Loading transport animations...', count, length)
+
+        return length
+
+    @staticmethod
     def load_gameobject_quest_starters():
         gameobject_quest_starters = WorldDatabaseManager.gameobject_quest_starter_get_all()
         length = len(gameobject_quest_starters)
@@ -189,7 +203,6 @@ class WorldLoader:
 
         for gameobject_quest_starter in gameobject_quest_starters:
             WorldDatabaseManager.QuestRelationHolder.load_gameobject_starter_quest(gameobject_quest_starter)
-
             count += 1
             Logger.progress('Loading gameobject quest starters...', count, length)
 
@@ -203,7 +216,6 @@ class WorldLoader:
 
         for gameobject_quest_finisher in gameobject_quest_finishers:
             WorldDatabaseManager.QuestRelationHolder.load_gameobject_finisher_quest(gameobject_quest_finisher)
-
             count += 1
             Logger.progress('Loading gameobject quest finishers...', count, length)
 
