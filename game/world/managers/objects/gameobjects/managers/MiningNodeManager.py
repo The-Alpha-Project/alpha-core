@@ -2,7 +2,7 @@ import math
 import random
 
 
-class MiningNodeManager(object):
+class MiningNodeManager:
     def __init__(self, mining_node):
         self.mining_node = mining_node
         self.min_restock = mining_node.gobject_template.data4

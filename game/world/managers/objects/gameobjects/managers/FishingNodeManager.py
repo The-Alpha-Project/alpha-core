@@ -10,7 +10,7 @@ FISHING_CHANNEL_TIME = 30  # Extracted from SpellDuration.dbc (with ID 9).
 FISHING_REACTION_TIME = 2.0  # TODO: Reaction time, guessed value.
 
 
-class FishingNodeManager(object):
+class FishingNodeManager:
     def __init__(self, fishing_node):
         self.fishing_node = fishing_node
         # TODO: Is this the correct approach for splash generation?
@@ -68,11 +68,12 @@ class FishingNodeManager(object):
         player.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FISH_NOT_HOOKED))
 
     def update(self, elapsed):
-        if self.fishing_timer > 0:
-            self.fishing_timer = max(0, self.fishing_timer - elapsed)
-
-            # Activate fishing node.
-            if self.fishing_timer <= 0:
-                self.fishing_node.send_custom_animation(0)
-                self.became_active_time = time.time()
-                self.fishing_node.set_active()
+        if not self.fishing_timer:
+            return
+        self.fishing_timer = max(0, self.fishing_timer - elapsed)
+        if self.fishing_timer:
+            return
+        # Became active this tick, activate fishing node.
+        self.fishing_node.send_custom_animation(0)
+        self.became_active_time = time.time()
+        self.fishing_node.set_active()

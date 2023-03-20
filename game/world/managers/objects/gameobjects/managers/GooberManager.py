@@ -1,4 +1,4 @@
-class GooberManager(object):
+class GooberManager:
 
     def __init__(self, goober_object):
         self.goober_object = goober_object
