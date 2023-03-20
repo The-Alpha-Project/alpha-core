@@ -954,6 +954,9 @@ begin not atomic
         -- Fix faction for Rebald Yorglun and have him spawn his pet raptor
         update creature_template set faction = 57, spell_id1 = 7910 where entry = 4621;
 
+        -- Set proper placeholder display_id for Wanted: Murkdeep sign
+        update gameobject_template set displayId = 17 where entry = 175320;
+
         insert into applied_updates values ('200320231');
     end if;
 
