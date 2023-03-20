@@ -5,7 +5,7 @@ from struct import pack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.gameobjects.managers.ElevatorManager import ElevatorManager
+from game.world.managers.objects.gameobjects.managers.TransportManager import TransportManager
 from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
 from game.world.managers.objects.gameobjects.managers.GooberManager import GooberManager
@@ -61,7 +61,7 @@ class GameObjectManager(ObjectManager):
         self.loot_manager = None  # Optional.
         self.trap_manager = None  # Optional.
         self.fishing_node_manager = None  # Optional.
-        self.elevator_manager = None  # Optional.
+        self.transport_manager = None  # Optional.
         self.mining_node_manager = None  # Optional.
         self.goober_manager = None  # Optional.
         self.ritual_manager = None  # Optional.
@@ -94,9 +94,9 @@ class GameObjectManager(ObjectManager):
         if self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
             self.fishing_node_manager = FishingNodeManager(self)
 
-        # Elevator
+        # Transports.
         if self.gobject_template.type == GameObjectTypes.TYPE_TRANSPORT:
-            self.elevator_manager = ElevatorManager(self)
+            self.transport_manager = TransportManager(self)
 
         # Ritual initializations.
         if self.gobject_template.type == GameObjectTypes.TYPE_RITUAL:
@@ -425,8 +425,8 @@ class GameObjectManager(ObjectManager):
                         self.fishing_node_manager.update(elapsed)
                     if self.spell_focus_manager:
                         self.spell_focus_manager.update(elapsed)
-                    if self.elevator_manager:
-                        self.elevator_manager.update()
+                    if self.transport_manager:
+                        self.transport_manager.update()
 
                 # ScriptHandler update.
                 self.script_handler.update(now)

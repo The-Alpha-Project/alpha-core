@@ -12,7 +12,7 @@ from utils.constants.MiscCodes import GameObjectStates
 #  All clients must receive the original spawn location and then somehow we must tell them in which
 #  part of the animation node paths the object is standing.
 #  Compared to vanilla, we have no 'GAMEOBJECT_ANIMPROGRESS' nor 'UPDATEFLAG_TRANSPORT' for create packets.
-class ElevatorManager:
+class TransportManager:
     def __init__(self, owner):
         self.owner = owner
         self.entry = owner.gobject_template.entry
