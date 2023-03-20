@@ -58,9 +58,9 @@ class ActiveQuest:
         return self.can_complete_quest()
 
     def apply_exploration_completion(self, area_trigger_id):
-        if self.area_triggers and area_trigger_id in self.area_triggers and \
-                self.get_quest_state() != QuestState.QUEST_REWARD:
-            self.update_quest_state(QuestState.QUEST_REWARD)
+        if self.area_triggers and area_trigger_id in self.area_triggers and self.db_state.explored == 0:
+            self.db_state.explored = 1
+            self.save()
             return True
         return False
 
@@ -100,10 +100,11 @@ class ActiveQuest:
         return self.owner.give_xp([xp], notify=False)
 
     def update_timer(self, elapsed):
-        if not self.failed:
-            self.db_state.timer = max(0, self.db_state.timer - elapsed)
-            if self.db_state.timer == 0:
-                self.failed = True
+        if self.failed:
+            return
+        self.db_state.timer = max(0, self.db_state.timer - elapsed)
+        if not self.db_state.timer:
+            self.failed = True
 
     def send_quest_failed(self):
         data = pack('<I', self.quest.entry)
@@ -144,17 +145,18 @@ class ActiveQuest:
         req_items = QuestHelpers.generate_req_item_list(self.quest)
         req_count = QuestHelpers.generate_req_item_count_list(self.quest)
         # Only req items get persisted, not src items.
-        if item_entry in req_items:
-            req_item_index = req_items.index(item_entry)
-            # Persist new item count.
-            self._update_db_item_count(req_item_index, quantity, req_count[req_item_index])  # Update db memento
-            # Notify the current item count to the player.
-            data = pack('<2I', item_entry, quantity)
-            packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
-            self.owner.enqueue_packet(packet)
-            # Check if this makes it complete.
-            if self.can_complete_quest():
-                self.update_quest_state(QuestState.QUEST_REWARD)
+        if item_entry not in req_items:
+            return
+        req_item_index = req_items.index(item_entry)
+        # Persist new item count.
+        self._update_db_item_count(req_item_index, quantity, req_count[req_item_index])  # Update db memento
+        # Notify the current item count to the player.
+        data = pack('<2I', item_entry, quantity)
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_ADD_ITEM, data)
+        self.owner.enqueue_packet(packet)
+        # Check if this makes it complete.
+        if self.can_complete_quest():
+            self.update_quest_state(QuestState.QUEST_REWARD)
 
     # noinspection PyUnusedLocal
     def _update_db_item_count(self, index, value, required_count, override=False):
@@ -215,9 +217,8 @@ class ActiveQuest:
                 return False
 
         # Handle exploration.
-        if QuestHelpers.is_exploration_or_event(self.quest):
-            if self.get_quest_state() != QuestState.QUEST_REWARD:
-                return False
+        if QuestHelpers.is_exploration_or_event(self.quest) and not self.db_state.explored:
+            return False
 
         # Timed quests.
         if QuestHelpers.is_timed_quest(self.quest) and self.db_state.timer <= 0:
@@ -305,11 +306,6 @@ class ActiveQuest:
     # Last bit ON (LittleEndian) = Failed
     # Bit before last ON (LE) = Completed
     def get_progress(self):
-
-        # Handle exploration / event. (Read 'Extras')
-        if QuestHelpers.is_exploration_or_event(self.quest) and self.get_quest_state() == QuestState.QUEST_REWARD:
-            return 1 << 30
-
         total_count = 0
         # Creature or gameobject.
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
@@ -328,7 +324,11 @@ class ActiveQuest:
                     else:  # Fill remaining 0s (Missing kills)
                         total_count += 0 << (1 * i) + offset
 
-                # Debug, enable this to take a look on what's happening at bit level.
-                # Logger.debug(f'{bin(total_count)[2:].zfill(32)}')
+        # Handle exploration / event. (Read 'Extras')
+        if QuestHelpers.is_exploration_or_event(self.quest) and self.db_state.explored:
+            total_count += 1 << 30
+
+        # Debug, enable this to take a look on what's happening at bit level.
+        Logger.debug(f'{bin(total_count)[2:].zfill(32)}')
 
         return total_count
