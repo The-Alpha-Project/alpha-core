@@ -725,6 +725,10 @@ begin not atomic
         -- grant Durdek the spell to summon his pet bear
         update creature_template set spell_id1 = 7903 where entry = 2881;
 
+        -- Dustwallow Marsh
+        -- fix Kenna <Crocolisk Trainer>: set proper faction, set trainer flags, add pet to spawn
+        update creature_template set faction = 57, trainer_type = 3, trainer_class = 3, spell_id1 = 7908 where entry = 4901;
+
         insert into applied_updates values ('190320231');
     end if;
 
