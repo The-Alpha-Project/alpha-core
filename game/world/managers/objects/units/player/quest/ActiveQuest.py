@@ -185,6 +185,10 @@ class ActiveQuest:
         self.db_state.state = quest_state.value
         self.save()
 
+    def update_explored_event_state(self, state):
+        self.db_state.explored = 1 if state else 0
+        self.save()
+
     def update_quest_status(self, rewarded):
         self.db_state.rewarded = 1 if rewarded else 0
         self.save()

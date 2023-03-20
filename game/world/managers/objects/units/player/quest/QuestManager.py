@@ -1106,6 +1106,7 @@ class QuestManager(object):
 
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
+        active_quest.update_explored_event_state(state=True)
 
         if notify:
             data = pack('<I', active_quest.quest.entry)
