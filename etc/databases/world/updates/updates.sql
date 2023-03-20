@@ -753,7 +753,7 @@ begin not atomic
         -- Move the real Bernie Heisten to Goldshire.
         update spawns_creatures set position_x = -9545.16, position_y = -15.6298, position_z = 57.2866, orientation = 0.329 where spawn_id = 2703;
         -- Disable his clone.
-        update spawns_creatures set ignored = 1 where spawn_id = 400078;
+        delete from spawns_creatures where spawn_id = 400078;
         -- Bernie is missing flags and the trainer template indicating he's a spider trainer.
         -- Also let him summon his spider pet on spawn (needs implementation, see issue #981).
         update creature_template set trainer_type = 3, trainer_class = 3, trainer_id = 275, spell_id1 = 7912 where entry = 3546;
@@ -761,7 +761,7 @@ begin not atomic
         -- Move the real Bolyun to Darnassus.
         update spawns_creatures set position_x = 9917.74, position_y = 2195.93, position_z = 1327.95, orientation = 6.134 where spawn_id = 32651;
         -- Disable his clone.
-        update spawns_creatures set ignored = 1 where spawn_id = 400076;
+        delete from spawns_creatures where spawn_id = 400076;
         -- Also let him summon his spider pet on spawn (needs implementation, see issue #981).
         update creature_template set spell_id1 = 7912 where entry = 3698;
 
@@ -775,12 +775,12 @@ begin not atomic
         update creature_template set spell_id1 = 7906 where entry = 2878;
 
         -- Despawn Lanie Reed's clone.
-        update spawns_creatures set ignored = 1 where spawn_id = 400072;
+        delete from spawns_creatures where spawn_id = 400072;
         -- Let Lanie summon her pet Spider.
         update creature_template set spell_id1 = 7912 where entry = 2941;
 
         -- Despawn Laer Stepperunner's clone.
-        update spawns_creatures set ignored = 1 where spawn_id = 400065;
+        delete from spawns_creatures where spawn_id = 400065;
         -- Move the real Laer to Mulgore.
         update spawns_creatures set position_x = -2481.16, position_y = -473.534, position_z = -8.74122, orientation = 4.88692 where spawn_id = 21574;
         -- Fix up Laer to be an actual Wolf Trainer and remove the bread from his hands, he's no longer a vendor.
@@ -827,7 +827,7 @@ begin not atomic
 
         -- Move Grisha <Binder> (original) to Durotar where she belongs and despawn her clone in Searing Gorge.
         update spawns_creatures set position_x = -634.063, position_y = -4249.99, position_z = 38.5527, orientation = 6.15, map = 1 where spawn_id = 5596;
-        update spawns_creatures set ignored = 1 where spawn_id = 400059;
+        delete from spawns_creatures where spawn_id = 400059;
 
         -- Searing Gorge
         -- Despawn all Dark Iron Remains.
@@ -913,7 +913,7 @@ begin not atomic
         -- Update Grumnus Steelshaper to be a working blacksmithing trainer.
         update creature_template set trainer_id = 506 where entry = 5164;
 
-        -- Spawn Grund Drokta at Gol'Bolar Quarry, Dun Morogh.
+        -- Spawn Grund Drokda at Gol'Bolar Quarry, Dun Morogh.
         insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax) VALUES (2756, 0, -5686.274, -1610.097, 383.204, 2.042, 120, 120);
         -- Fix his faction to Ironforge and his level to 10. Other values copied from Quarrymaster Thesten.
         update creature_template set level_min = 10, level_max = 10, faction = 55, health_min = 198, health_max = 198, attack_power = 62, base_attack_time = 1.5, ranged_attack_time = 2, armor = 20, dmg_min = 9, dmg_max = 13, ranged_dmg_min = 16.808, ranged_dmg_max = 23.111, flags_extra = 524298 where entry = 2756;
