@@ -956,6 +956,10 @@ begin not atomic
 
         -- Set proper placeholder display_id for Wanted: Murkdeep sign
         update gameobject_template set displayId = 17 where entry = 175320;
+        -- Despawn Tharnariun's Cure GO - used for NYI quest Plagued Lands
+        delete from spawns_gameobjects where spawn_id = 48626;
+        -- Have Tharnariun Treetender summon his bear pet
+        update creature_template set spell_id1 = 7903 where entry = 3701;
 
         insert into applied_updates values ('200320231');
     end if;
