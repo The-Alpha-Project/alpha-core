@@ -253,7 +253,8 @@ class UnitSpellsValidator:
         3131,  # Frost Breath
         3129,  # Frost Breath
         3143,  # Glacial Roar
-        7395  # Deadmines Dynamite
+        7395,  # Deadmines Dynamite
+        3335   # Dark Sludge
     }
 
     @staticmethod
