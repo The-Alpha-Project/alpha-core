@@ -58,7 +58,7 @@ class ActiveQuest:
         return self.can_complete_quest()
 
     def apply_exploration_completion(self, area_trigger_id):
-        if self.area_triggers and area_trigger_id in self.area_triggers and self.db_state.explored == 0:
+        if self.area_triggers and area_trigger_id in self.area_triggers and not self.db_state.explored:
             self.db_state.explored = 1
             self.save()
             return True
