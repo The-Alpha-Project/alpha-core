@@ -127,6 +127,7 @@ class ConditionChecker:
         # Faction_id = condition_value1.
         # Rank = condition_value2.
         # Not used in 0.5.3.
+        Logger.warning('CONDITION_REPUTATION_RANK_MIN is not implemented.')
         return False
 
     @staticmethod
@@ -180,6 +181,7 @@ class ConditionChecker:
         # Requires Player target.
         # Returns True if player has Argent Dawn Commission aura.
         # Unused in 0.5.3.
+        Logger.warning('CONDITION_AD_COMMISSION_AURA is not implemented.')
         return False
 
     @staticmethod
@@ -187,14 +189,14 @@ class ConditionChecker:
         # Checks a global saved variable.
         # Index = condition_value1.
         # Value = condition_value2.
-        # TODO: implement if the need ever arises. We don't have any saved variables yet.
+        Logger.warning('CONDITION_SAVED_VARIABLE is not implemented.')
         return False
 
     @staticmethod
     def check_condition_active_game_event(condition, source, target):
         # Checks if a game event is active.
         # Event_id = condition_value1.
-        # TODO: implement if needed.
+        Logger.warning('CONDITION_ACTIVE_GAME_EVENT is not implemented.')
         return False
 
     @staticmethod
@@ -269,7 +271,7 @@ class ConditionChecker:
         # Requires Map.
         # Condition_value1 = map id.
         # Condition_value2 = instance condition id.
-        # TODO: implement if needed.
+        Logger.warning('CONDITION_INSTANCE_SCRIPT is not implemented.')
         return False
 
     @staticmethod
@@ -291,6 +293,7 @@ class ConditionChecker:
         # Condition_value2 = distance.
         # Condition_value3 = dead.
         # Condition_value4 = not self.
+        Logger.warning('CONDITION_NEARBY_CREATURE is not implemented.')
         return False
 
     @staticmethod
@@ -299,6 +302,7 @@ class ConditionChecker:
         # Checks if there is a gameobject nearby.
         # Condition_value1 = gameobject entry.
         # Condition_value2 = distance.
+        Logger.warning('CONDITION_NEARBY_GAMEOBJECT is not implemented.')
         return False
 
     @staticmethod
@@ -326,6 +330,7 @@ class ConditionChecker:
         # Condition_value1 = patch id.
         # Condition_value2 = 0 equal, 1 equal and higher, 2 equal and lower.
         # Not used in 0.5.3.
+        Logger.warning('CONDITION_WOW_PATCH is not implemented.')
         return False
 
     @staticmethod
@@ -348,6 +353,7 @@ class ConditionChecker:
         # Checks if a given holiday is active.
         # Condition_value1 = holiday id.
         # Not used in 0.5.3.
+        Logger.warning('CONDITION_ACTIVE_HOLIDAY is not implemented.')
         return False
 
     @staticmethod
@@ -403,6 +409,7 @@ class ConditionChecker:
         # Condition_value1 = faction id.
         # Condition_value2 = reputation rank.
         # Not used in 0.5.3.
+        Logger.warning('CONDITION_REPUTATION_RANK_MAX is not implemented.')
         return False
 
     @staticmethod
@@ -411,7 +418,7 @@ class ConditionChecker:
         # Checks if the source has the specified flag.
         # Condition_value1 = field_id.
         # Condition_value2 = flag.
-        # Almost certainly unused in 0.5.3.
+        Logger.warning('CONDITION_HAS_FLAG is not implemented.')
         return False
 
     @staticmethod
@@ -420,6 +427,7 @@ class ConditionChecker:
         # Checks the creature's last waypoint.
         # Condition_value1 = waypoint id.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
+        Logger.warning('CONDITION_LAST_WAYPOINT is not implemented.')
         return False
 
     @staticmethod
@@ -438,6 +446,7 @@ class ConditionChecker:
         # Condition_value1 = index.
         # Condition_value2 = data.
         # Condition_value3 = 0 equal, 1 equal or higher, 2 equal or lower.
+        Logger.warning('CONDITION_INSTANCE_DATA is not implemented.')
         return False
 
     @staticmethod
@@ -448,6 +457,7 @@ class ConditionChecker:
         # Condition_value2 = index.
         # Condition_value3 = data.
         # Condition_value4 = 0 equal, 1 equal or higher, 2 equal or lower.
+        Logger.warning('CONDITION_MAP_EVENT_DATA is not implemented.')
         return False
 
     @staticmethod
@@ -455,6 +465,7 @@ class ConditionChecker:
         # Requires Map.
         # Checks if a scripted Map event is active.
         # Condition_value1 = event id.
+        Logger.warning('CONDITION_MAP_EVENT_ACTIVE is not implemented.')
         return False
 
     @staticmethod
@@ -576,6 +587,7 @@ class ConditionChecker:
         # True if all extra targets that are part of the given event satisfy the given condition.
         # Condition_value1 = event id.
         # Condition_value2 = condition id.
+        Logger.warning('CONDITION_MAP_EVENT_TARGETS is not implemented.')
         return False
 
     @staticmethod
@@ -591,6 +603,7 @@ class ConditionChecker:
         # Requires GameObject target.
         # Checks the target's loot state.
         # Condition_value1 = loot state (LootState enum).
+        Logger.warning('CONDITION_OBJECT_LOOT_STATE is not implemented.')
         return False
 
     @staticmethod
@@ -599,6 +612,7 @@ class ConditionChecker:
         # Check if the target object with guid exists and satisfies the given condition.
         # Condition_value1 = object guid.
         # Condition_value2 = condition id.
+        Logger.warning('CONDITION_OBJECT_FIT_CONDITION is not implemented.')
         return False
 
     @staticmethod
@@ -608,6 +622,7 @@ class ConditionChecker:
         # Condition_value1 = pvp rank.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
         # Unused in 0.5.3.
+        Logger.warning('CONDITION_PVP_RANK is not implemented.')
         return False
 
     @staticmethod
@@ -686,6 +701,21 @@ class ConditionChecker:
                 return True
         return False
 
+    @staticmethod
+    def check_condition_creature_group_member(condition, source, target):
+        # Checks if creature is part of a group.
+        # Requirement: Creature Source.
+        # Condition_value1 = leader_guild (optional).
+        Logger.warning('CONDITION_CREATURE_GROUP_MEMBER is not implemented.')
+        return False
+
+    @staticmethod
+    def check_condition_creature_group_dead(condition, source, target):
+        # Checks if creature's group is dead.
+        # Requirement: Creature Source
+        Logger.warning('CONDITION_CREATURE_GROUP_DEAD is not implemented.')
+        return False
+
 
 CONDITIONS = {
     ConditionType.CONDITION_NOT: ConditionChecker.check_condition_not,
@@ -747,5 +777,7 @@ CONDITIONS = {
     ConditionType.CONDITION_LOCAL_TIME: ConditionChecker.check_condition_local_time,
     ConditionType.CONDITION_DISTANCE_TO_POSITION: ConditionChecker.check_condition_distance_to_position,
     ConditionType.CONDITION_OBJECT_GO_STATE: ConditionChecker.check_condition_object_go_state,
-    ConditionType.CONDITION_NEARBY_PLAYER: ConditionChecker.check_condition_nearby_player
+    ConditionType.CONDITION_NEARBY_PLAYER: ConditionChecker.check_condition_nearby_player,
+    ConditionType.CONDITION_CREATURE_GROUP_MEMBER: ConditionChecker.check_condition_creature_group_member,
+    ConditionType.CONDITION_CREATURE_GROUP_DEAD: ConditionChecker.check_condition_creature_group_dead
 }
