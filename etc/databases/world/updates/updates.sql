@@ -728,6 +728,17 @@ begin not atomic
         -- Dustwallow Marsh
         -- fix Kenna <Crocolisk Trainer>: set proper faction, set trainer flags, add pet to spawn
         update creature_template set faction = 57, trainer_type = 3, trainer_class = 3, spell_id1 = 7908 where entry = 4901;
+        -- set faction to Theramore for Alchemist Narett, Brant Jasperbloom, Uma Bartulm, Hans Weston, Marie Holdston,
+        -- Gregor MacVince, Helenia Olden, Baldruc, Jensen Farran, Guard Lasiter, Theramore Practicing Guard, Medic Helaina,
+        -- Combat Master Szigeti, Captain Thomas, Combat Master Criton, Medic Tamberlyn, Captain Andrews, Dwayne Wertle,
+        -- Piter Verance, Adjutant Tesoran, Clerk Lendry, Captain Garran Vimes, Commander Samaul, Lady Jaina Proudmoore,
+        -- Archmage Tervosh, Pained, Fiora Longears, Morgan Stern, Craig Nollward, Frank Lasson, Bartender Lillian,
+        -- Smiling Jim, Charity Mipsy
+        update creature_template set faction = 150 where entry in(4900, 4898, 4899, 4886, 4888, 4885, 4897, 4321, 4892, 4973, 4951, 5200, 5090, 5096, 4924, 5199, 5095, 4891, 4890, 4948, 5083, 4944, 4964, 4968, 4967, 4965, 4456, 4794, 4894, 4902, 4893, 4895, 4896);
+        -- make Alchemist Narett an alchemy trainer
+        update creature_template set trainer_id = 505 where entry = 4900;
+        -- make Frank Lasson a spider trainer and give him his pet
+        update creature_template set trainer_type = 3, trainer_class = 3, spell_id1 = 7912 where entry = 4902;
 
         insert into applied_updates values ('190320231');
     end if;
