@@ -1189,10 +1189,11 @@ class PlayerManager(UnitManager):
         # Exploration handling (only if player is not flying).
         if not self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
-            if area_information:
-                # Check if we need to set this zone as explored.
-                if area_information.explore_bit >= 0 and not self.has_area_explored(area_information.explore_bit):
-                    self.set_area_explored(area_information)
+            if not area_information:
+                return
+            # Check if we need to set this zone as explored.
+            if area_information.explore_bit >= 0 and not self.has_area_explored(area_information.explore_bit):
+                self.set_area_explored(area_information)
 
     def has_area_explored(self, area_explore_bit):
         return self.explored_areas[area_explore_bit]

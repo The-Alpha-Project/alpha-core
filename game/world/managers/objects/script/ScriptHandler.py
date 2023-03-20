@@ -28,7 +28,6 @@ class ScriptHandler:
 
     def __init__(self, world_object):
         self.owner = world_object
-        self.is_quest_giver = world_object.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and self.owner.is_quest_giver()
         self.script_queue = []
         self.ooc_ignore = set()
         self.ooc_event = None

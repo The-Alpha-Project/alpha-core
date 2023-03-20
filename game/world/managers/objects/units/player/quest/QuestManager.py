@@ -1091,11 +1091,13 @@ class QuestManager(object):
 
     def reward_quest_exploration(self, area_trigger_id):
         for quest_id, active_quest in self.active_quests.items():
-            if QuestHelpers.is_exploration_quest(active_quest.quest) \
-                    and active_quest.apply_exploration_completion(area_trigger_id):
-                if active_quest.can_complete_quest():
-                    self.complete_quest(active_quest, update_surrounding=True, notify=True)
-                    self.update_single_quest(quest_id)
+            if not QuestHelpers.is_exploration_quest(active_quest.quest) \
+                    or not active_quest.apply_exploration_completion(area_trigger_id):
+                return
+            self.update_single_quest(quest_id)
+            self.send_quest_complete_event(quest_id)
+            if active_quest.can_complete_quest():
+                self.complete_quest(active_quest, update_surrounding=True, notify=True)
 
     def complete_quest_by_id(self, quest_id):
         if quest_id not in self.active_quests:
@@ -1108,12 +1110,15 @@ class QuestManager(object):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
 
         if notify:
-            data = pack('<I', active_quest.quest.entry)
-            packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_COMPLETE, data)
-            self.player_mgr.enqueue_packet(packet)
+            self.send_quest_complete_event(active_quest.quest.entry)
 
         if update_surrounding:
             self.update_surrounding_quest_status()
+
+    def send_quest_complete_event(self, quest_id):
+        data = pack('<I', quest_id)
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_COMPLETE, data)
+        self.player_mgr.enqueue_packet(packet)
 
     def item_needed_by_quests(self, item_entry):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
