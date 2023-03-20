@@ -8,6 +8,10 @@ from utils.ConfigManager import config
 from utils.constants.MiscCodes import GameObjectStates
 
 
+# TODO: Find a way to tell clients about elevator real position upon creation.
+#  All clients must receive the original spawn location and then somehow we must tell them in which
+#  part of the animation node paths the object is standing.
+#  Compared to vanilla, we have no 'GAMEOBJECT_ANIMPROGRESS' nor 'UPDATEFLAG_TRANSPORT' for create packets.
 class ElevatorManager:
     def __init__(self, owner):
         self.owner = owner
@@ -59,10 +63,6 @@ class ElevatorManager:
             location = Vector(time_elapsed * velocity_x, time_elapsed * velocity_y, time_elapsed * velocity_z)
             location += prev_pos
 
-        # TODO: Find a way to tell clients about elevator real position upon creation.
-        #  All clients must receive the original spawn location and then somehow we must tell them in which
-        #  part of the animation node paths the object is standing.
-        #  Compared to vanilla, we have no 'GAMEOBJECT_ANIMPROGRESS' nor 'UPDATEFLAG_TRANSPORT' for create packets.
         current_anim_location = self.owner.location + location
         if config.Server.Settings.debug_transport:
             self._debug_position(current_anim_location)
