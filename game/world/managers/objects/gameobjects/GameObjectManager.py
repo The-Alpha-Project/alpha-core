@@ -1,5 +1,4 @@
 import math
-import time
 from math import pi, cos, sin
 from struct import pack
 
@@ -166,7 +165,6 @@ class GameObjectManager(ObjectManager):
             self.set_float(GameObjectFields.GAMEOBJECT_POS_Z, self.location.z)
             self.set_float(GameObjectFields.GAMEOBJECT_FACING, self.location.o)
 
-            self.update(time.time())
             self.initialized = True
 
     def handle_loot_release(self, player):
