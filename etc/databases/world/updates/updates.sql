@@ -960,7 +960,8 @@ begin not atomic
         delete from spawns_gameobjects where spawn_id = 48626;
         -- Have Tharnariun Treetender summon his bear pet
         update creature_template set spell_id1 = 7903 where entry = 3701;
-
+        -- Fix Z of a Silver Vein floating in the air in Ashenvale
+        update spawns_gameobjects set spawn_positionZ = 10.1 where spawn_id = 5732;
         insert into applied_updates values ('200320231');
     end if;
 
