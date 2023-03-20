@@ -34,7 +34,7 @@ class AIEventHandler:
         if script_id:
             self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
 
-    def on_enter_combat(self):
+    def on_enter_combat(self, source=None):
         self.creature.script_handler.reset()  # Reset any scripts that were queued before combat (e.g. on spawn).
 
         event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
@@ -48,9 +48,9 @@ class AIEventHandler:
         random_script = choice(choices)
 
         if random_script:
-            self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, random_script)
+            self.creature.script_handler.enqueue_script(self.creature, source, ScriptTypes.SCRIPT_TYPE_AI, random_script)
 
-    def on_damage_taken(self):
+    def on_damage_taken(self, attacker=None):
         event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
         if not event:
             return
@@ -70,14 +70,14 @@ class AIEventHandler:
         script_id = event.action1_script
         if script_id:
             self._lock_event(event, now)
-            self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
+            self.creature.script_handler.enqueue_script(self.creature, attacker, ScriptTypes.SCRIPT_TYPE_AI, script_id)
 
     def on_idle(self):
         event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
         if event:
             self.creature.script_handler.set_random_ooc_event(self.creature, event)
 
-    def on_death(self):
+    def on_death(self, killer=None):
         event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
         if not event:
             return
@@ -89,7 +89,7 @@ class AIEventHandler:
 
         if random_script:
             self.creature.script_handler.last_hp_event_id = event.id
-            self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, random_script)
+            self.creature.script_handler.enqueue_script(self.creature, killer, ScriptTypes.SCRIPT_TYPE_AI, random_script)
 
     def _event_get_by_type(self, event_type):
         # Skip for controlled units.

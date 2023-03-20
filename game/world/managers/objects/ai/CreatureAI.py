@@ -95,8 +95,8 @@ class CreatureAI:
         return True
 
     # Called when the creature is killed.
-    def just_died(self):
-        self.ai_event_handler.on_death()
+    def just_died(self, killer=None):
+        self.ai_event_handler.on_death(killer)
         
     # Called when the creature summon is killed.
     def summoned_creature_just_died(self, creature):
@@ -397,7 +397,7 @@ class CreatureAI:
 
     # Called for reaction on enter combat if not in combat yet (enemy can be None).
     def enter_combat(self, source=None):
-        self.ai_event_handler.on_enter_combat()
+        self.ai_event_handler.on_enter_combat(source)
 
     # Called when leaving combat.
     def on_combat_stop(self):
@@ -413,7 +413,7 @@ class CreatureAI:
     # Note: it for recalculation damage or special reaction at damage
     # for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
     def damage_taken(self, attacker, damage):
-        self.ai_event_handler.on_damage_taken()
+        self.ai_event_handler.on_damage_taken(attacker)
 
     # Called at any heal cast/item used (call non implemented).
     def healed_by(self):

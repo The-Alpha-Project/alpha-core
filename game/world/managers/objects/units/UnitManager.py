@@ -1570,7 +1570,7 @@ class UnitManager(ObjectManager):
         self.unit_state = UnitStates.NONE
 
         if self.object_ai:
-            self.object_ai.just_died()
+            self.object_ai.just_died(killer)
 
         # Notify killer's pet AI about this kill.
         if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
