@@ -59,8 +59,7 @@ class ActiveQuest:
 
     def apply_exploration_completion(self, area_trigger_id):
         if self.area_triggers and area_trigger_id in self.area_triggers and not self.db_state.explored:
-            self.db_state.explored = 1
-            self.save()
+            self.set_explored_or_event_complete()
             return True
         return False
 
@@ -185,6 +184,10 @@ class ActiveQuest:
 
     def update_quest_state(self, quest_state):
         self.db_state.state = quest_state.value
+        self.save()
+
+    def set_explored_or_event_complete(self):
+        self.db_state.explored = 1
         self.save()
 
     def update_quest_status(self, rewarded):
