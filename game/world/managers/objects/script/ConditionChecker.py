@@ -25,7 +25,7 @@ class ConditionChecker:
         if condition.type in CONDITIONS:
             return CONDITIONS[condition.type](condition, source, target)
         else:
-            Logger.warning(f'ConditionChecker: Condition {condition.type} not implemented')
+            Logger.warning(f'ConditionChecker: Condition {condition.type} does not exist.')
             return False
 
     @staticmethod
