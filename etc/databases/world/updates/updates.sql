@@ -691,59 +691,6 @@ begin not atomic
         insert into applied_updates values ('150320232');
     end if;
 
-    -- 19/03/2023 1
-    if(select count(*) from applied_updates where id = '190320231') = 0 then
-        -- Wetlands
-        -- Fix Naela Trance, she's a vendor, not a trainer.
-        update creature_template set npc_flags = 1 where entry = 1459;
-        -- Fix Fen Creeper's display_id according to sniffs.
-        update creature_template set display_id1 = 2023 where entry = 1040;
-
-        -- Thousand Needles
-        -- Set placeholder display_id for Race Master Kronkrider.
-        update creature_template set display_id1 = 2584 where entry = 4419;
-
-        -- Darnassus
-        -- Set faction for Talar <Bear Trainer> to Darnassus
-        update creature_template set faction = 79 where entry = 4206;
-        -- Spawn Talar's bear pet
-        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4247, 1, 10280.859, 2431.779, 1336.394, 2.145);
-        -- Set faction for Talar's pet to Darnassus
-        update creature_template set faction = 79 where entry = 4247;
-        -- Move Kysandia <Cat Trainer> to Darnassus
-        update spawns_creatures set position_x = 10303.513, position_y = 2466.350, position_z = 1335.591, orientation = 3.070 where spawn_entry1 = 4153;
-        -- Set faction for Kysandia to Darnassus
-        update creature_template set faction = 79 where entry = 4153;
-        -- Spawn Kysandia's pet
-        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values(4246, 1, 10303.368, 2464.388, 1335.797, 3.068);
-        -- Set faction for Kysandia's pet to Darnassus
-        update creature_template set faction = 79 where entry = 4246;
-
-        -- Dun Morogh
-        -- move Durdek Karrin to outside of Misty Pine Refuge
-        update spawns_creatures set position_x = -5349.492, position_y = -1052.303, position_z = 393.588, orientation = 1.831 where spawn_id = 400069;
-        -- grant Durdek the spell to summon his pet bear
-        update creature_template set spell_id1 = 7903 where entry = 2881;
-
-        -- Dustwallow Marsh
-        -- fix Kenna <Crocolisk Trainer>: set proper faction, set trainer flags, add pet to spawn
-        update creature_template set faction = 57, trainer_type = 3, trainer_class = 3, spell_id1 = 7908 where entry = 4901;
-        -- set faction to Theramore for Alchemist Narett, Brant Jasperbloom, Uma Bartulm, Hans Weston, Marie Holdston,
-        -- Gregor MacVince, Helenia Olden, Baldruc, Jensen Farran, Guard Lasiter, Theramore Practicing Guard, Medic Helaina,
-        -- Combat Master Szigeti, Captain Thomas, Combat Master Criton, Medic Tamberlyn, Captain Andrews, Dwayne Wertle,
-        -- Piter Verance, Adjutant Tesoran, Clerk Lendry, Captain Garran Vimes, Commander Samaul, Lady Jaina Proudmoore,
-        -- Archmage Tervosh, Pained, Fiora Longears, Morgan Stern, Craig Nollward, Frank Lasson, Bartender Lillian,
-        -- Smiling Jim, Charity Mipsy
-        update creature_template set faction = 150 where entry in(4900, 4898, 4899, 4886, 4888, 4885, 4897, 4321, 4892, 4973, 4951, 5200, 5090, 5096, 4924, 5199, 5095, 4891, 4890, 4948, 5083, 4944, 4964, 4968, 4967, 4965, 4456, 4794, 4894, 4902, 4893, 4895, 4896);
-        -- make Alchemist Narett an alchemy trainer
-        update creature_template set trainer_id = 505 where entry = 4900;
-        -- make Frank Lasson a spider trainer and give him his pet
-        update creature_template set trainer_type = 3, trainer_class = 3, spell_id1 = 7912 where entry = 4902;
-
-        insert into applied_updates values ('190320231');
-    end if;
-
-
     -- 16/03/2023 1
     if(select count(*) from applied_updates where id = '160320231') = 0 then
 
@@ -948,6 +895,58 @@ begin not atomic
         update creature_template set vendor_id = 0 where entry = 1464;
 
         insert into applied_updates values ('160320231');
+    end if;
+
+    -- 19/03/2023 1
+    if(select count(*) from applied_updates where id = '190320231') = 0 then
+        -- Wetlands
+        -- Fix Naela Trance, she's a vendor, not a trainer.
+        update creature_template set npc_flags = 1 where entry = 1459;
+        -- Fix Fen Creeper's display_id according to sniffs.
+        update creature_template set display_id1 = 2023 where entry = 1040;
+
+        -- Thousand Needles
+        -- Set placeholder display_id for Race Master Kronkrider.
+        update creature_template set display_id1 = 2584 where entry = 4419;
+
+        -- Darnassus
+        -- Set faction for Talar <Bear Trainer> to Darnassus
+        update creature_template set faction = 79 where entry = 4206;
+        -- Spawn Talar's bear pet
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4247, 1, 10280.859, 2431.779, 1336.394, 2.145);
+        -- Set faction for Talar's pet to Darnassus
+        update creature_template set faction = 79 where entry = 4247;
+        -- Move Kysandia <Cat Trainer> to Darnassus
+        update spawns_creatures set position_x = 10303.513, position_y = 2466.350, position_z = 1335.591, orientation = 3.070 where spawn_entry1 = 4153;
+        -- Set faction for Kysandia to Darnassus
+        update creature_template set faction = 79 where entry = 4153;
+        -- Spawn Kysandia's pet
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values(4246, 1, 10303.368, 2464.388, 1335.797, 3.068);
+        -- Set faction for Kysandia's pet to Darnassus
+        update creature_template set faction = 79 where entry = 4246;
+
+        -- Dun Morogh
+        -- move Durdek Karrin to outside of Misty Pine Refuge
+        update spawns_creatures set position_x = -5349.492, position_y = -1052.303, position_z = 393.588, orientation = 1.831 where spawn_id = 400069;
+        -- grant Durdek the spell to summon his pet bear
+        update creature_template set spell_id1 = 7903 where entry = 2881;
+
+        -- Dustwallow Marsh
+        -- fix Kenna <Crocolisk Trainer>: set proper faction, set trainer flags, add pet to spawn
+        update creature_template set faction = 57, trainer_type = 3, trainer_class = 3, spell_id1 = 7908 where entry = 4901;
+        -- set faction to Theramore for Alchemist Narett, Brant Jasperbloom, Uma Bartulm, Hans Weston, Marie Holdston,
+        -- Gregor MacVince, Helenia Olden, Baldruc, Jensen Farran, Guard Lasiter, Theramore Practicing Guard, Medic Helaina,
+        -- Combat Master Szigeti, Captain Thomas, Combat Master Criton, Medic Tamberlyn, Captain Andrews, Dwayne Wertle,
+        -- Piter Verance, Adjutant Tesoran, Clerk Lendry, Captain Garran Vimes, Commander Samaul, Lady Jaina Proudmoore,
+        -- Archmage Tervosh, Pained, Fiora Longears, Morgan Stern, Craig Nollward, Frank Lasson, Bartender Lillian,
+        -- Smiling Jim, Charity Mipsy
+        update creature_template set faction = 150 where entry in(4900, 4898, 4899, 4886, 4888, 4885, 4897, 4321, 4892, 4973, 4951, 5200, 5090, 5096, 4924, 5199, 5095, 4891, 4890, 4948, 5083, 4944, 4964, 4968, 4967, 4965, 4456, 4794, 4894, 4902, 4893, 4895, 4896);
+        -- make Alchemist Narett an alchemy trainer
+        update creature_template set trainer_id = 505 where entry = 4900;
+        -- make Frank Lasson a spider trainer and give him his pet
+        update creature_template set trainer_type = 3, trainer_class = 3, spell_id1 = 7912 where entry = 4902;
+
+        insert into applied_updates values ('190320231');
     end if;
 
 end $
