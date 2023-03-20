@@ -777,8 +777,11 @@ class QuestManager(object):
         if req_src_item != 0:
             # Check if the required source item is the item quest starter, else check if we can add it to the inventory.
             if not quest_item_starter or quest_item_starter.entry != req_src_item:
-                if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
-                    return
+                # Don't try to add the req_src_item if the player already has it (for example from the
+                # previous quest step).
+                if not self.player_mgr.inventory.get_item_count(req_src_item):
+                    if not self.player_mgr.inventory.add_item(req_src_item, count=req_src_item_count):
+                        return
                 # If the quest source item isn't required for the quest, remove it.
                 if quest_item_starter:
                     self.player_mgr.inventory.remove_item(quest_item_starter.item_instance.bag,
