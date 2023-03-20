@@ -329,6 +329,6 @@ class ActiveQuest:
             total_count += 1 << 30
 
         # Debug, enable this to take a look on what's happening at bit level.
-        Logger.debug(f'{bin(total_count)[2:].zfill(32)}')
+        # Logger.debug(f'{bin(total_count)[2:].zfill(32)}')
 
         return total_count
