@@ -11,6 +11,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.AIEventHandler import AIEventHandler
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
+from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
@@ -425,6 +426,11 @@ class CreatureAI:
     # Called when a unit moves within visibility distance.
     def move_in_line_of_sight(self, unit: Optional[UnitManager] = None):
         pass
+
+    # Called when a player interacts with this creature.
+    def player_interacted(self, player: PlayerManager):
+        # From VMaNGOS NPC_MOVEMENT_PAUSE_TIME (Blizzlike time taken from Classic).
+        self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=180)
 
     def is_ready_for_new_attack(self):
         return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0 \

@@ -45,7 +45,7 @@ class QuestGiverHelloHandler(object):
             if is_item or quest_giver.is_within_interactable_distance(player_mgr):
                 # Pause the NPCs movement when a player attempts to talk to them
                 if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
-                    quest_giver.movement_manager.try_pause_ooc_movement(180)
+                    quest_giver.object_ai.player_interacted(player_mgr)
                 player_mgr.quest_manager.handle_quest_giver_hello(quest_giver, guid)
 
         return 0
