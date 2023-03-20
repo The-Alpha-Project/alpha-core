@@ -891,7 +891,7 @@ begin not atomic
         update spawns_creatures set position_z = 10.215 where spawn_id = 9460;
         -- Fix Z placement of Junder Brokk
         update spawns_creatures set position_z = 10.219 where spawn_id = 9526;
-        -- Fix Innkeeper Helbrok's inventory
+        -- Fix Innkeeper Helbrek's inventory
         update creature_template set vendor_id = 0 where entry = 1464;
 
         insert into applied_updates values ('160320231');
