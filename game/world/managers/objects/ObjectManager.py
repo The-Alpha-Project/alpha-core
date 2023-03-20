@@ -74,6 +74,7 @@ class ObjectManager:
 
         # Units and gameobjects have SpellManager.
         from game.world.managers.objects.spell.SpellManager import SpellManager
+        self.spell_manager = None
         if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT or self.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             self.spell_manager = SpellManager(self)
 
