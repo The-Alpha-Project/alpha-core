@@ -535,17 +535,13 @@ class GroupManager(object):
     def _set_leader_flag(member):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
         if player_mgr:
-            player_mgr.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
-            player_mgr.player_bytes_2 = player_mgr.get_player_bytes_2()
-            player_mgr.set_uint32(PlayerFields.PLAYER_BYTES_2, player_mgr.player_bytes_2)
+            player_mgr.set_extra_flag(PlayerFlags.PLAYER_FLAGS_GROUP_LEADER)
 
     @staticmethod
     def _remove_leader_flag(member):
         player_mgr = WorldSessionStateHandler.find_player_by_guid(member.guid)
         if player_mgr:
-            player_mgr.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GROUP_LEADER
-            player_mgr.player_bytes_2 = player_mgr.get_player_bytes_2()
-            player_mgr.set_uint32(PlayerFields.PLAYER_BYTES_2, player_mgr.player_bytes_2)
+            player_mgr.set_extra_flag(PlayerFlags.PLAYER_FLAGS_GROUP_LEADER, False)
 
     @staticmethod
     def _create_group(player_mgr):

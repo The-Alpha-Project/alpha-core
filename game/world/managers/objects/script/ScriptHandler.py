@@ -22,6 +22,7 @@ from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateType
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
+from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFields
 
 
 class ScriptHandler:
@@ -233,20 +234,110 @@ class ScriptHandler:
         if location:
             command.source.movement_manager.move_to_point(location, speed)
 
-    # TODO: This is not compatible with 0.5.3.
     @staticmethod
     def handle_script_command_modify_flags(command):
         # source = Object
         # datalong = field_id
         # datalong2 = raw bitmask
         # datalong3 = ModifyFlagsOptions
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
+            return
+
+        # enum UpdateFields5875
+        # {
+        #     FIELD_GAMEOBJECT_FLAGS           = 9,
+        #     FIELD_GAMEOBJECT_DYN_FLAGS       = 19,
+        #     FIELD_ITEM_FIELD_FLAGS           = 21,
+        #     FIELD_CORPSE_FIELD_FLAGS         = 35,
+        #     FIELD_CORPSE_FIELD_DYNAMIC_FLAGS = 36,
+        #     FIELD_UNIT_FIELD_FLAGS           = 46,
+        #     FIELD_UNIT_DYNAMIC_FLAGS         = 143,
+        #     FIELD_UNIT_NPC_FLAGS             = 147,
+        #     FIELD_PLAYER_FLAGS               = 190,
+        # };
+
+        flag_equivalences_5875_to_3368 = {
+            # GAMEOBJECT_FLAGS
+            9: (GameObjectFields.GAMEOBJECT_FLAGS, command.source.flags, command.source.set_uint32)
+            if command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT else (None, None, None),
+            # UNIT_FIELD_FLAGS
+            46: (UnitFields.UNIT_FIELD_FLAGS, command.source.unit_flags, command.source.set_uint32)
+            if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
+            # UNIT_DYNAMIC_FLAGS
+            143: (UnitFields.UNIT_DYNAMIC_FLAGS, command.source.dynamic_flags, command.source.set_uint32)
+            if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
+            # UNIT_NPC_FLAGS
+            147: (UnitFields.UNIT_FIELD_BYTES_1, command.source.npc_flags, command.source.set_npc_flag)
+            if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
+            # PLAYER_FLAGS
+            190: (PlayerFields.PLAYER_BYTES_2, command.source.player.extra_flags, command.source.player.set_extra_flag)
+            if command.source.get_type_id() == ObjectTypeIds.ID_PLAYER else (None, None, None)
+        }
+
+        try:
+            flag_data = flag_equivalences_5875_to_3368[command.datalong]
+        except IndexError:
+            Logger.warning(f'ScriptHandler: Equivalence for 5875 flags not found ({command.datalong}), '
+                           f'aborting {command.get_info()}.')
+            return
+
+        # Value equivalences.  # TODO: Do this on loading?
+        # Npc flags.
+        if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1:
+            # TODO: Some relevant combinations might be missing.
+            npc_flags_equivalences_5875_to_3368 = {
+                0x0: 0x0,     # NONE ->                 NONE
+                0x1: 0x0,     # GOSSIP ->               NONE
+                0x2: 0x2,     # QUESTGIVER ->           QUESTGIVER
+                0x3: 0x2,     # QUESTGIVER | GOSSIP ->  QUESTGIVER
+                0x4: 0x1,     # VENDOR ->               VENDOR
+                0x6: 0x3,     # VENDOR | QUESTGIVER ->  VENDOR | QUESTGIVER
+                0x8: 0x4,     # FLIGHTMASTER ->         FLIGHTMASTER
+                0x10: 0x8,    # TRAINER ->              TRAINER
+                0x12: 0x10,   # TRAINER | QUESTGIVER -> TRAINER | QUESTGIVER
+                0x20: 0x0,    # SPIRITHEALER ->         NONE
+                0x40: 0x0,    # SPIRITGUIDE ->          NONE
+                0x80: 0x10,   # INNKEEPER ->            BINDER
+                0x100: 0x20,  # BANKER ->               BANKER
+                0x200: 0x80,  # PETITIONER ->           PETITIONER
+                0x400: 0x40   # TABARDDESIGNER ->       TABARDDESIGNER
+            }
+            try:
+                equivalence = npc_flags_equivalences_5875_to_3368[command.datalong2]
+                command.datalong2 = equivalence
+            except IndexError:
+                Logger.warning(f'ScriptHandler: Unsupported npc flag ({command.datalong2}), '
+                               f'aborting {command.get_info()}.')
+                return
+        elif flag_data[0] == PlayerFields.PLAYER_BYTES_2:
+            # TODO: Not implemented, doesn't seem relevant for 0.5.3 as PlayerFlags are very limited.
+            return
+
+        # Set flag.
         if command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
-            pass
+            if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1 or flag_data[0] == PlayerFields.PLAYER_BYTES_2:
+                flag_data[2](command.datalong2)
+            else:
+                flag_data[2](flag_data[0], command.datalong2)
+        # Remove flag.
         elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
-            pass
+            if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1 or flag_data[0] == PlayerFields.PLAYER_BYTES_2:
+                flag_data[2](command.datalong2, False)
+            else:
+                flag_data[2](flag_data[0], flag_data[1] & ~command.datalong2)
+        # Toggle flag.
         elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_TOGGLE:
-            pass
-        Logger.debug('ScriptHandler: handle_script_command_modify_flags not implemented yet')
+            if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1 or flag_data[0] == PlayerFields.PLAYER_BYTES_2:
+                # Second param means: if flag exists, remove (and viceversa).
+                flag_data[2](command.datalong2, not flag_data[1] & command.datalong2)
+            else:
+                # Flag enabled, disable,
+                if flag_data[1] & command.datalong2:
+                    flag_data[2](flag_data[0], flag_data[1] & ~command.datalong2)
+                # Flag disabled, enable.
+                else:
+                    flag_data[2](flag_data[0], command.datalong2)
 
     # TODO: Missing delayed handling. (SPELL_STATE_DELAYED)
     @staticmethod
