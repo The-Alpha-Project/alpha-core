@@ -14,7 +14,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds, GameObjectTypes, GameObjectStates
+    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -285,35 +285,28 @@ class ScriptHandler:
                            f'aborting {command.get_info()}.')
             return
 
-        # TODO: Finish adding more equivalences (if needed).
+        # TODO: Finish adding more equivalences.
         # Value equivalences.  # TODO: Do this on loading?
         # Npc flags.
         if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1:
-            # TODO: Some relevant combinations might be missing.
-            npc_flag_equivalences_5875_to_3368 = {
-                0x0: 0x0,     # NONE ->                 NONE
-                0x1: 0x0,     # GOSSIP ->               NONE
-                0x2: 0x2,     # QUESTGIVER ->           QUESTGIVER
-                0x3: 0x2,     # QUESTGIVER | GOSSIP ->  QUESTGIVER
-                0x4: 0x1,     # VENDOR ->               VENDOR
-                0x6: 0x3,     # VENDOR | QUESTGIVER ->  VENDOR | QUESTGIVER
-                0x8: 0x4,     # FLIGHTMASTER ->         FLIGHTMASTER
-                0x10: 0x8,    # TRAINER ->              TRAINER
-                0x12: 0x10,   # TRAINER | QUESTGIVER -> TRAINER | QUESTGIVER
-                0x20: 0x0,    # SPIRITHEALER ->         NONE
-                0x40: 0x0,    # SPIRITGUIDE ->          NONE
-                0x80: 0x10,   # INNKEEPER ->            BINDER
-                0x100: 0x20,  # BANKER ->               BANKER
-                0x200: 0x80,  # PETITIONER ->           PETITIONER
-                0x400: 0x40   # TABARDDESIGNER ->       TABARDDESIGNER
-            }
-            try:
-                equivalence = npc_flag_equivalences_5875_to_3368[command.datalong2]
-                command.datalong2 = equivalence
-            except IndexError:
-                Logger.warning(f'ScriptHandler: Unsupported npc flag ({command.datalong2}), '
-                               f'aborting {command.get_info()}.')
-                return
+            npc_flags = 0x0
+            if command.datalong2 & 0x4:  # Vendor.
+                npc_flags |= NpcFlags.NPC_FLAG_VENDOR
+            if command.datalong2 & 0x2:  # Quest giver.
+                npc_flags |= NpcFlags.NPC_FLAG_QUESTGIVER
+            if command.datalong2 & 0x8:  # Flight master
+                npc_flags |= NpcFlags.NPC_FLAG_FLIGHTMASTER
+            if command.datalong2 & 0x10:  # Trainer.
+                npc_flags |= NpcFlags.NPC_FLAG_TRAINER
+            if command.datalong2 & 0x80:  # Innkeeper.
+                npc_flags |= NpcFlags.NPC_FLAG_BINDER
+            if command.datalong2 & 0x100:  # Banker.
+                npc_flags |= NpcFlags.NPC_FLAG_BANKER
+            if command.datalong2 & 0x400:  # Tabard designer.
+                npc_flags |= NpcFlags.NPC_FLAG_TABARDDESIGNER
+            if command.datalong2 & 0x200:  # Petitioner.
+                npc_flags |= NpcFlags.NPC_FLAG_PETITIONER
+            command.datalong2 = npc_flags
         # Player extra flags.
         elif flag_data[0] == PlayerFields.PLAYER_BYTES_2:
             # TODO: Not implemented, doesn't seem relevant for 0.5.3 as PlayerFlags are very limited.
