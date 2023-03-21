@@ -261,6 +261,9 @@ class ScriptHandler:
             # GAMEOBJECT_FLAGS
             9: (GameObjectFields.GAMEOBJECT_FLAGS, command.source.flags, command.source.set_uint32)
             if command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT else (None, None, None),
+            # GAMEOBJECT_DYN_FLAGS
+            19: (GameObjectFields.GAMEOBJECT_DYN_FLAGS, command.source.flags, command.source.set_uint32)
+            if command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT else (None, None, None),
             # UNIT_FIELD_FLAGS
             46: (UnitFields.UNIT_FIELD_FLAGS, command.source.unit_flags, command.source.set_uint32)
             if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
