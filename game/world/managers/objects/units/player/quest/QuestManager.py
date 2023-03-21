@@ -1108,6 +1108,7 @@ class QuestManager(object):
 
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
+        active_quest.set_explored_or_event_complete()
 
         if notify:
             self.send_quest_complete_event(active_quest.quest.entry)

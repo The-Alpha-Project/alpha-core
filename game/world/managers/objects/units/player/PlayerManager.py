@@ -1785,6 +1785,13 @@ class PlayerManager(UnitManager):
     def get_name(self):
         return self.player.name
 
+    def set_extra_flag(self, flag, enable=True):
+        if enable:
+            self.player.extra_flags |= flag
+        else:
+            self.player.extra_flags &= ~flag
+        self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.get_player_bytes_2())
+
     def get_player_bytes(self):
         return ByteUtils.bytes_to_int(
             self.player.haircolour,  # Hair colour.
