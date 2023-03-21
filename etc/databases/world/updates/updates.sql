@@ -971,6 +971,13 @@ begin not atomic
         -- Despawn Wanted Poster: Besseleth as the quest doesn't exist
         delete from spawns_gameobjects where spawn_id = 47693;
 
+        -- Despawn several Horde Guards from the Barrens; the small camp they guard doesn't yet exist
+        delete from spawns_creatures where spawn_id in(19428, 19403, 19411, 19464);
+        -- Despawn three floating Crude Brazier in the same nonexistant camp
+        delete from spawns_gameobjects where spawn_id in(13443, 13491, 13470);
+        -- Despawn a Barrel of Milk, same issue
+        delete from spawns_gameobjects where spawn_id = 13510;
+
         insert into applied_updates values ('200320231');
     end if;
 
