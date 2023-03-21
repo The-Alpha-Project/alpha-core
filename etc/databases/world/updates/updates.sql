@@ -968,6 +968,9 @@ begin not atomic
         -- Fix scale of Kenna's croc pet
         update creature_template set scale = 0 where entry = 5440;
 
+        -- Despawn Wanted Poster: Besseleth as the quest doesn't exist
+        delete from spawns_gameobjects where spawn_id = 47693;
+
         insert into applied_updates values ('200320231');
     end if;
 
