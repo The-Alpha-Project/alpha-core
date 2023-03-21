@@ -46,14 +46,14 @@ class ScriptHandler:
     def handle_script_command_execution(self, script_command):
         try:
             SCRIPT_COMMANDS[script_command.command](script_command)
-        except IndexError:
+        except KeyError:
             Logger.warning(f'Unknown script command: {script_command.command}.')
 
     # noinspection PyMethodMayBeStatic
     def resolve_script_actions(self, script_type, script_id):
         try:
             return SCRIPT_TYPES[script_type](script_id)
-        except IndexError:
+        except KeyError:
             Logger.warning(f'Unknown script type: {script_type}.')
             return None
 
@@ -280,7 +280,7 @@ class ScriptHandler:
 
         try:
             flag_data = flag_equivalences_5875_to_3368[command.datalong]
-        except IndexError:
+        except KeyError:
             Logger.warning(f'ScriptHandler: Equivalence for 5875 flags not found ({command.datalong}), '
                            f'aborting {command.get_info()}.')
             return
