@@ -310,6 +310,7 @@ class ScriptHandler:
                 Logger.warning(f'ScriptHandler: Unsupported npc flag ({command.datalong2}), '
                                f'aborting {command.get_info()}.')
                 return
+        # Player extra flags.
         elif flag_data[0] == PlayerFields.PLAYER_BYTES_2:
             # TODO: Not implemented, doesn't seem relevant for 0.5.3 as PlayerFlags are very limited.
             return
