@@ -1025,5 +1025,13 @@ begin not atomic
         insert into applied_updates values ('210320231');
     end if;
 
+    -- 21/03/2023 2
+	if(select count(*) from applied_updates where id = '210320232') = 0 then
+		--Fix Angry Programmer Tweedle Dee <Testing>'s DisplayID
+		update creature_template set display_id1 = 1415 where entry = 128;
+
+		insert into applied_updates values ('210320232');
+	end if;
+
 end $
 delimiter ;
