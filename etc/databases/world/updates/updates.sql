@@ -954,8 +954,8 @@ begin not atomic
         -- Fix faction for Rebald Yorglun and have him spawn his pet raptor
         update creature_template set faction = 57, spell_id1 = 7910 where entry = 4621;
 
-        -- Set proper placeholder display_id for Wanted: Murkdeep sign
-        update gameobject_template set displayId = 17 where entry = 175320;
+        -- Remove "Wanted: Murkdeep" sign as the quest doesn't exist
+        delete from spawns_gameobjects where spawn_id = 48627;
         -- Despawn Tharnariun's Cure GO - used for NYI quest Plagued Lands
         delete from spawns_gameobjects where spawn_id = 48626;
         -- Have Tharnariun Treetender summon his bear pet
