@@ -955,9 +955,9 @@ begin not atomic
         update creature_template set faction = 57, spell_id1 = 7910 where entry = 4621;
 
         -- Remove "Wanted: Murkdeep" sign as the quest doesn't exist
-        delete from spawns_gameobjects where spawn_id = 48627;
+        update spawns_gameobjects set ignored = 1 where spawn_id = 48627;
         -- Despawn Tharnariun's Cure GO - used for NYI quest Plagued Lands
-        delete from spawns_gameobjects where spawn_id = 48626;
+        update spawns_gameobjects set ignored = 1 where spawn_id = 48626;
         -- Have Tharnariun Treetender summon his bear pet
         update creature_template set spell_id1 = 7903 where entry = 3701;
         -- Fix Z of a Silver Vein floating in the air in Ashenvale
@@ -969,20 +969,20 @@ begin not atomic
         update creature_template set scale = 0 where entry = 5440;
 
         -- Despawn Wanted Poster: Besseleth as the quest doesn't exist
-        delete from spawns_gameobjects where spawn_id = 47693;
+        update spawns_gameobjects set ignored = 1 where spawn_id = 47693;
 
         -- Despawn several Horde Guards from the Barrens; the small camp they guard doesn't yet exist
-        delete from spawns_creatures where spawn_id in(19428, 19403, 19411, 19464);
+        update spawns_gameobjects set ignored = 1 where spawn_id in(19428, 19403, 19411, 19464);
         -- Despawn three floating Crude Brazier in the same nonexistant camp
-        delete from spawns_gameobjects where spawn_id in(13443, 13491, 13470);
+        update spawns_gameobjects set ignored = 1 where spawn_id in(13443, 13491, 13470);
         -- Despawn a Barrel of Milk, same issue
-        delete from spawns_gameobjects where spawn_id = 13510;
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13510;
 
         -- Despawn Marvon's Chest, related to NYI quest "The Stone Circle"
-        delete from spawns_gameobjects where spawn_id = 13166;
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13166;
 
         -- Despawn sign for "Broken Keel Tavern", the entire building didn't exist in 0.5.3
-        delete from spawns_gameobjects where spawn_id = 13156;
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13156;
         -- Despawn broken "Plate-n-Chain" sign
         update spawns_gameobjects set ignored = 1 where spawn_id = 13263;
         -- Despawn floating/misplaced signpost "Maiden's Fancy - Round trips to Booty Bay"
