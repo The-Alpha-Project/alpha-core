@@ -1,4 +1,5 @@
 import math
+import time
 
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
@@ -126,6 +127,8 @@ class PlayerManager(UnitManager):
             self.location.y = self.player.position_y
             self.location.z = self.player.position_z
             self.location.o = self.player.orientation
+            self.transport_spawn_id = self.player.transport_id
+            self.transport.z = self.player.transport_z
             self.health = self.player.health
             self.max_health = self.player.health
             self.max_power_1 = self.player.power1
@@ -245,6 +248,20 @@ class PlayerManager(UnitManager):
         self.instance_id = instance_token.id
         if MapManager.is_dungeon_map_id(self.map_id) and not MapManager.get_or_create_instance_map(instance_token):
             self.set_player_to_deathbind_location()
+
+        if self.transport_spawn_id and self.transport.z:
+            transport_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(self, self.transport_spawn_id)
+            if transport_spawn and transport_spawn.gameobject_instance:
+                transport = transport_spawn.gameobject_instance.transport_manager
+                # while not transport.at_pause:
+                #     transport.update()
+                #     time.sleep(1.0)
+                #     continue
+                # print('GO!')
+                self.transport_id = transport.owner.guid
+                self.transport = transport.get_position()
+                self.location.z = self.transport.z
+                #self.teleport(self.map_id, self.transport, is_instant=True)
 
         self.online = True
 
@@ -576,6 +593,8 @@ class PlayerManager(UnitManager):
             self.player.position_x = self.location.x
             self.player.position_y = self.location.y
             self.player.position_z = self.location.z
+            self.player.transport_id = self.transport_spawn_id
+            self.player.transport_z = self.transport.z
             self.player.map = self.map_id
             self.player.orientation = self.location.o
             self.player.zone = self.zone

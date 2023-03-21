@@ -4,6 +4,7 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ScriptHandler import ScriptHandler
+from game.world.managers.objects.units.movement.MovementInfo import MovementInfo
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
@@ -44,6 +45,7 @@ class ObjectManager:
         self.running_speed = running_speed
         self.swim_speed = swim_speed
         self.turn_rate = turn_rate
+        self.movement_info = MovementInfo(self)
         self.movement_flags = movement_flags
         self.unit_flags = unit_flags
         self.dynamic_flags = dynamic_flags
@@ -55,6 +57,7 @@ class ObjectManager:
         self.bounding_radius = bounding_radius
         self.location = Vector()
         self.transport_id = transport_id
+        self.transport_spawn_id = 0
         self.transport = Vector()
         self.pitch = pitch
         self.zone = zone
