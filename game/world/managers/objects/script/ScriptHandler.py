@@ -286,7 +286,7 @@ class ScriptHandler:
         # Npc flags.
         if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1:
             # TODO: Some relevant combinations might be missing.
-            npc_flags_equivalences_5875_to_3368 = {
+            npc_flag_equivalences_5875_to_3368 = {
                 0x0: 0x0,     # NONE ->                 NONE
                 0x1: 0x0,     # GOSSIP ->               NONE
                 0x2: 0x2,     # QUESTGIVER ->           QUESTGIVER
@@ -304,7 +304,7 @@ class ScriptHandler:
                 0x400: 0x40   # TABARDDESIGNER ->       TABARDDESIGNER
             }
             try:
-                equivalence = npc_flags_equivalences_5875_to_3368[command.datalong2]
+                equivalence = npc_flag_equivalences_5875_to_3368[command.datalong2]
                 command.datalong2 = equivalence
             except IndexError:
                 Logger.warning(f'ScriptHandler: Unsupported npc flag ({command.datalong2}), '
