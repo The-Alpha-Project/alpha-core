@@ -970,6 +970,9 @@ begin not atomic
         update creature_template set display_id1 = 1025 where entry = 1845; -- High Protector Tarsen
         update creature_template set display_id1 = 1025 where entry = 1846; -- High Protector Lorik
         update creature_template set display_id1 = 1617, display_id2 = 1615, display_id3 = 0, display_id4 = 0 where entry = 1883; -- Scarlet Worker
+        update creature_template set display_id1 = 1025 where entry = 1842; -- Highlord Taelan Fordring
+        update creature_template set display_id1 = 2520, display_id2 = 2521, display_id3 = 0, display_id4 = 0 where entry = 1884; -- Scarlet Lumberjack
+        update creature_template set display_id1 = 2465, display_id2 = 2476, display_id3 = 0, display_id4 = 0 where entry = 1885; -- Scarlet Smith
 
         -- Remove Tool Bucket spawns from Hearthglen as the associated quest doesn't exist
         delete from spawns_gameobjects where spawn_entry = 177726;
