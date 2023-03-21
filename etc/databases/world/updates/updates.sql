@@ -978,6 +978,19 @@ begin not atomic
         -- Despawn a Barrel of Milk, same issue
         delete from spawns_gameobjects where spawn_id = 13510;
 
+        -- Despawn Marvon's Chest, related to NYI quest "The Stone Circle"
+        delete from spawns_gameobjects where spawn_id = 13166;
+
+        -- Despawn sign for "Broken Keel Tavern", the entire building didn't exist in 0.5.3
+        delete from spawns_gameobjects where spawn_id = 13156;
+        -- Despawn broken "Plate-n-Chain" sign
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13263;
+        -- Despawn floating/misplaced signpost "Maiden's Fancy - Round trips to Booty Bay"
+        update spawns_gameobjects set ignored = 1 where spawn_id = 14771;
+
+        -- Despawn broken "Salty Sailor Tavern" sign
+        update spawns_gameobjects set ignored = 1 where spawn_id = 10810;
+
         insert into applied_updates values ('200320231');
     end if;
 
