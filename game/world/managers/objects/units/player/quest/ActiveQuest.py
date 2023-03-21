@@ -190,8 +190,8 @@ class ActiveQuest:
         self.db_state.explored = 1
         self.save()
 
-    def update_quest_status(self, rewarded):
-        self.db_state.rewarded = 1 if rewarded else 0
+    def update_quest_status(self, rewarded: bool):
+        self.db_state.rewarded = int(rewarded)
         self.save()
 
     def save(self, is_new=False):
