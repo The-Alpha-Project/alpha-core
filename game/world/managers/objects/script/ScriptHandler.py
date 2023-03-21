@@ -285,6 +285,7 @@ class ScriptHandler:
                            f'aborting {command.get_info()}.')
             return
 
+        # TODO: Finish adding more equivalences (if needed).
         # Value equivalences.  # TODO: Do this on loading?
         # Npc flags.
         if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1:
