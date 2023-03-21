@@ -974,8 +974,8 @@ begin not atomic
         update creature_template set display_id1 = 2520, display_id2 = 2521, display_id3 = 0, display_id4 = 0 where entry = 1884; -- Scarlet Lumberjack
         update creature_template set display_id1 = 2465, display_id2 = 2476, display_id3 = 0, display_id4 = 0 where entry = 1885; -- Scarlet Smith
 
-        -- Remove Tool Bucket spawns from Hearthglen as the associated quest doesn't exist
-        delete from spawns_gameobjects where spawn_entry = 177726;
+        -- Despawn Tool Bucket spawns from Hearthglen as the associated quest doesn't exist
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 177726;
 
         insert into applied_updates values ('210320231');
     end if;
