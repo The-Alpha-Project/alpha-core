@@ -371,6 +371,11 @@ class GameObjectManager(ObjectManager):
         return self.gobject_template and self.gobject_template.type == GameObjectTypes.TYPE_CHEST and \
                self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4
 
+    def get_fall_time(self):
+        if self.transport_manager:
+            return self.transport_manager.update()
+        return 0
+
     # override
     def _get_fields_update(self, is_create, requester):
         data = b''

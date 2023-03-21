@@ -47,7 +47,7 @@ class TransportManager:
         next_node = self.get_next_node(self.path_progress)
         prev_node = self.get_previous_node(self.path_progress)
         if not next_node or not prev_node:
-            return
+            return int(self.path_progress)
         self.current_segment = prev_node.TimeIndex
         prev_pos = Vector(prev_node.X, prev_node.Y, prev_node.Z)
         next_pos = Vector(next_node.X, next_node.Y, next_node.Z)
@@ -66,6 +66,8 @@ class TransportManager:
         current_anim_location = self.owner.location + location
         if config.Server.Settings.debug_transport:
             self._debug_position(current_anim_location)
+
+        return int(self.path_progress)
 
     def _debug_position(self, location):
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder

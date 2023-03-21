@@ -234,6 +234,11 @@ class ObjectManager:
             self.guid,
         )
 
+    # Fall Time (Not implemented for units, anim progress for transports).
+    # noinspection PyMethodMayBeStatic
+    def get_fall_time(self):
+        return 0
+
     def _get_movement_fields(self):
         data = pack(
             '<Q9fI',
@@ -252,7 +257,7 @@ class ObjectManager:
 
         data += pack(
             '<I4f',
-            0,  # Fall Time
+            self.get_fall_time(),
             self.walk_speed,
             self.running_speed,
             self.swim_speed,
