@@ -972,7 +972,7 @@ begin not atomic
         update spawns_gameobjects set ignored = 1 where spawn_id = 47693;
 
         -- Despawn several Horde Guards from the Barrens; the small camp they guard doesn't yet exist
-        update spawns_gameobjects set ignored = 1 where spawn_id in(19428, 19403, 19411, 19464);
+        update spawns_creatures set ignored = 1 where spawn_id in(19428, 19403, 19411, 19464);
         -- Despawn three floating Crude Brazier in the same nonexistant camp
         update spawns_gameobjects set ignored = 1 where spawn_id in(13443, 13491, 13470);
         -- Despawn a Barrel of Milk, same issue
@@ -1039,6 +1039,14 @@ begin not atomic
 
 		insert into applied_updates values ('210320232');
 	end if;
+
+    -- 22/03/2023 1
+    if(select count(*) from applied_updates where id = '220320231') = 0 then
+        -- Despawn unnamed object from Ratchets
+        update spawns_gameobjects set ignored = 1 where spawn_id = 12672;
+
+        insert into applied_updates values ('220320231');
+    end if;
 
 end $
 delimiter ;
