@@ -30,7 +30,7 @@ class MovementHandler:
                 if (not player_mgr.possessed_unit and not player_mgr.pending_taxi_destination
                         and move_info.distance_from_last > 64):
                     Logger.anticheat(f'Preventing desync from player {player_mgr.get_name()} ({player_mgr.guid}).')
-                    player_mgr.teleport(player_mgr.map_id, player_mgr.location, is_instant=True)
+                    player_mgr.teleport(player_mgr.map_id, move_info.previous_position, is_instant=True)
                     return 0
 
                 # If the player is not controlling another unit.

@@ -18,7 +18,6 @@ class TransportManager:
         self.entry = owner.gobject_template.entry
         self.passengers = {}
         self.current_anim_position = owner.location
-        self.at_pause = False
         self.path_progress = 0
         self.total_time = 0
         self.current_segment = 0
@@ -61,22 +60,20 @@ class TransportManager:
         self.current_segment = prev_node.TimeIndex
         prev_pos = Vector(prev_node.X, prev_node.Y, prev_node.Z)
         next_pos = Vector(next_node.X, next_node.Y, next_node.Z)
-        # if prev_pos == next_pos:
-        #     print('At pause')
-        #     self.at_pause = True
-        #     location = prev_pos.copy()
-        # else:
-        self.at_pause = False
-        time_elapsed = self.path_progress - prev_node.TimeIndex
-        time_diff = next_node.TimeIndex - prev_node.TimeIndex
-        segment_diff = next_pos - prev_pos
-        velocity_x = segment_diff.x / time_diff
-        velocity_y = segment_diff.y / time_diff
-        velocity_z = segment_diff.z / time_diff
-        location = Vector(time_elapsed * velocity_x, time_elapsed * velocity_y, time_elapsed * velocity_z)
-        location += prev_pos
+        if prev_pos == next_pos:
+            location = prev_pos.copy()
+        else:
+            time_elapsed = self.path_progress - prev_node.TimeIndex
+            time_diff = next_node.TimeIndex - prev_node.TimeIndex
+            segment_diff = next_pos - prev_pos
+            velocity_x = segment_diff.x / time_diff
+            velocity_y = segment_diff.y / time_diff
+            velocity_z = segment_diff.z / time_diff
+            location = Vector(time_elapsed * velocity_x, time_elapsed * velocity_y, time_elapsed * velocity_z)
+            location += prev_pos
 
         self.current_anim_position = self.owner.location + location
+        print(self.current_anim_position)
 
         if config.Server.Settings.debug_transport:
             self._debug_position(self.current_anim_position)

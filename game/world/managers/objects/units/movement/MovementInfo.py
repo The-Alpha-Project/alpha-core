@@ -1,4 +1,6 @@
 from struct import pack, unpack
+
+from game.world.managers.abstractions.Vector import Vector
 from utils.constants.MiscCodes import MoveFlags
 from utils.constants.OpCodes import OpCode
 
@@ -13,19 +15,18 @@ class MovementInfo:
         self.turned = False
         self.jumped = False
         self.collided = False
+        self.previous_position = Vector()
 
     def update(self, reader):
         from game.world.managers.objects.units.movement.helpers.Spline import Spline
 
-        x = self.owner.location.x
-        y = self.owner.location.y
-        z = self.owner.location.z
+        self.previous_position = self.owner.location.copy()
 
         self.owner.transport_id, self.owner.transport.x, self.owner.transport.y, self.owner.transport.z, \
             self.owner.transport.o, self.owner.location.x, self.owner.location.y, self.owner.location.z, \
             self.owner.location.o, self.owner.pitch, self.owner.movement_flags = unpack('<Q9fI', reader.data[:48])
 
-        self.distance_from_last = self.owner.location.distance(x=x, y=y, z=z)
+        self.distance_from_last = self.owner.location.distance(self.previous_position)
 
         if self.owner.movement_flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
             self.owner.movement_spline = Spline.from_bytes(self.owner, reader.data[48:])
