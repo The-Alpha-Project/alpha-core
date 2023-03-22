@@ -995,6 +995,8 @@ begin not atomic
         update gameobject_template set displayId = 28 where entry = 2042;
         -- Set Goldthorn's display_id to placeholder and herbalism skill required to 215.
         update gameobject_template set displayId = 28, data0 = 48 where entry = 2046;
+        -- Set placeholder displayid for Overwatch Mark I
+        update creature_template set display_id1 = 1159, scale = 1 where entry = 3538;
 
         insert into applied_updates values ('200320231');
     end if;
