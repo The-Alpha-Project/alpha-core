@@ -949,6 +949,58 @@ begin not atomic
         insert into applied_updates values ('190320231');
     end if;
 
+    -- 20/03/2023 1
+    if(select count(*) from applied_updates where id = '200320231') = 0 then
+        -- Fix faction for Rebald Yorglun and have him spawn his pet raptor
+        update creature_template set faction = 57, spell_id1 = 7910 where entry = 4621;
+
+        -- Remove "Wanted: Murkdeep" sign as the quest doesn't exist
+        update spawns_gameobjects set ignored = 1 where spawn_id = 48627;
+        -- Despawn Tharnariun's Cure GO - used for NYI quest Plagued Lands
+        update spawns_gameobjects set ignored = 1 where spawn_id = 48626;
+        -- Have Tharnariun Treetender summon his bear pet
+        update creature_template set spell_id1 = 7903 where entry = 3701;
+        -- Fix Z of a Silver Vein floating in the air in Ashenvale
+        update spawns_gameobjects set spawn_positionZ = 10.1 where spawn_id = 5732;
+
+        -- Fix scale of Frank Lasson's spider pet
+        update creature_template set scale = 0 where entry = 5446;
+        -- Fix scale of Kenna's croc pet
+        update creature_template set scale = 0 where entry = 5440;
+
+        -- Despawn Wanted Poster: Besseleth as the quest doesn't exist
+        update spawns_gameobjects set ignored = 1 where spawn_id = 47693;
+
+        -- Despawn several Horde Guards from the Barrens; the small camp they guard doesn't yet exist
+        update spawns_gameobjects set ignored = 1 where spawn_id in(19428, 19403, 19411, 19464);
+        -- Despawn three floating Crude Brazier in the same nonexistant camp
+        update spawns_gameobjects set ignored = 1 where spawn_id in(13443, 13491, 13470);
+        -- Despawn a Barrel of Milk, same issue
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13510;
+
+        -- Despawn Marvon's Chest, related to NYI quest "The Stone Circle"
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13166;
+
+        -- Despawn sign for "Broken Keel Tavern", the entire building didn't exist in 0.5.3
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13156;
+        -- Despawn broken "Plate-n-Chain" sign
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13263;
+        -- Despawn floating/misplaced signpost "Maiden's Fancy - Round trips to Booty Bay"
+        update spawns_gameobjects set ignored = 1 where spawn_id = 14771;
+
+        -- Despawn broken "Salty Sailor Tavern" sign
+        update spawns_gameobjects set ignored = 1 where spawn_id = 10810;
+
+        -- Set Fadeleaf's display_id to placeholder
+        update gameobject_template set displayId = 28 where entry = 2042;
+        -- Set Goldthorn's display_id to placeholder and herbalism skill required to 215.
+        update gameobject_template set displayId = 28, data0 = 48 where entry = 2046;
+        -- Set placeholder displayid for Overwatch Mark I
+        update creature_template set display_id1 = 1159, scale = 1 where entry = 3538;
+
+        insert into applied_updates values ('200320231');
+    end if;
+
     -- 21/03/2021 1
     if(select count(*) from applied_updates where id = '210320231') = 0 then
         -- Set display_ids for Hearthglen mobs according to @Geo-tp's suggestions
