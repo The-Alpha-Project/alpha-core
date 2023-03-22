@@ -991,6 +991,11 @@ begin not atomic
         -- Despawn broken "Salty Sailor Tavern" sign
         update spawns_gameobjects set ignored = 1 where spawn_id = 10810;
 
+        -- Set Fadeleaf's display_id to placeholder
+        update gameobject_template set displayId = 28 where entry = 2042;
+        -- Set Goldthorn's display_id to placeholder and herbalism skill required to 215.
+        update gameobject_template set displayId = 28, data0 = 48 where entry = 2046;
+
         insert into applied_updates values ('200320231');
     end if;
 
