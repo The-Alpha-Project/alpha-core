@@ -1048,6 +1048,8 @@ begin not atomic
         update spawns_gameobjects set ignored = 1 where spawn_id = 17080;
         -- Despawn Highperch Wyvern Egg from Thousand Needles, quest NYI
         update spawns_gameobjects set ignored = 1 where spawn_entry = 175384;
+        -- Despawn Sunscorched Shell from Thousand Needles, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 89635;
 
         insert into applied_updates values ('220320232');
     end if;
