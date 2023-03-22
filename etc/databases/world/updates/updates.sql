@@ -1042,8 +1042,10 @@ begin not atomic
 
     -- 22/03/2023 2
     if(select count(*) from applied_updates where id = '220320232') = 0 then
-        -- Despawn unnamed object from Ratchets
+        -- Despawn unnamed object from Ratchet
         update spawns_gameobjects set ignored = 1 where spawn_id = 12672;
+        -- Despawn duplicate Fire Totem from Barrens Lift
+        update spawns_gameobjects set ignored = 1 where spawn_id = 17080;
 
         insert into applied_updates values ('220320232');
     end if;
