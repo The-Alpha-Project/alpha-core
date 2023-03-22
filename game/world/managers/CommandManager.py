@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-
+import os
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -876,6 +876,17 @@ class CommandManager(object):
             return -1, 'please use it like: .pwdchange current_password new_password new_password'
 
 
+    @staticmethod
+    def save_location(world_session, args):
+        if args:
+            logline = f'{world_session.player_mgr.location.x} {world_session.player_mgr.location.y} {world_session.player_mgr.location.z} {world_session.player_mgr.map_id} - {args}'
+            f = open(os.path.join(os.getcwd(), "locations.log"), "a")
+            f.write(logline)
+            f.close()
+            return 0, 'Location saved.'
+        else:
+            return -1, 'please use it like: .sloc comment'
+
 PLAYER_COMMAND_DEFINITIONS = {
     'help': [CommandManager.help, 'print this message'],
     'serverinfo': [CommandManager.serverinfo, 'print server information'],
@@ -936,5 +947,6 @@ GM_COMMAND_DEFINITIONS = {
 DEV_COMMAND_DEFINITIONS = {
     'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
     'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
+    'sloc': [CommandManager.save_location, 'save your location to locations.log'],
     'worldoff': [CommandManager.worldoff, 'stop the world server'],
 }
