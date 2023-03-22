@@ -1040,12 +1040,12 @@ begin not atomic
 		insert into applied_updates values ('210320232');
 	end if;
 
-    -- 22/03/2023 1
-    if(select count(*) from applied_updates where id = '220320231') = 0 then
+    -- 22/03/2023 2
+    if(select count(*) from applied_updates where id = '220320232') = 0 then
         -- Despawn unnamed object from Ratchets
         update spawns_gameobjects set ignored = 1 where spawn_id = 12672;
 
-        insert into applied_updates values ('220320231');
+        insert into applied_updates values ('220320232');
     end if;
 
 end $
