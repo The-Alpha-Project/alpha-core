@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-import os
+from os import path
+from pathlib import Path
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -24,6 +25,11 @@ import platform
 
 # noinspection SpellCheckingInspection,PyUnusedLocal
 class CommandManager(object):
+
+    DEV_LOC_LOG_PATH = config.Server.Logging.dev_loc_path
+    DEV_LOC_LOG_FILE_NAME = 'locations.log'
+
+    DEV_LOC_LOG_FULL_PATH = path.join(DEV_LOC_LOG_PATH, DEV_LOC_LOG_FILE_NAME)
 
     @staticmethod
     def handle_command(world_session, command_msg):
@@ -880,9 +886,10 @@ class CommandManager(object):
     def save_location(world_session, args):
         if args:
             logline = f'{world_session.player_mgr.location.x} {world_session.player_mgr.location.y} {world_session.player_mgr.location.z} {world_session.player_mgr.map_id} - {args}'
-            f = open(os.path.join(os.getcwd(), "locations.log"), "a")
-            f.write(logline)
-            f.close()
+            Path(CommandManager.DEV_LOC_LOG_PATH).mkdir(parents=True, exist_ok=True)
+            with open(CommandManager.DEV_LOC_LOG_FULL_PATH, 'a+') as log:
+                log.write(logline)
+                log.close()
             return 0, 'Location saved.'
         else:
             return -1, 'please use it like: .sloc comment'
