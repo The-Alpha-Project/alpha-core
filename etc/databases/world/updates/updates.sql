@@ -949,5 +949,44 @@ begin not atomic
         insert into applied_updates values ('190320231');
     end if;
 
+    -- 21/03/2021 1
+    if(select count(*) from applied_updates where id = '210320231') = 0 then
+        -- Set display_ids for Hearthglen mobs according to @Geo-tp's suggestions
+        update creature_template set display_id1 = 1640, display_id2 = 1641, display_id3 = 0, display_id4 = 0 where entry = 1826; -- Scarlet Mage
+        update creature_template set display_id1 = 2467, display_id2 = 2478, display_id3 = 0, display_id4 = 0 where entry = 1827; -- Scarlet Sentinel
+        update creature_template set display_id1 = 1023, display_id2 = 0, display_id3 = 0, display_id4 = 0 where entry = 1831; -- Scarlet Hunter
+        update creature_template set display_id1 = 2039, display_id2 = 0, display_id3 = 0, display_id4 = 0 where entry = 1832; -- Scarlet Magus
+        update creature_template set display_id1 = 1025, display_id2 = 2460, display_id3 = 0, display_id4 = 0 where entry = 1833; -- Scarlet Knight
+        update creature_template set display_id1 = 1025, display_id2 = 2460, display_id3 = 0, display_id4 = 0 where entry = 1834; -- Scarlet Paladin
+        update creature_template set display_id1 = 1640, display_id2 = 1641, display_id3 = 0, display_id4 = 0 where entry = 1835; -- Scarlet Invoker
+        update creature_template set display_id1 = 1025, display_id2 = 2460, display_id3 = 0, display_id4 = 0 where entry = 1836; -- Scarlet Cavalier
+        update creature_template set display_id1 = 2493, display_id2 = 2494, display_id3 = 0, display_id4 = 0 where entry = 1837; -- Scarlet Judge
+        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1838; -- Scarlet Interrogrator
+        update creature_template set display_id1 = 1613, display_id2 = 1614, display_id3 = 0, display_id4 = 0 where entry = 1839; -- Scarlet High Clerist
+        update creature_template set display_id1 = 1641 where entry = 1840; -- Grand Inquisitor
+        update creature_template set display_id1 = 2044 where entry = 1841; -- Scarlet Executioner
+        update creature_template set display_id1 = 1611 where entry = 1843; -- Foreman Jerris
+        update creature_template set display_id1 = 1611 where entry = 1844; -- Foreman Marcrid
+        update creature_template set display_id1 = 1025 where entry = 1845; -- High Protector Tarsen
+        update creature_template set display_id1 = 1025 where entry = 1846; -- High Protector Lorik
+        update creature_template set display_id1 = 1617, display_id2 = 1615, display_id3 = 0, display_id4 = 0 where entry = 1883; -- Scarlet Worker
+        update creature_template set display_id1 = 1025 where entry = 1842; -- Highlord Taelan Fordring
+        update creature_template set display_id1 = 2520, display_id2 = 2521, display_id3 = 0, display_id4 = 0 where entry = 1884; -- Scarlet Lumberjack
+        update creature_template set display_id1 = 2465, display_id2 = 2476, display_id3 = 0, display_id4 = 0 where entry = 1885; -- Scarlet Smith
+
+        -- Despawn Tool Bucket spawns from Hearthglen as the associated quest doesn't exist
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 177726;
+
+        insert into applied_updates values ('210320231');
+    end if;
+
+    -- 21/03/2023 2
+	if(select count(*) from applied_updates where id = '210320232') = 0 then
+		--Fix Angry Programmer Tweedle Dee <Testing>'s DisplayID
+		update creature_template set display_id1 = 1415 where entry = 128;
+
+		insert into applied_updates values ('210320232');
+	end if;
+
 end $
 delimiter ;
