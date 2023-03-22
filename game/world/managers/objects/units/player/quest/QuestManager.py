@@ -794,7 +794,8 @@ class QuestManager(object):
 
         # Don't run scripts if not directly taken from NPC (either by sharing or .qadd command).
         # Otherwise, the quest_giver would be None and this leads to a crash.
-        if quest_giver:
+        # Same goes for item quest starters since they have no script handler.
+        if quest_giver and not is_item:
             quest_giver.script_handler.enqueue_script(source=quest_giver, target=self.player_mgr,
                                                       script_type=ScriptTypes.SCRIPT_TYPE_QUEST_START,
                                                       script_id=quest_id)
