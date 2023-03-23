@@ -63,6 +63,7 @@ class WorldLoader:
             WorldLoader.load_npc_gossip()
             WorldLoader.load_npc_text()
             WorldLoader.load_broadcast_text()
+            WorldLoader.load_pool_creature_templates()
         else:
             Logger.info('Skipped creature loading.')
 
@@ -697,6 +698,17 @@ class WorldLoader:
             Logger.progress('Loading creature families...', count, length)
 
         return length
+
+    @staticmethod
+    def load_pool_creature_templates():
+        pool_creature_templates = WorldDatabaseManager.pool_creature_template_get_all()
+        length = len(pool_creature_templates)
+        count = 0
+
+        for pool_creature_template in pool_creature_templates:
+            WorldDatabaseManager.PoolCreatureTemplateHolder.load_pool_creature_template(pool_creature_template)
+            count += 1
+            Logger.progress('Loading pool creature templates...', count, length)
 
     @staticmethod
     def load_npc_gossip():

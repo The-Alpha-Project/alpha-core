@@ -10,7 +10,7 @@ from utils.Logger import Logger
 
 
 class CreatureSpawn:
-    def __init__(self, creature_spawn, instance_id):
+    def __init__(self, creature_spawn, instance_id, is_unique = False):
         self.creature_spawn: SpawnsCreatures = creature_spawn
         self.spawn_id = creature_spawn.spawn_id
         self.movement_type = creature_spawn.movement_type
@@ -26,6 +26,7 @@ class CreatureSpawn:
         self.respawn_time = 0
         self.last_tick = 0
         self.borrowed = False
+        self.is_unique = is_unique
 
     def update(self, now):
         if now > self.last_tick > 0:
@@ -94,10 +95,17 @@ class CreatureSpawn:
             if self.respawn_timer >= self.respawn_time * 0.8:
                 self.creature_instance.despawn()
                 self.creature_instance = None
+                if self.is_unique:
+                    map = MapManager.get_map(self.map_id, self.instance_id)
+                    map.unique_spawn_manager.on_unique_creature_despawn(self.creature_spawn.spawn_entry1)
 
         # Spawn a new creature instance when needed.
         if self.respawn_timer >= self.respawn_time:
-            self.spawn_creature()
+            if self.is_unique:
+                map = MapManager.get_map(self.map_id, self.instance_id)
+                map.unique_spawn_manager.respawn_unique_creature(self.creature_spawn.spawn_entry1)
+            else:
+                self.spawn_creature()
 
     def get_default_location(self):
         return Vector(self.creature_spawn.position_x, self.creature_spawn.position_y,

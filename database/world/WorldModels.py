@@ -1114,6 +1114,13 @@ class SpawnsGameobjects(Base):
     spawn_visibility_mod = Column(Float, nullable=True, server_default=text("'0'"))
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
+class PoolCreatureTemplate(Base):
+    __tablename__ = 'pool_creature_template'
+
+    id = Column(INTEGER(10), primary_key=True)
+    pool_entry = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    chance = Column(Float, nullable=False, server_default=text("'0'"))
+    description = Column(Text)
 
 class NpcGossip(Base):
     __tablename__ = 'npc_gossip'

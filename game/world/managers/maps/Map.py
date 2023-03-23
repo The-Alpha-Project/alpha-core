@@ -1,6 +1,7 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.objects.units.UniqueSpawnManager import UniqueSpawnManager
 from game.world.managers.maps.helpers.Constants import MapType
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -13,6 +14,7 @@ class Map:
         self.instance_id = instance_id
         self.grid_manager = GridManager(map_id, instance_id, active_cell_callback)
         self.name = self.dbc_map.MapName_enUS
+        self.unique_spawn_manager = UniqueSpawnManager(self)
 
     def initialize(self):
         # Load creatures and gameobjects.
@@ -23,16 +25,23 @@ class Map:
         if not config.Server.Settings.load_creatures:
             return
         from game.world.managers.objects.units.creature.CreatureSpawn import CreatureSpawn
+
         creature_spawns = WorldDatabaseManager.creature_spawn_get_by_map_id(self.dbc_map.ID)
         if not creature_spawns:
             return
         count = 0
         length = len(creature_spawns)
         for creature_spawn in creature_spawns:
-            creature_spawn = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
-            creature_spawn.spawn_creature()
+            if not creature_spawn.spawn_entry1 in WorldDatabaseManager.PoolCreatureTemplateHolder.POOL_CREATURE_TEMPLATES:
+                creature_spawn = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
+                creature_spawn.spawn_creature()
+            else:
+                self.unique_spawn_manager.add_unique_creature_entry(creature_spawn.spawn_entry1)
+
             count += 1
             Logger.progress(f'Loading creatures for Map {self.name}, Instance {self.instance_id}...', count, length)
+
+        self.unique_spawn_manager.spawn_all_unique_creatures()
 
     def _load_map_gameobjects(self):
         if not config.Server.Settings.load_gameobjects:

@@ -545,6 +545,13 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
+    def creature_spawn_get_by_map_id_and_entry(map_id, entry) -> [list[SpawnsCreatures], scoped_session]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SpawnsCreatures).filter_by(ignored=0, map=map_id, spawn_entry1=entry).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
     def creature_spawn_get_by_spawn_id(spawn_id) -> [Optional[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(spawn_id=spawn_id).first()
@@ -1164,6 +1171,23 @@ class WorldDatabaseManager(object):
         res = world_db_session.query(NpcText).all()
         world_db_session.close()
         return res
+
+    # Pool Creature Template.
+
+    class PoolCreatureTemplateHolder:
+        POOL_CREATURE_TEMPLATES: dict[int, PoolCreatureTemplate] = {}
+
+        @staticmethod
+        def load_pool_creature_template(pool_creature_template: PoolCreatureTemplate):
+            WorldDatabaseManager.PoolCreatureTemplateHolder.POOL_CREATURE_TEMPLATES[pool_creature_template.id] = pool_creature_template
+
+    @staticmethod
+    def pool_creature_template_get_all():
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(PoolCreatureTemplate).all()
+        world_db_session.close()
+        return res
+
 
     # Broadcast Text.
 
