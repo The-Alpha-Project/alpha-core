@@ -179,7 +179,7 @@ class PetManager:
         for pet in self.permanent_pets:
             if not pet.is_active:
                 continue
-            self.summon_permanent_pet(pet.summon_spell_id, pet.creature_template.entry)
+            self.summon_permanent_pet(pet.summon_spell_id, creature_id=pet.creature_template.entry)
             return
 
     def detach_pet_by_slot(self, pet_slot: PetSlot):
