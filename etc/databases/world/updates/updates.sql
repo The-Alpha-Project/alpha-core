@@ -1042,8 +1042,71 @@ begin not atomic
 
     -- 23/03/2023 1
 	if(select count(*) from applied_updates where id = '230320231') = 0 then
+        -- Herbalism nodes
+        update creature_template set display_id1 = 750 where entry = 2257;
+        -- Set placeholder display_id for Wintersbite
+        update gameobject_template set displayId = 28 where entry = 2044;
+        -- Set placeholder display_id for Khadgar's Whisker
+        update gameobject_template set displayId = 28 where entry = 2043;
+        -- Set placeholder display_id for Firebloom
+        update gameobject_template set displayId = 28 where entry = 2866;
+        -- Set size for Goldthorn and Firebloom to 0.5
+        update gameobject_template set size = 0.5 where entry in(2046, 2866);
+
+        -- Mining nodes
+        -- Enable Mithril Deposit to be mined at 155 skill
+        update gameobject_template set data0 = 42 where entry = 2040;
+
+	    -- Alterac Mountains
         -- Set placeholder display_id for Glommus
         update creature_template set display_id1 = 536 where entry = 2422;
+        -- Set placeholder display_id for Grel'Borg the Miser
+        update creature_template set display_id1 = 811 where entry = 2417;
+        -- Set placeholder display_id for Mug'thol
+
+        -- Western Plaguelands
+        -- Despawn Cauldron, Campfire and 2x Campfire Damage from future Argent Dawn camp in WPL
+        update spawns_gameobjects set ignored = 1 where spawn_id in(45306, 45307, 45322, 45323);
+        -- Despawn Andorhal Silo Temporal Rift objects, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 175795;
+        -- Set placeholder display_id for Araj the Summoner
+        update creature_template set display_id1 = 2606 where entry = 1852;
+        -- Despawn Musty Tome and Musty Tome Trap, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry in(176152, 176151, 176150);
+
+        -- Hinterlands
+        -- Despawn Wildkin Feather, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 153239;
+        -- Set placeholder display_id for Mangy Silvermane, Silvermane Wolf and Silvermane Howler
+        update creature_template set display_id1 = 380 where entry in(2923, 2924, 2925);
+        -- Despawn Aerie Peak Town Center, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 21508;
+        -- Despawn Rin'ji's Cage, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 46065;
+        -- Set placeholder display_id for Jade Ooze
+        update creature_template set display_id1 = 1749 where entry = 2656;
+        -- Despawn Horde Supply Crate, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 142191;
+        -- Fix Z of a floating Solid Chest
+        update spawns_gameobjects set spawn_positionZ = 117.825 where spawn_id = 46430;
+        -- Set proper (placeholder) faction for Vilebranch and Witherbark Trolls
+        update creature_template set faction = 16 where faction in(795, 654, 312);
+        -- Set placeholder display_id for Saltwater Snapjaw
+        update creature_template set display_id1 = 1244 where entry = 2505;
+        -- Despawn campfire from Hinterlands Beach
+        update spawns_gameobjects set ignored = 1 where spawn_id in(46038, 46037);
+
+        -- Badlands
+        -- Despawn two unused Wanted signs
+        update spawns_gameobjects set ignored = 1 where spawn_id in(10747, 10746);
+        -- Set placeholder display_id for Barnabus
+        update creature_template set display_id1 = 246 where entry = 2753;
+        -- Set placeholder display_id for Dustbelcher Warrior
+        update creature_template set display_id1 = 1120 where entry = 2906;
+        -- Despawn Short Wooden Seat from Uldaman exterior (was WMO in 0.5.3)
+        update spawns_gameobjects set ignored = 1 where spawn_id in(11272, 10927, 10922, 11245, 11246, 11279, 10923, 11273, 11264, 11259, 10936, 10921, 10920, 11278, 11260, 11261, 11274, 11243, 11254, 10917, 11242, 11250, 11249, 11267, 11244);
+        -- Despawn Magenta Cap Cluster and Magenta Cap Cluster Trap, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry in(128293, 128196, 126049);
 
 		insert into applied_updates values ('230320231');
 	end if;
