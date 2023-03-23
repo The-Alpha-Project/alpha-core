@@ -1,5 +1,4 @@
 from struct import pack, unpack
-
 from game.world.managers.abstractions.Vector import Vector
 from utils.constants.MiscCodes import MoveFlags
 from utils.constants.OpCodes import OpCode
@@ -47,17 +46,21 @@ class MovementInfo:
 
         # Cache transport / add passenger.
         if self.owner.transport_id and not self.transport:
-            self.transport = self._get_transport()
-            self.owner.transport_spawn_id = self.transport.owner.spawn_id
-            self.transport.add_passenger(self.owner)
-        # Leaving transport.
+            self._add_transport()
+        # Leaving transport, flush and remove passenger.
         elif not self.owner.transport_id and self.transport:
-            self.owner.transport.flush()
-            self.owner.transport_spawn_id = 0
-            self.transport.remove_passenger(self.owner)
-            self.transport = None
+            self._remove_transport()
 
         return self
+
+    def _add_transport(self):
+        self.transport = self._get_transport()
+        self.transport.add_passenger(self.owner)
+
+    def _remove_transport(self):
+        self.owner.transport.flush()
+        self.transport.remove_passenger(self.owner)
+        self.transport = None
 
     def _get_transport(self):
         from game.world.managers.maps.MapManager import MapManager

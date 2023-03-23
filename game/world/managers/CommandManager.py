@@ -545,8 +545,6 @@ class CommandManager(object):
                 player.position_x = world_session.player_mgr.location.x
                 player.position_y = world_session.player_mgr.location.y
                 player.position_z = world_session.player_mgr.location.z
-                player.transport_id = world_session.player_mgr.transport_spawn_id
-                player.transport_z = world_session.player_mgr.transport.z
                 RealmDatabaseManager.character_update(player)
         else:
             return -1, 'player not found.'

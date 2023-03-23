@@ -8,10 +8,7 @@ from utils.ConfigManager import config
 from utils.constants.MiscCodes import GameObjectStates
 
 
-# TODO: Find a way to tell clients about elevator real position upon creation.
-#  All clients must receive the original spawn location and then somehow we must tell them in which
-#  part of the animation node paths the object is standing.
-#  Compared to vanilla, we have no 'GAMEOBJECT_ANIMPROGRESS' nor 'UPDATEFLAG_TRANSPORT' for create packets.
+# TODO: Players automatically desync to other player viewers when inside transports.
 class TransportManager:
     def __init__(self, owner):
         self.owner = owner
@@ -73,7 +70,6 @@ class TransportManager:
             location += prev_pos
 
         self.current_anim_position = self.owner.location + location
-        print(self.current_anim_position)
 
         if config.Server.Settings.debug_transport:
             self._debug_position(self.current_anim_position)
@@ -81,13 +77,11 @@ class TransportManager:
         return int(self.path_progress)
 
     def add_passenger(self, unit):
-        print('Add passenger')
         self.passengers[unit.guid] = unit
 
     def remove_passenger(self, unit):
         if unit.guid not in self.passengers:
             return
-        print('Remove passenger')
         self.passengers.pop(unit.guid)
 
     def update_passengers(self):

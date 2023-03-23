@@ -319,6 +319,9 @@ class GameObjectManager(ObjectManager):
                 self.flags &= ~GameObjectFlags.IN_USE
                 self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
 
+    def is_transport(self):
+        return self.gobject_template.type == GameObjectTypes.TYPE_TRANSPORT
+
     def has_flag(self, flag: GameObjectFlags):
         return self.flags & flag
 
@@ -480,4 +483,6 @@ class GameObjectManager(ObjectManager):
 
     # override
     def generate_object_guid(self, low_guid):
+        if self.is_transport():
+            return low_guid | HighGuid.HIGHGUID_TRANSPORT
         return low_guid | HighGuid.HIGHGUID_GAMEOBJECT

@@ -47,8 +47,6 @@ class Character(Base):
     position_x = Column(Float, nullable=False, server_default=text("0"))
     position_y = Column(Float, nullable=False, server_default=text("0"))
     position_z = Column(Float, nullable=False, server_default=text("0"))
-    transport_id = Column(INTEGER(11), nullable=False, server_default=text("0"))
-    transport_z = Column(Float, nullable=False, server_default=text("0"))
     map = Column(INTEGER(11), nullable=False, server_default=text("0"), comment='Map Identifier')
     orientation = Column(Float, nullable=False, server_default=text("0"))
     taximask = Column(LONGTEXT)
