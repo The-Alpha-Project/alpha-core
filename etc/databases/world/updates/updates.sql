@@ -1040,5 +1040,14 @@ begin not atomic
 		insert into applied_updates values ('210320232');
 	end if;
 
+    -- 23/03/2023 1
+	if(select count(*) from applied_updates where id = '230320231') = 0 then
+        -- Set placeholder display_id for Glommus
+        update creature_template set display_id1 = 536 where entry = 2422;
+
+		insert into applied_updates values ('230320231');
+	end if;
+
+
 end $
 delimiter ;
