@@ -1043,7 +1043,6 @@ begin not atomic
     -- 23/03/2023 1
 	if(select count(*) from applied_updates where id = '230320231') = 0 then
         -- Herbalism nodes
-        update creature_template set display_id1 = 750 where entry = 2257;
         -- Set placeholder display_id for Wintersbite
         update gameobject_template set displayId = 28 where entry = 2044;
         -- Set placeholder display_id for Khadgar's Whisker
@@ -1063,6 +1062,7 @@ begin not atomic
         -- Set placeholder display_id for Grel'Borg the Miser
         update creature_template set display_id1 = 811 where entry = 2417;
         -- Set placeholder display_id for Mug'thol
+        update creature_template set display_id1 = 750 where entry = 2257;
 
         -- Western Plaguelands
         -- Despawn Cauldron, Campfire and 2x Campfire Damage from future Argent Dawn camp in WPL
