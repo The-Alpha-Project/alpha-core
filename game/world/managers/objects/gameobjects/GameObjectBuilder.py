@@ -19,8 +19,8 @@ class GameObjectBuilder:
         gameobject_instance.is_spawned = is_spawned
         gameobject_instance.spawn_id = spawn_id
         gameobject_instance.entry = gobject_template.entry
-        gameobject_instance.guid = gameobject_instance.generate_object_guid(GameObjectBuilder.GUID_MANAGER.get_new_guid())
         gameobject_instance.gobject_template = gobject_template
+        gameobject_instance.guid = gameobject_instance.generate_object_guid(GameObjectBuilder.GUID_MANAGER.get_new_guid())
         gameobject_instance.map_id = map_id if not summoner else summoner.map_id
         gameobject_instance.instance_id = instance_id if not summoner else summoner.instance_id
         gameobject_instance.zone = summoner.zone if summoner else 0

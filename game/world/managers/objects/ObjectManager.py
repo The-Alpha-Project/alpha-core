@@ -3,7 +3,6 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
-from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
@@ -234,6 +233,11 @@ class ObjectManager:
             self.guid,
         )
 
+    # Fall Time (Not implemented for units, anim progress for transports).
+    # noinspection PyMethodMayBeStatic
+    def get_fall_time(self):
+        return 0
+
     def _get_movement_fields(self):
         data = pack(
             '<Q9fI',
@@ -250,13 +254,14 @@ class ObjectManager:
             self.movement_flags
         )
 
+        is_unit = self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
         data += pack(
             '<I4f',
-            0,  # Fall Time
-            self.walk_speed,
-            self.running_speed,
-            self.swim_speed,
-            self.turn_rate
+            self.get_fall_time(),
+            self.walk_speed if is_unit else 1.0,
+            self.running_speed if is_unit else 1.0,
+            self.swim_speed if is_unit else 1.0,
+            self.turn_rate if is_unit else 1.0,
          )
 
         # TODO: Not working.

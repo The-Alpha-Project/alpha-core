@@ -8,14 +8,13 @@ from utils.ConfigManager import config
 from utils.constants.MiscCodes import GameObjectStates
 
 
-# TODO: Find a way to tell clients about elevator real position upon creation.
-#  All clients must receive the original spawn location and then somehow we must tell them in which
-#  part of the animation node paths the object is standing.
-#  Compared to vanilla, we have no 'GAMEOBJECT_ANIMPROGRESS' nor 'UPDATEFLAG_TRANSPORT' for create packets.
+# TODO: Players automatically desync to other player viewers when inside transports.
 class TransportManager:
     def __init__(self, owner):
         self.owner = owner
         self.entry = owner.gobject_template.entry
+        self.passengers = {}
+        self.current_anim_position = owner.location
         self.path_progress = 0
         self.total_time = 0
         self.current_segment = 0
@@ -42,12 +41,16 @@ class TransportManager:
             return lower_bound
         return None
 
+    def get_position(self):
+        self.update()
+        return self.current_anim_position
+
     def update(self):
         self.path_progress = self._get_time()
         next_node = self.get_next_node(self.path_progress)
         prev_node = self.get_previous_node(self.path_progress)
         if not next_node or not prev_node:
-            return
+            return int(self.path_progress)
         self.current_segment = prev_node.TimeIndex
         prev_pos = Vector(prev_node.X, prev_node.Y, prev_node.Z)
         next_pos = Vector(next_node.X, next_node.Y, next_node.Z)
@@ -63,9 +66,24 @@ class TransportManager:
             location = Vector(time_elapsed * velocity_x, time_elapsed * velocity_y, time_elapsed * velocity_z)
             location += prev_pos
 
-        current_anim_location = self.owner.location + location
+        self.current_anim_position = self.owner.location + location
+
         if config.Server.Settings.debug_transport:
-            self._debug_position(current_anim_location)
+            self._debug_position(self.current_anim_position)
+
+        return int(self.path_progress)
+
+    def add_passenger(self, unit):
+        self.passengers[unit.guid] = unit
+
+    def remove_passenger(self, unit):
+        if unit.guid not in self.passengers:
+            return
+        self.passengers.pop(unit.guid)
+
+    def update_passengers(self):
+        if len(self.passengers) == 0:
+            return
 
     def _debug_position(self, location):
         from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
