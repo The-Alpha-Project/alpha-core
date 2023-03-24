@@ -1129,6 +1129,9 @@ begin not atomic
         update quest_template set ExclusiveGroup = -1079 where entry in(1077, 1074);
         update quest_template set PrevQuestId = 1077 where entry = 1079;
 
+        -- Set "<Needs Reward>" to quest "Reception from Tyrande"
+        update quest_template set Title = "Reception from Tyrande <Needs Reward>" where entry = 1081;
+
 		insert into applied_updates values ('230320231');
 	end if;
 
