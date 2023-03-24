@@ -1,5 +1,4 @@
 from struct import pack, unpack
-from game.world.managers.abstractions.Vector import Vector
 from utils.constants.MiscCodes import MoveFlags
 from utils.constants.OpCodes import OpCode
 
@@ -9,23 +8,35 @@ class MovementInfo:
         self.owner = world_object
         # Internal
         self.transport = None
-        self.distance_from_last = False
         self.moved = False
         self.turned = False
         self.jumped = False
         self.collided = False
-        self.previous_position = Vector()
 
-    def update(self, reader):
+    def update(self, reader, unit_mover):
         from game.world.managers.objects.units.movement.helpers.Spline import Spline
 
-        self.previous_position = self.owner.location.copy()
+        # t 'Transport' followed by unit fields.
+        t_id, t_x, t_y, t_z, t_o, x, y, z, o, pitch, movement_flags = unpack('<Q9fI', reader.data[:48])
 
-        self.owner.transport_id, self.owner.transport.x, self.owner.transport.y, self.owner.transport.z, \
-            self.owner.transport.o, self.owner.location.x, self.owner.location.y, self.owner.location.z, \
-            self.owner.location.o, self.owner.pitch, self.owner.movement_flags = unpack('<Q9fI', reader.data[:48])
+        distance = self.owner.location.distance(x=x, y=y, z=z)
 
-        self.distance_from_last = self.owner.location.distance(self.previous_position)
+        # Anti cheat / elevators bug.
+        if unit_mover == self.owner and not self.owner.pending_taxi_destination and distance > 64:
+            return None
+
+        # Valid placement, set unit fields.
+        unit_mover.transport_id = t_id
+        unit_mover.transport.x = t_x
+        unit_mover.transport.y = t_y
+        unit_mover.transport.z = t_z
+        unit_mover.transport.o = t_o
+        unit_mover.location.x = x
+        unit_mover.location.y = y
+        unit_mover.location.z = z
+        unit_mover.location.o = o
+        unit_mover.pitch = pitch
+        unit_mover.movement_flags = movement_flags
 
         if self.owner.movement_flags & MoveFlags.MOVEFLAG_SPLINE_MOVER:
             self.owner.movement_spline = Spline.from_bytes(self.owner, reader.data[48:])

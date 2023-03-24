@@ -1,5 +1,4 @@
 from struct import error
-
 from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
@@ -23,14 +22,16 @@ class MovementHandler:
             try:
                 # Get either the player or its possessed unit.
                 unit_mover = player_mgr if not player_mgr.possessed_unit else player_mgr.possessed_unit
-                move_info = unit_mover.movement_info.update(reader)
+                move_info = unit_mover.movement_info.update(reader, unit_mover)
 
                 # Hacky way to prevent random teleports when colliding with elevators.
                 # Also acts as a rudimentary teleport cheat detection.
-                if (not player_mgr.possessed_unit and not player_mgr.pending_taxi_destination
-                        and move_info.distance_from_last > 64):
-                    Logger.anticheat(f'Preventing desync from player {player_mgr.get_name()} ({player_mgr.guid}).')
-                    player_mgr.teleport(player_mgr.map_id, move_info.previous_position, is_instant=True)
+                if not move_info:
+                    # Already teleporting.
+                    if world_session.player_mgr.update_lock:
+                        return 0
+                    Logger.anticheat(f'Preventing desync from player {unit_mover.get_name()} ({unit_mover.guid}).')
+                    unit_mover.teleport(unit_mover.map_id, unit_mover.location, is_instant=True)
                     return 0
 
                 # If the player is not controlling another unit.
@@ -44,7 +45,7 @@ class MovementHandler:
                             player_mgr.stand_state != StandState.UNIT_STANDING:
                         player_mgr.set_stand_state(StandState.UNIT_STANDING)
 
-                # Broadcast player/possessed unit movement to surroundings.
+                # Broadcast unit mover movement to surroundings.
                 movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), move_info.get_bytes())
                 MapManager.send_surrounding(movement_packet, unit_mover, include_self=False)
 
