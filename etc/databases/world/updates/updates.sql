@@ -1077,7 +1077,7 @@ begin not atomic
         -- Hinterlands
         -- Despawn Wildkin Feather, quest NYI
         update spawns_gameobjects set ignored = 1 where spawn_entry = 153239;
-        -- Set placeholder display_id for Mangy Silvermane, Silvermane Wolf and Silvermane Howler
+        -- Set placeholder display_id for Silvermane wolves
         update creature_template set display_id1 = 380 where entry in(2923, 2924, 2925, 2926);
         -- Despawn Aerie Peak Town Center, quest NYI
         update spawns_gameobjects set ignored = 1 where spawn_id = 21508;
