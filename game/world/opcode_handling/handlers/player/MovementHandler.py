@@ -20,7 +20,7 @@ class MovementHandler:
         # Avoid handling malformed movement packets.
         if len(reader.data) >= 48:
             try:
-                # Get either the player or its possessed unit.
+                # Get the player or its possessed unit.
                 unit_mover = player_mgr if not player_mgr.possessed_unit else player_mgr.possessed_unit
                 move_info = unit_mover.movement_info.update(reader, unit_mover)
 

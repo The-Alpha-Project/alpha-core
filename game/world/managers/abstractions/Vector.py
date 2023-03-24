@@ -148,9 +148,3 @@ class Vector(object):
         o = self.o if final_orientation == -1 else final_orientation
 
         return Vector(x, y, z, o, z_locked=z_locked)
-
-    def flush(self):
-        self.x = 0.0
-        self.y = 0.0
-        self.z = 0.0
-        self.o = 0.0

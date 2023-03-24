@@ -45,9 +45,6 @@ class TransportManager:
         self.update()
         return self.current_anim_position
 
-    def is_at_halt(self):
-        return not self.current_segment or self.path_progress == self.total_time
-
     def update(self):
         self.path_progress = self._get_time()
         next_node = self.get_next_node(self.path_progress)
