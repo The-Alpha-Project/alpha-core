@@ -12,6 +12,7 @@ from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.aura.AuraManager import AuraManager
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
+from game.world.managers.objects.units.movement.MovementInfo import MovementInfo
 from game.world.managers.objects.units.movement.MovementManager import MovementManager
 from game.world.managers.objects.units.player.StatManager import StatManager, UnitStats
 from network.packet.PacketWriter import PacketWriter, OpCode
@@ -199,6 +200,7 @@ class UnitManager(ObjectManager):
         # Effects modifying unit flags.
         self._flag_effects = dict(dict())  # Enum: (Flag: set())
 
+        self.movement_info = MovementInfo(self)
         self.has_moved = False
         self.has_turned = False
 
