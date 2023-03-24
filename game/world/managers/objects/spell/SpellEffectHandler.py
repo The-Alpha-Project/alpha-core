@@ -598,7 +598,7 @@ class SpellEffectHandler:
         if not caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, effect.misc_value)
+        caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, creature_id=effect.misc_value)
 
     @staticmethod
     def handle_summon_wild(casting_spell, effect, caster, target):
