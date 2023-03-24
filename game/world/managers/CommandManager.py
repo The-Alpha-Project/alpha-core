@@ -888,7 +888,7 @@ class CommandManager(object):
                       f'{world_session.player_mgr.location.z} {world_session.player_mgr.map_id} - {args}'
             Path(CommandManager.DEV_LOG_PATH).mkdir(parents=True, exist_ok=True)
             with open(CommandManager.DEV_LOC_LOG_FULL_PATH, 'a+') as log:
-                log.write(logline)
+                log.write(logline + '\n')
             return 0, 'Location saved.'
         else:
             return -1, 'please use it like: .sloc comment'
