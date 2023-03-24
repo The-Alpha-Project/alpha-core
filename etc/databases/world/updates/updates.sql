@@ -1062,7 +1062,7 @@ begin not atomic
         update spawns_gameobjects set ignored = 1 where spawn_id in(7071, 7178, 7189, 7171);
         -- Despawn Kodo Bones, NYI quest
         update spawns_gameobjects set ignored = 1 where spawn_entry in (176751, 176752, 176750);
-        -- Despawn Rackmore's Chest, NYQ quest
+        -- Despawn Rackmore's Chest, NYI quest
         update spawns_gameobjects set ignored = 1 where spawn_id = 32008;
         -- Despawn Serpent Statue, NYI quest
         update spawns_gameobjects set ignored = 1 where spawn_id = 12609;
