@@ -178,13 +178,5 @@ begin not atomic
         insert into applied_updates values ('120220231');
     end if;
 
-    -- 21/03/2023 1
-    if (select count(*) from applied_updates where id='210320231') = 0 then
-        ALTER TABLE `alpha_realm`.`characters` 
-        ADD COLUMN `transport_id` INT(11) NOT NULL AFTER `position_z`,
-        ADD COLUMN `transport_z` FLOAT NOT NULL AFTER `transport_id`;
-        insert into applied_updates values ('210320231');
-    end if;
-
 end $
 delimiter ;
