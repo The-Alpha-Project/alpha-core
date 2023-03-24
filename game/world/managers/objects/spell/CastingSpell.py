@@ -4,6 +4,7 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTimes, SpellVisual
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
@@ -195,8 +196,38 @@ class CastingSpell:
             return None
 
         if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return None  # TODO Ammo type resolving for other units.
+            ranged_items = {
+                1 << ItemSubClasses.ITEM_SUBCLASS_BOW: 2512,  # Rough Arrow
+                1 << ItemSubClasses.ITEM_SUBCLASS_GUN: 2516,  # Light Shot
+                1 << ItemSubClasses.ITEM_SUBCLASS_THROWN: 2947,  # Small Throwing Knife
+                1 << ItemSubClasses.ITEM_SUBCLASS_CROSSBOW: 2512,
+                1 << ItemSubClasses.ITEM_SUBCLASS_WAND: 6230   # Monster - Wand, Basic
+            }
 
+            weapon_mask = 0
+            if self.spell_caster.get_type_id() == ObjectTypeIds.ID_UNIT:
+                # If the caster is a creature, use virtual items for resolving ammo type.
+                for item_info in self.spell_caster.virtual_item_info.values():
+                    equip_subclass = 1 << ((item_info.info_packed >> 8) & 0xFF)
+                    if equip_subclass not in ranged_items.keys():
+                        continue
+
+                    weapon_mask |= equip_subclass
+
+            if not weapon_mask:
+                # IF the creature doesn't have a virtual item for this ranged attack type
+                # or the caster is a GO, default to the spell's required item subclasses.
+                weapon_mask = self.spell_entry.EquippedItemSubclass
+
+            item_entries = [entry for subclass, entry in ranged_items.items() if subclass & weapon_mask]
+            if not item_entries:
+                return None
+
+            # TODO client doesn't seem to recognize thrown weapons or wands as ammo for creature casts.
+            item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entries[0])
+            return ItemManager(item_template)
+
+        # Player casts.
         equipped_weapon = self.spell_caster.get_current_weapon_for_attack_type(AttackTypes.RANGED_ATTACK)
 
         if not equipped_weapon:

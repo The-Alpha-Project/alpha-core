@@ -1,5 +1,4 @@
 import math
-
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
