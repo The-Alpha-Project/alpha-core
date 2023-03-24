@@ -20,12 +20,12 @@ class AuraEffectDummyHandler:
     def handle_killrogg_eye(aura, effect_target, remove):
         if not remove:
             return
-        if aura.caster.possessed_unit:
-            aura.caster.possessed_unit.set_charmed_by(aura.caster,
-                                                      CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
-                                                      remove=True)
-            aura.caster.possessed_unit.destroy()
-            aura.caster.possessed_unit = None
+        if not aura.caster.possessed_unit:
+            return
+        sub_type = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
+        aura.caster.possessed_unit.set_charmed_by(aura.caster, sub_type, remove=True)
+        aura.caster.possessed_unit.destroy()
+        aura.caster.possessed_unit = None
 
     @staticmethod
     def handle_party_fever(aura, effect_target, remove):

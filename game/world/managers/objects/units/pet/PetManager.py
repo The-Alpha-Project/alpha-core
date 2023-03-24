@@ -147,6 +147,10 @@ class PetManager:
                                                   spell_id=spell_id,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_PET)
 
+        if not creature_manager:
+            Logger.warning(f"Attempted to summon nonexistent creature {creature_id} via spell {spell_id}.")
+            return
+
         # Match summoner level for creature summons. Otherwise, set to the level in PetData.
         pet_level = self.owner.level if is_creature_summon else -1
         active_pet = self.set_creature_as_pet(creature_manager, spell_id, PetSlot.PET_SLOT_PERMANENT,
@@ -175,7 +179,7 @@ class PetManager:
         for pet in self.permanent_pets:
             if not pet.is_active:
                 continue
-            self.summon_permanent_pet(pet.summon_spell_id, pet.creature_template.entry)
+            self.summon_permanent_pet(pet.summon_spell_id, creature_id=pet.creature_template.entry)
             return
 
     def detach_pet_by_slot(self, pet_slot: PetSlot):
