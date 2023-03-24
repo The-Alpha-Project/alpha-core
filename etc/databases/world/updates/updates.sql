@@ -1073,6 +1073,9 @@ begin not atomic
         update creature_template set display_id1 = 2606 where entry = 1852;
         -- Despawn Musty Tome and Musty Tome Trap, quest NYI
         update spawns_gameobjects set ignored = 1 where spawn_entry in(176152, 176151, 176150);
+        -- Additional Hearthglen fixes by @Geo-tp
+        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1839; -- Scarlet High Clerist
+        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1833; -- Scarlet Knight
 
         -- Hinterlands
         -- Despawn Wildkin Feather, quest NYI
@@ -1121,10 +1124,7 @@ begin not atomic
         -- Set gnome placeholder for Lotwill and Lucien Tosselwrench
         update creature_template set display_id1 = 2581 where entry in(2921, 2920);
 
-        -- Additional Hearthglen fixes by @Geo-tp
-        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1839; -- Scarlet High Clerist
-        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1833; -- Scarlet Knight
-
+        -- Stonetalon Mountains
         -- Fix quest pre-requisites for "Covert Ops: Alpha"
         update quest_template set ExclusiveGroup = -1079 where entry in(1077, 1074);
         update quest_template set PrevQuestId = 1077 where entry = 1079;
