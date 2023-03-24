@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
-
+from os import path
+from pathlib import Path
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -24,6 +25,11 @@ import platform
 
 # noinspection SpellCheckingInspection,PyUnusedLocal
 class CommandManager(object):
+
+    DEV_LOG_PATH = config.Server.Logging.log_dev_path
+    DEV_LOC_LOG_FILE_NAME = 'locations.log'
+
+    DEV_LOC_LOG_FULL_PATH = path.join(DEV_LOG_PATH, DEV_LOC_LOG_FILE_NAME)
 
     @staticmethod
     def handle_command(world_session, command_msg):
@@ -875,6 +881,18 @@ class CommandManager(object):
         except ValueError:
             return -1, 'please use it like: .pwdchange current_password new_password new_password'
 
+    @staticmethod
+    def save_location(world_session, args):
+        if args:
+            logline = f'{world_session.player_mgr.location.x} {world_session.player_mgr.location.y} ' \
+                      f'{world_session.player_mgr.location.z} {world_session.player_mgr.map_id} - {args}'
+            Path(CommandManager.DEV_LOG_PATH).mkdir(parents=True, exist_ok=True)
+            with open(CommandManager.DEV_LOC_LOG_FULL_PATH, 'a+') as log:
+                log.write(logline)
+            return 0, 'Location saved.'
+        else:
+            return -1, 'please use it like: .sloc comment'
+
 
 PLAYER_COMMAND_DEFINITIONS = {
     'help': [CommandManager.help, 'print this message'],
@@ -936,5 +954,6 @@ GM_COMMAND_DEFINITIONS = {
 DEV_COMMAND_DEFINITIONS = {
     'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
     'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
+    'sloc': [CommandManager.save_location, 'save your location to locations.log along with a comment'],
     'worldoff': [CommandManager.worldoff, 'stop the world server'],
 }

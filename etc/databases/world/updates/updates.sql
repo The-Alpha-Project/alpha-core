@@ -1034,7 +1034,7 @@ begin not atomic
 
     -- 21/03/2023 2
 	if(select count(*) from applied_updates where id = '210320232') = 0 then
-		--Fix Angry Programmer Tweedle Dee <Testing>'s DisplayID
+		-- Fix Angry Programmer Tweedle Dee <Testing>'s DisplayID
 		update creature_template set display_id1 = 1415 where entry = 128;
 
 		insert into applied_updates values ('210320232');
@@ -1053,6 +1053,18 @@ begin not atomic
 
         insert into applied_updates values ('220320232');
     end if;
+
+    -- 22/03/2023 1
+	if(select count(*) from applied_updates where id = '220320231') = 0 then
+		--Despawn Clara's Fresh Apples since the model and quest don't exist
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 142076;
+
+		--Set human NPCs to the correct faction
+		update creature_template set faction = 11 where entry = 1649; --Jordan Croft
+		update creature_template set faction = 11 where entry = 2939; --Jackson Bayne
+
+		insert into applied_updates values ('220320231');
+	end if;
 
 end $
 delimiter ;
