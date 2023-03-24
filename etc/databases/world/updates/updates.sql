@@ -1069,6 +1069,10 @@ begin not atomic
         update creature_template set display_id1 = 1561 where entry = 4132;
         -- Despawn lamppost
         update spawns_gameobjects set ignored = 1 where spawn_id = 16867;
+        -- Despawn Panther Cage (quest NYI)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 16775;
+        -- Despawn Wanted Poster: Arnak Grimtotem (quest NYI)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 17223;
 
 		insert into applied_updates values ('240320232');
 	end if;
