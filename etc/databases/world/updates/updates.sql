@@ -1125,6 +1125,10 @@ begin not atomic
         update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1839; -- Scarlet High Clerist
         update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1833; -- Scarlet Knight
 
+        -- Fix quest pre-requisites for "Covert Ops: Alpha"
+        update quest_template set ExclusiveGroup = -1079 where entry in(1077, 1074);
+        update quest_template set PrevQuestId = 1077 where entry = 1079;
+
 		insert into applied_updates values ('230320231');
 	end if;
 
