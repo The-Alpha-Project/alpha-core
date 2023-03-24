@@ -1052,5 +1052,22 @@ begin not atomic
 		insert into applied_updates values ('220320231');
 	end if;
 
+    -- 24/03/2023 5
+	if(select count(*) from applied_updates where id = '240320235') = 0 then
+        -- Despawn Hand of Iruxos Crystal, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 32541;
+        -- Despawn Melizza's Cage, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 30188;
+        -- Future Maraudon area: despawn Mithril Deposits floating or not matching the terrain.
+        update spawns_gameobjects set ignored = 1 where spawn_id in(7071, 7178, 7189, 7171);
+        -- Despawn Kodo Bones, NYI quest
+        update spawns_gameobjects set ignored = 1 where spawn_entry in (176751, 176752, 176750);
+        -- Despawn Rackmore's Chest, NYQ quest
+        update spawns_gameobjects set ignored = 1 where spawn_id = 32008;
+        -- Despawn Serpent Statue, NYI quest
+        update spawns_gameobjects set ignored = 1 where spawn_id = 12609;
+
+		insert into applied_updates values ('240320235');
+	end if;
 end $
 delimiter ;
