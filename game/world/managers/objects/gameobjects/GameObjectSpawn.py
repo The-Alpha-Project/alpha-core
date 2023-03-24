@@ -92,7 +92,7 @@ class GameObjectSpawn:
                       self.gameobject_spawn.spawn_positionZ, self.gameobject_spawn.spawn_orientation)
 
     def _is_default(self):
-        return self.gameobject_spawn.spawn_spawntimemin > 0 and self.gameobject_spawn.spawn_spawntimemax > 0
+        return self.gameobject_spawn.spawn_spawntimemin >= 0 and self.gameobject_spawn.spawn_spawntimemax >= 0
 
     def _get_gameobject_entry(self):
         return self.gameobject_spawn.spawn_entry

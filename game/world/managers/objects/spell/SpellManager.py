@@ -369,13 +369,11 @@ class SpellManager:
 
     def apply_spell_effects(self, casting_spell: CastingSpell, remove=False, update=False, update_index=-1,
                             partial_targets: Optional[list[int]] = None):
-        if not update:
+        if not update and not casting_spell.is_passive() and not casting_spell.is_target_immune_to_effects():
             self.handle_procs_for_cast(casting_spell)
 
             # Handle related skill gain.
-            if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and \
-                    not casting_spell.is_target_immune_to_effects() and \
-                    not casting_spell.is_passive():  # Don't reward skill on passive application/full immunity results.
+            if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
                 self.caster.handle_spell_cast_skill_gain(casting_spell)
 
         for effect in casting_spell.get_effects():
@@ -435,12 +433,21 @@ class SpellManager:
                     continue
 
                 target_info = casting_spell.object_target_results[target.guid]
+                damage_info = None
                 if target_info.result != SpellMissReason.MISS_REASON_NONE:
-                    continue
-                if target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-                    target.aura_manager.check_aura_procs(involved_cast=casting_spell)
-                if casting_spell.spell_caster.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
-                    casting_spell.spell_caster.aura_manager.check_aura_procs(involved_cast=casting_spell)
+                    # Pass damage info with proc flags for handling dodge/parry/block procs off spells.
+                    proc_flags = {
+                        SpellMissReason.MISS_REASON_DODGED: ProcFlags.DODGE,
+                        SpellMissReason.MISS_REASON_PARRIED: ProcFlags.PARRY,
+                        SpellMissReason.MISS_REASON_BLOCKED: ProcFlags.BLOCK
+                    }
+                    damage_info = DamageInfoHolder(attacker=casting_spell.spell_caster, target=target,
+                                                   proc_victim=proc_flags.get(target_info.result, 0))
+
+                for proc_target in (target, casting_spell.spell_caster):
+                    if proc_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+                        proc_target.aura_manager.check_aura_procs(involved_cast=casting_spell,
+                                                             damage_info=damage_info)
                 applied_targets.append(target.guid)
 
     def handle_damage_event_procs(self, damage_info: DamageInfoHolder):

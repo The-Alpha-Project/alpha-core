@@ -319,6 +319,9 @@ class GameObjectManager(ObjectManager):
                 self.flags &= ~GameObjectFlags.IN_USE
                 self.set_uint32(GameObjectFields.GAMEOBJECT_FLAGS, self.flags)
 
+    def is_transport(self):
+        return self.gobject_template.type == GameObjectTypes.TYPE_TRANSPORT
+
     def has_flag(self, flag: GameObjectFlags):
         return self.flags & flag
 
@@ -370,6 +373,16 @@ class GameObjectManager(ObjectManager):
     def _is_mining_node(self):
         return self.gobject_template and self.gobject_template.type == GameObjectTypes.TYPE_CHEST and \
                self.gobject_template.data4 != 0 and self.gobject_template.data5 > self.gobject_template.data4
+
+    def get_transport(self):
+        if self.transport_manager:
+            return self.transport_manager
+        return None
+
+    def get_fall_time(self):
+        if self.transport_manager:
+            return self.transport_manager.update()
+        return 0
 
     # override
     def _get_fields_update(self, is_create, requester):
@@ -470,4 +483,6 @@ class GameObjectManager(ObjectManager):
 
     # override
     def generate_object_guid(self, low_guid):
+        if self.is_transport():
+            return low_guid | HighGuid.HIGHGUID_TRANSPORT
         return low_guid | HighGuid.HIGHGUID_GAMEOBJECT
