@@ -1,5 +1,5 @@
 Version:
-    current: 9
+    current: 10
 
 Database:
     Connection:
@@ -56,6 +56,7 @@ Server:
         logging_mask: 0x3f
         log_player_chat: False
         log_chat_path: /var/log/alpha-core/chat
+        dev_loc_path: /var/log/alpha-core/locations
 
     General:
         # Message of the day
