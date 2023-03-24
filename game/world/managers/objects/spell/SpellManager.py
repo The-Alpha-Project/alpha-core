@@ -442,7 +442,7 @@ class SpellManager:
                         SpellMissReason.MISS_REASON_BLOCKED: ProcFlags.BLOCK
                     }
                     damage_info = DamageInfoHolder(attacker=casting_spell.spell_caster, target=target,
-                                                   proc_victim=proc_flags[target_info.result])
+                                                   proc_victim=proc_flags.get(target_info.result, 0))
 
                 for proc_target in (target, casting_spell.spell_caster):
                     if proc_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
