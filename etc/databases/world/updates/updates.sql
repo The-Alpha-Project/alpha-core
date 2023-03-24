@@ -1135,6 +1135,7 @@ begin not atomic
         -- Feralas
         -- Delete duplicate spawn for Tarhus <Binder>, his real position is in Barrens
         -- Closes #1029
+        update spawns_creatures set position_x = -481.16, position_y = -2667.08, position_z = 99, orientation = 0.701327 where spawn_id = 50967;
         delete from spawns_creatures where spawn_id = 400049;
 
 		insert into applied_updates values ('230320231');
