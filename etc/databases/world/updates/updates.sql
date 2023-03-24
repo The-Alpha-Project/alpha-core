@@ -1132,6 +1132,11 @@ begin not atomic
         -- Set "<Needs Reward>" to quest "Reception from Tyrande"
         update quest_template set Title = "Reception from Tyrande <Needs Reward>" where entry = 1081;
 
+        -- Feralas
+        -- Delete duplicate spawn for Tarhus <Binder>, his real position is in Barrens
+        -- Closes #1029
+        delete from spawns_creatures where spawn_id = 400049;
+
 		insert into applied_updates values ('230320231');
 	end if;
 
