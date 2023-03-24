@@ -1078,7 +1078,7 @@ begin not atomic
         -- Despawn Wildkin Feather, quest NYI
         update spawns_gameobjects set ignored = 1 where spawn_entry = 153239;
         -- Set placeholder display_id for Mangy Silvermane, Silvermane Wolf and Silvermane Howler
-        update creature_template set display_id1 = 380 where entry in(2923, 2924, 2925);
+        update creature_template set display_id1 = 380 where entry in(2923, 2924, 2925, 2926);
         -- Despawn Aerie Peak Town Center, quest NYI
         update spawns_gameobjects set ignored = 1 where spawn_id = 21508;
         -- Despawn Rin'ji's Cage, quest NYI
@@ -1095,6 +1095,12 @@ begin not atomic
         update creature_template set display_id1 = 1244 where entry = 2505;
         -- Despawn campfire from Hinterlands Beach
         update spawns_gameobjects set ignored = 1 where spawn_id in(46038, 46037);
+        -- Set dwarf placeholder for Falstad Wildhammer, Truk Wildbeard, Gryphon Master Talonaxe
+        update creature_template set display_id1 = 2584 where entry in(5635, 4782, 5636);
+        -- Set high-elf placeholder for Highvale elves
+        update creature_template set display_id1 = 1642, display_id2 = 1643, display_id3 = 0, display_id4 = 0 where entry in(2691, 2692, 2693, 2694);
+        -- Set placeholder for Rothos
+        update creature_template set display_id1 = 2930 where entry = 5718;
 
         -- Badlands
         -- Despawn two unused Wanted signs
@@ -1107,6 +1113,13 @@ begin not atomic
         update spawns_gameobjects set ignored = 1 where spawn_id in(11272, 10927, 10922, 11245, 11246, 11279, 10923, 11273, 11264, 11259, 10936, 10921, 10920, 11278, 11260, 11261, 11274, 11243, 11254, 10917, 11242, 11250, 11249, 11267, 11244);
         -- Despawn Magenta Cap Cluster and Magenta Cap Cluster Trap, quest NYI
         update spawns_gameobjects set ignored = 1 where spawn_entry in(128293, 128196, 126049);
+        -- Set dwarf placeholder for Theldurin the Lost and Prospector Ryedol
+        update creature_template set display_id1 = 2584 where entry in(2785, 2910);
+        -- Set orc placeholder for Grawl, Sranda and Neeka Bloodscar
+        update creature_template set display_id1 = 2576 where entry = 2908;
+        update creature_template set display_id1 = 2577 where entry in(1407, 5394);
+        -- Set gnome placeholder for Lotwill and Lucien Tosselwrench
+        update creature_template set display_id1 = 2581 where entry in(2921, 2920);
 
 		insert into applied_updates values ('230320231');
 	end if;
