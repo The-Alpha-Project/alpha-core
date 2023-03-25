@@ -1054,7 +1054,7 @@ begin not atomic
 
     -- 25/03/2023 1
 	if(select count(*) from applied_updates where id = '250320231') = 0 then
-		-- Despawn floating waysigns in Ghostwalker Post
+		-- Despawn floating waysigns in Camp Mojache
 		update spawns_gameobjects set ignored = 1 where spawn_id in(49850, 49848, 49852, 49847);
 		-- Despawn Large Leather Backpacks, quest NYI
 		update spawns_gameobjects set ignored = 1 where spawn_id = 50014;
