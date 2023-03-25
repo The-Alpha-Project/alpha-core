@@ -1042,10 +1042,10 @@ begin not atomic
 
     -- 22/03/2023 1
 	if(select count(*) from applied_updates where id = '220320231') = 0 then
-		--Despawn Clara's Fresh Apples since the model and quest don't exist
+		-- Despawn Clara's Fresh Apples since the model and quest don't exist
 		update spawns_gameobjects set ignored = 1 where spawn_entry = 142076;
 
-		--Set human NPCs to the correct faction
+		-- Set human NPCs to the correct faction
 		update creature_template set faction = 11 where entry = 1649; --Jordan Croft
 		update creature_template set faction = 11 where entry = 2939; --Jackson Bayne
 
