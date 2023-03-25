@@ -1052,5 +1052,17 @@ begin not atomic
 		insert into applied_updates values ('220320231');
 	end if;
 
+    -- 25/03/2023 3
+	if(select count(*) from applied_updates where id = '250320233') = 0 then
+        -- Despawn Hospital Bed, bleedin from vanilla
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 178226;
+        -- Set faction for Lolo the Lookout and Shakes O'Breen to Booty Bay
+        update creature_template set faction = 121 where entry in(2766, 2610);
+        -- Despawn Keepsake of Rememberance, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 16632;
+
+		insert into applied_updates values ('250320233');
+	end if;
+
 end $
 delimiter ;
