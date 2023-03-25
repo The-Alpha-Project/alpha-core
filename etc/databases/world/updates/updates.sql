@@ -1072,6 +1072,9 @@ begin not atomic
         -- Set display_id for Private Merle
         update creature_template set display_id1 = 173 where entry = 1412;
 
+        -- Respawn Grawnal and Jeeda
+        update spawns_creatures set ignored = 0 where spawn_entry in(4082, 4083);
+
 		insert into applied_updates values ('250320234');
 	end if;
 end $
