@@ -1080,6 +1080,11 @@ begin not atomic
         -- Set his faction to Darnassus, level to 35 and proper flags
         update creature_template set faction = 79, level_min = 35, level_max = 35, health_min = 1342, health_max = 1342, armor = 1373, npc_flags = 8, static_flags = 138412102, flags_extra = 524298 where entry = 4149;
 
+        -- Spawn Charles Brewton
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5672, 0, 1703.173, 189.162, -62.172, 2.981);
+        -- Set faction to Undercity, set proper name, stats and flags
+        update creature_template set name = "Charles Brewton", faction = 71, level_min = 20, level_max = 20, health_min = 484, health_max = 484, armor = 852, npc_flags = 0, static_flags = 6, flags_extra = 524290 where entry = 5672;
+
 		insert into applied_updates values ('250320234');
 	end if;
 end $
