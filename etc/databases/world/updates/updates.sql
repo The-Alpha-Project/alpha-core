@@ -1066,7 +1066,7 @@ begin not atomic
 		update creature_template set faction = 16 where entry in(5361, 5360, 5359);
 		-- Despawn floating waysigns east of Feathermoon
 		update spawns_gameobjects set ignored = 1 where spawn_id in(50236, 49840, 50256, 49837, 49841, 49843, 49842);
-		-- Despawn TEMP Miblon Snarltooth, whatever this is
+		-- Despawn TEMP Miblon Snarltooth, quest NYI
 		update spawns_gameobjects set ignored = 1 where spawn_id = 99878;
 		-- Despawn Evoroot, quest NYI
 		update spawns_gameobjects set ignored = 1 where spawn_entry = 164798;
