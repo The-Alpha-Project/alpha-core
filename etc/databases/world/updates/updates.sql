@@ -1057,7 +1057,7 @@ begin not atomic
         -- Spawn Elyse Laughlin <Guild Tabard Designer>
         insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4976, 0, -8895.372, 615.447, 95.258, 5.853);
         -- Set her faction to Stormwind, level to 25 and appropiate stats
-        update creature_template set faction = 11, level_min = 25, level_min = 25, health_min = 712, health_max = 712 where entry = 4976;
+        update creature_template set faction = 11, level_min = 25, level_max = 25, health_min = 712, health_max = 712, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 4976;
 
 		insert into applied_updates values ('250320234');
 	end if;
