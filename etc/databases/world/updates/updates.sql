@@ -1064,6 +1064,11 @@ begin not atomic
         -- Set his faction to Orgrimmar, set proper name and flags
         update creature_template set name = "Rallus", faction = 29, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 5050;
 
+        -- Spawn Frewa <Guild Tabard Designer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5051, 1, -1290.182, 132.530, 131.431, 5.543);
+        -- Set her faction to Thunderbluff, set proper name and flags
+        update creature_template set name = "Frewa", faction = 104, level_min = 25, level_max = 25, health_min = 712, health_max = 712, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 5051;
+
 		insert into applied_updates values ('250320234');
 	end if;
 end $
