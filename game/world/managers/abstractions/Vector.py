@@ -62,6 +62,9 @@ class Vector(object):
     def copy(self):
         return Vector(self.x, self.y, self.z, self.o)
 
+    def flush(self):
+        self.x = self.y = self.z = self.o = 0
+
     def distance(self, vector=None, x=0, y=0, z=0, decimals=3):
         return round(math.sqrt(self.distance_sqrd(vector.x, vector.y, vector.z) if vector else
                                self.distance_sqrd(x, y, z)), decimals)

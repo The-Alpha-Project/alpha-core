@@ -27,10 +27,10 @@ class MovementInfo:
 
         # Valid placement, set unit fields.
         unit_mover.transport_id = t_id
-        unit_mover.transport.x = t_x
-        unit_mover.transport.y = t_y
-        unit_mover.transport.z = t_z
-        unit_mover.transport.o = t_o
+        unit_mover.transport_location.x = t_x
+        unit_mover.transport_location.y = t_y
+        unit_mover.transport_location.z = t_z
+        unit_mover.transport_location.o = t_o
         unit_mover.location.x = x
         unit_mover.location.y = y
         unit_mover.location.z = z
@@ -69,7 +69,7 @@ class MovementInfo:
         self.transport.add_passenger(self.owner)
 
     def _remove_transport(self):
-        self.owner.transport.flush()
+        self.owner.transport_location.flush()
         self.transport.remove_passenger(self.owner)
         self.transport = None
 
@@ -78,8 +78,8 @@ class MovementInfo:
         return MapManager.get_surrounding_gameobject_by_guid(self.owner, self.owner.transport_id).transport_manager
 
     def get_bytes(self):
-        data = pack('<2Q9fI', self.owner.guid, self.owner.transport_id, self.owner.transport.x, self.owner.transport.y,
-                    self.owner.transport.z, self.owner.transport.o, self.owner.location.x, self.owner.location.y,
+        data = pack('<2Q9fI', self.owner.guid, self.owner.transport_id, self.owner.transport_location.x, self.owner.transport_location.y,
+                    self.owner.transport_location.z, self.owner.transport_location.o, self.owner.location.x, self.owner.location.y,
                     self.owner.location.z, self.owner.location.o, self.owner.pitch, self.owner.movement_flags)
         if self.owner.movement_spline:
             spline_bytes = self.owner.movement_spline.to_bytes()
