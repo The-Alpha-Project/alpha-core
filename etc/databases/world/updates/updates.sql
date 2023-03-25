@@ -1085,6 +1085,12 @@ begin not atomic
         -- Set faction to Undercity, set proper name, stats and flags
         update creature_template set name = "Charles Brewton", faction = 71, level_min = 20, level_max = 20, health_min = 484, health_max = 484, armor = 852, npc_flags = 0, static_flags = 6, flags_extra = 524290 where entry = 5672;
 
+        -- Spawn Lawrence Sawyer
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5671, 0, 1634.186, 353.105, -62.162, 5.278);
+        -- Set faction to Undercity, set proper name, stats and flags
+        update creature_template set name = "Lawrence Sawyer", faction = 71, level_min = 20, level_max = 20, health_min = 484, health_max = 484, armor = 852, npc_flags = 0, static_flags = 6, flags_extra = 524290 where entry = 5671;
+
+
 		insert into applied_updates values ('250320234');
 	end if;
 end $
