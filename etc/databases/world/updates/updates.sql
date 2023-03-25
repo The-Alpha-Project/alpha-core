@@ -1052,5 +1052,14 @@ begin not atomic
 		insert into applied_updates values ('220320231');
 	end if;
 
+    -- 25/03/2023 4
+	if(select count(*) from applied_updates where id = '250320234') = 0 then
+        -- Spawn Elyse Laughlin <Guild Tabard Designer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4976, 0, -8895.372, 615.447, 95.258, 5.853);
+        -- Set her faction to Stormwind, level to 25 and appropiate stats
+        update creature_template set faction = 11, min_level = 25, max_level =25, health_min = 712, health_max = 712 where entry = 4976;
+
+		insert into applied_updates values ('250320234');
+	end if;
 end $
 delimiter ;
