@@ -1060,9 +1060,11 @@ begin not atomic
         update creature_template set faction = 11, level_min = 25, level_max = 25, health_min = 712, health_max = 712, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 4976;
 
         -- Spawn Rallus <Guild Tabard Designer>
-        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5050, 1, 1577.951, -4297.580, 26.021, 2.745);
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5050, 1, 1575.8, -4292.67, 26.0391, 4.38078);
         -- Set his faction to Orgrimmar, set proper name and flags
         update creature_template set name = "Rallus", faction = 29, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 5050;
+        -- Move Urtrun Clanbringer to his old position
+        update spawns_creatures set position_x = 1578.958, position_y = -4288.754, position_z = 26.021, orientation = 4.400 where spawn_id = 6602;
 
         -- Spawn Frewa <Guild Tabard Designer>
         insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5051, 1, -1290.182, 132.530, 131.431, 5.543);
