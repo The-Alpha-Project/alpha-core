@@ -1046,8 +1046,8 @@ begin not atomic
 		update spawns_gameobjects set ignored = 1 where spawn_entry = 142076;
 
 		-- Set human NPCs to the correct faction
-		update creature_template set faction = 11 where entry = 1649; --Jordan Croft
-		update creature_template set faction = 11 where entry = 2939; --Jackson Bayne
+		update creature_template set faction = 11 where entry = 1649; -- Jordan Croft
+		update creature_template set faction = 11 where entry = 2939; -- Jackson Bayne
 
 		insert into applied_updates values ('220320231');
 	end if;
