@@ -1069,6 +1069,9 @@ begin not atomic
         -- Set her faction to Thunderbluff, set proper name and flags
         update creature_template set name = "Frewa", faction = 104, level_min = 25, level_max = 25, health_min = 712, health_max = 712, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 5051;
 
+        -- Set display_id for Private Merle
+        update creature_template set display_id1 = 173 where entry = 1412;
+
 		insert into applied_updates values ('250320234');
 	end if;
 end $
