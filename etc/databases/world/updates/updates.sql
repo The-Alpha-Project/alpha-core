@@ -1095,6 +1095,10 @@ begin not atomic
         -- Set Deathstalker Zraedus display_id
         update creature_template set display_id1 = 2685 where entry = 5418;
 
+        -- Fix faction for Wailing Caverns mobs
+        update creature_template set faction = 14 where entry in(5048, 3632, 5056, 3637, 5055, 3636, 3633, 3634, 5756, 5755);
+        update creature_template set faction = 16 where entry in(3672, 3840, 3671, 3669, 3670, 3673, 3654);
+
 
 		insert into applied_updates values ('250320234');
 	end if;
