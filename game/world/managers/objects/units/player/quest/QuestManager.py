@@ -1100,6 +1100,15 @@ class QuestManager(object):
             if active_quest.can_complete_quest():
                 self.complete_quest(active_quest, update_surrounding=True, notify=True)
 
+    def reward_quest_event(self):
+        for quest_id, active_quest in self.active_quests.items():
+            if not QuestHelpers.is_event_quest(active_quest.quest):
+                return
+            self.update_single_quest(quest_id)
+            self.send_quest_complete_event(quest_id)
+            if active_quest.can_complete_quest():
+                self.complete_quest(active_quest, update_surrounding=True, notify=True)
+
     def complete_quest_by_id(self, quest_id):
         if quest_id not in self.active_quests:
             return
