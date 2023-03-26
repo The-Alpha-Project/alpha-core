@@ -1205,5 +1205,29 @@ begin not atomic
 		insert into applied_updates values ('240320231');
 	end if;
 
+    -- 24/03/2023 2
+	if(select count(*) from applied_updates where id = '240320232') = 0 then
+
+        -- Enable remaining Mithril Deposits/Ooze Covered Mithril Deposit to be mined at 155 skill
+        update gameobject_template set data0 = 42 where entry in(123310, 150079, 176645);
+        -- Set placeholder (normal Mithril Deposit) for Ooze Covered Mithril Deposit
+        update gameobject_template set displayId = 313 where entry = 123310;
+        -- Set placeholder (normal Silver Vein) for Ooze Covered Silver Vein
+        update gameobject_template set displayId = 314 where entry = 73940;
+
+        -- Thousand Needles
+        -- Set faction for Silithid to 16 (monster)
+        update creature_template set faction = 16 where entry in(4133, 4131, 4132, 4130);
+        -- Set display_id for Silithid Ravager
+        update creature_template set display_id1 = 1561 where entry = 4132;
+        -- Despawn lamppost
+        update spawns_gameobjects set ignored = 1 where spawn_id = 16867;
+        -- Despawn Panther Cage (quest NYI)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 16775;
+        -- Despawn Wanted Poster: Arnak Grimtotem (quest NYI)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 17223;
+
+		insert into applied_updates values ('240320232');
+	end if;
 end $
 delimiter ;
