@@ -102,7 +102,7 @@ class UnitManager(ObjectManager):
         self.combat_target = combat_target
         self.channel_spell = channel_spell
         self.channel_object = channel_object
-        self.quest_target = None
+        self.health = health
         self.health = health
         self.power_type = power_type
         self.power_1 = power_1
@@ -1654,7 +1654,6 @@ class UnitManager(ObjectManager):
         self.leave_combat()
         self.set_current_target(0)
         self.is_alive = True
-        self.quest_target = None
 
         self.unit_flags &= ~UnitFlags.UNIT_MASK_DEAD
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
