@@ -1099,6 +1099,9 @@ begin not atomic
         update creature_template set faction = 14 where entry in(5048, 3632, 5056, 3637, 5055, 3636, 3633, 3634, 5756, 5755);
         update creature_template set faction = 16 where entry in(3672, 3840, 3671, 3669, 3670, 3673, 3654);
 
+        -- Savannah Cub has wrong entry ID
+        INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`, `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`, `level_min`, `level_max`, `health_min`, `health_max`, `mana_min`, `mana_max`, `armor`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`, `detection_range`, `call_for_help_range`, `leash_range`, `rank`, `xp_multiplier`, `dmg_min`, `dmg_max`, `dmg_school`, `attack_power`, `dmg_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`, `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `ranged_dmg_min`, `ranged_dmg_max`, `ranged_attack_power`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`, `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`, `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`, `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`, `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`, `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`, `script_name`) VALUES (4227, 2278, 0, 0, 0, 0, 'Savannah Cub', NULL, 22, 0, 9, 9, 86, 102, 0, 0, 98, 16, 0, 1, 1.14286, 0.75, 18, 5, 0, 0, 1, 3, 5, 0, 60, 1, 1200, 2000, 1, 0, 0, 2, 0, 0, 0, 0, 15.2064, 20.9088, 100, 1, 1, 0, 0, 10105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5820, NULL, 0, 0, '', 1, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, '');
+
 
 		insert into applied_updates values ('250320234');
 	end if;
