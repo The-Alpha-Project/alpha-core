@@ -1052,5 +1052,107 @@ begin not atomic
 		insert into applied_updates values ('220320231');
 	end if;
 
+    -- 26/03/2023 1
+	if(select count(*) from applied_updates where id = '260320231') = 0 then
+		-- Despawn chairs in Tower of Azora and a tower within Theramore Isle (shared entry same issue)
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169293;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169292;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169284;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148557;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148554;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148556;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169285;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169264;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148567;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148544;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169290;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169280;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169279;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148540;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169283;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148551;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148550;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169291;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148549;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169282;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 148547;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169281;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169273;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169270;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169269;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169268;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169267;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169275;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169274;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169272;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169271;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169287;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169276;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169265;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169266;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169289;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169278;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169277;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 169288;
+
+		-- Despawn bench outside Lakeshire
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 92703;
+
+		-- Despawn benches inside Lakeshires town hall
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 179779;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 179780;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 179781;
+
+		-- Despawn chairs inside Lakeshires town hall
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112204;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112205;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112239;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112241;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112238;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112237;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112234;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112235;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112236;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 179778;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112201;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112231;
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 112232;
+
+		-- Despawn chairs inside the Tower of Ilgalar
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148692;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148694;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148693;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148695;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148696;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148659;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148668;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148670;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148674;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148671;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148686;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148664;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148714;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148707;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148683;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148691;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148682;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148677;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148660;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148661;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148680;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148677;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148697;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148675;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148669;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148658;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148662;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148725;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148663;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148665;
+		update spawns_gameobjects set ignored = 1 where spawn_map = 0 and spawn_entry = 148684;
+
+		insert into applied_updates values ('260320231');
+	end if;
+
 end $
 delimiter ;
