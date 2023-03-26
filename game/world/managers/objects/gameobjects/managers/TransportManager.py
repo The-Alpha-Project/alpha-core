@@ -71,7 +71,14 @@ class TransportManager:
         if config.Server.Settings.debug_transport:
             self._debug_position(self.current_anim_position)
 
+        # Update passengers Z.
+        self._update_passengers()
+
         return int(self.path_progress)
+
+    def _update_passengers(self):
+        for unit in list(self.passengers.values()):
+            unit.location.z = self.current_anim_position.z
 
     def add_passenger(self, unit):
         self.passengers[unit.guid] = unit

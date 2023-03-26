@@ -17,6 +17,10 @@ class MovementHandler:
         if not player_mgr:
             return res
 
+        # Ignore while teleporting.
+        if player_mgr.update_lock or not player_mgr.is_alive:
+            return 0
+
         # Avoid handling malformed movement packets.
         if len(reader.data) >= 48:
             try:
