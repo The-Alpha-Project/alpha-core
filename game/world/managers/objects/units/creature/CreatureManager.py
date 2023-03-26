@@ -23,7 +23,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
-    PowerTypes, CreatureFlagsExtra, CreatureReactStates, UnitStates, AIReactionStates
+    PowerTypes, CreatureFlagsExtra, CreatureReactStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -159,138 +159,140 @@ class CreatureManager(UnitManager):
 
         # Initialize values.
         # After this, fields must be modified by setters or directly writing values to them.
-        if not self.initialized:
-            self.bytes_1 = self.get_bytes_1()
-            self.bytes_2 = self.get_bytes_2()
-            self.damage = self.get_damages()
+        if self.initialized:
+            return
+        self.bytes_1 = self.get_bytes_1()
+        self.bytes_2 = self.get_bytes_2()
+        self.damage = self.get_damages()
 
-            # Object fields.
-            self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
-            self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
-            self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
-            self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
+        # Object fields.
+        self.set_uint64(ObjectFields.OBJECT_FIELD_GUID, self.guid)
+        self.set_uint32(ObjectFields.OBJECT_FIELD_TYPE, self.get_type_mask())
+        self.set_uint32(ObjectFields.OBJECT_FIELD_ENTRY, self.entry)
+        self.set_float(ObjectFields.OBJECT_FIELD_SCALE_X, self.current_scale)
 
-            # Unit fields.
-            self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
-            self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.creation_spell_id)
-            self.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.summoner.guid if self.summoner else 0)
-            self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if self.summoner else 0)
-            self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
-            self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
-            self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
-            self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
-            self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, self.max_power_1)
-            self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
-            self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
-            self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
-            self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
-            self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
-            self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.base_attack_time)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
-            self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
-            self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
-            self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
-            self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
-            self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
-            self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
-            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
-            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
-            self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
-            self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, 0)
-            self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
-            self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
+        # Unit fields.
+        self.set_uint32(UnitFields.UNIT_CHANNEL_SPELL, self.channel_spell)
+        self.set_uint32(UnitFields.UNIT_CREATED_BY_SPELL, self.creation_spell_id)
+        self.set_uint64(UnitFields.UNIT_FIELD_CREATEDBY, self.summoner.guid if self.summoner else 0)
+        self.set_uint64(UnitFields.UNIT_FIELD_SUMMONEDBY, self.summoner.guid if self.summoner else 0)
+        self.set_uint64(UnitFields.UNIT_FIELD_CHANNEL_OBJECT, self.channel_object)
+        self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
+        self.set_uint32(UnitFields.UNIT_FIELD_MAXHEALTH, self.max_health)
+        self.set_uint32(UnitFields.UNIT_FIELD_POWER1, self.power_1)
+        self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, self.max_power_1)
+        self.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.level)
+        self.set_uint32(UnitFields.UNIT_FIELD_FACTIONTEMPLATE, self.faction)
+        self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
+        self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
+        self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.base_attack_time)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+        self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
+        self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
+        self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
+        self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
+        self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
+        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
+        self.set_uint32(UnitFields.UNIT_MOD_CAST_SPEED, 0)
+        self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
+        self.set_uint32(UnitFields.UNIT_FIELD_DAMAGE, self.damage)
 
-            for slot, virtual_item in self.virtual_item_info.items():
-                self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_item.display_id)
-                self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item.info_packed)
-                self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_item.info_packed_2)
+        for slot, virtual_item in self.virtual_item_info.items():
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + slot, virtual_item.display_id)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 0, virtual_item.info_packed)
+            self.set_uint32(UnitFields.UNIT_VIRTUAL_ITEM_INFO + (slot * 2) + 1, virtual_item.info_packed_2)
 
-            self.initialized = True
+        self.initialized = True
 
-            # Trigger respawned event.
-            self.object_ai.just_respawned()
+        # Trigger respawned event.
+        self.object_ai.just_respawned()
 
     def finish_loading(self):
-        if not self.fully_loaded:
-            # Load loot manager.
-            self.loot_manager = CreatureLootManager(self)
-            # Load pickpocket loot manager if required.
-            if self.creature_template.pickpocket_loot_id:
-                self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
+        if self.fully_loaded:
+            return
+        # Load loot manager.
+        self.loot_manager = CreatureLootManager(self)
+        # Load pickpocket loot manager if required.
+        if self.creature_template.pickpocket_loot_id:
+            self.pickpocket_loot_manager = CreaturePickPocketLootManager(self)
 
-            display_id = self.current_display_id
-            creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)
-            if creature_model_info:
-                self.bounding_radius = creature_model_info.bounding_radius
-                self.combat_reach = creature_model_info.combat_reach
-                self.gender = creature_model_info.gender
+        display_id = self.current_display_id
+        creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)
+        if creature_model_info:
+            self.bounding_radius = creature_model_info.bounding_radius
+            self.combat_reach = creature_model_info.combat_reach
+            self.gender = creature_model_info.gender
 
-            if self.creature_template.scale == 0:
-                display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
-                if display_scale and display_scale.CreatureModelScale > 0:
-                    self.native_scale = display_scale.CreatureModelScale
-                else:
-                    self.native_scale = 1
+        if self.creature_template.scale == 0:
+            display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
+            if display_scale and display_scale.CreatureModelScale > 0:
+                self.native_scale = display_scale.CreatureModelScale
             else:
-                self.native_scale = self.creature_template.scale
-            self.current_scale = self.native_scale
+                self.native_scale = 1
+        else:
+            self.native_scale = self.creature_template.scale
+        self.current_scale = self.native_scale
 
-            # Creature group.
-            creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
-            if creature_group:
-                self.creature_group = CreatureGroupManager.get_create_group(creature_group)
-                self.creature_group.add_member(self, creature_group)
+        # Creature group.
+        creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
+        if creature_group:
+            self.creature_group = CreatureGroupManager.get_create_group(creature_group)
+            self.creature_group.add_member(self, creature_group)
 
-            # Equipment.
-            if self.creature_template.equipment_id > 0:
-                creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                    self.creature_template.equipment_id
-                )
-                if creature_equip_template:
-                    VirtualItemsUtils.set_virtual_item(self, 0, creature_equip_template.equipentry1)
-                    VirtualItemsUtils.set_virtual_item(self, 1, creature_equip_template.equipentry2)
-                    VirtualItemsUtils.set_virtual_item(self, 2, creature_equip_template.equipentry3)
+        # Equipment.
+        if self.creature_template.equipment_id > 0:
+            creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+                self.creature_template.equipment_id
+            )
+            if creature_equip_template:
+                VirtualItemsUtils.set_virtual_item(self, 0, creature_equip_template.equipentry1)
+                VirtualItemsUtils.set_virtual_item(self, 1, creature_equip_template.equipentry2)
+                VirtualItemsUtils.set_virtual_item(self, 2, creature_equip_template.equipentry3)
 
-            # Mount this creature, will be overriden if defined in creature_addon.
-            if self.creature_template.mount_display_id > 0:
-                self.mount(self.creature_template.mount_display_id)
+        # Mount this creature, will be overriden if defined in creature_addon.
+        if self.creature_template.mount_display_id > 0:
+            self.mount(self.creature_template.mount_display_id)
 
-            if self.addon:
-                self.set_stand_state(self.addon.stand_state)
-                # 0.5.3 weapon modes for sheathed and unsheathed status are swapped compared to later versions.
-                # In order to keep full compatibility with VMaNGOS creature_addon table, we do the swap here instead of
-                # changing the value in the database.
-                weapon_mode = self.addon.sheath_state ^ 1 if self.addon.sheath_state < 2 else self.addon.sheath_state
-                self.set_weapon_mode(weapon_mode)
+        if self.addon:
+            self.set_stand_state(self.addon.stand_state)
+            # 0.5.3 weapon modes for sheathed and unsheathed status are swapped compared to later versions.
+            # In order to keep full compatibility with VMaNGOS creature_addon table, we do the swap here instead of
+            # changing the value in the database.
+            weapon_mode = self.addon.sheath_state ^ 1 if self.addon.sheath_state < 2 else self.addon.sheath_state
+            self.set_weapon_mode(weapon_mode)
 
-                # Set emote state if available.
-                if self.addon.emote_state:
-                    self.set_emote_state(self.addon.emote_state)
+            # Set emote state if available.
+            if self.addon.emote_state:
+                self.set_emote_state(self.addon.emote_state)
 
-                # Update display id if available.
-                if self.addon.display_id:
-                    self.set_display_id(self.addon.display_id)
+            # Update display id if available.
+            if self.addon.display_id:
+                self.set_display_id(self.addon.display_id)
 
-                # Mount this creature if defined (will override template mount).
-                if self.addon.mount_display_id > 0:
-                    self.mount(self.addon.mount_display_id)
+            # Mount this creature if defined (will override template mount).
+            if self.addon.mount_display_id > 0:
+                self.mount(self.addon.mount_display_id)
 
-            # Cast default auras for this unit.
-            self.apply_default_auras()
+        # Cast default auras for this unit.
+        self.apply_default_auras()
 
-            # Stats.
-            self.stat_manager.init_stats()
-            self.stat_manager.apply_bonuses(replenish=True)
+        # Stats.
+        self.stat_manager.init_stats()
+        self.stat_manager.apply_bonuses(replenish=True)
 
-            # Movement.
-            self.movement_manager.initialize()
+        # Movement.
+        self.movement_manager.initialize()
 
-            self.fully_loaded = True
+        self.fully_loaded = True
 
     def set_virtual_equipment(self, slot, item_id):
         VirtualItemsUtils.set_virtual_item(self, slot, item_id)
@@ -413,6 +415,8 @@ class CreatureManager(UnitManager):
         if not super().enter_combat(source):
             return False
 
+        if self.is_player_controlled_pet():
+            self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, True)
         self.object_ai.enter_combat(source)
 
     # override
@@ -421,6 +425,8 @@ class CreatureManager(UnitManager):
 
         if not self.is_player_controlled_pet():
             self.evade()
+        else:
+            self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
 
         if self.creature_group and self.is_evading:
             self.creature_group.on_leave_combat(self)
@@ -620,16 +626,18 @@ class CreatureManager(UnitManager):
             return False
 
         was_oneshot = not self.threat_manager.has_aggro_from(killer)
-        # Handle one shot kills leading to player remaining in combat.
-        if was_oneshot and killer:
-            if self.creature_group:
+        if self.creature_group:
+            if was_oneshot and killer:
                 # AI will not trigger since NPC was unable to start attacking, make the call for attack start event.
                 self.creature_group.on_members_attack_start(self, killer)
-                # Notify member death.
-                self.creature_group.on_member_died(self)
+            # Notify member death.
+            self.creature_group.on_member_died(self)
+
+        # Handle one shot kills leading to player remaining in combat.
+        if was_oneshot and killer:
             self.threat_manager.add_threat(killer)
 
-        if killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if killer and killer.get_type_id() != ObjectTypeIds.ID_PLAYER:
             charmer_or_summoner = killer.get_charmer_or_summoner()
             # Attribute non-player kills to the creature's charmer/summoner.
             # TODO Does this also apply for player mind control?

@@ -54,7 +54,7 @@ class ObjectManager:
         self.bounding_radius = bounding_radius
         self.location = Vector()
         self.transport_id = transport_id
-        self.transport = Vector()
+        self.transport_location = Vector()
         self.pitch = pitch
         self.zone = zone
         self.map_id = map_id
@@ -154,10 +154,10 @@ class ObjectManager:
             '<2Q9fI',
             self.guid,
             self.transport_id,
-            self.transport.x,
-            self.transport.y,
-            self.transport.z,
-            self.transport.o,
+            self.transport_location.x,
+            self.transport_location.y,
+            self.transport_location.z,
+            self.transport_location.o,
             self.location.x,
             self.location.y,
             self.location.z,
@@ -242,10 +242,10 @@ class ObjectManager:
         data = pack(
             '<Q9fI',
             self.transport_id,
-            self.transport.x,
-            self.transport.y,
-            self.transport.z,
-            self.transport.o,
+            self.transport_location.x,
+            self.transport_location.y,
+            self.transport_location.z,
+            self.transport_location.o,
             self.location.x,
             self.location.y,
             self.location.z,

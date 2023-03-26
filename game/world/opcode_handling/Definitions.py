@@ -389,9 +389,8 @@ class Definitions:
     @staticmethod
     def get_handler_from_packet(world_session, opcode):
         try:
-            opcode = OpCode(opcode)
-            if opcode in HANDLER_DEFINITIONS:
-                return HANDLER_DEFINITIONS.get(OpCode(opcode)), True
+            return HANDLER_DEFINITIONS[opcode], True
+        except KeyError:
             Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
         except ValueError:
             # No handler, OpCode not found

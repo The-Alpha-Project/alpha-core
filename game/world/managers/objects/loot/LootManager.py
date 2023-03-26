@@ -129,24 +129,24 @@ class LootManager(object):
 
     def loot_item_in_slot(self, slot, requester):
         with self.loot_lock:
-            if slot < len(self.current_loot) and self.current_loot[slot]:
-                loot = self.current_loot[slot]
-                if loot and loot.item and requester.inventory.add_item(item_template=loot.item.item_template,
-                                                                       count=loot.quantity,
-                                                                       looted=True):
-                    # Mark as looted by requester and delete if item is not visible to anyone else.
-                    if self.current_loot[slot].set_looted_by(requester):
-                        # Set item to None, do not pop index.
-                        self.current_loot[slot] = None
+            if slot >= len(self.current_loot) or not self.current_loot[slot]:
+                return
+            loot = self.current_loot[slot]
+            if not loot or not loot.item or not requester.inventory.add_item(item_template=loot.item.item_template,
+                                                                             count=loot.quantity, looted=True):
+                return
+            # Mark as looted by requester and delete if item is not visible to anyone else.
+            if self.current_loot[slot].set_looted_by(requester):
+                # Set item to None, do not pop index.
+                self.current_loot[slot] = None
 
-                    removed_packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, pack('<B', slot))
-                    # Loot is multi-drop, notify only self about its removal.
-                    if loot.is_multi_drop():
-                        requester.enqueue_packet(removed_packet)
-                    # Notify players with loot window open about its removal.
-                    else:
-                        for looter in self.get_active_looters():
-                            looter.enqueue_packet(removed_packet)
+            removed_packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_REMOVED, pack('<B', slot))
+            # Loot is multi-drop, notify only self about its removal.
+            if loot.is_multi_drop():
+                requester.enqueue_packet(removed_packet)
+            # Notify players with loot window open about its removal.
+            else:
+                [looter.enqueue_packet(removed_packet) for looter in self.get_active_looters()]
 
     def clear_money(self):
         self.current_money = 0
