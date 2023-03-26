@@ -1314,5 +1314,63 @@ begin not atomic
 		insert into applied_updates values ('250320233');
 	end if;
 
+	    -- 25/03/2023 4
+	if(select count(*) from applied_updates where id = '250320234') = 0 then
+        -- Spawn Elyse Laughlin <Guild Tabard Designer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4976, 0, -8895.372, 615.447, 95.258, 5.853);
+        -- Set her faction to Stormwind, level to 25 and appropiate stats
+        update creature_template set faction = 11, level_min = 25, level_max = 25, health_min = 712, health_max = 712, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 4976;
+
+        -- Spawn Rallus <Guild Tabard Designer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5050, 1, 1575.8, -4292.67, 26.0391, 4.38078);
+        -- Set his faction to Orgrimmar, set proper name and flags
+        update creature_template set name = 'Rallus', faction = 29, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 5050;
+        -- Move Urtrun Clanbringer to his old position
+        update spawns_creatures set position_x = 1578.958, position_y = -4288.754, position_z = 26.021, orientation = 4.400 where spawn_id = 6602;
+
+        -- Spawn Frewa <Guild Tabard Designer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5051, 1, -1290.182, 132.530, 131.431, 5.543);
+        -- Set her faction to Thunderbluff, set proper name and flags
+        update creature_template set name = 'Frewa', faction = 104, level_min = 25, level_max = 25, health_min = 712, health_max = 712, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 5051;
+
+        -- Set display_id for Private Merle
+        update creature_template set display_id1 = 173 where entry = 1412;
+
+        -- Respawn Grawnal and Jeeda
+        update spawns_creatures set ignored = 0 where spawn_entry1 in(4082, 4083);
+
+        -- Spawn Kesteryth <Foraging Trainer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4149, 1, 10142.150, 2544.091, 1317.686, 1.073);
+        -- Set his faction to Darnassus, level to 35 and proper flags
+        update creature_template set faction = 79, level_min = 35, level_max = 35, health_min = 1342, health_max = 1342, armor = 1373, npc_flags = 8, static_flags = 138412102, flags_extra = 524298 where entry = 4149;
+
+        -- Spawn Charles Brewton
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5672, 0, 1703.173, 189.162, -62.172, 2.981);
+        -- Set faction to Undercity, set proper name, stats and flags
+        update creature_template set name = 'Charles Brewton', faction = 71, level_min = 20, level_max = 20, health_min = 484, health_max = 484, armor = 852, npc_flags = 0, static_flags = 6, flags_extra = 524290 where entry = 5672;
+
+        -- Spawn Lawrence Sawyer
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5671, 0, 1634.186, 353.105, -62.162, 5.278);
+        -- Set faction to Undercity, set proper name, stats and flags
+        update creature_template set name = 'Lawrence Sawyer', faction = 71, level_min = 20, level_max = 20, health_min = 484, health_max = 484, armor = 852, npc_flags = 0, static_flags = 6, flags_extra = 524290 where entry = 5671;
+
+        -- Set Deathstalker Zraedus display_id
+        update creature_template set display_id1 = 2685 where entry = 5418;
+
+        -- Fix faction for Wailing Caverns mobs
+        update creature_template set faction = 14 where entry in(5048, 3632, 5056, 3637, 5055, 3636, 3633, 3634, 5756, 5755);
+        update creature_template set faction = 16 where entry in(3672, 3840, 3671, 3669, 3670, 3673, 3654);
+
+        -- Savannah Cub has wrong entry ID
+        INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`, `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`, `level_min`, `level_max`, `health_min`, `health_max`, `mana_min`, `mana_max`, `armor`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`, `detection_range`, `call_for_help_range`, `leash_range`, `rank`, `xp_multiplier`, `dmg_min`, `dmg_max`, `dmg_school`, `attack_power`, `dmg_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`, `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `ranged_dmg_min`, `ranged_dmg_max`, `ranged_attack_power`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`, `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`, `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`, `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`, `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`, `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`, `script_name`) VALUES (4227, 2278, 0, 0, 0, 0, 'Savannah Cub', NULL, 22, 0, 9, 9, 86, 102, 0, 0, 98, 16, 0, 1, 1.14286, 0.75, 18, 5, 0, 0, 1, 3, 5, 0, 60, 1, 1200, 2000, 1, 0, 0, 2, 0, 0, 0, 0, 15.2064, 20.9088, 100, 1, 1, 0, 0, 10105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5820, NULL, 0, 0, '', 1, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, '');
+
+        -- Set placeholder display_id for Or'Kalar
+        update creature_template set display_id1 = 1054, scale = 1.3 where entry = 2773;
+        -- Set placeholder display_id for Zaruk
+        update creature_template set display_id1 = 2576 where entry = 2787;
+
+		insert into applied_updates values ('250320234');
+	end if;
+
 end $
 delimiter ;
