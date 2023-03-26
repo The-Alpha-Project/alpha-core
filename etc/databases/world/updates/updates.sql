@@ -1229,5 +1229,17 @@ begin not atomic
 
 		insert into applied_updates values ('240320232');
 	end if;
+
+    -- 24/03/2023 4
+    if(select count(*) from applied_updates where id = '240320234') = 0 then
+        -- Have Om'kan <Spider Trainer> spawn his spider pet
+        update creature_template set spell_id1 = 7912 where entry = 4882;
+        -- Despawn Onyxia's Gate gameobject
+        update spawns_gameobjects set ignored = 1 where spawn_id = 9091;
+        -- Set placeholder for Mudrock Borer and Mudrock Burrower (both turtles)
+        update creature_template set display_id1 = 1244 where entry in(4398, 4399);
+
+        insert into applied_updates values ('240320234');
+    end if;
 end $
 delimiter ;
