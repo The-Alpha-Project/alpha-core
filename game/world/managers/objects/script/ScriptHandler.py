@@ -573,7 +573,8 @@ class ScriptHandler:
         # source = Creature
         # datalong = despawn_delay
         if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and command.source.is_alive:
-            command.source.destroy()
+            #TODO: handle despawn delay
+            command.source.despawn()
         else:
             Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info()}.')
 
