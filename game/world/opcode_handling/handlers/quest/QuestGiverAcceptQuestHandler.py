@@ -45,6 +45,7 @@ class QuestGiverAcceptQuestHandler(object):
             elif is_item or quest_giver.is_within_interactable_distance(player_mgr):
                 player_mgr.quest_manager.handle_accept_quest(quest_id, guid, shared=False, quest_giver=quest_giver,
                                                              is_item=is_item)
-                quest_giver.quest_target = player_mgr
+                if not is_item:
+                    quest_giver.quest_target = player_mgr
 
         return 0
