@@ -14,7 +14,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags
+    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags, QuestState
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -23,7 +23,6 @@ from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
 from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFields
-
 
 class ScriptHandler:
 
@@ -373,6 +372,19 @@ class ScriptHandler:
         # datalong = quest_id
         # datalong2 = distance or 0
         # datalong3 = (bool) group
+        quest_target = source.quest_target if source.quest_target is not none else target.quest_target if target.quest_target is not none else None
+
+        if quest_target is not None:
+            for quest in quest_target.quest_manager.active_quests:
+                if quest.entry == datalong and not quest.get_is_quest_rewarded():
+                    if datalong3 == 0:
+                        if source.location.distance(quest_target.location) <= datalong2:
+                            quest.set_explored_or_event_complete()
+                    else:
+                        quest_target.group_manager.reward_quest_completion(source, datalong)
+        else:
+            Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
+
         Logger.debug('ScriptHandler: handle_script_command_quest_explored not implemented yet')
 
     @staticmethod
