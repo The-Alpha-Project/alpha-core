@@ -1075,7 +1075,7 @@ begin not atomic
         update creature_template set display_id1 = 173 where entry = 1412;
 
         -- Respawn Grawnal and Jeeda
-        update spawns_creatures set ignored = 0 where spawn_entry in(4082, 4083);
+        update spawns_creatures set ignored = 0 where spawn_entry1 in(4082, 4083);
 
         -- Spawn Kesteryth <Foraging Trainer>
         insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4149, 1, 10142.150, 2544.091, 1317.686, 1.073);
