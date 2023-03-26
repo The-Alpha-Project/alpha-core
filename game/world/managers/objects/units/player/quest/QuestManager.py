@@ -1116,6 +1116,23 @@ class QuestManager(object):
         self.complete_quest(active_quest, update_surrounding=True, notify=True)
         self.update_single_quest(quest_id)
 
+    def fail_quest_by_id(self, quest_id):
+        if quest_id not in self.active_quests:
+            return
+
+        active_quest = self.active_quests.get(quest_id)
+        self.fail_quest(active_quest, update_surrounding=True, notify=True)
+        self.update_single_quest(quest_id)
+
+    def fail_quest(self, active_quest, update_surrounding=False, notify=False):
+        active_quest.update_quest_state(QuestState.QUEST_FAILED)
+
+        if notify:
+            self.send_quest_failed_event(active_quest.quest.entry)
+
+        if update_surrounding:
+            self.update_surrounding_quest_status()
+
     def complete_quest(self, active_quest, update_surrounding=False, notify=False):
         active_quest.update_quest_state(QuestState.QUEST_REWARD)
         active_quest.set_explored_or_event_complete()
@@ -1129,6 +1146,11 @@ class QuestManager(object):
     def send_quest_complete_event(self, quest_id):
         data = pack('<I', quest_id)
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_COMPLETE, data)
+        self.player_mgr.enqueue_packet(packet)
+
+    def send_quest_failed_event(self, quest_id):
+        data = pack('<I', quest_id)
+        packet = PacketWriter.get_packet(OpCode.SMSG_QUESTUPDATE_FAILED, data)
         self.player_mgr.enqueue_packet(packet)
 
     def item_needed_by_quests(self, item_entry):
