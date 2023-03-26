@@ -1143,9 +1143,6 @@ begin not atomic
         update quest_template set ExclusiveGroup = -1079 where entry in(1077, 1074);
         update quest_template set PrevQuestId = 1077 where entry = 1079;
 
-        -- Set "<Needs Reward>" to quest "Reception from Tyrande"
-        update quest_template set Title = "Reception from Tyrande <Needs Reward>" where entry = 1081;
-
         -- Feralas
         -- Delete duplicate spawn for Tarhus <Binder>, his real position is in Barrens
         -- Closes #1029
