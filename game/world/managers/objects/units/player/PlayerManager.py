@@ -732,6 +732,12 @@ class PlayerManager(UnitManager):
         if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
             self.unmount()
 
+        # Repop/Resurrect.
+        if pending_teleport.recovery_percentage != -1:
+            self.respawn(pending_teleport.recovery_percentage)
+            self.spirit_release_timer = 0
+            self.resurrect_data = None
+
         if not changed_map:
             # Get us in a new cell.
             MapManager.update_object(self)
@@ -755,12 +761,6 @@ class PlayerManager(UnitManager):
 
         # Remove this pending teleport data.
         self.pending_teleport_data.pop(0)
-
-        # Repop/Resurrect.
-        if pending_teleport.recovery_percentage != -1:
-            self.respawn(pending_teleport.recovery_percentage)
-            self.spirit_release_timer = 0
-            self.resurrect_data = None
 
         # Remove soft lock if there are no pending teleports remaining.
         self.update_lock = len(self.pending_teleport_data) > 0
