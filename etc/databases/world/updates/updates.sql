@@ -1054,6 +1054,100 @@ begin not atomic
         insert into applied_updates values ('220320232');
     end if;
 
+    -- 23/03/2023 1
+	if(select count(*) from applied_updates where id = '230320231') = 0 then
+        -- Herbalism nodes
+        -- Set placeholder display_id for Wintersbite
+        update gameobject_template set displayId = 28 where entry = 2044;
+        -- Set placeholder display_id for Khadgar's Whisker
+        update gameobject_template set displayId = 28 where entry = 2043;
+        -- Set placeholder display_id for Firebloom
+        update gameobject_template set displayId = 28 where entry = 2866;
+        -- Set size for Goldthorn and Firebloom to 0.5
+        update gameobject_template set size = 0.5 where entry in(2046, 2866);
+
+        -- Mining nodes
+        -- Enable Mithril Deposit to be mined at 155 skill
+        update gameobject_template set data0 = 42 where entry = 2040;
+
+	    -- Alterac Mountains
+        -- Set placeholder display_id for Glommus
+        update creature_template set display_id1 = 536 where entry = 2422;
+        -- Set placeholder display_id for Grel'Borg the Miser
+        update creature_template set display_id1 = 811 where entry = 2417;
+        -- Set placeholder display_id for Mug'thol
+        update creature_template set display_id1 = 750 where entry = 2257;
+
+        -- Western Plaguelands
+        -- Despawn Cauldron, Campfire and 2x Campfire Damage from future Argent Dawn camp in WPL
+        update spawns_gameobjects set ignored = 1 where spawn_id in(45306, 45307, 45322, 45323);
+        -- Despawn Andorhal Silo Temporal Rift objects, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 175795;
+        -- Set placeholder display_id for Araj the Summoner
+        update creature_template set display_id1 = 2606 where entry = 1852;
+        -- Despawn Musty Tome and Musty Tome Trap, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry in(176152, 176151, 176150);
+        -- Additional Hearthglen fixes by @Geo-tp
+        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1839; -- Scarlet High Clerist
+        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1833; -- Scarlet Knight
+
+        -- Hinterlands
+        -- Despawn Wildkin Feather, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 153239;
+        -- Set placeholder display_id for Silvermane wolves
+        update creature_template set display_id1 = 380 where entry in(2923, 2924, 2925, 2926);
+        -- Despawn Aerie Peak Town Center, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 21508;
+        -- Despawn Rin'ji's Cage, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 46065;
+        -- Set placeholder display_id for Jade Ooze
+        update creature_template set display_id1 = 1749 where entry = 2656;
+        -- Despawn Horde Supply Crate, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 142191;
+        -- Fix Z of a floating Solid Chest
+        update spawns_gameobjects set spawn_positionZ = 117.825 where spawn_id = 46430;
+        -- Set proper (placeholder) faction for Vilebranch and Witherbark Trolls
+        update creature_template set faction = 16 where faction in(795, 654, 312);
+        -- Set placeholder display_id for Saltwater Snapjaw
+        update creature_template set display_id1 = 1244 where entry = 2505;
+        -- Despawn campfire from Hinterlands Beach
+        update spawns_gameobjects set ignored = 1 where spawn_id in(46038, 46037);
+        -- Set dwarf placeholder for Falstad Wildhammer, Truk Wildbeard, Gryphon Master Talonaxe
+        update creature_template set display_id1 = 2584 where entry in(5635, 4782, 5636);
+        -- Set high-elf placeholder for Highvale elves
+        update creature_template set display_id1 = 1642, display_id2 = 1643, display_id3 = 0, display_id4 = 0 where entry in(2691, 2692, 2693, 2694);
+        -- Set placeholder for Rothos
+        update creature_template set display_id1 = 2930 where entry = 5718;
+
+        -- Badlands
+        -- Despawn two unused Wanted signs
+        update spawns_gameobjects set ignored = 1 where spawn_id in(10747, 10746);
+        -- Set placeholder display_id for Barnabus
+        update creature_template set display_id1 = 246 where entry = 2753;
+        -- Set placeholder display_id for Dustbelcher Warrior
+        update creature_template set display_id1 = 1120 where entry = 2906;
+        -- Despawn Short Wooden Seat from Uldaman exterior (was WMO in 0.5.3)
+        update spawns_gameobjects set ignored = 1 where spawn_id in(11272, 10927, 10922, 11245, 11246, 11279, 10923, 11273, 11264, 11259, 10936, 10921, 10920, 11278, 11260, 11261, 11274, 11243, 11254, 10917, 11242, 11250, 11249, 11267, 11244);
+        -- Despawn Magenta Cap Cluster and Magenta Cap Cluster Trap, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry in(128293, 128196, 126049);
+        -- Set dwarf placeholder for Theldurin the Lost and Prospector Ryedol
+        update creature_template set display_id1 = 2584 where entry in(2785, 2910);
+        -- Set orc placeholder for Grawl, Sranda and Neeka Bloodscar
+        update creature_template set display_id1 = 2576 where entry = 2908;
+        update creature_template set display_id1 = 2577 where entry in(1407, 5394);
+        -- Set gnome placeholder for Lotwill and Lucien Tosselwrench
+        update creature_template set display_id1 = 2581 where entry in(2921, 2920);
+
+        -- Feralas
+        -- Delete duplicate spawn for Tarhus <Binder>, his real position is in Barrens
+        -- Closes #1029
+        update spawns_creatures set position_x = -481.16, position_y = -2667.08, position_z = 99, orientation = 0.701327 where spawn_id = 50967;
+        delete from spawns_creatures where spawn_id = 400049;
+
+		insert into applied_updates values ('230320231');
+	end if;
+
+
     -- 22/03/2023 1
 	if(select count(*) from applied_updates where id = '220320231') = 0 then
 		-- Despawn Clara's Fresh Apples since the model and quest don't exist
