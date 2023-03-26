@@ -335,9 +335,8 @@ class GroupManager(object):
 
     def reward_quest_completion(self, requester, quest_entry):
         for player_mgr in self.get_close_members(requester):
-            for quest in player_mgr.quest_manager.active_quests:
-                if quest.entry == quest_entry and not quest.get_is_quest_rewarded():
-                    quest.set_explored_or_event_complete()
+            if quest_entry in player_mgr.quest_manager.active_quests:
+                player_mgr.quest_manager.active_quests[quest_entry].set_explored_or_event_complete()
 
     def reward_group_money(self, looter, creature):
         close_members = self.get_close_members(looter)

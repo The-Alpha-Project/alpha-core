@@ -372,20 +372,30 @@ class ScriptHandler:
         # datalong = quest_id
         # datalong2 = distance or 0
         # datalong3 = (bool) group
-        quest_target = source.quest_target if source.quest_target is not none else target.quest_target if target.quest_target is not none else None
+        if command.source:
+            if command.source.quest_target:
+                quest_target = command.source.quest_target
+        elif command.target:
+            if command.target.quest_target:
+                quest_target = command.target.quest_target
+        else:
+            quest_target = None
 
         if quest_target is not None:
-            for quest in quest_target.quest_manager.active_quests:
-                if quest.entry == datalong and not quest.get_is_quest_rewarded():
-                    if datalong3 == 0:
-                        if source.location.distance(quest_target.location) <= datalong2:
-                            quest.set_explored_or_event_complete()
+            if command.datalong in quest_target.quest_manager.active_quests:
+                in_range = command.source.location.distance(quest_target.location) <= command.datalong2
+                if command.datalong3:
+                    if quest_target.group_manager and in_range:
+                        quest_target.group_manager.reward_quest_completion(command.source, command.datalong)
                     else:
-                        quest_target.group_manager.reward_quest_completion(source, datalong)
+                        if in_range:
+                            quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+                else:
+                    if in_range:
+                        quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+
         else:
             Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
-
-        Logger.debug('ScriptHandler: handle_script_command_quest_explored not implemented yet')
 
     @staticmethod
     def handle_script_command_kill_credit(command):

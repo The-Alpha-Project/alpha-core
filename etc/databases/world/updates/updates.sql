@@ -1068,14 +1068,9 @@ begin not atomic
         (46710, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood - Defias Traitor - Set walk'),
         (46710, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood - Defias Traitor - Say');
 
-
         INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (46720, 0, 0, 7, 155, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood - Defias Traitor - Complete quest'),
         (46720, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood - Defias Traitor - Say'),
         (46720, 5, 0, 18, 5000, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood - Defias Traitor - Despawn after 5 seconds');
-
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (467, 0, 0, 70, 155, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Traitor - Fail escort quest on death');
 
         INSERT INTO creature_movement_special (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
         (467, 1, -10524.82, 1070.633, 53.62569, 0, 0, 0, 0),
