@@ -1138,11 +1138,6 @@ begin not atomic
         -- Set gnome placeholder for Lotwill and Lucien Tosselwrench
         update creature_template set display_id1 = 2581 where entry in(2921, 2920);
 
-        -- Stonetalon Mountains
-        -- Fix quest pre-requisites for "Covert Ops: Alpha"
-        update quest_template set ExclusiveGroup = -1079 where entry in(1077, 1074);
-        update quest_template set PrevQuestId = 1077 where entry = 1079;
-
         -- Feralas
         -- Delete duplicate spawn for Tarhus <Binder>, his real position is in Barrens
         -- Closes #1029
