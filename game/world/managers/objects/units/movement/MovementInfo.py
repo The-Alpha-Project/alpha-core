@@ -2,6 +2,8 @@ from struct import pack, unpack
 from utils.constants.MiscCodes import MoveFlags
 from utils.constants.OpCodes import OpCode
 
+COLLISION_DETECTION = {OpCode.MSG_MOVE_COLLIDE_REDIRECT, OpCode.MSG_MOVE_COLLIDE_STUCK}
+
 
 class MovementInfo:
     def __init__(self, world_object):
@@ -20,17 +22,16 @@ class MovementInfo:
         t_id, t_x, t_y, t_z, t_o, x, y, z, o, pitch, movement_flags = unpack('<Q9fI', reader.data[:48])
 
         distance = self.owner.location.distance(x=x, y=y, z=z)
-
         # Anti cheat / elevators bug.
         if unit_mover == self.owner and not self.owner.pending_taxi_destination and distance > 64:
             return None
 
         # Valid placement, set unit fields.
         unit_mover.transport_id = t_id
-        unit_mover.transport.x = t_x
-        unit_mover.transport.y = t_y
-        unit_mover.transport.z = t_z
-        unit_mover.transport.o = t_o
+        unit_mover.transport_location.x = t_x
+        unit_mover.transport_location.y = t_y
+        unit_mover.transport_location.z = t_z
+        unit_mover.transport_location.o = t_o
         unit_mover.location.x = x
         unit_mover.location.y = y
         unit_mover.location.z = z
@@ -43,7 +44,7 @@ class MovementInfo:
         else:
             self.owner.movement_spline = None
 
-        self.collided = reader.opcode in {OpCode.MSG_MOVE_COLLIDE_REDIRECT, OpCode.MSG_MOVE_COLLIDE_STUCK}
+        self.collided = reader.opcode in COLLISION_DETECTION
         self.jumped = reader.opcode == OpCode.MSG_MOVE_JUMP
         self.moved = self.owner.movement_flags & (MoveFlags.MOVEFLAG_MOVE_MASK | MoveFlags.MOVEFLAG_STRAFE_MASK) != 0
         self.turned = self.owner.movement_flags & MoveFlags.MOVEFLAG_TURN_MASK != 0
@@ -64,12 +65,18 @@ class MovementInfo:
 
         return self
 
+    def remove_from_transport(self):
+        if not self.transport:
+            return
+        self.owner.transport_id = 0
+        self._remove_transport()
+
     def _add_transport(self):
         self.transport = self._get_transport()
         self.transport.add_passenger(self.owner)
 
     def _remove_transport(self):
-        self.owner.transport.flush()
+        self.owner.transport_location.flush()
         self.transport.remove_passenger(self.owner)
         self.transport = None
 
@@ -78,9 +85,10 @@ class MovementInfo:
         return MapManager.get_surrounding_gameobject_by_guid(self.owner, self.owner.transport_id).transport_manager
 
     def get_bytes(self):
-        data = pack('<2Q9fI', self.owner.guid, self.owner.transport_id, self.owner.transport.x, self.owner.transport.y,
-                    self.owner.transport.z, self.owner.transport.o, self.owner.location.x, self.owner.location.y,
-                    self.owner.location.z, self.owner.location.o, self.owner.pitch, self.owner.movement_flags)
+        data = pack('<2Q9fI', self.owner.guid, self.owner.transport_id, self.owner.transport_location.x,
+                    self.owner.transport_location.y, self.owner.transport_location.z, self.owner.transport_location.o,
+                    self.owner.location.x, self.owner.location.y, self.owner.location.z, self.owner.location.o,
+                    self.owner.pitch, self.owner.movement_flags)
         if self.owner.movement_spline:
             spline_bytes = self.owner.movement_spline.to_bytes()
             pack(f'<{len(spline_bytes)}s', spline_bytes)
