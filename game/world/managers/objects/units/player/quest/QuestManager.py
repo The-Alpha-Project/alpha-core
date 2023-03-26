@@ -1125,7 +1125,7 @@ class QuestManager(object):
         self.update_single_quest(quest_id)
 
     def fail_quest(self, active_quest, update_surrounding=False, notify=False):
-        active_quest.update_quest_state(QuestState.QUEST_FAILED)
+        active_quest.failed = True
 
         if notify:
             self.send_quest_failed_event(active_quest.quest.entry)
