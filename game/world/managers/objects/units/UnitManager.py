@@ -102,6 +102,7 @@ class UnitManager(ObjectManager):
         self.combat_target = combat_target
         self.channel_spell = channel_spell
         self.channel_object = channel_object
+        self.quest_target = None
         self.health = health
         self.power_type = power_type
         self.power_1 = power_1

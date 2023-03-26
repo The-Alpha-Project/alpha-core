@@ -141,6 +141,8 @@ class ScriptHandler:
 
         speaker = command.target if command.target and command.target.get_type_id() == ObjectTypeIds.ID_UNIT \
             else command.source
+        if command.source.quest_target is not None:
+            command.target = command.source.quest_target
         if speaker.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Wrong target type, aborting {command.get_info()}.')
             return
