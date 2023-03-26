@@ -1284,5 +1284,22 @@ begin not atomic
 		insert into applied_updates values ('250320231');
 	end if;
 
+    -- 25/03/2023 2
+	if(select count(*) from applied_updates where id = '250320232') = 0 then
+        -- Set placeholder display_id for Strigid Screecher/Strigid Owl/Strigid Hunter
+        update creature_template set display_id1 = 1192 where entry in(1996, 1995, 1997);
+        -- Set placeholder display_id for Greenpaw
+        update creature_template set display_id1 = 937 where entry = 1993;
+        -- Set faction for Kyln Longclaw <Bear Trainer> and have him summon his pet bear
+        update creature_template set faction = 79, spell_id1 = 7903 where entry = 3697;
+        -- Also move Kyln Longlaw to a more likely position according to https://web.archive.org/web/20041115033850/http://wow.allakhazam.com/db/mob.html?wmob=3697
+        update spawns_creatures set position_x = 9769.670, position_y = 953.790, position_z = 1306.091, orientation = 5.587 where spawn_id = 400070;
+        -- Despawn all gameobjects related to NYI quest "Iverron's Antidote"
+        update spawns_gameobjects set ignored = 1 where spawn_entry in(152094, 152095);
+        -- Set faction for Nerra <Cat Trainer> and have her summon her pet cat
+        update creature_template set faction = 79, spell_id1 = 7906 where entry = 3699;
+
+		insert into applied_updates values ('250320232');
+
 end $
 delimiter ;
