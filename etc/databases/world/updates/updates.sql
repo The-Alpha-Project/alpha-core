@@ -1054,6 +1054,100 @@ begin not atomic
         insert into applied_updates values ('220320232');
     end if;
 
+    -- 23/03/2023 1
+	if(select count(*) from applied_updates where id = '230320231') = 0 then
+        -- Herbalism nodes
+        -- Set placeholder display_id for Wintersbite
+        update gameobject_template set displayId = 28 where entry = 2044;
+        -- Set placeholder display_id for Khadgar's Whisker
+        update gameobject_template set displayId = 28 where entry = 2043;
+        -- Set placeholder display_id for Firebloom
+        update gameobject_template set displayId = 28 where entry = 2866;
+        -- Set size for Goldthorn and Firebloom to 0.5
+        update gameobject_template set size = 0.5 where entry in(2046, 2866);
+
+        -- Mining nodes
+        -- Enable Mithril Deposit to be mined at 155 skill
+        update gameobject_template set data0 = 42 where entry = 2040;
+
+	    -- Alterac Mountains
+        -- Set placeholder display_id for Glommus
+        update creature_template set display_id1 = 536 where entry = 2422;
+        -- Set placeholder display_id for Grel'Borg the Miser
+        update creature_template set display_id1 = 811 where entry = 2417;
+        -- Set placeholder display_id for Mug'thol
+        update creature_template set display_id1 = 750 where entry = 2257;
+
+        -- Western Plaguelands
+        -- Despawn Cauldron, Campfire and 2x Campfire Damage from future Argent Dawn camp in WPL
+        update spawns_gameobjects set ignored = 1 where spawn_id in(45306, 45307, 45322, 45323);
+        -- Despawn Andorhal Silo Temporal Rift objects, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 175795;
+        -- Set placeholder display_id for Araj the Summoner
+        update creature_template set display_id1 = 2606 where entry = 1852;
+        -- Despawn Musty Tome and Musty Tome Trap, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry in(176152, 176151, 176150);
+        -- Additional Hearthglen fixes by @Geo-tp
+        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1839; -- Scarlet High Clerist
+        update creature_template set display_id1 = 1611, display_id2 = 1612, display_id3 = 0, display_id4 = 0 where entry = 1833; -- Scarlet Knight
+
+        -- Hinterlands
+        -- Despawn Wildkin Feather, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 153239;
+        -- Set placeholder display_id for Silvermane wolves
+        update creature_template set display_id1 = 380 where entry in(2923, 2924, 2925, 2926);
+        -- Despawn Aerie Peak Town Center, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 21508;
+        -- Despawn Rin'ji's Cage, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 46065;
+        -- Set placeholder display_id for Jade Ooze
+        update creature_template set display_id1 = 1749 where entry = 2656;
+        -- Despawn Horde Supply Crate, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 142191;
+        -- Fix Z of a floating Solid Chest
+        update spawns_gameobjects set spawn_positionZ = 117.825 where spawn_id = 46430;
+        -- Set proper (placeholder) faction for Vilebranch and Witherbark Trolls
+        update creature_template set faction = 16 where faction in(795, 654, 312);
+        -- Set placeholder display_id for Saltwater Snapjaw
+        update creature_template set display_id1 = 1244 where entry = 2505;
+        -- Despawn campfire from Hinterlands Beach
+        update spawns_gameobjects set ignored = 1 where spawn_id in(46038, 46037);
+        -- Set dwarf placeholder for Falstad Wildhammer, Truk Wildbeard, Gryphon Master Talonaxe
+        update creature_template set display_id1 = 2584 where entry in(5635, 4782, 5636);
+        -- Set high-elf placeholder for Highvale elves
+        update creature_template set display_id1 = 1642, display_id2 = 1643, display_id3 = 0, display_id4 = 0 where entry in(2691, 2692, 2693, 2694);
+        -- Set placeholder for Rothos
+        update creature_template set display_id1 = 2930 where entry = 5718;
+
+        -- Badlands
+        -- Despawn two unused Wanted signs
+        update spawns_gameobjects set ignored = 1 where spawn_id in(10747, 10746);
+        -- Set placeholder display_id for Barnabus
+        update creature_template set display_id1 = 246 where entry = 2753;
+        -- Set placeholder display_id for Dustbelcher Warrior
+        update creature_template set display_id1 = 1120 where entry = 2906;
+        -- Despawn Short Wooden Seat from Uldaman exterior (was WMO in 0.5.3)
+        update spawns_gameobjects set ignored = 1 where spawn_id in(11272, 10927, 10922, 11245, 11246, 11279, 10923, 11273, 11264, 11259, 10936, 10921, 10920, 11278, 11260, 11261, 11274, 11243, 11254, 10917, 11242, 11250, 11249, 11267, 11244);
+        -- Despawn Magenta Cap Cluster and Magenta Cap Cluster Trap, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_entry in(128293, 128196, 126049);
+        -- Set dwarf placeholder for Theldurin the Lost and Prospector Ryedol
+        update creature_template set display_id1 = 2584 where entry in(2785, 2910);
+        -- Set orc placeholder for Grawl, Sranda and Neeka Bloodscar
+        update creature_template set display_id1 = 2576 where entry = 2908;
+        update creature_template set display_id1 = 2577 where entry in(1407, 5394);
+        -- Set gnome placeholder for Lotwill and Lucien Tosselwrench
+        update creature_template set display_id1 = 2581 where entry in(2921, 2920);
+
+        -- Feralas
+        -- Delete duplicate spawn for Tarhus <Binder>, his real position is in Barrens
+        -- Closes #1029
+        update spawns_creatures set position_x = -481.16, position_y = -2667.08, position_z = 99, orientation = 0.701327 where spawn_id = 50967;
+        delete from spawns_creatures where spawn_id = 400049;
+
+		insert into applied_updates values ('230320231');
+	end if;
+
+
     -- 22/03/2023 1
 	if(select count(*) from applied_updates where id = '220320231') = 0 then
 		-- Despawn Clara's Fresh Apples since the model and quest don't exist
@@ -1109,6 +1203,173 @@ begin not atomic
         update spawns_gameobjects set ignored = 1 where spawn_id in(17321, 17319, 17320, 17318);
 
 		insert into applied_updates values ('240320231');
+	end if;
+
+    -- 24/03/2023 2
+	if(select count(*) from applied_updates where id = '240320232') = 0 then
+
+        -- Enable remaining Mithril Deposits/Ooze Covered Mithril Deposit to be mined at 155 skill
+        update gameobject_template set data0 = 42 where entry in(123310, 150079, 176645);
+        -- Set placeholder (normal Mithril Deposit) for Ooze Covered Mithril Deposit
+        update gameobject_template set displayId = 313 where entry = 123310;
+        -- Set placeholder (normal Silver Vein) for Ooze Covered Silver Vein
+        update gameobject_template set displayId = 314 where entry = 73940;
+
+        -- Thousand Needles
+        -- Set faction for Silithid to 16 (monster)
+        update creature_template set faction = 16 where entry in(4133, 4131, 4132, 4130);
+        -- Set display_id for Silithid Ravager
+        update creature_template set display_id1 = 1561 where entry = 4132;
+        -- Despawn lamppost
+        update spawns_gameobjects set ignored = 1 where spawn_id = 16867;
+        -- Despawn Panther Cage (quest NYI)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 16775;
+        -- Despawn Wanted Poster: Arnak Grimtotem (quest NYI)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 17223;
+
+		insert into applied_updates values ('240320232');
+	end if;
+
+    -- 24/03/2023 4
+    if(select count(*) from applied_updates where id = '240320234') = 0 then
+        -- Have Om'kan <Spider Trainer> spawn his spider pet
+        update creature_template set spell_id1 = 7912 where entry = 4882;
+        -- Despawn Onyxia's Gate gameobject
+        update spawns_gameobjects set ignored = 1 where spawn_id = 9091;
+        -- Set placeholder for Mudrock Borer and Mudrock Burrower (both turtles)
+        update creature_template set display_id1 = 1244 where entry in(4398, 4399);
+
+        insert into applied_updates values ('240320234');
+    end if;
+
+    -- 24/03/2023 5
+	if(select count(*) from applied_updates where id = '240320235') = 0 then
+        -- Despawn Hand of Iruxos Crystal, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 32541;
+        -- Despawn Melizza's Cage, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 30188;
+        -- Future Maraudon area: despawn Mithril Deposits floating or not matching the terrain.
+        update spawns_gameobjects set ignored = 1 where spawn_id in(7071, 7178, 7189, 7171);
+        -- Despawn Kodo Bones, NYI quest
+        update spawns_gameobjects set ignored = 1 where spawn_entry in (176751, 176752, 176750);
+        -- Despawn Rackmore's Chest, NYI quest
+        update spawns_gameobjects set ignored = 1 where spawn_id = 32008;
+        -- Despawn Serpent Statue, NYI quest
+        update spawns_gameobjects set ignored = 1 where spawn_id = 12609;
+
+		insert into applied_updates values ('240320235');
+	end if;
+
+	-- 25/03/2023 1
+	if(select count(*) from applied_updates where id = '250320231') = 0 then
+		-- Despawn floating waysigns in Camp Mojache
+		update spawns_gameobjects set ignored = 1 where spawn_id in(49850, 49848, 49852, 49847);
+		-- Despawn Large Leather Backpacks, quest NYI
+		update spawns_gameobjects set ignored = 1 where spawn_id = 50014;
+		-- Despawn Zuk'Ash Pod, quest NYI
+		update spawns_gameobjects set ignored = 1 where spawn_id = 50015;
+		-- Set faction 16 for Zukk'ash silithid
+		update creature_template set faction = 16 where entry in(5244, 5247, 5245, 5246);
+		-- Set faction 16 for Wave Strider, Deep Strider, Shore Strider
+		update creature_template set faction = 16 where entry in(5361, 5360, 5359);
+		-- Despawn floating waysigns east of Feathermoon
+		update spawns_gameobjects set ignored = 1 where spawn_id in(50236, 49840, 50256, 49837, 49841, 49843, 49842);
+		-- Despawn TEMP Miblon Snarltooth, quest NYI
+		update spawns_gameobjects set ignored = 1 where spawn_id = 99878;
+		-- Despawn Evoroot, quest NYI
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 164798;
+		-- Set display_id for Lethlas
+		update creature_template set display_id1 = 2930 where entry = 5312;
+
+		insert into applied_updates values ('250320231');
+	end if;
+
+    -- 25/03/2023 2
+	if(select count(*) from applied_updates where id = '250320232') = 0 then
+        -- Set placeholder display_id for Strigid Screecher/Strigid Owl/Strigid Hunter
+        update creature_template set display_id1 = 1192 where entry in(1996, 1995, 1997);
+        -- Set placeholder display_id for Greenpaw
+        update creature_template set display_id1 = 937 where entry = 1993;
+        -- Set faction for Kyln Longclaw <Bear Trainer> and have him summon his pet bear
+        update creature_template set faction = 79, spell_id1 = 7903 where entry = 3697;
+        -- Also move Kyln Longlaw to a more likely position according to https://web.archive.org/web/20041115033850/http://wow.allakhazam.com/db/mob.html?wmob=3697
+        update spawns_creatures set position_x = 9769.670, position_y = 953.790, position_z = 1306.091, orientation = 5.587 where spawn_id = 400070;
+        -- Despawn all gameobjects related to NYI quest "Iverron's Antidote"
+        update spawns_gameobjects set ignored = 1 where spawn_entry in(152094, 152095);
+        -- Set faction for Nerra <Cat Trainer> and have her summon her pet cat
+        update creature_template set faction = 79, spell_id1 = 7906 where entry = 3699;
+
+		insert into applied_updates values ('250320232');
+	end if;
+
+	 -- 25/03/2023 3
+	if(select count(*) from applied_updates where id = '250320233') = 0 then
+        -- Despawn Hospital Bed, bleedin from vanilla
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 178226;
+        -- Set faction for Lolo the Lookout and Shakes O'Breen to Booty Bay
+        update creature_template set faction = 121 where entry in(2766, 2610);
+        -- Despawn Keepsake of Rememberance, quest NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 16632;
+
+		insert into applied_updates values ('250320233');
+	end if;
+
+	    -- 25/03/2023 4
+	if(select count(*) from applied_updates where id = '250320234') = 0 then
+        -- Spawn Elyse Laughlin <Guild Tabard Designer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4976, 0, -8895.372, 615.447, 95.258, 5.853);
+        -- Set her faction to Stormwind, level to 25 and appropiate stats
+        update creature_template set faction = 11, level_min = 25, level_max = 25, health_min = 712, health_max = 712, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 4976;
+
+        -- Spawn Rallus <Guild Tabard Designer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5050, 1, 1575.8, -4292.67, 26.0391, 4.38078);
+        -- Set his faction to Orgrimmar, set proper name and flags
+        update creature_template set name = 'Rallus', faction = 29, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 5050;
+        -- Move Urtrun Clanbringer to his old position
+        update spawns_creatures set position_x = 1578.958, position_y = -4288.754, position_z = 26.021, orientation = 4.400 where spawn_id = 6602;
+
+        -- Spawn Frewa <Guild Tabard Designer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5051, 1, -1290.182, 132.530, 131.431, 5.543);
+        -- Set her faction to Thunderbluff, set proper name and flags
+        update creature_template set name = 'Frewa', faction = 104, level_min = 25, level_max = 25, health_min = 712, health_max = 712, npc_flags = 1024, static_flags = 138412102, flags_extra = 524298 where entry = 5051;
+
+        -- Set display_id for Private Merle
+        update creature_template set display_id1 = 173 where entry = 1412;
+
+        -- Respawn Grawnal and Jeeda
+        update spawns_creatures set ignored = 0 where spawn_entry1 in(4082, 4083);
+
+        -- Spawn Kesteryth <Foraging Trainer>
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4149, 1, 10142.150, 2544.091, 1317.686, 1.073);
+        -- Set his faction to Darnassus, level to 35 and proper flags
+        update creature_template set faction = 79, level_min = 35, level_max = 35, health_min = 1342, health_max = 1342, armor = 1373, npc_flags = 8, static_flags = 138412102, flags_extra = 524298 where entry = 4149;
+
+        -- Spawn Charles Brewton
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5672, 0, 1703.173, 189.162, -62.172, 2.981);
+        -- Set faction to Undercity, set proper name, stats and flags
+        update creature_template set name = 'Charles Brewton', faction = 71, level_min = 20, level_max = 20, health_min = 484, health_max = 484, armor = 852, npc_flags = 0, static_flags = 6, flags_extra = 524290 where entry = 5672;
+
+        -- Spawn Lawrence Sawyer
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (5671, 0, 1634.186, 353.105, -62.162, 5.278);
+        -- Set faction to Undercity, set proper name, stats and flags
+        update creature_template set name = 'Lawrence Sawyer', faction = 71, level_min = 20, level_max = 20, health_min = 484, health_max = 484, armor = 852, npc_flags = 0, static_flags = 6, flags_extra = 524290 where entry = 5671;
+
+        -- Set Deathstalker Zraedus display_id
+        update creature_template set display_id1 = 2685 where entry = 5418;
+
+        -- Fix faction for Wailing Caverns mobs
+        update creature_template set faction = 14 where entry in(5048, 3632, 5056, 3637, 5055, 3636, 3633, 3634, 5756, 5755);
+        update creature_template set faction = 16 where entry in(3672, 3840, 3671, 3669, 3670, 3673, 3654);
+
+        -- Savannah Cub has wrong entry ID
+        INSERT INTO `creature_template` (`entry`, `display_id1`, `display_id2`, `display_id3`, `display_id4`, `mount_display_id`, `name`, `subname`, `static_flags`, `gossip_menu_id`, `level_min`, `level_max`, `health_min`, `health_max`, `mana_min`, `mana_max`, `armor`, `faction`, `npc_flags`, `speed_walk`, `speed_run`, `scale`, `detection_range`, `call_for_help_range`, `leash_range`, `rank`, `xp_multiplier`, `dmg_min`, `dmg_max`, `dmg_school`, `attack_power`, `dmg_multiplier`, `base_attack_time`, `ranged_attack_time`, `unit_class`, `unit_flags`, `dynamic_flags`, `beast_family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `ranged_dmg_min`, `ranged_dmg_max`, `ranged_attack_power`, `type`, `type_flags`, `loot_id`, `pickpocket_loot_id`, `skinning_loot_id`, `holy_res`, `fire_res`, `nature_res`, `frost_res`, `shadow_res`, `arcane_res`, `spell_id1`, `spell_id2`, `spell_id3`, `spell_id4`, `spell_list_id`, `pet_spell_list_id`, `auras`, `gold_min`, `gold_max`, `ai_name`, `movement_type`, `inhabit_type`, `civilian`, `racial_leader`, `regeneration`, `equipment_id`, `trainer_id`, `vendor_id`, `mechanic_immune_mask`, `school_immune_mask`, `flags_extra`, `script_name`) VALUES (4227, 2278, 0, 0, 0, 0, 'Savannah Cub', NULL, 22, 0, 9, 9, 86, 102, 0, 0, 98, 16, 0, 1, 1.14286, 0.75, 18, 5, 0, 0, 1, 3, 5, 0, 60, 1, 1200, 2000, 1, 0, 0, 2, 0, 0, 0, 0, 15.2064, 20.9088, 100, 1, 1, 0, 0, 10105, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5820, NULL, 0, 0, '', 1, 1, 0, 0, 3, 0, 0, 0, 0, 0, 0, '');
+
+        -- Set placeholder display_id for Or'Kalar
+        update creature_template set display_id1 = 1054, scale = 1.3 where entry = 2773;
+        -- Set placeholder display_id for Zaruk
+        update creature_template set display_id1 = 2576 where entry = 2787;
+
+		insert into applied_updates values ('250320234');
 	end if;
 
 	-- 26/03/2023 1
