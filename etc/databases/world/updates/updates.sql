@@ -1260,5 +1260,29 @@ begin not atomic
 		insert into applied_updates values ('240320235');
 	end if;
 
+	-- 25/03/2023 1
+	if(select count(*) from applied_updates where id = '250320231') = 0 then
+		-- Despawn floating waysigns in Camp Mojache
+		update spawns_gameobjects set ignored = 1 where spawn_id in(49850, 49848, 49852, 49847);
+		-- Despawn Large Leather Backpacks, quest NYI
+		update spawns_gameobjects set ignored = 1 where spawn_id = 50014;
+		-- Despawn Zuk'Ash Pod, quest NYI
+		update spawns_gameobjects set ignored = 1 where spawn_id = 50015;
+		-- Set faction 16 for Zukk'ash silithid
+		update creature_template set faction = 16 where entry in(5244, 5247, 5245, 5246);
+		-- Set faction 16 for Wave Strider, Deep Strider, Shore Strider
+		update creature_template set faction = 16 where entry in(5361, 5360, 5359);
+		-- Despawn floating waysigns east of Feathermoon
+		update spawns_gameobjects set ignored = 1 where spawn_id in(50236, 49840, 50256, 49837, 49841, 49843, 49842);
+		-- Despawn TEMP Miblon Snarltooth, quest NYI
+		update spawns_gameobjects set ignored = 1 where spawn_id = 99878;
+		-- Despawn Evoroot, quest NYI
+		update spawns_gameobjects set ignored = 1 where spawn_entry = 164798;
+		-- Set display_id for Lethlas
+		update creature_template set display_id1 = 2930 where entry = 5312;
+
+		insert into applied_updates values ('250320231');
+	end if;
+
 end $
 delimiter ;
