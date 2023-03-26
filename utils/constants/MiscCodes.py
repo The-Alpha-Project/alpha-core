@@ -305,7 +305,7 @@ class QuestMethod(IntEnum):
 class QuestState(IntEnum):
     QUEST_GREETING = 0
     QUEST_OFFER = 1
-    QUEST_ACCEPTED = 2
+    QUEST_ACCEPTED = 2,
     QUEST_REWARD = 3,
     QUEST_STATE_NUM_TYPES = 4
 
