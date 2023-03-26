@@ -93,19 +93,20 @@ class WorldServerSessionHandler:
             while self.keep_alive:
                 reader = self.incoming_pending.get(block=True, timeout=None)
                 # We've been blocking, by now keep_alive might be false.
-                if reader and self.keep_alive:  # Can be None if we shutdown the thread.
-                    if reader.opcode:
-                        handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
-                        if handler:
-                            res = handler(self, self.request, reader)
-                            if res == 0:
-                                Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
-                            elif res == 1:
-                                Logger.debug(f'[{self.client_address[0]}] Ignoring {reader.opcode_str()}')
-                            elif res < 0:
-                                break
-                        elif not found:
-                            Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
+                if reader and self.keep_alive:  # Can be None if we shut down the thread.
+                    if not reader.opcode:
+                        continue
+                    handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
+                    if handler:
+                        res = handler(self, self.request, reader)
+                        if res == 0:
+                            Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
+                        elif res == 1:
+                            Logger.debug(f'[{self.client_address[0]}] Ignoring {reader.opcode_str()}')
+                        elif res < 0:
+                            break
+                    elif not found:
+                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
                 else:
                     break
         except:
@@ -151,10 +152,7 @@ class WorldServerSessionHandler:
             reader = self.receive_client_message(sck)
             if reader and reader.opcode == OpCode.CMSG_AUTH_SESSION:
                 handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
-                if handler:
-                    res = handler(self, sck, reader)
-                    if res == 0:
-                        return True
+                return handler(self, sck, reader) == 0
             return False
         except socket.timeout:  # Can't check this inside Auth handler.
             try:
