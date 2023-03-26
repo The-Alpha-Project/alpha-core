@@ -493,27 +493,29 @@ class PlayerManager(UnitManager):
         if creature.guid not in self.known_objects or not self.known_objects[creature.guid]:
             # We don't know this creature, notify self with its update packet.
             self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
-            if creature.is_spawned:
-                self.enqueue_packet(creature.generate_create_packet(requester=self))
-                # Get partial movement packet if any.
-                movement_packet = creature.movement_manager.try_build_movement_packet()
-                if movement_packet:
-                    self.enqueue_packet(movement_packet)
-                # We only consider 'known' if its spawned, the details query is still sent.
-                self.known_objects[creature.guid] = creature
-                # Add ourselves to creature known players.
-                creature.known_players[self.guid] = self
+            if not creature.is_spawned:
+                return
+            self.enqueue_packet(creature.generate_create_packet(requester=self))
+            # Get partial movement packet if any.
+            movement_packet = creature.movement_manager.try_build_movement_packet()
+            if movement_packet:
+                self.enqueue_packet(movement_packet)
+            # We only consider 'known' if its spawned, the details query is still sent.
+            self.known_objects[creature.guid] = creature
+            # Add ourselves to creature known players.
+            creature.known_players[self.guid] = self
         # Player knows the creature but is not spawned anymore, destroy it for self.
         elif creature.guid in self.known_objects and not creature.is_spawned:
             active_objects.pop(creature.guid)
 
     def _update_known_corpse(self, corpse, active_objects: dict):
-        if self.guid != corpse.guid:
-            active_objects[corpse.guid] = corpse
-            if corpse.guid not in self.known_objects or not self.known_objects[corpse.guid]:
-                # Create packet.
-                self.enqueue_packet(corpse.generate_create_packet(requester=self))
-            self.known_objects[corpse.guid] = corpse
+        if self.guid == corpse.guid:
+            return
+        active_objects[corpse.guid] = corpse
+        if corpse.guid not in self.known_objects or not self.known_objects[corpse.guid]:
+            # Create packet.
+            self.enqueue_packet(corpse.generate_create_packet(requester=self))
+        self.known_objects[corpse.guid] = corpse
 
     def _update_known_player(self, player_mgr, active_objects: dict):
         if self.guid == player_mgr.guid:
@@ -634,6 +636,9 @@ class PlayerManager(UnitManager):
         # Pending teleport information.
         pending_teleport = self.pending_teleport_data[0]
 
+        # Remove from transport.
+        self.movement_info.remove_from_transport()
+
         # Same map.
         if self.map_id == pending_teleport.destination_map:
             data = pack(
@@ -727,12 +732,6 @@ class PlayerManager(UnitManager):
         if self.unit_flags & UnitFlags.UNIT_MASK_MOUNTED:
             self.unmount()
 
-        # Repop/Resurrect.
-        if pending_teleport.recovery_percentage != -1:
-            self.respawn(pending_teleport.recovery_percentage)
-            self.spirit_release_timer = 0
-            self.resurrect_data = None
-
         if not changed_map:
             # Get us in a new cell.
             MapManager.update_object(self)
@@ -742,6 +741,7 @@ class PlayerManager(UnitManager):
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)
         if not changed_map:
+            self.movement_flags |= MoveFlags.MOVEFLAG_MOVED
             heart_beat_packet = self.get_heartbeat_packet()
             MapManager.send_surrounding(heart_beat_packet, self, False)
 
@@ -755,6 +755,12 @@ class PlayerManager(UnitManager):
 
         # Remove this pending teleport data.
         self.pending_teleport_data.pop(0)
+
+        # Repop/Resurrect.
+        if pending_teleport.recovery_percentage != -1:
+            self.respawn(pending_teleport.recovery_percentage)
+            self.spirit_release_timer = 0
+            self.resurrect_data = None
 
         # Remove soft lock if there are no pending teleports remaining.
         self.update_lock = len(self.pending_teleport_data) > 0
