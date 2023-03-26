@@ -1654,6 +1654,7 @@ class UnitManager(ObjectManager):
         self.leave_combat()
         self.set_current_target(0)
         self.is_alive = True
+        self.quest_target = None
 
         self.unit_flags &= ~UnitFlags.UNIT_MASK_DEAD
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
