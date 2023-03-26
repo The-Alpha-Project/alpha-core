@@ -1066,5 +1066,50 @@ begin not atomic
 		insert into applied_updates values ('220320231');
 	end if;
 
+    -- 24/03/2023 1
+	if(select count(*) from applied_updates where id = '240320231') = 0 then
+	    -- Tanaris
+        -- Despawn several roadsigns floating in the air due to missing signposts.
+        update spawns_gameobjects set ignored = 1 where spawn_id in(17361, 17359, 17358, 17084, 17083, 17081, 17441, 17440, 17439, 17443, 17442);
+
+        -- Replace Sack of Corn displayid with placeholder
+        update gameobject_template set displayId = 252 where entry = 50935;
+
+        -- Set proper faction for Hazzali insects
+        update creature_template set faction = 14 where entry in(5454, 5450, 5451, 5453, 5441, 5452);
+
+        -- Set proper faction for Centipaar insects
+        update creature_template set faction = 14 where entry in(5460, 5456, 5457, 5459, 5455, 5458);
+
+        -- Despawn unused gameobject Gahz'ridian
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 140971;
+
+        -- Despawn unused gameobject Uldum Pedestal
+        update spawns_gameobjects set ignored = 1 where spawn_id = 17230;
+
+        -- Set proper faction for Dunesmasher
+        update creature_template set faction = 14 where entry = 5469;
+
+        -- Set dwarf placeholder for Prospector Gunstan
+        update creature_template set display_id1 = 2584 where entry = 5389;
+
+        -- Despawn unused Wanted Poster
+        update spawns_gameobjects set ignored = 1 where spawn_id = 17301;
+
+        -- Despawn unused gameobject Styleen's Cart
+        update spawns_gameobjects set ignored = 1 where spawn_id = 17464;
+
+        -- Despawn books laying around in the sand (houses missing).
+        update spawns_gameobjects set ignored = 1 where spawn_id in(17342, 17474, 17472, 17471);
+
+        -- Despawn stove from future Gadgetzan area (house missing)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 17445;
+
+        -- Despawn partially floating benches from future Gadgetzan area (inn missing).
+        update spawns_gameobjects set ignored = 1 where spawn_id in(17321, 17319, 17320, 17318);
+
+		insert into applied_updates values ('240320231');
+	end if;
+
 end $
 delimiter ;
