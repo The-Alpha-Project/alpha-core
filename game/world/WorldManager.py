@@ -267,10 +267,10 @@ class WorldServerSessionHandler:
         corpses_update_scheduler.start()
 
         # Map events updates.
-        corpses_update_scheduler = BackgroundScheduler()
-        corpses_update_scheduler._daemon = True
-        corpses_update_scheduler.add_job(MapManager.update_map_events, 'interval', seconds=1.0, max_instances=1)
-        corpses_update_scheduler.start()
+        map_events_update_scheduler = BackgroundScheduler()
+        map_events_update_scheduler._daemon = True
+        map_events_update_scheduler.add_job(MapManager.update_map_events, 'interval', seconds=1.0, max_instances=1)
+        map_events_update_scheduler.start()
 
         # MapManager tile loading.
         tile_loading_scheduler = BackgroundScheduler()
