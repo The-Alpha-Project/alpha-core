@@ -48,17 +48,17 @@ class ScriptedEvent:
                 send_event_to_additional_targets(data_index)
 
         def send_event_to_main_targets(data_index):
-            self.target.event_handler.send_data(self.event_data[data_index])
+            self.target.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
             pass
 
         def send_event_to_additional_targets(data_index):
             for t in self.event_targets:
-                t.event_handler.send_data(self.event_data[data_index])
+                t.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
 
         def send_event_to_all_targets(data_index):
-            self.target.event_handler.send_data(self.event_data[data_index])
+            self.target.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
             for t in self.event_targets:
-                t.event_handler.send_data(self.event_data[data_index])
+                t.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
 
         def set_source(_source):
             self.source = _source
