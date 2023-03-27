@@ -136,8 +136,8 @@ class Map:
     def update_corpses(self):
         self.grid_manager.update_corpses()
 
-    def update_map_events(self):
-        self.map_event_manager.update()
+    def update_map_events(self, now):
+        self.map_event_manager.update(now)
 
     def deactivate_cells(self):
         self.grid_manager.deactivate_cells()

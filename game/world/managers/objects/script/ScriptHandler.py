@@ -1080,7 +1080,7 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = data
         # datalong3 = eSendMapEventOptions
-        Logger.debug('ScriptHandler: handle_script_command_send_map_event not implemented yet')
+        command.source.map_event_manager.send_event_data(command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
     def handle_script_command_set_default_movement(command):

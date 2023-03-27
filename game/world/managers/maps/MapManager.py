@@ -2,6 +2,7 @@ import traceback
 import math
 from multiprocessing import RLock
 from os import path
+import time
 
 import _queue
 from random import choice
@@ -730,9 +731,10 @@ class MapManager:
 
     @staticmethod
     def update_map_events():
+        now = time.time()
         for map_id, instances in MAPS.items():
             for instance_map in instances.values():
-                instance_map.update_map_events()
+                instance_map.update_map_events(now)
 
     @staticmethod
     def deactivate_cells():

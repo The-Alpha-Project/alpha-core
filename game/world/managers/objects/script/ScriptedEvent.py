@@ -1,4 +1,8 @@
 from game.world.managers.objects.script.ScriptedEventTarget import ScriptedEventTarget
+from game.world.managers.objects.script.ConditionChecker import ConditionChecker
+from game.world.managers.objects.script.ScriptHandler import ScriptHandler, ScriptTypes
+from utils.constants.ScriptCodes import RemoveMapEventTargetOptions, SendMapEventOptions
+
 class ScriptedEvent:
     def __init__(self, event_id, source, target, map, expire_time, failure_condition, failure_script, success_condition, success_script):
         self.event_id = event_id
@@ -15,29 +19,46 @@ class ScriptedEvent:
         self.event_data = dict[int, int]
         self.event_targets = {}
 
-        def update():
+        def update(now):
             if self.ended:
                 return
 
-            if self.expire_time <= time.time():
-                # TODO: evaluate conditions to determine success/failure
-                end_event(0)
-            pass
+            if self.expire_time >= now:
+                if ConditionChecker.check_condition(self.failure_condition):
+                    end_event(0)
+                elif ConditionChecker.check_condition(self.success_condition):
+                    end_event(1)
 
         def end_event(success):
             _success = success == 1
 
             self.ended = True
-            #TODO: implement success/failure
+            if _success:
+                ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, self.success_script)
+            else:
+                ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                             self.failure_script)
+
+        def send_event_data(data_index, options):
+            if options == SendMapEventOptions.SO_SENDMAPEVENT_ALL_TARGETS:
+                send_event_to_all_targets(data_index)
+            elif options == SendMapEventOptions.SO_SENDMAPEVENT_MAIN_TARGETS_ONLY:
+                send_event_to_main_targets(data_index)
+            elif options == SendMapEventOptions.SO_SENDMAPEVENT_EXTRA_TARGETS_ONLY:
+                send_event_to_additional_targets(data_index)
 
         def send_event_to_main_targets(data_index):
+            self.target.event_handler.send_data(self.event_data[data_index])
             pass
 
         def send_event_to_additional_targets(data_index):
-            pass
+            for t in self.event_targets:
+                t.event_handler.send_data(self.event_data[data_index])
 
         def send_event_to_all_targets(data_index):
-            pass
+            self.target.event_handler.send_data(self.event_data[data_index])
+            for t in self.event_targets:
+                t.event_handler.send_data(self.event_data[data_index])
 
         def set_source(_source):
             self.source = _source
@@ -62,8 +83,25 @@ class ScriptedEvent:
                     self.event_targets.append(ScriptedEventTarget(_target, _failure_condition, _failure_script, _success_condition, _success_script))
 
         def remove_event_target(_target, condition_id, options):
-            #TODO: check condition and honor options
-            self.event_targets.remove(_target)
+            if options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ALL_TARGETS:
+                self.event_targets = {}
+            elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_SELF:
+                self.event_targets.remove(_target)
+            elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ONE_FIT_CONDITION:
+                for t in self.event_targets:
+                    # TODO: this doesn't actually do anything until the condition handler is implemented
+                    if ConditionChecker.check_condition_object_fit_condition(condition_id, None, t):
+                        self.event_targets.remove(t)
+                        return
+            elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ALL_FIT_CONDITION:
+                matches = 0
+                for t in self.event_targets:
+                    # TODO: this doesn't actually do anything until the condition handler is implemented
+                    if ConditionChecker.check_condition_object_fit_condition(condition_id, None, t):
+                        matches+=1
+
+                if matches == len(self.event_targets):
+                    self.event_targets = {}
 
         def update_event_data(_success_condition, _success_script, _failure_condition, _failure_script):
             self.success_condition = _success_condition
