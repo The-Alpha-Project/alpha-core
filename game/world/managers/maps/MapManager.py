@@ -729,6 +729,12 @@ class MapManager:
                 instance_map.update_corpses()
 
     @staticmethod
+    def update_map_events():
+        for map_id, instances in MAPS.items():
+            for instance_map in instances.values():
+                instance_map.update_map_events()
+
+    @staticmethod
     def deactivate_cells():
         for map_id, instances in MAPS.items():
             for instance_map in instances.values():

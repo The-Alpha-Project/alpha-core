@@ -1033,14 +1033,16 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        Logger.debug('ScriptHandler: handle_script_command_start_map_event not implemented yet')
+
+        command.source.map_event_manager.add_event(command.source, Null, command.source, command.datalong, command.datalong2, \
+                                                   command.dataint3, command.dataint4, command.dataint, command.dataint2)
 
     @staticmethod
     def handle_script_command_end_map_event(command):
         # source = Map
         # datalong = event_id
         # datalong2 = (bool) success
-        Logger.debug('ScriptHandler: handle_script_command_end_map_event not implemented yet')
+        command.source.map_event_manager.end_event(command.source, command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_add_map_event_target(command):
@@ -1051,7 +1053,8 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        Logger.debug('ScriptHandler: handle_script_command_add_map_event_target not implemented yet')
+        command.source.map_event_manager.add_event_target(command.target, command.datalong, command.dataint, \
+                                                          command.dataint2, command.dataint3, command.dataint4)
 
     @staticmethod
     def handle_script_command_remove_map_event_target(command):
@@ -1060,7 +1063,7 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = condition_id
         # datalong3 = eRemoveMapEventTargetOptions
-        Logger.debug('ScriptHandler: handle_script_command_remove_map_event_target not implemented yet')
+        command.source.map_event_manager.remove_event_target(command.target, command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
     def handle_script_command_set_map_event_data(command):
@@ -1069,7 +1072,7 @@ class ScriptHandler:
         # datalong2 = index
         # datalong3 = data
         # datalong4 = eSetMapScriptDataOptions
-        Logger.debug('ScriptHandler: handle_script_command_set_map_event_data not implemented yet')
+        command.source.map_event_manager.set_event_data(command.datalong, command.datalong2, command.datalong3, command.datalong4)
 
     @staticmethod
     def handle_script_command_send_map_event(command):
@@ -1104,7 +1107,7 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        Logger.debug('ScriptHandler: handle_script_command_edit_map_event not implemented yet')
+        command.source.map_event_manager.edit_map_event_data(command.datalong, command.dataint, command.dataint2, command.dataint3, command.dataint4)
 
     @staticmethod
     def handle_script_command_fail_quest(command):
