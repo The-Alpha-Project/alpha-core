@@ -103,7 +103,6 @@ class UnitManager(ObjectManager):
         self.channel_spell = channel_spell
         self.channel_object = channel_object
         self.health = health
-        self.health = health
         self.power_type = power_type
         self.power_1 = power_1
         self.power_2 = power_2
