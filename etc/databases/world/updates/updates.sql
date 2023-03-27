@@ -1483,10 +1483,12 @@ begin not atomic
 		update creature_template set level_min = 5, level_max = 5 where entry = 648; -- Bridge Worker Trent only
 
 		-- Spawn Bridge Workers that we know the positions of
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (648, 0, -9289.533, -2247.575, 63.072, 4.846); -- Bridge Worker Trent
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (649, 0, -9286.979, -2248.228, 63.239, 4.214); -- Bridge Worker Dmitri
 		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (650, 0, -9297.356, -2244.104, 60.190, 0.687); -- Bridge Worker Jess
 		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (651, 0, -9290.525, -2252.707, 63.224, 0.887); -- Bridge Worker Daniel
-		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (653, 0, -9289.322, -2254.447, 63.188, 1.492); -- Bridge Worker Alex
 		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (652, 0, -9292.786, -2256.772, 62.107, 3.864); -- Bridge Worker Matthew
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (653, 0, -9289.322, -2254.447, 63.188, 1.492); -- Bridge Worker Alex
 
 		-- Fix Theramore Practicing Guard's display id
 		update creature_template set display_id1 = 2981, display_id2 = 2982, display_id3 = 2983, display_id4 = 2984 where entry = 4951;
