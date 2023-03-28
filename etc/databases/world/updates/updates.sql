@@ -126,6 +126,15 @@ begin not atomic
 
         insert into`applied_updates`values ('290320232');
     end if;
+    
+ -- Hinterlands Troll Rework
+    if (select count(*) from `applied_updates` where id='290320233') = 0 then
 
+        -- Defias Renegade Mage
+        UPDATE `creature_template` SET `display_id1` = 263, `display_id2` = 278, `display_id3` = 0, `display_id4` = 0 where `entry` = 450;
+
+
+        insert into`applied_updates`values ('290320233');
+    end if;
 end $
 delimiter ;
