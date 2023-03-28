@@ -371,7 +371,31 @@ class ScriptHandler:
         # datalong = quest_id
         # datalong2 = distance or 0
         # datalong3 = (bool) group
-        Logger.debug('ScriptHandler: handle_script_command_quest_explored not implemented yet')
+        quest_target = None
+        if command.source:
+            if command.source.quest_target:
+                quest_target = command.source.quest_target
+        elif command.target:
+            if command.target.quest_target:
+                quest_target = command.target.quest_target
+
+        if not quest_target:
+            Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
+            return
+
+        if command.datalong in quest_target.quest_manager.active_quests:
+            in_range = command.source.location.distance(quest_target.location) <= command.datalong2
+            if command.datalong3:
+                if quest_target.group_manager and in_range:
+                    quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
+                else:
+                    if in_range:
+                        quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+                        quest_target.quest_manager.reward_quest_event()
+            else:
+                if in_range:
+                    quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+                    quest_target.quest_manager.reward_quest_event()
 
     @staticmethod
     def handle_script_command_kill_credit(command):
@@ -573,7 +597,8 @@ class ScriptHandler:
         # source = Creature
         # datalong = despawn_delay
         if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and command.source.is_alive:
-            command.source.destroy()
+            # TODO: handle despawn delay
+            command.source.despawn()
         else:
             Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info()}.')
 
@@ -1024,14 +1049,16 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        Logger.debug('ScriptHandler: handle_script_command_start_map_event not implemented yet')
+
+        command.source.map_event_manager.add_event(command.source, Null, command.source, command.datalong, command.datalong2, \
+                                                   command.dataint3, command.dataint4, command.dataint, command.dataint2)
 
     @staticmethod
     def handle_script_command_end_map_event(command):
         # source = Map
         # datalong = event_id
         # datalong2 = (bool) success
-        Logger.debug('ScriptHandler: handle_script_command_end_map_event not implemented yet')
+        command.source.map_event_manager.end_event(command.source, command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_add_map_event_target(command):
@@ -1042,7 +1069,8 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        Logger.debug('ScriptHandler: handle_script_command_add_map_event_target not implemented yet')
+        command.source.map_event_manager.add_event_target(command.target, command.datalong, command.dataint, \
+                                                          command.dataint2, command.dataint3, command.dataint4)
 
     @staticmethod
     def handle_script_command_remove_map_event_target(command):
@@ -1051,7 +1079,7 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = condition_id
         # datalong3 = eRemoveMapEventTargetOptions
-        Logger.debug('ScriptHandler: handle_script_command_remove_map_event_target not implemented yet')
+        command.source.map_event_manager.remove_event_target(command.target, command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
     def handle_script_command_set_map_event_data(command):
@@ -1060,7 +1088,7 @@ class ScriptHandler:
         # datalong2 = index
         # datalong3 = data
         # datalong4 = eSetMapScriptDataOptions
-        Logger.debug('ScriptHandler: handle_script_command_set_map_event_data not implemented yet')
+        command.source.map_event_manager.set_event_data(command.datalong, command.datalong2, command.datalong3, command.datalong4)
 
     @staticmethod
     def handle_script_command_send_map_event(command):
@@ -1068,7 +1096,7 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = data
         # datalong3 = eSendMapEventOptions
-        Logger.debug('ScriptHandler: handle_script_command_send_map_event not implemented yet')
+        command.source.map_event_manager.send_event_data(command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
     def handle_script_command_set_default_movement(command):
@@ -1095,13 +1123,16 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        Logger.debug('ScriptHandler: handle_script_command_edit_map_event not implemented yet')
+        command.source.map_event_manager.edit_map_event_data(command.datalong, command.dataint, command.dataint2, command.dataint3, command.dataint4)
 
     @staticmethod
     def handle_script_command_fail_quest(command):
         # source = Player
         # datalong = quest_id
-        Logger.debug('ScriptHandler: handle_script_command_fail_quest not implemented yet')
+        if command.source.quest_target:
+            command.source.quest_target.quest_manager.fail_quest_by_id(command.datalong)
+        else:
+            Logger.warning('ScriptHandler: handle_script_command_fail_quest failed, no valid target')
 
     @staticmethod
     def handle_script_command_respawn_creature(command):
