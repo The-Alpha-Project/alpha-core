@@ -1557,6 +1557,16 @@ begin not atomic
         -- Set placeholder for Bonepaw Hyena
         update creature_template set display_id1 = 2716 where entry = 4688;
 
+        -- Feralas
+        -- Set placeholder for Falfindel Waywarder and Rendow
+        update creature_template set display_id1 = 2572 where entry = 4048;
+        update creature_template set display_id1 = 2575 where entry = 1695;
+        -- Set placeholder for Sage Palerunner and Krueg Skullsplitter
+        update creature_template set display_id1 = 2578 where entry = 5390;
+        update creature_template set display_id1 = 2576 where entry = 4544;
+        -- Set placeholder for Bloodroar the Stalker
+        update creature_template set display_id1 = 3209 where entry = 5346;
+
         -- Durotar fixes
         -- Despawn a table cooker floating in Razor Hill due to vanilla terrain changes
         update spawns_gameobjects set ignored = 1 where spawn_id = 11964;
