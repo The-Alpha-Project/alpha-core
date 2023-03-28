@@ -1,6 +1,5 @@
 import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from utils.constants.ConditionCodes import ConditionType
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
@@ -201,6 +200,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_cant_path_to_victim(condition, source, target):
+        from game.world.managers.maps.MapManager import MapManager
         # Requires Unit source.
         # Returns True if source cannot path to target.
         if not ConditionChecker.is_unit(target):
@@ -451,6 +451,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_map_event_data(condition, source, target):
+        from game.world.managers.maps.MapManager import MapManager
         # Requires Map.
         # Gets data from a scripted Map event and checks the returned value.
         # Condition_value1 = event id.
@@ -472,6 +473,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_map_event_active(condition, source, target):
+        from game.world.managers.maps.MapManager import MapManager
         # Requires Map.
         # Checks if a scripted Map event is active.
         # Condition_value1 = event id.
@@ -483,6 +485,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_line_of_sight(condition, source, target):
+        from game.world.managers.maps.MapManager import MapManager
         # Requires WorldObject source and target.
         # Checks if the source has line of sight to the target.
         if not source or not target:
@@ -695,6 +698,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_nearby_player(condition, source, target):
+        from game.world.managers.maps.MapManager import MapManager
         # Requires Unit target.
         # Checks if a player is within radius.
         # Condition_value1 = 0 any, 1 hostile, 2 friendly.
