@@ -1530,6 +1530,12 @@ begin not atomic
         -- Add a vendor list for him
         insert into npc_vendor (entry, item) values (5192, 5976);
 
+        -- Set placeholder display_id for Sian'tsu
+        update creature_template set display_id1 = 1479 where entry = 3403;
+        -- Spawn Grelkor
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (3343, 1915.423, -4211.574, 42.061, 0.436, 1);
+        -- Set subname, faction, flags
+        update creature_template set subname = "Shaman Trainer", faction = 29, npc_flags = 10, trainer_class = 7, trainer_id = 10, flags_extra = 524298 where entry = 3343;
 
         insert into applied_updates values ('280320231');
     end if;
