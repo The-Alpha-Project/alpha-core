@@ -1495,6 +1495,9 @@ begin not atomic
         -- Set display_id, subname, flags
         update creature_template set display_id1 = 240, subname = "Binder", npc_flags = 16 where entry = 3306;
 
+        -- Set display_id for Aethalas Cromwell
+        update creature_template set display_id1 = 3579 where entry = 2302;
+
         insert into applied_updates values ('280320231');
     end if;
 end $
