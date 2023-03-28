@@ -244,6 +244,10 @@ class MoveToCoordinateTypes(IntEnum):
     SO_MOVETO_COORDINATES_DISTANCE_FROM_TARGET = 2
     SO_MOVETO_COORDINATES_RANDOM_POINT = 3
 
+class SetPhaseOptions(IntEnum):
+    SO_SETPHASE_RAW = 0
+    SO_SETPHASE_INCREMENT = 1
+    SO_SETPHASE_DECREMENT = 2
 
 class SetMapScriptDataOptions(IntEnum):
     SO_MAPEVENTDATA_RAW = 0
