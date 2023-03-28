@@ -1542,6 +1542,8 @@ begin not atomic
 
         -- Move Lanie Reed back to Elwnynn
         update spawns_creatures set position_x = -9456.99, position_y = -1309.43, position_z = 45.0453, orientation = 0.959931 where spawn_entry1 = 2941;
+        -- also change her level to 50
+        update creature_template set level_min = 50, level_max = 50, rank = 0 where entry = 2941;
 
         -- Durotar fixes
         -- Despawn a table cooker floating in Razor Hill due to vanilla terrain changes
