@@ -1540,6 +1540,26 @@ begin not atomic
         -- Spawn Aldric Moore
         insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (1294, -8770.808, -638.412, 97.223, 3.213, 0);
 
+        -- Durotar fixes
+        -- Despawn a table cooker floating in Razor Hill due to vanilla terrain changes
+        update spawns_gameobjects set ignored = 1 where spawn_id = 11964;
+        -- Slightly relocate Grimtak <Butcher> and Cook Torka, both also affected by terrain changes
+        update spawns_creatures set position_x = 305.087, position_y = -4663.889, position_z = 16.779, orientation = 4.428 where spawn_id = 10425;
+        update spawns_creatures set position_x = 306.024, position_y = -4660.094, position_z = 16.424, orientation = 5.547 where spawn_id = 6460;
+        -- Despawn floating water barrel/food crate
+        update spawns_gameobjects set ignored = 1 where spawn_id in(88061, 12350);
+        -- Slightly relocate Uhgar <Weaponsmith>
+        update spawns_creatures set position_x = 380.773, position_y = -4713.130, position_z = 15.886, orientation = 4.128 where spawn_id = 10272;
+        -- Slightly relocate Krunn <Miner>
+        update spawns_creatures set position_x = 365.798, position_y = -4699.797, position_z = 16.242 where spawn_id = 7674;
+        -- Despawn a floating brazier (can't have been there, it's over water)
+        update spawns_gameobjects set ignored = 1 where spawn_id in(11984, 11982);
+        -- Relocate several floating braziers to shore (could have been there, but not at this pos)
+        update spawns_gameobjects set spawn_positionX = 346.216, spawn_positionY = -4664.135, spawn_positionZ = 16.489 where spawn_id in(11981, 11980);
+        update spawns_gameobjects set spawn_positionX = 355.141, spawn_positionY = -4672.125, spawn_positionZ = 16.189 where spawn_id in(11987, 11985);
+        update spawns_gameobjects set spawn_positionZ = 15.993 where spawn_id in(11979, 11978);
+        update spawns_gameobjects set spawn_positionZ = 15.271 where spawn_id in(12065, 12066);
+
         insert into applied_updates values ('280320231');
     end if;
 end $
