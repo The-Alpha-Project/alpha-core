@@ -73,6 +73,12 @@ class AuraEffectDummyHandler:
             aura.caster = totem.creature
             FarSightManager.add_camera(totem.creature, effect_target)
 
+    @staticmethod
+    def handle_salt_flats_racer_normal(aura, effect_target, remove):
+        # Dummy aura used by the Salt Flats cars.
+        # Does nothing except signify the car is going at normal speed.
+        return
+
 
 PERIODIC_DUMMY_AURAS = {
     7057: 5000  # Haunting Spirits, 5 second tick.
@@ -84,4 +90,5 @@ DUMMY_AURA_EFFECTS = {
     6495: AuraEffectDummyHandler.handle_sentry_totem,
     6758: AuraEffectDummyHandler.handle_party_fever,  # Party Fever.
     7057: AuraEffectDummyHandler.handle_haunting_spirit,  # Haunting Spirit.
+    6602: AuraEffectDummyHandler.handle_salt_flats_racer_normal # Salt Flats Racer Normal
 }
