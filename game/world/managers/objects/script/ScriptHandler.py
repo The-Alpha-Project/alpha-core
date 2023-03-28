@@ -14,7 +14,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags, QuestState
+    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -23,6 +23,7 @@ from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
 from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFields
+
 
 class ScriptHandler:
 
@@ -140,8 +141,6 @@ class ScriptHandler:
 
         speaker = command.target if command.target and command.target.get_type_id() == ObjectTypeIds.ID_UNIT \
             else command.source
-        if command.source.quest_target is not None:
-            command.target = command.source.quest_target
         if speaker.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Wrong target type, aborting {command.get_info()}.')
             return
@@ -372,32 +371,31 @@ class ScriptHandler:
         # datalong = quest_id
         # datalong2 = distance or 0
         # datalong3 = (bool) group
+        quest_target = None
         if command.source:
             if command.source.quest_target:
                 quest_target = command.source.quest_target
         elif command.target:
             if command.target.quest_target:
                 quest_target = command.target.quest_target
-        else:
-            quest_target = None
 
-        if quest_target is not None:
-            if command.datalong in quest_target.quest_manager.active_quests:
-                in_range = command.source.location.distance(quest_target.location) <= command.datalong2
-                if command.datalong3:
-                    if quest_target.group_manager and in_range:
-                        quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
-                    else:
-                        if in_range:
-                            quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-                            quest_target.quest_manager.reward_quest_event()
+        if not quest_target:
+            Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
+            return
+
+        if command.datalong in quest_target.quest_manager.active_quests:
+            in_range = command.source.location.distance(quest_target.location) <= command.datalong2
+            if command.datalong3:
+                if quest_target.group_manager and in_range:
+                    quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
                 else:
                     if in_range:
                         quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
                         quest_target.quest_manager.reward_quest_event()
-
-        else:
-            Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
+            else:
+                if in_range:
+                    quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+                    quest_target.quest_manager.reward_quest_event()
 
     @staticmethod
     def handle_script_command_kill_credit(command):
@@ -599,7 +597,7 @@ class ScriptHandler:
         # source = Creature
         # datalong = despawn_delay
         if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and command.source.is_alive:
-            #TODO: handle despawn delay
+            # TODO: handle despawn delay
             command.source.despawn()
         else:
             Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info()}.')

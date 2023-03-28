@@ -68,6 +68,7 @@ class CreatureManager(UnitManager):
         self.fully_loaded = False
         self.killed_by = None
         self.known_players = {}
+        # TODO: Temp, see TODO in QuestGiverAcceptQuestHandler
         self.quest_target = None
 
         # # Managers, will be load upon lazy loading trigger.
@@ -720,7 +721,7 @@ class CreatureManager(UnitManager):
     def get_name(self):
         return self.creature_template.name
 
-    #override
+    # override
     def respawn(self):
         self.quest_target = None
         super().respawn()

@@ -1119,7 +1119,6 @@ class QuestManager(object):
     def fail_quest_by_id(self, quest_id):
         if quest_id not in self.active_quests:
             return
-
         active_quest = self.active_quests.get(quest_id)
         self.fail_quest(active_quest, update_surrounding=True, notify=True)
         self.update_single_quest(quest_id)
@@ -1129,7 +1128,6 @@ class QuestManager(object):
 
         if notify:
             self.send_quest_failed_event(active_quest.quest.entry)
-
         if update_surrounding:
             self.update_surrounding_quest_status()
 

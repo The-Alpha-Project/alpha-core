@@ -1,10 +1,14 @@
+import time
+
 from game.world.managers.objects.script.ScriptedEventTarget import ScriptedEventTarget
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.ScriptHandler import ScriptHandler, ScriptTypes
 from utils.constants.ScriptCodes import RemoveMapEventTargetOptions, SendMapEventOptions
 
+
 class ScriptedEvent:
-    def __init__(self, event_id, source, target, map, expire_time, failure_condition, failure_script, success_condition, success_script):
+    def __init__(self, event_id, source, target, map, expire_time, failure_condition, failure_script, success_condition,
+                 success_script):
         self.event_id = event_id
         self.source = source
         self.target = target
@@ -16,25 +20,26 @@ class ScriptedEvent:
         self.success_script = success_script
         self.ended = False
 
-        self.event_data = dict[int, int]
-        self.event_targets = {}
+        self.event_data = {}
+        self.event_targets = []
 
         def update(now):
             if self.ended:
                 return
 
             if self.expire_time >= now:
-                if ConditionChecker.check_condition(self.failure_condition):
-                    end_event(0)
-                elif ConditionChecker.check_condition(self.success_condition):
-                    end_event(1)
+                if ConditionChecker.check_condition(self.failure_condition, self.source, self.target):
+                    end_event(False)
+                elif ConditionChecker.check_condition(self.success_condition, self.source, self.target):
+                    end_event(True)
 
         def end_event(success):
-            _success = success == 1
-
             self.ended = True
-            if _success:
-                ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, self.success_script)
+
+            # TODO: This won't even run, `enqueue_script` is not an static method.
+            if success:
+                ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                             self.success_script)
             else:
                 ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
                                              self.failure_script)
@@ -49,7 +54,6 @@ class ScriptedEvent:
 
         def send_event_to_main_targets(data_index):
             self.target.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
-            pass
 
         def send_event_to_additional_targets(data_index):
             for t in self.event_targets:
@@ -80,7 +84,8 @@ class ScriptedEvent:
                     event_target.success_condition = _success_condition
                     event_target.success_script = _success_script
                 else:
-                    self.event_targets.append(ScriptedEventTarget(_target, _failure_condition, _failure_script, _success_condition, _success_script))
+                    self.event_targets.append(ScriptedEventTarget(_target, _failure_condition, _failure_script,
+                                                                  _success_condition, _success_script))
 
         def remove_event_target(_target, condition_id, options):
             if options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ALL_TARGETS:
@@ -98,7 +103,7 @@ class ScriptedEvent:
                 for t in self.event_targets:
                     # TODO: this doesn't actually do anything until the condition handler is implemented
                     if ConditionChecker.check_condition_object_fit_condition(condition_id, None, t):
-                        matches+=1
+                        matches += 1
 
                 if matches == len(self.event_targets):
                     self.event_targets = {}
