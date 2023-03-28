@@ -1491,7 +1491,7 @@ begin not atomic
         insert into spawns_creatures (position_x, position_y, position_z, orientation, spawn_entry1) values (-1231.874, -2527.551, 22.539, 3.130, 2815);
 
         -- Move Keldas to Razor Hill
-        update spawns_creatures set position_x = 278.291, position_y = -4757.05, position_z = 11.8165, orientation = 1.325 map = 1 where spawn_entry1 = 3306;
+        update spawns_creatures set position_x = 278.291, position_y = -4757.05, position_z = 11.8165, orientation = 1.325, map = 1 where spawn_entry1 = 3306;
         -- Set display_id, subname, flags
         update creature_template set display_id1 = 240, subname = "Binder", npc_flags = 16 where entry = 3306;
 
