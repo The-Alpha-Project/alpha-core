@@ -1504,6 +1504,26 @@ begin not atomic
         -- Set correct display_id for Brother Nimetz
         update creature_template set display_id1 = 190 where entry = 739;
 
+        -- Set movement for Goblin Pit Crewmen to idle
+        update spawns_creatures set movement_type = 0 where spawn_id in(21555, 21552);
+        -- Spawn Rugfizzle
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (4450, -6219.891, -3947.742, -58.750, 0.593, 1);
+        -- Update his stats
+        update creature_template set level_min = 35, level_max = 35, faction = 35, health_min = 1342, health_max = 1342, armor = 1373 where entry = 4450;
+        -- Spawn Griznak
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (4445, -6228.889, -3961.441, -58.688, 0.554, 1);
+        -- Set his faction
+        update creature_template set faction = 35 where entry = 4445;
+        -- Spawn Mazzer Stripscrew
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (4446, -6249.083, -3841.701, -57.761, 4.470, 1);
+        -- Set his faction
+        update creature_template set faction = 35 where entry = 4446;
+        -- Spawn Crazzle Sprysprocket
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (4449, -6237.590, -3846.665, -58.750, 4.394, 1);
+        -- Set his faction and display_id
+        update creature_template set faction = 35, display_id1 = 2581 where entry = 4449;
+
+
         insert into applied_updates values ('280320231');
     end if;
 end $
