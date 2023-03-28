@@ -1559,6 +1559,14 @@ begin not atomic
         update spawns_gameobjects set spawn_positionX = 355.141, spawn_positionY = -4672.125, spawn_positionZ = 16.189 where spawn_id in(11987, 11985);
         update spawns_gameobjects set spawn_positionZ = 15.993 where spawn_id in(11979, 11978);
         update spawns_gameobjects set spawn_positionZ = 15.271 where spawn_id in(12065, 12066);
+        -- Have Grokar <Boar Trainer> summon his pet boar
+        update creature_template set spell_id1 = 7905 where entry = 3622;
+        -- Despawn two benches - vanilla bleedin
+        update spawns_gameobjects set ignored = 1 where spawn_id in(11957, 11956);
+        -- Fix a floating Battered Chest
+        update spawns_gameobjects set spawn_positionZ = 10.930 where spawn_id = 12548;
+        -- Have Zudd <Scorpid Trainer> spawn his pet scorpid
+        update creature_template set spell_id1 = 7911 where entry = 3624;
 
         insert into applied_updates values ('280320231');
     end if;
