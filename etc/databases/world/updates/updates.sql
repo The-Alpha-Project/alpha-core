@@ -1474,5 +1474,51 @@ begin not atomic
 		insert into applied_updates values ('260320231');
 	end if;
 
+    -- 27/03/2023 1
+	if(select count(*) from applied_updates where id = '270320231') = 0 then
+		-- Placeholder display_id for Bridge Workers, correct levels & faction
+		update creature_template set display_id1 = 310, faction = 11 where entry in(648, 649, 650, 651, 652, 653);
+		update creature_template set level_min = 6, level_max = 6 where entry in(650, 651, 652, 653, 652, 653);
+		update creature_template set level_min = 10, level_max = 10 where entry = 649; -- Bridge Worker Dmitri only
+		update creature_template set level_min = 5, level_max = 5 where entry = 648; -- Bridge Worker Trent only
+
+		-- Spawn Bridge Workers that we know the positions of
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (648, 0, -9289.533, -2247.575, 63.072, 4.846); -- Bridge Worker Trent
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (649, 0, -9286.979, -2248.228, 63.239, 4.214); -- Bridge Worker Dmitri
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (650, 0, -9297.356, -2244.104, 60.190, 0.687); -- Bridge Worker Jess
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (651, 0, -9290.525, -2252.707, 63.224, 0.887); -- Bridge Worker Daniel
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (652, 0, -9292.786, -2256.772, 62.107, 3.864); -- Bridge Worker Matthew
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (653, 0, -9289.322, -2254.447, 63.188, 1.492); -- Bridge Worker Alex
+
+		-- Fix Theramore Practicing Guard's display id
+		update creature_template set display_id1 = 2981, display_id2 = 2982, display_id3 = 2983, display_id4 = 2984 where entry = 4951;
+
+		-- Add [PH] tag to Bishop Farthing's name
+		update creature_template set name = '[PH] Bishop Farthing' where entry = 1212;
+
+		-- Spawn Programmer Isle NPCs that we know the position of
+		-- Twain The Tester <Model and Texture>
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (2051, 0, 16771.844, 16819.199, 35.787, 4.536);
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (2051, 0, 16757.986, 16804.166, 35.692, 1.005);
+		update creature_template set spell_id1 = 5, spell_list_id = 20510 where entry = 2051;
+
+		-- Jesse The Tester <Model and Texture>
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (2154, 0, 16774.744, 16810.287, 35.787, 2.992);
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (2154, 0, 16758.770, 16813.203, 34.802, 6.012);
+		insert into creature_spells (entry, name, spellId_1, probability_1, castTarget_1, targetParam1_1, targetParam2_1, castFlags_1, delayInitialMin_1, delayInitialMax_1, delayRepeatMin_1, delayRepeatMax_1, scriptId_1, spellId_2, probability_2, castTarget_2, targetParam1_2, targetParam2_2, castFlags_2, delayInitialMin_2, delayInitialMax_2, delayRepeatMin_2, delayRepeatMax_2, scriptId_2, spellId_3, probability_3, castTarget_3, targetParam1_3, targetParam2_3, castFlags_3, delayInitialMin_3, delayInitialMax_3, delayRepeatMin_3, delayRepeatMax_3, scriptId_3, spellId_4, probability_4, castTarget_4, targetParam1_4, targetParam2_4, castFlags_4, delayInitialMin_4, delayInitialMax_4, delayRepeatMin_4, delayRepeatMax_4, scriptId_4, spellId_5, probability_5, castTarget_5, targetParam1_5, targetParam2_5, castFlags_5, delayInitialMin_5, delayInitialMax_5, delayRepeatMin_5, delayRepeatMax_5, scriptId_5, spellId_6, probability_6, castTarget_6, targetParam1_6, targetParam2_6, castFlags_6, delayInitialMin_6, delayInitialMax_6, delayRepeatMin_6, delayRepeatMax_6, scriptId_6, spellId_7, probability_7, castTarget_7, targetParam1_7, targetParam2_7, castFlags_7, delayInitialMin_7, delayInitialMax_7, delayRepeatMin_7, delayRepeatMax_7, scriptId_7, spellId_8, probability_8, castTarget_8, targetParam1_8, targetParam2_8, castFlags_8, delayInitialMin_8, delayInitialMax_8, delayRepeatMin_8, delayRepeatMax_8, scriptId_8) VALUES (20511, 'Programmer Isle - Jesse The Tester', 5, 100, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		update creature_template set level_min = 56, level_max = 56, health_min = 3644, health_max = 3644, armor = 3289, faction = 21, spell_id1 = 5, spell_list_id = 20511 where entry = 2154;
+
+		-- pnagle's test dude
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (631, 0, 16593.770, 16809.500, 17.098, 4.677);
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (631, 0, 16589.645, 16809.363, 16.262, 0.287);
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (631, 0, 16591.760, 16828.195, 19.475, 5.078);
+
+		-- CHOW Guard
+		insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4626, 0, 16302.765, 16286.201, 69.444, 5.981);
+		update creature_template set level_min = 90, level_max = 90, faction = 35, equipment_id = 1423, flags_extra = 525312 where entry = 4626;
+
+		insert into applied_updates values ('270320231');
+	end if;
+
 end $
 delimiter ;
