@@ -1474,5 +1474,13 @@ begin not atomic
 		insert into applied_updates values ('260320231');
 	end if;
 
+    -- 28/03/2023 1
+    if(select count(*) from applied_updates where id = '280320231') = 0 then
+
+        -- Move Grawnal and Jeeda to their correct positions
+        update spawns_creatures set position_x = -173.969, position_y = -330.372, position_z = 9.622, orientation = 2.396 where spawn_entry1 = 4082;
+        update spawns_creatures set position_x = -269.880, position_y = -398.438, position_z = 17.059, orientation = 0.898 where spawn_entry1 = 4083;
+        insert into applied_updates values ('280320231');
+    end if;
 end $
 delimiter ;
