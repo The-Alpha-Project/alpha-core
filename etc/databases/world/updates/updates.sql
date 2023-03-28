@@ -1487,6 +1487,9 @@ begin not atomic
         -- Move Thurgas <Binder> to Hammerfall, Arathi Highlands
         update spawns_creatures set map = 0, position_x = -1021.807, position_y = -3541.075, position_z = 56.573, orientation = 4.839 where spawn_entry1 = 2813;
 
+        -- Spawn Teresa Shore <Binder> in Refuge Pointe
+        insert into spawns_creatures (position_x, position_y, position_z, orientation, spawn_entry1) values (-1231.874, -2527.551, 22.539, 3.130, 2815);
+
         insert into applied_updates values ('280320231');
     end if;
 end $
