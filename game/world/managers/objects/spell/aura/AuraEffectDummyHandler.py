@@ -90,5 +90,5 @@ DUMMY_AURA_EFFECTS = {
     6495: AuraEffectDummyHandler.handle_sentry_totem,
     6758: AuraEffectDummyHandler.handle_party_fever,  # Party Fever.
     7057: AuraEffectDummyHandler.handle_haunting_spirit,  # Haunting Spirit.
-    6602: AuraEffectDummyHandler.handle_salt_flats_racer_normal # Salt Flats Racer Normal
+    6602: AuraEffectDummyHandler.handle_salt_flats_racer_normal  # Salt Flats Racer Normal.
 }
