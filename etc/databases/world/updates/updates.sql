@@ -1474,5 +1474,65 @@ begin not atomic
 		insert into applied_updates values ('260320231');
 	end if;
 
+    -- Theramore Rework
+    if (select count(*) from `applied_updates` where id='290320231') = 0 then
+
+        -- Alchemist Narett
+        UPDATE `creature_template` SET `display_id1`=18 WHERE `entry`=4900;
+
+        -- Brant Jasperbloom
+        UPDATE `creature_template` SET `display_id1`=226 WHERE `entry`=4898;
+
+        -- Uma Barthum
+        UPDATE `creature_template` SET `display_id1`=15 WHERE `entry`=4899;
+
+        -- Hans Weston
+        UPDATE `creature_template` SET `display_id1`=17 WHERE `entry`=4886;
+
+        -- Marie Holdston
+        UPDATE `creature_template` SET `display_id1`=327 WHERE `entry`=4888;
+
+        -- Gregor MacVince
+        UPDATE `creature_template` SET `display_id1`=107 WHERE `entry`=4885;
+
+        -- Helenia Olden
+        UPDATE `creature_template` SET `display_id1`=162 WHERE `entry`=4897;
+
+        -- Jensen Farran
+        UPDATE `creature_template` SET `display_id1`=106 WHERE `entry`=4892;
+
+        -- Guard Lasiter
+        UPDATE `creature_template` SET `display_id1`=3138 WHERE `entry`=4973;
+
+        -- Piter Verance
+        UPDATE `creature_template` SET `display_id1`=17 WHERE `entry`=4890;
+
+        -- Torq Ironblast
+        UPDATE `creature_template` SET `display_id1`=2584 WHERE `entry`=4889;
+
+        -- Dwane Wertle
+        UPDATE `creature_template` SET `display_id1`=285 WHERE `entry`=4891;
+
+        -- Morgan Stern
+        UPDATE `creature_template` SET `display_id1`=280 WHERE `entry`=4794;
+
+        -- Craig Nollward
+        UPDATE `creature_template` SET `display_id1`=126 WHERE `entry`=4894;
+
+        -- Bartender Lillian
+        UPDATE `creature_template` SET `display_id1`=1049 WHERE `entry`=4893;
+
+        -- Ingo Woolybush
+        UPDATE `creature_template` SET `display_id1`=2584 WHERE `entry`=5388;
+
+        -- Theramore Lieutenant
+        UPDATE `creature_template` SET `display_id1` = 2981, `display_id2`= 2982, `display_id3` = 2983, `display_id4` = 2984 where `entry` = 4947;
+
+        -- Theramore Skirmisher
+        UPDATE `creature_template` SET `display_id1` = 2977, `display_id2` = 2978, `display_id3` = 2979, `display_id4` = 2980 where `entry` = 5044;
+
+        insert into`applied_updates`values ('290320231');
+    end if;
+
 end $
 delimiter ;
