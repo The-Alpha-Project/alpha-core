@@ -1484,6 +1484,9 @@ begin not atomic
         -- Set placeholder display_id for Darla Harris
         update creature_template set display_id1 = 660 where entry = 2432;
 
+        -- Move Thurgas <Binder> to Hammerfall, Arathi Highlands
+        update spawns_creatures set map = 0, position_x = -1021.807, position_y = -3541.075, position_z = 56.573, orientation = 4.839 where spawn_entry1 = 2813;
+
         insert into applied_updates values ('280320231');
     end if;
 end $
