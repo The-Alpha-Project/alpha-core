@@ -472,3 +472,6 @@ class CreatureAI:
             if not MapManager.los_check(victim.map_id, self.creature.get_ray_position(), victim.get_ray_position()):
                 continue
             return victim
+
+    def on_scripted_event(self, event_id, data):
+        pass

@@ -309,6 +309,9 @@ class ActiveQuest:
     # Last bit ON (LittleEndian) = Failed
     # Bit before last ON (LE) = Completed
     def get_progress(self):
+        if self.failed:
+            return 1 << 31
+
         total_count = 0
         # Creature or gameobject.
         req_creature_or_go = QuestHelpers.generate_req_creature_or_go_list(self.quest)
