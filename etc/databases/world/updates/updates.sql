@@ -1643,5 +1643,15 @@ begin not atomic
 		insert into applied_updates values ('270320231');
 	end if;
 
+	-- 29/03/2023 2
+	if(select count(*) from applied_updates where id = '290320232') = 0 then
+	    -- Remove remaining non 0.5.3 creature spawns.
+        update spawns_creatures set spawn_entry3=0 where spawn_entry3 = 10605;
+        update spawns_creatures set spawn_entry2=0 where spawn_entry2 = 6131;
+        update spawns_creatures set ignored=1 where spawn_entry1 > 5759;
+
+		insert into applied_updates values ('290320232');
+	end if;
+
 end $
 delimiter ;
