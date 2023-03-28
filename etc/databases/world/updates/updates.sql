@@ -1523,6 +1523,13 @@ begin not atomic
         -- Set his faction and display_id
         update creature_template set faction = 35, display_id1 = 2581 where entry = 4449;
 
+        -- Spawn Nils Stonebrow
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (5192, -5016.807, -1001.345, 503.883, 2.083, 0);
+        -- Set his faction and make him a vendor
+        update creature_template set faction = 57, npc_flags = 131 where entry = 5192;
+        -- Add a vendor list for him
+        insert into npc_vendor (entry, item) values (5192, 5976);
+
 
         insert into applied_updates values ('280320231');
     end if;
