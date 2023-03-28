@@ -1,6 +1,7 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.GridManager import GridManager
+from game.world.managers.maps.MapEventManager import MapEventManager
 from game.world.managers.maps.helpers.Constants import MapType
 from utils.ConfigManager import config
 from utils.Logger import Logger
@@ -13,6 +14,7 @@ class Map:
         self.instance_id = instance_id
         self.grid_manager = GridManager(map_id, instance_id, active_cell_callback)
         self.name = self.dbc_map.MapName_enUS
+        self.map_event_manager = MapEventManager()
 
     def initialize(self):
         # Load creatures and gameobjects.
@@ -133,6 +135,9 @@ class Map:
 
     def update_corpses(self):
         self.grid_manager.update_corpses()
+
+    def update_map_events(self, now):
+        self.map_event_manager.update(now)
 
     def deactivate_cells(self):
         self.grid_manager.deactivate_cells()
