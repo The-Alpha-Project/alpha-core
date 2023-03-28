@@ -1474,6 +1474,129 @@ begin not atomic
 		insert into applied_updates values ('260320231');
 	end if;
 
+    -- 28/03/2023 1
+    if(select count(*) from applied_updates where id = '280320231') = 0 then
+
+        -- Move Grawnal and Jeeda to their correct positions
+        update spawns_creatures set position_x = -173.969, position_y = -330.372, position_z = 9.622, orientation = 2.396 where spawn_entry1 = 4082;
+        update spawns_creatures set position_x = -269.880, position_y = -398.438, position_z = 17.059, orientation = 0.898 where spawn_entry1 = 4083;
+
+        -- Set placeholder display_id for Darla Harris
+        update creature_template set display_id1 = 660 where entry = 2432;
+
+        -- Move Thurgas <Binder> to Hammerfall, Arathi Highlands
+        update spawns_creatures set map = 0, position_x = -1021.807, position_y = -3541.075, position_z = 56.573, orientation = 4.839 where spawn_entry1 = 2813;
+
+        -- Spawn Teresa Shore <Binder> in Refuge Pointe
+        insert into spawns_creatures (position_x, position_y, position_z, orientation, spawn_entry1) values (-1231.874, -2527.551, 22.539, 3.130, 2815);
+
+        -- Move Keldas to Razor Hill
+        update spawns_creatures set position_x = 278.291, position_y = -4757.05, position_z = 11.8165, orientation = 1.325 map = 1 where spawn_entry1 = 3306;
+        -- Set display_id, subname, flags
+        update creature_template set display_id1 = 240, subname = "Binder", npc_flags = 16 where entry = 3306;
+
+        -- Set display_id for Aethalas Cromwell
+        update creature_template set display_id1 = 3579 where entry = 2302;
+
+        -- Set correct display_id for Lyranne May
+        update creature_template set display_id1 = 3580 where entry = 2303;
+
+        -- Set correct display_id for Brother Nimetz
+        update creature_template set display_id1 = 190 where entry = 739;
+
+        -- Set movement for Goblin Pit Crewmen to idle
+        update spawns_creatures set movement_type = 0 where spawn_id in(21555, 21552);
+        -- Spawn Rugfizzle
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (4450, -6219.891, -3947.742, -58.750, 0.593, 1);
+        -- Update his stats
+        update creature_template set level_min = 35, level_max = 35, faction = 35, health_min = 1342, health_max = 1342, armor = 1373 where entry = 4450;
+        -- Spawn Griznak
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (4445, -6228.889, -3961.441, -58.688, 0.554, 1);
+        -- Set his faction
+        update creature_template set faction = 35 where entry = 4445;
+        -- Spawn Mazzer Stripscrew
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (4446, -6249.083, -3841.701, -57.761, 4.470, 1);
+        -- Set his faction
+        update creature_template set faction = 35 where entry = 4446;
+        -- Spawn Crazzle Sprysprocket
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (4449, -6237.590, -3846.665, -58.750, 4.394, 1);
+        -- Set his faction and display_id
+        update creature_template set faction = 35, display_id1 = 2581 where entry = 4449;
+
+        -- Spawn Nils Stonebrow
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (5192, -5016.807, -1001.345, 503.883, 2.083, 0);
+        -- Set his faction and make him a vendor
+        update creature_template set faction = 57, npc_flags = 131 where entry = 5192;
+        -- Add a vendor list for him
+        insert into npc_vendor (entry, item) values (5192, 5976);
+
+        -- Set placeholder display_id for Sian'tsu
+        update creature_template set display_id1 = 1479 where entry = 3403;
+        -- Spawn Grelkor
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (3343, 1915.423, -4211.574, 42.061, 0.436, 1);
+        -- Set subname, faction, flags
+        update creature_template set subname = "Shaman Trainer", faction = 29, npc_flags = 10, trainer_class = 7, trainer_id = 10, flags_extra = 524298 where entry = 3343;
+
+        -- Spawn Aldric Moore
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (1294, -8770.808, -638.412, 97.223, 3.213, 0);
+
+        -- Move Lanie Reed back to Elwnynn
+        update spawns_creatures set position_x = -9456.99, position_y = -1309.43, position_z = 45.0453, orientation = 0.959931 where spawn_entry1 = 2941;
+        -- also change her level to 50
+        update creature_template set level_min = 50, level_max = 50, rank = 0 where entry = 2941;
+
+        -- Desolace
+        -- Set display_id for Maraudine Marauder and Stormer
+        update creature_template set display_id1 = 1348 where entry in(4658, 4659);
+        -- Set display_id for Khan Dez'hepah and Jehn
+        update creature_template set display_id1 = 1349 where entry in(5600, 5601);
+        -- Set placeholder for Felgur Twocuts
+        update creature_template set display_id1 = 3508 where entry = 5395;
+        -- Set placeholder for Gurda Wildmane
+        update creature_template set display_id1 = 2579 where entry = 5412;
+        -- Set placeholder for Bonepaw Hyena
+        update creature_template set display_id1 = 2716 where entry = 4688;
+
+        -- Feralas
+        -- Set placeholder for Falfindel Waywarder and Rendow
+        update creature_template set display_id1 = 2572 where entry = 4048;
+        update creature_template set display_id1 = 2575 where entry = 1695;
+        -- Set placeholder for Sage Palerunner and Krueg Skullsplitter
+        update creature_template set display_id1 = 2578 where entry = 5390;
+        update creature_template set display_id1 = 2576 where entry = 4544;
+        -- Set placeholder for Bloodroar the Stalker
+        update creature_template set display_id1 = 3209 where entry = 5346;
+
+        -- Durotar fixes
+        -- Despawn a table cooker floating in Razor Hill due to vanilla terrain changes
+        update spawns_gameobjects set ignored = 1 where spawn_id = 11964;
+        -- Slightly relocate Grimtak <Butcher> and Cook Torka, both also affected by terrain changes
+        update spawns_creatures set position_x = 305.087, position_y = -4663.889, position_z = 16.779, orientation = 4.428 where spawn_id = 10425;
+        update spawns_creatures set position_x = 306.024, position_y = -4660.094, position_z = 16.424, orientation = 5.547 where spawn_id = 6460;
+        -- Despawn floating water barrel/food crate
+        update spawns_gameobjects set ignored = 1 where spawn_id in(88061, 12350);
+        -- Slightly relocate Uhgar <Weaponsmith>
+        update spawns_creatures set position_x = 380.773, position_y = -4713.130, position_z = 15.886, orientation = 4.128 where spawn_id = 10272;
+        -- Slightly relocate Krunn <Miner>
+        update spawns_creatures set position_x = 365.798, position_y = -4699.797, position_z = 16.242 where spawn_id = 7674;
+        -- Despawn a floating brazier (can't have been there, it's over water)
+        update spawns_gameobjects set ignored = 1 where spawn_id in(11984, 11982);
+        -- Relocate several floating braziers to shore (could have been there, but not at this pos)
+        update spawns_gameobjects set spawn_positionX = 346.216, spawn_positionY = -4664.135, spawn_positionZ = 16.489 where spawn_id in(11981, 11980);
+        update spawns_gameobjects set spawn_positionX = 355.141, spawn_positionY = -4672.125, spawn_positionZ = 16.189 where spawn_id in(11987, 11985);
+        update spawns_gameobjects set spawn_positionZ = 15.993 where spawn_id in(11979, 11978);
+        update spawns_gameobjects set spawn_positionZ = 15.271 where spawn_id in(12065, 12066);
+        -- Have Grokar <Boar Trainer> summon his pet boar
+        update creature_template set spell_id1 = 7905 where entry = 3622;
+        -- Despawn two benches - vanilla bleedin
+        update spawns_gameobjects set ignored = 1 where spawn_id in(11957, 11956);
+        -- Fix a floating Battered Chest
+        update spawns_gameobjects set spawn_positionZ = 10.930 where spawn_id = 12548;
+        -- Have Zudd <Scorpid Trainer> spawn his pet scorpid
+        update creature_template set spell_id1 = 7911 where entry = 3624;
+
+        insert into applied_updates values ('280320231');
+    end if;
     -- 27/03/2023 1
 	if(select count(*) from applied_updates where id = '270320231') = 0 then
 		-- Placeholder display_id for Bridge Workers, correct levels & faction
