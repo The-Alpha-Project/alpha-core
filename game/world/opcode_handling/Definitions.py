@@ -391,7 +391,8 @@ class Definitions:
         try:
             return HANDLER_DEFINITIONS[opcode], True
         except KeyError:
-            Logger.warning(f'[{world_session.client_address[0]}] Received {opcode.name} OpCode but is not handled.')
+            Logger.warning(f'[{world_session.client_address[0]}] Received {OpCode(opcode).name} '
+                           f'OpCode but is not handled.')
         except ValueError:
             # No handler, OpCode not found
             return None, False
