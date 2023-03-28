@@ -1545,6 +1545,18 @@ begin not atomic
         -- also change her level to 50
         update creature_template set level_min = 50, level_max = 50, rank = 0 where entry = 2941;
 
+        -- Desolace
+        -- Set display_id for Maraudine Marauder and Stormer
+        update creature_template set display_id1 = 1348 where entry in(4658, 4659);
+        -- Set display_id for Khan Dez'hepah and Jehn
+        update creature_template set display_id1 = 1349 where entry in(5600, 5601);
+        -- Set placeholder for Felgur Twocuts
+        update creature_template set display_id1 = 3508 where entry = 5395;
+        -- Set placeholder for Gurda Wildmane
+        update creature_template set display_id1 = 2579 where entry = 5412;
+        -- Set placeholder for Bonepaw Hyena
+        update creature_template set display_id1 = 2716 where entry = 4688;
+
         -- Durotar fixes
         -- Despawn a table cooker floating in Razor Hill due to vanilla terrain changes
         update spawns_gameobjects set ignored = 1 where spawn_id = 11964;
