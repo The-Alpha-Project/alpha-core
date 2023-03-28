@@ -1537,6 +1537,9 @@ begin not atomic
         -- Set subname, faction, flags
         update creature_template set subname = "Shaman Trainer", faction = 29, npc_flags = 10, trainer_class = 7, trainer_id = 10, flags_extra = 524298 where entry = 3343;
 
+        -- Spawn Aldric Moore
+        insert into spawns_creatures (spawn_entry1, position_x, position_y, position_z, orientation, map) values (1294, -8770.808, -638.412, 97.223, 3.213, 0);
+
         insert into applied_updates values ('280320231');
     end if;
 end $
