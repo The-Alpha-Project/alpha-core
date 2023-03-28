@@ -1480,6 +1480,10 @@ begin not atomic
         -- Move Grawnal and Jeeda to their correct positions
         update spawns_creatures set position_x = -173.969, position_y = -330.372, position_z = 9.622, orientation = 2.396 where spawn_entry1 = 4082;
         update spawns_creatures set position_x = -269.880, position_y = -398.438, position_z = 17.059, orientation = 0.898 where spawn_entry1 = 4083;
+
+        -- Set placeholder display_id for Darla Harris
+        update creature_template set display_id1 = 660 where entry = 2432;
+
         insert into applied_updates values ('280320231');
     end if;
 end $
