@@ -1501,6 +1501,9 @@ begin not atomic
         -- Set correct display_id for Lyranne May
         update creature_template set display_id1 = 3580 where entry = 2303;
 
+        -- Set correct display_id for Brother Nimetz
+        update creature_template set display_id1 = 190 where entry = 739;
+
         insert into applied_updates values ('280320231');
     end if;
 end $
