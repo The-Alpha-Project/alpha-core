@@ -18,7 +18,7 @@ from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages,
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
-    ScriptCommands, SetHomePositionOptions, CastFlags
+    ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
@@ -865,20 +865,38 @@ class ScriptHandler:
         # source = Creature
         # datalong = phase
         # datalong2 = eSetPhaseOptions
-        Logger.debug('ScriptHandler: handle_script_command_set_phase not implemented yet')
+        if not command.source or not command.source.is_alive:
+            Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
+        else:
+            if command.datalong2 == SetPhaseOptions.SO_SETPHASE_RAW:
+                command.source.object_ai.phase = script.datalong
+            elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_INCREMENT:
+                command.source.object_ai.phase += script.datalong
+            elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_DECREMENT:
+                if command.source.object_ai.phase < command.datalong:
+                    command.source.object_ai.phase = 0
+                else:
+                    command.source.object_ai.phase -= command.datalong
+
 
     @staticmethod
     def handle_script_command_set_phase_random(command):
         # source = Creature
         # datalong1-4 = phase
-        Logger.debug('ScriptHandler: handle_script_command_set_phase_random not implemented yet')
+        if not command.source or not command.source.is_alive:
+            Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
+        else:
+            command.source.object_ai.phase = random.choice([command.datalong1, command.datalong2, command.datalong3, command.datalong4])
 
     @staticmethod
     def handle_script_command_set_phase_range(command):
         # source = Creature
         # datalong = phase_min
         # datalong2 = phase_max
-        Logger.debug('ScriptHandler: handle_script_command_set_phase_range not implemented yet')
+        if not command.source or not command.source.is_alive:
+            Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
+        else:
+            command.source.object_ai.phase = random.randrange(command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_flee(command):

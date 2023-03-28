@@ -40,6 +40,7 @@ class CreatureAI:
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
             self.ai_event_handler = AIEventHandler(creature)
+            self.phase = 0
 
     def load_spell_list(self):
         # Load creature spells if available.
