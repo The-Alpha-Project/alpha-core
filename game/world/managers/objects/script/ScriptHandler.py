@@ -794,11 +794,14 @@ class ScriptHandler:
             elif command.target and command.target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
                 _target = command.target
 
-            if _target and result:
-                if _target.group_manager:
-                    _target.group_manager.fail_quest_for_group(_target, command.datalong2)
-                else:
-                    _target.quest_manager.fail_quest_by_id(command.datalong2)
+            if _target:
+                if result:
+                    if _target.group_manager:
+                        _target.group_manager.fail_quest_for_group(_target, command.datalong2)
+                    else:
+                        _target.quest_manager.fail_quest_by_id(command.datalong2)
+            else:
+                Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
 
     @staticmethod
     def handle_script_command_enter_evade_mode(command):
