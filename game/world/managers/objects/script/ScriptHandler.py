@@ -1164,7 +1164,13 @@ class ScriptHandler:
     def handle_script_command_respawn_creature(command):
         # source = Creature
         # datalong = (bool) even_if_alive
-        Logger.debug('ScriptHandler: handle_script_command_respawn_creature not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
+            return
+
+        if command.datalong or command.source.is_alive:
+            command.source.despawn()
+            command.source.respawn()
 
     @staticmethod
     def handle_script_command_assist_unit(command):
