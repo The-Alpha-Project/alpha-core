@@ -1050,7 +1050,6 @@ class ScriptHandler:
     def handle_script_command_remove_spell_cooldown(command):
         # source = Unit
         # datalong = spell_id
-
         if not command.source or not ConditionChecker.is_unit(command.source):
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
             return
