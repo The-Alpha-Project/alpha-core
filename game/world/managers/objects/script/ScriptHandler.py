@@ -789,9 +789,9 @@ class ScriptHandler:
 
         if command.datalong2:
             _target = None
-            if command.source.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+            if ConditionChecker.is_player(command.source):
                 _target = command.source
-            elif command.target and command.target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+            elif command.target and ConditionChecker.is_player(command.target):
                 _target = command.target
 
             if _target:
