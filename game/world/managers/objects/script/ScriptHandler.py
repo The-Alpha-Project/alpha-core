@@ -1244,9 +1244,11 @@ class ScriptHandler:
     def handle_script_command_leave_creature_group(command):
         # source = Creature
         if not command.source or not ConditionChecker.is_creature(command.source):
+            Logger.warning(f'ScriptHandler: No or invalid target (must be creature), aborting {command.get_info()}')
             return
 
         if not command.source.creature_group:
+            Logger.warning(f'ScriptHandler: No source or target, aborting {command.get_info()}')
             return
 
         command.source.creature_group.remove_member(command.source)
