@@ -1043,8 +1043,17 @@ class ScriptHandler:
     def handle_script_command_add_spell_cooldown(command):
         # source = Unit
         # datalong = spell_id
-        # datalong2 = cooldown
-        Logger.debug('ScriptHandler: handle_script_command_add_spell_cooldown not implemented yet')
+        # datalong2 = cooldown in seconds
+        if not command.source or not ConditionChecker.is_unit(command.source):
+            Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
+            return
+
+        spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(command.datalong)
+        if not spell:
+            Logger.warning(f'ScriptHandler: Invalid spell Id, aborting {command.get_info()}.')
+            return
+
+        command.source.spell_manager.set_on_cooldown(spell, command.datalong2 * 1000)
 
     @staticmethod
     def handle_script_command_remove_spell_cooldown(command):
