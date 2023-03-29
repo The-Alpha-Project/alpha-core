@@ -39,7 +39,7 @@ class ScriptedEvent:
             self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
                                       self.success_script)
         else:
-             self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
+            self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
                                       self.failure_script)
 
     # noinspection PyMethodMayBeStatic
