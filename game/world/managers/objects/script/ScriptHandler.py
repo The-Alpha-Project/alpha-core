@@ -1050,7 +1050,12 @@ class ScriptHandler:
     def handle_script_command_remove_spell_cooldown(command):
         # source = Unit
         # datalong = spell_id
-        Logger.debug('ScriptHandler: handle_script_command_remove_spell_cooldown not implemented yet')
+
+        if not command.source or not ConditionChecker.is_unit(command.source):
+            Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
+            return
+
+        command.source.spell_manager.unlock_spell_cooldown(command.datalong)
 
     @staticmethod
     def handle_script_command_set_react_state(command):
