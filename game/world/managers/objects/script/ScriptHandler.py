@@ -18,7 +18,7 @@ from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages,
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
-    ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions
+    ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
@@ -32,6 +32,7 @@ class ScriptHandler:
         self.script_queue = []
         self.ooc_ignore = set()
         self.ooc_event = None
+        self.current_script = None
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0):
         # Grab start script command(s).
@@ -64,7 +65,7 @@ class ScriptHandler:
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
         for script in list(self.script_queue):
-
+            self.current_script = script
             script.update(now)
             if not script.is_complete():
                 continue
@@ -776,7 +777,28 @@ class ScriptHandler:
         # datalong = condition_id
         # datalong2 = failed_quest_id
         # datalong3 = eTerminateConditionFlags
-        Logger.debug('ScriptHandler: handle_script_command_terminate_condition not implemented yet')
+        if command.datalong:
+            result = ConditionChecker.check_condition(command.datalong, command.source, command.target)
+            if command.datalong3 & TerminateConditionFlags.SF_TERMINATECONDITION_WHEN_FALSE:
+                result = not result
+        else:
+            result = True
+
+        if result:
+            command.source.script_handler.current_script.abort()
+
+        if command.datalong2:
+            _target = None
+            if command.source.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+                _target = command.source
+            elif command.target and command.target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+                _target = command.target
+
+            if _target and result:
+                if _target.group_manager:
+                    _target.group_manager.fail_quest_for_group(_target, command.datalong2)
+                else:
+                    _target.quest_manager.fail_quest_by_id(command.datalong2)
 
     @staticmethod
     def handle_script_command_enter_evade_mode(command):
@@ -1070,7 +1092,7 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        command.source.map_event_manager.add_event_target(command.target, command.datalong, command.dataint, \
+        command.source.map_event_manager.add_event_target(command.target, command.datalong, command.dataint,
                                                           command.dataint2, command.dataint3, command.dataint4)
 
     @staticmethod
