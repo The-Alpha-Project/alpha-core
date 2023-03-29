@@ -1280,7 +1280,11 @@ class ScriptHandler:
     @staticmethod
     def handle_script_command_reset_door_or_button(command):
         # source = GameObject
-        Logger.debug('ScriptHandler: handle_script_command_reset_door_or_button not implemented yet')
+        if not command.source and not ConditionChecker.is_gameobject(command.source):
+            Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
+            return
+
+        command.source.gameobject_instance.set_ready()
 
     @staticmethod
     def handle_script_command_set_command_state(command):
