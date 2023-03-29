@@ -394,6 +394,8 @@ class CreatureAI:
         self.creature.melee_disabled = not enabled
 
     def set_combat_movement(self, enabled):
+        # Does not actually do anything right now.
+        self.combat_movement = enabled
         pass
 
     # Called for reaction on enter combat if not in combat yet (enemy can be None).

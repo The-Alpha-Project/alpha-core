@@ -908,7 +908,11 @@ class ScriptHandler:
     def handle_script_command_set_combat_movement(command):
         # source = Creature
         # datalong = (bool) 0 = off, 1 = on
-        Logger.debug('ScriptHandler: handle_script_command_set_combat_movement not implemented yet')
+        if not command.source or not ConditionChecker.is_creature(command.source):
+            Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
+            return
+
+        command.source.object_ai.set_combat_movement(command.datalong > 0)
 
     @staticmethod
     def handle_script_command_set_phase(command):
