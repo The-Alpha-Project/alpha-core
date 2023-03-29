@@ -1243,7 +1243,13 @@ class ScriptHandler:
     @staticmethod
     def handle_script_command_leave_creature_group(command):
         # source = Creature
-        Logger.debug('ScriptHandler: handle_script_command_leave_creature_group not implemented yet')
+        if not command.source or not ConditionChecker.is_creature(command.source):
+            return
+
+        if not command.source.creature_group:
+            return
+
+        command.source.creature_group.remove_member(command.source)
 
     @staticmethod
     def handle_script_command_set_go_state(command):
