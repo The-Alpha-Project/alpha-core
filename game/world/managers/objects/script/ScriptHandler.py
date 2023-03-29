@@ -784,7 +784,7 @@ class ScriptHandler:
         else:
             result = True
 
-        if result:
+        if result and self.current_script:
             command.source.script_handler.current_script.abort()
 
         if command.datalong2:
