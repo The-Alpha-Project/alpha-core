@@ -127,7 +127,7 @@ begin not atomic
         insert into`applied_updates`values ('290320232');
     end if;
     
- -- Hinterlands Troll Rework
+    -- Defias
     if (select count(*) from `applied_updates` where id='290320233') = 0 then
 
         -- Defias Renegade Mage
