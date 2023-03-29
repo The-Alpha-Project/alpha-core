@@ -476,3 +476,10 @@ class CreatureAI:
 
     def on_scripted_event(self, event_id, data):
         pass
+
+    def assist_unit(self, target):
+        if not self.creature.is_alive:
+            return
+
+        self.creature.attack(target.combat_target)
+

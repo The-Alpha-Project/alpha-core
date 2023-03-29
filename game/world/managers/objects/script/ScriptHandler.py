@@ -1176,7 +1176,11 @@ class ScriptHandler:
     def handle_script_command_assist_unit(command):
         # source = Creature
         # target = Unit
-        Logger.debug('ScriptHandler: handle_script_command_assist_unit not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
+            return
+
+        command.source.object_ai.assist_unit(command.target)
 
     @staticmethod
     def handle_script_command_combat_stop(command):
