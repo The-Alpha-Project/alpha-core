@@ -795,12 +795,11 @@ class ScriptHandler:
                 _target = command.target
 
             if _target:
-                if _target.online:
-                    if result:
-                        if _target.group_manager:
-                            _target.group_manager.fail_quest_for_group(_target, command.datalong2)
-                        else:
-                            _target.quest_manager.fail_quest_by_id(command.datalong2)
+                if _target.online and result:
+                    if _target.group_manager:
+                        _target.group_manager.fail_quest_for_group(_target, command.datalong2)
+                    else:
+                        _target.quest_manager.fail_quest_by_id(command.datalong2)
             else:
                 Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
 
