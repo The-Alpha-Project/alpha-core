@@ -203,6 +203,9 @@ begin not atomic
         -- Fix Tursk <Crawler Trainer>
         update creature_template set level_min = 50, level_max = 50, faction = 29, name = "Tursk", health_min = 1938, health_max = 1938, armor = 1341 where entry = 3623;
 
+        -- Update Charity Mipsy
+        update creature_template set display_id1 = 213 where entry = 4896;
+
         insert into`applied_updates`values ('300320231');
     end if;
 
