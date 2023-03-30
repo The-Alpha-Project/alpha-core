@@ -216,6 +216,17 @@ begin not atomic
         -- Despawn a Fierce Blaze, the camp is NYI
         update spawns_gameobjects set ignored = 1 where spawn_id = 13512;
 
+        -- Set correct quest objective for Regthar Deathgate's quests as he isn't west of Crossroads
+        -- but in Crossroads proper in 0.5.3
+        -- Kolkar Leaders, proof: https://web.archive.org/web/20040825094143/http://wow.allakhazam.com/db/quest.html?wquest=855
+        update quest_template set Objective = 'Bring 15 Centaur Bracers to Regthar Deathgate at the Crossroads.' where entry = 855;
+        -- Same for quest Hezrul Bloodmark, proof: https://web.archive.org/web/20040903231152/http://www.goblinworkshop.com/quests/hezrul-bloodmark.html
+        update quest_template set Objective = "Bring Hezrul's Head to Regthar Deathgate at the Crossroads." where entry = 852;
+        -- Same for quest Verog the Dervish, proof: https://web.archive.org/web/20040918103729/http://www.goblinworkshop.com/quests/verog-the-dervish.html
+        update quest_template set Objective = "Bring Verog's Head to Regthar Deathgate at the Crossroads." where entry = 851;
+        -- Same for quest Kolkar Leaders, proof: https://web.archive.org/web/20040906103419/http://www.goblinworkshop.com/quests/kolkar-leaders.html
+        update quest_template set Objective = "Bring Barak's Head to Regthar Deathgate at the Crossroads." where entry = 850;
+
         insert into`applied_updates`values ('300320231');
     end if;
 
