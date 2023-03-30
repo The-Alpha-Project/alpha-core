@@ -111,6 +111,7 @@ class ConditionChecker:
         # Requires Player target.
         # Returns True if target has item equipped.
         # Item_id = condition_value1.
+        # Unused in 0.5.3.
         if not ConditionChecker.is_player(target):
             return False
 
@@ -199,6 +200,7 @@ class ConditionChecker:
         # Checks a global saved variable.
         # Index = condition_value1.
         # Value = condition_value2.
+        # Unused in 0.5.3.
         Logger.warning('CONDITION_SAVED_VARIABLE is not implemented.')
         return False
 
@@ -214,6 +216,7 @@ class ConditionChecker:
         from game.world.managers.maps.MapManager import MapManager
         # Requires Unit source.
         # Returns True if source cannot path to target.
+        # Unused in 0.5.3.
         if not ConditionChecker.is_unit(target):
             return False
         if not ConditionChecker.is_unit(source):
@@ -472,6 +475,7 @@ class ConditionChecker:
         # Checks the creature's last waypoint.
         # Condition_value1 = waypoint id.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
+        # Unused in 0.5.3
         Logger.warning('CONDITION_LAST_WAYPOINT is not implemented.')
         return False
 
@@ -597,6 +601,7 @@ class ConditionChecker:
         # Checks the target's mana percentage.
         # Condition_value1 = mana percentage.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
+        # Unused in 0.5.3
         if not ConditionChecker.is_unit(target) or target.power_type != PowerTypes.TYPE_MANA:
             return False
 
@@ -622,6 +627,7 @@ class ConditionChecker:
     def check_condition_is_hostile_to(condition, source, target):
         # Requires WorldObject source and target.
         # Checks if the source is hostile to the target.
+        # Unused in 0.5.3.
         if not source or not target:
             return False
         return source.is_hostile_to(target)
