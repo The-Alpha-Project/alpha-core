@@ -169,5 +169,37 @@ begin not atomic
         insert into`applied_updates`values ('290320234');
     end if;
 
+    -- 30/03/2023 1
+    if (select count(*) from `applied_updates` where id='300320231') = 0 then
+
+        -- Update Juli Stormbraid
+        update creature_template set display_id1 = 3067, faction = 57 where entry = 5145;
+        -- Update Alyssa Griffith
+        update creature_template set display_id1 = 1520 where entry = 1321;
+        -- Update Jorgen
+        update creature_template set display_id1 = 2960 where entry = 4959;
+        -- Update Elyssia <Portal Trainer>
+        update creature_template set display_id1 = 2204 where entry = 4165;
+        -- Update Ainethil <Herbalism Trainer>
+        update creature_template set display_id1 = 2215 where entry = 4160;
+        -- Update Ursyn Ghull
+        update creature_template set display_id1 = 2136 where entry = 3048;
+        -- Update Bretta Goldfury
+        update creature_template set display_id1 = 3058 where entry = 5123;
+        -- Update Ultar Threx
+        update creature_template set display_id1 = 3090 where entry = 1703;
+        -- Update Witherbark Shadow Hunter
+        update creature_template set display_id2 = 4000 where entry = 2557;
+        -- Updathe Rhinag
+        update creature_template set display_id1 = 4075 where entry = 3190;
+        -- Update Theresa Moulaine
+        update creature_template set display_id1 = 1498 where entry = 1350;
+        -- Update Defias Pirate
+        update creature_template set display_id2 = 2348 where entry = 657;
+
+        insert into`applied_updates`values ('300320231');
+    end if;
+
+
 end $
 delimiter ;
