@@ -338,7 +338,16 @@ class ConditionChecker:
         # Checks if there is a gameobject nearby.
         # Condition_value1 = gameobject entry.
         # Condition_value2 = distance.
-        Logger.warning('CONDITION_NEARBY_GAMEOBJECT is not implemented.')
+        if not target:
+            Logger.warning('CONDITION_NEARBY_GAMEOBJECT: No target, aborting.')
+            return False
+
+        from game.world.managers.maps.MapManager import MapManager
+        for guid, gobject in list(MapManager.get_surrounding_gameobjects(target).items()):
+            distance = target.location.distance(gobject.location)
+            if distance <= condition.value2 and gobject.gobject_template.entry == condition.value1:
+                return True
+
         return False
 
     @staticmethod
