@@ -206,6 +206,13 @@ begin not atomic
         -- Update Charity Mipsy
         update creature_template set display_id1 = 213 where entry = 4896;
 
+        -- Update Witherbark Zealot
+        update creature_template set display_id1 = 337 where entry = 2650;
+        -- Update Jade Ooze
+        update creature_template set display_id1 = 1146 where entry = 2656;
+
+
+
         insert into`applied_updates`values ('300320231');
     end if;
 
