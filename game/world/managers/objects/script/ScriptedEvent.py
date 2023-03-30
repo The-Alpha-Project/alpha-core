@@ -2,6 +2,7 @@ import time
 
 from game.world.managers.objects.script.ScriptedEventTarget import ScriptedEventTarget
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
+from utils.constants.MiscCodes import ScriptTypes
 from utils.constants.ScriptCodes import RemoveMapEventTargetOptions, SendMapEventOptions
 
 
@@ -28,28 +29,27 @@ class ScriptedEvent:
 
         if self.expire_time >= now:
             if ConditionChecker.check_condition(self.failure_condition, self.source, self.target):
-                end_event(False)
+                self.end_event(False)
             elif ConditionChecker.check_condition(self.success_condition, self.source, self.target):
-                end_event(True)
+                self.end_event(True)
 
     def end_event(self, success):
         self.ended = True
 
         if success:
             self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                      self.success_script)
+                                                      self.success_script)
         else:
             self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                      self.failure_script)
+                                                      self.failure_script)
 
-    # noinspection PyMethodMayBeStatic
     def send_event_data(self, data_index, options):
         if options == SendMapEventOptions.SO_SENDMAPEVENT_ALL_TARGETS:
-            send_event_to_all_targets(data_index)
+            self.send_event_to_all_targets(data_index)
         elif options == SendMapEventOptions.SO_SENDMAPEVENT_MAIN_TARGETS_ONLY:
-            send_event_to_main_targets(data_index)
+            self.send_event_to_main_targets(data_index)
         elif options == SendMapEventOptions.SO_SENDMAPEVENT_EXTRA_TARGETS_ONLY:
-            send_event_to_additional_targets(data_index)
+            self.send_event_to_additional_targets(data_index)
 
     def send_event_to_main_targets(self, data_index):
         self.target.object_ai.on_scripted_event(self.event_id, self.event_data[data_index])
@@ -75,7 +75,8 @@ class ScriptedEvent:
     def get_source(self):
         return self.source
 
-    def add_or_update_extra_target(self, _target, _failure_condition, _failure_script, _success_condition, _success_script):
+    def add_or_update_extra_target(self, _target, _failure_condition, _failure_script, _success_condition,
+                                   _success_script):
         for event_target in self.event_targets:
             if event_target.target == _target:
                 event_target.failure_condition = _failure_condition
@@ -88,7 +89,7 @@ class ScriptedEvent:
 
     def remove_event_target(self, _target, condition_id, options):
         if options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ALL_TARGETS:
-            self.event_targets = {}
+            self.event_targets = []
         elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_SELF:
             self.event_targets.remove(_target)
         elif options == RemoveMapEventTargetOptions.SO_REMOVETARGET_ONE_FIT_CONDITION:
