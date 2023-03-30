@@ -683,6 +683,7 @@ class ConditionChecker:
         # Check if the target object with guid exists and satisfies the given condition.
         # Condition_value1 = object guid.
         # Condition_value2 = condition id.
+        # Unused in 0.5.3.
         Logger.warning('CONDITION_OBJECT_FIT_CONDITION is not implemented.')
         return False
 
