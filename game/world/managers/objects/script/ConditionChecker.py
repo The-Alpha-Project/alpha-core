@@ -387,6 +387,7 @@ class ConditionChecker:
         # Checks if the source and target are alive and the distance between them.
         # Condition_value1 = EscortConditionFlags.
         # Condition_value2 = distance.
+        # Doesn't appear to be used in 0.5.3.
         if not ConditionChecker.is_creature(source) or not ConditionChecker.is_player(target):
             return False
 
