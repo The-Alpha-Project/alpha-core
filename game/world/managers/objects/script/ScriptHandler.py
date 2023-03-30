@@ -784,15 +784,15 @@ class ScriptHandler:
         else:
             result = True
 
-        if result and self.current_script:
-            command.source.script_handler.current_script.abort()
-
         if command.datalong2:
             _target = None
             if ConditionChecker.is_player(command.source):
                 _target = command.source
             elif command.target and ConditionChecker.is_player(command.target):
                 _target = command.target
+
+            if result and _target.script_handler.current_script:
+                command.source.script_handler.current_script.abort()
 
             if _target:
                 if _target.online and result:
@@ -1015,7 +1015,8 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
             return
-        invincibility_hp_lvl = command.source.max_health * command.datalong / 100 if command.datalong2 else command.datalong
+        invincibility_hp_lvl = command.source.max_health * command.datalong / 100 if command.datalong2 else \
+            command.datalong
         command.source.invincibility_hp_level = invincibility_hp_lvl
 
     @staticmethod
@@ -1122,7 +1123,8 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = condition_id
         # datalong3 = eRemoveMapEventTargetOptions
-        command.source.map_event_manager.remove_event_target(command.target, command.datalong, command.datalong2, command.datalong3)
+        command.source.map_event_manager.remove_event_target(command.target, command.datalong, command.datalong2,
+                                                             command.datalong3)
 
     @staticmethod
     def handle_script_command_set_map_event_data(command):
@@ -1131,7 +1133,8 @@ class ScriptHandler:
         # datalong2 = index
         # datalong3 = data
         # datalong4 = eSetMapScriptDataOptions
-        command.source.map_event_manager.set_event_data(command.datalong, command.datalong2, command.datalong3, command.datalong4)
+        command.source.map_event_manager.set_event_data(command.datalong, command.datalong2, command.datalong3,
+                                                        command.datalong4)
 
     @staticmethod
     def handle_script_command_send_map_event(command):
@@ -1166,7 +1169,8 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        command.source.map_event_manager.edit_map_event_data(command.datalong, command.dataint, command.dataint2, command.dataint3, command.dataint4)
+        command.source.map_event_manager.edit_map_event_data(command.datalong, command.dataint, command.dataint2,
+                                                             command.dataint3, command.dataint4)
 
     @staticmethod
     def handle_script_command_fail_quest(command):

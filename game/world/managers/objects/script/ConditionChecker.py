@@ -312,8 +312,9 @@ class ConditionChecker:
             return False
 
         from game.world.managers.maps.MapManager import MapManager
-        creatures = MapManager.get_surrounding_units_by_location(target.location, target.map_id, target.instance_id, condition.value2)
-        good_creatures = {}
+        creatures = MapManager.get_surrounding_units_by_location(target.location, target.map_id, target.instance_id,
+                                                                 condition.value2)
+        good_creatures = []
         for creature in creatures[0].values():
             if creature.creature_template.entry == condition.value1:
                 if condition.value4:
@@ -360,7 +361,8 @@ class ConditionChecker:
         # Condition_value1 = quest id.
         if not ConditionChecker.is_player(target):
             return False
-        return condition.value1 not in target.quest_manager.completed_quests and condition.value1 not in target.quest_manager.active_quests
+        return condition.value1 not in target.quest_manager.completed_quests and condition.value1 not in\
+            target.quest_manager.active_quests
 
     @staticmethod
     def check_condition_item_with_bank(condition, source, target):
