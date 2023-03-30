@@ -1,6 +1,6 @@
 import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from utils.constants.ConditionCodes import ConditionType
+from utils.constants.ConditionCodes import ConditionType, ConditionFlags
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
@@ -21,8 +21,19 @@ class ConditionChecker:
 
     @staticmethod
     def _check_condition(condition, source, target):
+        if condition.flags & ConditionFlags.CONDITION_FLAG_SWAP_TARGETS:
+            _target = target
+            _source = target
+            source = _target
+            target = _source
+
         if condition.type in CONDITIONS:
-            return CONDITIONS[condition.type](condition, source, target)
+            result = CONDITIONS[condition.type](condition, source, target)
+            if condition.flags & ConditionFlags.CONDITION_FLAG_REVERSE_RESULT:
+                return not result
+
+            return result
+
         else:
             Logger.warning(f'ConditionChecker: Condition {condition.type} does not exist.')
             return False
@@ -293,7 +304,32 @@ class ConditionChecker:
         # Condition_value2 = distance.
         # Condition_value3 = dead.
         # Condition_value4 = not self.
-        Logger.warning('CONDITION_NEARBY_CREATURE is not implemented.')
+        if not target:
+            Logger.warning('CONDITION_NEARBY_CREATURE: No target, aborting.')
+            return False
+
+        from game.world.managers.maps.MapManager import MapManager
+        creatures = MapManager.get_surrounding_units_by_location(target.location, target.map_id, target.instance_id, condition.value2)
+        good_creatures = {}
+        for creature in creatures[0].values():
+            if creature.creature_template.entry == condition.value1:
+                if condition.value4:
+                    if creature == target:
+                        continue
+                    else:
+                        good_creatures.append(creature)
+                else:
+                    good_creatures.append(creature)
+
+        if len(good_creatures) == 0:
+            return False
+
+        for creature in good_creatures:
+            if condition.value3 and not creature.is_alive:
+                return True
+            else:
+                return True
+
         return False
 
     @staticmethod
