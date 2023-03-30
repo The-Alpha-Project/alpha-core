@@ -197,6 +197,9 @@ begin not atomic
         -- Update Defias Pirate
         update creature_template set display_id2 = 2348 where entry = 657;
 
+        -- Update Dark Strand creatures
+        update creature_template set display_id1 = 1642, display_id2 = 1643, display_id3 = 0, display_id4 = 0 where entry in(2336, 2337, 3879);
+
         insert into`applied_updates`values ('300320231');
     end if;
 
