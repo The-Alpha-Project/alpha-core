@@ -467,6 +467,7 @@ class ConditionChecker:
         # Checks if the source has the specified flag.
         # Condition_value1 = field_id.
         # Condition_value2 = flag.
+        # Unused in 0.5.3.
         Logger.warning('CONDITION_HAS_FLAG is not implemented.')
         return False
 
