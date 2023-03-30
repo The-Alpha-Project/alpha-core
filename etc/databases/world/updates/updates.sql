@@ -213,8 +213,8 @@ begin not atomic
 
         -- Despawn a bunch of objects related to NYI quest "Counterattack!" from The Barrens
         update spawns_gameobjects set ignored = 1 where spawn_id in(16771, 14777, 14779, 16770, 14776);
-
-
+        -- Despawn a Fierce Blaze, the camp is NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13512;
 
         insert into`applied_updates`values ('300320231');
     end if;
