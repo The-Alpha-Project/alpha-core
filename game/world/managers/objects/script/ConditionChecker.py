@@ -673,6 +673,7 @@ class ConditionChecker:
         # Requires GameObject target.
         # Checks the target's loot state.
         # Condition_value1 = loot state (LootState enum).
+        # Unused in 0.5.3.
         Logger.warning('CONDITION_OBJECT_LOOT_STATE is not implemented.')
         return False
 
