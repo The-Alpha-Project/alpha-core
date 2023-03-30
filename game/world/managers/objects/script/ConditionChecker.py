@@ -497,6 +497,7 @@ class ConditionChecker:
         # Condition_value1 = index.
         # Condition_value2 = data.
         # Condition_value3 = 0 equal, 1 equal or higher, 2 equal or lower.
+        # Seems to be only used by vMangos C++ scripting.
         Logger.warning('CONDITION_INSTANCE_DATA is not implemented.')
         return False
 
