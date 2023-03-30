@@ -312,7 +312,7 @@ class ConditionChecker:
         # Condition_value1 = quest id.
         if not ConditionChecker.is_player(target):
             return False
-        return condition.value1 not in target.quest_manager.completed_quests
+        return condition.value1 not in target.quest_manager.completed_quests and condition.value1 not in target.quest_manager.active_quests
 
     @staticmethod
     def check_condition_item_with_bank(condition, source, target):
