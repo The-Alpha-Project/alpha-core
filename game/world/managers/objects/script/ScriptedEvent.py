@@ -2,17 +2,16 @@ import time
 
 from game.world.managers.objects.script.ScriptedEventTarget import ScriptedEventTarget
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
-from game.world.managers.objects.script.ScriptHandler import ScriptHandler, ScriptTypes
 from utils.constants.ScriptCodes import RemoveMapEventTargetOptions, SendMapEventOptions
 
 
 class ScriptedEvent:
-    def __init__(self, event_id, source, target, map, expire_time, failure_condition, failure_script, success_condition,
-                 success_script):
+    def __init__(self, event_id, source, target, map_id, expire_time, failure_condition, failure_script,
+                 success_condition, success_script):
         self.event_id = event_id
         self.source = source
         self.target = target
-        self.map = map
+        self.map_id = map_id
         self.expire_time = time.time() + expire_time
         self.failure_condition = failure_condition
         self.failure_script = failure_script
@@ -37,12 +36,12 @@ class ScriptedEvent:
             self.ended = True
 
             # TODO: This won't even run, `enqueue_script` is not an static method.
-            if success:
-                ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                             self.success_script)
-            else:
-                ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                             self.failure_script)
+            # if success:
+            #     ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
+            #                                  self.success_script)
+            # else:
+            #     ScriptHandler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
+            #                                  self.failure_script)
 
         def send_event_data(data_index, options):
             if options == SendMapEventOptions.SO_SENDMAPEVENT_ALL_TARGETS:

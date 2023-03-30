@@ -1050,8 +1050,9 @@ class ScriptHandler:
         # dataint3 = failure_condition
         # dataint4 = failure_script
 
-        command.source.map_event_manager.add_event(command.source, Null, command.source, command.datalong, command.datalong2, \
-                                                   command.dataint3, command.dataint4, command.dataint, command.dataint2)
+        command.source.map_event_manager.add_event(command.source, None, command.source, command.datalong,
+                                                   command.datalong2, command.dataint3, command.dataint4,
+                                                   command.dataint, command.dataint2)
 
     @staticmethod
     def handle_script_command_end_map_event(command):
