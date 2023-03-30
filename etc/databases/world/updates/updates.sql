@@ -230,6 +230,9 @@ begin not atomic
         -- Set placeholder for Kreenig Snarlsnout
         update creature_template set display_id1 = 1420 where entry = 3438;
 
+        -- Add trainer id to Kil'hala
+        update creature_template set trainer_id = 503 where entry = 3484;
+
         insert into`applied_updates`values ('300320231');
     end if;
 
