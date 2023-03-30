@@ -227,6 +227,9 @@ begin not atomic
         -- Same for quest Kolkar Leaders, proof: https://web.archive.org/web/20040906103419/http://www.goblinworkshop.com/quests/kolkar-leaders.html
         update quest_template set Objective = "Bring Barak's Head to Regthar Deathgate at the Crossroads." where entry = 850;
 
+        -- Set placeholder for Kreenig Snarlsnout
+        update creature_template set display_id1 = 1420 where entry = 3438;
+
         insert into`applied_updates`values ('300320231');
     end if;
 
