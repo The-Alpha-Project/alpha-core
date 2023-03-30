@@ -838,13 +838,14 @@ class ScriptHandler:
     @staticmethod
     def handle_script_command_turn_to(command):
         # source = Unit
-        # target = WorldObject
+        # target = WorldObject (optional depending on TurnToFacingOptions)
+        # o = angle to turn to (optional depending on TurnToFacingOptions)
         # datalong = eTurnToFacingOptions
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}).')
             return
 
-        if not command.target:
+        if not command.target and command.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
             Logger.warning(f'ScriptHandler: No target found, aborting {command.get_info()}).')
             return
 
