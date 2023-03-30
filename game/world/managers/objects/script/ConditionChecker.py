@@ -758,7 +758,7 @@ class ConditionChecker:
     def check_condition_creature_group_member(condition, source, target):
         # Checks if creature is part of a group.
         # Requirement: Creature Source.
-        # Condition_value1 = leader_guild (optional).
+        # Condition_value1 = leader_guid (optional).
         Logger.warning('CONDITION_CREATURE_GROUP_MEMBER is not implemented.')
         return False
 
