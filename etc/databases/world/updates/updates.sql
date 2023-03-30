@@ -211,6 +211,9 @@ begin not atomic
         -- Update Jade Ooze
         update creature_template set display_id1 = 1146 where entry = 2656;
 
+        -- Despawn a bunch of objects related to NYI quest "Counterattack!" from The Barrens
+        update spawns_gameobjects set ignored = 1 where spawn_id in(16771, 14777, 14779, 16770, 14776);
+
 
 
         insert into`applied_updates`values ('300320231');
