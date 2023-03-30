@@ -186,8 +186,6 @@ begin not atomic
         update creature_template set display_id1 = 2136 where entry = 3048;
         -- Update Bretta Goldfury
         update creature_template set display_id1 = 3058 where entry = 5123;
-        -- Update Ultar Threx
-        update creature_template set display_id1 = 3090 where entry = 1703;
         -- Update Witherbark Shadow Hunter
         update creature_template set display_id2 = 4000 where entry = 2557;
         -- Updathe Rhinag
@@ -196,6 +194,8 @@ begin not atomic
         update creature_template set display_id1 = 1498 where entry = 1350;
         -- Update Defias Pirate
         update creature_template set display_id2 = 2348 where entry = 657;
+        -- Update Belstaff Stormeye
+        update creature_template set display_id2 = 3090 where entry = 2489;
 
         -- Update Dark Strand creatures
         update creature_template set display_id1 = 1642, display_id2 = 1643, display_id3 = 0, display_id4 = 0 where entry in(2336, 2337, 3879);
