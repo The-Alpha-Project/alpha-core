@@ -201,7 +201,7 @@ begin not atomic
         update creature_template set display_id1 = 1642, display_id2 = 1643, display_id3 = 0, display_id4 = 0 where entry in(2336, 2337, 3879);
 
         -- Fix Tursk <Crawler Trainer>
-        update creature_template set level_min = 50, level_max = 50, faction = 29, name = "Tursk", health_min = 1938, health_max = 1938, armor = 1341 where entry = 3623;
+        update creature_template set level_min = 50, level_max = 50, faction = 29, name = "Tursk", health_min = 1938, health_max = 1938, armor = 1341, spell_id1 = 7907 where entry = 3623;
 
         -- Update Charity Mipsy
         update creature_template set display_id1 = 213 where entry = 4896;
