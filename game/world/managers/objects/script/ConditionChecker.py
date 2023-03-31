@@ -1,6 +1,6 @@
 import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from utils.constants.ConditionCodes import ConditionType
+from utils.constants.ConditionCodes import ConditionType, ConditionFlags
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
@@ -21,8 +21,19 @@ class ConditionChecker:
 
     @staticmethod
     def _check_condition(condition, source, target):
+        if condition.flags & ConditionFlags.CONDITION_FLAG_SWAP_TARGETS:
+            _target = target
+            _source = target
+            source = _target
+            target = _source
+
         if condition.type in CONDITIONS:
-            return CONDITIONS[condition.type](condition, source, target)
+            result = CONDITIONS[condition.type](condition, source, target)
+            if condition.flags & ConditionFlags.CONDITION_FLAG_REVERSE_RESULT:
+                return not result
+
+            return result
+
         else:
             Logger.warning(f'ConditionChecker: Condition {condition.type} does not exist.')
             return False
@@ -100,6 +111,7 @@ class ConditionChecker:
         # Requires Player target.
         # Returns True if target has item equipped.
         # Item_id = condition_value1.
+        # Unused in 0.5.3.
         if not ConditionChecker.is_player(target):
             return False
 
@@ -188,6 +200,7 @@ class ConditionChecker:
         # Checks a global saved variable.
         # Index = condition_value1.
         # Value = condition_value2.
+        # Unused in 0.5.3.
         Logger.warning('CONDITION_SAVED_VARIABLE is not implemented.')
         return False
 
@@ -203,6 +216,7 @@ class ConditionChecker:
         from game.world.managers.maps.MapManager import MapManager
         # Requires Unit source.
         # Returns True if source cannot path to target.
+        # Unused in 0.5.3.
         if not ConditionChecker.is_unit(target):
             return False
         if not ConditionChecker.is_unit(source):
@@ -293,7 +307,33 @@ class ConditionChecker:
         # Condition_value2 = distance.
         # Condition_value3 = dead.
         # Condition_value4 = not self.
-        Logger.warning('CONDITION_NEARBY_CREATURE is not implemented.')
+        if not target:
+            Logger.warning('CONDITION_NEARBY_CREATURE: No target, aborting.')
+            return False
+
+        from game.world.managers.maps.MapManager import MapManager
+        creatures = MapManager.get_surrounding_units_by_location(target.location, target.map_id, target.instance_id,
+                                                                 condition.value2)
+        good_creatures = []
+        for creature in creatures[0].values():
+            if creature.creature_template.entry == condition.value1:
+                if condition.value4:
+                    if creature == target:
+                        continue
+                    else:
+                        good_creatures.append(creature)
+                else:
+                    good_creatures.append(creature)
+
+        if len(good_creatures) == 0:
+            return False
+
+        for creature in good_creatures:
+            if condition.value3 and not creature.is_alive:
+                return True
+            else:
+                return True
+
         return False
 
     @staticmethod
@@ -302,7 +342,16 @@ class ConditionChecker:
         # Checks if there is a gameobject nearby.
         # Condition_value1 = gameobject entry.
         # Condition_value2 = distance.
-        Logger.warning('CONDITION_NEARBY_GAMEOBJECT is not implemented.')
+        if not target:
+            Logger.warning('CONDITION_NEARBY_GAMEOBJECT: No target, aborting.')
+            return False
+
+        from game.world.managers.maps.MapManager import MapManager
+        for guid, gobject in list(MapManager.get_surrounding_gameobjects(target).items()):
+            distance = target.location.distance(gobject.location)
+            if distance <= condition.value2 and gobject.gobject_template.entry == condition.value1:
+                return True
+
         return False
 
     @staticmethod
@@ -312,7 +361,8 @@ class ConditionChecker:
         # Condition_value1 = quest id.
         if not ConditionChecker.is_player(target):
             return False
-        return condition.value1 not in target.quest_manager.completed_quests
+        return condition.value1 not in target.quest_manager.completed_quests and condition.value1 not in\
+            target.quest_manager.active_quests
 
     @staticmethod
     def check_condition_item_with_bank(condition, source, target):
@@ -339,6 +389,7 @@ class ConditionChecker:
         # Checks if the source and target are alive and the distance between them.
         # Condition_value1 = EscortConditionFlags.
         # Condition_value2 = distance.
+        # Doesn't appear to be used in 0.5.3.
         if not ConditionChecker.is_creature(source) or not ConditionChecker.is_player(target):
             return False
 
@@ -418,6 +469,7 @@ class ConditionChecker:
         # Checks if the source has the specified flag.
         # Condition_value1 = field_id.
         # Condition_value2 = flag.
+        # Unused in 0.5.3.
         Logger.warning('CONDITION_HAS_FLAG is not implemented.')
         return False
 
@@ -427,6 +479,7 @@ class ConditionChecker:
         # Checks the creature's last waypoint.
         # Condition_value1 = waypoint id.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
+        # Unused in 0.5.3
         Logger.warning('CONDITION_LAST_WAYPOINT is not implemented.')
         return False
 
@@ -446,6 +499,7 @@ class ConditionChecker:
         # Condition_value1 = index.
         # Condition_value2 = data.
         # Condition_value3 = 0 equal, 1 equal or higher, 2 equal or lower.
+        # Seems to be only used by vMangos C++ scripting.
         Logger.warning('CONDITION_INSTANCE_DATA is not implemented.')
         return False
 
@@ -552,6 +606,7 @@ class ConditionChecker:
         # Checks the target's mana percentage.
         # Condition_value1 = mana percentage.
         # Condition_value2 = 0 equal, 1 equal or higher, 2 equal or lower.
+        # Unused in 0.5.3
         if not ConditionChecker.is_unit(target) or target.power_type != PowerTypes.TYPE_MANA:
             return False
 
@@ -577,6 +632,7 @@ class ConditionChecker:
     def check_condition_is_hostile_to(condition, source, target):
         # Requires WorldObject source and target.
         # Checks if the source is hostile to the target.
+        # Unused in 0.5.3.
         if not source or not target:
             return False
         return source.is_hostile_to(target)
@@ -619,6 +675,7 @@ class ConditionChecker:
         # Requires GameObject target.
         # Checks the target's loot state.
         # Condition_value1 = loot state (LootState enum).
+        # Unused in 0.5.3.
         Logger.warning('CONDITION_OBJECT_LOOT_STATE is not implemented.')
         return False
 
@@ -628,6 +685,7 @@ class ConditionChecker:
         # Check if the target object with guid exists and satisfies the given condition.
         # Condition_value1 = object guid.
         # Condition_value2 = condition id.
+        # Unused in 0.5.3.
         Logger.warning('CONDITION_OBJECT_FIT_CONDITION is not implemented.')
         return False
 
@@ -722,7 +780,7 @@ class ConditionChecker:
     def check_condition_creature_group_member(condition, source, target):
         # Checks if creature is part of a group.
         # Requirement: Creature Source.
-        # Condition_value1 = leader_guild (optional).
+        # Condition_value1 = leader_guid (optional).
         Logger.warning('CONDITION_CREATURE_GROUP_MEMBER is not implemented.')
         return False
 

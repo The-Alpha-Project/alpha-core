@@ -1,5 +1,5 @@
 from game.world.managers.objects.script.ScriptedEvent import ScriptedEvent
-from utils.constants.ScriptCodes import SetMapScriptDataOptions, RemoveMapEventTargetOptions
+from utils.constants.ScriptCodes import SetMapScriptDataOptions
 
 
 class MapEventManager:
