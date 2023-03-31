@@ -29,6 +29,7 @@ class Character(Base):
 
     guid = Column(INTEGER(11), primary_key=True, autoincrement=True)
     account_id = Column('account', ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"), comment='Account Identifier')
+    realm_id = Column(TINYINT(3), nullable=False, server_default=text("0"))
     name = Column(String(12), nullable=False, index=True, server_default=text("''"))
     race = Column(TINYINT(3), nullable=False, server_default=text("0"))
     class_ = Column('class', TINYINT(3), nullable=False, server_default=text("0"))

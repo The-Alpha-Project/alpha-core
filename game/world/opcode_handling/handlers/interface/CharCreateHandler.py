@@ -54,6 +54,7 @@ class CharCreateHandler(object):
             base_stats = WorldDatabaseManager.player_get_class_level_stats(class_,
                                                                            config.Unit.Player.Defaults.starting_level)
             character = Character(account_id=world_session.account_mgr.account.id,
+                                  realm_id=config.Server.Connection.Realm.local_realm_id,
                                   name=name,
                                   race=race,
                                   class_=class_,
