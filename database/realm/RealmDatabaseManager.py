@@ -798,7 +798,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def guild_get_all():
         realm_db_session = SessionHolder()
-        guilds = realm_db_session.query(Guild).all()
+        guilds = realm_db_session.query(Guild).filter_by(realm_id=config.Server.Connection.Realm.local_realm_id).all()
         realm_db_session.close()
         return guilds
 
