@@ -239,6 +239,12 @@ begin not atomic
         -- Fix broken SFK cell doors (they spawn too low so you can't ever pass even when opened)
         update spawns_gameobjects set spawn_positionZ = 83.5 where spawn_id in(33219, 32445, 32446);
 
+        -- Despawn objects affected by vanilla terrain change in Forgotten Pools/Barrens
+        update spawns_gameobjects set ignored = 1 where spawn_id in(1814, 13202, 15688, 2725);
+
+        -- Set placeholder for Barak Kodobane, Verog and Hezrul
+        update creature_template set display_id1 = 1257 where entry in(3394, 3395, 3396);
+
         insert into`applied_updates`values ('300320231');
     end if;
 
