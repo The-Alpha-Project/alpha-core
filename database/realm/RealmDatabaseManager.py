@@ -863,7 +863,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def guild_petition_get_by_name(guild_name):
         realm_db_session = SessionHolder()
-        petition = realm_db_session.query(Petition).filter_by(name=guild_name).first()
+        petition = realm_db_session.query(Petition).filter_by(name=guild_name, realm_id=config.Server.Connection.Realm.local_realm_id).first()
         realm_db_session.close()
         return petition
 

@@ -267,6 +267,7 @@ class Guild(Base):
     __tablename__ = 'guild'
 
     guild_id = Column(INTEGER(11), autoincrement=True, primary_key=True, server_default=text("0"))
+    realm_id = Column(TINYINT(3), nullable=False, server_default=text("0"))
     name = Column(String(255), nullable=False, server_default=text("''"))
     motd = Column(String(255), nullable=False, server_default=text("''"))
     creation_date = Column(TIMESTAMP, nullable=False, server_default=text("current_timestamp()"))
@@ -295,6 +296,7 @@ class Petition(Base):
     )
 
     petition_id = Column(INTEGER, primary_key=True, autoincrement=True)
+    realm_id = Column(TINYINT(3), nullable=False, server_default=text("0"))
     owner_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'"))
     item_guid = Column(ForeignKey('character_inventory.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(255), nullable=False, server_default=text("''"))

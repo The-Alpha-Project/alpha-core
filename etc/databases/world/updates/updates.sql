@@ -170,7 +170,9 @@ begin not atomic
     end if;
 
     if (select count(*) from `applied_updates` where id='3103202302') = 0 then
-        ALTER TABLE characters ADD COLUMN realm_id TINYINT(3) NOT NULL AFTER account;
+        ALTER TABLE characters ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '0' AFTER account;
+        ALTER TABLE petition ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '0' AFTER petition_id;
+        ALTER TABLE guild ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '0' AFTER guild_id;
 
         insert into`applied_updates`values ('3103202302');
     end if;
