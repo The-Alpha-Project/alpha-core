@@ -184,6 +184,8 @@ class ScriptHandler:
         if emotes:
             command.source.play_emote(random.choice(emotes))
             if command.dataint and command.target:
+                # TODO: Properly handle delays and returning back to default orientation.
+                #  https://github.com/vmangos/core/blob/1ee2d05c4532e89ddce76740e5888ff873ce2623/src/game/Maps/ScriptCommands.cpp#L88
                 command.source.movement_manager.face_target(command.target)
 
     @staticmethod
