@@ -22,10 +22,9 @@ class ConditionChecker:
     @staticmethod
     def _check_condition(condition, source, target):
         if condition.flags & ConditionFlags.CONDITION_FLAG_SWAP_TARGETS:
-            _target = target
-            _source = target
-            source = _target
-            target = _source
+            _tmp_old_target = target
+            target = source
+            source = _tmp_old_target
 
         if condition.type in CONDITIONS:
             result = CONDITIONS[condition.type](condition, source, target)
@@ -314,25 +313,15 @@ class ConditionChecker:
         from game.world.managers.maps.MapManager import MapManager
         creatures = MapManager.get_surrounding_units_by_location(target.location, target.map_id, target.instance_id,
                                                                  condition.value2)
-        good_creatures = []
         for creature in creatures[0].values():
-            if creature.creature_template.entry == condition.value1:
-                if condition.value4:
-                    if creature == target:
-                        continue
-                    else:
-                        good_creatures.append(creature)
-                else:
-                    good_creatures.append(creature)
+            if creature.creature_template.entry != condition.value1:
+                continue
+            if condition.value3 and creature.is_alive:
+                continue
+            if condition.value4 and creature == target:
+                continue
 
-        if len(good_creatures) == 0:
-            return False
-
-        for creature in good_creatures:
-            if condition.value3 and not creature.is_alive:
-                return True
-            else:
-                return True
+            return True
 
         return False
 
@@ -361,7 +350,7 @@ class ConditionChecker:
         # Condition_value1 = quest id.
         if not ConditionChecker.is_player(target):
             return False
-        return condition.value1 not in target.quest_manager.completed_quests and condition.value1 not in\
+        return condition.value1 not in target.quest_manager.completed_quests and condition.value1 not in \
             target.quest_manager.active_quests
 
     @staticmethod

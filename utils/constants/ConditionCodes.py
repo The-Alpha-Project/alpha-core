@@ -70,6 +70,7 @@ class EscortConditionFlags(IntEnum):
     CF_ESCORT_SOURCE_DEAD = 0x1
     CF_ESCORT_TARGET_DEAD = 0x2
 
+
 class ConditionFlags(IntEnum):
     CONDITION_FLAG_REVERSE_RESULT = 0x1
     CONDITION_FLAG_SWAP_TARGETS = 0x2

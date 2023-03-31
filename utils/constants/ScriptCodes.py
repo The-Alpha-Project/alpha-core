@@ -269,5 +269,6 @@ class SendMapEventOptions(IntEnum):
     SO_SENDMAPEVENT_EXTRA_TARGETS_ONLY = 1
     SO_SENDMAPEVENT_ALL_TARGETS = 2
 
+
 class TerminateConditionFlags(IntEnum):
     SF_TERMINATECONDITION_WHEN_FALSE = 0x1

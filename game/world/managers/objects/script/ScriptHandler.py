@@ -1190,7 +1190,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
             return
 
-        if command.datalong or command.source.is_alive:
+        if command.datalong or not command.source.is_alive:
             command.source.despawn()
             command.source.respawn()
 
