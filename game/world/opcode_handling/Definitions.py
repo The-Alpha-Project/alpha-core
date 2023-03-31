@@ -8,7 +8,6 @@ from game.world.opcode_handling.handlers.player.BootMeHandler import BootMeHandl
 from game.world.opcode_handling.handlers.pet.PetActionHandler import PetActionHandler
 from game.world.opcode_handling.handlers.player.PvPPortHandler import PvPPortHandler
 from game.world.opcode_handling.handlers.player.ResurrectResponseHandler import ResurrectResponseHandler
-from game.world.opcode_handling.handlers.player.cheats.BeastMasterHandler import CheatBeastMasterHandler
 from game.world.opcode_handling.handlers.player.cheats.CreateMonsterHandler import CreateMonsterHandler
 from game.world.opcode_handling.handlers.player.cheats.DestroyMonsterHandler import DestroyMonsterHandler
 from game.world.opcode_handling.handlers.player.cheats.RechargeHandler import RechargeHandler
@@ -112,6 +111,7 @@ from game.world.opcode_handling.handlers.player.RandomRollHandler import RandomR
 from game.world.opcode_handling.handlers.player.RepopRequestHandler import RepopRequestHandler
 from game.world.opcode_handling.handlers.player.SetWeaponModeHandler import SetWeaponModeHandler
 from game.world.opcode_handling.handlers.player.StandStateChangeHandler import StandStateChangeHandler
+from game.world.opcode_handling.handlers.player.cheats.BeastMasterHandler import CheatBeastMasterHandler
 from game.world.opcode_handling.handlers.player.cheats.GodModeHandler import GodModeHandler
 from game.world.opcode_handling.handlers.player.cheats.GMSummonHandler import GMSummonHandler
 from game.world.opcode_handling.handlers.player.cheats.TeleportToPlayerHandler import TeleportToPlayerHandler
@@ -119,6 +119,7 @@ from game.world.opcode_handling.handlers.player.cheats.SpeedCheatHandler import 
 from game.world.opcode_handling.handlers.player.cheats.CheatSetMoneyHandler import CheatSetMoneyHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelCheatHandler import LevelCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelUpCheatHandler import LevelUpCheatHandler
+from game.world.opcode_handling.handlers.player.cheats.LevelPetCheatHandler import LevelPetCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.LearnSpellCheatHandler import LearnSpellCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.CooldownCheatHandler import CooldownCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
@@ -317,13 +318,14 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_DUEL_ACCEPTED: DuelAcceptHandler.handle,
     OpCode.CMSG_DUEL_CANCELLED: DuelCanceledHandler.handle,
     OpCode.CMSG_TRIGGER_CINEMATIC_CHEAT: TriggerCinematicCheatHandler.handle,
+    OpCode.CMSG_BEASTMASTER: CheatBeastMasterHandler.handle,
     OpCode.CMSG_GODMODE: GodModeHandler.handle,
     OpCode.MSG_GM_SUMMON: GMSummonHandler.handle,
     OpCode.CMSG_TELEPORT_TO_PLAYER: TeleportToPlayerHandler.handle,
     OpCode.CMSG_CHEAT_SETMONEY: CheatSetMoneyHandler.handle,
     OpCode.CMSG_LEVEL_CHEAT: LevelCheatHandler.handle,
-    OpCode.CMSG_BEASTMASTER: CheatBeastMasterHandler.handle,
     OpCode.CMSG_LEVELUP_CHEAT: LevelUpCheatHandler.handle,
+    OpCode.CMSG_PET_LEVEL_CHEAT: LevelPetCheatHandler.handle,
     OpCode.CMSG_TAXIENABLEALLNODES: TaxiEnableAllNodesHandler.handle,
     OpCode.CMSG_TAXICLEARALLNODES: TaxiClearAllNodesHandler.handle,
     OpCode.CMSG_LEARN_SPELL: LearnSpellCheatHandler.handle,
