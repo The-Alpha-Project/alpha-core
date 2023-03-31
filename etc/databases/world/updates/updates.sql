@@ -257,6 +257,9 @@ begin not atomic
     -- 31/03/2023 1
     if (select count(*) from `applied_updates` where id='310320231') = 0 then
 
+        -- Set Unique models for Belstaff (it was set to display_id2 instead of 1 on recent change)
+        update creature_template set display_id1 = 3090, display_id2 = 0 where entry = 2489;
+
         -- Set placeholder for NE male
         update creature_template set display_id1 = 2572 where entry in (3583, 4182, 4183, 4189, 4192, 4193, 4265, 3672, 3797, 4307, 4050, 4052, 4753, 2077);
 
