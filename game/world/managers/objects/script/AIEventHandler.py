@@ -23,83 +23,90 @@ class AIEventHandler:
         self.event_locks: dict[int: EventLock] = {}
 
     def on_spawn(self):
-        event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
-        if not event:
-            return
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
+        for event in events:
+            if randint(0, 100) > event.event_chance:
+                return
 
-        if randint(0, 100) > event.event_chance:
-            return
-
-        script_id = event.action1_script
-        if script_id:
-            self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
+            script_id = event.action1_script
+            if script_id:
+                self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
 
     def on_enter_combat(self, source=None):
         self.creature.script_handler.reset()  # Reset any scripts that were queued before combat (e.g. on spawn).
 
-        event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
-        if not event:
-            return
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
+        for event in events:
+            if randint(0, 100) > event.event_chance:
+                return
 
-        if randint(0, 100) > event.event_chance:
-            return
+            choices = ScriptHelpers.get_filtered_event_scripts(event)
+            random_script = choice(choices)
 
-        choices = ScriptHelpers.get_filtered_event_scripts(event)
-        random_script = choice(choices)
-
-        if random_script:
-            self.creature.script_handler.enqueue_script(self.creature, source, ScriptTypes.SCRIPT_TYPE_AI, random_script)
+            if random_script:
+                self.creature.script_handler.enqueue_script(self.creature, source, ScriptTypes.SCRIPT_TYPE_AI,
+                                                            random_script)
 
     def on_damage_taken(self, attacker=None):
-        event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
-        if not event:
-            return
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
+        for event in events:
+            if randint(0, 100) > event.event_chance:
+                return
 
-        if randint(0, 100) > event.event_chance:
-            return
+            now = time.time()
+            if self._is_event_locked(event, now):
+                return
 
-        now = time.time()
-        if self._is_event_locked(event, now):
-            return
+            current_hp_percent = (self.creature.health / self.creature.max_health) * 100
+            # param1 %MaxHP, param2 %MinHp.
+            if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
+                return
 
-        current_hp_percent = (self.creature.health / self.creature.max_health) * 100
-        # param1 %MaxHP, param2 %MinHp.
-        if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
-            return
-
-        script_id = event.action1_script
-        if script_id:
-            self._lock_event(event, now)
-            self.creature.script_handler.enqueue_script(self.creature, attacker, ScriptTypes.SCRIPT_TYPE_AI, script_id)
+            script_id = event.action1_script
+            if script_id:
+                self._lock_event(event, now)
+                self.creature.script_handler.enqueue_script(self.creature, attacker, ScriptTypes.SCRIPT_TYPE_AI, script_id)
 
     def on_idle(self):
-        event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
-        if event:
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
+        for event in events:
             self.creature.script_handler.set_random_ooc_event(self.creature, event)
 
     def on_death(self, killer=None):
-        event = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
-        if not event:
-            return
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
+        for event in events:
+            if randint(0, 100) > event.event_chance:
+                return
+            choices = ScriptHelpers.get_filtered_event_scripts(event)
+            random_script = choice(choices)
 
-        if randint(0, 100) > event.event_chance:
-            return
-        choices = ScriptHelpers.get_filtered_event_scripts(event)
-        random_script = choice(choices)
+            if random_script:
+                self.creature.script_handler.last_hp_event_id = event.id
+                self.creature.script_handler.enqueue_script(self.creature, killer, ScriptTypes.SCRIPT_TYPE_AI,
+                                                            random_script)
 
-        if random_script:
-            self.creature.script_handler.last_hp_event_id = event.id
-            self.creature.script_handler.enqueue_script(self.creature, killer, ScriptTypes.SCRIPT_TYPE_AI, random_script)
+    def on_emote_received(self, player, emote):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RECEIVE_EMOTE)
+        for event in events:
+            if event.event_param1 != emote:
+                continue
+
+            # TODO: Check conditions (EmoteId, Condition, CondValue1, CondValue2).
+
+            script_id = event.action1_script
+            if script_id:
+                self.creature.script_handler.enqueue_script(self.creature, player, ScriptTypes.SCRIPT_TYPE_AI,
+                                                            script_id)
 
     def _event_get_by_type(self, event_type):
         # Skip for controlled units.
         if self.creature.get_charmer_or_summoner():
-            return
+            return []
         if not self.initialized:
             self.initialized = True
             self._events = WorldDatabaseManager.CreatureAiEventHolder.creature_ai_events_get_by_creature_entry(
                 self.creature.entry)
-        return self._events.get(event_type)
+        return self._events.get(event_type, [])
 
     def _lock_event(self, event, now):
         delay = random.uniform(event.event_param3, event.event_param4)

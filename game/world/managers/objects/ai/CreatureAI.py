@@ -177,7 +177,7 @@ class CreatureAI:
 
     # Called at text emote receive from player.
     def receive_emote(self, player, emote):
-        pass
+        self.ai_event_handler.on_emote_received(player, emote)
 
     # Called if a temporary summoned of m_creature reach a move point.
     def summoned_movement_inform(self, creature, motion_type, point_id):

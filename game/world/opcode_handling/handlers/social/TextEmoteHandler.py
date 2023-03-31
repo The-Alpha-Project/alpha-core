@@ -29,6 +29,9 @@ class TextEmoteHandler(object):
                     unit_name_bytes = PacketWriter.string_to_bytes(target.get_name())
                     data += pack(f'<{len(unit_name_bytes)}s',
                                  unit_name_bytes)
+
+                    # Notify CreatureAI about emote sent to this creature.
+                    target.object_ai.receive_emote(world_session.player_mgr, emote_text_id)
                 else:
                     data += pack('<B', 0)
 
