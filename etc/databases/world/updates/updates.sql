@@ -233,6 +233,9 @@ begin not atomic
         -- Add trainer id to Kil'hala
         update creature_template set trainer_id = 507 where entry = 3484;
 
+        -- Update Deathguard Lundmark with placeholder
+        update creature_template set display_id1 = 1021 where entry = 5725;
+
         insert into`applied_updates`values ('300320231');
     end if;
 
