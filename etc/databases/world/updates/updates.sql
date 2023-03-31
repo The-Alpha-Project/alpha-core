@@ -236,6 +236,9 @@ begin not atomic
         -- Update Deathguard Lundmark with placeholder
         update creature_template set display_id1 = 1021 where entry = 5725;
 
+        -- Fix broken SFK cell doors (they spawn too low so you can't ever pass even when opened)
+        update spawns_gameobjects set spawn_positionZ = 83.5 where spawn_id in(33219, 32445, 32446);
+
         insert into`applied_updates`values ('300320231');
     end if;
 
