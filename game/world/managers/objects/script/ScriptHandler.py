@@ -183,6 +183,8 @@ class ScriptHandler:
         emotes = ScriptHelpers.get_filtered_datalong(command)
         if emotes:
             command.source.play_emote(random.choice(emotes))
+            if command.dataint and command.target:
+                command.source.movement_manager.face_target(command.target)
 
     @staticmethod
     def handle_script_command_field_set(command):
