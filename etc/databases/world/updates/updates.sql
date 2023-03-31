@@ -258,10 +258,11 @@ begin not atomic
     if (select count(*) from `applied_updates` where id='310320231') = 0 then
 
         -- Set placeholder for NE male
-        update creature_template set display_id1 = 2572 where entry in (3583, 4182, 4183, 4189, 4192, 4193, 4265, 3672, 3797, 4307, 4050, 4753, 2077);
+        update creature_template set display_id1 = 2572 where entry in (3583, 4182, 4183, 4189, 4192, 4193, 4265, 3672, 3797, 4307, 4050, 4052, 4753, 2077);
 
         -- Set placeholder for NE female
         update creature_template set display_id1 = 2575 where entry in (4185, 4186, 4190, 4191, 4266, 4188, 4051, 4184, 4521, 4194);
+        update creature_template set display_id2 = 2575 where entry = 4052;
 
         -- Set placeholder for Tauren male
         update creature_template set display_id1 = 2578 where entry in (4451, 3222, 4310, 2987, 2549, 4309, 3689, 3978, 3050);
