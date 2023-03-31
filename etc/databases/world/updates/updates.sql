@@ -254,6 +254,15 @@ begin not atomic
         insert into`applied_updates`values ('300320231');
     end if;
 
+    -- 31/03/2023 2
+    if (select count(*) from `applied_updates` where id='310320232') = 0 then
+
+        -- Fix Ratchet/Tanaris faction templates by aligning all these goblins with Booty Bay
+        update creature_template set faction = 121 where faction in(474, 637);
+
+        insert into`applied_updates`values ('310320232');
+    end if;
+
 
 end $
 delimiter ;
