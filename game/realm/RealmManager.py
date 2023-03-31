@@ -47,8 +47,8 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             else:
                 forward_address = realm.proxy_address
             address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm.proxy_port}')
-            # TODO: Find a way to get online count of realms not hosted in the same machine?
-            online_count = RealmDatabaseManager.character_get_online_count() if is_realm_local else 0
+
+            online_count = RealmDatabaseManager.character_get_online_count(realm.realm_id)
 
             realmlist_bytes += pack(
                 f'<{len(name_bytes)}s{len(address_bytes)}sI',

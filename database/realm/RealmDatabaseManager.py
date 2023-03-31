@@ -111,9 +111,9 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
 
     @staticmethod
-    def character_get_online_count():
+    def character_get_online_count(realm_id):
         realm_db_session = SessionHolder()
-        online_count = realm_db_session.query(Character).filter_by(online=1, realm_id=config.Server.Connection.Realm.local_realm_id).count()
+        online_count = realm_db_session.query(Character).filter_by(online=1, realm_id=realm_id).count()
         realm_db_session.close()
         return online_count
 
