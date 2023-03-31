@@ -949,8 +949,8 @@ class ScriptTypes(IntEnum):
 
 
 class TeleportToOptions(IntEnum):
-    TELE_TO_GM_MODE = 1
-    TELE_TO_NOT_LEAVE_TRANSPORT = 2
+    TELE_TO_GM_MODE = 0x01
+    TELE_TO_NOT_LEAVE_TRANSPORT = 0x02
     TELE_TO_NOT_LEAVE_COMBAT = 0x04
     TELE_TO_NOT_UNSUMMON_PET = 0x08
     TELE_TO_SPELL = 0x10
@@ -958,11 +958,48 @@ class TeleportToOptions(IntEnum):
 
 
 class CreatureAIEventTypes(IntEnum):
+    # TODO: (Taken as-is from VMaNGOS) Finish moving all of these to our naming.
+    #     EVENT_T_TIMER                   = 0,                    // InitialMin, InitialMax, RepeatMin, RepeatMax
+    #     EVENT_T_TIMER_OOC               = 1,                    // InitialMin, InitialMax, RepeatMin, RepeatMax
+    #     EVENT_T_HP                      = 2,                    // HPMax%, HPMin%, RepeatMin, RepeatMax
+    #     EVENT_T_MANA                    = 3,                    // ManaMax%,ManaMin% RepeatMin, RepeatMax
+    #     EVENT_T_AGGRO                   = 4,                    // NONE
+    #     EVENT_T_KILL                    = 5,                    // RepeatMin, RepeatMax, PlayerOnly
+    #     EVENT_T_DEATH                   = 6,                    // NONE
+    #     EVENT_T_EVADE                   = 7,                    // NONE
+    #     EVENT_T_SPELLHIT                = 8,                    // SpellID, School, RepeatMin, RepeatMax
+    #     EVENT_T_RANGE                   = 9,                    // MinDist, MaxDist, RepeatMin, RepeatMax
+    #     EVENT_T_OOC_LOS                 = 10,                   // NoHostile, MaxRnage, RepeatMin, RepeatMax
+    #     EVENT_T_SPAWNED                 = 11,                   // NONE
+    #     EVENT_T_TARGET_HP               = 12,                   // HPMax%, HPMin%, RepeatMin, RepeatMax
+    #     EVENT_T_TARGET_CASTING          = 13,                   // RepeatMin, RepeatMax
+    #     EVENT_T_FRIENDLY_HP             = 14,                   // HPDeficit, Radius, RepeatMin, RepeatMax
+    #     EVENT_T_FRIENDLY_IS_CC          = 15,                   // DispelType, Radius, RepeatMin, RepeatMax
+    #     EVENT_T_FRIENDLY_MISSING_BUFF   = 16,                   // SpellId, Radius, RepeatMin, RepeatMax
+    #     EVENT_T_SUMMONED_UNIT           = 17,                   // CreatureId, RepeatMin, RepeatMax
+    #     EVENT_T_TARGET_MANA             = 18,                   // ManaMax%, ManaMin%, RepeatMin, RepeatMax
+    #     EVENT_T_QUEST_ACCEPT            = 19,                   // QuestID
+    #     EVENT_T_QUEST_COMPLETE          = 20,                   //
+    #     EVENT_T_REACHED_HOME            = 21,                   // NONE
+    #     EVENT_T_RECEIVE_EMOTE           = 22,                   // EmoteId, Condition, CondValue1, CondValue2
+    #     EVENT_T_AURA                    = 23,                   // Param1 = SpellID, Param2 = Number of time stacked, Param3/4 Repeat Min/Max
+    #     EVENT_T_TARGET_AURA             = 24,                   // Param1 = SpellID, Param2 = Number of time stacked, Param3/4 Repeat Min/Max
+    #     EVENT_T_SUMMONED_JUST_DIED      = 25,                   // CreatureId, RepeatMin, RepeatMax
+    #     EVENT_T_SUMMONED_JUST_DESPAWN   = 26,                   // CreatureId, RepeatMin, RepeatMax
+    #     EVENT_T_MISSING_AURA            = 27,                   // Param1 = SpellID, Param2 = Number of time stacked expected, Param3/4 Repeat Min/Max
+    #     EVENT_T_TARGET_MISSING_AURA     = 28,                   // Param1 = SpellID, Param2 = Number of time stacked expected, Param3/4 Repeat Min/Max
+    #     EVENT_T_MOVEMENT_INFORM         = 29,                   // Param1 = motion type, Param2 = point ID, RepeatMin, RepeatMax
+    #     EVENT_T_LEAVE_COMBAT            = 30,                   // NONE
+    #     EVENT_T_MAP_SCRIPT_EVENT        = 31,                   // Param1 = EventID, Param2 = Data
+    #     EVENT_T_GROUP_MEMBER_DIED       = 32,                   // Param1 = CreatureId, Param2 = IsLeader
+    #     EVENT_T_VICTIM_ROOTED           = 33,                   // RepeatMin, RepeatMax
+
     AI_EVENT_TYPE_OUT_OF_COMBAT = 1
     AI_EVENT_TYPE_HP = 2
     AI_EVENT_TYPE_ON_ENTER_COMBAT = 4
     AI_EVENT_TYPE_ON_DEATH = 6
-    AI_EVENT_TYPE_ON_SPAWN = 11    
+    AI_EVENT_TYPE_ON_SPAWN = 11
+    AI_EVENT_TYPE_RECEIVE_EMOTE = 22
 
 
 class BroadcastMessageType(IntEnum):

@@ -197,7 +197,8 @@ class MapManager:
 
     @staticmethod
     def on_cell_turn_active(world_object):
-        MapManager.enqueue_adt_tile_initialization(world_object.map_id, world_object.location.x, world_object.location.y)
+        MapManager.enqueue_adt_tile_initialization(world_object.map_id, world_object.location.x,
+                                                   world_object.location.y)
 
     @staticmethod
     def validate_maps():
@@ -666,7 +667,8 @@ class MapManager:
     def get_surrounding_units_by_location(vector, target_map, target_instance_id, range_, include_players=False):
         map_ = MapManager.get_map(target_map, target_instance_id)
         try:
-            return map_.get_surrounding_units_by_location(vector, target_map, target_instance_id, range_, include_players)
+            return map_.get_surrounding_units_by_location(vector, target_map, target_instance_id, range_,
+                                                          include_players)
         except AttributeError:
             return [{}, {}]
 
@@ -697,7 +699,8 @@ class MapManager:
 
     @staticmethod
     def get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id):
-        return MapManager.get_map_by_object(world_object).get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id)
+        return MapManager.get_map_by_object(world_object).get_surrounding_gameobject_spawn_by_spawn_id(world_object,
+                                                                                                       spawn_id)
 
     @staticmethod
     def update_creatures():

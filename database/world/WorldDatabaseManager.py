@@ -942,7 +942,7 @@ class WorldDatabaseManager(object):
 
     class CreatureAiEventHolder:
         EVENTS_BY_ID: dict[int, CreatureAiEvent] = {}
-        EVENTS_BY_CREATURE_ID: dict[int, dict[int, CreatureAiEvent]] = {}
+        EVENTS_BY_CREATURE_ID: dict[int, dict[int, list[CreatureAiEvent]]] = {}
 
         @staticmethod
         def load_creature_ai_event(event):
@@ -953,7 +953,9 @@ class WorldDatabaseManager(object):
                 WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id] = {}
 
             if event.event_type not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id]:
-                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id][event.event_type] = event
+                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id][event.event_type] = []
+
+            WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id][event.event_type].append(event)
 
         @staticmethod
         def creature_ai_events_get_by_creature_entry(entry):

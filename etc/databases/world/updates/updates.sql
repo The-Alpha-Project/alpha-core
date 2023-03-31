@@ -169,5 +169,91 @@ begin not atomic
         insert into`applied_updates`values ('290320234');
     end if;
 
+    -- 30/03/2023 1
+    if (select count(*) from `applied_updates` where id='300320231') = 0 then
+
+        -- Update Juli Stormbraid
+        update creature_template set display_id1 = 3067, faction = 57 where entry = 5145;
+        -- Update Alyssa Griffith
+        update creature_template set display_id1 = 1520 where entry = 1321;
+        -- Update Jorgen
+        update creature_template set display_id1 = 2960 where entry = 4959;
+        -- Update Elyssia <Portal Trainer>
+        update creature_template set display_id1 = 2204 where entry = 4165;
+        -- Update Ainethil <Herbalism Trainer>
+        update creature_template set display_id1 = 2215 where entry = 4160;
+        -- Update Ursyn Ghull
+        update creature_template set display_id1 = 2136 where entry = 3048;
+        -- Update Bretta Goldfury
+        update creature_template set display_id1 = 3058 where entry = 5123;
+        -- Update Witherbark Shadow Hunter
+        update creature_template set display_id2 = 4000 where entry = 2557;
+        -- Updathe Rhinag
+        update creature_template set display_id1 = 4075 where entry = 3190;
+        -- Update Theresa Moulaine
+        update creature_template set display_id1 = 1498 where entry = 1350;
+        -- Update Defias Pirate
+        update creature_template set display_id2 = 2348 where entry = 657;
+        -- Update Belstaff Stormeye
+        update creature_template set display_id2 = 3090 where entry = 2489;
+
+        -- Update Dark Strand creatures
+        update creature_template set display_id1 = 1642, display_id2 = 1643, display_id3 = 0, display_id4 = 0 where entry in(2336, 2337, 3879);
+
+        -- Fix Tursk <Crawler Trainer>
+        update creature_template set level_min = 50, level_max = 50, faction = 29, name = "Tursk", health_min = 1938, health_max = 1938, armor = 1341, spell_id1 = 7907 where entry = 3623;
+
+        -- Update Charity Mipsy
+        update creature_template set display_id1 = 213 where entry = 4896;
+
+        -- Update Witherbark Zealot
+        update creature_template set display_id1 = 337 where entry = 2650;
+        -- Update Jade Ooze
+        update creature_template set display_id1 = 1146 where entry = 2656;
+
+        -- Despawn a bunch of objects related to NYI quest "Counterattack!" from The Barrens
+        update spawns_gameobjects set ignored = 1 where spawn_id in(16771, 14777, 14779, 16770, 14776);
+        -- Despawn a Fierce Blaze, the camp is NYI
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13512;
+
+        -- Set correct quest objective for Regthar Deathgate's quests as he isn't west of Crossroads
+        -- but in Crossroads proper in 0.5.3
+        -- Kolkar Leaders, proof: https://web.archive.org/web/20040825094143/http://wow.allakhazam.com/db/quest.html?wquest=855
+        update quest_template set Objectives = 'Bring 15 Centaur Bracers to Regthar Deathgate at the Crossroads.' where entry = 855;
+        -- Same for quest Hezrul Bloodmark, proof: https://web.archive.org/web/20040903231152/http://www.goblinworkshop.com/quests/hezrul-bloodmark.html
+        update quest_template set Objectives = "Bring Hezrul's Head to Regthar Deathgate at the Crossroads." where entry = 852;
+        -- Same for quest Verog the Dervish, proof: https://web.archive.org/web/20040918103729/http://www.goblinworkshop.com/quests/verog-the-dervish.html
+        update quest_template set Objectives = "Bring Verog's Head to Regthar Deathgate at the Crossroads." where entry = 851;
+        -- Same for quest Kolkar Leaders, proof: https://web.archive.org/web/20040906103419/http://www.goblinworkshop.com/quests/kolkar-leaders.html
+        update quest_template set Objectives = "Bring Barak's Head to Regthar Deathgate at the Crossroads." where entry = 850;
+
+        -- Set placeholder for Kreenig Snarlsnout
+        update creature_template set display_id1 = 1420 where entry = 3438;
+
+        -- Add trainer id to Kil'hala
+        update creature_template set trainer_id = 507 where entry = 3484;
+
+        -- Update Deathguard Lundmark with placeholder
+        update creature_template set display_id1 = 1021 where entry = 5725;
+
+        -- Fix broken SFK cell doors (they spawn too low so you can't ever pass even when opened)
+        update spawns_gameobjects set spawn_positionZ = 83.5 where spawn_id in(33219, 32445, 32446);
+
+        -- Despawn objects affected by vanilla terrain change in Forgotten Pools/Barrens
+        update spawns_gameobjects set ignored = 1 where spawn_id in(1814, 13202, 15688, 2725, 2611);
+
+        -- Set placeholder for Barak Kodobane, Verog and Hezrul
+        update creature_template set display_id1 = 1257 where entry in(3394, 3395, 3396);
+
+        -- Despawn object from Camp Taujaro (shane cube with no use)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 14708;
+
+        -- Have Harb Clawhoof spawn his pet cat
+        update creature_template set spell_id1 = 7906 where entry = 3685;
+
+        insert into`applied_updates`values ('300320231');
+    end if;
+
+
 end $
 delimiter ;

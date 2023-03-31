@@ -177,7 +177,7 @@ class CreatureAI:
 
     # Called at text emote receive from player.
     def receive_emote(self, player, emote):
-        pass
+        self.ai_event_handler.on_emote_received(player, emote)
 
     # Called if a temporary summoned of m_creature reach a move point.
     def summoned_movement_inform(self, creature, motion_type, point_id):
@@ -394,6 +394,8 @@ class CreatureAI:
         self.creature.melee_disabled = not enabled
 
     def set_combat_movement(self, enabled):
+        # TODO: Does not actually do anything right now.
+        self.combat_movement = enabled
         pass
 
     # Called for reaction on enter combat if not in combat yet (enemy can be None).
@@ -476,3 +478,9 @@ class CreatureAI:
 
     def on_scripted_event(self, event_id, data):
         pass
+
+    def assist_unit(self, target):
+        if not self.creature.is_alive:
+            return
+
+        self.creature.attack(target.combat_target)
