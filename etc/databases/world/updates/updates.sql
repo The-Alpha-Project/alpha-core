@@ -260,6 +260,18 @@ begin not atomic
         -- Fix Ratchet/Tanaris faction templates by aligning all these goblins with Booty Bay
         update creature_template set faction = 121 where faction in(474, 637);
 
+        -- Despawn objects from Barrens affected by vanilla terrain changes
+        update spawns_gameobjects set ignored = 1 where spawn_id in(13241);
+
+        -- Fix quest Verog the Dervish - he's not near any command tents since there is no command tent yet.
+        update quest_template set Details = "The centaur Verog the Dervish wanders the Barrens, and will be difficult to find. But he is based at the camps near the Stagnant Oasis to the southeast. It may be possible to draw him to you.$B$BTravel to the centaur camps near the Stagnant Oasis and attack the centaurs there. It will be dangerous, but if you can kill enough centaurs at those camps then they should raise an alarm. And Verog will come.$B$BBring me his head and I will place it with Barak Kodobane's." where entry = 851;
+
+        -- Fix quest Echeyakee - he's not summoned by any horn, nor does the horn item even exist
+        update quest_template set Details = "Whitemist, Echeyakee in the Tauren tongue, is the king of the savannah cats.  He hunts with such stealth, they say he's like a thin, white mist on the earth.  And he kills so fast his prey have no time for fear, or pain.$B$BThe Tauren say he is both mercy and death.$B$BYou will learn this, for I set you on the path to hunt Echeyakee. He stalks with his lion brethren, northeast of The Crossroads...$B$BGo. He is waiting." where entry = 881;
+
+        -- Spawn Echeyakee at retail position of his lair - it's northeast of the Crossroads and with his "lion brethren"
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) values (3475, 1, 458.11, -3035.91, 91.6839, 0, 300, 300, 1);
+
         insert into`applied_updates`values ('310320232');
     end if;
 
