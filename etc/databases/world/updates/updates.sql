@@ -240,10 +240,16 @@ begin not atomic
         update spawns_gameobjects set spawn_positionZ = 83.5 where spawn_id in(33219, 32445, 32446);
 
         -- Despawn objects affected by vanilla terrain change in Forgotten Pools/Barrens
-        update spawns_gameobjects set ignored = 1 where spawn_id in(1814, 13202, 15688, 2725);
+        update spawns_gameobjects set ignored = 1 where spawn_id in(1814, 13202, 15688, 2725, 2611);
 
         -- Set placeholder for Barak Kodobane, Verog and Hezrul
         update creature_template set display_id1 = 1257 where entry in(3394, 3395, 3396);
+
+        -- Despawn object from Camp Taujaro (shane cube with no use)
+        update spawns_gameobjects set ignored = 1 where spawn_id = 14708;
+
+        -- Have Harb Clawhoof spawn his pet cat
+        update creature_template set spell_id1 = 7906 where entry = 3685;
 
         insert into`applied_updates`values ('300320231');
     end if;
