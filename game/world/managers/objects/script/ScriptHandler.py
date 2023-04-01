@@ -423,6 +423,9 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_command_despawn_gameobject(command):
+        # source = GameObject(from datalong, provided source or target)
+        # datalong = db_guid
+        # datalong2 = despawn_delay
         go_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
@@ -1097,6 +1100,11 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
+        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        if not map_:
+            Logger.warning(f'ScriptHandler: handle_script_command_start_map_event invalid map '
+                           f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
+            return
 
         command.source.map_event_manager.add_event(command.source, None, command.source, command.datalong,
                                                    command.datalong2, command.dataint3, command.dataint4,
@@ -1107,7 +1115,13 @@ class ScriptHandler:
         # source = Map
         # datalong = event_id
         # datalong2 = (bool) success
-        command.source.map_event_manager.end_event(command.source, command.datalong, command.datalong2)
+        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        if not map_:
+            Logger.warning(f'ScriptHandler: handle_script_command_end_map_event invalid map '
+                           f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
+            return
+
+        map_.map_event_manager.end_event(command.source, command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_add_map_event_target(command):
@@ -1118,8 +1132,14 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        command.source.map_event_manager.add_event_target(command.target, command.datalong, command.dataint,
-                                                          command.dataint2, command.dataint3, command.dataint4)
+        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        if not map_:
+            Logger.warning(f'ScriptHandler: handle_script_command_add_map_event_target invalid map '
+                           f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
+            return
+
+        map_.map_event_manager.add_event_target(command.target, command.datalong, command.dataint,
+                                                command.dataint2, command.dataint3, command.dataint4)
 
     @staticmethod
     def handle_script_command_remove_map_event_target(command):
@@ -1128,8 +1148,14 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = condition_id
         # datalong3 = eRemoveMapEventTargetOptions
-        command.source.map_event_manager.remove_event_target(command.target, command.datalong, command.datalong2,
-                                                             command.datalong3)
+        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        if not map_:
+            Logger.warning(f'ScriptHandler: handle_script_command_remove_map_event_target invalid map '
+                           f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
+            return
+
+        map_.map_event_manager.remove_event_target(command.target, command.datalong, command.datalong2,
+                                                   command.datalong3)
 
     @staticmethod
     def handle_script_command_set_map_event_data(command):
@@ -1138,8 +1164,14 @@ class ScriptHandler:
         # datalong2 = index
         # datalong3 = data
         # datalong4 = eSetMapScriptDataOptions
-        command.source.map_event_manager.set_event_data(command.datalong, command.datalong2, command.datalong3,
-                                                        command.datalong4)
+        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        if not map_:
+            Logger.warning(f'ScriptHandler: handle_script_command_set_map_event_data invalid map '
+                           f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
+            return
+
+        map_.map_event_manager.set_event_data(command.datalong, command.datalong2, command.datalong3,
+                                              command.datalong4)
 
     @staticmethod
     def handle_script_command_send_map_event(command):
@@ -1147,7 +1179,13 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = data
         # datalong3 = eSendMapEventOptions
-        command.source.map_event_manager.send_event_data(command.datalong, command.datalong2, command.datalong3)
+        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        if not map_:
+            Logger.warning(f'ScriptHandler: handle_script_command_send_map_event invalid map ({command.source.map_id}) '
+                           f'and/or instance ({command.source.instance_id}).')
+            return
+
+        map_.map_event_manager.send_event_data(command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
     def handle_script_command_set_default_movement(command):
@@ -1174,8 +1212,14 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        command.source.map_event_manager.edit_map_event_data(command.datalong, command.dataint, command.dataint2,
-                                                             command.dataint3, command.dataint4)
+        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        if not map_:
+            Logger.warning(f'ScriptHandler: handle_script_command_edit_map_event invalid map ({command.source.map_id}) '
+                           f'and/or instance ({command.source.instance_id}).')
+            return
+
+        map_.map_event_manager.edit_map_event_data(command.datalong, command.dataint, command.dataint2,
+                                                   command.dataint3, command.dataint4)
 
     @staticmethod
     def handle_script_command_fail_quest(command):
