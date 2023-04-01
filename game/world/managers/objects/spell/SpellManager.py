@@ -631,6 +631,11 @@ class SpellManager:
             removed = removed or self.remove_cast(casting_spell, result, interrupted)
         return removed
 
+    def handle_death(self):
+        self.remove_casts()
+        # Always flush channel fields.
+        self.caster.flush_channel_fields()
+
     def remove_casts(self, remove_active=True):
         for casting_spell in list(self.casting_spells):
             result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
@@ -1304,7 +1309,7 @@ class SpellManager:
         # Lock/chest checks.
         open_lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
                                                             SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM)
-        if open_lock_effect:
+        if open_lock_effect and not casting_spell.initial_target_is_unit_or_player():
             # Already unlocked.
             if not validation_target.lock:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)

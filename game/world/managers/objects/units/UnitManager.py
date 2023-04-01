@@ -1567,10 +1567,6 @@ class UnitManager(ObjectManager):
             return False
         self.is_alive = False
 
-        # Reset movement and unit state flags.
-        self.movement_flags = MoveFlags.MOVEFLAG_NONE
-        self.unit_state = UnitStates.NONE
-
         if self.object_ai:
             self.object_ai.just_died(killer)
 
@@ -1610,13 +1606,17 @@ class UnitManager(ObjectManager):
         if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             killer.aura_manager.check_aura_procs(killed_unit=True)
 
-        self.spell_manager.remove_casts()
+        self.spell_manager.handle_death()
         self.aura_manager.handle_death()
+
+        # Reset movement and unit state flags.
+        self.movement_flags = MoveFlags.MOVEFLAG_NONE
+        self.unit_state = UnitStates.NONE
 
         return True
 
     # override
-    def despawn(self):
+    def despawn(self, ttl=0):
         # Make sure to remove casts from units that are destroyed but not necessarily killed. e.g. Totems.
         if self.spell_manager:
             self.spell_manager.remove_casts()

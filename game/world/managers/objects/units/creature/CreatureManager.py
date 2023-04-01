@@ -23,7 +23,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
-    PowerTypes, CreatureFlagsExtra, CreatureReactStates
+    PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -455,7 +455,7 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        failed, in_place, waypoints = MapManager.calculate_path(self.map_id, self.location, self.spawn_position)
+        failed, in_place, waypoints = MapManager.calculate_path(self.map_id, self.location, self.spawn_position.copy())
 
         # We are at spawn position already.
         if in_place:
@@ -572,6 +572,12 @@ class CreatureManager(UnitManager):
         had_target = self.combat_target and self.combat_target.is_alive
         super().attack(victim)
         if not had_target:
+            # Stand if necessary.
+            if self.stand_state != StandState.UNIT_STANDING:
+                self.set_stand_state(StandState.UNIT_STANDING)
+            # Remove emote.
+            if self.emote_state:
+                self.set_emote_state(0)
             self.object_ai.attack_start(victim)
 
     # override
