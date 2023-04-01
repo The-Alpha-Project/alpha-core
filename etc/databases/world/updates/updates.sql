@@ -261,7 +261,7 @@ begin not atomic
         update creature_template set faction = 121 where faction in(474, 637);
 
         -- Despawn objects from Barrens affected by vanilla terrain changes
-        update spawns_gameobjects set ignored = 1 where spawn_id in(13241, 13505, 13320, 12935);
+        update spawns_gameobjects set ignored = 1 where spawn_id in(13241, 13505, 13320, 12935, 2183, 13202, 1814, 2066, 15688, 2725, 1901, 2160);
 
         -- Fix quest Verog the Dervish - he's not near any command tents since there is no command tent yet.
         update quest_template set Details = "The centaur Verog the Dervish wanders the Barrens, and will be difficult to find. But he is based at the camps near the Stagnant Oasis to the southeast. It may be possible to draw him to you.$B$BTravel to the centaur camps near the Stagnant Oasis and attack the centaurs there. It will be dangerous, but if you can kill enough centaurs at those camps then they should raise an alarm. And Verog will come.$B$BBring me his head and I will place it with Barak Kodobane's." where entry = 851;
@@ -284,6 +284,9 @@ begin not atomic
         update spawns_creatures set ignored = 1 where spawn_id in(19402, 19361, 19326, 19438, 19412);
         -- Despawn shane cubed benches from the same camp
         update spawns_gameobjects set ignored = 1 where spawn_id in(13407, 13403);
+
+        -- Fix quest text of Deepmoss Spider Eggs
+        update quest_template set Details = "Spider egg omelettes are a new fad in Booty Bay! The problem is... Booty Bay's got no supply of eggs.$B$BI smell an opportunity!$B$BIn Windshear Crag -- in the Stonetalon Mountains to the northwest -- lives the deepmoss spider. Bring me its eggs and I'll pay a bundle!$B$BThe spiders like to creep under the shade of trees... Too bad the Venture Company cut down most of their trees!$B$BBut go to Windshear Crag anyway and look for deepmoss spiders. Their eggs will be clustered under what trees remain." where entry = 1069;
 
         insert into`applied_updates`values ('310320232');
     end if;
