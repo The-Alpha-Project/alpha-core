@@ -288,6 +288,9 @@ begin not atomic
         -- Fix quest text of Deepmoss Spider Eggs
         update quest_template set Details = "Spider egg omelettes are a new fad in Booty Bay! The problem is... Booty Bay's got no supply of eggs.$B$BI smell an opportunity!$B$BIn Windshear Crag -- in the Stonetalon Mountains to the northwest -- lives the deepmoss spider. Bring me its eggs and I'll pay a bundle!$B$BThe spiders like to creep under the shade of trees... Too bad the Venture Company cut down most of their trees!$B$BBut go to Windshear Crag anyway and look for deepmoss spiders. Their eggs will be clustered under what trees remain." where entry = 1069;
 
+        -- Fix Z of two NPCs in Sepulcher
+        update spawns_creatures set position_z = 104.877 where spawn_id in(17622, 17625);
+
         insert into`applied_updates`values ('310320232');
     end if;
 
