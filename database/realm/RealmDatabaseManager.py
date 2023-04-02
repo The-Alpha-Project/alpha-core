@@ -653,7 +653,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def ticket_get_by_id(ticket_id):
         realm_db_session = SessionHolder()
-        ticket = realm_db_session.query(Ticket).filter_by(id=ticket_id).first()
+        ticket = realm_db_session.query(Ticket).filter_by(id=ticket_id, realm_id=config.Server.Connection.Realm.local_realm_id).first()
         realm_db_session.close()
         return ticket
 
