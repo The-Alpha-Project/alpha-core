@@ -1,8 +1,8 @@
 delimiter $
 begin not atomic
 
-    -- 27/03/2023 1
-    if(select count(*) from applied_updates where id = '270320231') = 0 then
+    -- 27/03/2023 2
+    if(select count(*) from applied_updates where id = '270320232') = 0 then
         -- Set subname for Brock Stoneseeker
         update creature_template set subname = "Cartography Trainer" where entry = 1681;
         -- Set subname for Karm Ironquill
@@ -31,7 +31,7 @@ begin not atomic
         -- set proper faction and have him spawn his spider pet
         update creature_template set faction = 57, spell_id1 = 7912 where entry = 2872;
 
-        insert into applied_updates values ('270320231');
+        insert into applied_updates values ('270320232');
     end if;
 
     -- 29/03/2023 1
