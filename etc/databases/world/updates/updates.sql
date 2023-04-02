@@ -320,6 +320,9 @@ begin not atomic
         -- Slightly move a Lost Barrens Kodo spawn as it spawns inside a house
         update spawns_creatures set position_x = 753.196, position_y = -2777.454, position_z = 92.003 where spawn_id = 15119;
 
+        -- Despawn unused object Tool Bucket from Barrens
+        update spawns_gameobjects set ignored = 1 where spawn_entry = 161752;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
