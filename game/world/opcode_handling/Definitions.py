@@ -119,7 +119,7 @@ from game.world.opcode_handling.handlers.player.cheats.SpeedCheatHandler import 
 from game.world.opcode_handling.handlers.player.cheats.CheatSetMoneyHandler import CheatSetMoneyHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelCheatHandler import LevelCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.LevelUpCheatHandler import LevelUpCheatHandler
-from game.world.opcode_handling.handlers.player.cheats.LevelPetCheatHandler import LevelPetCheatHandler
+from game.world.opcode_handling.handlers.player.cheats.PetLevelCheatHandler import PetLevelCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.LearnSpellCheatHandler import LearnSpellCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.CooldownCheatHandler import CooldownCheatHandler
 from game.world.opcode_handling.handlers.player.cheats.TriggerCinematicCheatHandler import TriggerCinematicCheatHandler
@@ -325,7 +325,7 @@ HANDLER_DEFINITIONS = {
     OpCode.CMSG_CHEAT_SETMONEY: CheatSetMoneyHandler.handle,
     OpCode.CMSG_LEVEL_CHEAT: LevelCheatHandler.handle,
     OpCode.CMSG_LEVELUP_CHEAT: LevelUpCheatHandler.handle,
-    OpCode.CMSG_PET_LEVEL_CHEAT: LevelPetCheatHandler.handle,
+    OpCode.CMSG_PET_LEVEL_CHEAT: PetLevelCheatHandler.handle,
     OpCode.CMSG_TAXIENABLEALLNODES: TaxiEnableAllNodesHandler.handle,
     OpCode.CMSG_TAXICLEARALLNODES: TaxiClearAllNodesHandler.handle,
     OpCode.CMSG_LEARN_SPELL: LearnSpellCheatHandler.handle,

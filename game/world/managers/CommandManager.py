@@ -712,7 +712,11 @@ class CommandManager(object):
             if not active_pet:
                 return -1, 'you must have an active pet to use this command.'
 
-            active_pet.set_level(input_level, True)
+            # Same boundaries as client-side petlevel command.
+            if input_level < 1 or input_level > 100:
+                raise ValueError
+
+            active_pet.set_level(input_level, replenish=True)
 
             return 0, ''
         except ValueError:
@@ -950,11 +954,11 @@ GM_COMMAND_DEFINITIONS = {
     'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     'cinfo': [CommandManager.creature_info, 'get targeted creature info'],
     'unitflags': [CommandManager.unit_flags, 'get targeted unit flags status'],
-    'weaponmode': [CommandManager.weaponmode, 'set targeted creatures weapon mode'],
+    'weaponmode': [CommandManager.weaponmode, 'set targeted creature weapon mode'],
     'pinfo': [CommandManager.player_info, 'get targeted player info'],
     'goinfo': [CommandManager.gobject_info, 'get gameobject information near you'],
     'level': [CommandManager.level, 'set your or others level'],
-    'petlevel': [CommandManager.petlevel, 'set your active pets level'],
+    'petlevel': [CommandManager.petlevel, 'set your active pet level'],
     'money': [CommandManager.money, 'give yourself money'],
     'die': [CommandManager.die, 'kills target or yourself if no target is selected'],
     'los': [CommandManager.los, 'check unit line of sight'],
