@@ -297,6 +297,16 @@ begin not atomic
         -- Restore quest Goblin Invaders
         update quest_template set Objectives = "Kill 12 Venture Co. Cutters, 10 Venture Co. Grinders and 6 Venture Co. Loggers, then return to Seereth Stonebreak on the border of Stonetalon and the Barrens.", ReqCreatureOrGOId3 = 3989, ReqCreatureOrGOCount3 = 6 where entry = 1062;
 
+        -- Despawn a floating book in Ratchet, table is missing
+        update spawns_gameobjects set ignored = 1 where spawn_id = 13452;
+
+        -- Remove invalid display_id from Southsea Cannoneer
+        update creature_template set display_id2 = 3828, display_id3 = 0 where entry = 3382;
+        -- Same for Southsea Brigand
+        update creature_template set display_id4 = 0 where entry = 3381;
+        -- And for Southsea Cutthroat
+        update creature_template set display_id2 = 3836, display_id3 = 0, display_id4 = 0 where entry = 3383;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
