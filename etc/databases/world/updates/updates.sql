@@ -317,6 +317,9 @@ begin not atomic
         update spawns_creatures set ignored = 0, position_x = -2088.116, position_y = -3683.056, position_z = 50.397, orientation = 4.450 where spawn_id = 12165;
         update spawns_creatures set ignored = 0, position_x = -2097.684 , position_y = -3675.315, position_z = 50.254, orientation = 4.450 where spawn_id = 12166;
 
+        -- Slightly move a Lost Barrens Kodo spawn as it spawns inside a house
+        update spawns_creatures set position_x = 753.196, position_y = -2777.454, position_z = 92.003 where spawn_id = 15119;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
