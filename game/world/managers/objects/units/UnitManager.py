@@ -1606,7 +1606,7 @@ class UnitManager(ObjectManager):
         if killer and killer.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             killer.aura_manager.check_aura_procs(killed_unit=True)
 
-        self.spell_manager.handle_death()
+        self.spell_manager.remove_casts()
         self.aura_manager.handle_death()
 
         # Reset movement and unit state flags.

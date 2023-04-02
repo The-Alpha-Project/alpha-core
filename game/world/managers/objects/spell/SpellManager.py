@@ -631,11 +631,6 @@ class SpellManager:
             removed = removed or self.remove_cast(casting_spell, result, interrupted)
         return removed
 
-    def handle_death(self):
-        self.remove_casts()
-        # Always flush channel fields.
-        self.caster.flush_channel_fields()
-
     def remove_casts(self, remove_active=True):
         for casting_spell in list(self.casting_spells):
             result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
@@ -821,9 +816,6 @@ class SpellManager:
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
-            return
-
-        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         if self.caster.channel_object:
