@@ -180,9 +180,9 @@ begin not atomic
 
     -- 31/03/2023 1
     if (select count(*) from `applied_updates` where id='3103202301') = 0 then
-        ALTER TABLE characters ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '0' AFTER account;
-        ALTER TABLE petition ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '0' AFTER petition_id;
-        ALTER TABLE guild ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '0' AFTER guild_id;
+        ALTER TABLE characters ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '1' AFTER account;
+        ALTER TABLE petition ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '1' AFTER petition_id;
+        ALTER TABLE guild ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '1' AFTER guild_id;
 
         insert into`applied_updates`values ('3103202301');
     end if;
