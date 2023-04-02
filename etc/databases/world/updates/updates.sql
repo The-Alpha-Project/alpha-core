@@ -291,6 +291,9 @@ begin not atomic
         -- Fix Z of two NPCs in Sepulcher
         update spawns_creatures set position_z = 104.877 where spawn_id in(17622, 17625);
 
+        -- Fix Z for Barrel of Milk in Stonetalon Mountains
+        update spawns_gameobjects set spawn_positionZ = 22.9 where spawn_id = 47559;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
