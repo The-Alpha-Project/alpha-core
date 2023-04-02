@@ -310,6 +310,13 @@ begin not atomic
         -- Set proper faction for Theramore units in The Barrens - they need to be hostile to Horde
         update creature_template set faction = 150 where entry in(3454, 3455, 3393, 3385, 3386);
 
+        -- Despawn a bunch of objects from not-yet-existant Northwatch Hold
+        update spawns_gameobjects set ignored = 1 where spawn_id in(13360, 12705, 13365, 13354);
+
+        -- Spawn Cannoneers Smythe & Wesson
+        update spawns_creatures set ignored = 0, position_x = -2088.116, position_y = -3683.056, position_z = 50.397, orientation = 4.450 where spawn_id = 12165;
+        update spawns_creatures set ignored = 0, position_x = -2097.684 , position_y = -3675.315, position_z = 50.254, orientation = 4.450 where spawn_id = 12166;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
