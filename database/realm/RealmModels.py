@@ -76,6 +76,7 @@ class Ticket(Base):
     is_bug = Column(INTEGER(1), nullable=False, server_default=text("0"))
     account_name = Column(String(250), nullable=False, server_default=text("''"))
     account_id = Column(ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"))
+    realm_id = Column(TINYINT(3), nullable=False, server_default=text("1"))
     character_name = Column(String(12), nullable=False, server_default=text("''"))
     text_body = Column(Text, nullable=False)
     submit_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
