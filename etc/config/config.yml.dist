@@ -18,7 +18,9 @@ Server:
             local_realm_id: 1  # id of the realm running on this machine (realmlist table)
 
         WorldServer:
-            host: 0.0.0.0  # Set this to external IP if needed
+            # You can use the FORWARD_ADDRESS_OVERRIDE environment variable to define a different forward IP address
+            # (the one that will be served to external players) than the bind one.
+            host: 0.0.0.0
             port: 8100
 
     Settings:
