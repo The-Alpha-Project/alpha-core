@@ -378,10 +378,6 @@ class CreatureManager(UnitManager):
 
     def on_at_home(self):
         self.apply_default_auras()
-        # Restore original location including orientation.
-        self.location = self.spawn_position.copy()
-        # Restore original spawn face position.
-        self.movement_manager.face_target(self)
         # Scan surrounding for enemies.
         self._on_relocation()
 
@@ -455,7 +451,7 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        failed, in_place, waypoints = MapManager.calculate_path(self.map_id, self.location, self.spawn_position)
+        failed, in_place, waypoints = MapManager.calculate_path(self.map_id, self.location, self.spawn_position.copy())
 
         # We are at spawn position already.
         if in_place:

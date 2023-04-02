@@ -76,7 +76,10 @@ class Spline(object):
         if new_position:
             if config.Server.Settings.debug_movement:
                 self._debug_position(new_position)
-            new_position.face_point(current_waypoint.location)
+            if not is_complete:
+                new_position.face_point(current_waypoint.location)
+            else:
+                new_position.o = current_waypoint.location.o
 
         # Position changed, vector, waypoint completed (Not guessed).
         return new_position is not None, new_position, is_complete
