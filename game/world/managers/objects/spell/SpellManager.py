@@ -594,8 +594,6 @@ class SpellManager:
         except ValueError:
             return False
 
-        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
-
         if casting_spell.dynamic_object:
             casting_spell.dynamic_object.despawn()
         [effect.area_aura_holder.destroy() for effect in casting_spell.get_effects() if effect.area_aura_holder]
@@ -611,6 +609,8 @@ class SpellManager:
 
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)
+
+        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
 
         # Always make sure to set interrupted result if necessary.
         # Client interrupts animations/sounds for a given world object to observers upon unsuccessful casts.
