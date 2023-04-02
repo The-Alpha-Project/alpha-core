@@ -6,6 +6,7 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.guild.GuildPendingInvite import GuildPendingInvite
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.ConfigManager import config
 from utils.TextUtils import TextChecker
 from utils.constants.MiscCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, \
     GuildChatMessageTypes, GuildEmblemResult
@@ -398,6 +399,7 @@ class GuildManager(object):
     @staticmethod
     def _create_guild(motd, name, bg_color, b_color, b_style, e_color, e_style, leader_guid):
         guild = Guild()
+        guild.realm_id = config.Server.Connection.Realm.local_realm_id
         guild.motd = motd
         guild.name = name
         guild.background_color = bg_color

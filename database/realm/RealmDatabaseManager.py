@@ -96,7 +96,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def account_get_characters(account_id):
         realm_db_session = SessionHolder()
-        characters = realm_db_session.query(Character).filter_by(account_id=account_id).all()
+        characters = realm_db_session.query(Character).filter_by(account_id=account_id, realm_id=config.Server.Connection.Realm.local_realm_id).all()
         realm_db_session.close()
         return characters if characters else []
 
@@ -111,9 +111,9 @@ class RealmDatabaseManager(object):
         realm_db_session.close()
 
     @staticmethod
-    def character_get_online_count():
+    def character_get_online_count(realm_id):
         realm_db_session = SessionHolder()
-        online_count = realm_db_session.query(Character).filter_by(online=1).count()
+        online_count = realm_db_session.query(Character).filter_by(online=1, realm_id=realm_id).count()
         realm_db_session.close()
         return online_count
 
@@ -127,14 +127,14 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_get_by_name(name):
         realm_db_session = SessionHolder()
-        character = realm_db_session.query(Character).filter_by(name=name).first()
+        character = realm_db_session.query(Character).filter_by(name=name, realm_id=config.Server.Connection.Realm.local_realm_id).first()
         realm_db_session.close()
         return character
 
     @staticmethod
     def character_does_name_exist(name_to_check):
         realm_db_session = SessionHolder()
-        name = realm_db_session.query(Character.name).filter_by(name=name_to_check).first()
+        name = realm_db_session.query(Character.name).filter_by(name=name_to_check, realm_id=config.Server.Connection.Realm.local_realm_id).first()
         realm_db_session.close()
         return name is not None
 
@@ -798,7 +798,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def guild_get_all():
         realm_db_session = SessionHolder()
-        guilds = realm_db_session.query(Guild).all()
+        guilds = realm_db_session.query(Guild).filter_by(realm_id=config.Server.Connection.Realm.local_realm_id).all()
         realm_db_session.close()
         return guilds
 
@@ -863,7 +863,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def guild_petition_get_by_name(guild_name):
         realm_db_session = SessionHolder()
-        petition = realm_db_session.query(Petition).filter_by(name=guild_name).first()
+        petition = realm_db_session.query(Petition).filter_by(name=guild_name, realm_id=config.Server.Connection.Realm.local_realm_id).first()
         realm_db_session.close()
         return petition
 
