@@ -307,6 +307,9 @@ begin not atomic
         -- And for Southsea Cutthroat
         update creature_template set display_id2 = 3836, display_id3 = 0, display_id4 = 0 where entry = 3383;
 
+        -- Set proper faction for Theramore units in The Barrens - they need to be hostile to Horde
+        update creature_template set faction = 150 where entry in(3454, 3455, 3393, 3385, 3386);
+
         insert into`applied_updates`values ('310320232');
     end if;
 
