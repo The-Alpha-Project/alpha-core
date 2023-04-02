@@ -79,7 +79,7 @@ class Spline(object):
             if not is_complete:
                 new_position.face_point(current_waypoint.location)
             else:
-                new_position.o = current_waypoint.location.o
+                new_position.face_angle(current_waypoint.location.o)
 
         # Position changed, vector, waypoint completed (Not guessed).
         return new_position is not None, new_position, is_complete
