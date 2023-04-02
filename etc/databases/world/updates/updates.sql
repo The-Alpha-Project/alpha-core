@@ -294,6 +294,9 @@ begin not atomic
         -- Fix Z for Barrel of Milk in Stonetalon Mountains
         update spawns_gameobjects set spawn_positionZ = 22.9 where spawn_id = 47559;
 
+        -- Restore quest Goblin Invaders
+        update quest_template set Objectives = "Kill 12 Venture Co. Cutters, 10 Venture Co. Grinders and 6 Venture Co. Loggers, then return to Seereth Stonebreak on the border of Stonetalon and the Barrens.", ReqCreatureOrGOId3 = 3989, ReqCreatureOrGOCount3 = 6 where entry = 1062;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
