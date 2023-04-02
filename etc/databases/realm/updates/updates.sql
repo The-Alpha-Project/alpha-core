@@ -183,6 +183,7 @@ begin not atomic
         ALTER TABLE characters ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '1' AFTER account;
         ALTER TABLE petition ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '1' AFTER petition_id;
         ALTER TABLE guild ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '1' AFTER guild_id;
+        ALTER TABLE tickets ADD COLUMN realm_id TINYINT(3) NOT NULL DEFAULT '1' AFTER account_id;
 
         insert into`applied_updates`values ('3103202301');
     end if;
