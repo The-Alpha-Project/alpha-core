@@ -338,6 +338,9 @@ begin not atomic
         -- Set placeholders for Azsharite Formation
         update gameobject_template set displayId = 219 where entry in(152620, 152621, 152631);
 
+        -- Fix faction for Wizzlecrank's Shredder
+        update creature_template set faction = 121 where entry = 3439;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
