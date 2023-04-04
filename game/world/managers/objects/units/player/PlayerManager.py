@@ -1096,7 +1096,9 @@ class PlayerManager(UnitManager):
 
     def mod_level(self, level):
         if level != self.level:
-            max_level = 255 if self.session.account_mgr.is_gm() else config.Unit.Player.Defaults.max_level
+            # Even if level 255 is the maximum supported, client doesn't expect a level higher than 100
+            # (player won't even appear in the /who list).
+            max_level = 100 if self.session.account_mgr.is_gm() else config.Unit.Player.Defaults.max_level
             if 0 < level <= max_level:
                 # Check if the new level is higher than the current one or not.
                 is_leveling_up = level > self.level
