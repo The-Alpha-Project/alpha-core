@@ -388,6 +388,11 @@ begin not atomic
         update spawns_creatures set spawn_entry1 = 725 where spawn_id in(4941, 5160, 5040, 4944);
         update spawns_creatures set spawn_entry1 = 725 where spawn_id in(5178, 4993, 4974, 5942);
 
+        -- Set Lord Daval display_id
+        update creature_template set display_id1 = 2039 where entry = 1749;
+        -- Revert Scarlet Mage display_id to placeholder
+        update creature_template set display_id1 = 1640, display_id2 = 1641 where entry = 1832;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
