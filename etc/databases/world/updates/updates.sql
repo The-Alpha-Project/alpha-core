@@ -554,7 +554,7 @@ begin not atomic
         
         -- Noboru the Cudgel 
         UPDATE `creature_template`
-        SET `display_id1`=152
+        SET `display_id1`=628
         WHERE `entry`=5477;
         
         -- Ongeku
@@ -666,6 +666,11 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=1046
         WHERE `entry`=2453;
+
+        -- Rot Hide Gnoll (atm scale is way too big)
+        UPDATE `creature_template`
+        SET `display_id1`=3196
+        WHERE `entry`=1674;
 
         insert into`applied_updates`values ('050420231');
     end if;
