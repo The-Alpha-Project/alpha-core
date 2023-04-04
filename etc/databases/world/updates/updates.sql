@@ -301,5 +301,15 @@ begin not atomic
 
         insert into`applied_updates`values ('310320231');
     end if;
+        
+    -- 01/04/2023 1
+    if (select count(*) from `applied_updates` where id='010420231') = 0 then
+        UPDATE `quest_template` SET `NextQuestId` = '1091', `ExclusiveGroup` = '-1079' WHERE (`entry` = '1079');
+        UPDATE `quest_template` SET `PrevQuestId` = '0', `NextQuestId` = '1091', `ExclusiveGroup` = '-1079' WHERE (`entry` = '1080');
+        UPDATE `gameobject_template` SET `data0` = '0' WHERE (`entry` = '24776');
+        UPDATE `item_template` SET `spellid_1` = '0' WHERE (`entry` = '6145');
+        
+        insert into`applied_updates`values ('010420231');
+    end if;
 end $
 delimiter ;

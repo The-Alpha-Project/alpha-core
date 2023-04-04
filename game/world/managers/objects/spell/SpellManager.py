@@ -818,9 +818,6 @@ class SpellManager:
         if not casting_spell.is_channeled():
             return
 
-        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
-
         if self.caster.channel_object:
             if casting_spell.is_fishing_spell():
                 self._handle_fishing_node_end()
@@ -1304,7 +1301,7 @@ class SpellManager:
         # Lock/chest checks.
         open_lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
                                                             SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM)
-        if open_lock_effect:
+        if open_lock_effect and not casting_spell.initial_target_is_unit_or_player():
             # Already unlocked.
             if not validation_target.lock:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)

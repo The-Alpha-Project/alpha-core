@@ -123,16 +123,9 @@ class ThreatManager:
             # Set pet owner in combat as well.
             self.add_threat(charmer_or_summoner)
 
-    def resolve_target(self):
-        if not self.can_resolve_target():
-            return None
-        if len(self.holders) > 0:
-            return self.get_hostile_target()
-        return None
-
     def get_hostile_target(self) -> Optional[UnitManager]:
         max_threat_holder = self._get_max_threat_holder()
-        if not max_threat_holder:
+        if not max_threat_holder or not self.can_resolve_target():
             return None
 
         # Threat target switching.
