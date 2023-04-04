@@ -463,6 +463,11 @@ begin not atomic
         update creature_template set display_id1 = 1611, display_id2 = 1612 where entry = 4493;
         update creature_template set display_id1 = 1640, display_id2 = 1641 where entry = 4494;
 
+        -- Fix Maris Granger
+        update creature_template set subname = "Mail Armor Merchant", npc_flags = 1 where entry = 1292;
+        -- Copy from another Mail Armor Merchant's vendor table
+        INSERT INTO npc_vendor (entry, item) SELECT 1292, item FROM npc_vendor WHERE entry = 1349
+
         insert into`applied_updates`values ('040420231');
     end if;
 end $
