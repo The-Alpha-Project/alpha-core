@@ -366,6 +366,9 @@ begin not atomic
         update creature_quest_starter set entry = 3433 where quest = 889;
         update creature_quest_finisher set entry = 3433 where quest = 889;
 
+        -- Restore original quest details of Weapons of Choice
+        update quest_template set Details = "The warchief has instructed me to study all kinds of weapons and armor. He thinks there's something to be learned from even the most pathetic of cultures.$B$BTake the Razormane quillboars to the south, beyond the Field of Giants. As far as I know, they have no skilled blacksmiths, but I'm told they've started to develop sturdier weapons. I'd like to get my hands on a few to learn their techniques.$B$BIf you come across some of their rarer items, bring them to me, and you'll bring honor to the Horde." where entry = 893;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
