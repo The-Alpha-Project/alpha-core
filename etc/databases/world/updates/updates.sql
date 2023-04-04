@@ -468,6 +468,11 @@ begin not atomic
         -- Copy from another Mail Armor Merchant's vendor table
         INSERT INTO npc_vendor (entry, item) SELECT 1292, item FROM npc_vendor WHERE entry = 1349
 
+        -- Change Tannysa to Tailoring Trainer
+        update creature_template set subname = "Tailoring Trainer", trainer_id = 507 where entry = 5566;
+        -- Relocate Eldraith to The Park
+        update spawns_creatures set position_x = -8722.818, position_y = 1172.953, position_z = 98.34, orientation = 3.304 where spawn_entry1 = 5503;
+
         insert into`applied_updates`values ('040420231');
     end if;
 end $
