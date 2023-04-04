@@ -594,8 +594,6 @@ class SpellManager:
         except ValueError:
             return False
 
-        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
-
         if casting_spell.dynamic_object:
             casting_spell.dynamic_object.despawn()
         [effect.area_aura_holder.destroy() for effect in casting_spell.get_effects() if effect.area_aura_holder]
@@ -611,6 +609,8 @@ class SpellManager:
 
         if casting_spell.is_channeled():
             self.handle_channel_end(casting_spell)
+
+        casting_spell.cast_state = SpellState.SPELL_STATE_FINISHED
 
         # Always make sure to set interrupted result if necessary.
         # Client interrupts animations/sounds for a given world object to observers upon unsuccessful casts.
@@ -816,9 +816,6 @@ class SpellManager:
 
     def handle_channel_end(self, casting_spell):
         if not casting_spell.is_channeled():
-            return
-
-        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         if self.caster.channel_object:
@@ -1304,7 +1301,7 @@ class SpellManager:
         # Lock/chest checks.
         open_lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
                                                             SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM)
-        if open_lock_effect:
+        if open_lock_effect and not casting_spell.initial_target_is_unit_or_player():
             # Already unlocked.
             if not validation_target.lock:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_OPEN)

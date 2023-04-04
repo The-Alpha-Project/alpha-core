@@ -391,6 +391,62 @@ begin not atomic
         insert into`applied_updates`values ('310320232');
     end if;
 
+    -- 31/03/2023 1
+    if (select count(*) from `applied_updates` where id='310320231') = 0 then
 
+        -- Set Unique models for Belstaff (it was set to display_id2 instead of 1 on recent change)
+        update creature_template set display_id1 = 3090, display_id2 = 0 where entry = 2489;
+
+        -- Set placeholder for NE male
+        update creature_template set display_id1 = 2572 where entry in (3583, 4182, 4183, 4189, 4192, 4193, 4265, 3672, 3797, 4307, 4050, 4052, 4753, 2077);
+
+        -- Set placeholder for NE female
+        update creature_template set display_id1 = 2575 where entry in (4185, 4186, 4190, 4191, 4266, 4188, 4051, 4184, 4521, 4194);
+        update creature_template set display_id2 = 2575 where entry = 4052;
+
+        -- Set placeholder for Tauren male
+        update creature_template set display_id1 = 2578 where entry in (4451, 3222, 4310, 2987, 2549, 4309, 3689, 3978, 3050);
+
+        -- Set placeholder for Tauren female
+        update creature_template set display_id1 = 2579 where entry in (4046, 3447);
+
+        -- Set placeholder for UD male
+        update creature_template set display_id1 = 1027 where entry in (5414, 2934, 5748, 4488, 5651, 223);
+
+        -- Set placeholder for UD female
+        update creature_template set display_id1 = 1029 where entry in (2802);
+
+        -- Set placeholder for Gnome male
+        update creature_template set display_id1 = 2581 where entry in (3666);
+            -- Since we have evidence showing Ruppo (engineer) using old gnome, we apply old gnomes on engineer related NPCs
+        update creature_template set display_id1 = 352 where entry in (374, 1676, 2687, 3133, 1454, 2683);
+
+        -- Set placeholder for Gnome female
+        update creature_template set display_id1 = 2590 where entry in (1454);
+
+        -- Set placeholder for Troll male
+        update creature_template set display_id1 = 2588 where entry in (2704, 3410, 3406, 3402, 3401);
+
+        -- Set placeholder for Troll female
+        update creature_template set display_id1 = 2589 where entry in (3407, 3404, 3405, 3408);
+
+        -- Set placeholder for Orc male
+        update creature_template set display_id1 = 2576 where entry in (2856, 4485, 2091, 2108, 2858, 986, 4752, 4618, 2857, 4047);
+
+        -- Set placeholder for Orc female
+        update creature_template set display_id1 = 2577 where entry in (3411);
+
+        insert into`applied_updates`values ('310320231');
+    end if;
+
+    -- 01/04/2023 1
+    if (select count(*) from `applied_updates` where id='010420231') = 0 then
+        UPDATE `quest_template` SET `NextQuestId` = '1091', `ExclusiveGroup` = '-1079' WHERE (`entry` = '1079');
+        UPDATE `quest_template` SET `PrevQuestId` = '0', `NextQuestId` = '1091', `ExclusiveGroup` = '-1079' WHERE (`entry` = '1080');
+        UPDATE `gameobject_template` SET `data0` = '0' WHERE (`entry` = '24776');
+        UPDATE `item_template` SET `spellid_1` = '0' WHERE (`entry` = '6145');
+
+        insert into`applied_updates`values ('010420231');
+    end if;
 end $
 delimiter ;

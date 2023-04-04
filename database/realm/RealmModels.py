@@ -29,6 +29,7 @@ class Character(Base):
 
     guid = Column(INTEGER(11), primary_key=True, autoincrement=True)
     account_id = Column('account', ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"), comment='Account Identifier')
+    realm_id = Column(TINYINT(3), nullable=False, server_default=text("1"))
     name = Column(String(12), nullable=False, index=True, server_default=text("''"))
     race = Column(TINYINT(3), nullable=False, server_default=text("0"))
     class_ = Column('class', TINYINT(3), nullable=False, server_default=text("0"))
@@ -75,6 +76,7 @@ class Ticket(Base):
     is_bug = Column(INTEGER(1), nullable=False, server_default=text("0"))
     account_name = Column(String(250), nullable=False, server_default=text("''"))
     account_id = Column(ForeignKey('accounts.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("0"))
+    realm_id = Column(TINYINT(3), nullable=False, server_default=text("1"))
     character_name = Column(String(12), nullable=False, server_default=text("''"))
     text_body = Column(Text, nullable=False)
     submit_time = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"))
@@ -266,6 +268,7 @@ class Guild(Base):
     __tablename__ = 'guild'
 
     guild_id = Column(INTEGER(11), autoincrement=True, primary_key=True, server_default=text("0"))
+    realm_id = Column(TINYINT(3), nullable=False, server_default=text("1"))
     name = Column(String(255), nullable=False, server_default=text("''"))
     motd = Column(String(255), nullable=False, server_default=text("''"))
     creation_date = Column(TIMESTAMP, nullable=False, server_default=text("current_timestamp()"))
@@ -294,6 +297,7 @@ class Petition(Base):
     )
 
     petition_id = Column(INTEGER, primary_key=True, autoincrement=True)
+    realm_id = Column(TINYINT(3), nullable=False, server_default=text("1"))
     owner_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, server_default=text("'0'"))
     item_guid = Column(ForeignKey('character_inventory.guid', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
     name = Column(String(255), nullable=False, server_default=text("''"))

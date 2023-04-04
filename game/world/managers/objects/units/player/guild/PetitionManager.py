@@ -4,6 +4,7 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import Petition
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import PacketWriter, OpCode
+from utils.ConfigManager import config
 from utils.constants.ItemCodes import PetitionError
 from utils.constants.MiscCodes import HighGuid
 
@@ -16,6 +17,7 @@ class PetitionManager(object):
     @staticmethod
     def create_petition(owner_guid, guild_name, item_guid):
         petition = Petition()
+        petition.realm_id = config.Server.Connection.Realm.local_realm_id
         petition.item_guid = item_guid & ~HighGuid.HIGHGUID_ITEM
         petition.owner_guid = owner_guid
         petition.name = guild_name

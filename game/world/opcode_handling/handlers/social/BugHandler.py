@@ -19,6 +19,7 @@ class BugHandler(object):
                 is_bug=is_bug,
                 account_name=world_session.account_mgr.account.name,
                 account_id=world_session.account_mgr.account.id,
+                realm_id=config.Server.Connection.Realm.local_realm_id,
                 character_name=world_session.player_mgr.get_name(),
                 text_body=body
             ))
