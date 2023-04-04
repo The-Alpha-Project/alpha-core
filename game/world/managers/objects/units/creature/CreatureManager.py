@@ -378,10 +378,7 @@ class CreatureManager(UnitManager):
 
     def on_at_home(self):
         self.apply_default_auras()
-        # Restore original location including orientation.
-        self.location = self.spawn_position.copy()
-        # Restore original spawn face position.
-        self.movement_manager.face_target(self)
+        self.movement_manager.face_angle(self.spawn_position.o)
         # Scan surrounding for enemies.
         self._on_relocation()
 
@@ -452,6 +449,7 @@ class CreatureManager(UnitManager):
         if self.is_pet() or self.is_at_home():
             # Should turn off flag since we are not sending move packets.
             self.is_evading = False
+            self.on_at_home()
             return
 
         # Get the path we are using to get back to spawn location.
