@@ -379,6 +379,11 @@ begin not atomic
         update creature_template set display_id1 = 1213 where entry = 5730;
         update creature_template set display_id1 = 159 where entry = 5728;
 
+        -- Fix Helena Atwood's OOC script (used NYI spell id)
+        update creature_ai_scripts set datalong = 1485 where id = 566901;
+
+
+
         insert into`applied_updates`values ('310320232');
     end if;
 
