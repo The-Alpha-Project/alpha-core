@@ -459,6 +459,10 @@ begin not atomic
         -- Fix alternate display_id for Cenarion NPCs, closes #1120
         update creature_template set display_id2 = 0 where entry in(4041, 3797);
 
+        -- Fix remaining Scarlet NPCs
+        update creature_template set display_id1 = 1611, display_id2 = 1612 where entry = 4493;
+        update creature_template set display_id1 = 1640, display_id2 = 1641 where entry = 4494;
+
         insert into`applied_updates`values ('040420231');
     end if;
 end $
