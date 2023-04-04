@@ -341,6 +341,19 @@ begin not atomic
         -- Fix faction for Wizzlecrank's Shredder
         update creature_template set faction = 121 where entry = 3439;
 
+        -- Fix Ransin Donner to actually be a Crab Trainer
+        update creature_template set faction = 11, trainer_type = 3, trainer_class = 3, trainer_id = 282, spell_id1 = 7907 where entry = 2943;
+        -- Fix Kurll to be a Cat Trainer
+        update creature_template set trainer_type = 3, trainer_class = 3, spell_id1 = 7906, trainer_id = 277 where entry = 3621;
+        -- Fix Rarck to be a Raptor Trainer
+        update creature_template set trainer_type = 3, trainer_class = 3, spell_id1 = 7910, trainer_id = 285, faction = 85 where entry = 3625;
+        -- Fix Harb Clawhoof to be a Cat Trainer
+        update creature_template set trainer_type = 3, trainer_class = 3, trainer_id = 277 where entry = 3685;
+        -- Fix Alanndrian Nightsong to be a Tallstrider Trainer
+        update creature_template set trainer_type = 3, trainer_class = 3, trainer_id = 286, spell_id1 = 7913 where entry = 3702;
+        -- Fix Galthuk to be a Bear Trainer
+        update creature_template set trainer_type = 3, trainer_class = 3, trainer_id = 278, spell_id1 = 7903 where entry = 4043;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
