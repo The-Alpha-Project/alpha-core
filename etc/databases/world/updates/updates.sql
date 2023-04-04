@@ -649,7 +649,7 @@ begin not atomic
         
         -- Rotting Ancestor
         UPDATE `creature_template`
-        SET `display_id1`=1197
+        SET `display_id1`=1197, `display_id2`=1198, `display_id3`=0, `display_id4`=0
         WHERE `entry`=1530;
         
         -- Tormented Spirit
