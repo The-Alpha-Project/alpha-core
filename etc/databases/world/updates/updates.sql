@@ -456,7 +456,7 @@ begin not atomic
 
     -- 05/04/2023 1
     if (select count(*) from `applied_updates` where id='050420231') = 0 then
-    
+
         -- Witch doctor Unbagwa
         UPDATE `creature_template`
         SET `display_id1`=1115
@@ -571,6 +571,11 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=655
         WHERE `entry`=723;
+
+        -- Moshogg Lord
+        UPDATE `creature_template`
+        SET `display_id1`=655
+        WHERE `entry`=680;
         
         -- Mayzoth
         UPDATE `creature_template`
