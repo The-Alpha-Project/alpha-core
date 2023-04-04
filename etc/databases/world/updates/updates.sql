@@ -384,9 +384,9 @@ begin not atomic
 
         -- Restore Skeletal Enforcer based on level 24-25 Skeletal Fiend
         update creature_template set name = "Skeletal Enforcer", faction = 21, static_flags = 0, level_min = 24, level_max = 25, health_min = 664, health_max = 712, armor = 1009, dmg_min = 36, dmg_max = 46, attack_power = 106, loot_id = 531, pickpocket_loot_id = 531, gold_min = 33, gold_max = 48, ai_name = 'EventAI', movement_type = 1, mechanic_immune_mask = 8602131 where entry = 725;
-        -- Spawn Skeletal Enforcer as alternate for Skeletal Fiend and Skeletal Horror on Duskwood Cemetary
-        update spawns_creatures set spawn_entry2 = 725 where spawn_entry1 = 531;
-        update spawns_creatures set spawn_entry2 = 725 where spawn_id in(4974, 5139, 4969, 5163, 4972, 4993, 4927, 5178, 5942, 5959, 4943, 4945, 4946, 5042, 5043);
+        -- Spawn Skeletal Enforcer as replacement for some Skeletal Fiend and Skeletal Horror on Duskwood Cemetary
+        update spawns_creatures set spawn_entry1 = 725 where spawn_id in(4941, 5160, 5040, 4944);
+        update spawns_creatures set spawn_entry1 = 725 where spawn_id in(5178, 4993, 4974, 5942);
 
         insert into`applied_updates`values ('310320232');
     end if;
