@@ -473,6 +473,14 @@ begin not atomic
         -- Relocate Eldraith to The Park
         update spawns_creatures set position_x = -8722.818, position_y = 1172.953, position_z = 98.34, orientation = 3.304 where spawn_entry1 = 5503;
 
+        -- Fixes for Thousand Needles NPCs
+        update creature_template set display_id1 = 2578 where entry = 2986;
+        update creature_template set display_id1 = 2576 where entry in(4483, 4545, 4546, 4547);
+        update creature_template set display_id1 = 1452, display_id2 = 1453 where entry = 5523;
+        update creature_template set display_id1 = 2576 where entry = 4875;
+        update creature_template set display_id1 = 2578 where entry in(4876, 4878);
+        update creature_template set display_id1 = 2579 where entry = 4877;
+
         insert into`applied_updates`values ('040420231');
     end if;
 end $
