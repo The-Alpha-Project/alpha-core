@@ -481,6 +481,10 @@ begin not atomic
         update creature_template set display_id1 = 2578 where entry in(4876, 4878);
         update creature_template set display_id1 = 2579 where entry = 4877;
 
+        -- Fix Valyen Wolfsong and spawn his pet
+        update creature_template set faction = 79 where entry in(4207, 4245);
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) VALUES (4245, 1, 10124.806, 2540.995, 1317.636, 2.174);
+
         insert into`applied_updates`values ('040420231');
     end if;
 end $
