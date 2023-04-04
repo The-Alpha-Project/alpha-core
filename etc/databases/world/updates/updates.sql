@@ -362,7 +362,7 @@ begin not atomic
 
         -- Restore quest Shards of a God (replaces Spirits of the Wind)
         update quest_template set Title = "Shards of a God", SpecialFlags = 0, PrevQuestId = 0, Details = "When the vines came out of the earth, they often forced veins of minerals to surface also.$B$BOne special mineral found near the vines has been named blood ore. The Bristleback tribe think the blood ore is sacred and part of Agammagan's body. They sometimes carry shards of it for good fortune.$B$BI think I may be able to create a new alloy from the ore if I were to get enough of it. Find the Bristleback to the south of here, across the dry riverbed, and bring me back as many blood shards as you can.", Objectives = "Bring 20 Blood Shards to Tatternack Steelforge at the Crossroads.", ReqItemCount1 = 20, RewOrReqMoney = 854, RewSpell = 0, RewSpellCast = 0, OfferRewardText = "", RequestItemsText = "" where entry = 889;
-       -- Move quest Shards of a God to Tatternack Steelforge
+        -- Move quest Shards of a God to Tatternack Steelforge
         update creature_quest_starter set entry = 3433 where quest = 889;
         update creature_quest_finisher set entry = 3433 where quest = 889;
 
