@@ -4,7 +4,7 @@ from utils.constants.ScriptCodes import SetMapScriptDataOptions
 
 class MapEventManager:
     def __init__(self):
-        self.scripted_events = {}
+        self.scripted_events: dict[int, ScriptedEvent] = {}
 
     def update(self, now):
         for scripted_event in self.scripted_events.values():
