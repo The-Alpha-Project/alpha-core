@@ -372,6 +372,13 @@ begin not atomic
         -- Set proper display_id for Watcher Mocarski
         update creature_template set display_id1 = 2395 where entry = 827;
 
+        -- Set trainer list for Teg Dawnstrider <Enchanting Trainer>
+        update creature_template set trainer_id = 508 where entry = 3011;
+
+        -- Fix display_id for Jezelle's Imp and Succubus
+        update creature_template set display_id1 = 1213 where entry = 5730;
+        update creature_template set display_id1 = 159 where entry = 5728;
+
         insert into`applied_updates`values ('310320232');
     end if;
 
