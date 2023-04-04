@@ -453,5 +453,13 @@ begin not atomic
 
         insert into`applied_updates`values ('010420231');
     end if;
+
+    -- 04/04/2023 1
+    if (select count(*) from `applied_updates` where id='040420231') = 0 then
+        -- Fix alternate display_id for Cenarion NPCs, closes #1120
+        update creature_template set display_id2 = 0 where entry in(4041, 3797);
+
+        insert into`applied_updates`values ('040420231');
+    end if;
 end $
 delimiter ;
