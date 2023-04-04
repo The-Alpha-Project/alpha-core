@@ -522,7 +522,7 @@ class ConditionChecker:
         # Condition_value1 = event id.
         map_instance = MapManager.get_map(source.map_id, source.instance_id)
         if map_instance:
-            return map_instance.map_event_manager.is_event(condition.value1)
+            return map_instance.map_event_manager.is_event_active(condition.value1)
 
         return False
 
