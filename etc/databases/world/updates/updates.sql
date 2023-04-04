@@ -559,7 +559,7 @@ begin not atomic
         
         -- Ongeku
         UPDATE `creature_template`
-        SET `display_id1`=152
+        SET `display_id1`=628
         WHERE `entry`=5622;
         
         -- Moshogg spellcrafter
