@@ -461,7 +461,7 @@ begin not atomic
 
         -- Fix remaining Scarlet NPCs
         update creature_template set display_id1 = 1611, display_id2 = 1612 where entry = 4493;
-        update creature_template set display_id1 = 1640, display_id2 = 1641 where entry = 4494;
+        update creature_template set display_id1 = 1640, display_id2 = 1641, display_id3 = 0, display_id4 = 0 where entry = 4494;
 
         -- Fix Maris Granger
         update creature_template set subname = "Mail Armor Merchant", npc_flags = 1 where entry = 1292;
