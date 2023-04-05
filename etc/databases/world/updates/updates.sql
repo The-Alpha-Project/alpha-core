@@ -485,6 +485,9 @@ begin not atomic
         update creature_template set faction = 79 where entry in(4207, 4245);
         insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) VALUES (4245, 1, 10124.806, 2540.995, 1317.636, 2.174);
 
+        -- Fix quest text of 1072 "An Old Colleague"
+        update quest_template set Details = "The device I'm thinking about is my most advanced version to date. But we'll need a special potion if it's to work. I'm thinking we might as well get the really good stuff since this mission could be your last if you decide to help.$B$BAnd for that, we're going to need some potent explosives: Nitromirglyceronium.$B$BThe only person who can make NG-5 is an ol' friend of mine in Ironforge: Lomac Gearstrip.$B$BIf you can talk him into making us some NG-5, I'll get to work on placement for my devices…" where entry = 1072;
+
         insert into`applied_updates`values ('040420231');
     end if;
 end $
