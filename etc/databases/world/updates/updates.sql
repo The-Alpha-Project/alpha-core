@@ -466,7 +466,7 @@ begin not atomic
         -- Fix Maris Granger
         update creature_template set subname = "Mail Armor Merchant", npc_flags = 1 where entry = 1292;
         -- Copy from another Mail Armor Merchant's vendor table
-        INSERT INTO npc_vendor (entry, item) SELECT 1292, item FROM npc_vendor WHERE entry = 1349
+        INSERT INTO npc_vendor (entry, item) SELECT 1292, item FROM npc_vendor WHERE entry = 1349;
 
         -- Change Tannysa to Tailoring Trainer
         update creature_template set subname = "Tailoring Trainer", trainer_id = 507 where entry = 5566;
