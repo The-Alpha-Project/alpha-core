@@ -453,5 +453,42 @@ begin not atomic
 
         insert into`applied_updates`values ('010420231');
     end if;
+
+    -- 04/04/2023 1
+    if (select count(*) from `applied_updates` where id='040420231') = 0 then
+        -- Fix alternate display_id for Cenarion NPCs, closes #1120
+        update creature_template set display_id2 = 0 where entry in(4041, 3797);
+
+        -- Fix remaining Scarlet NPCs
+        update creature_template set display_id1 = 1611, display_id2 = 1612 where entry = 4493;
+        update creature_template set display_id1 = 1640, display_id2 = 1641, display_id3 = 0, display_id4 = 0 where entry = 4494;
+
+        -- Fix Maris Granger
+        update creature_template set subname = "Mail Armor Merchant", npc_flags = 1 where entry = 1292;
+        -- Copy from another Mail Armor Merchant's vendor table
+        INSERT INTO npc_vendor (entry, item) SELECT 1292, item FROM npc_vendor WHERE entry = 1349
+
+        -- Change Tannysa to Tailoring Trainer
+        update creature_template set subname = "Tailoring Trainer", trainer_id = 507 where entry = 5566;
+        -- Relocate Eldraith to The Park
+        update spawns_creatures set position_x = -8722.818, position_y = 1172.953, position_z = 98.34, orientation = 3.304 where spawn_entry1 = 5503;
+
+        -- Fixes for Thousand Needles NPCs
+        update creature_template set display_id1 = 2578 where entry = 2986;
+        update creature_template set display_id1 = 2576 where entry in(4483, 4545, 4546, 4547);
+        update creature_template set display_id1 = 1452, display_id2 = 1453 where entry = 5523;
+        update creature_template set display_id1 = 2576 where entry = 4875;
+        update creature_template set display_id1 = 2578 where entry in(4876, 4878);
+        update creature_template set display_id1 = 2579 where entry = 4877;
+
+        -- Fix Valyen Wolfsong and spawn his pet
+        update creature_template set faction = 79 where entry in(4207, 4245);
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) VALUES (4245, 1, 10124.806, 2540.995, 1317.636, 2.174);
+
+        -- Fix quest text of 1072 "An Old Colleague"
+        update quest_template set Details = "The device I'm thinking about is my most advanced version to date. But we'll need a special potion if it's to work. I'm thinking we might as well get the really good stuff since this mission could be your last if you decide to help.$B$BAnd for that, we're going to need some potent explosives: Nitromirglyceronium.$B$BThe only person who can make NG-5 is an ol' friend of mine in Ironforge: Lomac Gearstrip.$B$BIf you can talk him into making us some NG-5, I'll get to work on placement for my devices…" where entry = 1072;
+
+        insert into`applied_updates`values ('040420231');
+    end if;
 end $
 delimiter ;
