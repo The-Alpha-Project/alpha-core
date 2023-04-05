@@ -490,5 +490,226 @@ begin not atomic
 
         insert into`applied_updates`values ('040420231');
     end if;
+        
+    -- 05/04/2023 1
+    if (select count(*) from `applied_updates` where id='050420231') = 0 then
+
+        -- Witch doctor Unbagwa
+        UPDATE `creature_template`
+        SET `display_id1`=1115
+        WHERE `entry`=1449;
+        
+        -- Rot Hide Bruiser
+        UPDATE `creature_template`
+        SET `display_id1`=858
+        WHERE `entry`=1944;
+        
+        -- Shadow Sprite
+        UPDATE `creature_template`
+        SET `display_id1`=1185
+        WHERE `entry`=2003;
+        
+        -- Vicious Grell
+        UPDATE `creature_template`
+        SET `display_id1`=1015
+        WHERE `entry`=2005;
+        
+        -- Maruk Wyrmscale
+        UPDATE `creature_template`
+        SET `display_id1`=1139
+        WHERE `entry`=2090;
+        
+        -- Shadra
+        UPDATE `creature_template`
+        SET `display_id1`=1160
+        WHERE `entry`=2707;
+        
+        -- Wooly kodo
+        UPDATE `creature_template`
+        SET `display_id1`=1230
+        WHERE `entry`=3237;
+        
+        -- Elder Mystic Razorsnout
+        UPDATE `creature_template`
+        SET `display_id1`=1420
+        WHERE `entry`=3270;
+        
+        -- Kuz
+        UPDATE `creature_template`
+        SET `display_id1`=1420
+        WHERE `entry`=3436;
+        
+        -- Devouring Ectoplasm
+        UPDATE `creature_template`
+        SET `display_id1`=360
+        WHERE `entry`=3638;
+        
+        -- Pridewing Patriarch
+        UPDATE `creature_template`
+        SET `display_id1`=2298
+        WHERE `entry`=4015;
+        
+        -- Strashaz Serpent Guard
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4366;
+        
+        -- Strashaz Siren
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4371;
+        
+        -- Elder Murk Thresher 
+        UPDATE `creature_template`
+        SET `display_id1`=2602
+        WHERE `entry`=4390;
+        
+        -- Mudrock Snapjaw
+        UPDATE `creature_template`
+        SET `display_id1`=1244
+        WHERE `entry`=4400;
+        
+        -- Deepstrider Searcher 
+        UPDATE `creature_template`
+        SET `display_id1`=1135
+        WHERE `entry`=4687;
+        
+        -- Ogron
+        UPDATE `creature_template`
+        SET `display_id1`=655
+        WHERE `entry`=4983;
+        
+        -- Coral Shark 
+        UPDATE `creature_template`
+        SET `display_id1`=1557, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5434;
+        
+        -- Sand Shark
+        UPDATE `creature_template`
+        SET `display_id1`=1557, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5435;
+        
+        -- Noboru the Cudgel 
+        UPDATE `creature_template`
+        SET `display_id1`=628
+        WHERE `entry`=5477;
+        
+        -- Ongeku
+        UPDATE `creature_template`
+        SET `display_id1`=628
+        WHERE `entry`=5622;
+        
+        -- Moshogg spellcrafter
+        UPDATE `creature_template`
+        SET `display_id1`=326
+        WHERE `entry`=710;
+        
+        -- Moshogg Butcher
+        UPDATE `creature_template`
+        SET `display_id1`=655
+        WHERE `entry`=723;
+
+        -- Moshogg Lord
+        UPDATE `creature_template`
+        SET `display_id1`=655
+        WHERE `entry`=680;
+        
+        -- Mayzoth
+        UPDATE `creature_template`
+        SET `display_id1`=33
+        WHERE `entry`=818;
+        
+        -- Twilight runner
+        UPDATE `creature_template`
+        SET `display_id1`=633
+        WHERE `entry`=4067;
+        
+        -- Galak Centaur
+        UPDATE `creature_template`
+        SET `display_id1`=2292
+        WHERE `entry`=2967;
+        
+        -- Galak Outrunner
+        UPDATE `creature_template`
+        SET `display_id1`=2292
+        WHERE `entry`=2968;
+        
+        -- Barak
+        UPDATE `creature_template`
+        SET `display_id1`=1349
+        WHERE `entry`=3394;
+        
+        -- Deepstrider
+        UPDATE `creature_template`
+        SET `display_id1`=1135
+        WHERE `entry`=4686;
+        
+        -- Coast Strider
+        UPDATE `creature_template`
+        SET `display_id1`=1135
+        WHERE `entry`=5466;
+        
+        -- Anillia
+        UPDATE `creature_template`
+        SET `display_id1`=2722
+        WHERE `entry`=3920;
+        
+        -- Boss thogrun
+        UPDATE `creature_template`
+        SET `display_id1`=1054
+        WHERE `entry`=2944;
+        
+        -- Broken Tooth
+        UPDATE `creature_template`
+        SET `display_id1`=1978
+        WHERE `entry`=2850;
+        
+        -- Swapwalker Elder
+        UPDATE `creature_template`
+        SET `display_id1`=2024
+        WHERE `entry`=765;
+        
+        -- Saltscale Oracle
+        UPDATE `creature_template`
+        SET `display_id1`=3615
+        WHERE `entry`=873;
+        
+        -- Mire Lord
+        UPDATE `creature_template`
+        SET `display_id1`=2023
+        WHERE `entry`=1081;
+        
+        -- Razormaw Matriach
+        UPDATE `creature_template`
+        SET `display_id1`=788
+        WHERE `entry`=1140;
+        
+        -- Rotting Ancestor
+        UPDATE `creature_template`
+        SET `display_id1`=1197, `display_id2`=1198, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=1530;
+        
+        -- Tormented Spirit
+        UPDATE `creature_template`
+        SET `display_id1`=985
+        WHERE `entry`=1533;
+        
+        -- Wailing Ancestor
+        UPDATE `creature_template`
+        SET `display_id1`=984
+        WHERE `entry`=1534;
+        
+        -- Logrosh
+        UPDATE `creature_template`
+        SET `display_id1`=1046
+        WHERE `entry`=2453;
+
+        -- Rot Hide Gnoll (atm scale is way too big)
+        UPDATE `creature_template`
+        SET `display_id1`=3196
+        WHERE `entry`=1674;
+
+        insert into`applied_updates`values ('050420231');
+    end if;
 end $
 delimiter ;
