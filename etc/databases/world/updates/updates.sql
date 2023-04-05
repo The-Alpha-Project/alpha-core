@@ -453,5 +453,21 @@ begin not atomic
 
         insert into`applied_updates`values ('010420231');
     end if;
+
+    -- 05/04/2023 2
+    if (select count(*) from `applied_updates` where id='050420232') = 0 then
+        -- Set pre-requisites for Arugal Must Die!
+        UPDATE quest_template SET ExclusiveGroup = -1014 WHERE entry in(1014, 99, 421);
+        UPDATE quest_template SET NextQuestID = 1014, NextQuestInChain=1014 WHERE entry IN(99, 421);
+        -- Set pre-requisites for Covert Ops: Alpha
+        -- Quest 1079 requires both 1074 and 1077 to be completed.
+        update quest_template set ExclusiveGroup = -1079 where entry in(1079, 1074, 1077);
+        update quest_template set NextQuestID = 1079, NextQuestInChain = 1079 where entry in(1074, 1077);
+        update quest_template set NextQuestID = 1080, NextQuestInChain = 1080 where entry = 1079;
+        -- Quest 1080 does not need an exclusive group since it requires exactly one prequest (1079) to be completed.
+        update quest_template set PrevQuestId = 1079, ExclusiveGroup = 0 where entry = 1080;
+
+        insert into`applied_updates`values ('050420232');
+    end if;
 end $
 delimiter ;
