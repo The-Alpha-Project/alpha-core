@@ -544,12 +544,12 @@ begin not atomic
         
         -- Coral Shark 
         UPDATE `creature_template`
-        SET `display_id1`=1557
+        SET `display_id1`=1557, `display_id2`=0, `display_id3`=0, `display_id4`=0
         WHERE `entry`=5434;
         
         -- Sand Shark
         UPDATE `creature_template`
-        SET `display_id1`=1557
+        SET `display_id1`=1557, , `display_id2`=0, `display_id3`=0, `display_id4`=0
         WHERE `entry`=5435;
         
         -- Noboru the Cudgel 
