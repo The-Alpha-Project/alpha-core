@@ -29,7 +29,7 @@ class MapEventManager:
         if not self.is_event_active(event_id):
             return
 
-        self.scripted_events[event_id].add_or_update_event_target(target, failure_condition, failure_script,
+        self.scripted_events[event_id].add_or_update_extra_target(target, failure_condition, failure_script,
                                                                   success_condition, success_script)
 
     def remove_event_target(self, target, event_id, condition_id, options):
