@@ -717,6 +717,10 @@ begin not atomic
         -- Fix mistakenly removed subname
         update creature_template set subname = "" where entry = 1764;
         update creature_template set subname = "Cartography Supplies" where entry = 372;
+        -- Move Crossroads guards
+        update spawns_creatures set position_x = -336.823, position_y = -2702.599, position_z = 95.796, orientation = 0.024 where spawn_id = 19413;
+        update spawns_creatures set position_x = -332.090, position_y = -2668.597, position_z = 95.491, orientation = 5.913 where spawn_id = 19415;
+
         insert into`applied_updates`values ('060420231');
     end if;
 end $
