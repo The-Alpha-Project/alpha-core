@@ -711,5 +711,13 @@ begin not atomic
 
         insert into`applied_updates`values ('050420231');
     end if;
+
+    -- 06/04/2023 1
+    if (select count(*) from `applied_updates` where id='060420231') = 0 then
+        -- Fix mistakenly removed subname
+        update creature_template set subname = "" where entry = 1764;
+        update creature_template set subname = "Cartography Supplies" where entry = 372;
+        insert into`applied_updates`values ('060420231');
+    end if;
 end $
 delimiter ;
