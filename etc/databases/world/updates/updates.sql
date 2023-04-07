@@ -720,7 +720,8 @@ begin not atomic
         -- Move Crossroads guards
         update spawns_creatures set position_x = -336.823, position_y = -2702.599, position_z = 95.796, orientation = 0.024 where spawn_id = 19413;
         update spawns_creatures set position_x = -332.090, position_y = -2668.597, position_z = 95.491, orientation = 5.913 where spawn_id = 19415;
-
+        -- Change display_id of Brimgore
+        update creature_template set display_id1 = 2718 where entry = 4339;
         insert into`applied_updates`values ('060420231');
     end if;
 end $
