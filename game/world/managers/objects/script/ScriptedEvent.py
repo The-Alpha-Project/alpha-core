@@ -2,6 +2,7 @@ import time
 
 from game.world.managers.objects.script.ScriptedEventTarget import ScriptedEventTarget
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
+from utils.Logger import Logger
 from utils.constants.MiscCodes import ScriptTypes
 from utils.constants.ScriptCodes import RemoveMapEventTargetOptions, SendMapEventOptions
 
@@ -36,12 +37,12 @@ class ScriptedEvent:
     def end_event(self, success):
         self.ended = True
 
-        if success:
-            self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                      self.success_script)
-        else:
-            self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                      self.failure_script)
+        if not self.source:
+            Logger.error(f'No source found to trigger end script for event {self.event_id}, aborting.')
+            return
+
+        self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                                  self.success_script if success else self.failure_script)
 
     def send_event_data(self, data_index, options):
         if options == SendMapEventOptions.SO_SENDMAPEVENT_ALL_TARGETS:
