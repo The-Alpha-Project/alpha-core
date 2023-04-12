@@ -15,7 +15,7 @@ class MapEventManager:
         if self.is_event_active(event_id):
             return
 
-        self.scripted_events[event_id] = ScriptedEvent(source, target, map_id, event_id, time_limit,
+        self.scripted_events[event_id] = ScriptedEvent(event_id, source, target, map_id, time_limit,
                                                        failure_condition, failure_script, success_condition,
                                                        success_script)
 

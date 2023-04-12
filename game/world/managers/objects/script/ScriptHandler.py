@@ -1106,9 +1106,9 @@ class ScriptHandler:
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.add_event(command.source, None, command.source, command.datalong,
-                                         command.datalong2, command.dataint3, command.dataint4,
-                                         command.dataint, command.dataint2)
+        map_.map_event_manager.add_event(command.source, command.target, command.source.map_id, command.datalong,
+                                         command.datalong2, command.dataint, command.dataint2, command.dataint3,
+                                         command.dataint4)
 
     @staticmethod
     def handle_script_command_end_map_event(command):
