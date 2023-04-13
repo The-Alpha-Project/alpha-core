@@ -41,6 +41,7 @@ class WanderingMovement(BaseMovement):
         position = self._get_wandering_point()
         speed = config.Unit.Defaults.walk_speed
         spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
+        position.face_angle(self.unit.location.o)
         self.spline_callback(spline, movement_behavior=self)
 
     def _can_wander(self, now):
