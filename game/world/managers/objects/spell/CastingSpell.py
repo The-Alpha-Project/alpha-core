@@ -22,7 +22,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, AttackTypes, HitInfo, Obj
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellState, SpellCastFlags, SpellTargetMask, SpellAttributes, SpellAttributesEx, \
     AuraTypes, SpellEffects, SpellInterruptFlags, SpellImplicitTargets, SpellImmunity, SpellSchoolMask, SpellHitFlags, \
-    SpellCategory
+    SpellCategory, SpellSchools
 
 
 class CastingSpell:
@@ -182,13 +182,28 @@ class CastingSpell:
     def get_attack_type(self):
         return self.spell_attack_type if self.spell_attack_type != -1 else 0
 
+    def get_damage_school(self):
+        is_weapon_attack = self.casts_on_swing() or self.is_ranged_weapon_attack()
+        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not is_weapon_attack or \
+                self.spell_attack_type == -1 or \
+                self.spell_entry.School != SpellSchools.SPELL_SCHOOL_NORMAL:
+            # Provide base spell school if a weapon isn't used or if the spell has a non-normal school.
+            return self.spell_entry.School
+
+        weapon = self.spell_caster.get_current_weapon_for_attack_type(self.spell_attack_type)
+        if not weapon:
+            return self.spell_entry.School
+
+        return weapon.item_template.dmg_type1  # TODO How should weapons with mixed damage types behave with spells?
+
     def get_school_mask(self):
-        if self.spell_entry.School == -1:
+        damage_school = self.get_damage_school()
+        if damage_school == -1:
             school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
-        elif self.spell_entry.School == -2:
+        elif damage_school == -2:
             school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_ALL
         else:
-            school_mask = 1 << self.spell_entry.School
+            school_mask = 1 << damage_school
         return school_mask
 
     def get_ammo_for_cast(self) -> Optional[ItemManager]:
