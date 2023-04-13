@@ -391,17 +391,7 @@ class SkillManager(object):
         return True
 
     def handle_weapon_skill_gain_chance(self, attack_type: AttackTypes):
-        # Vanilla formulae.
-        equipped_weapon = self.player_mgr.get_current_weapon_for_attack_type(attack_type)
-
-        if not equipped_weapon:
-            if self.player_mgr.is_in_feral_form():
-                return False  # Feral form attacks don't use a weapon.
-
-            skill_id = self.get_skill_id_for_weapon(None)
-        else:
-            skill_id = self.get_skill_id_for_weapon(equipped_weapon.item_template)
-
+        skill_id = self._get_skill_id_for_current_weapon(attack_type)
         if skill_id == -1:
             return False
 
@@ -412,21 +402,37 @@ class SkillManager(object):
 
         self.handle_offense_skill_gain_chance(skill_id)
 
-    def handle_spell_cast_skill_gain(self, spell_id):
-        if not spell_id:
+    def handle_spell_cast_skill_gain(self, casting_spell):
+        if not casting_spell:
             return False
 
-        character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(spell_id)
+        character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
 
         if not character_skill or (skill.SkillType == SkillLineType.SECONDARY and
                                    skill.CategoryID == SkillCategories.CLASS_SKILL):
             # Character doesn't have the required skill or the related skill is a profession.
             return False
 
+        if (casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()) and \
+                skill.ID == self._get_skill_id_for_current_weapon(casting_spell.get_attack_type()):
+            return False  # Don't reward weapon skill for base attack spells - skill is rewarded on hit instead.
+
         self.handle_offense_skill_gain_chance(skill.ID)
 
+
+    def _get_skill_id_for_current_weapon(self, attack_type):
+        equipped_weapon = self.player_mgr.get_current_weapon_for_attack_type(attack_type)
+
+        if not equipped_weapon:
+            if self.player_mgr.is_in_feral_form():
+                return -1  # Feral form attacks don't use a weapon.
+
+            return self.get_skill_id_for_weapon(None)
+        else:
+            return self.get_skill_id_for_weapon(equipped_weapon.item_template)
+
     def handle_offense_skill_gain_chance(self, skill_id):
-        # Melee skill gain formula.
+        # Vanilla melee formulae.
         skill = self.skills.get(skill_id, None)
         if not skill:
             return False
