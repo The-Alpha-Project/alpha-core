@@ -757,7 +757,7 @@ class StatManager(object):
     @staticmethod
     def _get_attack_weapon(attacker, attack_type):
         # Bear and cat form attacks don't use a weapon, and instead have max attack rating.
-        if attacker.get_type_id() != ObjectTypeIds.ID_PLAYER or attacker.is_in_feral_form():
+        if attacker.is_in_feral_form():
             return None
 
         attack_weapon = attacker.get_current_weapon_for_attack_type(attack_type)
