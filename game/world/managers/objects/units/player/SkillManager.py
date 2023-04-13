@@ -419,7 +419,6 @@ class SkillManager(object):
 
         self.handle_offense_skill_gain_chance(skill.ID)
 
-
     def _get_skill_id_for_current_weapon(self, attack_type):
         equipped_weapon = self.player_mgr.get_current_weapon_for_attack_type(attack_type)
 
