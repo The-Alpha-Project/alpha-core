@@ -685,7 +685,7 @@ class UnitManager(ObjectManager):
         spell = spell_effect.casting_spell
 
         damage_info = DamageInfoHolder(attacker=self, target=target, attack_type=spell.get_attack_type(),
-                                       damage_school_mask=spell.get_school_mask(),
+                                       damage_school_mask=spell.get_damage_school_mask(),
                                        spell_id=spell.spell_entry.ID,
                                        spell_school=spell.get_damage_school(),
                                        spell_miss_reason=miss_reason, hit_info=hit_flags)

@@ -196,7 +196,7 @@ class CastingSpell:
 
         return weapon.item_template.dmg_type1  # TODO How should weapons with mixed damage types behave with spells?
 
-    def get_school_mask(self):
+    def get_damage_school_mask(self):
         damage_school = self.get_damage_school()
         if damage_school == -1:
             school_mask = SpellSchoolMask.SPELL_SCHOOL_MASK_MAGIC
@@ -528,7 +528,7 @@ class CastingSpell:
     def get_cast_damage_info(self, attacker, victim, damage, absorb, healing=False):
         damage_info = DamageInfoHolder(attacker=attacker, target=victim,
                                        attack_type=self.get_attack_type(),
-                                       base_damage=damage, damage_school_mask=self.get_school_mask(),
+                                       base_damage=damage, damage_school_mask=self.get_damage_school_mask(),
                                        spell_id=self.spell_entry.ID, spell_school=self.get_damage_school(),
                                        total_damage=max(0, damage - absorb), absorb=absorb,
                                        hit_info=HitInfo.DAMAGE if not healing else SpellHitFlags.HEALED)
