@@ -679,7 +679,9 @@ class StatManager(object):
         gain = self.get_total_stat(UnitStats.INTELLECT) * 0.0002
         return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in VMaNGOS)
 
-    def get_attack_result_against_self(self, attacker, attack_type, dual_wield_penalty=0.0) -> HitInfo:
+    def get_attack_result_against_self(self, attacker, attack_type,
+                                       dual_wield_penalty=0.0, allow_parry=True,
+                                       allow_crit=True, combat_rating=-1) -> HitInfo:
         # TODO Based on vanilla calculations.
         # Evading/Sanctuary.
         if self.unit_mgr.is_evading or self.unit_mgr.unit_state & UnitStates.SANCTUARY:
@@ -689,18 +691,10 @@ class StatManager(object):
         if self.unit_mgr.handle_immunity(attacker, SpellImmunity.IMMUNITY_DAMAGE, SpellSchools.SPELL_SCHOOL_NORMAL):
             return HitInfo.ABSORBED
 
-        attack_weapon = None
-        # Note: Bear and cat form attacks don't use a weapon, and instead have max attack rating.
-        if attacker.get_type_id() == ObjectTypeIds.ID_PLAYER and not attacker.is_in_feral_form():
-            attack_weapon = attacker.get_current_weapon_for_attack_type(attack_type)
-            attack_weapon_template = attack_weapon.item_template if attack_weapon is not None else None
+        if combat_rating == -1:
+            combat_rating = attacker.stat_manager.get_combat_rating_for_attack(attack_type=attack_type)
 
-            skill_id = attacker.skill_manager.get_skill_id_for_weapon(attack_weapon_template)
-            attack_rating = attacker.skill_manager.get_total_skill_value(skill_id)
-        else:
-            attack_rating = -1
-
-        rating_difference = self._get_combat_rating_difference(attacker.level, attack_rating)
+        rating_difference = self._get_combat_rating_difference(attacker.level, combat_rating)
 
         base_miss = 0.05 + dual_wield_penalty
         miss_chance = base_miss
@@ -733,12 +727,13 @@ class StatManager(object):
         if self.unit_mgr.can_dodge(attacker.location) and roll < dodge_chance:
             return HitInfo.DODGE
 
-        parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
-        roll = random.random()
-        if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
-            return HitInfo.PARRY
+        if allow_parry:
+            parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
+            roll = random.random()
+            if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
+                return HitInfo.PARRY
 
-        rating_difference_block = self._get_combat_rating_difference(attacker.level, attack_rating,
+        rating_difference_block = self._get_combat_rating_difference(attacker.level, combat_rating,
                                                                      use_block=self.unit_mgr.can_block())
 
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
@@ -746,23 +741,10 @@ class StatManager(object):
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
             return HitInfo.BLOCK
 
-        attacker_weapon_mask = 1 << attack_weapon.item_template.subclass if attack_weapon else -1
-
-        attacker_critical_chance = attacker.stat_manager.get_total_stat(UnitStats.MELEE_CRITICAL, accept_float=True,
-                                                                        misc_value=attacker_weapon_mask,
-                                                                        misc_value_is_mask=attacker_weapon_mask != -1)
-
-        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            # Player: +- 0.04% for each rating difference.
-            # For example with defender player level 60 and attacker mob level 63:
-            # 5% - (300-315) * 0.04 = 5.6% crit chance (mob).
-            critical_chance = attacker_critical_chance - rating_difference * 0.0004
+        if allow_crit:
+            critical_chance = self._get_base_crit_chance_against_self(attacker, attack_type)
         else:
-            # Mob: +- 0.2% for each rating difference OR 0.04% if attacker weapon skill is higher than mob defense.
-            # For example with defender mob level 63 and attacker player level 60 (assuming player has 10% crit chance):
-            # 10% - (315-300) * 0.2 = 7% crit chance (player).
-            multiplier = 0.002 if rating_difference > 0 else 0.0004
-            critical_chance = attacker_critical_chance - rating_difference * multiplier
+            critical_chance = 0
 
         hit_info = HitInfo.SUCCESS
         if attack_type == AttackTypes.OFFHAND_ATTACK:
@@ -772,6 +754,67 @@ class StatManager(object):
         
         return hit_info
 
+    @staticmethod
+    def _get_attack_weapon(attacker, attack_type):
+        # Bear and cat form attacks don't use a weapon, and instead have max attack rating.
+        if attacker.is_in_feral_form():
+            return None
+
+        attack_weapon = attacker.get_current_weapon_for_attack_type(attack_type)
+        return attack_weapon
+
+    def get_combat_rating_for_attack(self, attack_type=-1, casting_spell=None):
+        skill_value = -1
+
+        # Prioritize spell combat rating.
+        if casting_spell and self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            _, skill, _ = self.unit_mgr.skill_manager.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
+            if not skill and casting_spell.triggered_by_spell:
+                trigger_spell_id = casting_spell.triggered_by_spell.spell_entry.ID
+                # If this spell was triggered by another spell, use the triggering spell's skill.
+                _, skill, _ = self.unit_mgr.skill_manager.get_skill_info_for_spell_id(trigger_spell_id)
+            # Use skill level if one exists for the spell.
+            skill_value = self.unit_mgr.skill_manager.get_total_skill_value(skill.ID) if skill else -1
+
+        # If attack type is provided and no skill could be resolved by spellcast, resolve off weapon skill.
+        if attack_type != -1 and skill_value == -1:
+            attack_weapon = self._get_attack_weapon(self.unit_mgr, attack_type)
+            if attack_weapon:
+                skill_id = self.unit_mgr.skill_manager.get_skill_id_for_weapon(attack_weapon.item_template)
+                skill_value = self.unit_mgr.skill_manager.get_total_skill_value(skill_id)
+            else:
+                skill_value = -1
+
+        # Fall back to max rating if no skill was found.
+        return skill_value if skill_value != -1 else self.unit_mgr.level * 5
+
+    def _get_base_crit_chance_against_self(self, attacker, attack_type):
+        attack_weapon = self._get_attack_weapon(attacker, attack_type)
+        attacker_weapon_mask = 1 << attack_weapon.item_template.subclass if attack_weapon else -1
+
+        attacker_critical_chance = attacker.stat_manager.get_total_stat(UnitStats.MELEE_CRITICAL, accept_float=True,
+                                                                        misc_value=attacker_weapon_mask,
+                                                                        misc_value_is_mask=attacker_weapon_mask != -1)
+        if attack_weapon:
+            skill_id = attacker.skill_manager.get_skill_id_for_weapon(attack_weapon.item_template)
+            attack_rating = attacker.skill_manager.get_total_skill_value(skill_id)
+        else:
+            attack_rating = -1
+
+        rating_difference = self._get_combat_rating_difference(attacker.level, attack_rating)
+
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            # Player: +- 0.04% for each rating difference.
+            # For example with defender player level 60 and attacker mob level 63:
+            # 5% - (300-315) * 0.04 = 5.6% crit chance (mob).
+            return attacker_critical_chance - rating_difference * 0.0004
+        else:
+            # Mob: +- 0.2% for each rating difference OR 0.04% if attacker weapon skill is higher than mob defense.
+            # For example with defender mob level 63 and attacker player level 60 (assuming player has 10% crit chance):
+            # 10% - (315-300) * 0.2 = 7% crit chance (player).
+            multiplier = 0.002 if rating_difference > 0 else 0.0004
+            return attacker_critical_chance - rating_difference * multiplier
+
     def get_spell_miss_result_against_self(self, casting_spell) -> (SpellMissReason, SpellHitFlags):
         hit_flags = SpellHitFlags.NONE
 
@@ -779,6 +822,9 @@ class StatManager(object):
         if self.unit_mgr.is_evading:
             return SpellMissReason.MISS_REASON_EVADED, hit_flags
 
+        spell_school = casting_spell.get_damage_school()
+        is_special_damage = spell_school != SpellSchools.SPELL_SCHOOL_NORMAL
+        spell_crit_chance = 0
         spell_school = casting_spell.spell_entry.School
         # TODO Wands should get spell school from the item and use spell formulas.
 
@@ -794,11 +840,22 @@ class StatManager(object):
                 caster, SpellImmunity.IMMUNITY_DAMAGE, spell_school, casting_spell=casting_spell):
             return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
 
-        # Use base attack formulas for next melee swing and ranged spells.
-        if casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack():
+        is_base_attack_spell = casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()
+
+        attack_type = casting_spell.get_attack_type() if is_base_attack_spell else -1
+
+        # Spell skill will be prioritized for combat rating if available.
+        #   TODO This could use a combination of weapon and spell skill instead.
+        attacker_combat_rating = caster.stat_manager.get_combat_rating_for_attack(attack_type=attack_type,
+                                                                                  casting_spell=casting_spell)
+        if is_base_attack_spell:
+            # Use base attack formulas for next melee swing and ranged spells.
             # Note that dual wield penalty is not applied to spells.
-            # TODO Consider skill for the spell-specific category instead of weapon skill?
-            result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type())
+            # Ranged attacks can't be parried. Crit is rolled later for special damage (non-normal school) spells.
+            result_info = self.get_attack_result_against_self(caster, casting_spell.get_attack_type(),
+                                                              allow_parry=not casting_spell.is_ranged_weapon_attack(),
+                                                              allow_crit=not is_special_damage,
+                                                              combat_rating=attacker_combat_rating)
             if result_info & HitInfo.CRITICAL_HIT:
                 hit_flags |= SpellHitFlags.CRIT
 
@@ -812,13 +869,18 @@ class StatManager(object):
                 miss_reason = SpellMissReason.MISS_REASON_PHYSICAL
             else:
                 miss_reason = SpellMissReason.MISS_REASON_NONE
-            return miss_reason, hit_flags
+
+            if miss_reason != SpellMissReason.MISS_REASON_NONE or not is_special_damage:
+                return miss_reason, hit_flags  # Return if spell missed or resistance/spell crit shouldn't be applied.
+
+            # Weapon attack with non-normal school damage. Account for base crit modifiers from weapon mods/rating.
+            spell_crit_chance += self._get_base_crit_chance_against_self(caster, casting_spell.get_attack_type())
 
         # Add base spell crit and school-specific crit modifiers.
-        crit_chance = caster.stat_manager.get_total_stat(UnitStats.SPELL_CRITICAL, accept_float=True)
-        crit_chance += caster.stat_manager.get_total_stat(UnitStats.SPELL_SCHOOL_CRITICAL, misc_value=spell_school,
-                                                          accept_float=True)
-        if random.random() < crit_chance:
+        spell_crit_chance += caster.stat_manager.get_total_stat(UnitStats.SPELL_CRITICAL, accept_float=True)
+        spell_crit_chance += caster.stat_manager.get_total_stat(UnitStats.SPELL_SCHOOL_CRITICAL,
+                                                                misc_value=spell_school, accept_float=True)
+        if random.random() < spell_crit_chance:
             hit_flags |= SpellHitFlags.CRIT
 
         # TODO Research is needed on how resist mechanics worked in alpha.
@@ -830,21 +892,9 @@ class StatManager(object):
         # The below formulas are guesses. They're based on both partial and full resist formulas from VMaNGOS,
         # applied in a way that seems to make sense for our use case.
 
-        skill_value = -1
-        if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            _, skill, _ = caster.skill_manager.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
-            if not skill and casting_spell.triggered_by_spell:
-                # If this spell was triggered by another spell, use the triggering spell's skill.
-                _, skill, _ = caster.skill_manager.get_skill_info_for_spell_id(casting_spell.triggered_by_spell.spell_entry.ID)
-            # Use skill level if one exists for the spell, otherwise fall back to max possible skill.
-            skill_value = caster.skill_manager.get_total_skill_value(skill.ID) if skill else -1
-
-        if skill_value == -1:
-            skill_value = caster.level * 5
-
         # Base spell miss chance from SpellCaster::MagicSpellHitChance.
         # Modified to use spell school skill rating instead of unit levels for the attacker.
-        rating_difference = self.unit_mgr.level * 5 - skill_value
+        rating_difference = self.unit_mgr.level * 5 - attacker_combat_rating
         rating_mod = rating_difference / 5 / 100
 
         miss_chance = 0.04
@@ -863,9 +913,9 @@ class StatManager(object):
             # This is the formula for innate resistance used for partial resists in VMaNGOS,
             # with level adjusted 63->28.
             # (SpellCaster::GetSpellResistChance)
-            resist_mod = (8 * rating_difference * skill_value) / 5 / 28
+            resist_mod = (8 * rating_difference * attacker_combat_rating) / 5 / 28
 
-        resist_mod *= 0.15 / (skill_value / 5)
+        resist_mod *= 0.15 / (attacker_combat_rating / 5)
         resist_mod = max(0.0, min(0.75, resist_mod))
 
         # Final application of resist mod (SpellCaster::MagicSpellHitChance, reversed for hit->miss).

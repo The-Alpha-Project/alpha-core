@@ -685,9 +685,9 @@ class UnitManager(ObjectManager):
         spell = spell_effect.casting_spell
 
         damage_info = DamageInfoHolder(attacker=self, target=target, attack_type=spell.get_attack_type(),
-                                       damage_school_mask=spell.get_school_mask(),
+                                       damage_school_mask=spell.get_damage_school_mask(),
                                        spell_id=spell.spell_entry.ID,
-                                       spell_school=spell.spell_entry.School,
+                                       spell_school=spell.get_damage_school(),
                                        spell_miss_reason=miss_reason, hit_info=hit_flags)
 
         subclass = 0
@@ -696,7 +696,7 @@ class UnitManager(ObjectManager):
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass
 
-        spell_school = spell.spell_entry.School
+        spell_school = spell.get_damage_school()
 
         if spell_effect.is_periodic():
             # For periodic effects, add bonuses to the total damage, divide back into ticks and floor.
