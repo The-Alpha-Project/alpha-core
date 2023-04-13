@@ -86,7 +86,7 @@ class SpellEffectHandler:
             casting_spell.used_ranged_attack_item.item_template.class_ == ItemClasses.ITEM_CLASS_PROJECTILE else None
 
         weapon_damage = caster.calculate_base_attack_damage(casting_spell.spell_attack_type,
-                                                            casting_spell.spell_entry.School,
+                                                            casting_spell.get_damage_school(),
                                                             target, used_ammo=used_ammo,
                                                             apply_bonuses=False)  # Bonuses are applied on spell damage.
         damage_bonus = effect.get_effect_points()

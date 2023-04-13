@@ -323,7 +323,7 @@ class CastingSpell:
             return False
 
         dispel_type = self.spell_entry.custom_DispelType
-        school_immunity = self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.spell_entry.School)
+        school_immunity = self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.get_damage_school())
         return school_immunity or self.initial_target.has_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, dispel_type)
 
     def is_target_immune_to_effects(self):
@@ -529,7 +529,7 @@ class CastingSpell:
         damage_info = DamageInfoHolder(attacker=attacker, target=victim,
                                        attack_type=self.get_attack_type(),
                                        base_damage=damage, damage_school_mask=self.get_school_mask(),
-                                       spell_id=self.spell_entry.ID, spell_school=self.spell_entry.School,
+                                       spell_id=self.spell_entry.ID, spell_school=self.get_damage_school(),
                                        total_damage=max(0, damage - absorb), absorb=absorb,
                                        hit_info=HitInfo.DAMAGE if not healing else SpellHitFlags.HEALED)
         return damage_info

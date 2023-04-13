@@ -272,7 +272,7 @@ class GameObjectManager(ObjectManager):
             data = pack(
                 '<Q2I',
                 target.guid,
-                spell.spell_entry.School,
+                spell.get_damage_school(),
                 damage
             )
             target.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ENVIRONMENTALDAMAGELOG, data))
