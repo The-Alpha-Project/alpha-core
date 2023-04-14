@@ -6,6 +6,7 @@ from time import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
@@ -17,6 +18,7 @@ from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
+from utils.MasterServerManager import MasterServerManager
 
 STARTUP_TIME = time()
 WORLD_ON = True
@@ -39,6 +41,8 @@ class WorldServerSessionHandler:
 
         self.incoming_pending = _queue.SimpleQueue()
         self.outgoing_pending = _queue.SimpleQueue()
+
+        self.master_server_manager = MasterServerManager()
 
     def handle(self):
         try:
@@ -290,6 +294,14 @@ class WorldServerSessionHandler:
             logging_thread.daemon = True
             logging_thread.start()
 
+        # Master server reporting.
+        if config.MasterServer.enabled:
+            master_server_scheduler = BackgroundScheduler()
+            master_server_scheduler._daemon = True
+            master_server_scheduler.add_job(MasterServerManager.update, 'interval', seconds=60.0, max_instances=1)
+            master_server_scheduler.start()
+
+
     @staticmethod
     def start():
         WorldLoader.load_data()
@@ -307,6 +319,8 @@ class WorldServerSessionHandler:
 
         real_binding = server_socket.getsockname()
         Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+
+        MasterServerManager.update()
 
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             # noinspection PyBroadException

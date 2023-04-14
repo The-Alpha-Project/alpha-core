@@ -7,8 +7,8 @@ from game.world.WorldSessionStateHandler import RealmDatabaseManager
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.Logger import Logger
+from utils.MasterServerManager import MasterServerManager
 from utils.constants import EnvVars
-
 
 REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.realm_get_list()}
 
@@ -34,6 +34,11 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
     def serve_realmlist(sck):
         realmlist_bytes = pack('<B', len(REALMLIST))
 
+        master_server_count = None
+
+        if config.MasterServer.enabled:
+            master_server_count = MasterServerManager.query()
+
         for realm in REALMLIST.values():
             is_realm_local = config.Server.Connection.Realm.local_realm_id == realm.realm_id
 
@@ -47,8 +52,9 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             else:
                 forward_address = realm.proxy_address
             address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm.proxy_port}')
-            # TODO: Find a way to get online count of realms not connected to the same database server?
-            online_count = RealmDatabaseManager.character_get_online_count(realm.realm_id)
+
+            online_count = RealmDatabaseManager.character_get_online_count(
+                realm.realm_id) if not master_server_count else master_server_count[realm.realm_id]['count']
 
             realmlist_bytes += pack(
                 f'<{len(name_bytes)}s{len(address_bytes)}sI',
@@ -68,7 +74,8 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
         with ThreadedLoginServer((local_realm.realm_address,
                                   local_realm.realm_port), LoginServerSessionHandler) \
                 as login_instance:
-            Logger.success(f'Login server started, listening on {login_instance.server_address[0]}:{login_instance.server_address[1]}')
+            Logger.success(
+                f'Login server started, listening on {login_instance.server_address[0]}:{login_instance.server_address[1]}')
             # Make sure all characters have online = 0 on realm start.
             RealmDatabaseManager.character_set_all_offline()
             try:
@@ -117,7 +124,8 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
         with ThreadedProxyServer((local_realm.proxy_address,
                                   local_realm.proxy_port), ProxyServerSessionHandler) \
                 as proxy_instance:
-            Logger.success(f'Proxy server started, listening on {proxy_instance.server_address[0]}:{proxy_instance.server_address[1]}')
+            Logger.success(
+                f'Proxy server started, listening on {proxy_instance.server_address[0]}:{proxy_instance.server_address[1]}')
             try:
                 proxy_session_thread = threading.Thread(target=proxy_instance.serve_forever())
                 proxy_session_thread.daemon = True

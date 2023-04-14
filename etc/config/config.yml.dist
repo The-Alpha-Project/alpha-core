@@ -1,5 +1,5 @@
 Version:
-    current: 10
+    current: 11
 
 Database:
     Connection:
@@ -11,6 +11,11 @@ Database:
         realm_db: alpha_realm
         world_db: alpha_world
         dbc_db: alpha_dbc
+
+MasterServer:
+        enabled: False # Enable to get and report player count from and to a master server.
+        master_server_uri: http://localhost # Change this to the URI of your master server.
+        master_server_port: 8000 # Change this to the port of your master server.
 
 Server:
     Connection:  # Change 0.0.0.0 for 127.0.0.1 if it doesn't work
