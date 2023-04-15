@@ -724,5 +724,14 @@ begin not atomic
         update creature_template set display_id1 = 2718 where entry = 4339;
         insert into`applied_updates`values ('060420231');
     end if;
+
+
+    -- 14/04/2023 1
+    if (select count(*) from `applied_updates` where id='140420231') = 0 then
+        -- Set display_id for Anaya Dawnrunner and Lady Moongazer
+        update creature_template set display_id1 = 915 where entry in(3667, 2184);
+
+        insert into`applied_updates`values ('140420231');
+    end if;
 end $
 delimiter ;
