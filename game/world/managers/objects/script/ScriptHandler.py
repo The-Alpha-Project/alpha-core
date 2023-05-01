@@ -31,7 +31,7 @@ class ScriptHandler:
         self.owner = world_object
         self.script_queue = []
         self.ooc_ignore = set()
-        self.ooc_event = None
+        self.ooc_events = {}
         self.current_script = None
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0):
@@ -60,7 +60,7 @@ class ScriptHandler:
 
     def reset(self):
         self.script_queue.clear()
-        self.ooc_event = None
+        self.ooc_events.clear()
 
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
@@ -73,29 +73,33 @@ class ScriptHandler:
             self.script_queue.remove(script)
 
         # Check if we need to initialize or remove ooc event.
-        self._check_ooc_event(now)
+        self._check_ooc_events(now)
 
-    def _check_ooc_event(self, now):
-        if not self.ooc_event or self.owner.in_combat or self.owner.is_evading:
+    def _check_ooc_events(self, now):
+        if not self.ooc_events:
             return
-        # Check if we should remove the ongoing ooc event.
-        if self.ooc_event.started and self.ooc_event.is_complete(now):
-            self.ooc_event.started = False
-            # Should not repeat, remove.
-            if self.ooc_event.event_id in self.ooc_ignore:
-                self.ooc_event = None
-        elif not self.ooc_event.started:
-            # Initialize the ooc event, will pick one random script.
-            self.ooc_event.initialize(now)
-            self.enqueue_script(self.owner, self.ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
-                                script_id=self.ooc_event.script_id, delay=self.ooc_event.delay)
+        if self.owner.in_combat or self.owner.is_evading:
+            return
+
+        for event_id, ooc_event in list(self.ooc_events.items()):
+            # Check if we should remove the ongoing ooc event.
+            if ooc_event.started and ooc_event.is_complete(now):
+                ooc_event.started = False
+                # Should not repeat, remove.
+                if event_id in self.ooc_ignore:
+                    self.ooc_events.pop(event_id)
+            elif not ooc_event.started:
+                # Initialize the ooc event, will pick one random script.
+                ooc_event.initialize(now)
+                self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
+                                    script_id=ooc_event.script_id, delay=ooc_event.delay)
 
     def set_random_ooc_event(self, target, event):
         if not ConditionChecker.check_condition(event.condition_id, self.owner, target):
             return
 
         # Ignored or already running a script.
-        if event.id in self.ooc_ignore or self.ooc_event:
+        if event.id in self.ooc_ignore or event.id in self.ooc_events:
             return
 
         occ_event = ScriptOocEvent(event, target)
@@ -104,7 +108,7 @@ class ScriptHandler:
             self.ooc_ignore.add(event.id)
             return
 
-        self.ooc_event = occ_event
+        self.ooc_events[event.id] = occ_event
         if not occ_event.should_repeat:
             self.ooc_ignore.add(event.id)
 
@@ -262,7 +266,7 @@ class ScriptHandler:
         #     FIELD_PLAYER_FLAGS               = 190,
         # };
 
-        flag_equivalences_5875_to_3368 = {
+        flag_equivalences_5875_to_3368: dict[int, tuple[int, int, callable]] = {
             # GAMEOBJECT_FLAGS
             9: (GameObjectFields.GAMEOBJECT_FLAGS, command.source.flags, command.source.set_uint32)
             if command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT else (None, None, None),
