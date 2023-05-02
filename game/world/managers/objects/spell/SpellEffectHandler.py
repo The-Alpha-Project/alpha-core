@@ -359,7 +359,7 @@ class SpellEffectHandler:
 
         # Pet teaching.
         summoner = target.get_charmer_or_summoner()
-        if summoner.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        if not summoner or summoner.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
         active_pet = summoner.pet_manager.get_active_permanent_pet()
