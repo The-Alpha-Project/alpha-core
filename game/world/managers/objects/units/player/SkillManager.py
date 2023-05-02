@@ -584,11 +584,10 @@ class SkillManager(object):
 
         # Skill gain chance.
         gain_chance = 100 if skill.value < 75 else 2500 / (skill.value - 50)
-        if gain_chance <= 0 or skill.value >= skill.max:
+        if skill.value >= skill.max:
             return True
 
-        self.set_skill(SkillTypes.FISHING, skill.value + 1)
-        self.build_update()
+        self._roll_profession_skill_gain_chance(SkillTypes.FISHING, gain_chance * 10, 1)
         return True
 
     def get_unlocking_attempt_result(self, lock_type: LockTypes, lock_id: int,
