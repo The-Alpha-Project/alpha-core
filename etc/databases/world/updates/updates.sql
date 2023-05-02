@@ -733,5 +733,19 @@ begin not atomic
 
         insert into`applied_updates`values ('140420231');
     end if;
+
+    -- 03/05/2023 1
+    if (select count(*) from `applied_updates` where id='030520231') = 0 then
+        -- Change diplay_id for Krolg from 1945 to 1012, issue #1140
+        update creature_template set display_id1 = 1012 where entry = 3897;
+        -- Change diplay_id for Druid of the Talon to NE PH
+        update creature_template set display_id1 = 2572 where entry = 2852;
+        -- Change diplay_id for Druid of the Fang to NE PH
+        update creature_template set display_id1 = 2572, display_id2 = 0, display_id3 = 0, display_id4 = 0 where entry = 3840;
+
+
+        insert into`applied_updates`values ('030520231');
+    end if;
+
 end $
 delimiter ;
