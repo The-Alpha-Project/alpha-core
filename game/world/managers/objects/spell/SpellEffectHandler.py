@@ -765,7 +765,8 @@ class SpellEffectHandler:
         if not target.skill_manager.has_skill(skill_id):
             target.skill_manager.add_skill(skill_id)
 
-        target.skill_manager.set_skill(skill_id, max(1, target.skill_manager.get_total_skill_value(skill_id)), skill_max)
+        current_skill = target.skill_manager.get_total_skill_value(skill_id, no_bonus=True)
+        target.skill_manager.set_skill(skill_id, max(1, current_skill), skill_max)
         target.skill_manager.build_update()
 
     @staticmethod
