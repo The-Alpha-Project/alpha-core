@@ -474,6 +474,9 @@ class SkillManager(object):
         if not character_skill:
             return False
 
+        if skill.value >= skill.max:
+            return True
+
         gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
         yellow_threshold = skill_line_ability.TrivialSkillLineRankLow
         chance = SkillManager._get_skill_gain_chance(character_skill.value, gray_threshold,
@@ -581,7 +584,7 @@ class SkillManager(object):
 
         # Skill gain chance.
         gain_chance = 100 if skill.value < 75 else 2500 / (skill.value - 50)
-        if gain_chance <= 0:
+        if gain_chance <= 0 or skill.value >= skill.max:
             return False
 
         self.set_skill(SkillTypes.FISHING, skill.value + 1)
