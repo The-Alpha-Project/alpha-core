@@ -76,12 +76,13 @@ class SpellManager:
 
         # If a profession spell is learned, grant the required skill.
         related_profession_skill = ExtendedSpellData.ProfessionInfo.get_profession_skill_id_for_spell(spell_id)
+        update_skill_max_values = False
         if related_profession_skill and not self.caster.skill_manager.has_skill(related_profession_skill):
             if not self.caster.skill_manager.add_skill(related_profession_skill):
                 return False
         # If the player already knows the skill, update max skill level.
         elif related_profession_skill:
-            self.caster.skill_manager.update_skills_max_value()
+            update_skill_max_values = True
 
         character_skill, skill, skill_line_ability = self.caster.skill_manager.get_skill_info_for_spell_id(spell_id)
         # Character does not have the skill, but it is a valid skill.
@@ -104,6 +105,9 @@ class SpellManager:
         db_spell.spell = spell_id
         RealmDatabaseManager.character_add_spell(db_spell)
         self.spells[spell_id] = db_spell
+
+        if update_skill_max_values:  # Update max skill after adding spell.
+            self.caster.skill_manager.update_skills_max_value()
 
         # If this spell was preceded, handle spell supersede.
         # Some spells allow for multiple rank holding, others do not.

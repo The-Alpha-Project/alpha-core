@@ -474,6 +474,9 @@ class SkillManager(object):
         if not character_skill:
             return False
 
+        if skill.value >= skill.max:
+            return True
+
         gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
         yellow_threshold = skill_line_ability.TrivialSkillLineRankLow
         chance = SkillManager._get_skill_gain_chance(character_skill.value, gray_threshold,
@@ -581,11 +584,10 @@ class SkillManager(object):
 
         # Skill gain chance.
         gain_chance = 100 if skill.value < 75 else 2500 / (skill.value - 50)
-        if gain_chance <= 0:
-            return False
+        if skill.value >= skill.max:
+            return True
 
-        self.set_skill(SkillTypes.FISHING, skill.value + 1)
-        self.build_update()
+        self._roll_profession_skill_gain_chance(SkillTypes.FISHING, gain_chance * 10, 1)
         return True
 
     def get_unlocking_attempt_result(self, lock_type: LockTypes, lock_id: int,
