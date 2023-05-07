@@ -11,16 +11,16 @@ class ConditionChecker:
         pass
 
     @staticmethod
-    def check_condition(condition_id, source, target):
+    def validate(condition_id, source, target):
         if not condition_id:
             return True
         condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(condition_id)
-        return ConditionChecker._check_condition(condition, source, target)
+        return ConditionChecker._validate(condition, source, target)
 
     # Helper functions.
 
     @staticmethod
-    def _check_condition(condition, source, target):
+    def _validate(condition, source, target):
         if condition.flags & ConditionFlags.CONDITION_FLAG_SWAP_TARGETS:
             _tmp_old_target = target
             target = source
@@ -64,21 +64,19 @@ class ConditionChecker:
     @staticmethod
     # Deprecated but still used in some scripts.
     def check_condition_not(condition, source, target):
-        return not ConditionChecker.check_condition(condition.value1, source, target)
+        return not ConditionChecker.validate(condition.value1, source, target)
 
     @staticmethod
     # Returns True if any condition is met.
     def check_condition_or(condition, source, target):
-        condition_values = ConditionChecker.get_filtered_condition_values(condition)
-        return any([ConditionChecker.check_condition(condition_value, source, target)
-                    for condition_value in condition_values])
+        conditions = ConditionChecker.get_filtered_condition_values(condition)
+        return any([ConditionChecker.validate(condition, source, target) for condition in conditions])
 
     @staticmethod
     # Returns True if all conditions are met.
     def check_condition_and(condition, source, target):
-        condition_values = ConditionChecker.get_filtered_condition_values(condition)
-        return all([ConditionChecker.check_condition(condition_value, source, target)
-                    for condition_value in condition_values])
+        conditions = ConditionChecker.get_filtered_condition_values(condition)
+        return all([ConditionChecker.validate(condition, source, target) for condition in conditions])
 
     @staticmethod
     def check_condition_none(condition, source, target):

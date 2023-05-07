@@ -4,12 +4,13 @@ from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 
 
 class Script:
-    def __init__(self, script_id, db_commands, source, target, script_handler, delay=0.0):
+    def __init__(self, script_id, db_commands, source, target, script_handler, delay=0.0, ooc_event=None):
         self.id: int = script_id
         self.commands: list[ScriptCommand] = [ScriptCommand(script_id, command) for command in db_commands]
         self.source = source
         self.target = target
         self.script_handler = script_handler
+        self.ooc_event = ooc_event
         self.delay: float = delay
         self.time_added: float = time.time()
         self.started = False
@@ -17,6 +18,7 @@ class Script:
     def update(self, now):
         # Check initial delay for command sequence.
         if now - self.time_added < self.delay:
+            print(f'{now - self.time_added} vs {self.delay} | {self.ooc_event.comment if self.ooc_event else ""}')
             return
         self.started = True
 
@@ -31,8 +33,7 @@ class Script:
             script_command.resolve_target(self.source, self.target)
 
             # Condition is not met, skip.
-            if not ConditionChecker.check_condition(script_command.condition_id, source=self.source,
-                                                    target=self.target):
+            if not ConditionChecker.validate(script_command.condition_id, source=self.source, target=self.target):
                 continue
 
             # Execute action.

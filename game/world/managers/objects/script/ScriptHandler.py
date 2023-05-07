@@ -34,13 +34,13 @@ class ScriptHandler:
         self.ooc_events = {}
         self.current_script = None
 
-    def enqueue_script(self, source, target, script_type, script_id, delay=0.0):
+    def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
         # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
             return
         script_commands.sort(key=lambda command: command.delay)
-        new_script = Script(script_id, script_commands, source, target, self, delay=delay)
+        new_script = Script(script_id, script_commands, source, target, self, delay=delay, ooc_event=ooc_event)
         self.script_queue.append(new_script)
 
     # noinspection PyMethodMayBeStatic
@@ -88,21 +88,21 @@ class ScriptHandler:
                 # Should not repeat, remove.
                 if event_id in self.ooc_ignore:
                     self.ooc_events.pop(event_id)
-            elif not ooc_event.started:
+            elif not ooc_event.started and ooc_event.check_phase():
                 # Initialize the ooc event, will pick one random script.
                 ooc_event.initialize(now)
                 self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
-                                    script_id=ooc_event.script_id, delay=ooc_event.delay)
+                                    script_id=ooc_event.script_id, delay=ooc_event.delay, ooc_event=ooc_event)
 
     def set_random_ooc_event(self, target, event):
-        if not ConditionChecker.check_condition(event.condition_id, self.owner, target):
+        if not ConditionChecker.validate(event.condition_id, self.owner, target):
             return
 
         # Ignored or already running a script.
         if event.id in self.ooc_ignore or event.id in self.ooc_events:
             return
 
-        occ_event = ScriptOocEvent(event, target)
+        occ_event = ScriptOocEvent(event, target, self.owner)
         # Has no scripts, ignore.
         if not occ_event.scripts:
             self.ooc_ignore.add(event.id)
@@ -788,7 +788,7 @@ class ScriptHandler:
         # datalong2 = failed_quest_id
         # datalong3 = eTerminateConditionFlags
         if command.datalong:
-            result = ConditionChecker.check_condition(command.datalong, command.source, command.target)
+            result = ConditionChecker.validate(command.datalong, command.source, command.target)
             if command.datalong3 & TerminateConditionFlags.SF_TERMINATECONDITION_WHEN_FALSE:
                 result = not result
         else:
@@ -935,16 +935,14 @@ class ScriptHandler:
         # datalong2 = eSetPhaseOptions
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}.')
-        else:
-            if command.datalong2 == SetPhaseOptions.SO_SETPHASE_RAW:
-                command.source.object_ai.phase = command.datalong
-            elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_INCREMENT:
-                command.source.object_ai.phase += command.datalong
-            elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_DECREMENT:
-                if command.source.object_ai.phase < command.datalong:
-                    command.source.object_ai.phase = 0
-                else:
-                    command.source.object_ai.phase -= command.datalong
+            return
+
+        if command.datalong2 == SetPhaseOptions.SO_SETPHASE_RAW:
+            command.source.object_ai.phase = command.datalong
+        elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_INCREMENT:
+            command.source.object_ai.phase += command.datalong
+        elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_DECREMENT:
+            command.source.object_ai.phase = max(0, command.source.object_ai.phase - command.datalong)
 
     @staticmethod
     def handle_script_command_set_phase_random(command):
@@ -952,9 +950,9 @@ class ScriptHandler:
         # datalong1-4 = phase
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}.')
-        else:
-            command.source.object_ai.phase = random.choice([command.datalong1, command.datalong2, command.datalong3,
-                                                            command.datalong4])
+            return
+        command.source.object_ai.phase = random.choice([command.datalong1, command.datalong2,
+                                                        command.datalong3, command.datalong4])
 
     @staticmethod
     def handle_script_command_set_phase_range(command):
@@ -963,8 +961,8 @@ class ScriptHandler:
         # datalong2 = phase_max
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
-        else:
-            command.source.object_ai.phase = random.randrange(command.datalong, command.datalong2)
+            return
+        command.source.object_ai.phase = random.randrange(command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_flee(command):

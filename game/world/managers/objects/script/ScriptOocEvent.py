@@ -4,8 +4,11 @@ from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 
 
 class ScriptOocEvent:
-    def __init__(self, event, target):
+    def __init__(self, event, target, owner):
+        self.owner = owner
+        self.comment = event.comment
         self.event_id = event.id
+        self.phase_mask = event.event_inverse_phase_mask
         self.scripts = ScriptHelpers.get_filtered_event_scripts(event)
         self.delay = uniform(event.event_param1 / 1000, event.event_param2 / 1000)
         self.repeat = uniform(event.event_param3 / 1000, event.event_param4 / 1000)
@@ -14,6 +17,11 @@ class ScriptOocEvent:
         self.should_repeat = self.repeat > 0
         self.started = False
         self.time_added = 0
+
+    def check_phase(self):
+        if not self.phase_mask:
+            return True
+        return self.owner.object_ai.phase & self.phase_mask
 
     def initialize(self, now):
         self.time_added = now

@@ -492,7 +492,8 @@ class CreatureManager(UnitManager):
     # TODO: Quest active escort npc, other cases?
     def is_active_object(self):
         return (self.has_waypoints_type() or self.creature_group) \
-            or len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self)
+            or len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self) \
+            or self.subtype in {CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON}
 
     def has_waypoints_type(self):
         return self.movement_type == MovementTypes.WAYPOINT

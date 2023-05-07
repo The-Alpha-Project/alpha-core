@@ -40,7 +40,7 @@ class CreatureAI:
             self.creature_spells = []  # Contains the currently used creature_spells template.
             self.load_spell_list()
             self.ai_event_handler = AIEventHandler(creature)
-            self.phase = 0
+            self.phase = 0  # TODO, should phase reside here?
 
     def load_spell_list(self):
         # Load creature spells if available.
@@ -48,12 +48,13 @@ class CreatureAI:
             spell_list_id = self.creature.creature_template.spell_list_id
             creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(
                 spell_list_id)
-            if creature_spells:
-                # Finish loading each creature_spell.
-                for creature_spell in creature_spells:
-                    creature_spell.finish_loading()
-                    if creature_spell.has_valid_spell:
-                        self.creature_spells.append(creature_spell)
+            if not creature_spells:
+                return
+            # Finish loading each creature_spell.
+            for creature_spell in creature_spells:
+                creature_spell.finish_loading()
+                if creature_spell.has_valid_spell:
+                    self.creature_spells.append(creature_spell)
 
     def has_spell_list(self):
         return len(self.creature_spells) > 0
@@ -436,7 +437,7 @@ class CreatureAI:
         self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=180)
 
     def is_ready_for_new_attack(self):
-        return self.creature.is_alive and self.creature.is_spawned and len(self.creature.known_players) > 0 \
+        return self.creature.is_alive and self.creature.is_spawned and self.creature.is_active_object() \
                and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
                and not self.creature.in_combat and not self.creature.is_evading \
                and not self.creature.unit_state & UnitStates.STUNNED \
