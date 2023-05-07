@@ -381,30 +381,27 @@ class ScriptHandler:
         # datalong2 = distance or 0
         # datalong3 = (bool) group
         quest_target = None
-        if command.source:
-            if command.source.quest_target:
-                quest_target = command.source.quest_target
-        elif command.target:
-            if command.target.quest_target:
-                quest_target = command.target.quest_target
+        if command.source and command.source.quest_target:
+            quest_target = command.source.quest_target
+        elif command.target and command.target.quest_target:
+            quest_target = command.target.quest_target
 
         if not quest_target:
             Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
             return
 
-        if command.datalong in quest_target.quest_manager.active_quests:
-            in_range = command.source.location.distance(quest_target.location) <= command.datalong2
-            if command.datalong3:
-                if quest_target.group_manager and in_range:
-                    quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
-                else:
-                    if in_range:
-                        quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-                        quest_target.quest_manager.reward_quest_event()
-            else:
-                if in_range:
-                    quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-                    quest_target.quest_manager.reward_quest_event()
+        if command.datalong not in quest_target.quest_manager.active_quests:
+            return
+        in_range = command.source.location.distance(quest_target.location) <= command.datalong2
+        if command.datalong3:
+            if quest_target.group_manager and in_range:
+                quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
+            elif in_range:
+                quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+                quest_target.quest_manager.reward_quest_event()
+        elif in_range:
+            quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+            quest_target.quest_manager.reward_quest_event()
 
     @staticmethod
     def handle_script_command_kill_credit(command):
@@ -627,13 +624,14 @@ class ScriptHandler:
 
         if command.datalong == 1:
             command.source.reset_virtual_equipment()
-        else:
-            if command.dataint > 0:
-                command.source.set_virtual_equipment(0, command.dataint)
-            if command.dataint2 > 0:
-                command.source.set_virtual_equipment(1, command.dataint2)
-            if command.dataint3 > 0:
-                command.source.set_virtual_equipment(2, command.dataint3)
+            return
+
+        if command.dataint > 0:
+            command.source.set_virtual_equipment(0, command.dataint)
+        if command.dataint2 > 0:
+            command.source.set_virtual_equipment(1, command.dataint2)
+        if command.dataint3 > 0:
+            command.source.set_virtual_equipment(2, command.dataint3)
 
     @staticmethod
     def handle_script_command_movement(command):
@@ -685,15 +683,16 @@ class ScriptHandler:
 
         if not creature_or_model_entry:
             command.source.reset_display_id()
+            return
         elif display_id:
             command.source.set_display_id(display_id)
+            return
+
+        creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_model_entry)
+        if creature_template:
+            command.source.set_display_id(creature_template.display_id)
         else:
-            creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
-                creature_or_model_entry)
-            if creature_template:
-                command.source.set_display_id(creature_template.display_id)
-            else:
-                Logger.warning(f'ScriptHandler: No creature template found, aborting {command.get_info()}.')
+            Logger.warning(f'ScriptHandler: No creature template found, aborting {command.get_info()}.')
 
     @staticmethod
     def handle_script_command_mount_to_entry_or_model(command):
@@ -732,9 +731,9 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
             return
 
-        command.source.change_speed(
-            command.source.creature_template.speed_run if command.datalong == 1 else
-            command.source.creature_template.speed_walk)
+        creature_template = command.source.creature_template
+        new_speed = creature_template.speed_run if command.datalong == 1 else creature_template.speed_walk
+        command.source.change_speed(new_speed)
 
     @staticmethod
     def handle_script_command_attack_start(command):
@@ -795,24 +794,27 @@ class ScriptHandler:
         else:
             result = True
 
-        if command.datalong2:
-            _target = None
-            if ConditionChecker.is_player(command.source):
-                _target = command.source
-            elif command.target and ConditionChecker.is_player(command.target):
-                _target = command.target
+        if not command.datalong2:
+            return
 
-            if result and _target.script_handler.current_script:
-                command.source.script_handler.current_script.abort()
+        _target = None
+        if ConditionChecker.is_player(command.source):
+            _target = command.source
+        elif command.target and ConditionChecker.is_player(command.target):
+            _target = command.target
 
-            if _target:
-                if _target.online and result:
-                    if _target.group_manager:
-                        _target.group_manager.fail_quest_for_group(_target, command.datalong2)
-                    else:
-                        _target.quest_manager.fail_quest_by_id(command.datalong2)
+        if result and _target.script_handler.current_script:
+            command.source.script_handler.current_script.abort()
+
+        if not _target:
+            Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
+            return
+
+        if _target.online and result:
+            if _target.group_manager:
+                _target.group_manager.fail_quest_for_group(_target, command.datalong2)
             else:
-                Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
+                _target.quest_manager.fail_quest_by_id(command.datalong2)
 
     @staticmethod
     def handle_script_command_enter_evade_mode(command):
