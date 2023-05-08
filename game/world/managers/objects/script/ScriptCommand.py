@@ -4,6 +4,7 @@ from utils.constants.ScriptCodes import ScriptCommands
 class ScriptCommand:
     def __init__(self, script_id, db_command):
         self.script_id = script_id
+        self.comments = db_command.comments
         self.command: int = db_command.command
         self.datalong: int = db_command.datalong
         self.datalong2: int = db_command.datalong2

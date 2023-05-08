@@ -17,15 +17,15 @@ class Script:
 
     def update(self, now):
         # Check initial delay for command sequence.
-        if now - self.time_added < self.delay:
-            print(f'{now - self.time_added} vs {self.delay} | {self.ooc_event.comment if self.ooc_event else ""}')
+        if self.delay and now - self.time_added < self.delay:
             return
         self.started = True
 
         for script_command in list(self.commands):
             # Check if it's time to execute the command action.
-            if now - self.time_added < script_command.delay:
+            if script_command.delay and now - self.time_added < script_command.delay:
                 return
+            print(f'{script_command.comments}')
             self.commands.remove(script_command)
 
             # TODO: 'ConditionTargetsInternal' VMaNGOS.

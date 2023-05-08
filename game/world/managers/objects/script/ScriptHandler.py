@@ -1093,7 +1093,10 @@ class ScriptHandler:
         # datalong4 = (bool) repeat
         # dataint = overwrite_guid
         # dataint2 = overwrite_entry
-        Logger.debug('ScriptHandler: handle_script_command_start_waypoints not implemented yet')
+        if not command.target:
+            Logger.warning(f'ScriptHandler: No target found, aborting {command.get_info()}.')
+            return
+        command.target.movement_manager.move_automatic_waypoints_from_script()
 
     @staticmethod
     def handle_script_command_start_map_event(command):
