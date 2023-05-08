@@ -15,7 +15,7 @@ from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
     ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags
-from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
+from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
     ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags
@@ -588,6 +588,11 @@ class ScriptHandler:
         spell = command.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
         if command.datalong2 & CastFlags.CF_TRIGGERED:
             spell.force_instant_cast()
+        elif command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
+            cast_result = command.source.object_ai.try_to_cast(target, spell, command.datalong2, chance=100)
+            if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
+                Logger.warning(f'[Script] Unable to cast spell {command.datalong}, script_id {command.script_id}.')
+                return
 
         command.source.spell_manager.start_spell_cast(initialized_spell=spell)
 

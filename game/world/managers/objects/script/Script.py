@@ -25,7 +25,6 @@ class Script:
             # Check if it's time to execute the command action.
             if script_command.delay and now - self.time_added < script_command.delay:
                 return
-            print(f'{script_command.comments}')
             self.commands.remove(script_command)
 
             # TODO: 'ConditionTargetsInternal' VMaNGOS.
