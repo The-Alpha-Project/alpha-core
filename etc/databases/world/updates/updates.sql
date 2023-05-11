@@ -752,6 +752,7 @@ begin not atomic
     if (select count(*) from `applied_updates` where id='040520231') = 0 then
         -- Relocate Jordan Croft,  issue #1141
         update spawns_creatures set position_x = -9497.283,  position_y = -1192.551, position_z = 49.564, orientation = 6.040 where spawn_id = 400054;
+        update creature_template set level_min = 10, level_max = 10, health_min = 198, health_max = 198, armor = 20, dmg_min = 9, dmg_max = 13, attack_power = 62 where entry = 1649
         -- Spawn Natheril and change his display id to NE PH, stats were changed to stats of lvl 27 npcs, issue #1137
         update spawns_creatures set position_x = 9950.535,  position_y = 1926.531, position_z = 1327.937, orientation = 4.913, ignored = 0 where spawn_id = 41643;
         update creature_template set display_id1 = 2572, level_max = 27, level_min = 27, health_max = 839, health_min = 839, armor = 1097, dmg_max = 46, dmg_min = 36, attack_power = 112, ranged_dmg_max = 56.8458, ranged_dmg_min = 41.3424 where entry = 2084;
