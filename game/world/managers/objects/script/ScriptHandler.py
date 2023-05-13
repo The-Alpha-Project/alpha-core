@@ -146,15 +146,13 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Broadcast messages for {command.get_info()}, not found.')
             return
 
-        speaker = command.target if command.target and command.target.get_type_id() == ObjectTypeIds.ID_UNIT \
-            else command.source
-        if speaker.get_type_id() != ObjectTypeIds.ID_UNIT:
+        if command.source.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Wrong target type, aborting {command.get_info()}.')
             return
 
-        if speaker.gender == Genders.GENDER_MALE and broadcast_message.male_text:
+        if command.source.gender == Genders.GENDER_MALE and broadcast_message.male_text:
             text_to_say = broadcast_message.male_text
-        elif speaker.gender == Genders.GENDER_FEMALE and broadcast_message.female_text:
+        elif command.source.gender == Genders.GENDER_FEMALE and broadcast_message.female_text:
             text_to_say = broadcast_message.female_text
         else:
             text_to_say = broadcast_message.male_text if broadcast_message.male_text else broadcast_message.female_text
@@ -171,12 +169,12 @@ class ScriptHandler:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
         
-        ChatManager.send_monster_message(speaker, text_to_say, chat_msg_type, lang,
+        ChatManager.send_monster_message(command.source, text_to_say, chat_msg_type, lang,
                                          ChatHandler.get_range_by_type(chat_msg_type), command.target)
 
         # Neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them.
         if broadcast_message.emote_id1 != 0:
-            speaker.play_emote(broadcast_message.emote_id1)
+            command.source.play_emote(broadcast_message.emote_id1)
 
     @staticmethod
     def handle_script_command_emote(command):
