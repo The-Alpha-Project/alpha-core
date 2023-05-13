@@ -1,3 +1,5 @@
+import time
+
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import MoveType, ScriptTypes
 
@@ -8,10 +10,12 @@ from game.world.managers.objects.units.movement.behaviors.BaseMovement import Ba
 
 
 class WaypointMovement(BaseMovement):
-    def __init__(self, spline_callback, is_default=False, waypoints=None, speed=0):
+    def __init__(self, spline_callback, is_default=False, waypoints=None, speed=0, command_move_info=None):
         super().__init__(move_type=MoveType.WAYPOINTS, spline_callback=spline_callback, is_default=is_default)
         self.creature_movement = None
+        self.command_move_info = command_move_info
         self.speed = speed
+        self.should_repeat = is_default
         self.points = waypoints
         self.waypoints: list[MovementWaypoint] = []
         self.last_waypoint_movement = 0
@@ -20,13 +24,44 @@ class WaypointMovement(BaseMovement):
     # override
     def initialize(self, unit):
         super().initialize(unit)
+
+        # Triggered from scripts.
+        if self.command_move_info:
+            return self._initialize_from_script(unit)
+
+        # Default behaviors.
         if self.points:
             self.waypoints = self._movement_waypoints_from_vectors(self.points)
             return True
-        self.creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_for_creature(unit)
+        self.creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_for_creature(unit.entry,
+                                                                                                        unit.spawn_id)
         if self.creature_movement:
             self.creature_movement.sort(key=lambda wp: wp.point)
             self.waypoints = self._get_sorted_waypoints_by_distance(self.creature_movement)
+            return True
+
+        return False
+
+    def _initialize_from_script(self, unit):
+        movement_holder = WorldDatabaseManager.CreatureMovementHolder
+        entry = unit.entry if not self.command_move_info.overwrite_entry else self.command_move_info.overwrite_entry
+        guid = unit.spawn_id if not self.command_move_info.overwrite_guid else self.command_move_info.overwrite_guid
+        movement_waypoints = movement_holder.get_waypoints_for_creature(entry, guid, self.command_move_info.wp_source)
+        self.creature_movement = movement_waypoints
+
+        # Update should repeat.
+        self.should_repeat = self.is_default and self.command_move_info.repeat
+
+        # Set initial delay if needed.
+        if self.command_move_info.initial_delay:
+            self.wait_time_seconds = self.command_move_info.initial_delay / 1000
+            self.last_waypoint_movement = time.time()
+
+        # We found waypoints data according to script provided data.
+        if self.creature_movement:
+            self.creature_movement.sort(key=lambda wp: wp.point)
+            start_points = 0 if not self.command_move_info.start_point else self.command_move_info.start_point
+            self.waypoints = self._get_sorted_waypoints_by_start_point(self.creature_movement, start_points)
             return True
 
         return False
@@ -53,7 +88,7 @@ class WaypointMovement(BaseMovement):
                 self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
                                                         current_wp.script_id)
             # If this is a default behavior, make it cyclic.
-            if self.is_default:
+            if self.should_repeat:
                 self._waypoint_push_back()
             # Not default, pop.
             else:
@@ -86,6 +121,13 @@ class WaypointMovement(BaseMovement):
             wp = MovementWaypoint(index, point.x, point.y, point.z, point.o, wait_time_seconds=0)
             movement_waypoints.append(wp)
         return movement_waypoints
+
+    def _get_sorted_waypoints_by_start_point(self, movement_waypoints, start_index) -> list[MovementWaypoint]:
+        points = [MovementWaypoint(wp.point, wp.position_x, wp.position_y, wp.position_z, wp.orientation,
+                                   wp.waittime / 1000, wp.script_id) for wp in movement_waypoints]  # Wrap them.
+        if not start_index:
+            return points
+        return points[start_index:] + points[0:start_index]
 
     def _get_sorted_waypoints_by_distance(self, movement_waypoints) -> list[MovementWaypoint]:
         points = [MovementWaypoint(wp.point, wp.position_x, wp.position_y, wp.position_z, wp.orientation,

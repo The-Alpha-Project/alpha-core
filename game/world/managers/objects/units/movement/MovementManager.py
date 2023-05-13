@@ -136,8 +136,8 @@ class MovementManager:
             return
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback))
 
-    def move_automatic_waypoints_from_script(self):
-        self.set_behavior(WaypointMovement(spline_callback=self.spline_callback))
+    def move_automatic_waypoints_from_script(self, command_move_info=None):
+        self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, command_move_info=command_move_info))
 
     def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, waypoints=[location], speed=speed))

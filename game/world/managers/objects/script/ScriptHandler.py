@@ -11,6 +11,7 @@ from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptOocEvent import ScriptOocEvent
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
+from game.world.managers.objects.units.movement.helpers.CommandMoveInfo import CommandMoveInfo
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
@@ -18,7 +19,7 @@ from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages,
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
-    ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags
+    ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags, WaypointPathOrigin
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
@@ -651,7 +652,7 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
-        command.source.movement_manager.move_automatic_waypoints_from_script()
+        Logger.debug('ScriptHandler: handle_script_command_movement not implemented yet')
 
     @staticmethod
     def handle_script_command_set_activeobject(command):
@@ -1102,7 +1103,10 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
-        command.source.movement_manager.move_automatic_waypoints_from_script()
+        move_info = CommandMoveInfo(wp_source=WaypointPathOrigin(command.datalong), start_point=command.datalong2,
+                                    initial_delay=command.datalong3, repeat=command.datalong4 > 0,
+                                    overwrite_guid=command.dataint, overwrite_entry=command.dataint2)
+        command.source.movement_manager.move_automatic_waypoints_from_script(command_move_info=move_info)
 
     @staticmethod
     def handle_script_command_start_map_event(command):

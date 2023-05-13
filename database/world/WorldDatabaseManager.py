@@ -11,7 +11,7 @@ from game.world.managers.objects.units.creature.CreatureSpellsEntry import Creat
 from utils.ConfigManager import *
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid, Languages
-
+from utils.constants.ScriptCodes import WaypointPathOrigin
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
 DB_PASSWORD = os.getenv('MYSQL_PASSWORD', config.Database.Connection.password)
@@ -462,13 +462,20 @@ class WorldDatabaseManager(object):
                 creature_movement_special)
 
         @staticmethod
-        def get_waypoints_for_creature(creature_mgr):
-            if creature_mgr.spawn_id in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
-                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_mgr.spawn_id]
-            if creature_mgr.entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
-                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_mgr.entry]
-            if creature_mgr.entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL:
-                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[creature_mgr.entry]
+        def get_waypoints_for_creature(entry, guid, path_origin: WaypointPathOrigin = WaypointPathOrigin.PATH_NO_PATH):
+            if path_origin == WaypointPathOrigin.PATH_FROM_GUID:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS.get(guid, [])
+            elif path_origin == WaypointPathOrigin.PATH_FROM_SPECIAL:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL.get(entry, [])
+            elif path_origin == WaypointPathOrigin.PATH_FROM_ENTRY:
+                return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES.get(entry, [])
+            else:
+                if guid in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                    return WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[guid]
+                if entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
+                    return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[entry]
+                if entry in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL:
+                    return WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[entry]
             return []
 
         @staticmethod
