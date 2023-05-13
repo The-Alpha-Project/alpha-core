@@ -368,7 +368,7 @@ class CreatureAI:
             self.creature.spell_manager.remove_colliding_casts(casting_spell)
 
         # Roll chance to cast from script after all checks have passed.
-        if chance:
+        if chance and chance != 100:
             if not chance > randint(0, 100):
                 return SpellCheckCastResult.SPELL_FAILED_TRY_AGAIN
 

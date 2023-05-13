@@ -25,7 +25,7 @@ class AIEventHandler:
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
         for event in events:
-            if randint(0, 100) > event.event_chance:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
 
             script_id = event.action1_script
@@ -37,7 +37,7 @@ class AIEventHandler:
 
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
         for event in events:
-            if randint(0, 100) > event.event_chance:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
 
             choices = ScriptHelpers.get_filtered_event_scripts(event)
@@ -50,7 +50,7 @@ class AIEventHandler:
     def on_damage_taken(self, attacker=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
         for event in events:
-            if randint(0, 100) > event.event_chance:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
 
             now = time.time()
@@ -70,14 +70,14 @@ class AIEventHandler:
     def on_idle(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
         for event in events:
-            if randint(0, 100) > event.event_chance:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
             self.creature.script_handler.set_random_ooc_event(self.creature, event)
 
     def on_death(self, killer=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
         for event in events:
-            if randint(0, 100) > event.event_chance:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
             choices = ScriptHelpers.get_filtered_event_scripts(event)
             random_script = choice(choices)

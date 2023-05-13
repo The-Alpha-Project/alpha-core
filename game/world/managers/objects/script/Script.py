@@ -27,9 +27,13 @@ class Script:
                 return
             self.commands.remove(script_command)
 
-            # TODO: 'ConditionTargetsInternal' VMaNGOS.
             # Try to resolve a target.
-            script_command.resolve_target(self.source, self.target)
+            succeed, source, target = script_command.resolve_final_targets(self.source, self.target)
+            if not succeed:
+                continue
+
+            self.source = source
+            self.target = target
 
             # Condition is not met, skip.
             if not ConditionChecker.validate(script_command.condition_id, source=self.source, target=self.target):
