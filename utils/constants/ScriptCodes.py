@@ -251,6 +251,11 @@ class SetPhaseOptions(IntEnum):
     SO_SETPHASE_DECREMENT = 2
 
 
+class EventFlags:
+    REPEATABLE = 0x01
+    RANDOM_ACTION = 0x02
+
+
 class SetMapScriptDataOptions(IntEnum):
     SO_MAPEVENTDATA_RAW = 0
     SO_MAPEVENTDATA_INCREMENT = 1

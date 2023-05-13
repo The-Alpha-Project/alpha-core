@@ -91,8 +91,9 @@ class ScriptHandler:
             elif not ooc_event.started and ooc_event.check_phase():
                 # Initialize the ooc event, will pick one random script.
                 ooc_event.initialize(now)
-                self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
-                                    script_id=ooc_event.script_id, delay=ooc_event.delay, ooc_event=ooc_event)
+                for script_id in ooc_event.script_ids:
+                    self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
+                                        script_id=script_id, delay=ooc_event.delay, ooc_event=ooc_event)
 
     def set_random_ooc_event(self, target, event):
         if not ConditionChecker.validate(event.condition_id, self.owner, target):
@@ -109,7 +110,7 @@ class ScriptHandler:
             return
 
         self.ooc_events[event.id] = occ_event
-        if not occ_event.should_repeat:
+        if not occ_event.should_repeat():
             self.ooc_ignore.add(event.id)
 
     # Handlers
