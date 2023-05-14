@@ -20,7 +20,8 @@ from utils.Formulas import UnitFormulas, Distances
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid
+from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
+    MoveType
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
     PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
@@ -493,12 +494,13 @@ class CreatureManager(UnitManager):
         if not self.is_spawned or not self.initialized:
             return False
         
-        return (self.has_waypoints_type() or self.creature_group) or self.script_handler.current_script \
+        return self.has_waypoints_type() or self.creature_group or self.script_handler.current_script \
             or len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self) \
             or self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
 
     def has_waypoints_type(self):
-        return self.movement_type == MovementTypes.WAYPOINT
+        return self.movement_type == MovementTypes.WAYPOINT \
+            or self.movement_manager.get_move_behavior_by_type(MoveType.WAYPOINTS)
 
     def has_wander_type(self):
         return self.movement_type == MovementTypes.WANDER

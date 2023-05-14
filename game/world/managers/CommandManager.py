@@ -990,7 +990,7 @@ GM_COMMAND_DEFINITIONS = {
     'squest': [CommandManager.squest, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log'],
     'qdel': [CommandManager.qdel, 'delete active or completed quest'],
-    'sevent': [CommandManager.fevent, 'force the given event to execute'],
+    'fevent': [CommandManager.fevent, 'force the given event to execute'],
 }
 
 DEV_COMMAND_DEFINITIONS = {
