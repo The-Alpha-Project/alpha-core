@@ -206,6 +206,7 @@ class ObjectManager:
             return False
 
         self.running_speed = speed
+        MapManager.send_surrounding(self.generate_movement_packet(), self)
         return True
 
     def reset_scale(self):
