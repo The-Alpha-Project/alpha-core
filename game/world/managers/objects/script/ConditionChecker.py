@@ -27,7 +27,7 @@ class ConditionChecker:
             source = _tmp_old_target
 
         if condition.type in CONDITIONS:
-            result = CONDITIONS[condition.type](condition, source, target)
+            result = CONDITIONS[int(condition.type)](condition, source, target)
             if condition.flags & ConditionFlags.CONDITION_FLAG_REVERSE_RESULT:
                 return not result
 

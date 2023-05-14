@@ -99,15 +99,23 @@ class ScriptHandler:
                     self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
                                         script_id=script_id, delay=ooc_event.delay, ooc_event=ooc_event)
 
-    def set_random_ooc_event(self, target, event):
+    def set_random_ooc_event(self, target, event, forced=False):
         if not ConditionChecker.validate(event.condition_id, self.owner, target):
             return
 
         # Ignored or already running a script.
         if event.id in self.ooc_ignore or event.id in self.ooc_events:
-            return
+            if not forced:
+                return
+            # Event is already in, force it.
+            if event.id in self.ooc_events:
+                self.ooc_events[event.id].force()
+                return
+            # Remove from ignored if needed.
+            if event.id in self.ooc_ignore:
+                self.ooc_ignore.remove(event.id)
 
-        occ_event = ScriptOocEvent(event, target, self.owner)
+        occ_event = ScriptOocEvent(event, target, self.owner, forced=forced)
         # Has no scripts, ignore.
         if not occ_event.scripts:
             self.ooc_ignore.add(event.id)

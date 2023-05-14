@@ -620,6 +620,27 @@ class CommandManager(object):
             return -1, 'please specify a valid weapon mode.'
 
     @staticmethod
+    def fevent(world_session, args):
+        try:
+            creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                               world_session.player_mgr.current_selection)
+            if not creature:
+                return -1, 'unable to locate creature.'
+
+            event_id = int(args)
+            event = WorldDatabaseManager.CreatureAiEventHolder.creature_ai_event_get_by_event_id(event_id)
+            if not event:
+                return -1, 'invalid event id.'
+
+            if event.creature_id != creature.entry:
+                return -1, 'invalid creature for provided event.'
+
+            creature.script_handler.set_random_ooc_event(creature, event, forced=True)
+            return 0, f'Triggered event {event.comment}.'
+        except:
+            return -1, 'invalid event id.'
+
+    @staticmethod
     def unit_flags(world_session, args):
         unit = CommandManager._target_or_self(world_session)
         result = ''
@@ -968,7 +989,8 @@ GM_COMMAND_DEFINITIONS = {
     'alltaxis': [CommandManager.alltaxis, 'discover all flight paths'],
     'squest': [CommandManager.squest, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log'],
-    'qdel': [CommandManager.qdel, 'delete active or completed quest']
+    'qdel': [CommandManager.qdel, 'delete active or completed quest'],
+    'sevent': [CommandManager.fevent, 'force the given event to execute'],
 }
 
 DEV_COMMAND_DEFINITIONS = {
