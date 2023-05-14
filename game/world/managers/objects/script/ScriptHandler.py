@@ -93,7 +93,7 @@ class ScriptHandler:
                 if event_id in self.ooc_ignore:
                     self.ooc_events.pop(event_id)
             elif not ooc_event.started and ooc_event.check_phase():
-                # Initialize the ooc event, will pick one random script.
+                # Initialize the ooc event.
                 ooc_event.initialize(now)
                 for script_id in ooc_event.script_ids:
                     self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
