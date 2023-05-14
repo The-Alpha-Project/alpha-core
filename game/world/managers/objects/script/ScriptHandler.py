@@ -73,6 +73,9 @@ class ScriptHandler:
             # Finished all actions, remove.
             self.script_queue.remove(script)
 
+        if not self.script_queue:
+            self.current_script = None
+
         # Check if we need to initialize or remove ooc event.
         self._check_ooc_events(now)
 

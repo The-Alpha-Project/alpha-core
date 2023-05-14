@@ -489,11 +489,13 @@ class CreatureManager(UnitManager):
             self.spell_manager.handle_cast_attempt(aura, self, SpellTargetMask.SELF, validate=False)
 
     # override
-    # TODO: Quest active escort npc, other cases?
     def is_active_object(self):
-        return (self.has_waypoints_type() or self.creature_group) \
+        if not self.is_spawned or not self.initialized:
+            return False
+        
+        return (self.has_waypoints_type() or self.creature_group) or self.script_handler.current_script \
             or len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self) \
-            or self.subtype in {CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON}
+            or self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
 
     def has_waypoints_type(self):
         return self.movement_type == MovementTypes.WAYPOINT
@@ -506,7 +508,7 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            if self.is_alive and self.is_spawned and self.initialized:
+            if self.is_alive and self.is_active_object():
                 # Time to live checks for standalone instances.
                 if not self._check_time_to_live(elapsed):
                     return  # Creature destroyed.
@@ -519,8 +521,7 @@ class CreatureManager(UnitManager):
                 # Sanctuary check.
                 self.update_sanctuary(elapsed)
                 # Movement Updates.
-                if self.is_active_object():
-                    self.movement_manager.update(now, elapsed)
+                self.movement_manager.update(now, elapsed)
                 if self.has_moved or self.has_turned:
                     # Relocate only if x, y changed.
                     if self.has_moved:

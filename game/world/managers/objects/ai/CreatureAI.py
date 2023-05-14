@@ -437,7 +437,7 @@ class CreatureAI:
         self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=180)
 
     def is_ready_for_new_attack(self):
-        return self.creature.is_alive and self.creature.is_spawned and self.creature.is_active_object() \
+        return self.creature.is_alive and self.creature.is_active_object() \
                and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
                and not self.creature.in_combat and not self.creature.is_evading \
                and not self.creature.unit_state & UnitStates.STUNNED \
