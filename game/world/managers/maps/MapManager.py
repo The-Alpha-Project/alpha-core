@@ -706,7 +706,7 @@ class MapManager:
     def update_creatures():
         for map_id, instances in MAPS.items():
             for instance_map in instances.values():
-                instance_map.grid_manager.update_creatures()
+                instance_map.update_creatures()
 
     @staticmethod
     def update_gameobjects():
