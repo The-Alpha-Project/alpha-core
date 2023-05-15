@@ -15,6 +15,9 @@ class Script:
         self.time_added: float = time.time()
         self.started = False
 
+    def __hash__(self):
+        return self.id
+
     def update(self, now):
         # Check initial delay for command sequence.
         if self.delay and now - self.time_added < self.delay:

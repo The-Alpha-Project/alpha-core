@@ -30,19 +30,22 @@ class ScriptHandler:
 
     def __init__(self, world_object):
         self.owner = world_object
-        self.script_queue = []
+        self.script_queue = set()
         self.ooc_ignore = set()
         self.ooc_events = {}
         self.current_script = None
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
+        if script_id in self.script_queue:
+            Logger.warning(f'Skip duplicate script {script_id}.')
+            return
         # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
             return
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, ooc_event=ooc_event)
-        self.script_queue.append(new_script)
+        self.script_queue.add(new_script)
 
     # noinspection PyMethodMayBeStatic
     def handle_script_command_execution(self, script_command):
