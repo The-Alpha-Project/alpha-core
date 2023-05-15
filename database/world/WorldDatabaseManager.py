@@ -977,7 +977,7 @@ class WorldDatabaseManager(object):
     # Event conditions.
 
     @staticmethod
-    def conditions_get_all() -> list[Type[Condition]]:
+    def conditions_get_all() -> list[Condition]:
         world_db_session: scoped_session = SessionHolder()
         res = world_db_session.query(Condition).all()
         world_db_session.close()
