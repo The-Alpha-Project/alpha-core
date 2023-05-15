@@ -270,7 +270,7 @@ class MapManager:
         if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
             return current_z, True
 
-        z_values = MAPS_NAMIGATOR[map_id].query_z(float(x), float(y))
+        z_values = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
 
         if len(z_values) == 0:
             Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
