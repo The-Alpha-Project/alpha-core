@@ -33,7 +33,6 @@ class ScriptHandler:
         self.script_queue = set()
         self.ooc_ignore = set()
         self.ooc_events = {}
-        self.current_script = None
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
         if script_id in self.script_queue:
@@ -69,15 +68,11 @@ class ScriptHandler:
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
         for script in list(self.script_queue):
-            self.current_script = script
             script.update(now)
             if not script.is_complete():
                 continue
             # Finished all actions, remove.
             self.script_queue.remove(script)
-
-        if not self.script_queue:
-            self.current_script = None
 
         # Check if we need to initialize or remove ooc event.
         self._check_ooc_events(now)
@@ -822,8 +817,8 @@ class ScriptHandler:
         elif command.target and ConditionChecker.is_player(command.target):
             _target = command.target
 
-        if result and _target.script_handler.current_script:
-            command.source.script_handler.current_script.abort()
+        if result:
+            command.script.abort()
 
         if not _target:
             Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')

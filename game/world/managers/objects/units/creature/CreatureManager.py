@@ -494,7 +494,7 @@ class CreatureManager(UnitManager):
         if not self.is_spawned or not self.initialized:
             return False
         
-        return self.has_waypoints_type() or self.creature_group or self.script_handler.current_script \
+        return self.has_waypoints_type() or self.creature_group \
             or len(self.known_players) > 0 or FarSightManager.object_is_camera_view_point(self) \
             or self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
 

@@ -1,12 +1,13 @@
 import time
 from game.world.managers.objects.script.ScriptCommand import ScriptCommand
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
+from utils.Logger import Logger
 
 
 class Script:
     def __init__(self, script_id, db_commands, source, target, script_handler, delay=0.0, ooc_event=None):
         self.id: int = script_id
-        self.commands: list[ScriptCommand] = [ScriptCommand(script_id, command) for command in db_commands]
+        self.commands: list[ScriptCommand] = [ScriptCommand(self, command) for command in db_commands]
         self.source = source
         self.target = target
         self.script_handler = script_handler
@@ -46,6 +47,7 @@ class Script:
             self.script_handler.handle_script_command_execution(script_command)
 
     def abort(self):
+        Logger.warning(f'Script {self.id} aborted.')
         self.commands.clear()
 
     def is_complete(self):
