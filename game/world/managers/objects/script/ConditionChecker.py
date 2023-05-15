@@ -1,6 +1,6 @@
 import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from utils.constants.ConditionCodes import ConditionType, ConditionFlags
+from utils.constants.ConditionCodes import ConditionType, ConditionFlags, ConditionTargetsInternal
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
@@ -26,8 +26,11 @@ class ConditionChecker:
             target = source
             source = _tmp_old_target
 
+        if not ConditionChecker._check_param_requirements(condition.type, source, target):
+            return False
+
         if condition.type in CONDITIONS:
-            result = CONDITIONS[int(condition.type)](condition, source, target)
+            result = CONDITIONS[condition.type](condition, source, target)
             if condition.flags & ConditionFlags.CONDITION_FLAG_REVERSE_RESULT:
                 return not result
 
@@ -36,6 +39,14 @@ class ConditionChecker:
         else:
             Logger.warning(f'ConditionChecker: Condition {condition.type} does not exist.')
             return False
+
+    @staticmethod
+    def _check_param_requirements(condition_type, source, target):
+        internal_condition_target = CONDITIONAL_TARGETS_INTERNAL_MAP.get(condition_type, None)
+        if internal_condition_target:
+            return CONDITIONAL_TARGETS_INTERNAL[internal_condition_target](source, target)
+        else:
+            Logger.warning(f'Unable to resolve internal condition target for type {condition_type}')
 
     @staticmethod
     def is_player(target):
@@ -781,6 +792,135 @@ class ConditionChecker:
         # Requirement: Creature Source
         Logger.warning('CONDITION_CREATURE_GROUP_DEAD is not implemented.')
         return False
+
+    # Target Internal Check
+    @staticmethod
+    def check_target_none(source, target):
+        return True
+
+    @staticmethod
+    def check_target_unit(source, target):
+        return target and target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+
+    @staticmethod
+    def check_target_player(source, target):
+        return target and target.get_type_id() == ObjectTypeIds.ID_PLAYER
+
+    @staticmethod
+    def check_target_any_worldobject(source, target):
+        return (source and source.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT) \
+            or (target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT)
+
+    @staticmethod
+    def check_target_source_unit(source, target):
+        return source and source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
+
+    @staticmethod
+    def check_target_source_worldobject(source, target):
+        return source and source.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT
+
+    @staticmethod
+    def check_target_map_or_worldobject(source, target):
+        return (source and source.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT) \
+            or (target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT)
+
+    @staticmethod
+    def check_target_worldobject(source, target):
+        return target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+
+    @staticmethod
+    def check_target_source_creature(source, target):
+        return source and source.get_type_id() == ObjectTypeIds.ID_UNIT
+
+    @staticmethod
+    def check_target_both_worldobjects(source, target):
+        return (source and source.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT) \
+            and (target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT)
+
+    @staticmethod
+    def check_target_gameobject(source, target):
+        return target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+
+
+CONDITIONAL_TARGETS_INTERNAL_MAP = {
+    -3: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    -2: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    -1: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    0: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    11: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    12: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    24: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    25: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    26: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    53: ConditionTargetsInternal.CONDITION_REQ_NONE,
+    1: ConditionTargetsInternal.CONDITION_REQ_TARGET_UNIT,
+    15: ConditionTargetsInternal.CONDITION_REQ_TARGET_UNIT,
+    40: ConditionTargetsInternal.CONDITION_REQ_TARGET_UNIT,
+    41: ConditionTargetsInternal.CONDITION_REQ_TARGET_UNIT,
+    42: ConditionTargetsInternal.CONDITION_REQ_TARGET_UNIT,
+    43: ConditionTargetsInternal.CONDITION_REQ_TARGET_UNIT,
+    46: ConditionTargetsInternal.CONDITION_REQ_TARGET_UNIT,
+    2: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    3: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    5: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    6: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    7: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    8: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    9: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    10: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    14: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    17: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    19: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    22: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    23: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    29: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    30: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    45: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    51: ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER,
+    4: ConditionTargetsInternal.CONDITION_REQ_ANY_WORLDOBJECT,
+    13: ConditionTargetsInternal.CONDITION_REQ_SOURCE_UNIT,
+    16: ConditionTargetsInternal.CONDITION_REQ_SOURCE_WORLDOBJECT,
+    31: ConditionTargetsInternal.CONDITION_REQ_SOURCE_WORLDOBJECT,
+    52: ConditionTargetsInternal.CONDITION_REQ_SOURCE_WORLDOBJECT,
+    18: ConditionTargetsInternal.CONDITION_REQ_MAP_OR_WORLDOBJECT,
+    33: ConditionTargetsInternal.CONDITION_REQ_MAP_OR_WORLDOBJECT,
+    34: ConditionTargetsInternal.CONDITION_REQ_MAP_OR_WORLDOBJECT,
+    35: ConditionTargetsInternal.CONDITION_REQ_MAP_OR_WORLDOBJECT,
+    36: ConditionTargetsInternal.CONDITION_REQ_MAP_OR_WORLDOBJECT,
+    47: ConditionTargetsInternal.CONDITION_REQ_MAP_OR_WORLDOBJECT,
+    50: ConditionTargetsInternal.CONDITION_REQ_MAP_OR_WORLDOBJECT,
+    20: ConditionTargetsInternal.CONDITION_REQ_TARGET_WORLDOBJECT,
+    21: ConditionTargetsInternal.CONDITION_REQ_TARGET_WORLDOBJECT,
+    27: ConditionTargetsInternal.CONDITION_REQ_TARGET_WORLDOBJECT,
+    28: ConditionTargetsInternal.CONDITION_REQ_TARGET_WORLDOBJECT,
+    39: ConditionTargetsInternal.CONDITION_REQ_TARGET_WORLDOBJECT,
+    54: ConditionTargetsInternal.CONDITION_REQ_TARGET_WORLDOBJECT,
+    56: ConditionTargetsInternal.CONDITION_REQ_TARGET_WORLDOBJECT,
+    32: ConditionTargetsInternal.CONDITION_REQ_SOURCE_CREATURE,
+    57: ConditionTargetsInternal.CONDITION_REQ_SOURCE_CREATURE,
+    58: ConditionTargetsInternal.CONDITION_REQ_SOURCE_CREATURE,
+    37: ConditionTargetsInternal.CONDITION_REQ_BOTH_WORLDOBJECTS,
+    38: ConditionTargetsInternal.CONDITION_REQ_BOTH_WORLDOBJECTS,
+    44: ConditionTargetsInternal.CONDITION_REQ_BOTH_WORLDOBJECTS,
+    48: ConditionTargetsInternal.CONDITION_REQ_TARGET_GAMEOBJECT,
+    49: ConditionTargetsInternal.CONDITION_REQ_TARGET_GAMEOBJECT,
+    55: ConditionTargetsInternal.CONDITION_REQ_TARGET_GAMEOBJECT
+}
+
+
+CONDITIONAL_TARGETS_INTERNAL = {
+    ConditionTargetsInternal.CONDITION_REQ_NONE: ConditionChecker.check_target_none,
+    ConditionTargetsInternal.CONDITION_REQ_TARGET_UNIT: ConditionChecker.check_target_unit,
+    ConditionTargetsInternal.CONDITION_REQ_TARGET_PLAYER: ConditionChecker.check_target_player,
+    ConditionTargetsInternal.CONDITION_REQ_ANY_WORLDOBJECT: ConditionChecker.check_target_any_worldobject,
+    ConditionTargetsInternal.CONDITION_REQ_SOURCE_UNIT: ConditionChecker.check_target_source_unit,
+    ConditionTargetsInternal.CONDITION_REQ_SOURCE_WORLDOBJECT: ConditionChecker.check_target_source_worldobject,
+    ConditionTargetsInternal.CONDITION_REQ_MAP_OR_WORLDOBJECT: ConditionChecker.check_target_map_or_worldobject,
+    ConditionTargetsInternal.CONDITION_REQ_TARGET_WORLDOBJECT: ConditionChecker.check_target_worldobject,
+    ConditionTargetsInternal.CONDITION_REQ_SOURCE_CREATURE: ConditionChecker.check_target_source_creature,
+    ConditionTargetsInternal.CONDITION_REQ_BOTH_WORLDOBJECTS: ConditionChecker.check_target_both_worldobjects,
+    ConditionTargetsInternal.CONDITION_REQ_TARGET_GAMEOBJECT: ConditionChecker.check_target_gameobject
+}
 
 
 CONDITIONS = {

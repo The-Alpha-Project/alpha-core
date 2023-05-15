@@ -10,9 +10,11 @@ from game.world.managers.objects.units.movement.behaviors.BaseMovement import Ba
 
 
 class WaypointMovement(BaseMovement):
-    def __init__(self, spline_callback, is_default=False, waypoints=None, speed=0, command_move_info=None):
+    def __init__(self, spline_callback, is_default=False, waypoints=None, speed=0, command_move_info=None,
+                 is_single=False):
         super().__init__(move_type=MoveType.WAYPOINTS, spline_callback=spline_callback, is_default=is_default)
         self.creature_movement = None
+        self.is_single=is_single
         self.command_move_info = command_move_info
         self.speed = speed
         self.should_repeat = is_default
@@ -140,7 +142,7 @@ class WaypointMovement(BaseMovement):
 
     def _should_use_facing(self, waypoint: MovementWaypoint):
         return waypoint.orientation and waypoint.orientation != 100 and \
-            (waypoint.wait_time_seconds or len(self.points) == 1)
+            (waypoint.wait_time_seconds or self.is_single)
 
     def _get_waypoint(self):
         return self.waypoints[0]
@@ -149,4 +151,3 @@ class WaypointMovement(BaseMovement):
         waypoint = self.waypoints[0]
         self.waypoints.remove(waypoint)
         self.waypoints.append(waypoint)
-

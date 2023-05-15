@@ -140,7 +140,8 @@ class MovementManager:
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, command_move_info=command_move_info))
 
     def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
-        self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, waypoints=[location], speed=speed))
+        self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, waypoints=[location], speed=speed,
+                                           is_single=True))
 
     def get_move_behavior_by_type(self, move_type) -> Optional[BaseMovement]:
         return self.movement_behaviors.get(move_type, None)

@@ -30,7 +30,6 @@ class ScriptCommand:
         self.source = None
         self.target = None
 
-    # TODO: 'ConditionTargetsInternal' VMaNGOS.
     def resolve_final_targets(self, source, target):
         # Swap target and source if needed.
         if self.data_flags & ScriptFlags.SF_GENERAL_SWAP_INITIAL_TARGETS:
