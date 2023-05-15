@@ -82,7 +82,7 @@ class WaypointMovement(BaseMovement):
         self.unit.spawn_position = new_position.copy()
         if waypoint_completed:
             current_wp = self._get_waypoint()
-            if current_wp.orientation and current_wp.orientation != 100 and current_wp.wait_time_seconds:
+            if self._should_use_facing(current_wp):
                 self.unit.movement_manager.face_angle(current_wp.orientation)
             if current_wp.script_id:
                 self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
@@ -137,6 +137,10 @@ class WaypointMovement(BaseMovement):
         if index:
             points = points[index:] + points[0:index]
         return points
+
+    def _should_use_facing(self, waypoint: MovementWaypoint):
+        return waypoint.orientation and waypoint.orientation != 100 and \
+            (waypoint.wait_time_seconds or len(self.points) == 1)
 
     def _get_waypoint(self):
         return self.waypoints[0]
