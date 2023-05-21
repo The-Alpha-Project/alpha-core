@@ -5,6 +5,7 @@ from random import randint, choice
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes
+from utils.constants.ScriptCodes import EventFlags
 
 
 @dataclass
@@ -112,7 +113,8 @@ class AIEventHandler:
 
     def _lock_event(self, event, now):
         delay = random.uniform(event.event_param3, event.event_param4)
-        self.event_locks[event.id] = EventLock(event_id=event.id, time_added=now, delay=delay, can_repeat=delay > 0)
+        self.event_locks[event.id] = EventLock(event_id=event.id, time_added=now, delay=delay,
+                                               can_repeat=delay > 0 and event.event_flags & EventFlags.REPEATABLE)
 
     def _is_event_locked(self, event, now):
         event_lock = self.event_locks.get(event.id)
