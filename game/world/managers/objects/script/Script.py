@@ -31,13 +31,13 @@ class Script:
                 return
             self.commands.remove(script_command)
 
-            # Try to resolve a target.
+            # Try to resolve the final targets for this command.
             succeed, source, target = script_command.resolve_final_targets(self.source, self.target)
             if not succeed:
                 continue
 
-            self.source = source
-            self.target = target
+            script_command.source = source
+            script_command.target = target
 
             # Condition is not met, skip.
             if not ConditionChecker.validate(script_command.condition_id, source=self.source, target=self.target):
