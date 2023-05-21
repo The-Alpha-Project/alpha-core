@@ -118,4 +118,8 @@ class AIEventHandler:
         event_lock = self.event_locks.get(event.id)
         if not event_lock:
             return False
-        return not event_lock.can_repeat or now - event_lock.time_added < event_lock.delay
+        locked = not event_lock.can_repeat or now - event_lock.time_added < event_lock.delay
+        # Delete lock if necessary.
+        if not locked:
+            self.event_locks.pop(event.id)
+        return locked
