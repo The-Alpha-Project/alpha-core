@@ -23,7 +23,7 @@ class ListInventoryHandler(object):
 
             vendor: CreatureManager = MapManager.get_surrounding_unit_by_guid(player_mgr, npc_guid)
             if vendor and vendor.location.distance(player_mgr.location) < Formulas.Distances.MAX_SHOP_DISTANCE:
-                vendor.object_ai.player_interacted(player_mgr)
+                vendor.object_ai.player_interacted()
                 # If vendor is a quest giver and player has an active quest involving this NPC, send quest window
                 # instead of vendor window.
                 if vendor.is_quest_giver():
