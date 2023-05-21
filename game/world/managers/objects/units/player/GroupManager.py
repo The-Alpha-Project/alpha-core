@@ -5,12 +5,12 @@ from database.realm.RealmModels import Group, GroupMember
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.Formulas import Distances
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import WhoPartyStatus, LootMethods, PlayerFlags
-from utils.constants.UpdateFields import PlayerFields
+from utils.constants.OpCodes import OpCode
 
 MAX_GROUP_SIZE = 5
 GROUPS = {}

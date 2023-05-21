@@ -3,10 +3,9 @@ from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.units.player.taxi.TaxiResumeInformation import TaxiResumeInformation
-from network.packet.PacketWriter import PacketWriter, OpCode
-from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType
-from utils.constants.UnitCodes import Teams, SplineFlags
+from network.packet.PacketWriter import PacketWriter
+from utils.constants.OpCodes import OpCode
+from utils.constants.UnitCodes import Teams
 
 
 GRYPHON_DISPLAY_ID = 1149

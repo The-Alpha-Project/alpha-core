@@ -6,7 +6,7 @@ from utils.constants.ItemCodes import InventorySlots
 class SwapInvItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 2:  # Avoid handling empty swap inv item packet.
             source_slot, dest_slot = unpack('<2B', reader.data[:2])
             bag = InventorySlots.SLOT_INBACKPACK.value

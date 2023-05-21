@@ -234,17 +234,17 @@ class MapManager:
 
     @staticmethod
     def get_submap_tile_x(x):
-        tile_x = int((RESOLUTION_ZMAP - 1) * (
-                32.0 - MapManager.validate_map_coord(x) / ADT_SIZE - int(
-            32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)))
+        tile_x = int((RESOLUTION_ZMAP - 1) *
+                     (32.0 - MapManager.validate_map_coord(x) / ADT_SIZE
+                      - int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)))
 
         return tile_x
 
     @staticmethod
     def get_submap_tile_y(y):
-        tile_y = int((RESOLUTION_ZMAP - 1) * (
-                32.0 - MapManager.validate_map_coord(y) / ADT_SIZE - int(
-            32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)))
+        tile_y = int((RESOLUTION_ZMAP - 1) *
+                     (32.0 - MapManager.validate_map_coord(y) / ADT_SIZE
+                      - int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)))
 
         return tile_y
 

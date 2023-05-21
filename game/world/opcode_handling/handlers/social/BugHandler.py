@@ -5,7 +5,7 @@ from network.packet.PacketReader import *
 class BugHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 4:  # Avoid handling empty bug packet.
             if not world_session.account_mgr or not world_session.player_mgr:
                 return 0

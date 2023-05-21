@@ -4,13 +4,14 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeIds, QuestFlags
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.MiscCodes import HighGuid
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.constants.MiscCodes import QuestState
+from utils.constants.OpCodes import OpCode
 
 
 class ActiveQuest:

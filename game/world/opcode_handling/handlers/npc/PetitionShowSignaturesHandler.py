@@ -6,7 +6,7 @@ from game.world.managers.objects.units.player.guild.PetitionManager import Petit
 class PetitionShowSignaturesHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty petition show signatures packet.
             petition_item_guid = unpack('<Q', reader.data[:8])[0]
             petition = PetitionManager.get_petition(petition_item_guid)

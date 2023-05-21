@@ -8,7 +8,7 @@ from utils.constants.GroupCodes import PartyOperations, PartyResults
 class GroupLootMethodHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 12:  # Avoid handling empty group loot method packet.
             loot_method, loot_master = unpack('<IQ', reader.data[:12])
             target_player_mgr = None

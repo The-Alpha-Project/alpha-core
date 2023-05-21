@@ -6,7 +6,7 @@ from utils.constants.ItemCodes import InventoryError, InventorySlots, ItemDynFla
 class WrapItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 4:  # Avoid handling empty open item packet.
             wrapper_container_slot, wrapper_item_slot, item_container_slot, item_slot = unpack('<4B', reader.data[:4])
 

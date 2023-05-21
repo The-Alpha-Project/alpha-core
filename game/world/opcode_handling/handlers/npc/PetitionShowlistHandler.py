@@ -2,12 +2,13 @@ from struct import unpack
 
 from game.world.managers.objects.units.player.guild.PetitionManager import PetitionManager
 from network.packet.PacketWriter import *
+from utils.constants.OpCodes import OpCode
 
 
 class PetitionShowlistHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # NPC needs 0x80 | 0x40 flag
         if len(reader.data) >= 8:  # Avoid handling empty petition showlist packet.
             guid = unpack('<Q', reader.data[:8])[0]

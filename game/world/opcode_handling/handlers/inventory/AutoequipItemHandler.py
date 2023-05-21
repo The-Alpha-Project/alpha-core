@@ -5,7 +5,7 @@ from utils.constants.ItemCodes import InventorySlots, InventoryError, InventoryT
 
 class AutoequipItemHandler(object):
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 2:  # Avoid handling empty autoequip item packet.
             source_bag_slot, source_slot = unpack('<2B', reader.data[:3])
 

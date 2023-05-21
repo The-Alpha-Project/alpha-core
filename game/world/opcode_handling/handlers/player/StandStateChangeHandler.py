@@ -8,7 +8,7 @@ from utils.constants.UnitCodes import StandState
 class StandStateChangeHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, reader: PacketReader) -> int:
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
         if not player_mgr:

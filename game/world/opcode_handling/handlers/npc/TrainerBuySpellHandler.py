@@ -4,6 +4,7 @@ from database.dbc.DbcModels import Spell
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
 from game.world.managers.objects.units.player.TalentManager import TalentManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
+from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from network.packet.PacketReader import PacketReader
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -17,7 +18,7 @@ from network.packet.PacketWriter import *
 class TrainerBuySpellHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, reader: PacketReader) -> int:
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
         if not player_mgr:

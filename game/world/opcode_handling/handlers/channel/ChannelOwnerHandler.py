@@ -8,7 +8,7 @@ from utils.constants.MiscCodes import ChannelNotifications
 class ChannelOwnerHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
 
         channel = ChannelManager.get_channel(channel_name, world_session.player_mgr)
@@ -22,7 +22,7 @@ class ChannelOwnerHandler(object):
         return 0
 
     @staticmethod
-    def handle_set_owner(world_session, socket, reader):
+    def handle_set_owner(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).capitalize()
         offset = len(channel_name) + 1
         has_player = len(reader.data) == offset + 1

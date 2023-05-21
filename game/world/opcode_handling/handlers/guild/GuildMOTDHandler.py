@@ -6,7 +6,7 @@ from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, Gui
 class GuildMOTDHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if reader.data:  # Handle null data.
             motd = PacketReader.read_string(reader.data, 0).strip()
             player_mgr = world_session.player_mgr

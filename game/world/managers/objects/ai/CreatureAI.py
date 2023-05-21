@@ -432,7 +432,7 @@ class CreatureAI:
         pass
 
     # Called when a player interacts with this creature.
-    def player_interacted(self, player: PlayerManager):
+    def player_interacted(self, _player: PlayerManager):
         # From VMaNGOS NPC_MOVEMENT_PAUSE_TIME (Blizzlike time taken from Classic).
         self.creature.movement_manager.try_pause_ooc_movement(duration_seconds=180)
 

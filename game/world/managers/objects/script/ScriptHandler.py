@@ -202,7 +202,7 @@ class ScriptHandler:
                 command.source.movement_manager.face_target(command.target)
 
     @staticmethod
-    def handle_script_command_field_set(command):
+    def handle_script_command_field_set(_command):
         # source = Object
         # datalong = field_id
         # datalong2 = value
@@ -413,7 +413,7 @@ class ScriptHandler:
             quest_target.quest_manager.reward_quest_event()
 
     @staticmethod
-    def handle_script_command_kill_credit(command):
+    def handle_script_command_kill_credit(_command):
         # source = Player (from provided source or target)
         # datalong = creature entry
         # datalong2 = bool (0=personal credit, 1=group credit)
@@ -662,7 +662,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_movement not implemented yet')
 
     @staticmethod
-    def handle_script_command_set_activeobject(command):
+    def handle_script_command_set_activeobject(_command):
         # source = Creature
         # datalong = (bool) 0=off, 1=on
         Logger.debug('ScriptHandler: handle_script_command_set_activeobject not implemented yet')
@@ -766,7 +766,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Unable to resolve target, aborting {command.get_info()}.')
 
     @staticmethod
-    def handle_script_command_update_entry(command):
+    def handle_script_command_update_entry(_command):
         # source = Creature
         # datalong = creature_entry
         Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
@@ -781,14 +781,14 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source found or source is dead, aborting {command.get_info()}.')
 
     @staticmethod
-    def handle_script_command_modify_threat(command):
+    def handle_script_command_modify_threat(_command):
         # source = Creature
         # datalong = eModifyThreatTargets
         # x = percent
         Logger.debug('ScriptHandler: handle_script_command_modify_threat not implemented yet')
 
     @staticmethod
-    def handle_script_command_terminate_script(command):
+    def handle_script_command_terminate_script(_command):
         # source = Any
         # datalong = creature_entry
         # datalong2 = search_distance
@@ -882,7 +882,7 @@ class ScriptHandler:
             command.source.movement_manager.face_angle(command.o)
 
     @staticmethod
-    def handle_script_command_set_inst_data(command):
+    def handle_script_command_set_inst_data(_command):
         # source = Map
         # datalong = field
         # datalong2 = data
@@ -890,7 +890,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_set_inst_data not implemented yet')
 
     @staticmethod
-    def handle_script_command_set_inst_data64(command):
+    def handle_script_command_set_inst_data64(_command):
         # source = Map
         # target = Object (when saving guid)
         # datalong = field
@@ -918,7 +918,7 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: Neither source nor target are a player, aborting SCRIPT_COMMAND_REMOVE_ITEM')
 
     @staticmethod
-    def handle_script_command_remove_object(command):
+    def handle_script_command_remove_object(_command):
         # source = GameObject
         # target = Unit
         Logger.debug('ScriptHandler: handle_script_command_remove_object not implemented yet')
@@ -1046,7 +1046,7 @@ class ScriptHandler:
         command.source.invincibility_hp_level = invincibility_hp_lvl
 
     @staticmethod
-    def handle_script_command_game_event(command):
+    def handle_script_command_game_event(_command):
         # source = None
         # datalong = event_id
         # datalong2 = (bool) start
@@ -1054,14 +1054,14 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_game_event not implemented yet')
 
     @staticmethod
-    def handle_script_command_set_server_variable(command):
+    def handle_script_command_set_server_variable(_command):
         # source = None
         # datalong = index
         # datalong2 = value
         Logger.debug('ScriptHandler: handle_script_command_set_server_variable not implemented yet')
 
     @staticmethod
-    def handle_script_command_remove_guardians(command):
+    def handle_script_command_remove_guardians(_command):
         # source = Unit
         # datalong = creature_id
         Logger.debug('ScriptHandler: handle_script_command_remove_guardians not implemented yet')
@@ -1093,7 +1093,7 @@ class ScriptHandler:
         command.source.spell_manager.unlock_spell_cooldown(command.datalong)
 
     @staticmethod
-    def handle_script_command_set_react_state(command):
+    def handle_script_command_set_react_state(_command):
         # source = Creature
         # datalong = see enum ReactStates
         Logger.debug('ScriptHandler: handle_script_command_set_react_state not implemented yet')
@@ -1212,7 +1212,7 @@ class ScriptHandler:
         map_.map_event_manager.send_event_data(command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
-    def handle_script_command_set_default_movement(command):
+    def handle_script_command_set_default_movement(_command):
         # source = Creature
         # datalong = movement_type
         # datalong2 = (bool) always_replace
@@ -1220,7 +1220,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_set_default_movement not implemented yet')
 
     @staticmethod
-    def handle_script_command_start_script_for_all(command):
+    def handle_script_command_start_script_for_all(_command):
         # source = WorldObject
         # datalong = script_id
         # datalong2 = eStartScriptForAllOptions
@@ -1277,12 +1277,12 @@ class ScriptHandler:
         command.source.object_ai.assist_unit(command.target)
 
     @staticmethod
-    def handle_script_command_combat_stop(command):
+    def handle_script_command_combat_stop(_command):
         # source = Unit
         Logger.debug('ScriptHandler: handle_script_command_combat_stop not implemented yet')
 
     @staticmethod
-    def handle_script_command_add_aura(command):
+    def handle_script_command_add_aura(_command):
         # source = Unit
         # datalong = spell_id
         # datalong2 = flags
@@ -1301,7 +1301,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Source is not in combat, aborting {command.get_info()}')
 
     @staticmethod
-    def handle_script_command_summon_object(command):
+    def handle_script_command_summon_object(_command):
         # source = WorldObject
         # datalong = gameobject_entry
         # datalong2 = respawn_time
@@ -1309,7 +1309,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
 
     @staticmethod
-    def handle_script_command_join_creature_group(command):
+    def handle_script_command_join_creature_group(_command):
         # source = Creature
         # target = Creature
         # datalong = OptionFlags
@@ -1349,13 +1349,13 @@ class ScriptHandler:
         target.set_state(GameObjectStates(command.datalong))
 
     @staticmethod
-    def handle_script_command_quest_credit(command):
+    def handle_script_command_quest_credit(_command):
         # source = Player (from provided source or target)
         # target = WorldObject (from provided source or target)
         Logger.debug('ScriptHandler: handle_script_command_quest_credit not implemented yet')
 
     @staticmethod
-    def handle_script_command_send_script_event(command):
+    def handle_script_command_send_script_event(_command):
         # source = Creature
         # target = WorldObject
         # datalong = event_id
@@ -1372,26 +1372,26 @@ class ScriptHandler:
         command.source.gameobject_instance.set_ready()
 
     @staticmethod
-    def handle_script_command_set_command_state(command):
+    def handle_script_command_set_command_state(_command):
         # source = Creature
         # datalong = command_state (see enum CommandStates)
         Logger.debug('ScriptHandler: handle_script_command_set_command_state not implemented yet')
 
     @staticmethod
-    def handle_script_command_play_custom_anim(command):
+    def handle_script_command_play_custom_anim(_command):
         # source = GameObject
         # datalong = anim_id
         Logger.debug('ScriptHandler: handle_script_command_play_custom_anim not implemented yet')
 
     @staticmethod
-    def handle_script_command_start_script_on_group(command):
+    def handle_script_command_start_script_on_group(_command):
         # source = Unit
         # datalong1-4 = generic_script id
         # dataint1-4 = chance (total cant be above 100)
         Logger.debug('ScriptHandler: handle_script_command_start_script_on_group not implemented yet')
 
     @staticmethod
-    def handle_script_command_call_for_help(command):
+    def handle_script_command_call_for_help(_command):
         # source = Creature
         # x = radius
         Logger.debug('ScriptHandler: handle_script_command_call_for_help not implemented yet')

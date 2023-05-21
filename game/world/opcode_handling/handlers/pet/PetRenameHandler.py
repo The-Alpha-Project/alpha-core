@@ -1,5 +1,3 @@
-from struct import pack
-
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import PacketWriter
 from utils import TextUtils
@@ -8,7 +6,7 @@ from utils import TextUtils
 class PetRenameHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, reader: PacketReader) -> int:
         if len(reader.data) >= 8:  # Avoid handling empty pet rename packet.
             pet_guid = unpack('<Q', reader.data[:8])[0]
             name = PacketReader.read_string(reader.data, 8)

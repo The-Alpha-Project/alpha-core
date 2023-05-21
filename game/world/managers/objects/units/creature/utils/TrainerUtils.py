@@ -12,7 +12,6 @@ from utils.TextUtils import GameTextFormatter
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellEffects
-from utils.constants.UnitCodes import PowerTypes
 
 
 class TrainerUtils:

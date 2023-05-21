@@ -3,10 +3,11 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import Petition
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
 from utils.constants.ItemCodes import PetitionError
 from utils.constants.MiscCodes import HighGuid
+from utils.constants.OpCodes import OpCode
 
 
 class PetitionManager(object):

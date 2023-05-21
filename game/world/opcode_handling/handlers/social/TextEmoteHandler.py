@@ -10,7 +10,7 @@ from utils.constants.UnitCodes import StandState
 class TextEmoteHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if world_session.player_mgr.is_alive and len(reader.data) >= 12:
             emote_text_id, guid = unpack('<IQ', reader.data)
             emote = DbcDatabaseManager.emote_text_get_by_id(emote_text_id)

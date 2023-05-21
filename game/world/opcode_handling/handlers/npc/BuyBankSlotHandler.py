@@ -7,7 +7,7 @@ from game.world.managers.maps.MapManager import MapManager
 class BuyBankSlotHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty buy bank slot packet.
             guid = unpack('<Q', reader.data[:8])[0]
             banker = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)

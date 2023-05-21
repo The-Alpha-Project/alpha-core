@@ -1,7 +1,7 @@
 from struct import unpack
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
-from utils.constants.MiscCodes import HighGuid, ScriptTypes
+from utils.constants.MiscCodes import HighGuid
 from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
 
@@ -9,7 +9,7 @@ from utils.Logger import Logger
 class QuestGiverChooseRewardHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
         if not player_mgr:

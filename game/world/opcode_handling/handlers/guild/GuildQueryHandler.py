@@ -5,7 +5,7 @@ from network.packet.PacketReader import *
 class GuildQueryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) > 1:  # Avoid handling empty Guild Query packet.
             # No ranks/permissions on 0.5.3 client.
             guild_id = unpack('<1I', reader.data[:4])[0]

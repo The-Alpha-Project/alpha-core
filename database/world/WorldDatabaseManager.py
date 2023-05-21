@@ -1,5 +1,5 @@
 import os
-from typing import Optional, List, Type
+from typing import Optional
 from difflib import SequenceMatcher
 
 from sqlalchemy import create_engine
@@ -502,14 +502,14 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.get(entry)
 
         @staticmethod
-        def creature_trainers_by_race_class(race, class_, type):
+        def creature_trainers_by_race_class(race, class_, type_):
             trainers = []
             for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
                 if creature.trainer_race and creature.trainer_race != race:
                     continue
                 if creature.trainer_class and creature.trainer_class != class_:
                     continue
-                if creature.trainer_type != type:
+                if creature.trainer_type != type_:
                     continue
                 if not creature.trainer_id:
                     continue

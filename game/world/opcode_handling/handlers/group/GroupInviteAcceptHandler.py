@@ -1,7 +1,7 @@
 class GroupInviteAcceptHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if not world_session.player_mgr.group_manager:
             return 0
 

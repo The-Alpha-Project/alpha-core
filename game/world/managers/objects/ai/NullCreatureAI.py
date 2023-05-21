@@ -15,7 +15,7 @@ class NullCreatureAI(CreatureAI):
         pass
 
     # override
-    def attack_start(self, victim):
+    def attack_start(self, victim, chase=True):
         pass
 
     # override

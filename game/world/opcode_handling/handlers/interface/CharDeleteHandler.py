@@ -5,12 +5,13 @@ from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.constants.CharCodes import *
+from utils.constants.OpCodes import OpCode
 
 
 class CharDeleteHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         guid = 0
         if len(reader.data) >= 8:  # Avoid handling empty area char delete packet.
             guid = unpack('<Q', reader.data[:8])[0]

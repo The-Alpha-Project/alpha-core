@@ -6,7 +6,7 @@ from game.world.managers.objects.item.ItemManager import ItemManager
 class ItemQueryMultipleHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 4:  # Avoid handling empty multiple item query packet.
             requested_item_count = unpack('<I', reader.data[:4])[0]
             if requested_item_count:

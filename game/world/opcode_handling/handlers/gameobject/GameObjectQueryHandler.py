@@ -8,7 +8,7 @@ from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUt
 class GameObjectQueryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 12:  # Avoid handling empty gameobject query packet.
             entry, guid = unpack('<IQ', reader.data[:12])
             if guid > 0:

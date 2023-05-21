@@ -8,7 +8,7 @@ from utils.constants.UpdateFields import *
 class LootRequestHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty loot packet.
             loot_target_guid = unpack('<Q', reader.data[:8])[0]
             player = world_session.player_mgr

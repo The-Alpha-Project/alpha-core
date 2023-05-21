@@ -6,7 +6,7 @@ from utils.constants.MiscCodes import ChannelNotifications
 class ChannelPasswordHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel_name) + 1
         skip_pass = len(reader.data) == offset + 1

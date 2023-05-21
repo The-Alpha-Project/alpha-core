@@ -5,8 +5,9 @@ from database.dbc.DbcModels import Spell
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes
+from utils.constants.OpCodes import OpCode
 
 
 class TalentManager(object):

@@ -5,7 +5,7 @@ from utils.constants.ItemCodes import InventoryError, InventorySlots
 
 class AutostoreBagItemHandler(object):
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 3:  # Avoid handling empty autostore bag item packet.
             source_bag_slot, source_slot, dest_bag_slot = unpack('<3B', reader.data[:3])
 

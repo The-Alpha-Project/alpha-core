@@ -8,7 +8,7 @@ from utils.constants.MiscCodes import ChannelNotifications
 class ChannelModeratorHandler(object):
 
     @staticmethod
-    def handle_add_mod(world_session, socket, reader):
+    def handle_add_mod(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel_name) + 1
         has_player = len(reader.data) == offset + 1
@@ -30,7 +30,7 @@ class ChannelModeratorHandler(object):
         return 0
 
     @staticmethod
-    def handle_remove_mod(world_session, socket, reader):
+    def handle_remove_mod(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel_name) + 1
         has_player = len(reader.data) == offset + 1
@@ -52,7 +52,7 @@ class ChannelModeratorHandler(object):
         return 0
 
     @staticmethod
-    def handle_moderate(world_session, socket, reader):
+    def handle_moderate(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
 
         channel = ChannelManager.get_channel(channel_name, world_session.player_mgr)

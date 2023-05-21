@@ -5,7 +5,7 @@ from network.packet.PacketReader import *
 class GuildCreateHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) > 1:  # Avoid handling empty Guild Create packet.
             if not world_session.account_mgr.is_gm():
                 return 0

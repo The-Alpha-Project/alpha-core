@@ -4,7 +4,7 @@ from struct import unpack
 class ZoneUpdateHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # TODO: Seems like this packet is not being *always* sent on zone change, investigate why to see if we are doing
         #  something wrong or it's just a client issue. A really hacky solution would be to implement a timer to check
         #  every X seconds if the zone has changed.

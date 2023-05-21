@@ -8,9 +8,9 @@ from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UnitCodes import SplineFlags, UnitReaction, UnitFlags, UnitStates
+from utils.constants.UnitCodes import UnitReaction, UnitFlags, UnitStates
 from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
 

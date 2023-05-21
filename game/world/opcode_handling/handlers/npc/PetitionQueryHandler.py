@@ -6,7 +6,7 @@ from game.world.managers.objects.units.player.guild.PetitionManager import Petit
 class PetitionQueryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 12:  # Avoid handling empty petition query packet.
             petition_id, petition_item_guid = unpack('<IQ', reader.data[:12])
 

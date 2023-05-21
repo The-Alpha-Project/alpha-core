@@ -9,7 +9,7 @@ from utils.constants.MiscCodes import TradeStatus
 class InitiateTradeHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty initiate trade packet.
             guid = unpack('<Q', reader.data[:8])[0]
             if guid > 0:

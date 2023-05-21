@@ -9,7 +9,7 @@ from utils.constants.MiscCodes import HighGuid
 class AutostoreLootItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 1:  # Avoid handling empty autostore loot item packet.
             slot = unpack('<B', reader.data[:1])[0]
             AutostoreLootItemHandler._loot_item(world_session.player_mgr, slot)

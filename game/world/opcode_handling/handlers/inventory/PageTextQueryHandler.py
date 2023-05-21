@@ -3,12 +3,13 @@ from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import *
 from utils.TextUtils import GameTextFormatter
+from utils.constants.OpCodes import OpCode
 
 
 class PageTextQueryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 4:  # Avoid handling empty page text query packet.
             page_id = unpack('<I', reader.data[:4])[0]
             keep_looking = True

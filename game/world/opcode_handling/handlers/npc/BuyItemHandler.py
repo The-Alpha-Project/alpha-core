@@ -5,7 +5,7 @@ from game.world.managers.objects.units.creature.utils.VendorUtils import VendorU
 class BuyItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 13:  # Avoid handling empty buy item packet.
             vendor_guid, item, count, auto_equip = unpack('<QI2B', reader.data[:14])
 

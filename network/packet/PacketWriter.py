@@ -1,8 +1,6 @@
 import zlib
 from struct import pack
 
-from utils.constants.OpCodes import *
-
 
 class PacketWriter(object):
     MAX_PACKET_SIZE = 0x8000

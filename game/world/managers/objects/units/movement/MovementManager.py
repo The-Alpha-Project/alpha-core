@@ -1,4 +1,3 @@
-import time
 from typing import Optional
 
 from game.world.managers.maps.MapManager import MapManager

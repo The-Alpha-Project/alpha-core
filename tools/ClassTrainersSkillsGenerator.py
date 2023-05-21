@@ -167,7 +167,7 @@ class ClassTrainersSkillGenerator:
             for cId, class_ in enumerate(Classes):
                 chr_base_info = DbcDatabaseManager.CharBaseInfoHolder.char_base_info_get(race.value, class_.value)
                 if not chr_base_info:
-                    #Logger.warning(f'Unable to locate ChrBaseInfo for race {race.name} class {class_.name}')
+                    # Logger.warning(f'Unable to locate ChrBaseInfo for race {race.name} class {class_.name}')
                     continue
 
                 # Initialize race-class dict if necessary.
@@ -221,7 +221,7 @@ class ClassTrainersSkillGenerator:
 
                         # Validate this player spell can actually be trained by another spell.
                         if not trainer_spell:
-                            #Logger.warning(f'Did not find trainer spell for id {spell.ID}')
+                            # Logger.warning(f'Did not find trainer spell for id {spell.ID}')
                             continue
 
                         # Find trainers for the current mix of race/class.
@@ -229,7 +229,7 @@ class ClassTrainersSkillGenerator:
                             race, class_, TrainerTypes.TRAINER_TYPE_GENERAL)
 
                         if not trainers:
-                            #Logger.warning(f'Did not find trainers for race {race.name} class {class_.name} type {0}')
+                            # Logger.warning(f'Did not find trainers for race {race.name} class {class_.name} type {0}')
                             continue
 
                         # Validate if the spell is already trained by any trainer.

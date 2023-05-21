@@ -1,9 +1,10 @@
 from struct import pack
 
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ChannelNotifications, ChannelMemberFlags
+from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import Teams
 
 

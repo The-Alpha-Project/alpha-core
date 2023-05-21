@@ -1,5 +1,4 @@
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
-from network.packet.PacketWriter import *
 from network.packet.PacketReader import *
 from utils.Logger import Logger
 
@@ -7,7 +6,7 @@ from utils.Logger import Logger
 class SpeedCheatHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, reader: PacketReader) -> int:
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
         if not player_mgr:

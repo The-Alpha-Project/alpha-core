@@ -3,13 +3,13 @@ from struct import unpack
 from game.world.managers.abstractions.Vector import Vector
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.Logger import Logger
-from utils.constants.UnitCodes import SplineFlags, UnitFlags
+from utils.constants.UnitCodes import UnitFlags
 
 
 class WorldTeleportHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
         if not player_mgr:
@@ -29,7 +29,7 @@ class WorldTeleportHandler(object):
         return 0
 
     @staticmethod
-    def handle_ack(world_session, socket, reader):
+    def handle_ack(world_session, reader):
         if world_session.player_mgr:
             world_session.player_mgr.spawn_player_from_teleport()
         return 0

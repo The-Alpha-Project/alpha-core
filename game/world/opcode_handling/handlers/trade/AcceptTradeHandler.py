@@ -7,7 +7,7 @@ from utils.constants.MiscCodes import TradeStatus
 class AcceptTradeHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         player = world_session.player_mgr
         player_trade = player.trade_data
         if not player_trade:
@@ -77,20 +77,22 @@ class AcceptTradeHandler(object):
                         continue
 
                 if other_player_item:
-                    if player.inventory.add_item(item_template=other_player_item.item_template,
-                                                 count=other_player_item.item_instance.stackcount,
-                                                 created_by=other_player_item.item_instance.creator,
-                                                 perm_enchant=EnchantmentManager.get_permanent_enchant_value(other_player_item),
-                                                 show_item_get=False):
+                    if player.inventory.add_item(
+                            item_template=other_player_item.item_template,
+                            count=other_player_item.item_instance.stackcount,
+                            created_by=other_player_item.item_instance.creator,
+                            perm_enchant=EnchantmentManager.get_permanent_enchant_value(other_player_item),
+                            show_item_get=False):
                         other_player.inventory.remove_item(other_player_item.item_instance.bag,
                                                            other_player_item.current_slot, True)
 
                 if player_item:
-                    if other_player.inventory.add_item(item_template=player_item.item_template,
-                                                       count=player_item.item_instance.stackcount,
-                                                       created_by=player_item.item_instance.creator,
-                                                       perm_enchant=EnchantmentManager.get_permanent_enchant_value(player_item),
-                                                       show_item_get=False):
+                    if other_player.inventory.add_item(
+                            item_template=player_item.item_template,
+                            count=player_item.item_instance.stackcount,
+                            created_by=player_item.item_instance.creator,
+                            perm_enchant=EnchantmentManager.get_permanent_enchant_value(player_item),
+                            show_item_get=False):
                         player.inventory.remove_item(player_item.item_instance.bag,
                                                      player_item.current_slot, True)
 

@@ -29,8 +29,8 @@ def get_seconds_since_startup():
 
 
 class WorldServerSessionHandler:
-    def __init__(self, request, client_address):
-        self.request = request
+    def __init__(self, client_socket, client_address):
+        self.client_socket = client_socket
         self.client_address = client_address
 
         self.account_mgr = None
@@ -49,8 +49,8 @@ class WorldServerSessionHandler:
             self.account_mgr = None
             self.keep_alive = True
 
-            if self.auth_challenge(self.request):
-                self.request.settimeout(120)  # 2 minutes timeout should be more than enough.
+            if self.auth_challenge(self.client_socket):
+                self.client_socket.settimeout(120)  # 2 minutes timeout should be more than enough.
 
                 incoming_thread = threading.Thread(target=self.process_incoming)
                 incoming_thread.daemon = True
@@ -60,7 +60,7 @@ class WorldServerSessionHandler:
                 outgoing_thread.daemon = True
                 outgoing_thread.start()
 
-                while self.receive(self.request) != -1 and self.keep_alive:
+                while self.receive(self.client_socket) != -1 and self.keep_alive:
                     continue
 
         finally:
@@ -83,7 +83,7 @@ class WorldServerSessionHandler:
                 # We've been blocking, by now keep_alive might be false.
                 # data can be None if we shutdown the thread.
                 if data and self.keep_alive:
-                    self.request.sendall(data)
+                    self.client_socket.sendall(data)
             except OSError:
                 self.disconnect()
 
@@ -98,7 +98,7 @@ class WorldServerSessionHandler:
                         continue
                     handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
                     if handler:
-                        res = handler(self, self.request, reader)
+                        res = handler(self, reader)
                         if res == 0:
                             Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
                         elif res == 1:
@@ -138,8 +138,8 @@ class WorldServerSessionHandler:
 
         WorldSessionStateHandler.remove(self)
         try:
-            self.request.shutdown(socket.SHUT_RDWR)
-            self.request.close()
+            self.client_socket.shutdown(socket.SHUT_RDWR)
+            self.client_socket.close()
         except OSError:
             pass
 
@@ -147,17 +147,17 @@ class WorldServerSessionHandler:
     def auth_challenge(self, sck):
         data = pack('<I', 0)  # Server seed, not used.
         try:
-            sck.settimeout(10)  # Set a 10 second timeout.
+            sck.settimeout(10)  # Set a 10-second timeout.
             sck.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_CHALLENGE, data))  # Request challenge
             reader = self.receive_client_message(sck)
             if reader and reader.opcode == OpCode.CMSG_AUTH_SESSION:
                 handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
-                return handler(self, sck, reader) == 0
+                return handler(self, reader) == 0
             return False
         except socket.timeout:  # Can't check this inside Auth handler.
             try:
                 data = pack('<B', AuthCode.AUTH_SESSION_EXPIRED)
-                sck.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
+                sck.client_socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
             except AttributeError:
                 pass
             return False

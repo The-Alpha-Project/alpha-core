@@ -18,7 +18,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetSlot
-from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult, TotemSlots
+from utils.constants.SpellCodes import SpellCheckCastResult, TotemSlots
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 

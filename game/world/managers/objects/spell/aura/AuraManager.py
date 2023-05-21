@@ -6,8 +6,9 @@ from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.aura.AppliedAura import AppliedAura
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds
+from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
     SpellAttributesEx, SpellEffects
 from utils.constants.UnitCodes import UnitFlags, StandState
