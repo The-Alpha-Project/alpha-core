@@ -27,7 +27,7 @@ class ScriptOocEvent:
     def check_phase(self):
         if not self.phase_mask:
             return True
-        return self.owner.object_ai.phase & self.phase_mask
+        return self.owner.object_ai.script_phase & self.phase_mask
 
     def should_repeat(self):
         return self.repeat > 0 and self.event_flags & EventFlags.REPEATABLE

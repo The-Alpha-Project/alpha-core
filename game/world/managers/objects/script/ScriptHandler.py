@@ -952,11 +952,11 @@ class ScriptHandler:
             return
 
         if command.datalong2 == SetPhaseOptions.SO_SETPHASE_RAW:
-            command.source.object_ai.phase = command.datalong
+            command.source.object_ai.script_phase = command.datalong
         elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_INCREMENT:
-            command.source.object_ai.phase += command.datalong
+            command.source.object_ai.script_phase += command.datalong
         elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_DECREMENT:
-            command.source.object_ai.phase = max(0, command.source.object_ai.phase - command.datalong)
+            command.source.object_ai.script_phase = max(0, command.source.object_ai.script_phase - command.datalong)
 
     @staticmethod
     def handle_script_command_set_phase_random(command):
@@ -965,8 +965,8 @@ class ScriptHandler:
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}.')
             return
-        command.source.object_ai.phase = random.choice([command.datalong1, command.datalong2,
-                                                        command.datalong3, command.datalong4])
+        command.source.object_ai.script_phase = random.choice([command.datalong1, command.datalong2,
+                                                               command.datalong3, command.datalong4])
 
     @staticmethod
     def handle_script_command_set_phase_range(command):
@@ -976,7 +976,7 @@ class ScriptHandler:
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
             return
-        command.source.object_ai.phase = random.randrange(command.datalong, command.datalong2)
+        command.source.object_ai.script_phase = random.randrange(command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_flee(command):
