@@ -9,7 +9,7 @@ from utils.constants.OpCodes import OpCode
 class ActivateTaxiHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 16:  # Avoid handling empty activate taxi packet.
             guid, start_node, dest_node = unpack('<Q2I', reader.data[:16])
             flight_master = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
@@ -33,7 +33,8 @@ class ActivateTaxiHandler(object):
 
             if result == ActivateTaxiReplies.ERR_TAXIOK:
                 world_session.player_mgr.mod_money(-taxi_path.Cost)
-                world_session.player_mgr.taxi_manager.begin_taxi_flight(taxi_path, start_node, dest_node, flight_master=flight_master)
+                world_session.player_mgr.taxi_manager.begin_taxi_flight(taxi_path, start_node, dest_node,
+                                                                        flight_master=flight_master)
 
             data = pack('<I', result)
             world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ACTIVATETAXIREPLY, data))

@@ -1,13 +1,14 @@
 from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
+from utils.constants.OpCodes import OpCode
 
 
 class ItemQuerySingleHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 4:  # Avoid handling empty item query packet.
             entry = unpack('<I', reader.data[:4])[0]
             if entry > 0:

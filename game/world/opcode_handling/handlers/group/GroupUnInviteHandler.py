@@ -7,7 +7,7 @@ from utils.constants.GroupCodes import PartyOperations, PartyResults
 class GroupUnInviteHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) > 1:  # Avoid handling empty Group Uninvite packet.
             target_name = PacketReader.read_string(reader.data, 0).strip()
             target_player_mgr = RealmDatabaseManager.character_get_by_name(target_name)

@@ -1,11 +1,12 @@
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import *
+from utils.constants.OpCodes import OpCode
 
 
 class GuildInviteDeclineHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         player_mgr = world_session.player_mgr
 
         if player_mgr.guid in GuildManager.PENDING_INVITES:

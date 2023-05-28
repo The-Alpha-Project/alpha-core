@@ -10,7 +10,7 @@ from utils import Formulas
 class ListInventoryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
         if not player_mgr:
@@ -23,7 +23,7 @@ class ListInventoryHandler(object):
 
             vendor: CreatureManager = MapManager.get_surrounding_unit_by_guid(player_mgr, npc_guid)
             if vendor and vendor.location.distance(player_mgr.location) < Formulas.Distances.MAX_SHOP_DISTANCE:
-                vendor.object_ai.player_interacted(player_mgr)
+                vendor.object_ai.player_interacted()
                 # If vendor is a quest giver and player has an active quest involving this NPC, send quest window
                 # instead of vendor window.
                 if vendor.is_quest_giver():

@@ -6,7 +6,7 @@ from utils.constants.MiscCodes import ChannelNotifications
 class ChannelAnnounceHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
 
         channel = ChannelManager.get_channel(channel_name, world_session.player_mgr)

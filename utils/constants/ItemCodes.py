@@ -331,6 +331,7 @@ class EnchantmentSlots(IntEnum):
     OPTIONAL_ENCHANTMENT_1 = 3
     OPTIONAL_ENCHANTMENT_2 = 4
 
+
 class LootState(IntEnum):
     ITEM_LOOT_NONE = 0
     ITEM_LOOT_TEMPORARY = 1

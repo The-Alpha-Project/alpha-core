@@ -5,7 +5,7 @@ from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
 class GuildInviteAcceptHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         player_mgr = world_session.player_mgr
 
         if player_mgr.guid in GuildManager.PENDING_INVITES:

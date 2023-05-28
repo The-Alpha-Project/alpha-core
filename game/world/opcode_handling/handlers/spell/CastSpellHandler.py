@@ -8,7 +8,7 @@ from utils.constants.SpellCodes import SpellTargetMask
 class CastSpellHandler:
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 6:  # Avoid handling empty cast spell packet.
             spell_id, target_mask = unpack('<IH', reader.data[:6])
 

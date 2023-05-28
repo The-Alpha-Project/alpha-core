@@ -6,7 +6,7 @@ from game.world.managers.objects.units.player.trade.TradeManager import TradeMan
 class ClearTradeItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if not world_session or not world_session.player_mgr or not world_session.player_mgr.trade_data:
             return 0
 

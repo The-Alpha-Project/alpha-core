@@ -8,7 +8,7 @@ from network.packet.PacketWriter import PacketWriter
 class PetNameQueryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, reader: PacketReader) -> int:
         if len(reader.data) >= 12:  # Avoid handling empty pet name query packet.
             pet_id, pet_guid = unpack('<IQ', reader.data[:12])
 

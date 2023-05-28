@@ -1,14 +1,15 @@
 from game.world.managers.maps.MapManager import MapManager
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import HighGuid, ObjectTypeIds
+from utils.constants.OpCodes import OpCode
 
 
 class LootMoneyHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         LootMoneyHandler._loot_money(world_session.player_mgr)
         return 0
 

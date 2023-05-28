@@ -1,4 +1,4 @@
-from random import randint, uniform
+from random import uniform
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.loot.LootManager import LootManager

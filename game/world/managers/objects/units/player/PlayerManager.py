@@ -37,8 +37,9 @@ from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.MiscCodes import ChatFlags, LootTypes, LiquidTypes, MountResults, DismountResults, LockTypes
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, PlayerFlags, WhoPartyStatus, HighGuid, \
     AttackTypes, MoveFlags
+from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, SplineFlags, \
+from utils.constants.UnitCodes import Classes, PowerTypes, Races, Genders, UnitFlags, Teams, \
     RegenStatsFlags, CreatureTypes, UnitStates
 from utils.constants.UpdateFields import *
 
@@ -838,8 +839,6 @@ class PlayerManager(UnitManager):
         if super().change_speed(speed):
             data = pack('<f', self.running_speed)
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
-            # TODO Move object update to UnitManager
-            MapManager.send_surrounding(self.generate_movement_packet(), self)
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:

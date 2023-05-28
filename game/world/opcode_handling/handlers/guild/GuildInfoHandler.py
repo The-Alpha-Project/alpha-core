@@ -2,12 +2,13 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand
+from utils.constants.OpCodes import OpCode
 
 
 class GuildInfoHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         player = world_session.player_mgr
 
         if not player.guild_manager:

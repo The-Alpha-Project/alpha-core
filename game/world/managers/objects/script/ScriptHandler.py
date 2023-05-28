@@ -11,14 +11,15 @@ from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptOocEvent import ScriptOocEvent
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
+from game.world.managers.objects.units.movement.helpers.CommandMoveInfo import CommandMoveInfo
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
     ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags
-from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask
+from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
-    ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags
+    ScriptCommands, SetHomePositionOptions, CastFlags, SetPhaseOptions, TerminateConditionFlags, WaypointPathOrigin
 from game.world.managers.objects.units.ChatManager import ChatManager
 from utils.Logger import Logger
 from utils.ConfigManager import config
@@ -29,19 +30,21 @@ class ScriptHandler:
 
     def __init__(self, world_object):
         self.owner = world_object
-        self.script_queue = []
+        self.script_queue = set()
         self.ooc_ignore = set()
-        self.ooc_event = None
-        self.current_script = None
+        self.ooc_events = {}
 
-    def enqueue_script(self, source, target, script_type, script_id, delay=0.0):
+    def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
+        if script_id in self.script_queue:
+            Logger.warning(f'Skip duplicate script {script_id}.')
+            return
         # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
             return
         script_commands.sort(key=lambda command: command.delay)
-        new_script = Script(script_id, script_commands, source, target, self, delay=delay)
-        self.script_queue.append(new_script)
+        new_script = Script(script_id, script_commands, source, target, self, delay=delay, ooc_event=ooc_event)
+        self.script_queue.add(new_script)
 
     # noinspection PyMethodMayBeStatic
     def handle_script_command_execution(self, script_command):
@@ -60,12 +63,11 @@ class ScriptHandler:
 
     def reset(self):
         self.script_queue.clear()
-        self.ooc_event = None
+        self.ooc_events.clear()
 
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
         for script in list(self.script_queue):
-            self.current_script = script
             script.update(now)
             if not script.is_complete():
                 continue
@@ -73,39 +75,52 @@ class ScriptHandler:
             self.script_queue.remove(script)
 
         # Check if we need to initialize or remove ooc event.
-        self._check_ooc_event(now)
+        self._check_ooc_events(now)
 
-    def _check_ooc_event(self, now):
-        if not self.ooc_event or self.owner.in_combat or self.owner.is_evading:
+    def _check_ooc_events(self, now):
+        if not self.ooc_events:
             return
-        # Check if we should remove the ongoing ooc event.
-        if self.ooc_event.started and self.ooc_event.is_complete(now):
-            self.ooc_event.started = False
-            # Should not repeat, remove.
-            if self.ooc_event.event_id in self.ooc_ignore:
-                self.ooc_event = None
-        elif not self.ooc_event.started:
-            # Initialize the ooc event, will pick one random script.
-            self.ooc_event.initialize(now)
-            self.enqueue_script(self.owner, self.ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
-                                script_id=self.ooc_event.script_id, delay=self.ooc_event.delay)
+        if self.owner.in_combat or self.owner.is_evading:
+            return
 
-    def set_random_ooc_event(self, target, event):
-        if not ConditionChecker.check_condition(event.condition_id, self.owner, target):
+        for event_id, ooc_event in list(self.ooc_events.items()):
+            # Check if we should remove the ongoing ooc event.
+            if ooc_event.started and ooc_event.is_complete(now):
+                ooc_event.started = False
+                # Should not repeat, remove.
+                if event_id in self.ooc_ignore:
+                    self.ooc_events.pop(event_id)
+            elif not ooc_event.started and ooc_event.check_phase():
+                # Initialize the ooc event.
+                ooc_event.initialize(now)
+                for script_id in ooc_event.script_ids:
+                    self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
+                                        script_id=script_id, delay=ooc_event.delay, ooc_event=ooc_event)
+
+    def set_random_ooc_event(self, target, event, forced=False):
+        if not ConditionChecker.validate(event.condition_id, self.owner, target):
             return
 
         # Ignored or already running a script.
-        if event.id in self.ooc_ignore or self.ooc_event:
-            return
+        if event.id in self.ooc_ignore or event.id in self.ooc_events:
+            if not forced:
+                return
+            # Event is already in, force it.
+            if event.id in self.ooc_events:
+                self.ooc_events[event.id].force()
+                return
+            # Remove from ignored if needed.
+            if event.id in self.ooc_ignore:
+                self.ooc_ignore.remove(event.id)
 
-        occ_event = ScriptOocEvent(event, target)
+        occ_event = ScriptOocEvent(event, target, self.owner, forced=forced)
         # Has no scripts, ignore.
         if not occ_event.scripts:
             self.ooc_ignore.add(event.id)
             return
 
-        self.ooc_event = occ_event
-        if not occ_event.should_repeat:
+        self.ooc_events[event.id] = occ_event
+        if not occ_event.should_repeat():
             self.ooc_ignore.add(event.id)
 
     # Handlers
@@ -140,15 +155,13 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Broadcast messages for {command.get_info()}, not found.')
             return
 
-        speaker = command.target if command.target and command.target.get_type_id() == ObjectTypeIds.ID_UNIT \
-            else command.source
-        if speaker.get_type_id() != ObjectTypeIds.ID_UNIT:
+        if command.source.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Wrong target type, aborting {command.get_info()}.')
             return
 
-        if speaker.gender == Genders.GENDER_MALE and broadcast_message.male_text:
+        if command.source.gender == Genders.GENDER_MALE and broadcast_message.male_text:
             text_to_say = broadcast_message.male_text
-        elif speaker.gender == Genders.GENDER_FEMALE and broadcast_message.female_text:
+        elif command.source.gender == Genders.GENDER_FEMALE and broadcast_message.female_text:
             text_to_say = broadcast_message.female_text
         else:
             text_to_say = broadcast_message.male_text if broadcast_message.male_text else broadcast_message.female_text
@@ -165,12 +178,12 @@ class ScriptHandler:
             chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_EMOTE
             lang = Languages.LANG_UNIVERSAL
         
-        ChatManager.send_monster_message(speaker, text_to_say, chat_msg_type, lang,
+        ChatManager.send_monster_message(command.source, text_to_say, chat_msg_type, lang,
                                          ChatHandler.get_range_by_type(chat_msg_type), command.target)
 
         # Neither emote_delay nor emote_id2 or emote_id3 seem to be ever used so let's just skip them.
         if broadcast_message.emote_id1 != 0:
-            speaker.play_emote(broadcast_message.emote_id1)
+            command.source.play_emote(broadcast_message.emote_id1)
 
     @staticmethod
     def handle_script_command_emote(command):
@@ -189,7 +202,7 @@ class ScriptHandler:
                 command.source.movement_manager.face_target(command.target)
 
     @staticmethod
-    def handle_script_command_field_set(command):
+    def handle_script_command_field_set(_command):
         # source = Object
         # datalong = field_id
         # datalong2 = value
@@ -262,7 +275,7 @@ class ScriptHandler:
         #     FIELD_PLAYER_FLAGS               = 190,
         # };
 
-        flag_equivalences_5875_to_3368 = {
+        flag_equivalences_5875_to_3368: dict[int, tuple[int, int, callable]] = {
             # GAMEOBJECT_FLAGS
             9: (GameObjectFields.GAMEOBJECT_FLAGS, command.source.flags, command.source.set_uint32)
             if command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT else (None, None, None),
@@ -377,33 +390,30 @@ class ScriptHandler:
         # datalong2 = distance or 0
         # datalong3 = (bool) group
         quest_target = None
-        if command.source:
-            if command.source.quest_target:
-                quest_target = command.source.quest_target
-        elif command.target:
-            if command.target.quest_target:
-                quest_target = command.target.quest_target
+        if command.source and command.source.quest_target:
+            quest_target = command.source.quest_target
+        elif command.target and command.target.quest_target:
+            quest_target = command.target.quest_target
 
         if not quest_target:
             Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
             return
 
-        if command.datalong in quest_target.quest_manager.active_quests:
-            in_range = command.source.location.distance(quest_target.location) <= command.datalong2
-            if command.datalong3:
-                if quest_target.group_manager and in_range:
-                    quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
-                else:
-                    if in_range:
-                        quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-                        quest_target.quest_manager.reward_quest_event()
-            else:
-                if in_range:
-                    quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-                    quest_target.quest_manager.reward_quest_event()
+        if command.datalong not in quest_target.quest_manager.active_quests:
+            return
+        in_range = command.source.location.distance(quest_target.location) <= command.datalong2
+        if command.datalong3:
+            if quest_target.group_manager and in_range:
+                quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
+            elif in_range:
+                quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+                quest_target.quest_manager.reward_quest_event()
+        elif in_range:
+            quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+            quest_target.quest_manager.reward_quest_event()
 
     @staticmethod
-    def handle_script_command_kill_credit(command):
+    def handle_script_command_kill_credit(_command):
         # source = Player (from provided source or target)
         # datalong = creature entry
         # datalong2 = bool (0=personal credit, 1=group credit)
@@ -587,6 +597,11 @@ class ScriptHandler:
         spell = command.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
         if command.datalong2 & CastFlags.CF_TRIGGERED:
             spell.force_instant_cast()
+        elif command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
+            cast_result = command.source.object_ai.try_to_cast(target, spell, command.datalong2, chance=100)
+            if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
+                Logger.warning(f'[Script] Unable to cast spell {command.datalong}, script_id {command.script_id}.')
+                return
 
         command.source.spell_manager.start_spell_cast(initialized_spell=spell)
 
@@ -623,13 +638,14 @@ class ScriptHandler:
 
         if command.datalong == 1:
             command.source.reset_virtual_equipment()
-        else:
-            if command.dataint > 0:
-                command.source.set_virtual_equipment(0, command.dataint)
-            if command.dataint2 > 0:
-                command.source.set_virtual_equipment(1, command.dataint2)
-            if command.dataint3 > 0:
-                command.source.set_virtual_equipment(2, command.dataint3)
+            return
+
+        if command.dataint > 0:
+            command.source.set_virtual_equipment(0, command.dataint)
+        if command.dataint2 > 0:
+            command.source.set_virtual_equipment(1, command.dataint2)
+        if command.dataint3 > 0:
+            command.source.set_virtual_equipment(2, command.dataint3)
 
     @staticmethod
     def handle_script_command_movement(command):
@@ -643,10 +659,10 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
-        command.source.movement_manager.move_automatic_waypoints_from_script()
+        Logger.debug('ScriptHandler: handle_script_command_movement not implemented yet')
 
     @staticmethod
-    def handle_script_command_set_activeobject(command):
+    def handle_script_command_set_activeobject(_command):
         # source = Creature
         # datalong = (bool) 0=off, 1=on
         Logger.debug('ScriptHandler: handle_script_command_set_activeobject not implemented yet')
@@ -681,15 +697,16 @@ class ScriptHandler:
 
         if not creature_or_model_entry:
             command.source.reset_display_id()
+            return
         elif display_id:
             command.source.set_display_id(display_id)
+            return
+
+        creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_model_entry)
+        if creature_template:
+            command.source.set_display_id(creature_template.display_id)
         else:
-            creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
-                creature_or_model_entry)
-            if creature_template:
-                command.source.set_display_id(creature_template.display_id)
-            else:
-                Logger.warning(f'ScriptHandler: No creature template found, aborting {command.get_info()}.')
+            Logger.warning(f'ScriptHandler: No creature template found, aborting {command.get_info()}.')
 
     @staticmethod
     def handle_script_command_mount_to_entry_or_model(command):
@@ -728,9 +745,9 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
             return
 
-        command.source.change_speed(
-            command.source.creature_template.speed_run if command.datalong == 1 else
-            command.source.creature_template.speed_walk)
+        creature_template = command.source.creature_template
+        new_speed = creature_template.speed_run if command.datalong == 1 else creature_template.speed_walk
+        command.source.change_speed(new_speed)
 
     @staticmethod
     def handle_script_command_attack_start(command):
@@ -749,7 +766,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Unable to resolve target, aborting {command.get_info()}.')
 
     @staticmethod
-    def handle_script_command_update_entry(command):
+    def handle_script_command_update_entry(_command):
         # source = Creature
         # datalong = creature_entry
         Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
@@ -764,14 +781,14 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source found or source is dead, aborting {command.get_info()}.')
 
     @staticmethod
-    def handle_script_command_modify_threat(command):
+    def handle_script_command_modify_threat(_command):
         # source = Creature
         # datalong = eModifyThreatTargets
         # x = percent
         Logger.debug('ScriptHandler: handle_script_command_modify_threat not implemented yet')
 
     @staticmethod
-    def handle_script_command_terminate_script(command):
+    def handle_script_command_terminate_script(_command):
         # source = Any
         # datalong = creature_entry
         # datalong2 = search_distance
@@ -785,30 +802,33 @@ class ScriptHandler:
         # datalong2 = failed_quest_id
         # datalong3 = eTerminateConditionFlags
         if command.datalong:
-            result = ConditionChecker.check_condition(command.datalong, command.source, command.target)
+            result = ConditionChecker.validate(command.datalong, command.source, command.target)
             if command.datalong3 & TerminateConditionFlags.SF_TERMINATECONDITION_WHEN_FALSE:
                 result = not result
         else:
             result = True
 
-        if command.datalong2:
-            _target = None
-            if ConditionChecker.is_player(command.source):
-                _target = command.source
-            elif command.target and ConditionChecker.is_player(command.target):
-                _target = command.target
+        if not command.datalong2:
+            return
 
-            if result and _target.script_handler.current_script:
-                command.source.script_handler.current_script.abort()
+        _target = None
+        if ConditionChecker.is_player(command.source):
+            _target = command.source
+        elif command.target and ConditionChecker.is_player(command.target):
+            _target = command.target
 
-            if _target:
-                if _target.online and result:
-                    if _target.group_manager:
-                        _target.group_manager.fail_quest_for_group(_target, command.datalong2)
-                    else:
-                        _target.quest_manager.fail_quest_by_id(command.datalong2)
+        if result:
+            command.script.abort()
+
+        if not _target:
+            Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
+            return
+
+        if _target.online and result:
+            if _target.group_manager:
+                _target.group_manager.fail_quest_for_group(_target, command.datalong2)
             else:
-                Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
+                _target.quest_manager.fail_quest_by_id(command.datalong2)
 
     @staticmethod
     def handle_script_command_enter_evade_mode(command):
@@ -862,7 +882,7 @@ class ScriptHandler:
             command.source.movement_manager.face_angle(command.o)
 
     @staticmethod
-    def handle_script_command_set_inst_data(command):
+    def handle_script_command_set_inst_data(_command):
         # source = Map
         # datalong = field
         # datalong2 = data
@@ -870,7 +890,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_set_inst_data not implemented yet')
 
     @staticmethod
-    def handle_script_command_set_inst_data64(command):
+    def handle_script_command_set_inst_data64(_command):
         # source = Map
         # target = Object (when saving guid)
         # datalong = field
@@ -898,7 +918,7 @@ class ScriptHandler:
             Logger.warning('ScriptHandler: Neither source nor target are a player, aborting SCRIPT_COMMAND_REMOVE_ITEM')
 
     @staticmethod
-    def handle_script_command_remove_object(command):
+    def handle_script_command_remove_object(_command):
         # source = GameObject
         # target = Unit
         Logger.debug('ScriptHandler: handle_script_command_remove_object not implemented yet')
@@ -929,16 +949,14 @@ class ScriptHandler:
         # datalong2 = eSetPhaseOptions
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}.')
-        else:
-            if command.datalong2 == SetPhaseOptions.SO_SETPHASE_RAW:
-                command.source.object_ai.phase = command.datalong
-            elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_INCREMENT:
-                command.source.object_ai.phase += command.datalong
-            elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_DECREMENT:
-                if command.source.object_ai.phase < command.datalong:
-                    command.source.object_ai.phase = 0
-                else:
-                    command.source.object_ai.phase -= command.datalong
+            return
+
+        if command.datalong2 == SetPhaseOptions.SO_SETPHASE_RAW:
+            command.source.object_ai.script_phase = command.datalong
+        elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_INCREMENT:
+            command.source.object_ai.script_phase += command.datalong
+        elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_DECREMENT:
+            command.source.object_ai.script_phase = max(0, command.source.object_ai.script_phase - command.datalong)
 
     @staticmethod
     def handle_script_command_set_phase_random(command):
@@ -946,9 +964,9 @@ class ScriptHandler:
         # datalong1-4 = phase
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}.')
-        else:
-            command.source.object_ai.phase = random.choice([command.datalong1, command.datalong2, command.datalong3,
-                                                            command.datalong4])
+            return
+        command.source.object_ai.script_phase = random.choice([command.datalong1, command.datalong2,
+                                                               command.datalong3, command.datalong4])
 
     @staticmethod
     def handle_script_command_set_phase_range(command):
@@ -957,8 +975,8 @@ class ScriptHandler:
         # datalong2 = phase_max
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
-        else:
-            command.source.object_ai.phase = random.randrange(command.datalong, command.datalong2)
+            return
+        command.source.object_ai.script_phase = random.randrange(command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_flee(command):
@@ -1028,7 +1046,7 @@ class ScriptHandler:
         command.source.invincibility_hp_level = invincibility_hp_lvl
 
     @staticmethod
-    def handle_script_command_game_event(command):
+    def handle_script_command_game_event(_command):
         # source = None
         # datalong = event_id
         # datalong2 = (bool) start
@@ -1036,14 +1054,14 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_game_event not implemented yet')
 
     @staticmethod
-    def handle_script_command_set_server_variable(command):
+    def handle_script_command_set_server_variable(_command):
         # source = None
         # datalong = index
         # datalong2 = value
         Logger.debug('ScriptHandler: handle_script_command_set_server_variable not implemented yet')
 
     @staticmethod
-    def handle_script_command_remove_guardians(command):
+    def handle_script_command_remove_guardians(_command):
         # source = Unit
         # datalong = creature_id
         Logger.debug('ScriptHandler: handle_script_command_remove_guardians not implemented yet')
@@ -1075,7 +1093,7 @@ class ScriptHandler:
         command.source.spell_manager.unlock_spell_cooldown(command.datalong)
 
     @staticmethod
-    def handle_script_command_set_react_state(command):
+    def handle_script_command_set_react_state(_command):
         # source = Creature
         # datalong = see enum ReactStates
         Logger.debug('ScriptHandler: handle_script_command_set_react_state not implemented yet')
@@ -1089,7 +1107,13 @@ class ScriptHandler:
         # datalong4 = (bool) repeat
         # dataint = overwrite_guid
         # dataint2 = overwrite_entry
-        Logger.debug('ScriptHandler: handle_script_command_start_waypoints not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
+            return
+        move_info = CommandMoveInfo(wp_source=WaypointPathOrigin(command.datalong), start_point=command.datalong2,
+                                    initial_delay=command.datalong3, repeat=command.datalong4 > 0,
+                                    overwrite_guid=command.dataint, overwrite_entry=command.dataint2)
+        command.source.movement_manager.move_automatic_waypoints_from_script(command_move_info=move_info)
 
     @staticmethod
     def handle_script_command_start_map_event(command):
@@ -1188,7 +1212,7 @@ class ScriptHandler:
         map_.map_event_manager.send_event_data(command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
-    def handle_script_command_set_default_movement(command):
+    def handle_script_command_set_default_movement(_command):
         # source = Creature
         # datalong = movement_type
         # datalong2 = (bool) always_replace
@@ -1196,7 +1220,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_set_default_movement not implemented yet')
 
     @staticmethod
-    def handle_script_command_start_script_for_all(command):
+    def handle_script_command_start_script_for_all(_command):
         # source = WorldObject
         # datalong = script_id
         # datalong2 = eStartScriptForAllOptions
@@ -1253,12 +1277,12 @@ class ScriptHandler:
         command.source.object_ai.assist_unit(command.target)
 
     @staticmethod
-    def handle_script_command_combat_stop(command):
+    def handle_script_command_combat_stop(_command):
         # source = Unit
         Logger.debug('ScriptHandler: handle_script_command_combat_stop not implemented yet')
 
     @staticmethod
-    def handle_script_command_add_aura(command):
+    def handle_script_command_add_aura(_command):
         # source = Unit
         # datalong = spell_id
         # datalong2 = flags
@@ -1277,7 +1301,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Source is not in combat, aborting {command.get_info()}')
 
     @staticmethod
-    def handle_script_command_summon_object(command):
+    def handle_script_command_summon_object(_command):
         # source = WorldObject
         # datalong = gameobject_entry
         # datalong2 = respawn_time
@@ -1285,7 +1309,7 @@ class ScriptHandler:
         Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
 
     @staticmethod
-    def handle_script_command_join_creature_group(command):
+    def handle_script_command_join_creature_group(_command):
         # source = Creature
         # target = Creature
         # datalong = OptionFlags
@@ -1325,13 +1349,13 @@ class ScriptHandler:
         target.set_state(GameObjectStates(command.datalong))
 
     @staticmethod
-    def handle_script_command_quest_credit(command):
+    def handle_script_command_quest_credit(_command):
         # source = Player (from provided source or target)
         # target = WorldObject (from provided source or target)
         Logger.debug('ScriptHandler: handle_script_command_quest_credit not implemented yet')
 
     @staticmethod
-    def handle_script_command_send_script_event(command):
+    def handle_script_command_send_script_event(_command):
         # source = Creature
         # target = WorldObject
         # datalong = event_id
@@ -1348,26 +1372,26 @@ class ScriptHandler:
         command.source.gameobject_instance.set_ready()
 
     @staticmethod
-    def handle_script_command_set_command_state(command):
+    def handle_script_command_set_command_state(_command):
         # source = Creature
         # datalong = command_state (see enum CommandStates)
         Logger.debug('ScriptHandler: handle_script_command_set_command_state not implemented yet')
 
     @staticmethod
-    def handle_script_command_play_custom_anim(command):
+    def handle_script_command_play_custom_anim(_command):
         # source = GameObject
         # datalong = anim_id
         Logger.debug('ScriptHandler: handle_script_command_play_custom_anim not implemented yet')
 
     @staticmethod
-    def handle_script_command_start_script_on_group(command):
+    def handle_script_command_start_script_on_group(_command):
         # source = Unit
         # datalong1-4 = generic_script id
         # dataint1-4 = chance (total cant be above 100)
         Logger.debug('ScriptHandler: handle_script_command_start_script_on_group not implemented yet')
 
     @staticmethod
-    def handle_script_command_call_for_help(command):
+    def handle_script_command_call_for_help(_command):
         # source = Creature
         # x = radius
         Logger.debug('ScriptHandler: handle_script_command_call_for_help not implemented yet')

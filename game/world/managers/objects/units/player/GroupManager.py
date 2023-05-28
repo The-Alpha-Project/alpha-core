@@ -5,12 +5,12 @@ from database.realm.RealmModels import Group, GroupMember
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.Formulas import Distances
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import WhoPartyStatus, LootMethods, PlayerFlags
-from utils.constants.UpdateFields import PlayerFields
+from utils.constants.OpCodes import OpCode
 
 MAX_GROUP_SIZE = 5
 GROUPS = {}
@@ -335,9 +335,10 @@ class GroupManager(object):
 
     def reward_quest_completion(self, requester, quest_entry):
         for player_mgr in self.get_close_members(requester):
-            if quest_entry in player_mgr.quest_manager.active_quests:
-                player_mgr.quest_manager.active_quests[quest_entry].set_explored_or_event_complete()
-                player_mgr.quest_manager.reward_quest_event()
+            if quest_entry not in player_mgr.quest_manager.active_quests:
+                continue
+            player_mgr.quest_manager.active_quests[quest_entry].set_explored_or_event_complete()
+            player_mgr.quest_manager.reward_quest_event()
 
     def fail_quest_for_group(self, requester, quest_entry):
         for player_mgr in self.get_close_members(requester):

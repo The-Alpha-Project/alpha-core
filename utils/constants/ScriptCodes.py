@@ -251,6 +251,18 @@ class SetPhaseOptions(IntEnum):
     SO_SETPHASE_DECREMENT = 2
 
 
+class WaypointPathOrigin(IntEnum):
+    PATH_NO_PATH = 0
+    PATH_FROM_GUID = 1
+    PATH_FROM_ENTRY = 2
+    PATH_FROM_SPECIAL = 3
+
+
+class EventFlags(IntEnum):
+    REPEATABLE = 0x01
+    RANDOM_ACTION = 0x02
+
+
 class SetMapScriptDataOptions(IntEnum):
     SO_MAPEVENTDATA_RAW = 0
     SO_MAPEVENTDATA_INCREMENT = 1

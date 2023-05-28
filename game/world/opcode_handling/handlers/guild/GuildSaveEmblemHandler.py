@@ -9,7 +9,7 @@ EMBLEM_COST = 10000
 class GuildSaveEmblemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # TODO: TabardVendor wont allow you to define a new emblem after you have already one. Intended?
         if len(reader.data) >= 20:  # Avoid handling empty guild save emblem packet.
             style, color, border_style, border_color, background_color = unpack('<5I', reader.data[:20])

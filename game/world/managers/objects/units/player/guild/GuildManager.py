@@ -5,11 +5,12 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, Guild, Gui
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.guild.GuildPendingInvite import GuildPendingInvite
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
 from utils.TextUtils import TextChecker
 from utils.constants.MiscCodes import GuildRank, GuildCommandResults, GuildTypeCommand, GuildEvents, \
     GuildChatMessageTypes, GuildEmblemResult
+from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
 
 

@@ -6,7 +6,7 @@ from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManage
 class TaxiNodeStatusQueryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty taxi node status query packet.
             guid = unpack('<Q', reader.data[:8])[0]
             if guid <= 0:

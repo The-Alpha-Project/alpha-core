@@ -6,7 +6,7 @@ from struct import unpack
 class LearnSpellCheatHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
         if not player_mgr:

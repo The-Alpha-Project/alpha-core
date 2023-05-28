@@ -6,7 +6,7 @@ from utils.constants.MiscCodes import SellResults
 class SellItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 17:  # Avoid handling empty sell item packet.
             vendor_guid, item_guid, sell_amount = unpack('<2QB', reader.data[:17])
             container_slot, container, slot, item = world_session.player_mgr.inventory.get_item_info_by_guid(item_guid)

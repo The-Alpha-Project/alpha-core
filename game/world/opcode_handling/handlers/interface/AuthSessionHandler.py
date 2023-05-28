@@ -8,7 +8,7 @@ from utils.constants.AuthCodes import *
 class AuthSessionHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         version, login = unpack(
             '<II', reader.data[:8]
         )
@@ -27,14 +27,14 @@ class AuthSessionHandler(object):
             auth_code = AuthCode.AUTH_VERSION_MISMATCH
 
         if username and password:
-            login_res, world_session.account_mgr = RealmDatabaseManager.account_try_login(username, password,
-                                                                                          socket.getpeername()[0])
+            login_res, world_session.account_mgr = RealmDatabaseManager.account_try_login(
+                username, password, world_session.client_socket.getpeername()[0])
             if login_res == 0:
                 auth_code = AuthCode.AUTH_INCORRECT_PASSWORD
             elif login_res == -1:
                 if config.Server.Settings.auto_create_accounts:
-                    world_session.account_mgr = RealmDatabaseManager.account_create(username, password,
-                                                                                    socket.getpeername()[0])
+                    world_session.account_mgr = RealmDatabaseManager.account_create(
+                        username, password, world_session.client_socket.getpeername()[0])
                 else:
                     auth_code = AuthCode.AUTH_UNKNOWN_ACCOUNT
 
@@ -43,6 +43,6 @@ class AuthSessionHandler(object):
 
         data = pack('<B', auth_code)
         # We directly send this through the socket, skipping queue model.
-        world_session.request.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
+        world_session.client_socket.sendall(PacketWriter.get_packet(OpCode.SMSG_AUTH_RESPONSE, data))
 
         return 0 if auth_code == AuthCode.AUTH_OK else -1

@@ -5,12 +5,13 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *
 from utils.Logger import Logger
+from utils.constants.OpCodes import OpCode
 
 
 class TriggerCinematicCheatHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, reader: PacketReader) -> int:
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=False)
         if not player_mgr:

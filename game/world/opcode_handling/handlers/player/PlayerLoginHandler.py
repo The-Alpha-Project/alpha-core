@@ -13,12 +13,13 @@ from network.packet.PacketWriter import *
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.constants.CharCodes import CharLogin
+from utils.constants.OpCodes import OpCode
 
 
 class PlayerLoginHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, reader: PacketReader) -> int:
         if len(reader.data) < 8:  # Avoid handling wrong player login packet.
             return -1
 
@@ -95,14 +96,14 @@ class PlayerLoginHandler(object):
         first_login = player_mgr.player.totaltime == 0
         # Send cinematic.
         if first_login:
-            PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player, socket)
+            PlayerLoginHandler._send_cinematic(world_session, world_session.player_mgr.player)
 
         player_mgr.complete_login(first_login=first_login)
 
         return 0
 
     @staticmethod
-    def _send_cinematic(world_session, player, socket):
+    def _send_cinematic(world_session, player):
         # Sadly, ONLY undeads have intro cinematic.
         cinematic_id = DbcDatabaseManager.chr_races_get_by_race(player.race).CinematicSequenceID
         if cinematic_id != 0:

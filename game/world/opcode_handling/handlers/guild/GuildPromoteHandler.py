@@ -7,7 +7,7 @@ from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, Gui
 class GuildPromoteHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) > 1:  # Avoid handling empty Guild Promote packet.
             target_name = PacketReader.read_string(reader.data, 0).strip()
             target_player_mgr = RealmDatabaseManager.character_get_by_name(target_name)

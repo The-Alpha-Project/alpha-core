@@ -2,13 +2,14 @@ from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *
 from utils.constants.MiscCodes import LogoutResponseCodes
+from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import StandState
 
 
 class LogoutRequestHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader: PacketReader) -> int:
+    def handle(world_session, reader: PacketReader) -> int:
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode, disconnect=True)
         if not player_mgr:

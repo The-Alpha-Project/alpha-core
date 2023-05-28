@@ -1,12 +1,13 @@
 from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import *
+from utils.constants.OpCodes import OpCode
 
 
 class CharEnumHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         characters = RealmDatabaseManager.account_get_characters(world_session.account_mgr.account.id)
         count = len(characters)
 
@@ -18,7 +19,7 @@ class CharEnumHandler(object):
         return 0
 
     @staticmethod
-    def get_char_packet(world_session, character):
+    def get_char_packet(_world_session, character):
         guild = RealmDatabaseManager.character_get_guild(character)
         pet_info = CharEnumHandler._get_pet_info(character.guid)
 

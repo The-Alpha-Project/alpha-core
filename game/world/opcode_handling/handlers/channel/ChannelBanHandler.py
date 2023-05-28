@@ -8,7 +8,7 @@ from utils.constants.MiscCodes import ChannelNotifications
 class ChannelBanHandler(object):
 
     @staticmethod
-    def handle_ban(world_session, socket, reader):
+    def handle_ban(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel_name) + 1
         has_player = len(reader.data) == offset + 1
@@ -30,7 +30,7 @@ class ChannelBanHandler(object):
         return 0
 
     @staticmethod
-    def handle_unban(world_session, socket, reader):
+    def handle_unban(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel_name) + 1
         has_player = len(reader.data) == offset + 1

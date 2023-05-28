@@ -5,7 +5,7 @@ from utils.constants.MiscCodes import GuildCommandResults, GuildTypeCommand, Gui
 class GuildDisbandHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         player_mgr = world_session.player_mgr
 
         if not player_mgr.guild_manager:

@@ -29,9 +29,9 @@ class ScriptedEvent:
             return
 
         if self.expire_time >= now:
-            if ConditionChecker.check_condition(self.failure_condition, self.source, self.target):
+            if ConditionChecker.validate(self.failure_condition, self.source, self.target):
                 self.end_event(False)
-            elif ConditionChecker.check_condition(self.success_condition, self.source, self.target):
+            elif ConditionChecker.validate(self.success_condition, self.source, self.target):
                 self.end_event(True)
 
     def end_event(self, success):

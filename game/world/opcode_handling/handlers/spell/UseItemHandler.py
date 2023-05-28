@@ -6,7 +6,7 @@ from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpell
 class UseItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 5:  # Avoid handling empty use item packet.
             bag, slot, spell_count, target_mask = unpack('<3BH', reader.data[:5])
 

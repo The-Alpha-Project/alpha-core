@@ -1,9 +1,10 @@
 from struct import pack
 
 from game.world.managers.maps.MapManager import MapManager
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.constants.DuelCodes import *
 from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import PlayerFields
 
 

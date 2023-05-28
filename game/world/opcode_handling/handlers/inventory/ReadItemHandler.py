@@ -2,12 +2,13 @@ from struct import unpack
 
 from network.packet.PacketWriter import *
 from utils.constants.ItemCodes import InventoryError, InventorySlots
+from utils.constants.OpCodes import OpCode
 
 
 class ReadItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # Seems CMSG_READ_ITEM is only called if the item is in the backpack, weird.
         if len(reader.data) >= 2:  # Avoid handling empty read item packet.
             bag, slot = unpack('<2B', reader.data[:2])

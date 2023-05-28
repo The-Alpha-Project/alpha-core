@@ -5,7 +5,7 @@ from network.packet.PacketReader import *
 class ChannelJoinHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         channel = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel) + 1
         skip_pass = len(reader.data) == offset + 1

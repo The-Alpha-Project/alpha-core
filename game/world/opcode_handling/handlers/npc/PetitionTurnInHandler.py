@@ -7,7 +7,7 @@ from utils.Logger import Logger
 class PetitionTurnInHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty petition turn in packet.
             petition_item_guid = unpack('<Q', reader.data[:8])[0]
 

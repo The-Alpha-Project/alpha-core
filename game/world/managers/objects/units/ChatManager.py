@@ -5,11 +5,12 @@ from game.world.managers.objects.units.player.ChannelManager import ChannelManag
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from game.world.managers.objects.units.player.trade.ChatAddonManager import ChatAddonManager
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.ChatLogManager import ChatLogManager
 from utils.constants.GroupCodes import PartyOperations, PartyResults
 from utils.constants.MiscCodes import GuildRank, ChatMsgs, ChatFlags, GuildChatMessageTypes, GuildCommandResults, \
-    GuildTypeCommand, ChannelNotifications, Languages
+    GuildTypeCommand, ChannelNotifications
+from utils.constants.OpCodes import OpCode
 
 
 class ChatManager(object):

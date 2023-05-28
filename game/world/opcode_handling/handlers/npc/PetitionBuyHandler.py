@@ -12,7 +12,7 @@ from utils.constants.MiscCodes import BuyResults, GuildTypeCommand, GuildCommand
 class PetitionBuyHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 28:  # Avoid handling empty petition buy packet.
             npc_guid = unpack('<Q', reader.data[:8])[0]
             guild_name = PacketReader.read_string(reader.data, 20)

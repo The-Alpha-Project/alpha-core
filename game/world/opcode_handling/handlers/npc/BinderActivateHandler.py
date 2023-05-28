@@ -1,8 +1,9 @@
 from struct import unpack
 
 from game.world.managers.maps.MapManager import MapManager
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
+from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 
 BIND_SPELL = 3286
@@ -11,7 +12,7 @@ BIND_SPELL = 3286
 class BinderActivateHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty binder activate packet.
             binder_guid = unpack('<Q', reader.data[:8])[0]
             binder = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, binder_guid)

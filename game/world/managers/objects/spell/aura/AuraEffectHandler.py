@@ -10,7 +10,7 @@ from utils.constants.MiscCodes import ObjectTypeIds, UnitDynamicTypes, ProcFlags
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import ShapeshiftForms, AuraTypes, SpellSchoolMask, SpellImmunity
 from utils.constants.UnitCodes import UnitFlags, UnitStates, PowerTypes
-from utils.constants.UpdateFields import UnitFields, PlayerFields, ObjectFields
+from utils.constants.UpdateFields import ObjectFields
 
 
 class AuraEffectHandler:
@@ -176,7 +176,7 @@ class AuraEffectHandler:
         aura.caster.apply_spell_damage(effect_target, damage, aura.spell_effect)
 
     @staticmethod
-    def handle_channel_death_item(aura, effect_target, remove):
+    def handle_channel_death_item(aura, effect_target, _remove):
         if effect_target.is_alive or aura.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
@@ -267,7 +267,7 @@ class AuraEffectHandler:
             aura.caster.set_sanctuary(False)
 
     @staticmethod
-    def handle_water_breathing(aura, effect_target, remove):
+    def handle_water_breathing(_aura, effect_target, remove):
         effect_target.mirror_timers_manager.update_water_breathing(state=not remove)
 
     @staticmethod

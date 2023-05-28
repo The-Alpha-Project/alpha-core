@@ -200,13 +200,13 @@ class Spline(object):
     # TODO: Fix SMSG_UPDATE_OBJECT create movement block.
     #  Client expects at least 3 waypoints for MOVEFLAG_SPLINE_MOVER.
     def to_bytes(self):
-        data = pack('<I', self.flags)
+        data = pack('<I', self.spline_flags)
 
-        if self.flags & SplineFlags.SPLINEFLAG_SPOT:
+        if self.spline_flags & SplineFlags.SPLINEFLAG_SPOT:
             data += self.spot.to_bytes(include_orientation=False)
-        if self.flags & SplineFlags.SPLINEFLAG_TARGET:
+        if self.spline_flags & SplineFlags.SPLINEFLAG_TARGET:
             data += pack('<Q', self.guid)
-        if self.flags & SplineFlags.SPLINEFLAG_FACING:
+        if self.spline_flags & SplineFlags.SPLINEFLAG_FACING:
             data += pack('<f', self.facing)
 
         len_points = len(self.points) - 1

@@ -1,9 +1,13 @@
+from utils.Logger import Logger
+from utils.constants.MiscFlags import ScriptFlags
 from utils.constants.ScriptCodes import ScriptCommands
 
 
 class ScriptCommand:
-    def __init__(self, script_id, db_command):
-        self.script_id = script_id
+    def __init__(self, script, db_command):
+        self.script = script
+        self.script_id = script.id
+        self.comments = db_command.comments
         self.command: int = db_command.command
         self.datalong: int = db_command.datalong
         self.datalong2: int = db_command.datalong2
@@ -26,12 +30,34 @@ class ScriptCommand:
         self.source = None
         self.target = None
 
-    def resolve_target(self, source, target):
-        # TODO: Take ScriptFlags into account (for example to swap source and target etc).
+    def resolve_final_targets(self, source, target):
+        # Swap target and source if needed.
+        if self.data_flags & ScriptFlags.SF_GENERAL_SWAP_INITIAL_TARGETS:
+            tmp = source
+            source = target
+            target = tmp
+
+        if self.target_type:
+            from game.world.managers.objects.script.ScriptManager import ScriptManager
+            target = ScriptManager.get_target_by_type(source, target, self.target_type,
+                                                      self.target_param1, self.target_param2)
+            if not target:
+                if self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS:
+                    Logger.error(f'Unable to find target for script {self.script_id}')
+                return False, None, None
+
+        if self.data_flags & ScriptFlags.SF_GENERAL_SWAP_FINAL_TARGETS:
+            tmp = source
+            source = target
+            target = tmp
+
+        if self.data_flags & ScriptFlags.SF_GENERAL_TARGET_SELF:
+            target = source
+
         self.source = source
-        from game.world.managers.objects.script.ScriptManager import ScriptManager
-        self.target = ScriptManager.get_target_by_type(
-            self.source, target, self.target_type, self.target_param1, self.target_param2)
+        self.target = target
+
+        return True, self.source, self.target
 
     def get_info(self):
         return f'ScriptID: {self.script_id}, Command {ScriptCommands(self.command).name}'

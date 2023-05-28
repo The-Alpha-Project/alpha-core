@@ -9,7 +9,7 @@ from utils.constants.MiscCodes import ChatMsgs, Languages
 class ChatHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         chat_type, lang = unpack('<2I', reader.data[:8])
         message = ''
 

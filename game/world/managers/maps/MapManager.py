@@ -234,17 +234,17 @@ class MapManager:
 
     @staticmethod
     def get_submap_tile_x(x):
-        tile_x = int((RESOLUTION_ZMAP - 1) * (
-                32.0 - MapManager.validate_map_coord(x) / ADT_SIZE - int(
-            32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)))
+        tile_x = int((RESOLUTION_ZMAP - 1) *
+                     (32.0 - MapManager.validate_map_coord(x) / ADT_SIZE
+                      - int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)))
 
         return tile_x
 
     @staticmethod
     def get_submap_tile_y(y):
-        tile_y = int((RESOLUTION_ZMAP - 1) * (
-                32.0 - MapManager.validate_map_coord(y) / ADT_SIZE - int(
-            32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)))
+        tile_y = int((RESOLUTION_ZMAP - 1) *
+                     (32.0 - MapManager.validate_map_coord(y) / ADT_SIZE
+                      - int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)))
 
         return tile_y
 
@@ -270,7 +270,7 @@ class MapManager:
         if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
             return current_z, True
 
-        z_values = MAPS_NAMIGATOR[map_id].query_z(float(x), float(y))
+        z_values = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
 
         if len(z_values) == 0:
             Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
@@ -706,7 +706,7 @@ class MapManager:
     def update_creatures():
         for map_id, instances in MAPS.items():
             for instance_map in instances.values():
-                instance_map.grid_manager.update_creatures()
+                instance_map.update_creatures()
 
     @staticmethod
     def update_gameobjects():

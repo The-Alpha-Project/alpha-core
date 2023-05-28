@@ -5,7 +5,7 @@ from utils.constants.MiscCodes import TradeStatus
 class BeginTradeHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if not world_session.player_mgr.trade_data:
             return 0
 

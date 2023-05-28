@@ -5,8 +5,9 @@ from database.realm.RealmModels import CharacterSocial
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import FriendResults, FriendStatus
+from utils.constants.OpCodes import OpCode
 
 
 class FriendsManager(object):

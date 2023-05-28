@@ -8,7 +8,7 @@ from game.world.managers.objects.units.creature.utils.UnitQueryUtils import Unit
 class CreatureQueryHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 12:  # Avoid handling empty creature query packet.
             entry, guid = unpack('<IQ', reader.data[:12])
             if not guid:

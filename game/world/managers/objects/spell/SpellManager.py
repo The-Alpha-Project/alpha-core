@@ -19,11 +19,12 @@ from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
 from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags
 from utils.constants.MiscFlags import GameObjectFlags
+from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools
@@ -276,7 +277,7 @@ class SpellManager:
         return spell if self.validate_cast(spell) else None
 
     def start_spell_cast(self, spell: Optional[Spell] = None, spell_target=None, target_mask=SpellTargetMask.SELF,
-                         source_item=None, triggered=False, initialized_spell: Optional[CastingSpell]=None):
+                         source_item=None, triggered=False, initialized_spell: Optional[CastingSpell] = None):
         casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item, triggered=triggered) \
             if not initialized_spell else initialized_spell
 
@@ -450,8 +451,7 @@ class SpellManager:
 
                 for proc_target in (target, casting_spell.spell_caster):
                     if proc_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-                        proc_target.aura_manager.check_aura_procs(involved_cast=casting_spell,
-                                                             damage_info=damage_info)
+                        proc_target.aura_manager.check_aura_procs(involved_cast=casting_spell, damage_info=damage_info)
                 applied_targets.append(target.guid)
 
     def handle_damage_event_procs(self, damage_info: DamageInfoHolder):

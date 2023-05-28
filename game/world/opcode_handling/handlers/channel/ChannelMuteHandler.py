@@ -8,7 +8,7 @@ from utils.constants.MiscCodes import ChannelNotifications
 class ChannelMuteHandler(object):
 
     @staticmethod
-    def handle_mute(world_session, socket, reader):
+    def handle_mute(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).strip().capitalize()
         offset = len(channel_name) + 1
         has_player = len(reader.data) == offset + 1
@@ -30,7 +30,7 @@ class ChannelMuteHandler(object):
         return 0
 
     @staticmethod
-    def handle_unmute(world_session, socket, reader):
+    def handle_unmute(world_session, reader):
         channel_name = PacketReader.read_string(reader.data, 0).capitalize()
         offset = len(channel_name) + 1
         has_player = len(reader.data) == offset + 1

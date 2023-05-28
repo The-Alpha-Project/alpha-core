@@ -10,7 +10,7 @@ from utils.constants.UnitCodes import UnitFlags
 class OpenItemHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 2:  # Avoid handling empty open item packet.
             bag, slot = unpack('<2B', reader.data[:2])
             if bag == 0xFF:

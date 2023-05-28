@@ -5,6 +5,7 @@ from random import randint, choice
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes
+from utils.constants.ScriptCodes import EventFlags
 
 
 @dataclass
@@ -25,8 +26,8 @@ class AIEventHandler:
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
         for event in events:
-            if randint(0, 100) > event.event_chance:
-                return
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+                continue
 
             script_id = event.action1_script
             if script_id:
@@ -37,8 +38,8 @@ class AIEventHandler:
 
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
         for event in events:
-            if randint(0, 100) > event.event_chance:
-                return
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+                continue
 
             choices = ScriptHelpers.get_filtered_event_scripts(event)
             random_script = choice(choices)
@@ -50,17 +51,17 @@ class AIEventHandler:
     def on_damage_taken(self, attacker=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
         for event in events:
-            if randint(0, 100) > event.event_chance:
-                return
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+                continue
 
             now = time.time()
             if self._is_event_locked(event, now):
-                return
+                continue
 
             current_hp_percent = (self.creature.health / self.creature.max_health) * 100
             # param1 %MaxHP, param2 %MinHp.
             if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
-                return
+                continue
 
             script_id = event.action1_script
             if script_id:
@@ -70,13 +71,15 @@ class AIEventHandler:
     def on_idle(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
         for event in events:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+                continue
             self.creature.script_handler.set_random_ooc_event(self.creature, event)
 
     def on_death(self, killer=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
         for event in events:
-            if randint(0, 100) > event.event_chance:
-                return
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+                continue
             choices = ScriptHelpers.get_filtered_event_scripts(event)
             random_script = choice(choices)
 
@@ -110,10 +113,15 @@ class AIEventHandler:
 
     def _lock_event(self, event, now):
         delay = random.uniform(event.event_param3, event.event_param4)
-        self.event_locks[event.id] = EventLock(event_id=event.id, time_added=now, delay=delay, can_repeat=delay > 0)
+        self.event_locks[event.id] = EventLock(event_id=event.id, time_added=now, delay=delay,
+                                               can_repeat=delay > 0 and event.event_flags & EventFlags.REPEATABLE)
 
     def _is_event_locked(self, event, now):
         event_lock = self.event_locks.get(event.id)
         if not event_lock:
             return False
-        return not event_lock.can_repeat or now - event_lock.time_added < event_lock.delay
+        locked = not event_lock.can_repeat or now - event_lock.time_added < event_lock.delay
+        # Delete lock if necessary.
+        if not locked:
+            self.event_locks.pop(event.id)
+        return locked

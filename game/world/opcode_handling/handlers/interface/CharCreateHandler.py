@@ -18,7 +18,7 @@ from utils.constants.UnitCodes import Classes
 class CharCreateHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         name = PacketReader.read_string(reader.data, 0)
         if not config.Server.Settings.blizzlike_names:
             name = name.capitalize()
@@ -141,7 +141,7 @@ class CharCreateHandler(object):
                 RealmDatabaseManager.character_add_reputation(reputation_entry)
 
     @staticmethod
-    def generate_starting_spells(guid, race, class_, level):
+    def generate_starting_spells(guid, race, class_, _level):
         added_spells = set()
         for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
             spell_to_load = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)
@@ -184,7 +184,7 @@ class CharCreateHandler(object):
         """
 
     @staticmethod
-    def generate_starting_spells_skills(guid, race, class_, level):
+    def generate_starting_spells_skills(guid, race, class_, _level):
         added_skills = set()
         for spell in WorldDatabaseManager.player_create_spell_get(race, class_):
             initial_spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell.Spell)

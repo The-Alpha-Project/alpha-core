@@ -10,7 +10,7 @@ from utils.constants.MiscCodes import GuildTypeCommand, GuildCommandResults
 class PetitionOfferHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         if len(reader.data) >= 16:  # Avoid handling empty petition offer packet.
             petition_item_guid, target_player_guid = unpack('<2Q', reader.data[:16])
             target_player_mgr = WorldSessionStateHandler.find_player_by_guid(target_player_guid)

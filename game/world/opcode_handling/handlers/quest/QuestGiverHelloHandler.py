@@ -9,7 +9,7 @@ from utils.Logger import Logger
 class QuestGiverHelloHandler(object):
 
     @staticmethod
-    def handle(world_session, socket, reader):
+    def handle(world_session, reader):
         # Validate world session.
         player_mgr, res = HandlerValidator.validate_session(world_session, reader.opcode)
         if not player_mgr:
@@ -45,7 +45,7 @@ class QuestGiverHelloHandler(object):
             if is_item or quest_giver.is_within_interactable_distance(player_mgr):
                 # Pause the NPCs movement when a player attempts to talk to them
                 if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
-                    quest_giver.object_ai.player_interacted(player_mgr)
+                    quest_giver.object_ai.player_interacted()
                 player_mgr.quest_manager.handle_quest_giver_hello(quest_giver, guid)
 
         return 0

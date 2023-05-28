@@ -11,12 +11,13 @@ from game.world.managers.objects.units.creature.utils.UnitQueryUtils import Unit
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from game.world.managers.objects.units.player.quest.QuestMenu import QuestMenu
-from network.packet.PacketWriter import PacketWriter, OpCode
+from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import UnitCodes
 from utils.constants.ItemCodes import InventoryError
+from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.MiscCodes import QuestGiverStatus, QuestState, QuestFailedReasons, QuestMethod, \
     QuestFlags, GameObjectTypes, ObjectTypeIds, HighGuid, ScriptTypes
@@ -107,18 +108,22 @@ class QuestManager(object):
         return False
 
     def remove_quest(self, quest_id):
+        quest_db_state = RealmDatabaseManager.character_get_quest_by_id(self.player_mgr.guid, quest_id)
+        # Remove from db if needed.
+        if quest_db_state:
+            RealmDatabaseManager.character_delete_quest(quest_db_state.guid, quest_id)
+
+        # Remove from completed if needed.
+        if quest_id in self.completed_quests:
+            self.completed_quests.remove(quest_id)
+
+        # Remove from quest log if needed.
         if quest_id in self.active_quests:
             self.remove_from_quest_log(quest_id)
-            return
-        if quest_id in self.completed_quests:
-            quest_db_states = RealmDatabaseManager.character_get_quests(self.player_mgr.guid)
-            for quest_db_state in quest_db_states:
-                if quest_db_state.quest != quest_id:
-                    continue
-                self.completed_quests.remove(quest_id)
-                RealmDatabaseManager.character_delete_quest(quest_db_state.guid, quest_id)
-                self.update_surrounding_quest_status()
-                break
+
+        # Update surrounding quests.
+        if quest_db_state:
+            self.update_surrounding_quest_status()
 
     def get_dialog_status(self, quest_giver):
         dialog_status = QuestGiverStatus.QUEST_GIVER_NONE
