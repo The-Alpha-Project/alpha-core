@@ -10,4 +10,3 @@ class CommandMoveInfo:
     repeat: bool
     overwrite_guid: int
     overwrite_entry: int
-

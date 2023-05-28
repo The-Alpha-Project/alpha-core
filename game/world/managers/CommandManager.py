@@ -990,12 +990,12 @@ GM_COMMAND_DEFINITIONS = {
     'squest': [CommandManager.squest, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log'],
     'qdel': [CommandManager.qdel, 'delete active or completed quest'],
-    'fevent': [CommandManager.fevent, 'force the given event to execute'],
+    'fevent': [CommandManager.fevent, 'force the given event to execute']
 }
 
 DEV_COMMAND_DEFINITIONS = {
     'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
     'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
     'sloc': [CommandManager.save_location, 'save your location to locations.log along with a comment'],
-    'worldoff': [CommandManager.worldoff, 'stop the world server'],
+    'worldoff': [CommandManager.worldoff, 'stop the world server']
 }
