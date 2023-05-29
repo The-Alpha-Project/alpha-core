@@ -474,7 +474,7 @@ class SkillManager(object):
         if not character_skill:
             return False
 
-        if skill.value >= skill.max:
+        if character_skill.value >= character_skill.max:
             return True
 
         gray_threshold = skill_line_ability.TrivialSkillLineRankHigh
