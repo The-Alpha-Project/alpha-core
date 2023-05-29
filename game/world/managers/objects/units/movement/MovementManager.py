@@ -174,10 +174,10 @@ class MovementManager:
             if movement_behavior.is_default:
                 self.default_behavior_type = movement_behavior.move_type
         else:
-            Logger.warning(f'Failied to initialize movement {movement_behavior.move_type} for unit {self.unit.entry}')
+            Logger.warning(f'Failed to initialize movement {movement_behavior.move_type} for unit {self.unit.entry}')
 
     def unit_is_moving(self):
-        if self.is_player and self.unit.movement_flags & MoveFlags.MOVEFLAG_MOVE_MASK:
+        if self.is_player and (self.unit.movement_flags & MoveFlags.MOVEFLAG_MOVE_MASK or self.unit.has_moved):
             return True
         return True if self._get_current_spline() else False
 

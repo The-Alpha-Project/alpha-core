@@ -34,11 +34,13 @@ class ChaseMovement(BaseMovement):
             unit.threat_manager.remove_unit_threat(unit.combat_target)
             return
 
+        target_is_moving = unit.combat_target.is_moving()
         spawn_distance = unit.location.distance(unit.spawn_position)
         target_distance = unit.location.distance(unit.combat_target.location)
         target_to_spawn_distance = unit.combat_target.location.distance(unit.spawn_position)
-        combat_position_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
+        combat_distance = UnitFormulas.combat_distance(unit, unit.combat_target)
         evade_distance = Distances.CREATURE_EVADE_DISTANCE
+        combat_target = unit.combat_target
 
         if not unit.is_pet():
             # In 0.5.3, evade mechanic was only based on distance, the correct distance remains unknown.
@@ -46,36 +48,45 @@ class ChaseMovement(BaseMovement):
             #     "Creature pursuit is now timer based rather than distance based."
             if (spawn_distance > evade_distance or target_distance > evade_distance) \
                     and target_to_spawn_distance > evade_distance:
-                unit.threat_manager.remove_unit_threat(unit.combat_target)
+                unit.threat_manager.remove_unit_threat(combat_target)
                 return
 
             if self.unit.is_swimming():
                 if not unit.can_swim():
-                    unit.threat_manager.remove_unit_threat(unit.combat_target)
+                    unit.threat_manager.remove_unit_threat(combat_target)
                     return
-                if not unit.can_exit_water() and not unit.combat_target.is_swimming():
-                    unit.threat_manager.remove_unit_threat(unit.combat_target)
+                if not unit.can_exit_water() and not combat_target.is_swimming():
+                    unit.threat_manager.remove_unit_threat(combat_target)
                     return
 
-        # If this creature is not facing the attacker, update its orientation.
-        if not unit.location.has_in_arc(unit.combat_target.location, math.pi):
-            unit.movement_manager.face_target(unit.combat_target)
-
-        combat_location = unit.combat_target.location.get_point_in_between(combat_position_distance,
-                                                                           vector=unit.location)
+        # Use half distance if target is moving.
+        combat_distance = combat_distance / 2 if target_is_moving else combat_distance
+        combat_location = unit.combat_target.location.get_point_in_between(combat_distance, vector=unit.location)
         if not combat_location:
-            return
-
-        # Target is within combat distance or already in combat location, don't move.
-        if round(target_distance) <= round(combat_position_distance) or unit.location == combat_location:
-            return
-
-        if unit.is_moving():
-            if unit.movement_manager.get_waypoint_location().distance(combat_location) < 0.1:
+            # Not able to guess position but target is moving, use the target location directly.
+            if target_is_moving:
+                combat_location = combat_target.location
+            else:
                 return
 
+        # Face the target if necessary.
+        if not unit.location.has_in_arc(unit.combat_target.location, math.pi):
+            unit.movement_manager.face_target(unit.combat_target)
+        # Always set the proper facing to the waypoint, else upon completion orientation would reset to 0.
+        combat_location.o = unit.location.o
+
+        is_within_distance = round(target_distance) <= round(combat_distance)
+        # Target is within combat distance or already in combat location, don't move.
+        if not target_is_moving and (is_within_distance or unit.location == combat_location):
+            return
+
+        # Too close to target.
+        if not target_is_moving and unit.is_moving() \
+                and unit.movement_manager.get_waypoint_location().distance(combat_location) < 0.1:
+            return
+
         # Use direct combat location if target is over water.
-        if not unit.combat_target.is_swimming():
+        if not combat_target.is_swimming():
             failed, in_place, path = MapManager.calculate_path(unit.map_id, unit.location.copy(), combat_location)
             if not failed and not in_place:
                 combat_location = path[0]
