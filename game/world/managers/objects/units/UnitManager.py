@@ -25,7 +25,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask
+    SpellSchoolMask, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -418,6 +418,7 @@ class UnitManager(ObjectManager):
 
         if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
+            victim.handle_melee_daze_chance(self)
 
         self.handle_melee_attack_procs(damage_info)
 
@@ -431,6 +432,24 @@ class UnitManager(ObjectManager):
         while self.extra_attacks > 0:
             self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, True)
             self.extra_attacks -= 1
+
+    # TODO: https://github.com/The-Alpha-Project/alpha-core/issues/1152
+    # Fluglow, do your magic.
+    def handle_melee_daze_chance(self, attacker):
+        # Not attack from behind, ignore.
+        if self.location.has_in_arc(attacker.location, math.pi):
+            return
+
+        # Check if already dazed.
+        if self.aura_manager.has_aura_by_spell_id(1604):
+            return
+
+        if not random.randint(0, 100) > 80:
+            return
+
+        spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(1604)
+        spell = attacker.spell_manager.try_initialize_spell(spell_entry, self, SpellTargetMask.UNIT, validate=False)
+        attacker.spell_manager.start_spell_cast(initialized_spell=spell, triggered=True)
 
     def handle_melee_attack_procs(self, damage_info):
         damage_info.target.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
