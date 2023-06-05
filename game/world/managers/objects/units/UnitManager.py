@@ -1019,7 +1019,7 @@ class UnitManager(ObjectManager):
         # Assign new base speed.
         self.stat_manager.base_stats[UnitStats.SPEED_RUNNING] = speed if speed > 0 else config.Unit.Defaults.run_speed
         # Get new total speed.
-        speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING)
+        speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING, accept_float=True)
         # Limit to 0-56 and assign object field.
         change_speed = super().change_speed(speed)
         # Speed was modified, update current spline if needed.
