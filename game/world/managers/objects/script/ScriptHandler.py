@@ -751,8 +751,6 @@ class ScriptHandler:
         else:
             command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=True)
 
-        MapManager.send_surrounding(command.source.generate_movement_packet(), command.source, include_self=False)
-
     @staticmethod
     def handle_script_command_attack_start(command):
         # source = Creature
