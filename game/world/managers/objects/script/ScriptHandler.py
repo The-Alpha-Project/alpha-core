@@ -590,14 +590,15 @@ class ScriptHandler:
 
         target = command.target if command.target else command.source
         target_mask = SpellTargetMask.UNIT if command.target else SpellTargetMask.SELF
-        if spell_entry.Targets & SpellTargetMask.CAN_TARGET_TERRAIN:
+        targets_terrain = spell_entry.Targets & SpellTargetMask.CAN_TARGET_TERRAIN
+        if targets_terrain:
             target = target.location
             target_mask = SpellTargetMask.DEST_LOCATION
 
         spell = command.source.spell_manager.try_initialize_spell(spell_entry, target, target_mask, validate=False)
         if command.datalong2 & CastFlags.CF_TRIGGERED:
             spell.force_instant_cast()
-        elif command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
+        elif not targets_terrain and command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
             cast_result = command.source.object_ai.try_to_cast(target, spell, command.datalong2, chance=100)
             if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
                 Logger.warning(f'[Script] Unable to cast spell {command.datalong}, script_id {command.script_id}.')
