@@ -68,7 +68,7 @@ class ChaseMovement(BaseMovement):
 
         is_within_distance = round(target_distance) <= round(combat_distance)
         # Target is within combat distance, don't move.
-        if not target_is_moving and is_within_distance:
+        if is_within_distance:
             self.unit.movement_manager.stop()
             return
 
