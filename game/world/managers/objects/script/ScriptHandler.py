@@ -15,7 +15,7 @@ from game.world.managers.objects.units.movement.helpers.CommandMoveInfo import C
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags
+    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -745,9 +745,11 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
             return
 
-        creature_template = command.source.creature_template
-        new_speed = creature_template.speed_run if command.datalong == 1 else creature_template.speed_walk
-        command.source.change_speed(new_speed)
+        run_enabled = command.datalong == 1
+        if run_enabled:
+            command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=False)
+        else:
+            command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=True)
 
     @staticmethod
     def handle_script_command_attack_start(command):

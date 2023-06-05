@@ -1019,7 +1019,7 @@ class UnitManager(ObjectManager):
         # Assign new base speed.
         self.stat_manager.base_stats[UnitStats.SPEED_RUNNING] = speed if speed > 0 else config.Unit.Defaults.run_speed
         # Get new total speed.
-        speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING)
+        speed = self.stat_manager.get_total_stat(UnitStats.SPEED_RUNNING, accept_float=True)
         # Limit to 0-56 and assign object field.
         change_speed = super().change_speed(speed)
         # Speed was modified, update current spline if needed.
@@ -1155,11 +1155,13 @@ class UnitManager(ObjectManager):
 
     def set_move_flag(self, move_flag, active, index=-1) -> bool:
         is_active = self._set_effect_flag_state(MoveFlags, move_flag, active, index)
+
         if is_active:
             self.movement_flags |= move_flag
         else:
             self.movement_flags &= ~move_flag
 
+        MapManager.send_surrounding(self.get_heartbeat_packet(), self)
         return is_active
 
     def set_dynamic_type_flag(self, type_flag, active, index=-1) -> bool:
@@ -1527,6 +1529,7 @@ class UnitManager(ObjectManager):
         self.sheath_state = weapon_mode
         self.bytes_1 = self.get_bytes_1()
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.force_fields_update()
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
