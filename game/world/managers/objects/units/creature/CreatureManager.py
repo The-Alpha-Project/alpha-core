@@ -775,14 +775,15 @@ class CreatureManager(UnitManager):
 
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):
-        if not self.combat_target:
+        # Not combat target and not evading, skip.
+        if not self.combat_target and not self.is_evading:
             return
         is_under_water = self.is_under_water()
         if is_under_water and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
-            self.movement_flags |= MoveFlags.MOVEFLAG_SWIMMING
+            self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=True)
             MapManager.send_surrounding(self.get_heartbeat_packet(), self)
-        elif not is_under_water and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
-            self.movement_flags &= ~MoveFlags.MOVEFLAG_SWIMMING
+        elif self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+            self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=False)
             MapManager.send_surrounding(self.get_heartbeat_packet(), self)
 
     # override

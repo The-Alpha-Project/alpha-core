@@ -77,7 +77,7 @@ class UnitFormulas(object):
     @staticmethod
     def combat_distance(attacker, target):
         # TODO: Find better formula?
-        return UnitFormulas.interactable_distance(attacker, target) * 0.6
+        return UnitFormulas.interactable_distance(attacker, target) * 0.5
 
     @staticmethod
     def rage_conversion_value(level):

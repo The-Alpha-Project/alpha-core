@@ -59,31 +59,23 @@ class ChaseMovement(BaseMovement):
                     unit.threat_manager.remove_unit_threat(combat_target)
                     return
 
-        # Use half distance if target is moving.
-        combat_distance = combat_distance / 2 if target_is_moving else combat_distance
-        combat_location = unit.combat_target.location.get_point_in_between(combat_distance, vector=unit.location)
-        if not combat_location:
-            # Not able to guess position but target is moving, use the target location directly.
-            if target_is_moving:
-                combat_location = combat_target.location
-            else:
-                return
-
         # Face the target if necessary.
         if not unit.location.has_in_arc(unit.combat_target.location, math.pi):
             unit.movement_manager.face_target(unit.combat_target)
-        # Always set the proper facing to the waypoint, else upon completion orientation would reset to 0.
-        combat_location.o = unit.location.o
+
+        # Use half distance if target is moving.
+        combat_distance = combat_distance / 2 if target_is_moving else combat_distance
 
         is_within_distance = round(target_distance) <= round(combat_distance)
-        # Target is within combat distance or already in combat location, don't move.
-        if not target_is_moving and (is_within_distance or unit.location == combat_location):
+        # Target is within combat distance, don't move.
+        if not target_is_moving and is_within_distance:
+            self.unit.movement_manager.stop()
             return
 
-        # Too close to target.
-        if not target_is_moving and unit.is_moving() \
-                and unit.movement_manager.get_waypoint_location().distance(combat_location) < 0.1:
-            return
+        # Always run towards the last known target location.
+        combat_location = combat_target.location.copy()
+        # Always set the proper facing to the waypoint, else upon completion orientation would reset to 0.
+        combat_location.o = unit.location.o
 
         # Use direct combat location if target is over water.
         if not combat_target.is_swimming():
