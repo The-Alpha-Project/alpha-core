@@ -1161,9 +1161,7 @@ class UnitManager(ObjectManager):
         else:
             self.movement_flags &= ~move_flag
 
-        # Notify new flags if necessary.
         MapManager.send_surrounding(self.get_heartbeat_packet(), self)
-
         return is_active
 
     def set_dynamic_type_flag(self, type_flag, active, index=-1) -> bool:
