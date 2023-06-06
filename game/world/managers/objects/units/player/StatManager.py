@@ -826,7 +826,6 @@ class StatManager(object):
         is_special_damage = spell_school != SpellSchools.SPELL_SCHOOL_NORMAL
         spell_crit_chance = 0
         spell_school = casting_spell.spell_entry.School
-        # TODO Wands should get spell school from the item and use spell formulas.
 
         caster = casting_spell.spell_caster
 
@@ -904,7 +903,7 @@ class StatManager(object):
             0.02 + (rating_mod - 0.02) * level_penalty
 
         # Resistance application.
-        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_school != SpellSchools.SPELL_SCHOOL_NORMAL:
             # Use resistance for players.
             # Our values for creatures are most likely wrong for alpha and are not applied.
             resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START + spell_school)
@@ -1124,7 +1123,7 @@ class StatManager(object):
         # Client displays percentages against enemies of equal level and max attack rating.
         if attacker_level == -1:
             attacker_level = self.unit_mgr.level
-        if attacker_rating == -1:  # Use max defense skill since it follows the same values as max weapon skill
+        if attacker_rating == -1:
             attacker_rating = attacker_level * 5
 
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
