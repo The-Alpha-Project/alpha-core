@@ -455,7 +455,10 @@ class SpellManager:
                 applied_targets.append(target.guid)
 
     def handle_damage_event_procs(self, damage_info: DamageInfoHolder):
-        # Only handling Overpower procs here for now.
+        if damage_info.total_damage + damage_info.absorb > 0:  # Dazed applied through absorb until 0.5.5.
+            damage_info.target.handle_melee_daze_chance(damage_info.attacker)
+
+        # Overpower proc.
         if self.caster is not damage_info.attacker or self.caster.class_ != Classes.CLASS_WARRIOR:
             return
 

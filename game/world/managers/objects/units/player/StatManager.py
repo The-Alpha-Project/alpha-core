@@ -679,6 +679,11 @@ class StatManager(object):
         gain = self.get_total_stat(UnitStats.INTELLECT) * 0.0002
         return gain if gain <= 0.10 else 0.10  # Cap at 10% (Guessed in VMaNGOS)
 
+    def get_daze_chance_against_self(self, attacker):
+        # 1% chance increase per level difference from base 20%, from VMaNGOS.
+        # Resistance will lower this by approximately 1% per 5 skill difference (1 level).
+        return min(0.4, 0.2 - 0.002 * self._get_combat_rating_difference(attacker.level))
+
     def get_attack_result_against_self(self, attacker, attack_type,
                                        dual_wield_penalty=0.0, allow_parry=True,
                                        allow_crit=True, combat_rating=-1) -> HitInfo:
