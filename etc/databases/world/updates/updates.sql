@@ -768,5 +768,12 @@ begin not atomic
         insert into`applied_updates`values ('040520231');
     end if;
 
+    -- 09/06/2023 1
+    if (select count(*) from `applied_updates` where id='090620231') = 0 then
+        -- Fix encoding for quest text 1072 "An Old Colleague"
+        update quest_template set Details = "The device I'm thinking about is my most advanced version to date. But we'll need a special potion if it's to work. I'm thinking we might as well get the really good stuff since this mission could be your last if you decide to help.$B$BAnd for that, we're going to need some potent explosives: Nitromirglyceronium.$B$BThe only person who can make NG-5 is an ol' friend of mine in Ironforge: Lomac Gearstrip.$B$BIf you can talk him into making us some NG-5, I'll get to work on placement for my devices..." where entry = 1072;
+
+        insert into`applied_updates`values ('090620231');
+    end if;
 end $
 delimiter ;
