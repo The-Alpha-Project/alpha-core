@@ -15,7 +15,7 @@ class PacketWriter(object):
         try:
             return value.encode('latin1') + b'\x00'
         except UnicodeEncodeError:
-            Logger.error(f'Error when trying to encode the following text: {value}')
+            Logger.error(f'Error when trying to encode the following string: {value}')
             return b'\x00'
 
     @staticmethod
