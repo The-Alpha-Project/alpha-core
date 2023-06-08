@@ -418,7 +418,6 @@ class UnitManager(ObjectManager):
 
         if damage_info.total_damage > 0:
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
-            victim.handle_melee_daze_chance(self)
 
         self.handle_melee_attack_procs(damage_info)
 
@@ -433,9 +432,10 @@ class UnitManager(ObjectManager):
             self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK, True)
             self.extra_attacks -= 1
 
-    # TODO: https://github.com/The-Alpha-Project/alpha-core/issues/1152
-    # Fluglow, do your magic.
     def handle_melee_daze_chance(self, attacker):
+        if attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+            return
+
         # Not attack from behind, ignore.
         if self.location.has_in_arc(attacker.location, math.pi):
             return
@@ -444,7 +444,7 @@ class UnitManager(ObjectManager):
         if self.aura_manager.has_aura_by_spell_id(1604):
             return
 
-        if not random.randint(0, 100) > 80:
+        if random.random() > self.stat_manager.get_daze_chance_against_self(attacker):
             return
 
         spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(1604)
