@@ -1,6 +1,8 @@
 import zlib
 from struct import pack
 
+from utils.Logger import Logger
+
 
 class PacketWriter(object):
     MAX_PACKET_SIZE = 0x8000
@@ -10,7 +12,11 @@ class PacketWriter(object):
     def string_to_bytes(value):
         if value is None:
             value = ''
-        return value.encode('latin1') + b'\x00'
+        try:
+            return value.encode('latin1') + b'\x00'
+        except UnicodeEncodeError:
+            Logger.error(f'Error when trying to encode the following text: {value}')
+            return b'\x00'
 
     @staticmethod
     def get_packet(opcode, data=b''):
