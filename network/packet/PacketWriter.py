@@ -12,6 +12,7 @@ class PacketWriter(object):
     def string_to_bytes(value):
         if value is None:
             value = ''
+
         try:
             return value.encode('latin1') + b'\x00'
         except UnicodeEncodeError:
