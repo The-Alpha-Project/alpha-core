@@ -747,5 +747,26 @@ begin not atomic
         insert into`applied_updates`values ('030520231');
     end if;
 
+
+    -- 04/05/2023 1
+    if (select count(*) from `applied_updates` where id='040520231') = 0 then
+        -- Relocate Jordan Croft,  issue #1141
+        update spawns_creatures set position_x = -9496.263,  position_y = -1194.701, position_z = 49.565, orientation = 5.820 where spawn_id = 400054;
+        update creature_template set level_min = 10, level_max = 10, health_min = 198, health_max = 198, armor = 20, dmg_min = 9, dmg_max = 13, attack_power = 62 where entry = 1649
+        -- Spawn Natheril and change his display id to NE PH, stats were changed to stats of lvl 27 npcs, issue #1137
+        update spawns_creatures set position_x = 9950.535,  position_y = 1926.531, position_z = 1327.937, orientation = 4.913, ignored = 0 where spawn_id = 41643;
+        update creature_template set display_id1 = 2572, level_max = 27, level_min = 27, health_max = 839, health_min = 839, armor = 1097, dmg_max = 46, dmg_min = 36, attack_power = 112, ranged_dmg_max = 56.8458, ranged_dmg_min = 41.3424 where entry = 2084;
+        -- Spawn Port Master Szik, issue #1138
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (2662, 0, -14344.031, 422.664, 6.630, 4.820);
+        update creature_template set level_min = 42, level_max = 42, health_min = 1981, health_max = 1981, armor = 2174, faction = 120, dmg_min = 64, dmg_max = 83, attack_power = 172 where entry = 2662
+        -- Spawn Shaia, issue #1132
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4178, 1, 9698.450, 2339.279, 1331.971, 4.146);
+        update creature_template set level_min = 30, level_max = 30, health_min = 1002, health_max = 1002, armor = 1200, faction = 79, dmg_min = 42, dmg_max = 53, attack_power = 122 where entry = 4178
+        -- Spawn Lewin Starfeather, issue #1132
+        insert into spawns_creatures (spawn_entry1, map, position_x, position_y, position_z, orientation) values (4239, 1, 9670.684, 2374.456, 1343.310, 3.844);
+        update creature_template set level_min = 30, level_max = 30, health_min = 1002, health_max = 1002, armor = 1200, faction = 79, dmg_min = 42, dmg_max = 53, attack_power = 122 where entry = 4239
+        insert into`applied_updates`values ('040520231');
+    end if;
+
 end $
 delimiter ;
