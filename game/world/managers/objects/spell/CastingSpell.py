@@ -492,10 +492,10 @@ class CastingSpell:
         mana_cost = self.spell_entry.ManaCost
         power_cost_mod = 0
 
-        if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and self.spell_entry.ManaCostPct != 0:
-            mana_cost = self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
-
         if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            if self.spell_entry.ManaCostPct != 0:
+                mana_cost = self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
+
             mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SPELL_SCHOOL_POWER_COST,
                                                                                misc_value=self.spell_entry.School)
         # ManaCostPerLevel is not used by anything relevant, ignore for now (only 271/4513/7290) TODO
