@@ -33,7 +33,7 @@ def release_process(process):
             process.join(timeout=2)  # Seconds.
             if process.is_alive():
                 process.terminate()
-        except ValueError:
+        except (ValueError, KeyboardInterrupt):
             sleep(0.1)
 
 
