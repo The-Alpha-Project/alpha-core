@@ -76,6 +76,9 @@ class AppliedAura:
             # Check periodic in case of periodic auras with infinite duration.
             self.spell_effect.update_effect_aura(timestamp)
 
+        if not self.passive and self.target is self.caster:
+            self.spell_effect.handle_periodic_resource_cost(timestamp)
+
         if self.is_periodic():
             AuraEffectHandler.handle_aura_effect_change(self, self.target)
 
