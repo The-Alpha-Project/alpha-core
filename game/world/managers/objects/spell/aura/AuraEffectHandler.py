@@ -25,8 +25,10 @@ class AuraEffectHandler:
                          f'{aura.spell_effect.aura_type}) from spell {aura.source_spell.spell_entry.ID}.')
             return
 
-        if not remove and not is_proc and aura_type in PROC_AURA_EFFECTS:
-            return  # Only call proc effects when a proc happens.
+        is_proc_effect = aura_type in PROC_AURA_EFFECTS
+        if not remove and not is_proc and is_proc_effect or \
+                is_proc and not is_proc_effect:
+            return  # Only call proc effects on procs.
 
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
 
@@ -141,14 +143,6 @@ class AuraEffectHandler:
 
         spell = aura.source_spell
         healing = aura.get_effect_points()
-
-        # Health Funnel is a periodic healing spell, but should act as a leech from the pet owner.
-        if effect_target.get_charmer_or_summoner() == aura.caster:
-            new_source_health = aura.caster.health - healing
-            if new_source_health <= 0:
-                aura.caster.spell_manager.remove_cast_by_id(spell.spell_entry.ID, interrupted=True)
-                return
-            aura.caster.set_health(new_source_health)
 
         aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True)
 

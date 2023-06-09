@@ -592,7 +592,8 @@ class SpellManager:
         self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
         self.set_on_cooldown(casting_spell, cooldown_penalty=cooldown_penalty)
 
-    def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR, interrupted=False) -> bool:
+    def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR,
+                    interrupted=False, cancel_auras=False) -> bool:
         if casting_spell not in self.casting_spells:
             return False
 
@@ -608,7 +609,7 @@ class SpellManager:
         # Cancel auras applied by an active spell if the spell was interrupted.
         # If the cast finished normally, auras should wear off because of duration.
         # Spell update happens before aura update, last ticks will be skipped if auras are cancelled on cast finish.
-        if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE and interrupted:
+        if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE and (interrupted or cancel_auras):
             for miss_info in casting_spell.object_target_results.values():  # Get the last effect application results.
                 if not miss_info.target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
                     continue
