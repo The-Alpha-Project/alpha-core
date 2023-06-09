@@ -11,6 +11,7 @@ from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity, SpellMissReason
+from utils.constants.UnitCodes import PowerTypes
 
 
 class SpellEffect:
@@ -42,6 +43,7 @@ class SpellEffect:
     applied_aura_duration = -1  # Period timer in the case of an infinite periodic effect.
     periodic_effect_ticks: Optional[list[int]] = None  # None for distinct uninitialized state.
     last_update_timestamp = -1
+    last_cost_timestamp = -1
 
     area_aura_holder: Optional[AreaAuraHolder] = None
 
@@ -120,9 +122,37 @@ class SpellEffect:
         # due to the channel ending before the aura wearing off.
         self.last_update_timestamp = time.time() if not self.casting_spell.is_channeled() else \
             self.casting_spell.cast_start_timestamp
+        self.last_cost_timestamp = self.last_update_timestamp
 
         if self.is_periodic():
             self.periodic_effect_ticks = self.generate_periodic_effect_ticks()
+
+    def handle_periodic_resource_cost(self, timestamp):
+        cost = self.casting_spell.spell_entry.ManaPerSecond
+        if not cost:
+            return
+
+        if self.last_cost_timestamp != -1 and \
+                timestamp - self.last_cost_timestamp <= 1:
+            return
+        self.last_cost_timestamp = timestamp
+
+        power_type = self.casting_spell.spell_entry.PowerType
+        caster = self.casting_spell.spell_caster
+
+        current_power = caster.health if power_type == PowerTypes.TYPE_HEALTH \
+            else caster.get_power_value(power_type)
+        new_power = current_power - cost
+
+        # Interrupt cast if the caster has insufficient resources.
+        if new_power < 0 or (new_power == 0 and power_type == PowerTypes.TYPE_HEALTH):
+            caster.spell_manager.remove_cast(self.casting_spell, interrupted=True)
+            return
+
+        if power_type == PowerTypes.TYPE_HEALTH:
+            caster.set_health(new_power)
+        else:
+            caster.set_power_value(new_power, power_type)
 
     def is_periodic(self):
         return self.aura_period != 0

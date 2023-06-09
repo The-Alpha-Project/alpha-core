@@ -12,6 +12,7 @@ class AreaAuraHolder:
     def update(self, now):
         if self.effect.applied_aura_duration != -1:
             self.effect.update_effect_aura(now)
+        self.effect.handle_periodic_resource_cost(now)
 
         self.update_effect_on_targets()
         self.effect.remove_old_periodic_effect_ticks()

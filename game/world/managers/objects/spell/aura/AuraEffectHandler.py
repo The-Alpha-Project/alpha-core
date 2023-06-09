@@ -144,14 +144,6 @@ class AuraEffectHandler:
         spell = aura.source_spell
         healing = aura.get_effect_points()
 
-        # Health Funnel is a periodic healing spell, but should act as a leech from the pet owner.
-        if effect_target.get_charmer_or_summoner() == aura.caster:
-            new_source_health = aura.caster.health - healing
-            if new_source_health <= 0:
-                aura.caster.spell_manager.remove_cast_by_id(spell.spell_entry.ID, interrupted=True)
-                return
-            aura.caster.set_health(new_source_health)
-
         aura.caster.apply_spell_healing(effect_target, healing, spell, is_periodic=True)
 
     @staticmethod
