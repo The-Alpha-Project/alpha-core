@@ -350,9 +350,14 @@ class AuraManager:
         # Cancel other effects of this aura.
         self.remove_auras_from_spell(aura.source_spell)
 
-        # Some area effect auras (paladin auras, tranq etc.) are tied to spell effects.
-        # Cancel cast on aura cancel, canceling the auras as well.
-        self.unit_mgr.spell_manager.remove_cast(aura.source_spell)
+        # Auras can be tied to spell casts (area auras, targeted channels etc.)
+        # Cancel spell casts and resulting auras from this aura.
+        is_area_aura = aura.spell_effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA,
+                                                         SpellEffects.SPELL_EFFECT_PERSISTENT_AREA_AURA}
+        if not is_area_aura:
+            aura.caster.spell_manager.remove_cast(aura.source_spell, cancel_auras=True)
+        elif aura.caster is self.unit_mgr:
+            self.unit_mgr.spell_manager.remove_cast(aura.source_spell, cancel_auras=True)
 
         # Some spells start cooldown on aura remove, handle that case here.
         if aura.source_spell.unlock_cooldown_on_trigger():
