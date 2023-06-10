@@ -88,7 +88,7 @@ class RealmManager:
         sck.sendall(packet)
 
     @staticmethod
-    def start_realm(world_on):
+    def start_realm():
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
         server_socket = RealmManager.buid_socket(local_realm.realm_address, local_realm.realm_port)
         server_socket.listen()
@@ -96,7 +96,7 @@ class RealmManager:
         Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
         try:
-            while world_on.value:
+            while True:
                 # noinspection PyBroadException
                 try:
                     (client_socket, client_address) = server_socket.accept()
@@ -115,7 +115,7 @@ class RealmManager:
         Logger.info("Login server turned off.")
 
     @staticmethod
-    def start_proxy(world_on):
+    def start_proxy():
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
         server_socket = RealmManager.buid_socket(local_realm.proxy_address, local_realm.proxy_port)
         server_socket.listen()
@@ -123,7 +123,7 @@ class RealmManager:
         Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
         try:
-            while world_on.value:
+            while True:
                 # noinspection PyBroadException
                 try:
                     (client_socket, client_address) = server_socket.accept()
