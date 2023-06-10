@@ -95,22 +95,18 @@ class RealmManager:
         real_binding = server_socket.getsockname()
         Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
-        try:
-            while True:
-                # noinspection PyBroadException
-                try:
-                    client_socket, client_address = server_socket.accept()
-                    RealmManager.serve_realmlist(client_socket)
-                    client_socket.shutdown(socket.SHUT_RDWR)
-                    client_socket.close()
-                except socket.timeout:
-                    pass  # Non blocking.
-                except OSError:
-                    Logger.warning(traceback.format_exc())
-                except KeyboardInterrupt:
-                    break
-        except KeyboardInterrupt:
-            pass
+        while True:
+            try:
+                client_socket, client_address = server_socket.accept()
+                RealmManager.serve_realmlist(client_socket)
+                client_socket.shutdown(socket.SHUT_RDWR)
+                client_socket.close()
+            except socket.timeout:
+                pass  # Non blocking.
+            except OSError:
+                Logger.warning(traceback.format_exc())
+            except KeyboardInterrupt:
+                break
 
         Logger.info("Login server turned off.")
 
@@ -122,21 +118,17 @@ class RealmManager:
         real_binding = server_socket.getsockname()
         Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
-        try:
-            while True:
-                # noinspection PyBroadException
-                try:
-                    client_socket, client_address = server_socket.accept()
-                    RealmManager.redirect_to_world(client_socket)
-                    client_socket.shutdown(socket.SHUT_RDWR)
-                    client_socket.close()
-                except socket.timeout:
-                    pass  # Non blocking.
-                except OSError:
-                    Logger.warning(traceback.format_exc())
-                except KeyboardInterrupt:
-                    break
-        except KeyboardInterrupt:
-            pass
+        while True:
+            try:
+                client_socket, client_address = server_socket.accept()
+                RealmManager.redirect_to_world(client_socket)
+                client_socket.shutdown(socket.SHUT_RDWR)
+                client_socket.close()
+            except socket.timeout:
+                pass  # Non blocking.
+            except OSError:
+                Logger.warning(traceback.format_exc())
+            except KeyboardInterrupt:
+                break
 
         Logger.info("Proxy server turned off.")
