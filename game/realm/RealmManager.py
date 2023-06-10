@@ -37,6 +37,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
         for realm in REALMLIST.values():
             is_realm_local = config.Server.Connection.Realm.local_realm_id == realm.realm_id
 
+            forward_hostname = None
             name_bytes = PacketWriter.string_to_bytes(realm.realm_name)
             # Only check if the forward address needs to be overriden if this realm is hosted on this same machine.
             # Docker on Windows hackfix.
@@ -44,8 +45,17 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             if is_realm_local:
                 forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
                                             realm.proxy_address)
+                forward_hostname = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_HOSTNAME_OVERRIDE, None)
             else:
                 forward_address = realm.proxy_address
+
+            # If we have a forward hostname, resolve the ip address.
+            if forward_hostname:
+                try:
+                    forward_address = socket.gethostbyname(forward_hostname)
+                except socket.gaierror as e:
+                    Logger.error(f'Invalid forward hostname, error: {e}')
+
             address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm.proxy_port}')
             # TODO: Find a way to get online count of realms not connected to the same database server?
             online_count = RealmDatabaseManager.character_get_online_count(realm.realm_id)
@@ -100,6 +110,15 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
     def redirect_to_world(sck):
         forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
                                     config.Server.Connection.WorldServer.host)
+
+        forward_hostname = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_HOSTNAME_OVERRIDE, None)
+        # If we have a forward hostname, resolve the ip address.
+        if forward_hostname:
+            try:
+                forward_address = socket.gethostbyname(forward_hostname)
+            except socket.gaierror as e:
+                Logger.error(f'Invalid forward hostname, error: {e}')
+
         world_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.WorldServer.port}')
         packet = pack(
             f'<{len(world_bytes)}s',
