@@ -311,7 +311,7 @@ class WorldServerSessionHandler:
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             # noinspection PyBroadException
             try:
-                (client_socket, client_address) = server_socket.accept()
+                client_socket, client_address = server_socket.accept()
                 server_handler = WorldServerSessionHandler(client_socket, client_address)
                 world_session_thread = threading.Thread(target=server_handler.handle)
                 world_session_thread.daemon = True

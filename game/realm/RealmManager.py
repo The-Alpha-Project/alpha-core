@@ -99,7 +99,7 @@ class RealmManager:
             while True:
                 # noinspection PyBroadException
                 try:
-                    (client_socket, client_address) = server_socket.accept()
+                    client_socket, client_address = server_socket.accept()
                     RealmManager.serve_realmlist(client_socket)
                     client_socket.shutdown(socket.SHUT_RDWR)
                     client_socket.close()
@@ -126,7 +126,7 @@ class RealmManager:
             while True:
                 # noinspection PyBroadException
                 try:
-                    (client_socket, client_address) = server_socket.accept()
+                    client_socket, client_address = server_socket.accept()
                     RealmManager.redirect_to_world(client_socket)
                     client_socket.shutdown(socket.SHUT_RDWR)
                     client_socket.close()
