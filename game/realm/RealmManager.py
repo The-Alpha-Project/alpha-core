@@ -14,7 +14,7 @@ REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.realm_get_l
 
 class RealmManager:
     @staticmethod
-    def buid_socket(address, port):
+    def build_socket(address, port):
         socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             socket_.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
@@ -90,7 +90,7 @@ class RealmManager:
     @staticmethod
     def start_realm():
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        server_socket = RealmManager.buid_socket(local_realm.realm_address, local_realm.realm_port)
+        server_socket = RealmManager.build_socket(local_realm.realm_address, local_realm.realm_port)
         server_socket.listen()
         real_binding = server_socket.getsockname()
         Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}\a')
@@ -117,7 +117,7 @@ class RealmManager:
     @staticmethod
     def start_proxy():
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        server_socket = RealmManager.buid_socket(local_realm.proxy_address, local_realm.proxy_port)
+        server_socket = RealmManager.build_socket(local_realm.proxy_address, local_realm.proxy_port)
         server_socket.listen()
         real_binding = server_socket.getsockname()
         Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}\a')
