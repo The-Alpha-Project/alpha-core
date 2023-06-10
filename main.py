@@ -4,7 +4,7 @@ import argparse
 from sys import platform
 from time import sleep
 
-from game.realm import RealmManager
+from game.realm.RealmManager import RealmManager
 from game.world import WorldManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.MapTile import MapTile
@@ -84,10 +84,10 @@ if __name__ == '__main__':
     world_process = None
 
     if launch_realm:
-        login_process = context.Process(target=RealmManager.LoginServerSessionHandler.start)
+        login_process = context.Process(target=RealmManager.start_realm)
         login_process.start()
 
-        proxy_process = context.Process(target=RealmManager.ProxyServerSessionHandler.start)
+        proxy_process = context.Process(target=RealmManager.start_proxy)
         proxy_process.start()
 
         if not launch_world:

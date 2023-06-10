@@ -1,7 +1,6 @@
 import os
 import socket
-import socketserver
-import threading
+import traceback
 
 from game.world.WorldSessionStateHandler import RealmDatabaseManager
 from network.packet.PacketWriter import *
@@ -13,22 +12,18 @@ from utils.constants import EnvVars
 REALMLIST = {realm.realm_id: realm for realm in RealmDatabaseManager.realm_get_list()}
 
 
-class ThreadedLoginServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
-
-
-class LoginServerSessionHandler(socketserver.BaseRequestHandler):
-    def handle(self):
+class RealmManager:
+    @staticmethod
+    def buid_socket(address, port):
+        socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.serve_realmlist(self.request)
-        except OSError:
-            pass
-        finally:
-            try:
-                self.request.shutdown(socket.SHUT_RDWR)
-                self.request.close()
-            except OSError:
-                pass
+            socket_.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        # Use SO_REUSEADDR if SO_REUSEPORT doesn't exist.
+        except AttributeError:
+            socket_.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        socket_.bind((address, port))
+        socket_.settimeout(2)
+        return socket_
 
     @staticmethod
     def serve_realmlist(sck):
@@ -37,6 +32,7 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
         for realm in REALMLIST.values():
             is_realm_local = config.Server.Connection.Realm.local_realm_id == realm.realm_id
 
+            forward_hostname = None
             name_bytes = PacketWriter.string_to_bytes(realm.realm_name)
             # Only check if the forward address needs to be overriden if this realm is hosted on this same machine.
             # Docker on Windows hackfix.
@@ -44,8 +40,17 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
             if is_realm_local:
                 forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
                                             realm.proxy_address)
+                forward_hostname = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_HOSTNAME_OVERRIDE, None)
             else:
                 forward_address = realm.proxy_address
+
+            # If we have a forward hostname, resolve the ip address.
+            if forward_hostname:
+                try:
+                    forward_address = socket.gethostbyname(forward_hostname)
+                except socket.gaierror as e:
+                    Logger.error(f'Invalid forward hostname, error: {e}')
+
             address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm.proxy_port}')
             # TODO: Find a way to get online count of realms not connected to the same database server?
             online_count = RealmDatabaseManager.character_get_online_count(realm.realm_id)
@@ -61,45 +66,18 @@ class LoginServerSessionHandler(socketserver.BaseRequestHandler):
         sck.sendall(realmlist_bytes)
 
     @staticmethod
-    def start():
-        ThreadedLoginServer.allow_reuse_address = True
-
-        local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        with ThreadedLoginServer((local_realm.realm_address,
-                                  local_realm.realm_port), LoginServerSessionHandler) \
-                as login_instance:
-            Logger.success(f'Login server started, listening on {login_instance.server_address[0]}:{login_instance.server_address[1]}')
-            # Make sure all characters have online = 0 on realm start.
-            RealmDatabaseManager.character_set_all_offline()
-            try:
-                login_session_thread = threading.Thread(target=login_instance.serve_forever())
-                login_session_thread.daemon = True
-                login_session_thread.start()
-            except KeyboardInterrupt:
-                Logger.info("Login server turned off.")
-
-
-class ThreadedProxyServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    pass
-
-
-class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
-    def handle(self):
-        try:
-            self.redirect_to_world(self.request)
-        except OSError:
-            return
-        finally:
-            try:
-                self.request.shutdown(socket.SHUT_RDWR)
-                self.request.close()
-            except OSError:
-                return
-
-    @staticmethod
     def redirect_to_world(sck):
         forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
                                     config.Server.Connection.WorldServer.host)
+
+        forward_hostname = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_HOSTNAME_OVERRIDE, None)
+        # If we have a forward hostname, resolve the ip address.
+        if forward_hostname:
+            try:
+                forward_address = socket.gethostbyname(forward_hostname)
+            except socket.gaierror as e:
+                Logger.error(f'Invalid forward hostname, error: {e}')
+
         world_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{config.Server.Connection.WorldServer.port}')
         packet = pack(
             f'<{len(world_bytes)}s',
@@ -110,17 +88,55 @@ class ProxyServerSessionHandler(socketserver.BaseRequestHandler):
         sck.sendall(packet)
 
     @staticmethod
-    def start():
-        ThreadedProxyServer.allow_reuse_address = True
-
+    def start_realm():
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
-        with ThreadedProxyServer((local_realm.proxy_address,
-                                  local_realm.proxy_port), ProxyServerSessionHandler) \
-                as proxy_instance:
-            Logger.success(f'Proxy server started, listening on {proxy_instance.server_address[0]}:{proxy_instance.server_address[1]}')
-            try:
-                proxy_session_thread = threading.Thread(target=proxy_instance.serve_forever())
-                proxy_session_thread.daemon = True
-                proxy_session_thread.start()
-            except KeyboardInterrupt:
-                Logger.info("Proxy server turned off.")
+        server_socket = RealmManager.buid_socket(local_realm.realm_address, local_realm.realm_port)
+        server_socket.listen()
+        real_binding = server_socket.getsockname()
+        Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+
+        try:
+            while True:
+                # noinspection PyBroadException
+                try:
+                    (client_socket, client_address) = server_socket.accept()
+                    RealmManager.serve_realmlist(client_socket)
+                    client_socket.shutdown(socket.SHUT_RDWR)
+                    client_socket.close()
+                except socket.timeout:
+                    pass  # Non blocking.
+                except OSError:
+                    Logger.warning(traceback.format_exc())
+                except KeyboardInterrupt:
+                    break
+        except KeyboardInterrupt:
+            pass
+
+        Logger.info("Login server turned off.")
+
+    @staticmethod
+    def start_proxy():
+        local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
+        server_socket = RealmManager.buid_socket(local_realm.proxy_address, local_realm.proxy_port)
+        server_socket.listen()
+        real_binding = server_socket.getsockname()
+        Logger.success(f'Proxy server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+
+        try:
+            while True:
+                # noinspection PyBroadException
+                try:
+                    (client_socket, client_address) = server_socket.accept()
+                    RealmManager.redirect_to_world(client_socket)
+                    client_socket.shutdown(socket.SHUT_RDWR)
+                    client_socket.close()
+                except socket.timeout:
+                    pass  # Non blocking.
+                except OSError:
+                    Logger.warning(traceback.format_exc())
+                except KeyboardInterrupt:
+                    break
+        except KeyboardInterrupt:
+            pass
+
+        Logger.info("Proxy server turned off.")
