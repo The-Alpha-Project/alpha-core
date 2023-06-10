@@ -44,8 +44,11 @@ class RealmManager:
             else:
                 forward_address = realm.proxy_address
 
-            # If we have a forward hostname, resolve the ip address.
+            # If we have FORWARD_HOSTNAME_OVERRIDE set, resolve its IP address to override.
             if forward_hostname:
+                if forward_address != realm.proxy_address:
+                    Logger.warning('Ignoring FORWARD_ADDRESS_OVERRIDE since FORWARD_HOSTNAME_OVERRIDE is set.')
+
                 try:
                     forward_address = socket.gethostbyname(forward_hostname)
                 except socket.gaierror as e:
@@ -69,10 +72,13 @@ class RealmManager:
     def redirect_to_world(sck):
         forward_address = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_ADDRESS_OVERRIDE,
                                     config.Server.Connection.WorldServer.host)
-
         forward_hostname = os.getenv(EnvVars.EnvironmentalVariables.FORWARD_HOSTNAME_OVERRIDE, None)
-        # If we have a forward hostname, resolve the ip address.
+
+        # If we have FORWARD_HOSTNAME_OVERRIDE set, resolve its IP address to override.
         if forward_hostname:
+            if forward_address != config.Server.Connection.WorldServer.host:
+                Logger.warning('Ignoring FORWARD_ADDRESS_OVERRIDE since FORWARD_HOSTNAME_OVERRIDE is set.')
+
             try:
                 forward_address = socket.gethostbyname(forward_hostname)
             except socket.gaierror as e:
