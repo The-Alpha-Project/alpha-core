@@ -76,6 +76,8 @@ class RealmManager:
         server_socket = RealmManager.build_socket(local_realm.realm_address, local_realm.realm_port)
         server_socket.listen()
         real_binding = server_socket.getsockname()
+        # Make sure all characters have online = 0 on realm start.
+        RealmDatabaseManager.character_set_all_offline()
         Logger.success(f'Login server started, listening on {real_binding[0]}:{real_binding[1]}\a')
 
         while True:
