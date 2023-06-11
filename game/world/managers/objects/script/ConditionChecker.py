@@ -43,7 +43,7 @@ class ConditionChecker:
     @staticmethod
     def _check_param_requirements(condition_type, source, target):
         internal_condition_target = CONDITIONAL_TARGETS_INTERNAL_MAP.get(condition_type, None)
-        if internal_condition_target:
+        if internal_condition_target is not None:  # Can be 0.
             return CONDITIONAL_TARGETS_INTERNAL[internal_condition_target](source, target)
         else:
             Logger.warning(f'Unable to resolve internal condition target for type {condition_type}')
