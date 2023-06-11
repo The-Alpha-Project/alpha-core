@@ -63,7 +63,7 @@ class ChaseMovement(BaseMovement):
         if not unit.location.has_in_arc(unit.combat_target.location, math.pi):
             unit.movement_manager.face_target(unit.combat_target)
 
-        # Use half distance if target is moving.
+        # Use less distance if target is moving.
         combat_distance = combat_distance / 1.2 if target_is_moving else combat_distance
 
         is_within_distance = round(target_distance) <= round(combat_distance)
