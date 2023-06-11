@@ -441,7 +441,7 @@ class UnitManager(ObjectManager):
             return
 
         # Not chasing, ignore.
-        if not self.is_moving():
+        if not attacker.is_moving():
             return
 
         # Check if already dazed.
