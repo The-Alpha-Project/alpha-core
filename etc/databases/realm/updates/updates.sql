@@ -188,5 +188,13 @@ begin not atomic
         insert into`applied_updates`values ('310320231');
     end if;
 
+    -- 11/06/2023 1
+	if (select count(*) from applied_updates where id='110620231') = 0 then
+        alter table `realmlist` modify column `proxy_address` varchar(255) not null default '0.0.0.0';
+        alter table `realmlist` modify column `realm_address` varchar(255) not null default '0.0.0.0';
+
+        insert into applied_updates values ('110620231');
+    end if;
+
 end $
 delimiter ;
