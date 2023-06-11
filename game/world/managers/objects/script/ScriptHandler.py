@@ -41,6 +41,8 @@ class ScriptHandler:
         # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
+            if self.owner.creature_template.script_name:
+                Logger.warning(f'Unimplemented advanced script: {self.owner.creature_template.script_name}.')
             return
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, ooc_event=ooc_event)
