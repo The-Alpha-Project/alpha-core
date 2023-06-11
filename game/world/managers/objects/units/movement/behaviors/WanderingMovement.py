@@ -48,10 +48,10 @@ class WanderingMovement(BaseMovement):
         return not self.spline and now > self.last_wandering_movement + self.wait_time_seconds
 
     def _get_wandering_point(self):
-        start_point = self.unit.location
+        start_point = self.unit.spawn_position
         random_point = start_point.get_random_point_in_radius(self.wandering_distance, map_id=self.unit.map_id)
         failed, in_place, path = MapManager.calculate_path(self.unit.map_id, start_point, random_point)
-        if failed or len(path) > 1 or in_place:
+        if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
             return start_point
 
         map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)

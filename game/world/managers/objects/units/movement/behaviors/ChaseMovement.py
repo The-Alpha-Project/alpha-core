@@ -64,7 +64,7 @@ class ChaseMovement(BaseMovement):
             unit.movement_manager.face_target(unit.combat_target)
 
         # Use half distance if target is moving.
-        combat_distance = combat_distance / 2 if target_is_moving else combat_distance
+        combat_distance = combat_distance / 1.2 if target_is_moving else combat_distance
 
         is_within_distance = round(target_distance) <= round(combat_distance)
         # Target is within combat distance, don't move.
@@ -72,24 +72,19 @@ class ChaseMovement(BaseMovement):
             self.unit.movement_manager.stop()
             return
 
-        # Always run towards the last known target location.
-        combat_location = combat_target.location.copy()
-        # Always set the proper facing to the waypoint, else upon completion orientation would reset to 0.
-        combat_location.o = unit.location.o
-
         # Use direct combat location if target is over water.
         if not combat_target.is_swimming():
-            failed, in_place, path = MapManager.calculate_path(unit.map_id, unit.location.copy(), combat_location)
+            failed, in_place, path = MapManager.calculate_path(unit.map_id, unit.location.copy(), combat_target.location)
             if not failed and not in_place:
                 combat_location = path[0]
             elif in_place:
                 return
             # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
             elif MapManager.NAMIGATOR_LOADED:
-                Logger.warning(f'Unable to find path, map {unit.map_id} loc {unit.location} end {combat_location}')
+                Logger.warning(f'Unable to find path, map {unit.map_id} loc {unit.location} end {combat_target.location}')
 
         speed = self.unit.running_speed
-        spline = SplineBuilder.build_normal_spline(unit, points=[combat_location], speed=speed)
+        spline = SplineBuilder.build_normal_spline(unit, points=[combat_target.location], speed=speed)
         self.spline_callback(spline, movement_behavior=self)
 
     def _can_chase(self):
