@@ -76,7 +76,7 @@ class Spline(object):
         if new_position:
             if config.Server.Settings.debug_movement:
                 self._debug_position(new_position)
-            # While in travel (Guessed position) always face target destination.
+            # While in movement (guessed position) always face target destination.
             # End orientation upon waypoint finish is handled by movement behaviors.
             if not is_complete:
                 new_position.face_point(current_waypoint.location)
