@@ -58,7 +58,7 @@ class ObjectManager:
         self.pitch = pitch
         self.zone = zone
         self.map_id = map_id
-        self.instance_id = -1
+        self.instance_id = 0
         self.update_packet_factory = UpdatePacketFactory()
 
         self.initialized = False
