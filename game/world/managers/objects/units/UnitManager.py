@@ -440,6 +440,10 @@ class UnitManager(ObjectManager):
         if self.location.has_in_arc(attacker.location, math.pi):
             return
 
+        # Not chasing, ignore.
+        if not self.is_moving():
+            return
+
         # Check if already dazed.
         if self.aura_manager.has_aura_by_spell_id(1604):
             return
