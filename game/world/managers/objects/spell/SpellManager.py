@@ -1597,14 +1597,18 @@ class SpellManager:
         # Spells cast with consumables.
         if is_player and casting_spell.source_item and casting_spell.source_item.has_charges():
             item_entry = casting_spell.source_item.item_template.entry
-            charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
-            # Avoid removing items which were already removed as reagents.
-            if charges < 0 and item_entry not in removed_items:  # Negative charges remove items.
-                self.caster.inventory.remove_items(item_entry, 1)
+            instance_charges = casting_spell.source_item.get_charges(casting_spell.spell_entry.ID)
+            charges_removes_item = casting_spell.source_item.charges_removes_item(casting_spell.spell_entry.ID)
 
-            if charges != 0 and charges != -1:  # don't modify if no charges remain or this item is a consumable.
-                new_charges = charges-1 if charges > 0 else charges+1
+            # Don't modify if no charges remain or this item is a consumable.
+            if instance_charges != 0 and not charges_removes_item:
+                new_charges = instance_charges-1 if instance_charges > 0 else instance_charges+1
                 casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
+                instance_charges = new_charges
+
+            # No charges left or should charge usage should remove item.
+            if (not instance_charges or charges_removes_item) and item_entry not in removed_items:
+                self.caster.inventory.remove_items(item_entry, 1)
 
     def send_cast_result(self, casting_spell, error, misc_data=-1):
         # TODO CAST_SUCCESS_KEEP_TRACKING
