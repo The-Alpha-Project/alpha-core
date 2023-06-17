@@ -200,7 +200,7 @@ class ItemManager(ObjectManager):
         if item_template and item_template.entry > 0:
             item = CharacterInventory(
                 owner=owner,
-                creator=creator,
+                creator=creator if creator and not item_template.stackable else 0,
                 item_template=item_template.entry,
                 stackcount=stack_count,
                 slot=slot,
@@ -337,7 +337,7 @@ class ItemManager(ObjectManager):
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
-            
+
             # Spell charges.
             for slot in range(5):
                 charges = eval(f'self.item_instance.SpellCharges{slot + 1}')
@@ -391,6 +391,12 @@ class ItemManager(ObjectManager):
                 if spell_stats.spell_id == spell_id:
                     return eval(f'self.item_instance.SpellCharges{index + 1}')
         return 0
+
+    def charges_removes_item(self, spell_id):
+        for index, spell_stats in enumerate(self.spell_stats):
+            if spell_stats.spell_id == spell_id:
+                return eval(f'self.item_template.spellcharges_{index + 1}') == -1
+        return False
 
     def set_unlocked(self):
         self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNLOCKED
