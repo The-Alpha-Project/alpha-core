@@ -64,7 +64,7 @@ class ChaseMovement(BaseMovement):
             unit.movement_manager.face_target(unit.combat_target)
 
         # Use less distance if target is moving.
-        combat_distance = combat_distance / 1.2 if target_is_moving else combat_distance
+        combat_distance = combat_distance / 1.1 if target_is_moving else combat_distance
 
         is_within_distance = round(target_distance) <= round(combat_distance)
         # Target is within combat distance, don't move.

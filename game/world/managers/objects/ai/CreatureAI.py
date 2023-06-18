@@ -43,18 +43,18 @@ class CreatureAI:
             self.script_phase = 0
 
     def load_spell_list(self):
+        if not self.creature.creature_template.spell_list_id:
+            return
         # Load creature spells if available.
-        if self.creature.creature_template.spell_list_id:
-            spell_list_id = self.creature.creature_template.spell_list_id
-            creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(
-                spell_list_id)
-            if not creature_spells:
-                return
-            # Finish loading each creature_spell.
-            for creature_spell in creature_spells:
-                creature_spell.finish_loading()
-                if creature_spell.has_valid_spell:
-                    self.creature_spells.append(creature_spell)
+        spell_list_id = self.creature.creature_template.spell_list_id
+        creature_spells = WorldDatabaseManager.CreatureSpellHolder.get_creature_spell_by_spell_list_id(spell_list_id)
+        if not creature_spells:
+            return
+        # Finish loading each creature_spell.
+        for creature_spell in creature_spells:
+            creature_spell.finish_loading()
+            if creature_spell.has_valid_spell:
+                self.creature_spells.append(creature_spell)
 
     def has_spell_list(self):
         return len(self.creature_spells) > 0
@@ -448,9 +448,7 @@ class CreatureAI:
         source_units = list(self.creature.known_players.values()) if not unit else [unit]
         hostile_units = []
         for unit in source_units:
-            if unit.beast_master:
-                continue
-            if not self.creature.is_hostile_to(unit):
+            if unit.beast_master or not self.creature.is_hostile_to(unit) or not unit.is_alive:
                 continue
             hostile_units.append(unit)
             active_pet = unit.pet_manager.get_active_controlled_pet()

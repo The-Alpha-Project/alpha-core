@@ -1099,11 +1099,12 @@ class QuestManager(object):
         for quest_id, active_quest in self.active_quests.items():
             if not QuestHelpers.is_exploration_quest(active_quest.quest) \
                     or not active_quest.apply_exploration_completion(area_trigger_id):
-                return
+                continue
             self.update_single_quest(quest_id)
-            self.send_quest_complete_event(quest_id)
             if active_quest.can_complete_quest():
                 self.complete_quest(active_quest, update_surrounding=True, notify=True)
+            else:
+                self.send_quest_complete_event(quest_id)
 
     def reward_quest_event(self):
         for quest_id, active_quest in self.active_quests.items():
