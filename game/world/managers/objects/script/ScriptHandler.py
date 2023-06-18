@@ -41,7 +41,7 @@ class ScriptHandler:
         # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
-            if self.owner.creature_template.script_name:
+            if self.owner.get_type_id() == ObjectTypeIds.ID_UNIT and self.owner.creature_template.script_name:
                 Logger.warning(f'Unimplemented advanced script: {self.owner.creature_template.script_name}.')
             return
         script_commands.sort(key=lambda command: command.delay)
@@ -513,7 +513,7 @@ class ScriptHandler:
                                f'Gameobject with Spawn ID {provided_spawn_id} not found.')
                 return
             gobject_spawn.gameobject_instance.use()
-        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT:
+        elif command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             command.source.use()
 
         if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
@@ -540,7 +540,7 @@ class ScriptHandler:
                                f'Gameobject with Spawn ID {provided_spawn_id} not found.')
                 return
             gobject_spawn.gameobject_instance.set_ready()
-        elif command.source.get_type_id == ObjectTypeIds.ID_GAMEOBJECT:
+        elif command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             command.source.set_ready()
 
         if command.target and command.target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and \
