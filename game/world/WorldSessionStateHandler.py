@@ -108,9 +108,14 @@ class WorldSessionStateHandler(object):
     @staticmethod
     def save_characters():
         try:
+            online_player_count = 0
             for session in WorldSessionStateHandler.get_world_sessions():
                 if session.player_mgr and session.player_mgr.online:
+                    online_player_count += 1
                     WorldSessionStateHandler.save_character(session.player_mgr)
+
+            RealmDatabaseManager.realmlist_set_online_player_count(config.Server.Connection.Realm.local_realm_id,
+                                                                   online_player_count)
         except AttributeError as ae:
             Logger.error(f'Error while saving all active characters into db: {ae}.')
 

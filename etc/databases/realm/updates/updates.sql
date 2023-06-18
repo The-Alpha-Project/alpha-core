@@ -196,5 +196,12 @@ begin not atomic
         insert into applied_updates values ('110620231');
     end if;
 
+    -- 18/06/2023 1
+	if (select count(*) from applied_updates where id='180620231') = 0 then
+        alter table `realmlist` add column `online_player_count` int(11) unsigned not null default 0;
+
+        insert into applied_updates values ('180620231');
+    end if;
+
 end $
 delimiter ;

@@ -106,6 +106,7 @@ class RealmDatabaseManager(object):
     def character_set_all_offline():
         realm_db_session = SessionHolder()
         realm_db_session.query(Character).update({Character.online: 0})
+        realm_db_session.query(RealmList).update({RealmList.online_player_count: 0})
         realm_db_session.flush()
         realm_db_session.commit()
         realm_db_session.close()
@@ -884,3 +885,21 @@ class RealmDatabaseManager(object):
         realm_db_session.commit()
         realm_db_session.refresh(petition)
         realm_db_session.close()
+
+    # Realm
+
+    @staticmethod
+    def realmlist_set_online_player_count(realm_id, player_count):
+        realm_db_session = SessionHolder()
+        realmlist_entry = realm_db_session.query(RealmList).filter_by(realm_id=realm_id).first()
+        realmlist_entry.online_player_count = player_count
+        realm_db_session.flush()
+        realm_db_session.commit()
+        realm_db_session.close()
+
+    @staticmethod
+    def realmlist_get_online_player_count(realm_id):
+        realm_db_session = SessionHolder()
+        realmlist_entry = realm_db_session.query(RealmList).filter_by(realm_id=realm_id).first()
+        realm_db_session.close()
+        return realmlist_entry.online_player_count

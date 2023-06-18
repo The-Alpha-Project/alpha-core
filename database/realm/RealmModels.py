@@ -341,3 +341,4 @@ class RealmList(Base):
     proxy_port = Column(INTEGER(11), nullable=False, server_default="9090")
     realm_address = Column(String(15), nullable=False, server_default="0.0.0.0")
     realm_port = Column(INTEGER(11), nullable=False, server_default="9100")
+    online_player_count = Column(INTEGER(11), nullable=False, server_default="0")

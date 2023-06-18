@@ -43,8 +43,7 @@ class RealmManager:
                 forward_address = realm.proxy_address
 
             address_bytes = PacketWriter.string_to_bytes(f'{forward_address}:{realm.proxy_port}')
-            # TODO: Find a way to get online count of realms not connected to the same database server?
-            online_count = RealmDatabaseManager.character_get_online_count(realm.realm_id)
+            online_count = RealmDatabaseManager.realmlist_get_online_player_count(realm.realm_id)
 
             realmlist_bytes += pack(
                 f'<{len(name_bytes)}s{len(address_bytes)}sI',
