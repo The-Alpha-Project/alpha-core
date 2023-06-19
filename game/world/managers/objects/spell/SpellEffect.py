@@ -196,19 +196,17 @@ class SpellEffect:
     def is_target_immune(self, target):
         # Validate target and check harmfulness.
         if not target or not isinstance(target, ObjectManager) or \
-            not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT or \
-                (not self.is_harmful() and not
-                 self.casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IMMUNITY_HOSTILE_FRIENDLY_EFFECTS):
+            not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return False
 
         # Spell school/effect aura.
         if self.casting_spell.is_target_immune() or \
                 (self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
-                 self.casting_spell.is_target_immune_to_aura()):
+                 self.casting_spell.is_target_immune_to_aura(target)):
             return True
 
         # Effect type.
-        if target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, self.effect_type):
+        if target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, self.effect_type, is_friendly=not self.is_harmful()):
             return True
 
         return False
