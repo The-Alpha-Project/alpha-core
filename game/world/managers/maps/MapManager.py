@@ -270,23 +270,25 @@ class MapManager:
         if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
             return current_z, True
 
-        z_values = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
-        secondary_z = MAPS_NAMIGATOR[map_id].query_z(x, y, current_z, x, y)
+        heights = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
+        query_z = MAPS_NAMIGATOR[map_id].query_z(x, y, current_z, x, y)
 
-        if secondary_z:
-            if z_values:
-                z_values.append(secondary_z)
+        if query_z:
+            # Did found heights, append found Z.
+            if heights:
+                heights.append(query_z)
+            # No heights, use found Z.
             else:
-                z_values = [secondary_z]
+                heights = [query_z]
 
-        if len(z_values) == 0:
+        if len(heights) == 0:
             Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
             return current_z, True
 
         # We are only interested in the resulting Z near to the Z we know.
-        z_values = sorted(z_values, key=lambda _z: abs(current_z - _z))
+        heights = sorted(heights, key=lambda _z: abs(current_z - _z))
 
-        return z_values[0], False
+        return heights[0], False
 
     @staticmethod
     def los_check(map_id, start_vector, end_vector):
