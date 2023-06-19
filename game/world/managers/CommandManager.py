@@ -814,10 +814,11 @@ class CommandManager(object):
     @staticmethod
     def los(world_session, args):
         unit = CommandManager._target_or_self(world_session)
-        los = MapManager.los_check(unit.map_id, world_session.player_mgr.get_ray_position(), unit.get_ray_position())
+        source_ray = world_session.player_mgr.get_ray_position()
+        dest_ray = unit.get_ray_position()
+        los = MapManager.los_check(unit.map_id, source_ray, dest_ray)
 
-        return 0, f'Is in line of sight: {los}\nSource: {world_session.player_mgr.location}\nTarget: ' \
-                  f'{unit.location}\nMap: {unit.map_id}'
+        return 0, f'Is in line of sight: {los}\nSource: {source_ray}\nTarget: {dest_ray}\nMap: {unit.map_id}'
 
     @staticmethod
     def kick(world_session, args):
