@@ -185,7 +185,7 @@ class SpellEffect:
             if self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
                 return True
 
-        can_target_friendly, can_target_hostile = self.targets.can_target_friendly(unit_target=target)
+        can_target_friendly, can_target_hostile = self.targets.get_target_hostility_info(unit_target=target)
 
         if can_target_friendly != can_target_hostile:
             return can_target_hostile  # No ambiguity.

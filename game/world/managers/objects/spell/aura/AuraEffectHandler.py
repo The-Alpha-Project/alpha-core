@@ -216,7 +216,7 @@ class AuraEffectHandler:
         # If an effect of this spell can't target friendly, set the cast target to the effect target.
         # Effect target will be set to the second (non-self) target in the proc call. (see AuraManager.check_aura_procs)
         for effect in spell.get_effects():
-            if not effect.targets.can_target_friendly()[0]:
+            if not effect.targets.get_target_hostility_info()[0]:
                 spell.initial_target = effect_target
                 break
 

@@ -99,7 +99,7 @@ class EffectTargets:
             return [target]
         return target
 
-    def can_target_friendly(self, unit_target=None) -> (bool, bool):  # Can target friendly, can target hostile.
+    def get_target_hostility_info(self, unit_target=None) -> (bool, bool):  # Can target friendly, can target hostile.
         implicit_targets = {self.target_effect.implicit_target_a}
 
         if self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL:
