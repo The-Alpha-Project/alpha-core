@@ -271,6 +271,13 @@ class MapManager:
             return current_z, True
 
         z_values = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
+        secondary_z = MAPS_NAMIGATOR[map_id].query_z(x, y, current_z, x, y)
+
+        if secondary_z:
+            if z_values:
+                z_values.append(secondary_z)
+            else:
+                z_values = [secondary_z]
 
         if len(z_values) == 0:
             Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
