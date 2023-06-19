@@ -180,18 +180,24 @@ class SpellEffect:
         # Instead of analyzing resolved targets,
         # take into account initial target friendliness and the nature of the effect's implicit targets.
         target = self.casting_spell.initial_target if self.casting_spell.initial_target_is_unit_or_player() else None
-        can_target_friendly = self.targets.can_target_friendly(unit_target=target)
 
         if self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA:
             if self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
                 return True
 
-            # Don't compare to initial target for AoE spells since the source (initial target) can be the caster.
-            if self.casting_spell.initial_target_is_object() and not self.casting_spell.is_area_of_effect_spell():
-                return not can_target_friendly and \
-                       self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
+        can_target_friendly, can_target_hostile = self.targets.can_target_friendly(unit_target=target)
 
-        return not can_target_friendly
+        if can_target_friendly != can_target_hostile:
+            return can_target_hostile  # No ambiguity.
+
+        if self.casting_spell.initial_target is self.casting_spell.spell_caster:
+            return False  # Assume that self-cast is friendly with mixed targets.
+
+        if self.casting_spell.initial_target_is_object():
+            # Select friendliness based on hostility.
+            return self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
+
+        return False
 
     def is_target_immune(self, target):
         # Validate target and check harmfulness.

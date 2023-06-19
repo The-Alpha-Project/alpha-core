@@ -99,24 +99,28 @@ class EffectTargets:
             return [target]
         return target
 
-    def can_target_friendly(self, unit_target=None) -> bool:
-        implicit_targets = {self.target_effect.implicit_target_a, self.target_effect.implicit_target_b}
+    def can_target_friendly(self, unit_target=None) -> (bool, bool):  # Can target friendly, can target hostile.
+        implicit_targets = {self.target_effect.implicit_target_a}
+
+        if self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL:
+            implicit_targets.add(self.target_effect.implicit_target_b)
 
         if FRIENDLY_IMPLICIT_TARGETS.intersection(implicit_targets):
-            return True
-
-        # Neutral targets can target friendly. Use target context if given to resolve.
-        if NEUTRAL_IMPLICIT_TARGETS.intersection(implicit_targets):
-            return not unit_target or not self.casting_spell.spell_caster.can_attack_target(unit_target)
+            return True, False
 
         # Spells with implicit target set to 0 can have both friendly and hostile targets.
         # These spells include passives, testing spells and npc spells.
         # However, in these cases the target mask seems to be enough to resolve target friendliness.
         if self.target_effect.implicit_target_a == SpellImplicitTargets.TARGET_INITIAL and not \
                 self.casting_spell.spell_entry.Targets & SpellTargetMask.ENEMIES:
-            return True
+            return True, False
 
-        return False
+        # Neutral targets can target friendly. Use target context if given to resolve.
+        if NEUTRAL_IMPLICIT_TARGETS.intersection(implicit_targets):
+            return not unit_target or not self.casting_spell.spell_caster.can_attack_target(unit_target), \
+                unit_target is None
+
+        return False, True
 
     def resolve_targets(self):
         if not self.simple_targets:
