@@ -572,6 +572,11 @@ class SpellEffectHandler:
         charge_location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_id)
         charge_location.face_point(target.location)
 
+        # Invalid Z can cause players to fall off terrain.
+        if charge_location.z_locked:
+            Logger.warning('Unable to calculate valid point for Charge/HeroicLeap, invalid Z.')
+            return
+
         # Stop movement if target is currently moving with waypoints.
         target.movement_manager.stop()
 
