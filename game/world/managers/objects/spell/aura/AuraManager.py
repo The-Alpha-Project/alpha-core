@@ -267,6 +267,12 @@ class AuraManager:
             return None
         return self.active_auras[aura_index]
 
+    def get_main_aura_slot_for_spell(self, casting_spell) -> int:
+        for aura in list(self.active_auras.values()):
+            if not aura.passive and aura.source_spell is casting_spell:
+                return aura.index
+        return -1
+
     def get_auras_by_type(self, aura_type) -> list[AppliedAura]:
         auras = []
         for aura in list(self.active_auras.values()):

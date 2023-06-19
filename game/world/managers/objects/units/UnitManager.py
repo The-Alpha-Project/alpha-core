@@ -1413,8 +1413,18 @@ class UnitManager(ObjectManager):
         if not immune:
             return
 
+        source_aura = self.aura_manager.get_aura_by_index(source_id)
+        source_index = source_aura.index if not source_aura.passive else source_aura.active_aura_index
         for aura in list(self.aura_manager.active_auras.values()):
-            if aura.spell_effect.is_target_immune(aura.target) and source_id != aura.index:
+            # Skip canceling aura if it's purely passive or the source of the immunity.
+            if aura.passive and aura.active_aura_index == -1:
+                continue
+
+            applied_main_index = aura.index if not aura.passive else aura.active_aura_index
+            if applied_main_index == source_index:
+                continue
+
+            if aura.spell_effect.is_target_immune(aura.target):
                 self.aura_manager.remove_aura(aura)
 
     def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False,
