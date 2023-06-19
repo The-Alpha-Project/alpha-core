@@ -27,7 +27,9 @@ class AuraEffectHandler:
 
         is_proc_effect = aura_type in PROC_AURA_EFFECTS
         if not remove and not is_proc and is_proc_effect or \
-                is_proc and not is_proc_effect:
+                is_proc and not is_proc_effect and aura_type != AuraTypes.SPELL_AURA_DAMAGE_SHIELD:
+            #  TODO: Better fix for damage shield triggers. The trigger is handled through the proc system,
+            #   but the handler also needs to be called on application to set the proc flag.
             return  # Only call proc effects on procs.
 
         AURA_EFFECTS[aura.spell_effect.aura_type](aura, effect_target, remove)
