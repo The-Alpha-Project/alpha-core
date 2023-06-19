@@ -452,8 +452,9 @@ class MapManager:
                 val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y + 1)
                 bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
                 calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
-                # If maps Z is quite different, cascade into nav Z, if that also fails, current Z will be returned.
-                if math.fabs(current_z - calculated_z) >= 1.0 and current_z:
+                # If maps Z is different or exactly the same, try nav Z, if that also fails, current Z will be returned.
+                diff = math.fabs(current_z - calculated_z)
+                if (diff > 1.0 or not diff) and current_z:
                     return MapManager.calculate_nav_z(map_id, x, y, current_z)
                 return calculated_z, False
             except:
