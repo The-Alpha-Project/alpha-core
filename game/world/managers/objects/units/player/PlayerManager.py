@@ -1576,7 +1576,7 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
 
         # Set combo target to a valid but non-existent guid if hiding.
-        #  TODO it's unclear if combo points should be hidden in 0.5.3 for warriors, and if so, how it was done.
+        #  TODO: it's unclear if combo points should be hidden in 0.5.3 for warriors, and if so, how it was done.
         self.set_uint64(UnitFields.UNIT_FIELD_COMBO_TARGET, self.combo_target if not hide else 0xffffffffffffffff)
 
     # override
