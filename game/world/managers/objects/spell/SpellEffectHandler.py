@@ -574,7 +574,10 @@ class SpellEffectHandler:
 
         # Invalid Z can cause players to fall off terrain.
         if charge_location.z_locked:
-            Logger.warning('Unable to calculate valid point for Charge/HeroicLeap, invalid Z.')
+            Logger.warning(f'Unable to calculate valid Z for Charge/HeroicLeap at Map {caster.map_id} '
+                           f'X {charge_location.x} '
+                           f'Y {charge_location.y} '
+                           f'Z {charge_location.z}.')
             return
 
         # Stop movement if target is currently moving with waypoints.
