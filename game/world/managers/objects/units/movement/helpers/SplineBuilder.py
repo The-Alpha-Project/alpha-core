@@ -1,3 +1,4 @@
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.helpers.Spline import Spline
 from utils.constants.UnitCodes import SplineType, SplineFlags
 
@@ -21,6 +22,11 @@ class SplineBuilder:
 
     @staticmethod
     def build_stop_spline(unit, extra_time_seconds=0):
+        # Update Z on the spot.
+        z, z_locked = MapManager.calculate_z_for_object(unit)
+        if not z_locked:
+            unit.location.z = z
+
         return Spline(
             unit=unit,
             spline_type=SplineType.SPLINE_TYPE_STOP,
