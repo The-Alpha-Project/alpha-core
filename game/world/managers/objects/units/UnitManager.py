@@ -25,7 +25,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask, SpellTargetMask
+    SpellSchoolMask, SpellTargetMask, SpellAttributesEx
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -1409,11 +1409,14 @@ class UnitManager(ObjectManager):
             immunities.pop(source_id)
         self._immunities[immunity_type] = immunities
 
-        # Remove any auras that collide with an added immunity.
         if not immune:
             return
 
+        # Remove auras that collide with this immunity if needed.
         source_aura = self.aura_manager.get_aura_by_index(source_id)
+        if not source_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY:
+            return
+
         source_index = source_aura.index if not source_aura.passive else source_aura.active_aura_index
         for aura in list(self.aura_manager.active_auras.values()):
             # Skip canceling aura if it's purely passive or the source of the immunity.
