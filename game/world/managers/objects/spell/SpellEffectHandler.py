@@ -133,6 +133,9 @@ class SpellEffectHandler:
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
+        if casting_spell.is_target_immune_to_aura(target):
+            return
+
         target.aura_manager.apply_spell_effect_aura(caster, casting_spell, effect)
 
     @staticmethod

@@ -834,7 +834,7 @@ class StatManager(object):
 
         caster = casting_spell.spell_caster
 
-        if casting_spell.is_target_immune():
+        if casting_spell.is_target_immune_to_effects():
             return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
 
         # Spells cast on friendly targets should always hit.
