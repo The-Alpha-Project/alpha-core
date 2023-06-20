@@ -295,7 +295,7 @@ class UnitManager(ObjectManager):
         victim = self.combat_target
         self.combat_target = None
 
-        self.send_attack_stop(victim.guid if victim else self.guid)
+        self.send_attack_stop(victim.guid if victim else self.guid if self.is_alive else 0)
 
     def send_attack_start(self, victim_guid):
         data = pack('<2Q', self.guid, victim_guid)
