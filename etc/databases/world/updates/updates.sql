@@ -788,7 +788,7 @@ begin not atomic
         UPDATE creature_template SET display_id1 = 1245 WHERE entry = 4543;
 
         -- Unfettered Spirit
-        UPDATE creature_template SET display_id1 = 146 WHERE entry = 4308;
+        UPDATE creature_template SET display_id1 = 146, scale=0.6 WHERE entry = 4308;
 
 
         -- # SCARLET MONASTERY SPAWN
