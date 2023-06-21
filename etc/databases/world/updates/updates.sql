@@ -1487,7 +1487,7 @@ begin not atomic
         INSERT INTO spawns_creatures 
         (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
         VALUES 
-        (5650, 1, -6366.79, -2866.9190000000003, 10.4543, 5.02655, 18000, 18000, 0);
+        (5650, 1, -6366.76, -2864.922, 10.4543, 5.02655, 18000, 18000, 0);
 
 
 
