@@ -17,6 +17,9 @@ class CreatureBuilder:
         if not creature_template:
             return None
 
+        if faction == -1:
+            faction = creature_template.faction
+
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_instance = CreatureManager()
         creature_instance.summoner = summoner
