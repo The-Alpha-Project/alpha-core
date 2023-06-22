@@ -391,7 +391,7 @@ class ConditionChecker:
         if not ConditionChecker.is_creature(source) or not ConditionChecker.is_player(target):
             return False
 
-        if source.position.distance(target.position) <= condition.value2 and source.is_alive and target.is_alive:
+        if source.location.distance(target.location) <= condition.value2 and source.is_alive and target.is_alive:
             return True
 
         # TODO: implement EscortConditionFlags + handle optional source/target.
@@ -546,7 +546,7 @@ class ConditionChecker:
         # Checks if the source has line of sight to the target.
         if not source or not target:
             return False
-        return MapManager.los_check(source.map_id, source.position, target.position)
+        return MapManager.los_check(source.map_id, source.location, target.location)
 
     @staticmethod
     def check_condition_distance_to_target(condition, source, target):
@@ -557,7 +557,7 @@ class ConditionChecker:
         if not source or not target:
             return False
 
-        distance = source.position.distance(target.position)
+        distance = source.location.distance(target.location)
         if condition.value2 == 0:
             return distance == condition.value1
         elif condition.value2 == 1:
@@ -745,7 +745,7 @@ class ConditionChecker:
         # Condition_value4 = distance.
         if not target:
             return False
-        return source.position.distance(condition.value1, condition.value2, condition.value3) <= condition.value4
+        return source.location.distance(condition.value1, condition.value2, condition.value3) <= condition.value4
 
     @staticmethod
     def check_condition_object_go_state(condition, _source, target):
@@ -768,13 +768,13 @@ class ConditionChecker:
         radius = condition.value2
         units = MapManager.get_surrounding_players(target)
         for player in units:
-            if condition.value1 == 0 and player.position.distance(target.position) <= radius:
+            if condition.value1 == 0 and player.location.distance(target.location) <= radius:
                 return True
             elif condition.value1 == 1 and player.is_hostile_to(target) and \
-                    player.position.distance(target.position) <= radius:
+                    player.location.distance(target.location) <= radius:
                 return True
             elif condition.value1 == 2 and player.is_friendly_to(target) \
-                    and player.position.distance(target.position) <= radius:
+                    and player.location.distance(target.location) <= radius:
                 return True
         return False
 
