@@ -693,7 +693,7 @@ class StatManager(object):
             return HitInfo.MISS
 
         # Immunity.
-        if self.unit_mgr.handle_immunity(attacker, SpellImmunity.IMMUNITY_DAMAGE, SpellSchools.SPELL_SCHOOL_NORMAL):
+        if self.unit_mgr.has_damage_immunity(SpellSchools.SPELL_SCHOOL_NORMAL):
             return HitInfo.ABSORBED
 
         if combat_rating == -1:
@@ -834,14 +834,17 @@ class StatManager(object):
 
         caster = casting_spell.spell_caster
 
+        if casting_spell.is_target_immune_to_effects():
+            return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
+
         # Spells cast on friendly targets should always hit.
         if not caster.can_attack_target(self.unit_mgr) or \
                 any([not effect.can_miss() for effect in casting_spell.get_effects()]):
             return SpellMissReason.MISS_REASON_NONE, hit_flags
 
-        # Immunity/Sanctuary.
-        if self.unit_mgr.unit_state & UnitStates.SANCTUARY or self.unit_mgr.handle_immunity(
-                caster, SpellImmunity.IMMUNITY_DAMAGE, spell_school, casting_spell=casting_spell):
+        # Damage immunity/Sanctuary.
+        if self.unit_mgr.unit_state & UnitStates.SANCTUARY or \
+                self.unit_mgr.has_damage_immunity(spell_school, casting_spell=casting_spell):
             return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
 
         is_base_attack_spell = casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()

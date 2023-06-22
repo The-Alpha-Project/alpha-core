@@ -25,7 +25,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask, SpellTargetMask
+    SpellSchoolMask, SpellTargetMask, SpellAttributesEx
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
 from utils.constants.UpdateFields import UnitFields
 
@@ -1409,33 +1409,67 @@ class UnitManager(ObjectManager):
             immunities.pop(source_id)
         self._immunities[immunity_type] = immunities
 
-        # Remove any auras that collide with an added immunity.
         if not immune:
             return
 
+        # Remove auras that collide with this immunity if needed.
+        source_aura = self.aura_manager.get_aura_by_index(source_id)
+        if not source_aura.source_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY:
+            return
+
+        source_index = source_aura.index if not source_aura.passive else source_aura.active_aura_index
         for aura in list(self.aura_manager.active_auras.values()):
+            # Skip canceling aura if it's purely passive or the source of the immunity.
+            if aura.passive and aura.active_aura_index == -1:
+                continue
+
+            applied_main_index = aura.index if not aura.passive else aura.active_aura_index
+            if applied_main_index == source_index:
+                continue
+
             if aura.spell_effect.is_target_immune(aura.target):
                 self.aura_manager.remove_aura(aura)
 
-    def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False):
+    def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False,
+                     source=None, is_friendly=False):
         type_immunities = self._immunities.get(immunity_type, {})
 
         if not is_mask and immunity_type in {SpellImmunity.IMMUNITY_DAMAGE, SpellImmunity.IMMUNITY_SCHOOL}:
             immunity_arg = 1 << immunity_arg
             is_mask = True
 
-        return immunity_arg in type_immunities.values() or \
+        is_immune = immunity_arg in type_immunities.values() or \
             (is_mask and any(immunity_arg & mask for mask in type_immunities.values()))
 
-    def handle_immunity(self, source, immunity_type: SpellImmunity,
-                        immunity_arg, casting_spell=None, is_mask=False) -> bool:
-        # Also check school immunity on damage immunity.
-        if self.has_immunity(immunity_type, immunity_arg, is_mask=is_mask) or \
-            (immunity_type == SpellImmunity.IMMUNITY_DAMAGE and
-                self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, immunity_arg, is_mask=is_mask)):
-            return True
+        if not is_immune:
+            return False
 
-        return False
+        if not is_friendly and (not source or self.can_attack_target(source)):
+            return True  # Immune, hostile source.
+
+        # Immune, friendly source. Check for friendly immunity.
+        return self.has_friendly_immunity(immunity_type, immunity_arg, is_mask)
+
+    def has_friendly_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False):
+        type_immunities = self._immunities.get(immunity_type, {})
+
+        if not is_mask and immunity_type in {SpellImmunity.IMMUNITY_DAMAGE, SpellImmunity.IMMUNITY_SCHOOL}:
+            immunity_arg = 1 << immunity_arg
+            is_mask = True
+
+        immunity_matches = [aura_slot for aura_slot, imm_arg in type_immunities.items() if
+                            imm_arg == immunity_arg and not is_mask or imm_arg & immunity_arg and is_mask]
+
+        return any([self.aura_manager.get_aura_by_index(aura_slot).source_spell.grants_positive_immunity()
+                    for aura_slot in immunity_matches])
+
+    def has_damage_immunity(self, school, casting_spell=None, is_mask=False) -> bool:
+        if casting_spell and casting_spell.ignores_immunity():
+            return False
+
+        # Also check school immunity on damage immunity.
+        return self.has_immunity(SpellImmunity.IMMUNITY_DAMAGE, school, is_mask=is_mask) or \
+                self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, school, is_mask=is_mask)
 
     def set_health(self, health):
         if health < 0:

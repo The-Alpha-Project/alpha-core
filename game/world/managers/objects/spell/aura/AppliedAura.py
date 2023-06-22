@@ -23,6 +23,9 @@ class AppliedAura:
         self.passive = casting_spell.is_passive()
         self.harmful = self.spell_effect.is_harmful()
 
+        # If this aura is passive, the index of the active component of this aura, if any.
+        self.active_aura_index = -1
+
         for effect in casting_spell.get_effects():
             if effect.effect_index >= spell_effect.effect_index:
                 break
@@ -34,6 +37,7 @@ class AppliedAura:
             # this aura is set to passive to not display twice in client.
             if self.target in effect.targets.get_resolved_effect_targets_by_type(type(self.target)):
                 self.passive = True
+                self.active_aura_index = self.target.aura_manager.get_main_aura_slot_for_spell(self.source_spell)
                 break
 
         self.index = -1  # Set on application

@@ -43,6 +43,8 @@ class ScriptHandler:
         if not script_commands:
             if self.owner.get_type_id() == ObjectTypeIds.ID_UNIT and self.owner.creature_template.script_name:
                 Logger.warning(f'Unimplemented advanced script: {self.owner.creature_template.script_name}.')
+            elif self.owner.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and self.owner.gobject_template.script_name:
+                Logger.warning(f'Unimplemented advanced script: {self.owner.gobject_template.script_name}.')
             return
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, ooc_event=ooc_event)

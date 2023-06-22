@@ -270,16 +270,25 @@ class MapManager:
         if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
             return current_z, True
 
-        z_values = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
+        heights = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
+        query_z = MAPS_NAMIGATOR[map_id].query_z(x, y, current_z, x, y)
 
-        if len(z_values) == 0:
+        if query_z:
+            # Did found heights, append found Z.
+            if heights:
+                heights.append(query_z)
+            # No heights, use found Z.
+            else:
+                heights = [query_z]
+
+        if len(heights) == 0:
             Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
             return current_z, True
 
         # We are only interested in the resulting Z near to the Z we know.
-        z_values = sorted(z_values, key=lambda _z: abs(current_z - _z))
+        heights = sorted(heights, key=lambda _z: abs(current_z - _z))
 
-        return z_values[0], False
+        return heights[0], False
 
     @staticmethod
     def los_check(map_id, start_vector, end_vector):
@@ -445,8 +454,9 @@ class MapManager:
                 val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y + 1)
                 bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
                 calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
-                # If maps Z is quite different, cascade into nav Z, if that also fails, current Z will be returned.
-                if math.fabs(current_z - calculated_z) >= 1.0 and current_z:
+                # If maps Z is different or exactly the same, try nav Z, if that also fails, current Z will be returned.
+                diff = math.fabs(current_z - calculated_z)
+                if (diff > 1.0 or not diff) and current_z:
                     return MapManager.calculate_nav_z(map_id, x, y, current_z)
                 return calculated_z, False
             except:

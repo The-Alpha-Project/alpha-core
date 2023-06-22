@@ -180,35 +180,39 @@ class SpellEffect:
         # Instead of analyzing resolved targets,
         # take into account initial target friendliness and the nature of the effect's implicit targets.
         target = self.casting_spell.initial_target if self.casting_spell.initial_target_is_unit_or_player() else None
-        can_target_friendly = self.targets.can_target_friendly(unit_target=target)
 
         if self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA:
             if self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
                 return True
 
-            # Don't compare to initial target for AoE spells since the source (initial target) can be the caster.
-            if self.casting_spell.initial_target_is_object() and not self.casting_spell.is_area_of_effect_spell():
-                return not can_target_friendly and \
-                       self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
+        can_target_friendly, can_target_hostile = self.targets.get_target_hostility_info(unit_target=target)
 
-        return not can_target_friendly
+        if can_target_friendly != can_target_hostile:
+            return can_target_hostile  # No ambiguity.
+
+        if self.casting_spell.initial_target is self.casting_spell.spell_caster:
+            return False  # Assume that self-cast is friendly with mixed targets.
+
+        if self.casting_spell.initial_target_is_object():
+            # Select friendliness based on hostility.
+            return self.casting_spell.spell_caster.can_attack_target(self.casting_spell.initial_target)
+
+        return False
 
     def is_target_immune(self, target):
         # Validate target and check harmfulness.
         if not target or not isinstance(target, ObjectManager) or \
-            not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT or \
-                (not self.is_harmful() and not
-                 self.casting_spell.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IMMUNITY_HOSTILE_FRIENDLY_EFFECTS):
+            not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return False
 
         # Spell school/effect aura.
         if self.casting_spell.is_target_immune() or \
                 (self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and
-                 self.casting_spell.is_target_immune_to_aura()):
+                 self.casting_spell.is_target_immune_to_aura(target)):
             return True
 
         # Effect type.
-        if target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, self.effect_type):
+        if target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, self.effect_type, is_friendly=not self.is_harmful()):
             return True
 
         return False

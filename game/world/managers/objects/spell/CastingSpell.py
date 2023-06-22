@@ -319,45 +319,56 @@ class CastingSpell:
         return True
 
     def is_target_immune(self):
-        if not self.initial_target_is_unit_or_player():
+        if not self.initial_target_is_unit_or_player() or self.ignores_immunity():
             return False
 
         dispel_type = self.spell_entry.custom_DispelType
-        school_immunity = self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, self.get_damage_school())
-        return school_immunity or self.initial_target.has_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, dispel_type)
+        damage_school = self.get_damage_school()
+
+        has_immunity = self.initial_target.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, damage_school,
+                                                        source=self.spell_caster) or \
+                       self.initial_target.has_immunity(SpellImmunity.IMMUNITY_DISPEL_TYPE, dispel_type,
+                                                        source=self.spell_caster)
+        return has_immunity
 
     def is_target_immune_to_effects(self):
-        if not self.initial_target_is_unit_or_player():
+        if not self.initial_target_is_unit_or_player() or self.ignores_immunity():
             return False
 
         if self.is_target_immune():
             return True
 
         effect_types = [effect.effect_type for effect in self.get_effects()]
-        is_immune_to_aura = self.is_target_immune_to_aura()
+        is_immune_to_aura = self.is_target_immune_to_aura(self.initial_target)
         return all(
-            self.initial_target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, effect_type) or
+            self.initial_target.has_immunity(SpellImmunity.IMMUNITY_EFFECT, effect_type, source=self.spell_caster) or
             effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA and is_immune_to_aura
             for effect_type in effect_types
         )
 
-    def is_target_immune_to_aura(self):
-        if not self.initial_target_is_unit_or_player():
+    def is_target_immune_to_aura(self, target):
+        if not self.initial_target_is_unit_or_player() or self.ignores_immunity():
             return False
 
         for effect in self.get_effects():
             if not effect.aura_type:
                 continue
 
-            if self.initial_target.has_immunity(SpellImmunity.IMMUNITY_AURA, effect.aura_type):
+            if target.has_immunity(SpellImmunity.IMMUNITY_AURA, effect.aura_type, source=self.spell_caster):
                 return True
 
             mechanic = ExtendedSpellData.SpellEffectMechanics.get_mechanic_for_aura_effect(effect.aura_type,
                                                                                            self.spell_entry.ID)
-            if mechanic and self.initial_target.has_immunity(SpellImmunity.IMMUNITY_MECHANIC, mechanic):
+            if mechanic and target.has_immunity(SpellImmunity.IMMUNITY_MECHANIC, mechanic, source=self.spell_caster):
                 return True
 
         return False
+
+    def ignores_immunity(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY
+
+    def grants_positive_immunity(self):
+        return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_IMMUNITY_HOSTILE_FRIENDLY_EFFECTS
 
     def cast_breaks_stealth(self):
         return not self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_NOT_BREAK_STEALTH
