@@ -2,10 +2,11 @@ import random
 from dataclasses import dataclass
 from typing import Optional
 
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates, UnitStates, UnitFlags
 
@@ -17,7 +18,8 @@ class ThreatHolder:
     threat_mod: float
 
     def get_total_threat(self):
-        return self.total_raw_threat + self.threat_mod
+        weight = 1E-4 if self.unit.get_type_id() == ObjectTypeIds.ID_UNIT else 0.0
+        return self.total_raw_threat + self.threat_mod + weight
 
 
 class ThreatManager:
@@ -111,7 +113,7 @@ class ThreatManager:
             # New holder.
             elif threat >= 0.0:
                 if not is_call_for_help:
-                    self._call_for_help(source, threat)
+                    self.call_for_help(source, threat)
                 self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
                 # Force both units to be linked through threat.
                 if not source.threat_manager.has_aggro_from(self.owner):
@@ -173,13 +175,13 @@ class ThreatManager:
         return None
 
     # Creatures only.
-    def _call_for_help(self, source, threat):
+    def call_for_help(self, source, threat=THREAT_NOT_TO_LEAVE_COMBAT):
         if not self._call_for_help_range:
             return
         units = MapManager.get_surrounding_units_by_location(self.owner.location, self.owner.map_id,
                                                              self.owner.instance_id,
                                                              self._call_for_help_range)[0].values()
-        helping_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
+        helping_units = [unit for unit in units if unit != self.owner and self.unit_can_assist_help_call(unit, source)]
         [unit.threat_manager.add_threat(source, threat, is_call_for_help=True) for unit in helping_units]
 
     def can_resolve_target(self):
@@ -218,6 +220,8 @@ class ThreatManager:
             return False
         elif not unit.can_assist_help_calls():
             return False
+        elif unit.get_creature_family() != self.owner.get_creature_family():
+            return False
         return True
 
     # TODO: Optimize this method?
@@ -227,6 +231,9 @@ class ThreatManager:
 
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
+        if not self.holders:
+            return relevant_holders
+
         for holder in list(self.holders.values()):
             if not holder.unit.is_alive:
                 continue

@@ -61,6 +61,8 @@ class CreatureManager(UnitManager):
         self.ranged_attack_time = 0
         self.ranged_dmg_min = 0
         self.ranged_dmg_max = 0
+        self.pending_relocation = False
+        self.relocation_call_for_help_timer = 0
         self.destroy_time = 0
         self.destroy_timer = 420  # Standalone instances, destroyed after 7 minutes.
         self.virtual_item_info = {}
@@ -514,7 +516,8 @@ class CreatureManager(UnitManager):
                 # Time to live checks for standalone instances.
                 if not self._check_time_to_live(elapsed):
                     return  # Creature destroyed.
-
+                # Update relocate/call for help timer.
+                self.relocation_call_for_help_timer += elapsed
                 # Regeneration.
                 self.regenerate(elapsed)
                 # Spell/Aura Update.
@@ -526,8 +529,8 @@ class CreatureManager(UnitManager):
                 self.movement_manager.update(now, elapsed)
                 if self.has_moved or self.has_turned:
                     # Relocate only if x, y changed.
-                    if self.has_moved:
-                        self._on_relocation()
+                    if self.has_moved and not self.pending_relocation:
+                        self.pending_relocation = True
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
@@ -549,6 +552,14 @@ class CreatureManager(UnitManager):
 
             # Scripts need to be always updated to make on-death scripts possible.
             self.script_handler.update(now)
+
+            if self.relocation_call_for_help_timer >= 1:
+                if self.pending_relocation:
+                    self._on_relocation()
+                    self.pending_relocation = False
+                if self.combat_target:
+                    self.threat_manager.call_for_help(self.combat_target)
+                self.relocation_call_for_help_timer = 0
 
         self.last_tick = now
 
@@ -864,6 +875,11 @@ class CreatureManager(UnitManager):
             f'X: {self.location.x:.3f}, Y: {self.location.y:.3f}, Z: {self.location.z:.3f}, O: {self.location.o:.3f}',
             f'Distance: {self.location.distance(requester.location) if requester else 0} yd'
         ]
+
+    # override
+    # noinspection PyMethodMayBeStatic
+    def get_creature_family(self):
+        return self.creature_template.beast_family
 
     # override
     def get_type_mask(self):

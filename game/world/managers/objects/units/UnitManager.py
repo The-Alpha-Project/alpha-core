@@ -187,6 +187,8 @@ class UnitManager(ObjectManager):
         self.unit_state = UnitStates.NONE
         # Used to handle sanctuary state.
         self.sanctuary_timer = 0
+        # Cheat flags, used by Players.
+        self.beast_master = False
 
         # Defensive passive spells are not handled through the aura system.
         # The effects will instead flag the unit with these fields.
@@ -1753,6 +1755,10 @@ class UnitManager(ObjectManager):
                 self.has_moved = has_moved
             if not self.has_turned and has_turned:
                 self.has_turned = has_turned
+
+    # noinspection PyMethodMayBeStatic
+    def get_creature_family(self):
+        return 0
 
     # override
     def get_type_mask(self):
