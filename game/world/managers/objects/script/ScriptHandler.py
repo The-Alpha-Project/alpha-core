@@ -470,7 +470,6 @@ class ScriptHandler:
 
         creature_manager = CreatureBuilder.create(command.datalong, Vector(command.x, command.y, command.z, command.o),
                                                   command.source.map_id, command.source.instance_id,
-                                                  summoner=None, faction=command.source.faction,
                                                   ttl=command.datalong2 / 1000,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC
                                                   if command.dataint4 > 0
