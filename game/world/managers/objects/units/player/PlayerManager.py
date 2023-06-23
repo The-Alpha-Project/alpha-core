@@ -145,9 +145,6 @@ class PlayerManager(UnitManager):
             if self.session.account_mgr.is_gm():
                 self.set_gm()
 
-            # Cheat flags.
-            self.beast_master = False
-
             # Update exploration data.
             if self.player.explored_areas and len(self.player.explored_areas) > 0:
                 self.explored_areas = bitarray(self.player.explored_areas, 'little')

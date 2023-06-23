@@ -439,16 +439,23 @@ class CreatureAI:
     def is_ready_for_new_attack(self):
         return self.creature.is_alive and self.creature.is_active_object() \
                and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
-               and not self.creature.in_combat and not self.creature.is_evading \
+               and not self.creature.is_evading \
                and not self.creature.unit_state & UnitStates.STUNNED \
                and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
 
     def get_proximity_target(self, unit=None):
         detection_range = self.creature.creature_template.detection_range
-        source_units = list(self.creature.known_players.values()) if not unit else [unit]
+        if not unit:
+            result = MapManager.get_surrounding_units(self.creature, True)
+            source_units = list(result[0].values()) + list(result[1].values())
+        else:
+            source_units = [unit]
+
         hostile_units = []
         for unit in source_units:
             if unit.beast_master or not self.creature.is_hostile_to(unit) or not unit.is_alive:
+                continue
+            if self.creature.combat_target == unit or unit.threat_manager.has_aggro_from(self.creature):
                 continue
             hostile_units.append(unit)
             active_pet = unit.pet_manager.get_active_controlled_pet()
