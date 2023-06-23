@@ -775,5 +775,1010 @@ begin not atomic
 
         insert into`applied_updates`values ('090620231');
     end if;
+
+
+    -- 21/06/2023 1
+    if (select count(*) from `applied_updates` where id='210620231') = 0 then
+
+        -- DISPLAY ID UPDATE
+
+        -- Sandfury Shadowcaster
+        UPDATE creature_template SET display_id1 = 1117, display_id2 = 0  WHERE entry = 5648;
+
+
+        -- Sandfury Blood Drinker
+        UPDATE creature_template SET display_id1 = 1118, display_id2 = 0  WHERE entry = 5649;
+
+
+        -- Sandfury Witch Doctor
+        UPDATE creature_template SET display_id1 = 1115, display_id2 = 0  WHERE entry = 5650;
+
+
+        -- ZUL FARRAK OUTDOOR SPAWN
+        
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6274.34, -2451.214, 14.5964, 5.42797, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6120.889999999999, -2624.584, 8.95783, 4.57276, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6115.0599999999995, -3005.358, 33.1269, 3.42085, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6299.82, -2486.924, 9.80135, 5.76632, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6118.44, -2944.427, 36.2795, 1.51022, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6189.48, -2795.2470000000003, 8.99004, 0.541052, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6177.37, -2821.036, 9.00179, 4.11501, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6138.639999999999, -2906.504, 24.1171, 3.64774, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6333.12, -2501.6240000000003, 9.40873, 4.71239, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6240.46, -3004.9700000000003, 17.6822, 3.18886, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6379.44, -2543.5240000000003, 9.1335, 1.09956, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6223.19, -2921.568, 23.2348, 3.24631, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6375.24, -2542.284, 9.08505, 2.72271, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6356.5, -2535.1140000000005, 9.05309, 1.81514, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6300.28, -2501.384, 8.96111, 1.15192, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6348.03, -2515.3140000000003, 9.67312, 1.44862, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6356.08, -2630.264, 9.20275, 3.03687, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6367.55, -2568.474, 9.05948, 4.60767, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6363.91, -2628.5240000000003, 8.96013, 0.017453, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6364.04, -2630.164, 8.96016, 0.087266, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6363.25, -2625.324, 8.9902, 5.75959, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6351.91, -2582.9440000000004, 9.01227, 5.39307, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6285.71, -2516.6440000000002, 8.96012, 5.48033, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6344.9, -3017.858, 27.1727, 1.27409, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6332.8, -2583.334, 8.96011, 3.63029, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6288.02, -2547.6540000000005, 9.39765, 5.49779, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6285.17, -2544.914, 10.3375, 4.31096, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6279.51, -2551.647, 10.506, 5.46288, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6291.78, -2837.5660000000003, 9.00179, 5.09013, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6391.63, -2756.367, 9.01275, 4.32842, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6286.41, -2951.1420000000003, 17.346, 5.48033, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6293.04, -2820.831, 10.2081, 1.18682, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6293.91, -2817.496, 11.1787, 5.81195, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6396.95, -2764.51, 9.18092, 0.820305, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6343.3099999999995, -2792.266, 9.11468, 5.65487, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6339.33, -2797.632, 9.17103, 2.19912, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6394.41, -2765.6150000000002, 9.18042, 1.29154, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6314.18, -2846.3770000000004, 9.00179, 1.37218, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6341.57, -2929.6850000000004, 9.29566, 1.36264, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6330.42, -2838.772, 8.96012, 2.51327, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6339.42, -2833.9930000000004, 8.8914, 0.355068, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6385.48, -2838.1980000000003, 9.75628, 5.74213, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6360.13, -2937.1310000000003, 8.97168, 1.48353, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6383.23, -2957.054, 11.32, 5.3058, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6418.09, -2884.3990000000003, 9.89255, 5.96903, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6453.62, -2899.998, 8.8914, 3.8113, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6358.03, -2833.159, 9.54633, 1.9141, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6084.54, -2540.974, 8.96012, 1.0821, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6086.59, -2535.6940000000004, 9.04154, 5.81195, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6413.63, -2882.103, 9.98523, 4.24115, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6435.87, -2863.597, 9.70283, 4.46804, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6417.09, -2887.5570000000002, 12.134, 1.090118, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6437.78, -2866.277, 9.52113, 1.0821, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6469.05, -2912.679, 9.17081, 0.628319, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6494.77, -2890.7120000000004, 9.4491, 0.069813, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6511.55, -2919.1020000000003, 9.21445, 5.37561, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6495.21, -2916.646, 8.97416, 2.46091, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6478.19, -2908.838, 8.8919, 3.82264, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6488.78, -2890.4100000000003, 9.72667, 2.87979, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6569.57, -2940.111, 11.9563, 2.33874, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6572.32, -2940.772, 11.6592, 1.79769, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6574.04, -2934.9210000000003, 10.6506, 5.14872, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6592.07, -2922.254, 8.88956, 2.98858, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6595.12, -2922.1440000000002, 8.88956, 2.99251, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6206.6, -2981.842, 14.3114, 1.67303, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6099.76, -2568.7740000000003, 8.96588, 0.785398, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6634.66, -2915.23, 8.97416, 3.71755, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6672.36, -2897.062, 9.23823, 3.24631, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6641.338, -2917.501, 8.97416, 0.174533, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6680.5, -2898.338, 8.97416, 0.418879, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6734.27, -2894.815, 9.10481, 2.19912, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6738.02, -2894.4170000000004, 8.9959, 0.383972, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6150.889999999999, -2550.674, 8.9883, 6.19592, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6100.49, -2598.3740000000003, 9.09823, 5.68977, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6088.27, -2581.754, 9.60223, 2.51327, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6095.52, -2599.534, 8.9936, 2.54818, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6074.01, -2604.094, 10.8489, 1.90241, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6185.22, -2787.907, 8.97432, 4.74729, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6233.49, -2879.056, 8.8768, 3.96897, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6290.01, -2819.849, 11.0054, 2.49582, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6338.15, -2796.683, 9.24633, 2.33874, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6311.65, -2866.581, 8.96012, 2.87979, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6319.24, -2863.702, 8.96821, 5.8294, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6327.49, -2828.8100000000004, 9.01447, 3.55316, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6474.92, -2800.05, 11.8075, 5.22015, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6335.99, -2823.9680000000003, 8.96011, 4.99164, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6366.76, -2864.922, 10.4543, 5.02655, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6380.95, -2841.937, 9.35544, 2.32129, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6387.05, -2842.9530000000004, 9.0397, 6.23082, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6380.0, -2961.753, 11.5338, 2.18166, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6455.389999999999, -2896.286, 8.8912, 3.85389, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6464.84, -2909.413, 8.87731, 4.08407, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6467.96, -2914.183, 9.34458, 1.13446, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6504.86, -2900.9030000000002, 8.89086, 3.46603, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6494.59, -2889.1180000000004, 9.74815, 6.10865, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6510.36, -2911.0570000000002, 9.08669, 6.00393, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6534.92, -2901.655, 10.0631, 1.91986, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6674.43, -2891.802, 11.7873, 4.01426, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6707.28, -2924.291, 10.6402, 5.72468, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6703.54, -2927.494, 14.1035, 2.00713, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6703.27, -2922.213, 11.1528, 4.50295, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6409.83, -2644.9440000000004, 8.8781, 4.28345, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6333.139999999999, -2475.994, 10.4681, 3.35103, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6377.83, -2538.254, 9.42084, 4.69494, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6286.86, -2552.784, 9.14993, 0.837758, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6114.45, -2512.684, 9.1649, 4.27606, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6136.98, -2535.2740000000003, 8.96012, 4.93928, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6393.66, -2629.164, 8.96011, 4.95674, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6389.71, -2626.8740000000003, 8.96011, 3.52556, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6423.92, -2656.1440000000002, 9.02151, 1.25664, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6414.99, -2699.724, 8.96012, 3.03687, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6484.28, -2684.3640000000005, 18.1446, 1.36136, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6458.96, -2733.464, 8.96011, 5.23599, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6473.05, -2717.914, 9.81576, 0.959931, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6444.40, -2726.092, 8.96011, 4.41568, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6443.74, -2732.914, 8.96011, 2.6529, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6474.62, -2716.154, 9.98873, 0.436332, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6469.83, -2713.824, 9.72279, 3.61283, 300, 300, 0);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6521.49, -2755.1330000000003, 16.3627, 5.60251, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6544.33, -2789.655, 26.5751, 3.71755, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5650, 1, -6543.2, -2701.954, 29.3484, 1.46608, 300, 300, 1);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5648, 1, -6410.73, -2749.784, 9.15524, 2.24523, 300, 300, 2);
+
+
+
+
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5649, 1, -6738.54, -2888.851, 9.28673, 5.34071, 300, 300, 0);
+
+
+        insert into`applied_updates`values ('210620231');
+    end if;
 end $
 delimiter ;
