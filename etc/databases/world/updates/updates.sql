@@ -1845,7 +1845,7 @@ begin not atomic
     if (select count(*) from `applied_updates` where id='240620232') = 0 then
         
         -- Kayren Southallow #1167
-        update spawns_creatures set position_x = -63.989,  position_y = -9431.456, position_z = 56.745, orientation = 0.498 where spawn_id = 15525;
+        update spawns_creatures set position_x = -63.989,  position_y = -931.456, position_z = 56.745, orientation = 0.498 where spawn_id = 15525;
         update creature_template set subname = "Binder", npc_flags=16, faction=35 where entry = 2401;
 
         -- Tharm #1156
@@ -1882,7 +1882,7 @@ begin not atomic
         update spawns_creatures set position_x = -4624.874,  position_y = -985.732, position_z = 501.66, orientation = 2.076 where spawn_id = 2023;
         update spawns_creatures set position_x = -5003.002,  position_y = -1176.698, position_z = 501.66, orientation = 5.172 where spawn_id = 2024;
         update spawns_creatures set position_x = -5007.91,  position_y = -1179.113, position_z = 501.66, orientation = 5.172 where spawn_id = 2081;
-        
+
         insert into`applied_updates`values ('240620232');
     end if;
 
