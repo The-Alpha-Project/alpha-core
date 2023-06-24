@@ -381,6 +381,7 @@ class CreatureManager(UnitManager):
 
     def on_at_home(self):
         self.apply_default_auras()
+        self.object_ai.ai_event_handler.reset()
         self.movement_manager.face_angle(self.spawn_position.o)
         # Scan surrounding for enemies.
         self._on_relocation()

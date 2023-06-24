@@ -23,6 +23,9 @@ class AIEventHandler:
         self._events = {}
         self.event_locks: dict[int: EventLock] = {}
 
+    def reset(self):
+        self.event_locks.clear()
+
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
         for event in events:
@@ -42,11 +45,10 @@ class AIEventHandler:
                 continue
 
             choices = ScriptHelpers.get_filtered_event_scripts(event)
-            random_script = choice(choices)
+            script = choice(choices)
 
-            if random_script:
-                self.creature.script_handler.enqueue_script(self.creature, source, ScriptTypes.SCRIPT_TYPE_AI,
-                                                            random_script)
+            if script:
+                self.creature.script_handler.enqueue_script(self.creature, source, ScriptTypes.SCRIPT_TYPE_AI, script)
 
     def on_damage_taken(self, attacker=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
@@ -63,10 +65,10 @@ class AIEventHandler:
             if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
                 continue
 
-            script_id = event.action1_script
-            if script_id:
+            script = event.action1_script
+            if script:
                 self._lock_event(event, now)
-                self.creature.script_handler.enqueue_script(self.creature, attacker, ScriptTypes.SCRIPT_TYPE_AI, script_id)
+                self.creature.script_handler.enqueue_script(self.creature, attacker, ScriptTypes.SCRIPT_TYPE_AI, script)
 
     def on_idle(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
@@ -81,12 +83,10 @@ class AIEventHandler:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
             choices = ScriptHelpers.get_filtered_event_scripts(event)
-            random_script = choice(choices)
+            script = choice(choices)
 
-            if random_script:
-                self.creature.script_handler.last_hp_event_id = event.id
-                self.creature.script_handler.enqueue_script(self.creature, killer, ScriptTypes.SCRIPT_TYPE_AI,
-                                                            random_script)
+            if script:
+                self.creature.script_handler.enqueue_script(self.creature, killer, ScriptTypes.SCRIPT_TYPE_AI, script)
 
     def on_emote_received(self, player, emote):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RECEIVE_EMOTE)
@@ -96,10 +96,9 @@ class AIEventHandler:
 
             # TODO: Check conditions (EmoteId, Condition, CondValue1, CondValue2).
 
-            script_id = event.action1_script
-            if script_id:
-                self.creature.script_handler.enqueue_script(self.creature, player, ScriptTypes.SCRIPT_TYPE_AI,
-                                                            script_id)
+            script = event.action1_script
+            if script:
+                self.creature.script_handler.enqueue_script(self.creature, player, ScriptTypes.SCRIPT_TYPE_AI, script)
 
     def _event_get_by_type(self, event_type):
         # Skip for controlled units.
