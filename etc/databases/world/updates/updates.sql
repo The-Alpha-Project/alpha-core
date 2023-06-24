@@ -1845,10 +1845,10 @@ begin not atomic
     if (select count(*) from `applied_updates` where id='240620233') = 0 then
 
         -- CREATE WAYPOINT FOR SPAWN 400252
-        INSERT INTO alpha_world.creature_movement VALUES (400252, 1, 78.681, 10.243, 18.678, 6.272, 0, 0, 0)
+        INSERT INTO alpha_world.creature_movement VALUES (400252, 1, 78.681, 10.243, 18.678, 6.272, 0, 0, 0);
 
         -- CREATE WAYPOINT FOR SPAWN 400252 
-        INSERT INTO alpha_world.creature_movement VALUES (400252, 2, 124.910, 10.219, 18.678, 0.013, 0, 0, 0)
+        INSERT INTO alpha_world.creature_movement VALUES (400252, 2, 124.910, 10.219, 18.678, 0.013, 0, 0, 0);
 
         -- CREATE WAYPOINT FOR SPAWN 400251 
         INSERT INTO creature_movement VALUES (400251, 1, 78.85399627685547, -11.843199729919434, 18.677560806274414, 3.093668222427368, 0, 0, 0);
