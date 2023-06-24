@@ -1910,7 +1910,12 @@ begin not atomic
         UPDATE `creature_template`
         SET `display_id1`=1964
         WHERE `entry`=4522;
-        
+
+        -- Wind howler
+        UPDATE `creature_template`
+        SET `display_id1`=69
+        WHERE `entry`=4526;
+
         -- Beast
         UPDATE `creature_template`
         SET `display_id1`=1963
