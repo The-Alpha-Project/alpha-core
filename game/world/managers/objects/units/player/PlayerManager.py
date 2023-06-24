@@ -1631,6 +1631,9 @@ class PlayerManager(UnitManager):
         if now > self.last_tick > 0 and self.online:
             elapsed = now - self.last_tick
 
+            # Relocation timer.
+            self.relocation_call_for_help_timer += elapsed
+
             # Update played time.
             self.player.totaltime += elapsed
             self.player.leveltime += elapsed
@@ -1698,8 +1701,8 @@ class PlayerManager(UnitManager):
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
                     # Relocate only if x, y changed.
-                    if self.has_moved:
-                        self._on_relocation()
+                    if self.has_moved and not self.pending_relocation:
+                        self.pending_relocation = True
                     # Reset flags.
                     self.set_has_moved(False, False, flush=True)
 
@@ -1713,6 +1716,12 @@ class PlayerManager(UnitManager):
             else:
                 MapManager.update_object(self)
                 self.synchronize_db_player()
+
+            # If not teleporting, notify self movement to surrounding units for proximity aggro.
+            if not self.update_lock and self.relocation_call_for_help_timer >= 1:
+                if self.pending_relocation:
+                    self._on_relocation()
+                self.relocation_call_for_help_timer = 0
 
         self.last_tick = now
 

@@ -61,8 +61,6 @@ class CreatureManager(UnitManager):
         self.ranged_attack_time = 0
         self.ranged_dmg_min = 0
         self.ranged_dmg_max = 0
-        self.pending_relocation = False
-        self.relocation_call_for_help_timer = 0
         self.destroy_time = 0
         self.destroy_timer = 420  # Standalone instances, destroyed after 7 minutes.
         self.virtual_item_info = {}
