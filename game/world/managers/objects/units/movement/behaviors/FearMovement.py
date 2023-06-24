@@ -40,6 +40,9 @@ class FearMovement(BaseMovement):
         self.can_move = True
 
     def _trigger_fear(self):
+        # Attack stop if needed, else unit will keep trying to turn towards target.
+        if self.unit.combat_target:
+            self.unit.send_attack_stop(self.unit.combat_target.guid)
         speed = self.unit.running_speed
         if not self.waypoints:
             fear_point = self._get_fear_point()
