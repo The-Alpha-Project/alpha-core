@@ -1840,5 +1840,51 @@ begin not atomic
 
         insert into`applied_updates`values ('220620231');
     end if;
+
+    -- 24/06/2023 2
+    if (select count(*) from `applied_updates` where id='240620232') = 0 then
+        
+        -- Kayren Southallow #1167
+        update spawns_creatures set position_x = -63.989,  position_y = -9431.456, position_z = 56.745, orientation = 0.498 where spawn_id = 15525;
+        update creature_template set subname = "Binder", npc_flags=16, faction=35 where entry = 2401;
+
+        -- Tharm #1156
+        update spawns_creatures set position_x = -184.182,  position_y = -295.170, position_z = 11.55, orientation = 6.239, map=1 where spawn_id = 32245;
+        update creature_template set subname = "Wind Rider Master", npc_flags=4, faction=29 where entry = 4312;
+
+        -- Baros Alexston #1155
+        update spawns_creatures set position_x = -8743.631,  position_y = 657.649, position_z = 105.091, orientation = 3.429 where spawn_id = 79766;
+
+        -- Aldric Moore #1063
+        update spawns_creatures set position_y = 638.412 where spawn_id = 400097;
+        update creature_template set subname = "Leather Armor Merchant" where entry = 1294;
+
+        -- Andrew Brounel #1139
+        update spawns_creatures set position_x = 1854.942,  position_y = 1575.886, position_z = 99.072, orientation = 0.050 where spawn_id = 32024;
+
+        -- Hill Giant #1128 (PARTIAL)
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (2689, 0, 45.1769, -4277.32, 123.17, 4.222, 180000, 180000, 2);
+
+        -- Misha #1077 (PARTIAL)
+        update spawns_creatures set position_x = 710.107,  position_y = -4307.204, position_z = 19.37, orientation = 3.064 where spawn_id = 6461;
+
+        -- Harruk #1077 (PARTIAL)
+        update spawns_creatures set position_x = 246.668,  position_y = -3856.381, position_z = 31.852, orientation = 0.587 where spawn_id = 7673;
+
+        -- Tursk #1077 (PARTIAL)
+        update spawns_creatures set position_x = 107.789,  position_y = -5049.07, position_z = 7.421, orientation = 2.972 where spawn_id = 400066;
+
+        -- IF guards #1142 
+        update spawns_creatures set position_x = -4629.728,  position_y = -988.332, position_z = 501.66, orientation = 2.076 where spawn_id = 2079;
+        update spawns_creatures set position_x = -4624.874,  position_y = -985.732, position_z = 501.66, orientation = 2.076 where spawn_id = 2023;
+        update spawns_creatures set position_x = -5003.002,  position_y = -1176.698, position_z = 501.66, orientation = 5.172 where spawn_id = 2024;
+        update spawns_creatures set position_x = -5007.91,  position_y = -1179.113, position_z = 501.66, orientation = 5.172 where spawn_id = 2081;
+        
+        insert into`applied_updates`values ('240620232');
+    end if;
+
 end $
 delimiter ;
