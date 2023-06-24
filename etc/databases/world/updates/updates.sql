@@ -1840,5 +1840,294 @@ begin not atomic
 
         insert into`applied_updates`values ('220620231');
     end if;
+
+    -- 24/06/2023 1
+    if (select count(*) from `applied_updates` where id='240620231') = 0 then
+
+        -- RAZORFEN DOWN
+
+        -- Quillguard
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4436;
+        
+        -- Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4435;
+        
+        -- Defender
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4442;
+        
+        -- Geomancer
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4442;
+        
+        -- Overlord
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4420;
+        
+        -- Speakhide
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4438;
+        
+        -- Death...
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4518;
+        
+        -- Earthbraker
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4525;
+        
+        -- Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4440;
+        
+        -- Champion
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4623;
+        
+        -- Defender
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4442;
+        
+        -- Groundshaker
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4523;
+        
+        -- Dustweaver
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4522;
+        
+        -- Beast
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4531;
+        
+        -- Aggem
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4424;
+        
+        -- Geomancer
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4520;
+        
+        -- Acolyte 
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4515;
+        
+        -- Adept
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4516;
+        
+        -- Jagba
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4428;
+        
+        -- Master
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4532;
+        
+        -- Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4435;
+        
+        -- Quillbeast
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4426;
+        
+        -- Sage
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4518;
+        
+        -- Seer
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4519;
+        
+        -- Guardian
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4427;
+        
+        -- Ward keeper
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4625;
+        
+        -- Charlga
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4421;
+        
+        -- Priest
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4517;
+        
+        -- Halmgar
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4842;
+        
+        -- Warden
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4437;
+        
+        -- Agamar
+        UPDATE `creature_template`
+        SET `display_id1`=2453
+        WHERE `entry`=4511;
+        
+        -- Rotting Agamar
+        UPDATE `creature_template`
+        SET `display_id1`=2453
+        WHERE `entry`=4512;
+        
+        -- Blood Of Agamaggan
+        UPDATE `creature_template`
+        SET `display_id1`=2028
+        WHERE `entry`=4541;
+        
+        -- Blind hunter
+        UPDATE `creature_template`
+        SET `display_id1`=1566
+        WHERE `entry`=4425;
+
+        -- SHADOWFANG
+        
+        -- Worg
+        UPDATE `creature_template`
+        SET `display_id1`=784
+        WHERE `entry`=3862;
+        
+        -- Vile Bat
+        UPDATE `creature_template`
+        SET `display_id1`=1954
+        WHERE `entry`=3866;
+
+        -- DEADMINES
+        
+        -- Defias Companion 
+        UPDATE `creature_template`
+        SET `display_id1`=1419
+        WHERE `entry`=3450;
+
+        -- WAILLING CAVERN
+        
+        -- Lady anaconda 
+        UPDATE `creature_template`
+        SET `display_id1`=2575
+        WHERE `entry`=3671;
+        
+        -- Lord Cobrhan
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`=3669;
+        
+        -- Deviate Lasher
+        UPDATE `creature_template`
+        SET `display_id1`=4091
+        WHERE `entry`=5055;
+        
+        -- Deviate Viper 
+        UPDATE `creature_template`
+        SET `display_id1`=3205
+        WHERE `entry`=5755;
+        
+        -- Deviate Adder
+        UPDATE `creature_template`
+        SET `display_id1`=3006
+        WHERE `entry`=5048;
+        
+        --  Lord Serpentis
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`=3673;
+        
+        -- Lord Pythas
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`=3670;
+        
+        -- Naralex
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`=3679;
+        
+        -- Kresh 
+        UPDATE `creature_template`
+        SET `display_id1`=2308
+        WHERE `entry`=3653;
+        
+        -- Akumai Snapjaw
+        UPDATE `creature_template`
+        SET `display_id1`=2308
+        WHERE `entry`=4825;
+        
+        -- Twilight Lord
+        UPDATE `creature_template`
+        SET `display_id1`=495
+        WHERE `entry`=4832;
+        
+        -- See Witch
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4805;
+        
+        -- Myrmidon
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4807;
+        
+        -- Ghamoora
+        UPDATE `creature_template`
+        SET `display_id1`=2902
+        WHERE `entry`=4887;
+        
+        -- Tide Priest
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4802;
+        
+        -- Oracle
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4803;
+        
+        -- Muckdweller
+        UPDATE `creature_template`
+        SET `display_id1`=3617
+        WHERE `entry`=4819;
+        
+        -- Lord Sarevess
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4831;
+        
+        insert into`applied_updates`values ('240620231');
+    end if;
 end $
 delimiter ;
