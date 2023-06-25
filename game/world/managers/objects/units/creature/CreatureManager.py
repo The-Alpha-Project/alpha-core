@@ -679,8 +679,8 @@ class CreatureManager(UnitManager):
             if self.killed_by.group_manager and self.loot_manager.has_loot():
                 self.killed_by.group_manager.set_allowed_looters(self)
 
-        if self.loot_manager.has_loot():
-            self.set_lootable(True)
+            if self.loot_manager.has_loot():
+                self.set_lootable(True)
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
 
