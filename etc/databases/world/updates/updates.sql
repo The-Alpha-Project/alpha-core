@@ -1840,5 +1840,64 @@ begin not atomic
 
         insert into`applied_updates`values ('220620231');
     end if;
+
+    -- 25/06/2023 4
+    if (select count(*) from `applied_updates` where id='250620234') = 0 then
+  
+          -- DISPLAY ID FIX
+
+        -- Ambassador Infernus
+        UPDATE `creature_template`
+        SET `display_id1`=1070
+        WHERE `entry`=2745;
+        
+        -- Fireman Caller
+        UPDATE `creature_template`
+        SET `display_id1`=263
+        WHERE `entry`=2192;
+        
+        -- Arcticus
+        UPDATE `creature_template`
+        SET `display_id1`=665
+        WHERE `entry`=1260;
+        
+        -- Itharus
+        UPDATE `creature_template`
+        SET `display_id1`=1642
+        WHERE `entry`=5353;
+        
+        -- Jutak 
+        UPDATE `creature_template`
+        SET `display_id1`=2577
+        WHERE `entry`=2843;
+        
+        -- Silithid harvester
+        UPDATE `creature_template`
+        SET `display_id1`=2592
+        WHERE `entry`=3253;
+        
+        -- Skum
+        UPDATE `creature_template`
+        SET `display_id1`=1540
+        WHERE `entry`=3674;
+        
+        -- Stone Golem
+        UPDATE `creature_template`
+        SET `display_id1`=473
+        WHERE `entry`=2723;
+        
+        -- Swamp talker
+        UPDATE `creature_template`
+        SET `display_id1`=627
+        WHERE `entry`=950;
+        
+        -- The Husk
+        UPDATE `creature_template`
+        SET `display_id1`=2832
+        WHERE `entry`=1851;
+        
+        insert into`applied_updates`values ('250620234');
+    end if;
+
 end $
 delimiter ;
