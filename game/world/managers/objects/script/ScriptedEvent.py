@@ -32,7 +32,7 @@ class ScriptedEvent:
         if self.expire_time >= now:
             if self.failure_condition and ConditionChecker.validate(self.failure_condition, self.source, self.target):
                 self.end_event(False)
-            elif self.failure_condition and ConditionChecker.validate(self.success_condition, self.source, self.target):
+            elif self.success_condition and ConditionChecker.validate(self.success_condition, self.source, self.target):
                 self.end_event(True)
         else:
             self.end_event(False)

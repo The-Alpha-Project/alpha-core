@@ -663,13 +663,24 @@ class ConditionChecker:
         return target.is_alive
 
     @staticmethod
-    def check_condition_map_event_targets(_condition, _source, _target):
+    def check_condition_map_event_targets(condition, _source, _target):
+        from game.world.managers.maps.MapManager import MapManager
         # Requires Map.
         # True if all extra targets that are part of the given event satisfy the given condition.
         # Condition_value1 = event id.
         # Condition_value2 = condition id.
-        Logger.warning('CONDITION_MAP_EVENT_TARGETS is not implemented.')
-        return False
+        satisfied = True
+        unit = _source if _source else _target
+        map_ = MapManager.get_map(unit.map_id, unit.instance_id)
+        if not map_:
+            return False
+        scripted_event = map_.map_event_manager.get_map_event_data(condition.value1)
+        if scripted_event:
+            for event_target in scripted_event.event_targets:
+                satisfied = satisfied and ConditionChecker.validate(condition.value2, _source, event_target)
+                if not satisfied:
+                    return False
+        return satisfied
 
     @staticmethod
     def check_condition_object_is_spawned(_condition, _source, target):
