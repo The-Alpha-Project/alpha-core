@@ -70,7 +70,7 @@ class CreatureManager(UnitManager):
         self.killed_by = None
         self.known_players = {}
 
-        # # Managers, will be load upon lazy loading trigger.
+        # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
         self.pickpocket_loot_manager = None
 
