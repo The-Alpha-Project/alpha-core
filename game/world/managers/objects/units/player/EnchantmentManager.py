@@ -35,12 +35,15 @@ class EnchantmentManager(object):
                 self.set_item_enchantment(item, slot, entry, duration, charges)
 
     # TODO: Need to optimize item lookup or even move Enchantment updates to a new global thread.
-    def update(self, elapsed):
+    def update(self, elapsed, saving=False):
         self.duration_timer_seconds += elapsed
-        if self.duration_timer_seconds >= 10:
+        if saving or self.duration_timer_seconds >= 10:
             for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
                 self._update_item_enchantments(item)
             self.duration_timer_seconds = 0
+
+    def save(self):
+        self.update(0, saving=True)
 
     def _update_item_enchantments(self, item):
         for slot, enchantment in enumerate(item.enchantments):
@@ -50,6 +53,8 @@ class EnchantmentManager(object):
                 if not enchantment.duration and not enchantment.charges:
                     # Remove.
                     self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
+                elif new_duration:
+                    item.save()
 
     # noinspection PyMethodMayBeStatic
     def _consume_item_charges(self, item, enchantment_slot, used_charges=1):

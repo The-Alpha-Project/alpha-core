@@ -190,6 +190,10 @@ class UnitManager(ObjectManager):
         # Cheat flags, used by Players.
         self.beast_master = False
 
+        # Relocation (Players/Creatures), Call for help (Creatures)
+        self.relocation_call_for_help_timer = 0
+        self.pending_relocation = False
+
         # Defensive passive spells are not handled through the aura system.
         # The effects will instead flag the unit with these fields.
         self.has_block_passive = False

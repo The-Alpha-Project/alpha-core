@@ -28,11 +28,14 @@ class ScriptedEvent:
         if self.ended:
             return
 
+        # While active, keep checking fail/success conditions.
         if self.expire_time >= now:
-            if ConditionChecker.validate(self.failure_condition, self.source, self.target):
+            if self.failure_condition and ConditionChecker.validate(self.failure_condition, self.source, self.target):
                 self.end_event(False)
-            elif ConditionChecker.validate(self.success_condition, self.source, self.target):
+            elif self.success_condition and ConditionChecker.validate(self.success_condition, self.source, self.target):
                 self.end_event(True)
+        else:
+            self.end_event(False)
 
     def end_event(self, success):
         self.ended = True

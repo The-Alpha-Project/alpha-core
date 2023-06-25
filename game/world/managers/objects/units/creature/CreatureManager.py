@@ -61,8 +61,6 @@ class CreatureManager(UnitManager):
         self.ranged_attack_time = 0
         self.ranged_dmg_min = 0
         self.ranged_dmg_max = 0
-        self.pending_relocation = False
-        self.relocation_call_for_help_timer = 0
         self.destroy_time = 0
         self.destroy_timer = 420  # Standalone instances, destroyed after 7 minutes.
         self.virtual_item_info = {}
@@ -71,8 +69,6 @@ class CreatureManager(UnitManager):
         self.fully_loaded = False
         self.killed_by = None
         self.known_players = {}
-        # TODO: Temp, see TODO in QuestGiverAcceptQuestHandler
-        self.quest_target = None
 
         # # Managers, will be load upon lazy loading trigger.
         self.loot_manager = None
@@ -381,6 +377,7 @@ class CreatureManager(UnitManager):
 
     def on_at_home(self):
         self.apply_default_auras()
+        self.object_ai.ai_event_handler.reset()
         self.movement_manager.face_angle(self.spawn_position.o)
         # Scan surrounding for enemies.
         self._on_relocation()
@@ -742,7 +739,6 @@ class CreatureManager(UnitManager):
 
     # override
     def respawn(self):
-        self.quest_target = None
         super().respawn()
 
     # override

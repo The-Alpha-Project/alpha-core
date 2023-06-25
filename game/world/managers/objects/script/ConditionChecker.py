@@ -1,6 +1,6 @@
 import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from utils.constants.ConditionCodes import ConditionType, ConditionFlags, ConditionTargetsInternal
+from utils.constants.ConditionCodes import ConditionType, ConditionFlags, ConditionTargetsInternal, EscortConditionFlags
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
@@ -387,14 +387,21 @@ class ConditionChecker:
         # Checks if the source and target are alive and the distance between them.
         # Condition_value1 = EscortConditionFlags.
         # Condition_value2 = distance.
-        # Doesn't appear to be used in 0.5.3.
         if not ConditionChecker.is_creature(source) or not ConditionChecker.is_player(target):
-            return False
-
-        if source.location.distance(target.location) <= condition.value2 and source.is_alive and target.is_alive:
             return True
 
-        # TODO: implement EscortConditionFlags + handle optional source/target.
+        if condition.value1 & EscortConditionFlags.CF_ESCORT_SOURCE_DEAD:
+            if not source.is_alive:
+                return True
+
+        if condition.value1 & EscortConditionFlags.CF_ESCORT_TARGET_DEAD:
+            if not target.is_alive or not target.is_online:
+                return True
+
+        if condition.value2:
+            if not source.location.distance(target.location) <= condition.value2:
+                return True
+
         return False
 
     @staticmethod
@@ -656,13 +663,24 @@ class ConditionChecker:
         return target.is_alive
 
     @staticmethod
-    def check_condition_map_event_targets(_condition, _source, _target):
+    def check_condition_map_event_targets(condition, _source, _target):
+        from game.world.managers.maps.MapManager import MapManager
         # Requires Map.
         # True if all extra targets that are part of the given event satisfy the given condition.
         # Condition_value1 = event id.
         # Condition_value2 = condition id.
-        Logger.warning('CONDITION_MAP_EVENT_TARGETS is not implemented.')
-        return False
+        satisfied = True
+        unit = _source if _source else _target
+        map_ = MapManager.get_map(unit.map_id, unit.instance_id)
+        if not map_:
+            return False
+        scripted_event = map_.map_event_manager.get_map_event_data(condition.value1)
+        if scripted_event:
+            for event_target in scripted_event.event_targets:
+                satisfied = satisfied and ConditionChecker.validate(condition.value2, _source, event_target)
+                if not satisfied:
+                    return False
+        return satisfied
 
     @staticmethod
     def check_condition_object_is_spawned(_condition, _source, target):

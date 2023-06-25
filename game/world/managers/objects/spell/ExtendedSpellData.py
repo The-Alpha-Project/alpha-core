@@ -1,6 +1,7 @@
 import math
 from typing import Optional
 
+from utils.constants.ItemCodes import InventoryTypes
 from utils.constants.SpellCodes import ShapeshiftForms, TotemSlots, SpellMechanic, AuraTypes
 from utils.constants.UnitCodes import Teams, PowerTypes
 
@@ -239,6 +240,23 @@ class ProfessionInfo:
             if spell_id in prof_spells:
                 return skill_id
         return 0
+
+
+class EnchantmentInfo:
+    _NAME_TO_INV_TYPE = {
+        'boot': {InventoryTypes.FEET},
+        'glove': {InventoryTypes.HAND},
+        'bracer': {InventoryTypes.WRIST},
+        'chest': {InventoryTypes.CHEST, InventoryTypes.ROBE},
+        'cloak': {InventoryTypes.CLOAK}
+    }
+
+    @staticmethod
+    def can_apply_to_item(source_spell, item):
+        for key, inv_types in EnchantmentInfo._NAME_TO_INV_TYPE.items():
+            if key in source_spell.spell_entry.Name_enUS.lower():
+                return item.item_template.inventory_type in inv_types
+        return True
 
 
 class UnitSpellsValidator:

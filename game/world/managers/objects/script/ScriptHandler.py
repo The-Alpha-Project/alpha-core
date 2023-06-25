@@ -394,27 +394,28 @@ class ScriptHandler:
         # datalong2 = distance or 0
         # datalong3 = (bool) group
         quest_target = None
-        if command.source and command.source.quest_target:
-            quest_target = command.source.quest_target
-        elif command.target and command.target.quest_target:
-            quest_target = command.target.quest_target
+        if not ConditionChecker.is_player(command.source) and not ConditionChecker.is_player(command.target):
+            Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no player found!')
+            return True  # Abort.
 
-        if not quest_target:
+        player = command.source if ConditionChecker.is_player(command.source) else command.target
+        quest_giver = command.target if ConditionChecker.is_player(command.source) else command.source
+
+        if not quest_giver:
             Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
+            return True
+
+        if command.datalong not in player.quest_manager.active_quests:
+            return True
+
+        in_range = player.location.distance(quest_giver.location) <= command.datalong2
+        if command.datalong3 and player.group_manager and in_range:
+            player.group_manager.reward_quest_completion(player, command.datalong)
             return
 
-        if command.datalong not in quest_target.quest_manager.active_quests:
-            return
-        in_range = command.source.location.distance(quest_target.location) <= command.datalong2
-        if command.datalong3:
-            if quest_target.group_manager and in_range:
-                quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
-            elif in_range:
-                quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-                quest_target.quest_manager.reward_quest_event()
-        elif in_range:
-            quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-            quest_target.quest_manager.reward_quest_event()
+        if in_range:
+            player.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
+            player.quest_manager.reward_quest_event()
 
     @staticmethod
     def handle_script_command_kill_credit(_command):
@@ -1151,7 +1152,7 @@ class ScriptHandler:
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.end_event(command.source, command.datalong, command.datalong2)
+        map_.map_event_manager.end_event(command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_add_map_event_target(command):

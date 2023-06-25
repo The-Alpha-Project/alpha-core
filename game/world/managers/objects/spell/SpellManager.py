@@ -96,7 +96,7 @@ class SpellManager:
             cast_ui_spells = self.caster.skill_manager.get_cast_ui_spells_for_skill_id(skill.ID)
             # Player doesn't have any cast UI for this spell yet.
             if cast_ui_spells and not self.spells.keys() & cast_ui_spells:
-                # Get cast UI with lowest spell ID (lowest rank where applicable).
+                # Get cast UI with the lowest spell ID (lowest rank where applicable).
                 cast_ui_spell = min(cast_ui_spells)
                 if self.can_learn_spell(cast_ui_spell):
                     self.learn_spell(cast_ui_spell)
@@ -1191,24 +1191,31 @@ class SpellManager:
         # Effect-specific validation.
 
         # Enchanting checks.
-        has_temporary_enchant_effect = casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
-        if has_temporary_enchant_effect or \
-                casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT):
+        has_t_enchant_effect = casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
+        if has_t_enchant_effect or casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT):
             # TODO: We don't have EquippedItemInventoryTypeMask, so we have no way to validate inventory slots.
             #  e.g. Enchant bracers would still work on legs, chest, etc. So maybe they had some filtering by name?
+            if not ExtendedSpellData.EnchantmentInfo.can_apply_to_item(casting_spell, casting_spell.initial_target):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
 
             # Do not allow temporary enchantments in trade slot.
-            if has_temporary_enchant_effect:
+            if has_t_enchant_effect:
                 # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
                 #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
                 if casting_spell.initial_target.get_owner_guid() != casting_spell.spell_caster.guid:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
                     return False
 
+            # TODO: It seems like players are supposed to be able to apply a different enchant,
+            #  maybe the spell error 'SPELL_FAILED_ITEM_ALREADY_ENCHANTED' was used to prevent the same enchant
+            #  from being applied again? But yet again you could apply the same enchant if you want to renew
+            #  charges/durations.
             # Do not allow to enchant if it has an existent permanent enchantment.
-            if EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
-                return False
+            # if not has_t_enchant_effect and \
+            #         EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
+            #     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
+            #     return False
 
         # Spell learning/teaching checks.
         taught_spells = [effect.trigger_spell_id for effect in casting_spell.get_effects()
