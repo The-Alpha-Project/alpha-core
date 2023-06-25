@@ -1197,6 +1197,7 @@ class SpellManager:
             #  e.g. Enchant bracers would still work on legs, chest, etc. So maybe they had some filtering by name?
             if not ExtendedSpellData.EnchantmentInfo.can_apply_to_item(casting_spell, casting_spell.initial_target):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                return False
 
             # Do not allow temporary enchantments in trade slot.
             if has_t_enchant_effect:
