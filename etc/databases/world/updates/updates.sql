@@ -1840,5 +1840,18 @@ begin not atomic
 
         insert into`applied_updates`values ('220620231');
     end if;
+
+    -- 24/06/2023 1
+    if(select count(*) from applied_updates where id = '240620231') = 0 then
+        -- Bows
+        UPDATE `trainer_template` SET `spell` = '5991' WHERE (`template_entry` = '23') and (`spell` = '3828');
+        UPDATE `trainer_template` SET `spell` = '5991' WHERE (`template_entry` = '26') and (`spell` = '3828');
+        
+        -- Guns
+        UPDATE `trainer_template` SET `spell` = '5992' WHERE (`template_entry` = '23') and (`spell` = '3830');
+        UPDATE `trainer_template` SET `spell` = '5992' WHERE (`template_entry` = '26') and (`spell` = '3830');
+        
+        insert into applied_updates values ('240620231');
+    end if;
 end $
 delimiter ;
