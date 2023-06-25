@@ -1207,11 +1207,15 @@ class SpellManager:
                     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
                     return False
 
+            # TODO: It seems like players are supposed to be able to apply a different enchant,
+            #  maybe the spell error 'SPELL_FAILED_ITEM_ALREADY_ENCHANTED' was used to prevent the same enchant
+            #  from being applied again? But yet again you could apply the same enchant if you want to renew
+            #  charges/durations.
             # Do not allow to enchant if it has an existent permanent enchantment.
-            if not has_t_enchant_effect and \
-                    EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
-                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
-                return False
+            # if not has_t_enchant_effect and \
+            #         EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
+            #     self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
+            #     return False
 
         # Spell learning/teaching checks.
         taught_spells = [effect.trigger_spell_id for effect in casting_spell.get_effects()
