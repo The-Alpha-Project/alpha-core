@@ -2511,5 +2511,15 @@ begin not atomic
 
         insert into`applied_updates`values ('250620234');
     end if;
+
+    -- 25/06/2023 5
+    if (select count(*) from `applied_updates` where id='250620235') = 0 then
+        
+        -- Hill Giant waypoints
+        UPDATE creature_movement_template SET entry=2689 WHERE entry=8215;
+
+        insert into`applied_updates`values ('250620235');
+    end if;
+    
 end $
 delimiter ;
