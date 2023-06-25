@@ -11,7 +11,8 @@ class ResurrectResponseHandler(object):
         if not player_mgr:
             return res
 
-        if player_mgr.is_alive:
+        # Ignore if player is update locked or already alive.
+        if player_mgr.update_lock or player_mgr.is_alive:
             return 0
 
         if len(reader.data) >= 9:  # Avoid handling empty resurrect response packet.

@@ -11,6 +11,10 @@ class RepopRequestHandler(object):
         if not player_mgr:
             return res
 
+        # Ignore if player is update locked or already alive.
+        if player_mgr.update_lock or player_mgr.is_alive:
+            return 0
+
         player_mgr.resurrect(release_spirit=True)
 
         return 0
