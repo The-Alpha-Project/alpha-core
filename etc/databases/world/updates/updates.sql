@@ -2290,5 +2290,144 @@ begin not atomic
 
         insert into`applied_updates`values ('240620233');
     end if;
+        
+    -- 25/06/2023 1
+    if (select count(*) from `applied_updates` where id='250620231') = 0 then
+        -- ULDAMAN
+
+        -- Jadespine Basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=141
+        WHERE `entry`=4863;
+
+        -- Stonevault Brawler
+        UPDATE `creature_template`
+        SET `display_id1`=1193
+        WHERE `entry`=4855;
+
+        -- Grimlok 
+        UPDATE `creature_template`
+        SET `display_id1`=830
+        WHERE `entry`=4854;
+
+        -- Stone keeper
+        UPDATE `creature_template`
+        SET `display_id1`=2234
+        WHERE `entry`=4857;
+
+        -- Archeologist
+        UPDATE `creature_template`
+        SET `display_id1`=3487
+        WHERE `entry`=4849;
+
+        -- Chanter
+        UPDATE `creature_template`
+        SET `display_id1`=3490
+        WHERE `entry`=2742;
+
+        -- Commander
+        UPDATE `creature_template`
+        SET `display_id1`=3456
+        WHERE `entry`=2744;
+
+        -- Darkcaster
+        UPDATE `creature_template`
+        SET `display_id1`=3970
+        WHERE `entry`=4848;
+
+        -- Darkweaver
+        UPDATE `creature_template`
+        SET `display_id1`=3488
+        WHERE `entry`=2740;
+
+        -- Digger
+        UPDATE `creature_template`
+        SET `display_id1`=3452
+        WHERE `entry`=4846;
+
+        -- Excavator
+        UPDATE `creature_template`
+        SET `display_id1`=825
+        WHERE `entry`=2741;
+
+        -- Relic Hunter
+        UPDATE `creature_template`
+        SET `display_id1`=3954
+        WHERE `entry`=4847;
+
+        -- Ruffian
+        UPDATE `creature_template`
+        SET `display_id1`=825
+        WHERE `entry`=4845;
+
+        -- Surveyor
+        UPDATE `creature_template`
+        SET `display_id1`=870
+        WHERE `entry`=4844;
+
+        -- Tunneler
+        UPDATE `creature_template`
+        SET `display_id1`=870
+        WHERE `entry`=2739;
+
+        -- Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=825
+        WHERE `entry`=2743;
+
+        -- SUNKEN TEMPLE
+
+        -- Jade
+        UPDATE `creature_template`
+        SET `display_id1`=2930
+        WHERE `entry`=1063;
+
+        -- Murk Slitherer
+        UPDATE `creature_template`
+        SET `display_id1`=3006, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5224;
+
+        -- Murk Splitter
+        UPDATE `creature_template`
+        SET `display_id1`=3006, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5225;
+
+        -- Mummified atalai
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5263;
+
+        -- Enthralled atalai 
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5261;
+
+        -- Atalai Priest 
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5269;
+
+        -- Cursed Atalai
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5243;
+
+        -- Kazkaz The Unholy
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5401;
+
+        -- Archaedas
+        UPDATE `spawns_creatures` 
+        SET `position_x` = 104.421,  `position_y` = 272.728, `position_z` = -50.251, `orientation` = 3.606 
+        WHERE `spawn_id` = 33537;
+
+        UPDATE `creature_template`
+        SET `display_id1`=40, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=2748;
+
+
+        insert into`applied_updates`values ('250620231');
+    end if;
 end $
 delimiter ;
