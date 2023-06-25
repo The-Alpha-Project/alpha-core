@@ -1850,6 +1850,17 @@ begin not atomic
         -- Guns
         UPDATE `trainer_template` SET `spell` = '5992' WHERE (`template_entry` = '23') and (`spell` = '3830');
         UPDATE `trainer_template` SET `spell` = '5992' WHERE (`template_entry` = '26') and (`spell` = '3830');
+
+        UPDATE `creature_template` SET `armor`=685, `dmg_min`=37.5879, `dmg_max`=49.8247, `attack_power`=54, `base_attack_time`=2000, `ranged_attack_time`=2000, `unit_flags`=64, `ranged_dmg_max`=27.8801, `ranged_attack_power`=44 WHERE `entry`=2068;
+        UPDATE `creature_template` SET `armor`=615, `dmg_min`=31.3535, `dmg_max`=41.4931, `attack_power`=48, `base_attack_time`=2000, `ranged_attack_time`=2000, `ranged_dmg_min`=17.3575, `ranged_dmg_max`=23.322, `ranged_attack_power`=40 WHERE `entry` IN (2060, 2061, 2062, 2063, 2064, 2065, 2066, 2067);
+        UPDATE `creature_template` SET `speed_walk`=1, `dmg_min`=26.2333, `dmg_max`=34.7785, `attack_power`=64, `ranged_dmg_min`=24.519, `ranged_dmg_max`=33.0643, `ranged_attack_power`=52, `armor`=791, `spell_id1`=2589, `spell_list_id`=20580, `faction`=68, `unit_flags`=32768, `script_name`='', `ai_name`='EventAI' WHERE `entry`=2058;
+        UPDATE `creature_template` SET `ai_name`='EventAI', `script_name`='' WHERE `entry` IN (2060, 2061, 2062, 2063, 2064, 2065, 2066, 2067, 2068);
+
+
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES
+        (20580, 'Deathstalker Faerleia', 2589, 100, 1, 0, 0, 0, 6, 20, 1, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        UPDATE `quest_template` SET `StartScript`=452 WHERE `entry`=452;
         
         insert into applied_updates values ('240620231');
     end if;
