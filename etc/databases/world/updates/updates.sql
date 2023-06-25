@@ -2553,11 +2553,10 @@ begin not atomic
         update spawns_creatures set position_x = -12351.228, position_y = 217.586, position_z = 4.795, orientation = 4.481 where spawn_id = 607;
         update spawns_creatures set position_x = -12367.681, position_y = 216.648, position_z = 3.237, orientation = 4.635 where spawn_id = 664;
         update spawns_gameobjects set spawn_positionZ=3.5 where spawn_id = 10718;
-        update spawns_gameobjects set spawn_positionZ=2.5 where spawn_id=10721;
-        update spawns_gameobjects set ignored=1 where spawn_id=10720;
+        update spawns_gameobjects set spawn_positionZ=2.8 where spawn_id=10721;
 
         insert into`applied_updates`values ('260620231');
     end if;
-    
+
 end $
 delimiter ;
