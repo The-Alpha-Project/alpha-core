@@ -2290,7 +2290,7 @@ begin not atomic
 
         insert into`applied_updates`values ('240620233');
     end if;
-        
+
     -- 25/06/2023 1
     if (select count(*) from `applied_updates` where id='250620231') = 0 then
         -- ULDAMAN
@@ -2305,7 +2305,7 @@ begin not atomic
         SET `display_id1`=1193
         WHERE `entry`=4855;
 
-        -- Grimlok 
+        -- Grimlok
         UPDATE `creature_template`
         SET `display_id1`=830
         WHERE `entry`=4854;
@@ -2397,12 +2397,12 @@ begin not atomic
         SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
         WHERE `entry`=5263;
 
-        -- Enthralled atalai 
+        -- Enthralled atalai
         UPDATE `creature_template`
         SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
         WHERE `entry`=5261;
 
-        -- Atalai Priest 
+        -- Atalai Priest
         UPDATE `creature_template`
         SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
         WHERE `entry`=5269;
@@ -2418,8 +2418,8 @@ begin not atomic
         WHERE `entry`=5401;
 
         -- Archaedas
-        UPDATE `spawns_creatures` 
-        SET `position_x` = 104.421,  `position_y` = 272.728, `position_z` = -50.251, `orientation` = 3.606 
+        UPDATE `spawns_creatures`
+        SET `position_x` = 104.421,  `position_y` = 272.728, `position_z` = -50.251, `orientation` = 3.606
         WHERE `spawn_id` = 33537;
 
         UPDATE `creature_template`
@@ -2428,6 +2428,64 @@ begin not atomic
 
 
         insert into`applied_updates`values ('250620231');
+    end if;
+        
+    -- 25/06/2023 4
+    if (select count(*) from `applied_updates` where id='250620234') = 0 then
+
+        -- DISPLAY ID FIX
+
+        -- Ambassador Infernus
+        UPDATE `creature_template`
+        SET `display_id1`=1070
+        WHERE `entry`=2745;
+
+        -- Fireman Caller
+        UPDATE `creature_template`
+        SET `display_id1`=263
+        WHERE `entry`=2192;
+
+        -- Arcticus
+        UPDATE `creature_template`
+        SET `display_id1`=665
+        WHERE `entry`=1260;
+
+        -- Itharus
+        UPDATE `creature_template`
+        SET `display_id1`=1642
+        WHERE `entry`=5353;
+
+        -- Jutak 
+        UPDATE `creature_template`
+        SET `display_id1`=2577
+        WHERE `entry`=2843;
+
+        -- Silithid harvester
+        UPDATE `creature_template`
+        SET `display_id1`=2592
+        WHERE `entry`=3253;
+
+        -- Skum
+        UPDATE `creature_template`
+        SET `display_id1`=1540
+        WHERE `entry`=3674;
+
+        -- Stone Golem
+        UPDATE `creature_template`
+        SET `display_id1`=473
+        WHERE `entry`=2723;
+
+        -- Swamp talker
+        UPDATE `creature_template`
+        SET `display_id1`=627
+        WHERE `entry`=950;
+
+        -- The Husk
+        UPDATE `creature_template`
+        SET `display_id1`=2832
+        WHERE `entry`=1851;
+
+        insert into`applied_updates`values ('250620234');
     end if;
 end $
 delimiter ;
