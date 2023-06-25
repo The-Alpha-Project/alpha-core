@@ -1841,63 +1841,651 @@ begin not atomic
         insert into`applied_updates`values ('220620231');
     end if;
 
+    -- 24/06/2023 1
+    if (select count(*) from `applied_updates` where id='240620231') = 0 then
+
+        -- RAZORFEN DOWN
+
+        -- Quillguard
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4436;
+        
+        -- Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4435;
+        
+        -- Defender
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4442;
+        
+        -- Geomancer
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4442;
+        
+        -- Overlord
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4420;
+        
+        -- Speakhide
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4438;
+        
+        -- Death...
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4518;
+        
+        -- Earthbraker
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4525;
+        
+        -- Totemic
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4440;
+        
+        -- Champion
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4623;
+        
+        -- Defender
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4442;
+        
+        -- Groundshaker
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4523;
+        
+        -- Dustweaver
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4522;
+
+        -- Wind howler
+        UPDATE `creature_template`
+        SET `display_id1`=69
+        WHERE `entry`=4526;
+
+        -- Beast
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4531;
+        
+        -- Aggem
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4424;
+        
+        -- Geomancer
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4520;
+        
+        -- Acolyte 
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4515;
+        
+        -- Adept
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4516;
+        
+        -- Jagba
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4428;
+        
+        -- Master
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4532;
+        
+        -- Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4435;
+        
+        -- Quillbeast
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4426;
+        
+        -- Sage
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4518;
+        
+        -- Seer
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4519;
+        
+        -- Guardian
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4427;
+        
+        -- Ward keeper
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4625;
+        
+        -- Charlga
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4421;
+        
+        -- Priest
+        UPDATE `creature_template`
+        SET `display_id1`=1963
+        WHERE `entry`=4517;
+        
+        -- Halmgar
+        UPDATE `creature_template`
+        SET `display_id1`=2449
+        WHERE `entry`=4842;
+        
+        -- Warden
+        UPDATE `creature_template`
+        SET `display_id1`=1964
+        WHERE `entry`=4437;
+        
+        -- Agamar
+        UPDATE `creature_template`
+        SET `display_id1`=2453
+        WHERE `entry`=4511;
+        
+        -- Rotting Agamar
+        UPDATE `creature_template`
+        SET `display_id1`=2453
+        WHERE `entry`=4512;
+        
+        -- Blood Of Agamaggan
+        UPDATE `creature_template`
+        SET `display_id1`=2028
+        WHERE `entry`=4541;
+        
+        -- Blind hunter
+        UPDATE `creature_template`
+        SET `display_id1`=1566
+        WHERE `entry`=4425;
+
+        -- SHADOWFANG
+        
+        -- Worg
+        UPDATE `creature_template`
+        SET `display_id1`=784
+        WHERE `entry`=3862;
+        
+        -- Vile Bat
+        UPDATE `creature_template`
+        SET `display_id1`=1954
+        WHERE `entry`=3866;
+
+        -- DEADMINES
+        
+        -- Defias Companion 
+        UPDATE `creature_template`
+        SET `display_id1`=1419
+        WHERE `entry`=3450;
+
+        -- WAILLING CAVERN
+        
+        -- Lady anaconda 
+        UPDATE `creature_template`
+        SET `display_id1`=2575
+        WHERE `entry`=3671;
+        
+        -- Lord Cobrhan
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`=3669;
+        
+        -- Deviate Lasher
+        UPDATE `creature_template`
+        SET `display_id1`=4091
+        WHERE `entry`=5055;
+        
+        -- Deviate Viper 
+        UPDATE `creature_template`
+        SET `display_id1`=3205
+        WHERE `entry`=5755;
+        
+        -- Deviate Adder
+        UPDATE `creature_template`
+        SET `display_id1`=3006
+        WHERE `entry`=5048;
+        
+        --  Lord Serpentis
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`=3673;
+        
+        -- Lord Pythas
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`=3670;
+        
+        -- Naralex
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`=3679;
+        
+        -- Kresh 
+        UPDATE `creature_template`
+        SET `display_id1`=2308
+        WHERE `entry`=3653;
+        
+        -- Akumai Snapjaw
+        UPDATE `creature_template`
+        SET `display_id1`=2308
+        WHERE `entry`=4825;
+        
+        -- Twilight Lord
+        UPDATE `creature_template`
+        SET `display_id1`=495
+        WHERE `entry`=4832;
+        
+        -- See Witch
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4805;
+        
+        -- Myrmidon
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4807;
+        
+        -- Ghamoora
+        UPDATE `creature_template`
+        SET `display_id1`=2902
+        WHERE `entry`=4887;
+        
+        -- Tide Priest
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4802;
+        
+        -- Oracle
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4803;
+        
+        -- Muckdweller
+        UPDATE `creature_template`
+        SET `display_id1`=3617
+        WHERE `entry`=4819;
+        
+        -- Lord Sarevess
+        UPDATE `creature_template`
+        SET `display_id1`=4036
+        WHERE `entry`=4831;
+        
+        insert into`applied_updates`values ('240620231');
+    end if;
+
+    -- 24/06/2023 2
+    if (select count(*) from `applied_updates` where id='240620232') = 0 then
+
+        -- Kayren Southallow #1167
+        update spawns_creatures set position_x = -63.989,  position_y = -931.456, position_z = 56.745, orientation = 0.498 where spawn_id = 15525;
+        update creature_template set subname = "Binder", npc_flags=16, faction=35 where entry = 2401;
+
+        -- Tharm #1156
+        update spawns_creatures set position_x = -184.182,  position_y = -295.170, position_z = 11.55, orientation = 6.239, map=1 where spawn_id = 32245;
+        update creature_template set subname = "Wind Rider Master", npc_flags=4, faction=29 where entry = 4312;
+
+        -- Baros Alexston #1155
+        update spawns_creatures set position_x = -8743.631,  position_y = 657.649, position_z = 105.091, orientation = 3.429 where spawn_id = 79766;
+
+        -- Aldric Moore #1063
+        update spawns_creatures set position_y = 638.412 where spawn_id = 400097;
+        update creature_template set subname = "Leather Armor Merchant" where entry = 1294;
+
+        -- Andrew Brounel #1139
+        update spawns_creatures set position_x = 1854.942,  position_y = 1575.886, position_z = 99.072, orientation = 0.050 where spawn_id = 32024;
+
+        -- Hill Giant #1128 (PARTIAL)
+        INSERT INTO spawns_creatures
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type)
+        VALUES
+        (2689, 0, 45.1769, -4277.32, 123.17, 4.222, 180000, 180000, 2);
+
+        -- Misha #1077 (PARTIAL)
+        update spawns_creatures set position_x = 710.107,  position_y = -4307.204, position_z = 19.37, orientation = 3.064 where spawn_id = 6461;
+
+        -- Harruk #1077 (PARTIAL)
+        update spawns_creatures set position_x = 246.668,  position_y = -3856.381, position_z = 31.852, orientation = 0.587 where spawn_id = 7673;
+
+        -- Tursk #1077 (PARTIAL)
+        update spawns_creatures set position_x = 107.789,  position_y = -5049.07, position_z = 7.421, orientation = 2.972 where spawn_id = 400066;
+
+        -- IF guards #1142
+        update spawns_creatures set position_x = -4629.728,  position_y = -988.332, position_z = 501.66, orientation = 2.076 where spawn_id = 2079;
+        update spawns_creatures set position_x = -4624.874,  position_y = -985.732, position_z = 501.66, orientation = 2.076 where spawn_id = 2023;
+        update spawns_creatures set position_x = -5003.002,  position_y = -1176.698, position_z = 501.66, orientation = 5.172 where spawn_id = 2024;
+        update spawns_creatures set position_x = -5007.91,  position_y = -1179.113, position_z = 501.66, orientation = 5.172 where spawn_id = 2081;
+
+        insert into`applied_updates`values ('240620232');
+    end if;
+
+    -- 24/06/2023 3
+    if (select count(*) from `applied_updates` where id='240620233') = 0 then
+
+        -- CREATE WAYPOINT FOR SPAWN 400252
+        INSERT INTO alpha_world.creature_movement VALUES (400252, 1, 78.681, 10.243, 18.678, 6.272, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400252
+        INSERT INTO alpha_world.creature_movement VALUES (400252, 2, 124.910, 10.219, 18.678, 0.013, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400251
+        INSERT INTO creature_movement VALUES (400251, 1, 78.85399627685547, -11.843199729919434, 18.677560806274414, 3.093668222427368, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400251
+        INSERT INTO creature_movement VALUES (400251, 2, 124.82247924804688, -11.765533447265625, 18.677703857421875, 6.280815124511719, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400275
+        INSERT INTO creature_movement VALUES (400275, 1, 211.30665588378906, -58.178070068359375, 18.677326202392578, 1.5715714693069458, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400275
+        INSERT INTO creature_movement VALUES (400275, 2, 211.29052734375, -100.8717041015625, 18.677326202392578, 4.696672439575195, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400276
+        INSERT INTO creature_movement VALUES (400276, 1, 209.7820587158203, -102.40733337402344, 18.67732810974121, 6.280035018920898, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400276
+        INSERT INTO creature_movement VALUES (400276, 2, 167.18728637695312, -102.38860321044922, 18.677330017089844, 3.087392568588257, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400273
+        INSERT INTO creature_movement VALUES (400273, 1, 167.02503967285156, -56.747440338134766, 18.677330017089844, 3.090531826019287, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400273
+        INSERT INTO creature_movement VALUES (400273, 2, 209.7213134765625, -56.652549743652344, 18.677326202392578, 0.051041990518569946, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400274
+        INSERT INTO creature_movement VALUES (400274, 1, 192.25550842285156, -55.979942321777344, 18.67732048034668, 3.1203794479370117, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400274
+        INSERT INTO creature_movement VALUES (400274, 2, 183.61572265625, -54.8859748840332, 18.677326202392578, 3.1203792095184326, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400274
+        INSERT INTO creature_movement VALUES (400274, 3, 167.1152801513672, -54.81371307373047, 18.677330017089844, 3.1203792095184326, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400274
+        INSERT INTO creature_movement VALUES (400274, 4, 184.35482788085938, -54.54459762573242, 18.677324295043945, 6.239193916320801, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400274
+        INSERT INTO creature_movement VALUES (400274, 5, 192.06362915039062, -55.85224533081055, 18.67732048034668, 0.005488688126206398, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400274
+        INSERT INTO creature_movement VALUES (400274, 6, 199.4667510986328, -54.616912841796875, 18.677324295043945, 6.278463840484619, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400274
+        INSERT INTO creature_movement VALUES (400274, 7, 209.525634765625, -54.664405822753906, 18.677326202392578, 6.278463840484619, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400368
+        INSERT INTO creature_movement VALUES (400368, 1, 277.53167724609375, -32.34305953979492, 31.493772506713867, 1.5134526491165161, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400368
+        INSERT INTO creature_movement VALUES (400368, 2, 273.583984375, -30.744016647338867, 31.493867874145508, 3.0944597721099854, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400368
+        INSERT INTO creature_movement VALUES (400368, 3, 254.30714416503906, -30.6525821685791, 31.49383544921875, 3.187136650085449, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400368
+        INSERT INTO creature_movement VALUES (400368, 4, 254.32249450683594, -54.91840362548828, 31.493831634521484, 4.77442741394043, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400368
+        INSERT INTO creature_movement VALUES (400368, 5, 277.21875, -55.22489547729492, 31.493694305419922, 0.08874264359474182, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400337
+        INSERT INTO creature_movement VALUES (400337, 1, 352.9067687988281, -30.573667526245117, 30.829944610595703, 1.5707917213439941, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400337
+        INSERT INTO creature_movement VALUES (400337, 2, 352.9384765625, -83.08306121826172, 30.83098793029785, 4.712385654449463, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400329
+        INSERT INTO creature_movement VALUES (400329, 1, 392.72796630859375, -32.038414001464844, 30.829946517944336, 1.5888582468032837, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400329
+        INSERT INTO creature_movement VALUES (400329, 2, 392.95965576171875, -83.14067077636719, 30.83098793029785, 4.691966533660889, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400347
+        INSERT INTO creature_movement VALUES (400347, 1, 396.9627685546875, -82.67427825927734, 30.83098793029785, 3.1298115253448486, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400347
+        INSERT INTO creature_movement VALUES (400347, 2, 435.7950134277344, -82.76931762695312, 30.82200050354004, 6.262766361236572, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400338
+        INSERT INTO creature_movement VALUES (400338, 1, 351.2063293457031, -82.50768280029297, 30.83098793029785, 6.272976398468018, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400338
+        INSERT INTO creature_movement VALUES (400338, 2, 313.46929931640625, -82.52023315429688, 30.82281494140625, 3.173011064529419, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400262
+        INSERT INTO creature_movement VALUES (400262, 1, 154.98622131347656, -34.06648254394531, 18.006996154785156, 1.5213205814361572, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400262
+        INSERT INTO creature_movement VALUES (400262, 2, 147.674072265625, 1.1428062915802002, 18.006994247436523, 1.7106016874313354, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400262
+        INSERT INTO creature_movement VALUES (400262, 3, 155.12229919433594, -32.46809387207031, 18.006996154785156, 4.719462871551514, 0, 0, 0);
+
+        -- CREATE WAYPOINT FOR SPAWN 400262
+        INSERT INTO creature_movement VALUES (400262, 4, 155.63497924804688, -57.28042984008789, 18.00699806213379, 4.655845642089844, 0, 0, 0);
+
+        -- UPDATE MOVEMENT TYPE FOR SPAWN 400262
+        UPDATE spawns_creatures SET movement_type=2 WHERE spawn_id=400262;
+
+        insert into`applied_updates`values ('240620233');
+    end if;
+
+    -- 25/06/2023 1
+    if (select count(*) from `applied_updates` where id='250620231') = 0 then
+        -- ULDAMAN
+
+        -- Jadespine Basilisk
+        UPDATE `creature_template`
+        SET `display_id1`=141
+        WHERE `entry`=4863;
+
+        -- Stonevault Brawler
+        UPDATE `creature_template`
+        SET `display_id1`=1193
+        WHERE `entry`=4855;
+
+        -- Grimlok
+        UPDATE `creature_template`
+        SET `display_id1`=830
+        WHERE `entry`=4854;
+
+        -- Stone keeper
+        UPDATE `creature_template`
+        SET `display_id1`=2234
+        WHERE `entry`=4857;
+
+        -- Archeologist
+        UPDATE `creature_template`
+        SET `display_id1`=3487
+        WHERE `entry`=4849;
+
+        -- Chanter
+        UPDATE `creature_template`
+        SET `display_id1`=3490
+        WHERE `entry`=2742;
+
+        -- Commander
+        UPDATE `creature_template`
+        SET `display_id1`=3456
+        WHERE `entry`=2744;
+
+        -- Darkcaster
+        UPDATE `creature_template`
+        SET `display_id1`=3970
+        WHERE `entry`=4848;
+
+        -- Darkweaver
+        UPDATE `creature_template`
+        SET `display_id1`=3488
+        WHERE `entry`=2740;
+
+        -- Digger
+        UPDATE `creature_template`
+        SET `display_id1`=3452
+        WHERE `entry`=4846;
+
+        -- Excavator
+        UPDATE `creature_template`
+        SET `display_id1`=825
+        WHERE `entry`=2741;
+
+        -- Relic Hunter
+        UPDATE `creature_template`
+        SET `display_id1`=3954
+        WHERE `entry`=4847;
+
+        -- Ruffian
+        UPDATE `creature_template`
+        SET `display_id1`=825
+        WHERE `entry`=4845;
+
+        -- Surveyor
+        UPDATE `creature_template`
+        SET `display_id1`=870
+        WHERE `entry`=4844;
+
+        -- Tunneler
+        UPDATE `creature_template`
+        SET `display_id1`=870
+        WHERE `entry`=2739;
+
+        -- Warrior
+        UPDATE `creature_template`
+        SET `display_id1`=825
+        WHERE `entry`=2743;
+
+        -- SUNKEN TEMPLE
+
+        -- Jade
+        UPDATE `creature_template`
+        SET `display_id1`=2930
+        WHERE `entry`=1063;
+
+        -- Murk Slitherer
+        UPDATE `creature_template`
+        SET `display_id1`=3006, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5224;
+
+        -- Murk Splitter
+        UPDATE `creature_template`
+        SET `display_id1`=3006, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5225;
+
+        -- Mummified atalai
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5263;
+
+        -- Enthralled atalai
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5261;
+
+        -- Atalai Priest
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5269;
+
+        -- Cursed Atalai
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5243;
+
+        -- Kazkaz The Unholy
+        UPDATE `creature_template`
+        SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=5401;
+
+        -- Archaedas
+        UPDATE `spawns_creatures`
+        SET `position_x` = 104.421,  `position_y` = 272.728, `position_z` = -50.251, `orientation` = 3.606
+        WHERE `spawn_id` = 33537;
+
+        UPDATE `creature_template`
+        SET `display_id1`=40, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=2748;
+
+
+        insert into`applied_updates`values ('250620231');
+    end if;
+        
     -- 25/06/2023 4
     if (select count(*) from `applied_updates` where id='250620234') = 0 then
-  
-          -- DISPLAY ID FIX
+
+        -- DISPLAY ID FIX
 
         -- Ambassador Infernus
         UPDATE `creature_template`
         SET `display_id1`=1070
         WHERE `entry`=2745;
-        
+
         -- Fireman Caller
         UPDATE `creature_template`
         SET `display_id1`=263
         WHERE `entry`=2192;
-        
+
         -- Arcticus
         UPDATE `creature_template`
         SET `display_id1`=665
         WHERE `entry`=1260;
-        
+
         -- Itharus
         UPDATE `creature_template`
         SET `display_id1`=1642
         WHERE `entry`=5353;
-        
+
         -- Jutak 
         UPDATE `creature_template`
         SET `display_id1`=2577
         WHERE `entry`=2843;
-        
+
         -- Silithid harvester
         UPDATE `creature_template`
         SET `display_id1`=2592
         WHERE `entry`=3253;
-        
+
         -- Skum
         UPDATE `creature_template`
         SET `display_id1`=1540
         WHERE `entry`=3674;
-        
+
         -- Stone Golem
         UPDATE `creature_template`
         SET `display_id1`=473
         WHERE `entry`=2723;
-        
+
         -- Swamp talker
         UPDATE `creature_template`
         SET `display_id1`=627
         WHERE `entry`=950;
-        
+
         -- The Husk
         UPDATE `creature_template`
         SET `display_id1`=2832
         WHERE `entry`=1851;
-        
+
         insert into`applied_updates`values ('250620234');
     end if;
-
 end $
 delimiter ;
