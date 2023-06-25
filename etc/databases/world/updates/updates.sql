@@ -2515,11 +2515,14 @@ begin not atomic
     -- 25/06/2023 5
     if (select count(*) from `applied_updates` where id='250620235') = 0 then
         
-        -- Hill Giant waypoints
+        -- Hill Giant waypoints (Grimungous port)
         UPDATE creature_movement_template SET entry=2689 WHERE entry=8215;
+
+        -- Hill Giant stats (Grimungous port)
+        UPDATE creature_template SET armor=2999, dmg_min=292, dmg_max=377, attack_power=226, level_min=50, level_max=50, health_min=6608, health_max=6608 WHERE entry=2689;
 
         insert into`applied_updates`values ('250620235');
     end if;
-    
+
 end $
 delimiter ;
