@@ -243,7 +243,7 @@ class ProfessionInfo:
 
 
 class EnchantmentInfo:
-    _NAME_TO_SLOT = {
+    _NAME_TO_INV_TYPE = {
         'boot': {InventoryTypes.FEET},
         'glove': {InventoryTypes.HAND},
         'bracer': {InventoryTypes.WRIST},
@@ -253,10 +253,11 @@ class EnchantmentInfo:
 
     @staticmethod
     def can_apply_to_item(source_spell, item):
-        for key, value in EnchantmentInfo._NAME_TO_SLOT.items():
+        for key, inv_types in EnchantmentInfo._NAME_TO_INV_TYPE.items():
             if key in source_spell.spell_entry.Name_enUS.lower():
-                return item.item_template.inventory_type in value
+                return item.item_template.inventory_type in inv_types
         return True
+
 
 class UnitSpellsValidator:
     # TODO: For further investigation:
