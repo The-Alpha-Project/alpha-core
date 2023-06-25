@@ -1191,14 +1191,15 @@ class SpellManager:
         # Effect-specific validation.
 
         # Enchanting checks.
-        has_temporary_enchant_effect = casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
-        if has_temporary_enchant_effect or \
-                casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT):
+        has_t_enchant_effect = casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
+        if has_t_enchant_effect or casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT):
             # TODO: We don't have EquippedItemInventoryTypeMask, so we have no way to validate inventory slots.
             #  e.g. Enchant bracers would still work on legs, chest, etc. So maybe they had some filtering by name?
+            if not ExtendedSpellData.EnchantmentInfo.can_apply_to_item(casting_spell, casting_spell.initial_target):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
 
             # Do not allow temporary enchantments in trade slot.
-            if has_temporary_enchant_effect:
+            if has_t_enchant_effect:
                 # TODO: Further research needed, we have neither SPELL_FAILED_NOT_TRADEABLE or 'Slot' in
                 #   SpellItemEnchantment. Refer to VMaNGOS Spell.cpp 7822.
                 if casting_spell.initial_target.get_owner_guid() != casting_spell.spell_caster.guid:
@@ -1206,7 +1207,8 @@ class SpellManager:
                     return False
 
             # Do not allow to enchant if it has an existent permanent enchantment.
-            if EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
+            if not has_t_enchant_effect and \
+                    EnchantmentManager.get_permanent_enchant_value(casting_spell.initial_target) != 0:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ITEM_ALREADY_ENCHANTED)
                 return False
 
