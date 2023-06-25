@@ -1967,6 +1967,16 @@ begin not atomic
         SET `display_id1`=1478, `display_id2`=0, `display_id3`=0, `display_id4`=0
         WHERE `entry`=5401;
 
+        -- Archaedas
+        UPDATE `spawns_creatures` 
+        SET `position_x` = 104.421,  `position_y` = 272.728, `position_z` = -50.251, `orientation` = 3.606 
+        WHERE `spawn_id` = 33537;
+
+        UPDATE `creature_template`
+        SET `display_id1`=40, `display_id2`=0, `display_id3`=0, `display_id4`=0
+        WHERE `entry`=2748;
+
+
         insert into`applied_updates`values ('250620231');
     end if;
 end $
