@@ -190,7 +190,7 @@ class UnitManager(ObjectManager):
         # Cheat flags, used by Players.
         self.beast_master = False
 
-        # Relocation (Players/Creatures), Call for help (Creatures)
+        # Relocation (Players/Creatures) & Call for help (Creatures).
         self.relocation_call_for_help_timer = 0
         self.pending_relocation = False
 
