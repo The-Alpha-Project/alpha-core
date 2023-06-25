@@ -2519,7 +2519,7 @@ begin not atomic
         UPDATE creature_movement_template SET entry=2689 WHERE entry=8215;
 
         -- Hill Giant stats (Grimungous port)
-        UPDATE creature_template SET armor=2999, dmg_min=292, dmg_max=377, attack_power=226, level_min=50, level_max=50, health_min=6645, health_max=6645, rank=2, gold_min=545, gold_max=717, faction=14 WHERE entry=2689;
+        UPDATE creature_template SET armor=2999, dmg_min=292, dmg_max=377, attack_power=226, level_min=50, level_max=50, health_min=6645, health_max=6645, rank=2, gold_min=545, gold_max=717, faction=14, speed_walk=0.777776 WHERE entry=2689;
 
         insert into`applied_updates`values ('250620235');
     end if;
