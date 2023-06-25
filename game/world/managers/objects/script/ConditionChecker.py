@@ -1,6 +1,6 @@
 import datetime
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from utils.constants.ConditionCodes import ConditionType, ConditionFlags, ConditionTargetsInternal
+from utils.constants.ConditionCodes import ConditionType, ConditionFlags, ConditionTargetsInternal, EscortConditionFlags
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
@@ -387,14 +387,21 @@ class ConditionChecker:
         # Checks if the source and target are alive and the distance between them.
         # Condition_value1 = EscortConditionFlags.
         # Condition_value2 = distance.
-        # Doesn't appear to be used in 0.5.3.
         if not ConditionChecker.is_creature(source) or not ConditionChecker.is_player(target):
-            return False
-
-        if source.location.distance(target.location) <= condition.value2 and source.is_alive and target.is_alive:
             return True
 
-        # TODO: implement EscortConditionFlags + handle optional source/target.
+        if condition.value1 & EscortConditionFlags.CF_ESCORT_SOURCE_DEAD:
+            if not source.is_alive:
+                return True
+
+        if condition.value1 & EscortConditionFlags.CF_ESCORT_TARGET_DEAD:
+            if not target.is_alive or not target.is_online:
+                return True
+
+        if condition.value2:
+            if not source.location.distance(target.location) <= condition.value2:
+                return True
+
         return False
 
     @staticmethod

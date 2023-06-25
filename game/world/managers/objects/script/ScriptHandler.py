@@ -405,14 +405,13 @@ class ScriptHandler:
 
         if command.datalong not in quest_target.quest_manager.active_quests:
             return
+
         in_range = command.source.location.distance(quest_target.location) <= command.datalong2
-        if command.datalong3:
-            if quest_target.group_manager and in_range:
-                quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
-            elif in_range:
-                quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
-                quest_target.quest_manager.reward_quest_event()
-        elif in_range:
+        if command.datalong3 and quest_target.group_manager and in_range:
+            quest_target.group_manager.reward_quest_completion(quest_target, command.datalong)
+            return
+
+        if in_range:
             quest_target.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
             quest_target.quest_manager.reward_quest_event()
 
