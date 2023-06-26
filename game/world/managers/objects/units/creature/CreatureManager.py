@@ -490,7 +490,7 @@ class CreatureManager(UnitManager):
 
     # override
     def is_active_object(self):
-        if not self.is_spawned or not self.initialized:
+        if not self.fully_loaded or not self.is_spawned or not self.initialized:
             return False
         
         return self.has_waypoints_type() or self.creature_group \
@@ -509,7 +509,11 @@ class CreatureManager(UnitManager):
         if now > self.last_tick > 0:
             elapsed = now - self.last_tick
 
-            if self.is_alive and self.is_active_object():
+            is_active = self.is_active_object()
+            if not is_active:
+                return
+
+            if self.is_alive:
                 # Time to live checks for standalone instances.
                 if not self._check_time_to_live(elapsed):
                     return  # Creature destroyed.
