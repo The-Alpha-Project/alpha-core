@@ -1726,6 +1726,9 @@ class UnitManager(ObjectManager):
 
         self.set_stand_state(StandState.UNIT_STANDING)
 
+    def get_map(self):
+        return MapManager.get_map(self.map_id, self.instance_id)
+
     # Implemented by CreatureManager and PlayerManager
     def get_bytes_0(self):
         pass
