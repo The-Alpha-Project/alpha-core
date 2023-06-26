@@ -119,12 +119,13 @@ class StatManager(object):
         self.aura_stats_percentual = {}
 
     def init_stats(self):
-        base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_, self.unit_mgr.level)
+        base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(self.unit_mgr.class_,
+                                                                                        self.unit_mgr.level)
 
         if not base_stats:
             if self.unit_mgr.level > 60:
                 # Default to max available base stats, level 60.
-                base_stats = WorldDatabaseManager.player_get_class_level_stats(self.unit_mgr.class_, 60)
+                base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(self.unit_mgr.class_, 60)
                 Logger.warning(f'Unsupported base stats for level ({self.unit_mgr.level})'
                                f' Unit class ({Classes(self.unit_mgr.class_).name})'
                                f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name})'

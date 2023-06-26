@@ -51,8 +51,8 @@ class CharCreateHandler(object):
 
         if result == CharCreate.CHAR_CREATE_SUCCESS:
             map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(race, class_)
-            base_stats = WorldDatabaseManager.player_get_class_level_stats(class_,
-                                                                           config.Unit.Player.Defaults.starting_level)
+            level = config.Unit.Player.Defaults.starting_level
+            base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(class_, level)
             character = Character(account_id=world_session.account_mgr.account.id,
                                   realm_id=config.Server.Connection.Realm.local_realm_id,
                                   name=name,
