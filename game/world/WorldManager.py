@@ -17,6 +17,7 @@ from network.packet.PacketWriter import *
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
+from utils.constants.MiscCodes import ObjectTypeIds
 
 STARTUP_TIME = time()
 WORLD_ON = True
@@ -229,12 +230,40 @@ class WorldServerSessionHandler:
                                         max_instances=1)
         player_update_scheduler.start()
 
-        # Player updates.
-        player_update_known_object_scheduler = BackgroundScheduler()
-        player_update_known_object_scheduler._daemon = True
-        player_update_known_object_scheduler.add_job(WorldSessionStateHandler.update_known_players_objects, 'interval',
-                                                     seconds=0.5, max_instances=1)
-        player_update_known_object_scheduler.start()
+        # Known players updates.
+        known_players_scheduler = BackgroundScheduler()
+        known_players_scheduler._daemon = True
+        known_players_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
+                                        seconds=0.5, max_instances=1, args=(ObjectTypeIds.ID_PLAYER,))
+        known_players_scheduler.start()
+
+        # Known creatures updates.
+        known_creatures_scheduler = BackgroundScheduler()
+        known_creatures_scheduler._daemon = True
+        known_creatures_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
+                                          seconds=1, max_instances=1, args=(ObjectTypeIds.ID_UNIT,))
+        known_creatures_scheduler.start()
+
+        # Known gameobjects updates.
+        known_gameobjects_scheduler = BackgroundScheduler()
+        known_gameobjects_scheduler._daemon = True
+        known_gameobjects_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
+                                                  seconds=2, max_instances=1, args=(ObjectTypeIds.ID_GAMEOBJECT,))
+        known_gameobjects_scheduler.start()
+
+        # Known dynamic objects updates.
+        known_dynobjects_scheduler = BackgroundScheduler()
+        known_dynobjects_scheduler._daemon = True
+        known_dynobjects_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
+                                                     seconds=1, max_instances=1, args=(ObjectTypeIds.ID_DYNAMICOBJECT,))
+        known_dynobjects_scheduler.start()
+
+        # Known corpse objects updates.
+        known_corpses_scheduler = BackgroundScheduler()
+        known_corpses_scheduler._daemon = True
+        known_corpses_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
+                                                      seconds=2, max_instances=1, args=(ObjectTypeIds.ID_CORPSE,))
+        known_corpses_scheduler.start()
 
         # Creature updates.
         creature_update_scheduler = BackgroundScheduler()

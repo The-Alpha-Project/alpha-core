@@ -113,7 +113,7 @@ class GridManager:
             if world_object.is_temp_summon() or world_object.is_pet():
                 summoner = world_object.get_charmer_or_summoner()
                 if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                    summoner.update_known_world_object(world_object)
+                    summoner.update_not_known_world_object(world_object)
 
             self._update_players_surroundings(cell.key)
 

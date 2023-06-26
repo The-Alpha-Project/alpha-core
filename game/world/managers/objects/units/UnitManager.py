@@ -338,7 +338,7 @@ class UnitManager(ObjectManager):
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
 
-        # If neither main hand attack and off hand attack are ready, return.
+        # If neither main hand attack and offhand attack are ready, return.
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
                 (self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK)):
             return False
@@ -375,7 +375,7 @@ class UnitManager(ObjectManager):
                 self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK)
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
 
-            # Off hand attack.
+            # Offhand attack.
             if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
                 # Prevent both hand attacks at the same time.
                 if self.attack_timers[AttackTypes.BASE_ATTACK] < 500:
@@ -1642,8 +1642,10 @@ class UnitManager(ObjectManager):
         # Leave combat if needed.
         self.leave_combat()
 
-        # Flush movement manager.
+        # Flush movement manager and notify none movement flags to observers.
         self.movement_manager.flush()
+        self.movement_flags = MoveFlags.MOVEFLAG_NONE
+        MapManager.send_surrounding(self.generate_movement_packet(), self, include_self=False)
 
         # Reset threat manager.
         self.threat_manager.reset()
@@ -1672,8 +1674,7 @@ class UnitManager(ObjectManager):
         self.spell_manager.remove_casts()
         self.aura_manager.handle_death()
 
-        # Reset movement and unit state flags.
-        self.movement_flags = MoveFlags.MOVEFLAG_NONE
+        # Reset unit state flags.
         self.unit_state = UnitStates.NONE
 
         return True
@@ -1724,6 +1725,9 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
         self.set_stand_state(StandState.UNIT_STANDING)
+
+    def get_map(self):
+        return MapManager.get_map(self.map_id, self.instance_id)
 
     # Implemented by CreatureManager and PlayerManager
     def get_bytes_0(self):

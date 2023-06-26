@@ -55,10 +55,25 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    class UnitClassLevelStatsHolder:
+        CLASS_LEVEL_STATS: [int, [int, PlayerClasslevelstats]] = {}
+
+        @staticmethod
+        def load_player_class_level_stats(stats):
+            if stats.class_ not in WorldDatabaseManager.UnitClassLevelStatsHolder.CLASS_LEVEL_STATS:
+                WorldDatabaseManager.UnitClassLevelStatsHolder.CLASS_LEVEL_STATS[stats.class_] = {}
+            WorldDatabaseManager.UnitClassLevelStatsHolder.CLASS_LEVEL_STATS[stats.class_][stats.level] = stats
+
+        @staticmethod
+        def get_for_class_level(class_, level) -> Optional[PlayerClasslevelstats]:
+            if class_ not in WorldDatabaseManager.UnitClassLevelStatsHolder.CLASS_LEVEL_STATS:
+                return None
+            return WorldDatabaseManager.UnitClassLevelStatsHolder.CLASS_LEVEL_STATS[class_].get(level, None)
+
     @staticmethod
-    def player_get_class_level_stats(class_, level) -> Optional[PlayerClasslevelstats]:
+    def player_class_level_stats_get_all():
         world_db_session = SessionHolder()
-        res = world_db_session.query(PlayerClasslevelstats).filter_by(level=level, _class=class_).first()
+        res = world_db_session.query(PlayerClasslevelstats).all()
         world_db_session.close()
         return res
 

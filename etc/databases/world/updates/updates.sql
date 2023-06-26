@@ -2524,6 +2524,40 @@ begin not atomic
         insert into`applied_updates`values ('250620235');
     end if;
 
+   -- 26/06/2023 1
+    if (select count(*) from `applied_updates` where id='260620231') = 0 then
+        
+        -- Change outdoor IF guards to mountaineer, partial #1149
+        UPDATE `spawns_creatures` SET spawn_entry1=727 WHERE spawn_id IN (136, 141, 142, 132, 138, 133, 139, 135);
+
+        -- Avette, #1193
+        UPDATE `creature_template`
+        SET `display_id1`=15
+        WHERE `entry`=228;
+
+        -- Argent Dawn, #1190
+        INSERT INTO spawns_creatures VALUES (NULL, 4783, 0, 0, 0, 1, 10067.546, 2344.827, 1331.886, 2.169, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+        INSERT INTO spawns_creatures VALUES (NULL, 4784, 0, 0, 0, 1, 10063.946, 2353.328, 1331.888, 5.361, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+        INSERT INTO spawns_creatures VALUES (NULL, 4786, 0, 0, 0, 1, 10073.348, 2350.134, 1331.892, 2.207, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        UPDATE `creature_template`
+        SET `display_id1`=2572
+        WHERE `entry`IN (4784, 4786);
+
+        UPDATE `creature_template`
+        SET `display_id1`=2582
+        WHERE `entry`=4783;
+
+        -- Gromgol Adjustements
+        update spawns_creatures set position_x = -12346.161, position_y = 154.915, position_z = 2.974, orientation = 5.355 where spawn_id = 316;
+        update spawns_creatures set position_x = -12351.228, position_y = 217.586, position_z = 4.795, orientation = 4.481 where spawn_id = 607;
+        update spawns_creatures set position_x = -12367.681, position_y = 216.648, position_z = 3.237, orientation = 4.635 where spawn_id = 664;
+        update spawns_gameobjects set spawn_positionZ=3.5 where spawn_id = 10718;
+        update spawns_gameobjects set spawn_positionZ=2.8 where spawn_id=10721;
+
+        insert into`applied_updates`values ('260620231');
+    end if;
+
     -- 26/06/2023 2
     if (select count(*) from `applied_updates` where id='260620232') = 0 then
 
@@ -2672,7 +2706,7 @@ begin not atomic
 
         -- CREATE spawns_creatures 4069
         INSERT INTO spawns_creatures VALUES (NULL, 4069, 0, 0, 0, 1, 95.99101257324219, -372.2847900390625, 4.293388843536377, 1.6932932138442993, 300, 300, 3, 100, 0, 1, 0, 0, 0);
-                
+
         insert into`applied_updates`values ('260620232');
     end if;
 
