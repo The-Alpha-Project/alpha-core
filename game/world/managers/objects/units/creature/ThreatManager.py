@@ -2,7 +2,6 @@ import random
 from dataclasses import dataclass
 from typing import Optional
 
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
