@@ -75,7 +75,7 @@ class PlayerManager(UnitManager):
         self.known_objects = dict()
         self.known_items = dict()
         self.known_stealth_units = dict()
-        self.update_known_objects_on_tick = False
+        self.pending_known_object_types_updates = set()
 
         self.player = player
         self.online = online
@@ -315,7 +315,7 @@ class PlayerManager(UnitManager):
         self.session.save_character()
 
         # Destroy all known objects to self.
-        self.update_known_world_objects(flush=True)
+        self.destroy_all_known_objects()
 
         # Flush known items/objects cache.
         self.known_items.clear()
@@ -393,53 +393,51 @@ class PlayerManager(UnitManager):
                     self.enqueue_packet(world_object.generate_partial_packet(requester=self))
                 self.known_stealth_units[world_object.guid] = (world_object, True)
 
-    # Notify self with create / destroy / partial movement packets of world objects in range.
-    # Range = This player current active cell plus its adjacent cells.
-    def update_known_world_objects(self, flush=False):
-        players, creatures, game_objects, corpses, dynamic_objects = \
-            MapManager.get_surrounding_objects(self,
-                                               [ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT,
-                                                ObjectTypeIds.ID_GAMEOBJECT, ObjectTypeIds.ID_CORPSE,
-                                                ObjectTypeIds.ID_DYNAMICOBJECT])
-
-        # Destroy all known objects.
-        if flush:
-            for guid, known_object in list(self.known_objects.items()):
-                self.destroy_near_object(guid)
+    def enqueue_known_objects_update(self, object_type=None):
+        if object_type:
+            self.pending_known_object_types_updates.add(object_type)
             return
+
+        for type_id in ObjectTypeIds:
+            if ObjectTypeIds.ID_UNIT <= type_id <= ObjectTypeIds.ID_CORPSE:
+                self.pending_known_object_types_updates.add(type_id)
+
+    def update_known_objects_for_type(self, object_type):
+        objects = MapManager.get_surrounding_objects(self, [object_type])[0]
 
         # Which objects were found in self surroundings.
         active_objects = dict()
 
-        # Surrounding players.
-        for player in players.values():
-            self._update_known_player(player, active_objects)
+        if objects:
+            if object_type == ObjectTypeIds.ID_PLAYER:
+                update_func = self._update_known_player
+            elif object_type == ObjectTypeIds.ID_UNIT:
+                update_func = self._update_known_creature
+            elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
+                update_func = self._update_known_gameobject
+            elif object_type == ObjectTypeIds.ID_DYNAMICOBJECT:
+                update_func = self._update_known_dynobject
+            else:
+                update_func = self._update_known_corpse
 
-        # Surrounding creatures.
-        for creature in creatures.values():
-            self._update_known_creature(creature, active_objects)
-
-        # Surrounding gameobjects.
-        for gobject in game_objects.values():
-            self._update_known_gameobject(gobject, active_objects)
-
-        # Surrounding corpses.
-        for corpse in corpses.values():
-            self._update_known_corpse(corpse, active_objects)
-
-        # Surrounding dynamic objects.
-        for dynamic_object in dynamic_objects.values():
-            self._update_known_dynobject(dynamic_object, active_objects)
+            # Surrounding objects.
+            for object_ in objects.values():
+                update_func(object_, active_objects)
 
         # World objects which are known but no longer active to self should be destroyed.
-        for guid, known_object in list(self.known_objects.items()):
-            if guid not in active_objects:
-                self.destroy_near_object(guid)
+        if self.known_objects:
+            for guid, known_object in list(self.known_objects.items()):
+                if guid not in active_objects and known_object.get_type_id() == object_type:
+                    self.destroy_near_object(guid)
 
-        # Cleanup.
         active_objects.clear()
 
-    def update_known_world_object(self, world_object):
+    def destroy_all_known_objects(self):
+        for guid, known_object in list(self.known_objects.items()):
+            self.destroy_near_object(guid)
+        return
+
+    def update_not_known_world_object(self, world_object):
         active_objects = dict()
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self._update_known_player(world_object, active_objects)
@@ -452,16 +450,16 @@ class PlayerManager(UnitManager):
         elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
             self._update_known_dynobject(world_object, active_objects)
 
-    def _update_known_dynobject(self, dynbject, active_objects):
-        active_objects[dynbject.guid] = dynbject
-        if dynbject.guid not in self.known_objects or not self.known_objects[dynbject.guid]:
-            if dynbject.is_spawned:
-                self.enqueue_packet(dynbject.generate_create_packet(requester=self))
+    def _update_known_dynobject(self, dynobject, active_objects):
+        active_objects[dynobject.guid] = dynobject
+        if dynobject.guid not in self.known_objects or not self.known_objects[dynobject.guid]:
+            if dynobject.is_spawned:
+                self.enqueue_packet(dynobject.generate_create_packet(requester=self))
                 # We only consider 'known' if its spawned, the details query is still sent.
-                self.known_objects[dynbject.guid] = dynbject
+                self.known_objects[dynobject.guid] = dynobject
         # Player knows the dynamic object but is not spawned anymore, destroy it for self.
-        elif dynbject.guid in self.known_objects and not dynbject.is_spawned:
-            active_objects.pop(dynbject.guid)
+        elif dynobject.guid in self.known_objects and not dynobject.is_spawned:
+            active_objects.pop(dynobject.guid)
 
     def _update_known_gameobject(self, gobject, active_objects: dict):
         active_objects[gobject.guid] = gobject
@@ -663,7 +661,7 @@ class PlayerManager(UnitManager):
             # Remove to others.
             MapManager.remove_object(self)
             # Destroy all objects known to self.
-            self.update_known_world_objects(flush=True)
+            self.destroy_all_known_objects()
             # Flush known items/objects cache.
             self.known_items.clear()
             self.known_objects.clear()
@@ -1874,16 +1872,16 @@ class PlayerManager(UnitManager):
                     # Unit is no longer stealth, pop.
                     if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
                         del self.known_stealth_units[guid]
-                    self.update_known_objects_on_tick = True
+                    self.enqueue_known_objects_update(object_type=ObjectTypeIds.ID_UNIT)
                 # Unit is stealth but remains visible to us, should destroy.
                 elif is_stealth and not can_detect and guid in self.known_objects:
-                    self.update_known_objects_on_tick = True
+                    self.enqueue_known_objects_update(object_type=ObjectTypeIds.ID_UNIT)
                 # Unit is no longer stealth, can detect, and we don't know this unit, should create.
                 elif not is_stealth and can_detect and guid not in self.known_objects:
                     # Unit is no longer stealth, pop.
                     if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
                         del self.known_stealth_units[guid]
-                    self.update_known_objects_on_tick = True
+                    self.enqueue_known_objects_update(object_type=ObjectTypeIds.ID_UNIT)
 
             self.stealth_detect_timer = 0
 

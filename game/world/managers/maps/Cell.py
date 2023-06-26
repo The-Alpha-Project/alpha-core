@@ -128,7 +128,7 @@ class Cell:
         if world_object:
             player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
         else:
-            player.update_known_objects_on_tick = True
+            player.enqueue_known_objects_update()
 
     def remove(self, world_object):
         guid = world_object.guid

@@ -1,6 +1,7 @@
 import time
 from database.realm.RealmDatabaseManager import *
 from utils.Logger import Logger
+from utils.constants.MiscCodes import ObjectTypeIds
 
 WORLD_SESSIONS = []
 
@@ -96,14 +97,14 @@ class WorldSessionStateHandler(object):
                 session.player_mgr.update(now)
 
     @staticmethod
-    def update_known_players_objects():
+    def update_known_world_objects(object_type):
         for session in WORLD_SESSIONS:
             if not session.player_mgr or not session.player_mgr.online:
                 continue
-            if session.player_mgr.update_lock or not session.player_mgr.update_known_objects_on_tick:
+            if session.player_mgr.update_lock or object_type not in session.player_mgr.pending_known_object_types_updates:
                 continue
-            session.player_mgr.update_known_objects_on_tick = False
-            session.player_mgr.update_known_world_objects()
+            session.player_mgr.pending_known_object_types_updates.remove(object_type)
+            session.player_mgr.update_known_objects_for_type(object_type)
 
     @staticmethod
     def save_characters():

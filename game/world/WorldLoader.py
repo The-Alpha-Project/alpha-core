@@ -28,6 +28,9 @@ class WorldLoader:
         WorldLoader.load_pickpocketing_loot_templates()
         WorldLoader.load_item_loot_templates()
 
+        # Player class level stats.
+        WorldLoader.load_player_class_level_stats()
+
         # Spells.
         WorldLoader.load_spells()
         WorldLoader.load_creature_spells()
@@ -90,6 +93,18 @@ class WorldLoader:
         MapManager.initialize_area_tables()
 
     # World data holders
+    @staticmethod
+    def load_player_class_level_stats():
+        class_level_stats = WorldDatabaseManager.player_class_level_stats_get_all()
+        length = len(class_level_stats)
+        count = 0
+
+        for class_level_stat in class_level_stats:
+            WorldDatabaseManager.UnitClassLevelStatsHolder.load_player_class_level_stats(class_level_stat)
+            count += 1
+            Logger.progress('Loading player class level stats...', count, length)
+
+        return length
 
     @staticmethod
     def load_gameobject_scripts():

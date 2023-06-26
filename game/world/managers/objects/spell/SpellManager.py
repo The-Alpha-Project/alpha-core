@@ -533,7 +533,10 @@ class SpellManager:
                 self.apply_spell_effects(casting_spell, partial_targets=targets_due)
 
     def check_spell_interrupts(self, moved=False, turned=False, received_damage=False, hit_info=HitInfo.DAMAGE,
-                               interrupted=False, received_auto_attack=False):  # TODO provide interrupted
+                               interrupted=False, received_auto_attack=False):
+        if not self.casting_spells:
+            return
+
         casting_spell_flag_cases = {
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_MOVEMENT: moved,
             SpellInterruptFlags.SPELL_INTERRUPT_FLAG_DAMAGE: received_damage,

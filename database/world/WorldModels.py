@@ -611,7 +611,7 @@ class NpcText(Base):
 class PlayerClasslevelstats(Base):
     __tablename__ = 'player_classlevelstats'
 
-    _class = Column('class', TINYINT(3), primary_key=True, nullable=False)
+    class_ = Column('class', TINYINT(3), primary_key=True, nullable=False)
     level = Column(TINYINT(3), primary_key=True, nullable=False)
     basehp = Column(SMALLINT(5), nullable=False)
     basemana = Column(SMALLINT(5), nullable=False)
