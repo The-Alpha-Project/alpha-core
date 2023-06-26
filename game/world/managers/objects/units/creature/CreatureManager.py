@@ -535,8 +535,7 @@ class CreatureManager(UnitManager):
                 if self.object_ai:
                     self.object_ai.update_ai(elapsed)
                 # Attack Update.
-                if self.combat_target:
-                    self.attack_update(elapsed)
+                self.attack_update(elapsed)
             # Dead creature with no spawn point, handle destroy.
             elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.
