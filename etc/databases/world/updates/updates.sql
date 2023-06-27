@@ -2710,5 +2710,15 @@ begin not atomic
         insert into`applied_updates`values ('260620232');
     end if;
 
+    -- 26/06/2023 4
+    if (select count(*) from `applied_updates` where id='260620234') = 0 then
+        
+        UPDATE `quest_template` SET `RequestItemsText` = 'Perhaps I did not make myself clear, pledge.  In order to prove your worth as a servant to The People\'s Militia and to the Light you need to slay 20 Defias Trappers and then return to me when the deed is done.' WHERE (`entry` = '12');       
+        UPDATE `spawns_creatures` SET `position_x` = '-3298.854', `position_y` = '-1044.855', `position_z` = '115.258', `orientation` = '2.834' WHERE (`spawn_id` = '25951');
+
+        insert into`applied_updates`values ('260620234');
+    end if;
+
+
 end $
 delimiter ;

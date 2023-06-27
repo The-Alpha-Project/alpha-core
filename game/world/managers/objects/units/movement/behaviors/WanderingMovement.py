@@ -1,10 +1,11 @@
+import math
 import time
 from random import randint
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType
+from utils.constants.MiscCodes import MoveType, MoveFlags
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 
@@ -25,9 +26,11 @@ class WanderingMovement(BaseMovement):
     # override
     def update(self, now, elapsed):
         if self._can_wander(now):
-            self._wander()
             self.last_wandering_movement = now
-            self.wait_time_seconds = randint(1, 12) + self.spline.get_total_time_secs()
+            if self._wander():
+                self.wait_time_seconds = randint(1, 12) + self.spline.get_total_time_secs()
+            else:
+                self.wait_time_seconds = randint(1, 4)
 
         super().update(now, elapsed)
 
@@ -38,11 +41,18 @@ class WanderingMovement(BaseMovement):
         self.last_wandering_movement = time.time()
 
     def _wander(self):
-        position = self._get_wandering_point()
+        success, position = self._get_wandering_point()
+
+        # Unable to resolve a valid wandering point, do nothing and wait for next trigger.
+        if not success:
+            return False
+
         speed = config.Unit.Defaults.walk_speed
         spline = SplineBuilder.build_normal_spline(self.unit, points=[position], speed=speed)
         position.face_angle(self.unit.location.o)
         self.spline_callback(spline, movement_behavior=self)
+
+        return True
 
     def _can_wander(self, now):
         return not self.spline and now > self.last_wandering_movement + self.wait_time_seconds
@@ -50,12 +60,16 @@ class WanderingMovement(BaseMovement):
     def _get_wandering_point(self):
         start_point = self.unit.spawn_position
         random_point = start_point.get_random_point_in_radius(self.wandering_distance, map_id=self.unit.map_id)
-        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, start_point, random_point)
+        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, self.unit.location, random_point)
         if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
-            return start_point
+            return False, start_point
 
         map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
         if not map_.is_active_cell_for_location(random_point):
-            return start_point
+            return False, start_point
 
-        return random_point
+        diff = math.fabs(random_point.z - self.unit.location.z)
+        if diff > 2.5:
+            return False, start_point
+
+        return True, random_point
