@@ -68,6 +68,7 @@ class WanderingMovement(BaseMovement):
         if not map_.is_active_cell_for_location(random_point):
             return False, start_point
 
+        # Ignore point if 'slope' above 2.5.
         diff = math.fabs(random_point.z - self.unit.location.z)
         if diff > 2.5:
             return False, start_point
