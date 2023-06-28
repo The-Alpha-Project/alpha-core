@@ -270,16 +270,11 @@ class MapManager:
         if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
             return current_z, True
 
-        heights = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
         query_z = MAPS_NAMIGATOR[map_id].query_z(x, y, current_z, x, y)
-
         if query_z:
-            # Did found heights, append found Z.
-            if heights:
-                heights.append(query_z)
-            # No heights, use found Z.
-            else:
-                heights = [query_z]
+            return query_z, False
+
+        heights = MAPS_NAMIGATOR[map_id].query_heights(float(x), float(y))
 
         if len(heights) == 0:
             Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
@@ -440,9 +435,11 @@ class MapManager:
             if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
                 return current_z, False
 
-            # No map files enabled but namigator enabled.
-            if not config.Server.Settings.use_map_tiles:
-                return MapManager.calculate_nav_z(map_id, x, y, current_z)
+            # Always prioritize Namigator if enabled.
+            if config.Server.Settings.use_nav_tiles:
+                nav_z, z_locked = MapManager.calculate_nav_z(map_id, x, y, current_z)
+                if not z_locked:
+                    return nav_z, False
 
             try:
                 x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - map_tile_x) - tile_local_x
@@ -456,8 +453,8 @@ class MapManager:
                 calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
                 # If maps Z is different or exactly the same, try nav Z, if that also fails, current Z will be returned.
                 diff = math.fabs(current_z - calculated_z)
-                if (diff > 1.0 or not diff) and current_z:
-                    return MapManager.calculate_nav_z(map_id, x, y, current_z)
+                if (diff > 1 or not diff) and current_z:
+                    return current_z, True
                 return calculated_z, False
             except:
                 tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
