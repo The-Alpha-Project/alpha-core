@@ -72,11 +72,12 @@ class ChaseMovement(BaseMovement):
             self.unit.movement_manager.stop()
             return
 
+        final_location = combat_target.location
         # Use direct combat location if target is over water.
         if not combat_target.is_swimming():
             failed, in_place, path = MapManager.calculate_path(unit.map_id, unit.location.copy(), combat_target.location)
             if not failed and not in_place:
-                combat_location = path[0]
+                final_location = path[0]
             elif in_place:
                 return
             # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
@@ -84,7 +85,7 @@ class ChaseMovement(BaseMovement):
                 Logger.warning(f'Unable to find path, map {unit.map_id} loc {unit.location} end {combat_target.location}')
 
         speed = self.unit.running_speed
-        spline = SplineBuilder.build_normal_spline(unit, points=[combat_target.location], speed=speed)
+        spline = SplineBuilder.build_normal_spline(unit, points=[final_location], speed=speed)
         self.spline_callback(spline, movement_behavior=self)
 
     def _can_chase(self):

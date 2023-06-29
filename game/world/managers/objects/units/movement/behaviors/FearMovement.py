@@ -45,8 +45,7 @@ class FearMovement(BaseMovement):
             self.unit.send_attack_stop(self.unit.combat_target.guid)
         speed = self.unit.running_speed
         if not self.waypoints:
-            fear_point = self._get_fear_point()
-            self.waypoints = self._get_path(fear_point)
+            self.waypoints = self._get_path(self._get_fear_point())
         self.can_move = False
         waypoint = self._get_waypoint()
         # If this is the end of a path, wait extra 0.5.
