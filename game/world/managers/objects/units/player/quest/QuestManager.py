@@ -153,7 +153,7 @@ class QuestManager(object):
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
             if (quest_state == QuestState.QUEST_REWARD or QuestHelpers.is_instant_complete_quest(quest)) \
-                    and self.check_quest_requirements(quest):
+                    and self.check_quest_requirements(quest, quest_start=False):
                 new_dialog_status = QuestGiverStatus.QUEST_GIVER_REWARD
             if new_dialog_status > dialog_status:
                 dialog_status = new_dialog_status
@@ -207,7 +207,7 @@ class QuestManager(object):
             if quest_entry not in self.active_quests:
                 continue
             # Check quest requirements including quest level.
-            if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
+            if not self.check_quest_requirements(quest, quest_start=False) or not self.check_quest_level(quest, False):
                 continue
             quest_state = self.active_quests[quest_entry].get_quest_state()
             # Quest has not been rewarded and it should.
@@ -332,7 +332,7 @@ class QuestManager(object):
         return dialog_status
 
     # TODO: RequiredCondition, ExclusiveGroups
-    def check_quest_requirements(self, quest_template):
+    def check_quest_requirements(self, quest_template, quest_start=True):
         # First check if quest is disabled.
         if quest_template.Method == QuestMethod.QUEST_DISABLED:
             return False
@@ -358,6 +358,10 @@ class QuestManager(object):
             player_skill_value = self.player_mgr.skill_manager.get_total_skill_value(quest_template.RequiredSkill)
             if player_skill_value < skill_required_value:
                 return False
+
+        # Finishing a quest, it is valid because it was already taken.
+        if not quest_start:
+            return True
 
         # Has the character already started the next quest in the chain.
         if quest_template.NextQuestInChain > 0 and quest_template.NextQuestInChain in self.completed_quests:
