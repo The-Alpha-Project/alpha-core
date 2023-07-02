@@ -15,6 +15,7 @@ class LootManager(object):
         self.current_loot = []
         self.loot_template = self.populate_loot_template()
         self.active_looters = []
+        self.depleted = False
         self.loot_lock = RLock()
 
     # Needs overriding.
@@ -153,8 +154,8 @@ class LootManager(object):
 
             # If this is an item loot container and its empty, remove from player.
             item_mgr = self.world_object if self.world_object.get_type_id() == ObjectTypeIds.ID_ITEM else None
-            if item_mgr and not self.has_loot() and item_mgr.get_owner_guid() == requester.guid:
-                requester.inventory.remove_item(item_mgr.item_instance.bag, item_mgr.current_slot)
+            if item_mgr and not self.has_loot():
+                self.depleted = True
 
     def clear_money(self):
         self.current_money = 0
