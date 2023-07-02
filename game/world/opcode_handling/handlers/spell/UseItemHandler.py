@@ -1,10 +1,8 @@
 from struct import unpack
-
 from game.world.opcode_handling.handlers.spell.CastSpellHandler import CastSpellHandler
 
 
 class UseItemHandler(object):
-
     @staticmethod
     def handle(world_session, reader):
         if len(reader.data) >= 5:  # Avoid handling empty use item packet.
