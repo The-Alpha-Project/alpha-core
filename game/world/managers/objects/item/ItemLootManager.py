@@ -10,6 +10,8 @@ class ItemLootManager(LootManager):
 
     # override
     def generate_loot(self, requester):
+        if self.depleted:
+            return
         super().clear()
         loot_collection = self.generate_loot_groups(self.loot_template)
         for loot_item in self.process_loot_groups(loot_collection, requester):
