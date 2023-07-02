@@ -4,6 +4,7 @@ from threading import RLock
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from network.packet.PacketWriter import PacketWriter
+from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 
 
@@ -14,6 +15,7 @@ class LootManager(object):
         self.current_loot = []
         self.loot_template = self.populate_loot_template()
         self.active_looters = []
+        self.depleted = False
         self.loot_lock = RLock()
 
     # Needs overriding.
@@ -129,6 +131,8 @@ class LootManager(object):
 
     def loot_item_in_slot(self, slot, requester):
         with self.loot_lock:
+            if not self.has_loot():
+                return
             if slot >= len(self.current_loot) or not self.current_loot[slot]:
                 return
             loot = self.current_loot[slot]
@@ -148,6 +152,11 @@ class LootManager(object):
             else:
                 [looter.enqueue_packet(removed_packet) for looter in self.get_active_looters()]
 
+            # If this is an item loot container and its empty, remove from player.
+            item_mgr = self.world_object if self.world_object.get_type_id() == ObjectTypeIds.ID_ITEM else None
+            if item_mgr and not self.has_loot():
+                self.depleted = True
+
     def clear_money(self):
         self.current_money = 0
 
@@ -155,7 +164,7 @@ class LootManager(object):
         return self.current_money > 0
 
     def has_items(self):
-        return len([loot for loot in self.current_loot if loot]) > 0
+        return len([loot for loot in self.current_loot if loot is not None]) > 0
 
     def has_loot(self):
         return self.has_money() or self.has_items()

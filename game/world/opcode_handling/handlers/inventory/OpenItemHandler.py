@@ -61,6 +61,6 @@ class OpenItemHandler(object):
             elif item.loot_manager:
                 if not item.loot_manager.has_loot():
                     item.loot_manager.generate_loot(world_session.player_mgr)
-                world_session.player_mgr.send_loot(item.loot_manager)
+                world_session.player_mgr.send_loot(item.loot_manager, from_item_container=True)
 
         return 0

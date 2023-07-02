@@ -32,7 +32,7 @@ class AutostoreLootItemHandler(object):
 
             if world_obj_target:
                 loot_manager = player_mgr.loot_selection.get_loot_manager(world_obj_target)
-                if loot_manager and loot_manager.has_loot():
+                if loot_manager:
                     loot_manager.loot_item_in_slot(slot, requester=player_mgr)
             else:
                 Logger.error(f'Unable to loot item for object {high_guid} at slot {slot}, object not found.')

@@ -964,7 +964,7 @@ class PlayerManager(UnitManager):
                 loot_manager.clear()
         self.loot_selection = None
 
-    def send_loot(self, loot_manager):
+    def send_loot(self, loot_manager, from_item_container=False):
         loot_type = loot_manager.get_loot_type(self, loot_manager.world_object)
         self.loot_selection = LootSelection(loot_manager.world_object, loot_type)
 
@@ -984,7 +984,7 @@ class PlayerManager(UnitManager):
                     # Skip conditions:
                     # - Is quest item and player does not have the involved quest.
                     # - Is quest multi-drop item and is no longer visible to this player.
-                    if loot.is_quest_item() and \
+                    if not from_item_container and loot.is_quest_item() and \
                             not self.player_or_group_require_quest_item(loot.get_item_entry(), only_self=True) or \
                             not loot.is_visible_to_player(self):
                         slot += 1
