@@ -130,6 +130,8 @@ class LootManager(object):
 
     def loot_item_in_slot(self, slot, requester):
         with self.loot_lock:
+            if not self.has_loot():
+                return
             if slot >= len(self.current_loot) or not self.current_loot[slot]:
                 return
             loot = self.current_loot[slot]
