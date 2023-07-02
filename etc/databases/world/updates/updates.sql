@@ -2728,7 +2728,7 @@ begin not atomic
         UPDATE `item_template` SET `name` = 'Elixir of Minor Fortitude' WHERE (`entry` = '2458');
         -- Captain Eo
         UPDATE `spawns_creatures` SET `position_x` = '6481.107', `position_y` = '611.4338', `position_z` = '5.151847', `orientation` = '2.23402' WHERE (`spawn_id` = '400030');
-        UPDATE `creature_template` SET SET `health_min` = '2217', `health_max` = '2217', `armor` = '2725', `dmg_min` = '72', `dmg_max` = '93', `attack_power` = '204', `level_min` = '40', `level_max` = '40', `unit_class` = '4' WHERE (`entry` = '3895');
+        UPDATE `creature_template` SET `health_min` = '1752', `health_max` = '1752', `armor` = '1890', `dmg_min` = '61', `dmg_max` = '78', `attack_power` = '156', `level_min` = '40', `level_max` = '40', `unit_class` = '4' WHERE (`entry` = '3895');
         UPDATE `creature_addon` SET `emote_state` = '0' WHERE (`guid` = '400030');
 
         insert into`applied_updates`values ('010720231');
