@@ -770,15 +770,14 @@ class SpellEffectHandler:
             return
         
         skill_max = (step * 5)
-        skill_id = casting_spell.spell_entry.EffectMiscValue_2
-        if skill_id <= 0:
-            return
+        skill_id = effect.misc_value
         
         if not target.skill_manager.has_skill(skill_id):
             target.skill_manager.add_skill(skill_id)
 
         current_skill = target.skill_manager.get_total_skill_value(skill_id, no_bonus=True)
-        target.skill_manager.set_skill(skill_id, max(1, current_skill), skill_max)
+        target.skill_manager.set_skill(skill_id, max(1, current_skill),
+                                       skill_max if skill_max < 1000 else -1)
         target.skill_manager.build_update()
 
     @staticmethod
