@@ -2737,8 +2737,6 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '6481.107', `position_y` = '611.4338', `position_z` = '5.151847', `orientation` = '2.23402' WHERE (`spawn_id` = '400030');
         UPDATE `creature_template` SET `health_min` = '1752', `health_max` = '1752', `armor` = '1890', `dmg_min` = '61', `dmg_max` = '78', `attack_power` = '156', `level_min` = '40', `level_max` = '40', `unit_class` = '4' WHERE (`entry` = '3895');
         UPDATE `creature_addon` SET `emote_state` = '0' WHERE (`guid` = '400030');
-        -- Invalid gossip text for rogue trainer.
-        DELETE FROM `npc_gossip` WHERE (`npc_guid` = '15104') and (`textid` = '5515');
 
         insert into`applied_updates`values ('010720232');
     end if;
