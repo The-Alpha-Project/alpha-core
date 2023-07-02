@@ -2719,6 +2719,17 @@ begin not atomic
         insert into`applied_updates`values ('260620234');
     end if;
 
+    -- 01/07/2023 1
+    if (select count(*) from `applied_updates` where id='010720231') = 0 then
+        
+        -- Alchemy - Elixir of Minor Fortitude
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('505', '2363', '2334', '100', '0', '0', '171', '50', '1');
+        -- Elixir of Fortitude -> Elixir of Minor Fortitude
+        UPDATE item_template` SET `name` = 'Elixir of Minor Fortitude' WHERE (`entry` = '2458');
+
+        insert into`applied_updates`values ('010720231');
+    end if;
+
 
 end $
 delimiter ;
