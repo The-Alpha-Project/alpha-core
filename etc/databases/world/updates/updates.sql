@@ -2725,7 +2725,11 @@ begin not atomic
         -- Alchemy - Elixir of Minor Fortitude
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('505', '2363', '2334', '100', '0', '0', '171', '50', '1');
         -- Elixir of Fortitude -> Elixir of Minor Fortitude
-        UPDATE item_template` SET `name` = 'Elixir of Minor Fortitude' WHERE (`entry` = '2458');
+        UPDATE `item_template` SET `name` = 'Elixir of Minor Fortitude' WHERE (`entry` = '2458');
+        -- Captain Eo
+        UPDATE `spawns_creatures` SET `position_x` = '6481.107', `position_y` = '611.4338', `position_z` = '5.151847', `orientation` = '2.23402' WHERE (`spawn_id` = '400030');
+        UPDATE `creature_template` SET SET `health_min` = '2217', `health_max` = '2217', `armor` = '2725', `dmg_min` = '72', `dmg_max` = '93', `attack_power` = '204', `level_min` = '40', `level_max` = '40', `unit_class` = '4' WHERE (`entry` = '3895');
+        UPDATE `creature_addon` SET `emote_state` = '0' WHERE (`guid` = '400030');
 
         insert into`applied_updates`values ('010720231');
     end if;
