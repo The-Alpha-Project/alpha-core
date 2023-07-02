@@ -1097,8 +1097,9 @@ class QuestManager(object):
 
     def reward_quest_exploration(self, area_trigger_id):
         for quest_id, active_quest in self.active_quests.items():
-            if not QuestHelpers.is_exploration_quest(active_quest.quest) \
-                    or not active_quest.apply_exploration_completion(area_trigger_id):
+            if not active_quest.requires_area_trigger(area_trigger_id):
+                continue
+            if not active_quest.apply_exploration_completion(area_trigger_id):
                 continue
             self.update_single_quest(quest_id)
             if active_quest.can_complete_quest():
