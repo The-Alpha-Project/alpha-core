@@ -177,6 +177,60 @@ class EffectTargets:
         return self.resolved_targets_b if b_matches_type else []  # A is not the correct type - return B if that is
 
     @staticmethod
+    def get_surrounding_unit_targets(target_effect, source_unit=None, source_location=None,
+                                     enemies_only=False, friends_only=False,
+                                     distance_loc=None, radius=-1):
+        casting_spell = target_effect.casting_spell
+        caster = casting_spell.spell_caster
+        source = source_unit or source_location
+        if not source:
+            source = caster
+
+        if casting_spell.initial_target_is_terrain():
+            result = MapManager.get_surrounding_units_by_location(source,
+                                                                  caster.map_id, caster.instance_id,
+                                                                  target_effect.get_radius(), include_players=True)
+            units = list(result[0].values()) + list(result[1].values())
+        else:
+            units = MapManager.get_surrounding_units(source, include_players=True)
+            units = list(units[0].values()) + list(units[1].values())
+
+        if not enemies_only and not friends_only and not distance_loc and not \
+                casting_spell.spell_entry.TargetCreatureType:
+            return units  # No filters provided.
+
+        return EffectTargets._filter_unit_targets(units, casting_spell,
+                                                  enemies_only=enemies_only, friends_only=friends_only,
+                                                  distance_loc=distance_loc, radius=radius)
+
+    @staticmethod
+    def _filter_unit_targets(units, casting_spell, enemies_only=False, friends_only=False,
+                             distance_loc=None, radius=-1):
+        filtered_units = []
+        unit_type_restriction = casting_spell.spell_entry.TargetCreatureType
+
+        radius_sqrd = radius ** 2
+        for unit in units:
+            # Unit type.
+            if unit_type_restriction and not unit_type_restriction & (1 << unit.creature_type - 1):
+                continue
+
+            # Friendliness.
+            if enemies_only or friends_only:
+                can_attack = casting_spell.spell_caster.can_attack_target(unit)
+                if enemies_only and not can_attack or friends_only and can_attack:
+                    continue
+
+            # Distance.
+            if distance_loc and radius != -1:
+                if unit.location.distance_sqrd(distance_loc) > radius_sqrd:
+                    continue
+
+            filtered_units.append(unit)
+
+        return filtered_units
+
+    @staticmethod
     def get_enemies_from_unit_list(units: list[ObjectManager], caster):
         return [unit for unit in units if caster.can_attack_target(unit)]
 
@@ -220,19 +274,19 @@ class EffectTargets:
 
         # TODO not sure what distance to use here; these spells don't provide radius info.
         # Should distance be higher for ranged spells?
-        chain_distance = 5
-        target_result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
+        chain_distance = 5 ** 2
         final_targets = []
-
-        units = list(target_result[0].values()) + list(target_result[1].values())
-        units = EffectTargets.get_enemies_from_unit_list(units, casting_spell.spell_caster)
+        units = EffectTargets.get_surrounding_unit_targets(target_effect,
+                                                           source_unit=casting_spell.spell_caster,
+                                                           enemies_only=True)
         for unit in units:
-            distance = first_target.location.distance(unit.location)
-            if distance > chain_distance:
+            distance_sqrd = first_target.location.distance_sqrd(unit.location)
+            if distance_sqrd > chain_distance:
                 continue
             final_targets.append(unit)
             if len(final_targets) == target_effect.chain_targets:
                 break
+            first_target = unit
 
         return final_targets
 
@@ -250,19 +304,18 @@ class EffectTargets:
 
     @staticmethod
     def resolve_unit_near_caster(casting_spell, target_effect):
-        result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
-        units = list(result[0].values()) + list(result[1].values())
-
+        units = EffectTargets.get_surrounding_unit_targets(target_effect,
+                                                           source_unit=casting_spell.spell_caster)
         closest_info = -1, None
         caster = casting_spell.spell_caster
         for unit in units:
             if caster is unit:
                 continue
-            new_distance = caster.location.distance(unit.location)
-            if closest_info[0] == -1 or new_distance < closest_info[0]:
-                closest_info = new_distance, unit
+            new_distance_sqrd = caster.location.distance_sqrd(unit.location)
+            if closest_info[0] == -1 or new_distance_sqrd < closest_info[0]:
+                closest_info = new_distance_sqrd, unit
 
-        if closest_info[0] > casting_spell.range_entry.RangeMax:
+        if closest_info[0] > casting_spell.range_entry.RangeMax ** 2:
             return []
 
         return closest_info[1]
@@ -282,26 +335,22 @@ class EffectTargets:
 
     @staticmethod
     def resolve_all_enemy_in_area_instant(casting_spell, target_effect):
-        caster = casting_spell.spell_caster
-        map_id = casting_spell.spell_caster.map_id
-        instance_id = casting_spell.spell_caster.instance_id
         radius = target_effect.get_radius()
+        effect_source = casting_spell.initial_target
+
         if casting_spell.initial_target_is_terrain():
-            effect_source = casting_spell.initial_target
-            result = MapManager.get_surrounding_units_by_location(effect_source, map_id, instance_id, radius, True)  # Ground-targeted AoE.
-            merged = list(result[0].values()) + list(result[1].values())
+            # Ground-targeted AoE. Radius will be applied by get_surrounding_unit_targets.
+            enemies = EffectTargets.get_surrounding_unit_targets(target_effect, source_location=effect_source,
+                                                                 enemies_only=True)
         else:
-            # TODO len(target_effect.targets.resolved_targets_a) == 1 incorrectly resolves to a single target of an AoE spell.
-            effect_source = target_effect.targets.resolved_targets_a[0] if len(target_effect.targets.resolved_targets_a) == 1 else caster
-            target_effect.targets.effect_source = effect_source
+            # Unit-targeted AoE - explosive shot.
+            enemies = EffectTargets.get_surrounding_unit_targets(target_effect, source_unit=effect_source,
+                                                                 enemies_only=True,
+                                                                 distance_loc=effect_source.location,
+                                                                 radius=radius)
 
-            result = MapManager.get_surrounding_units(effect_source, include_players=True)  # Unit-targeted AoE - explosive shot.
-            merged = list(result[0].values()) + list(result[1].values())
-            merged = [target for target in merged if target.location.distance(effect_source.location) <= radius]  # Select targets in range.
-
-        enemies = EffectTargets.get_enemies_from_unit_list(merged, casting_spell.spell_caster)
-        if isinstance(effect_source, ObjectManager) and effect_source in enemies:
-            enemies.remove(effect_source)  # Effect source shouldn't be included in final targets.
+            if effect_source in enemies:
+                enemies.remove(effect_source)  # Effect source shouldn't be included in final targets.
 
         for enemy in enemies:
             # Write to impact timestamps to indicate that this target should be instant.
@@ -339,12 +388,7 @@ class EffectTargets:
 
     @staticmethod
     def resolve_party_around_caster(casting_spell, target_effect):
-        result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
-        units = list(result[0].values()) + list(result[1].values())
-
         caster = casting_spell.spell_caster
-
-        units_in_range = []
 
         caster_is_player = caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         caster_is_unit = caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT
@@ -354,7 +398,7 @@ class EffectTargets:
 
         charmer_or_summoner = caster.get_charmer_or_summoner() if caster_is_unit else None
         party_group = None
-        distance = target_effect.get_radius()
+        distance_sqrd = target_effect.get_radius() ** 2
 
         # If caster has a player charmer/summoner, use his group manager.
         if charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
@@ -363,34 +407,35 @@ class EffectTargets:
         elif caster_is_player and caster.group_manager:
             party_group = caster.group_manager
 
-        # These spells should most likely include self (battle shout, prayer of healing etc.)
-        if caster_is_unit:
-            # Totems should not target themselves.
-            if not caster.is_totem():
-                units_in_range.append(caster)
+        units_in_range = []
+
+        # These spells should include self (battle shout, prayer of healing etc.) unless the caster is a totem.
+        if caster_is_unit and not caster.is_totem():
+            units_in_range.append(caster)
 
         # Has a charmer/summoner and is within radius.
-        if charmer_or_summoner and caster.location.distance(charmer_or_summoner.location) < distance:
+        if charmer_or_summoner and caster.location.distance_sqrd(charmer_or_summoner.location) < distance_sqrd:
             units_in_range.append(charmer_or_summoner)
 
         # Has a pet and is within radius.
-        if caster_pet and caster.location.distance(caster_pet.location) < distance:
+        if caster_pet and caster.location.distance_sqrd(caster_pet.location) < distance_sqrd:
             units_in_range.append(caster_pet)
 
         if not party_group:
             return units_in_range
 
+        units = EffectTargets.get_surrounding_unit_targets(target_effect, source_unit=caster)
         for unit in units:
-            if caster is unit or unit is charmer_or_summoner or unit is caster_pet or \
+            if caster in [unit, charmer_or_summoner, caster_pet] or \
                     not party_group.is_party_member(unit.guid) or \
                     caster.can_attack_target(unit):   # Dueling party members
                 continue
             # Unit pets.
             unit_pet = unit.pet_manager.get_active_controlled_pet()
-            if unit_pet and caster.location.distance(unit_pet.creature.location) < distance:
+            if unit_pet and caster.location.distance_sqrd(unit_pet.creature.location) < distance_sqrd:
                 units_in_range.append(unit_pet.creature)
             # Unit.
-            if caster.location.distance(unit.location) <= distance:
+            if caster.location.distance_sqrd(unit.location) <= distance_sqrd:
                 units_in_range.append(unit)
 
         return units_in_range
@@ -398,38 +443,22 @@ class EffectTargets:
     # Never used in B
     @staticmethod
     def resolve_all_around_caster(casting_spell, target_effect):
-        result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
-        units = list(result[0].values()) + list(result[1].values())
-
         caster = casting_spell.spell_caster
-        units_in_range = []
-        for unit in units:
-            if caster is unit:
-                continue
-            distance = caster.location.distance(unit.location)
-            if distance <= target_effect.get_radius():
-                units_in_range.append(unit)
+        units = EffectTargets.get_surrounding_unit_targets(target_effect, source_unit=caster,
+                                                           distance_loc=caster.location,
+                                                           radius=target_effect.get_radius())
 
-        return units_in_range
+        units.remove(caster)
+        return units
 
     @staticmethod
     def resolve_enemy_infront(casting_spell, target_effect):
-        result = MapManager.get_surrounding_units(casting_spell.spell_caster, True)
-        units = list(result[0].values()) + list(result[1].values())
-
         caster = casting_spell.spell_caster
-        units_in_range_front = []
-        for unit in units:
-            if not caster.can_attack_target(unit):
-                continue
+        units = EffectTargets.get_surrounding_unit_targets(target_effect, source_unit=caster, enemies_only=True,
+                                                           distance_loc=caster.location,
+                                                           radius=target_effect.get_radius())
 
-            distance = caster.location.distance(unit.location)
-            if distance > target_effect.get_radius():
-                continue
-            if caster.location.has_in_arc(unit.location, math.pi / 2):
-                units_in_range_front.append(unit)
-
-        return units_in_range_front
+        return [unit for unit in units if caster.location.has_in_arc(unit.location, math.pi / 2)]
 
     @staticmethod
     def resolve_unit(casting_spell, target_effect):
@@ -461,12 +490,8 @@ class EffectTargets:
         target = casting_spell.initial_target
         if not casting_spell.initial_target_is_terrain():
             return []
-        map_id = casting_spell.spell_caster.map_id
-        instance_id = casting_spell.spell_caster.instance_id
-        result = MapManager.get_surrounding_units_by_location(target, map_id, instance_id, target_effect.get_radius(), True)
 
-        merged = list(result[0].values()) + list(result[1].values())
-        return EffectTargets.get_friends_from_unit_list(merged, casting_spell.spell_caster)
+        return EffectTargets.get_surrounding_unit_targets(target_effect, source_location=target, friends_only=True)
 
     # Totems, duel flag etc.
     # Positioning depends on effect.
