@@ -120,8 +120,8 @@ class EffectTargets:
 
         # Neutral targets can target any unit. Use target context if given to resolve.
         if NEUTRAL_IMPLICIT_TARGETS.intersection(implicit_targets):
-            return not unit_target or not self.casting_spell.spell_caster.can_attack_target(unit_target), \
-                unit_target is None
+            can_attack = self.casting_spell.spell_caster.can_attack_target(unit_target) if unit_target else None
+            return (not can_attack, can_attack) if unit_target is not None else (True, True)
 
         return True, True
 
