@@ -15,7 +15,6 @@ class LootManager(object):
         self.current_loot = []
         self.loot_template = self.populate_loot_template()
         self.active_looters = []
-        self.depleted = False
         self.loot_lock = RLock()
 
     # Needs overriding.
@@ -46,7 +45,7 @@ class LootManager(object):
         return loot_item_result
 
     def process_loot_group(self, group_id, group_loot_items: list, requester):
-        # A group may consists of explicitly-chanced (having non-zero chance) and equal-chanced (chance = 0) entries.
+        # A group may consist of explicitly-chanced (having non-zero chance) and equal-chanced (chance = 0) entries.
         # Every equal-chanced entry of a group is considered having such a chance that all equal-chanced entries have
         # the same chance (sum of chances of all entries is 100%).
         #
@@ -66,7 +65,7 @@ class LootManager(object):
         #
         # Notes:
         #   · A group is defined when group_id is greater than 0. A group can only generate a maximum of 1 item.
-        #   · Non-groups (group_id = 0) dont't have a limit in the number of items they can generate.
+        #   · Non-groups (group_id = 0) don't have a limit in the number of items they can generate.
         shuffle(group_loot_items)
         loot_item_result = []
 
@@ -152,9 +151,10 @@ class LootManager(object):
             else:
                 [looter.enqueue_packet(removed_packet) for looter in self.get_active_looters()]
 
-            # If this is an item loot container and its empty, remove from player.
-            item_mgr = self.world_object if self.world_object.get_type_id() == ObjectTypeIds.ID_ITEM else None
-            if item_mgr and not self.has_loot():
+            # If this is an item loot container, and it's empty, remove from player.
+            from game.world.managers.objects.item.ItemLootManager import ItemLootManager
+            if isinstance(self, ItemLootManager):
+                # noinspection PyAttributeOutsideInit
                 self.depleted = True
 
     def clear_money(self):
