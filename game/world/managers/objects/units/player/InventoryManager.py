@@ -694,9 +694,8 @@ class InventoryManager(object):
         # Handle spells interrupt.
         self.owner.spell_manager.handle_equipment_change()
 
-        # Handle enchantments auras removal.
-        self.owner.enchantment_manager.handle_equipment_change(source_item)
-        self.owner.enchantment_manager.handle_equipment_change(dest_item)
+        # Update equipment effects.
+        self.owner.enchantment_manager.handle_equipment_change(source_item, dest_item)
 
         # Bonus application.
         self.owner.stat_manager.apply_bonuses()
