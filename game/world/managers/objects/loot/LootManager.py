@@ -153,7 +153,7 @@ class LootManager(object):
 
             # If this is an item loot container, and it's empty, remove from player.
             from game.world.managers.objects.item.ItemLootManager import ItemLootManager
-            if isinstance(self, ItemLootManager):
+            if isinstance(self, ItemLootManager) and not self.has_loot():
                 # noinspection PyAttributeOutsideInit
                 self.depleted = True
 
