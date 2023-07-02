@@ -21,14 +21,15 @@ class ActiveQuest:
         self.quest = quest
         self.area_triggers = None
         self.failed = False
-        if QuestHelpers.is_exploration_quest(quest):
-            self.load_area_triggers()
+        self.load_area_triggers()
 
     def load_area_triggers(self):
-        if self.quest.entry in WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION:
-            self.area_triggers = WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[self.quest.entry]
-        else:
-            Logger.warning(f'Unable to locate area trigger(s) for quest {self.quest.entry}')
+        if self.quest.entry not in WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION:
+            return
+        self.area_triggers = WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[self.quest.entry]
+
+    def requires_area_trigger(self, trigger_id):
+        return trigger_id in self.area_triggers and self.db_state.explored == 0
 
     def is_quest_complete(self, quest_giver_guid):
         quest_giver = None
