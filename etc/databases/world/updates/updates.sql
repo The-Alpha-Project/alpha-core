@@ -2741,6 +2741,21 @@ begin not atomic
         insert into`applied_updates`values ('010720232');
     end if;
 
+    -- 02/07/2023 2
+    if (select count(*) from `applied_updates` where id='020720232') = 0 then
+        
+        -- Captain Eo, wrong Z, dance upon quest completion.
+        UPDATE `spawns_creatures` SET `position_z` = '5.451847' WHERE (`spawn_id` = '400030');
+        DELETE FROM `quest_end_scripts` WHERE `id`=1019;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(1019, 5, 0, 1, 10, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain EO - Dance');
+
+        DELETE FROM `quest_end_scripts` WHERE `id`=1126;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(1126, 6, 0, 1, 10, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain EO - Dance');
+
+        insert into`applied_updates`values ('020720232');
+    end if;
 
 end $
 delimiter ;
