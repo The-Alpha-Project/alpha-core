@@ -449,6 +449,9 @@ class SpellManager:
                     damage_info = DamageInfoHolder(attacker=casting_spell.spell_caster, target=target,
                                                    proc_victim=proc_flags.get(target_info.result, 0))
 
+                    # Effects are not applied for misses. Handle procs from them on cast.
+                    self.handle_damage_event_procs(damage_info)
+
                 for proc_target in (target, casting_spell.spell_caster):
                     if proc_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
                         proc_target.aura_manager.check_aura_procs(involved_cast=casting_spell, damage_info=damage_info)
@@ -1104,12 +1107,15 @@ class SpellManager:
 
         # Unit target checks.
         if casting_spell.initial_target_is_unit_or_player():
-            # Basic effect harmfulness/attackability check for fully harmful spells.
+            # Basic effect harmfulness/attackability check.
             # For unit-targeted AoE spells, skip validation for self casts.
             # The client checks this for player casts, but not pet casts.
+            is_harmful = casting_spell.has_only_harmful_effects()
+            has_mixed_targets = not is_harmful and not casting_spell.has_only_helpful_effects()
+
             if (not casting_spell.is_area_of_effect_spell() or validation_target is not self.caster) and \
-                    casting_spell.has_only_harmful_effects() and \
-                    not self.caster.can_attack_target(validation_target):
+                    not has_mixed_targets and \
+                    is_harmful != self.caster.can_attack_target(validation_target):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 

@@ -118,12 +118,14 @@ class EnchantmentManager(object):
                     data = pack('<Q2IQ', item.guid, slot, duration, self.unit_mgr.guid)
                     self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_ENCHANT_TIME_UPDATE, data))
 
-    def handle_equipment_change(self, item, expired=False):
-        if not item:
+    def handle_equipment_change(self, source_item, dest_item):
+        if not dest_item:
+            self._handle_equip_buffs(source_item, remove=not source_item.is_equipped())
             return
-        was_removed = expired or item.current_slot > InventorySlots.SLOT_TABARD or \
-            item.item_instance.bag != InventorySlots.SLOT_INBACKPACK
-        self._handle_equip_buffs(item, remove=was_removed)
+
+        for item in [source_item, dest_item] if dest_item.is_equipped() else [dest_item, source_item]:
+            # Handle unequipped item first in case equipment has the same buff.
+            self._handle_equip_buffs(item, remove=not item.is_equipped())
 
     def handle_melee_attack_procs(self, damage_info):
         for entry, proc_enchant in list(self._applied_proc_enchants.items()):

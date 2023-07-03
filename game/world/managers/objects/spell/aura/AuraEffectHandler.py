@@ -124,6 +124,8 @@ class AuraEffectHandler:
                                                                              triggered_by_spell=source_spell,
                                                                              validate=False)
 
+        initialized_spell.force_instant_cast()  # Only 1949 (Hellfire) and 6750, others are instant.
+
         # Also copy initial target selection as periodically triggered spells shouldn't be able to change their target.
         initialized_spell.targeted_unit_on_cast_start = source_spell.targeted_unit_on_cast_start
         effect_target.spell_manager.start_spell_cast(initialized_spell=initialized_spell)

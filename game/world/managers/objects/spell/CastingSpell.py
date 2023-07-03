@@ -393,6 +393,9 @@ class CastingSpell:
     def has_only_harmful_effects(self):
         return all([effect.is_harmful() for effect in self.get_effects()])
 
+    def has_only_helpful_effects(self):
+        return all([not effect.is_harmful() for effect in self.get_effects()])
+
     def get_charm_effect(self) -> Optional[SpellEffect]:
         for spell_effect in self.get_effects():
             if spell_effect.aura_type in [AuraTypes.SPELL_AURA_MOD_CHARM, AuraTypes.SPELL_AURA_MOD_POSSESS]:

@@ -444,12 +444,11 @@ class SkillManager(object):
 
         # Magic values from VMaNGOS.
         if maximum_skill * 0.9 > current_unmodified_skill:
-            chance = (maximum_skill * 0.9 * 0.05) / current_unmodified_skill
+            chance = (maximum_skill * 0.9 * 0.5) / current_unmodified_skill
         else:
             level_modifier = self.get_max_rank(skill_id, level=config.Unit.Player.Defaults.max_level) / maximum_skill
 
-            chance = (0.5 - 0.0168966 * current_unmodified_skill * level_modifier + 0.0152069 * maximum_skill * level_modifier) / 100
-
+            chance = 0.5 - level_modifier * (0.0168966 * current_unmodified_skill - 0.0152069 * maximum_skill)
             skill_diff_from_max = maximum_skill - current_unmodified_skill
             if skill_diff_from_max <= 3:
                 chance *= (0.5 / (4 - skill_diff_from_max))
