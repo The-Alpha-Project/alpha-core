@@ -124,7 +124,12 @@ class Vector(object):
         y3 = self.y + factor * (vector.y - self.y)
         z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z))
 
-        return Vector(x3, y3, z3, z_locked=z_locked)
+        result = Vector(x3, y3, z3, z_locked=z_locked)
+        if self.o != 0:
+            result.o = self.o
+        else:
+            result.o = self.get_angle_towards_vector(result)
+        return
 
     def get_point_in_middle(self, vector, map_id=-1):
         x = (self.x + vector.x) / 2

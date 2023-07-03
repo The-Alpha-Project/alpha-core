@@ -2749,10 +2749,46 @@ begin not atomic
         DELETE FROM `quest_end_scripts` WHERE `id`=1019;
         INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
 (1019, 5, 0, 1, 10, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain EO - Dance');
-
+        -- Dance.
         DELETE FROM `quest_end_scripts` WHERE `id`=1126;
         INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
 (1126, 6, 0, 1, 10, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain EO - Dance');
+
+        -- The Plains Vision
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2983;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (1, 2983, 0, 11, 0, 100, 0, 0, 0, 0, 0, 2983, 0, 0, 'Rite of Vision');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=2983;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(2983, 5, 0, 60, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Start Waypoints');
+
+        INSERT INTO `creature_movement_template` 
+        VALUES 
+        (2983,0,-2237.22,-402.207,-9.42413,100,0,0,0),
+        (2983,1,-2177.19,-454.185,-5.91219,100,0,0,0),
+        (2983,2,-2122.69,-446.433,-9.26146,100,0,0,0),
+        (2983,3,-2102.45,-423.9,-5.37892,100,0,0,0),
+        (2983,4,-2052.26,-354.836,-5.33621,100,0,0,0),
+        (2983,5,-2030.62,-315.119,-9.38673,100,0,0,0),
+        (2983,6,-2002.57,-247.985,-10.8341,100,0,0,0),
+        (2983,7,-1946.97,-155.28,-11.3127,100,0,0,0),
+        (2983,8,-1894.82,-90.1517,-11.3003,100,0,0,0),
+        (2983,9,-1828.63,-30.0814,-11.9404,100,0,0,0),
+        (2983,10,-1796.66,26.3394,-3.18109,100,0,0,0),
+        (2983,11,-1742.18,113.846,-3.63277,100,0,0,0),
+        (2983,12,-1641.27,185.452,1.49467,100,0,0,0),
+        (2983,13,-1565.87,246.907,5.7669,100,0,0,0),
+        (2983,14,-1550.53,270.841,16.5373,100,0,0,0),
+        (2983,15,-1536.88,315.944,49.0035,100,0,0,0),
+        (2983,16,-1528.78,327.115,59.4182,100,0,0,0),
+        (2983,17,-1520.91,337.194,63.8113,100,0,0,0),
+        (2983,18,-1516.17,350.146,62.5674,100,5000,0,0);
+
+        DELETE FROM `quest_end_scripts` WHERE `id`=772;
+        INSERT INTO `quest_end_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(772, 0, 0, 15, 1126, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rite of Vision: Seer Wiserunner - Cast Spell Mark of the Wild'),
+(772, 0, 0, 18, 0, 0, 0, 0, 2983, 30, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Despawn Plains Vision');
+
 
         insert into`applied_updates`values ('020720232');
     end if;

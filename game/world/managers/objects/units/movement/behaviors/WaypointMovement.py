@@ -1,5 +1,6 @@
 import time
 
+from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import MoveType, ScriptTypes
 
@@ -82,19 +83,25 @@ class WaypointMovement(BaseMovement):
         super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
         # Always update home position.
         self.unit.spawn_position = new_position.copy()
-        if waypoint_completed:
-            current_wp = self._get_waypoint()
-            if self._should_use_facing(current_wp):
-                self.unit.movement_manager.face_angle(current_wp.orientation)
-            if current_wp.script_id:
-                self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
-                                                        current_wp.script_id)
-            # If this is a default behavior, make it cyclic.
-            if self.should_repeat:
-                self._waypoint_push_back()
-            # Not default, pop.
-            else:
-                self.waypoints.remove(current_wp)
+        if not waypoint_completed:
+            return
+
+        current_wp = self._get_waypoint()
+        if self._should_use_facing(current_wp):
+            self.unit.movement_manager.face_angle(current_wp.orientation)
+
+        # Prevent players from seeing the mob stuck by updating its position using a heartbeat.
+        MapManager.send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)
+
+        if current_wp.script_id:
+            self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
+                                                    current_wp.script_id)
+        # If this is a default behavior, make it cyclic.
+        if self.should_repeat:
+            self._waypoint_push_back()
+        # Not default, pop.
+        else:
+            self.waypoints.remove(current_wp)
 
     # override
     def reset(self):

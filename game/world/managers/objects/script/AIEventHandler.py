@@ -101,8 +101,8 @@ class AIEventHandler:
                 self.creature.script_handler.enqueue_script(self.creature, player, ScriptTypes.SCRIPT_TYPE_AI, script)
 
     def _event_get_by_type(self, event_type):
-        # Skip for controlled units.
-        if self.creature.get_charmer_or_summoner():
+        # Skip for charmed units.
+        if self.creature.charmer:
             return []
         if not self.initialized:
             self.initialized = True
