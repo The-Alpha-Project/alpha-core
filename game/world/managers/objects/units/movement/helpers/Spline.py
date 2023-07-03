@@ -89,10 +89,19 @@ class Spline(object):
         if self.unit.movement_flags & MoveFlags.MOVEFLAG_REDIRECTED:
             return self.unit.location
         if is_complete:
+            self._validate_orientation(pending_waypoint)
             return pending_waypoint.location
         guessed_distance = self.speed * elapsed
         return self.unit.location.get_point_in_between(guessed_distance, pending_waypoint.location,
                                                        map_id=self.unit.map_id)
+
+    def _validate_orientation(self, pending_waypoint):
+        # Waypoint has no valid orientation, use current or calculate towards waypoint.
+        if pending_waypoint.location.o == 0 or pending_waypoint.location.o == 100:
+            if self.unit.location.o == 0:
+                pending_waypoint.location.o = self.unit.location.get_angle_towards_vector(pending_waypoint.location)
+            else:
+                pending_waypoint.location.o = self.unit.location.o
 
     def _debug_position(self, location):
         gameobject = GameObjectBuilder.create(2555, location, self.unit.map_id, self.unit.instance_id,

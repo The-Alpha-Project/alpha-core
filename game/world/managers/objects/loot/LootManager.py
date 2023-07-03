@@ -151,7 +151,7 @@ class LootManager(object):
             else:
                 [looter.enqueue_packet(removed_packet) for looter in self.get_active_looters()]
 
-            # If this is an item loot container, and it's empty, remove from player.
+            # Flag as depleted if this is an Item loot container and is empty, destroy will happen on loot release.
             from game.world.managers.objects.item.ItemLootManager import ItemLootManager
             if isinstance(self, ItemLootManager) and not self.has_loot():
                 # noinspection PyAttributeOutsideInit
