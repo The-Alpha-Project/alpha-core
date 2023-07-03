@@ -71,15 +71,19 @@ class ActiveQuest:
             return False
 
         needed_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(self.quest)))
-
         # Not required items for this quest.
         if len(needed_items) == 0:
             return False
 
-        # Check if any needed items match the provided go_loot_template.
+        req_count = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(self.quest)))
+        # Check if any needed items match the provided go_loot_template and if the player still needs them.
         for entry in go_loot_template:
-            if entry.item in needed_items:
-                return True
+            if entry.item not in needed_items:
+                continue
+            index = needed_items.index(entry.item)
+            req_count = req_count[index]
+            count = self._get_db_item_count(index)
+            return count < req_count
 
         return False
 
