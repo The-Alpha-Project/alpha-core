@@ -2809,7 +2809,7 @@ begin not atomic
         -- Air Totem
         INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`) VALUES ('10004', '0', '82', '30', '0', '4', '0', '64', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1024', '1', '0', '0', '0', '0', '0', '0', '0', 'Air Totem', '', '', '', '', '', '', '', '', '', '-5178', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '5178', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
 
-        -- 	Beram Skychaser
+        -- Beram Skychaser
         INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3032', '10001');
         INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3032', '10002');
         INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3032', '10003');
@@ -2849,7 +2849,7 @@ begin not atomic
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('986', '10003');
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('986', '10004');
         
-        -- 	Kardris Dreamseeker
+        -- Kardris Dreamseeker
         INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3344', '10001');
         INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3344', '10002');
         INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3344', '10003');
@@ -2890,10 +2890,10 @@ begin not atomic
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3066', '10004');
         
         -- 	Shikrik
-        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3157', '10001');
-        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3157', '10002');
-        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3157', '10003');
-        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3157', '10004');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3157', '10001');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3157', '10002');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3157', '10003');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3157', '10004');
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3157', '10001');
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3157', '10002');
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3157', '10003');
