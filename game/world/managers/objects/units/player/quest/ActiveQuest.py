@@ -220,10 +220,13 @@ class ActiveQuest:
                 return False
 
         # Check for required items.
-        required_items = QuestHelpers.generate_req_item_count_list(self.quest)
+        required_items_id = QuestHelpers.generate_req_item_list(self.quest)
+        required_items_count = QuestHelpers.generate_req_item_count_list(self.quest)
         for i in range(4):
+            if required_items_id[i] < 0:
+                continue
             current_value = eval(f'self.db_state.itemcount{i + 1}')
-            if current_value < required_items[i]:
+            if current_value < required_items_count[i]:
                 return False
 
         # Handle exploration.
