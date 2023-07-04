@@ -105,8 +105,11 @@ class EffectTargets:
         if self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL:
             implicit_targets.add(self.target_effect.implicit_target_b)
 
-        if FRIENDLY_IMPLICIT_TARGETS.intersection(implicit_targets):
-            return True, False
+        has_friendly = FRIENDLY_IMPLICIT_TARGETS.intersection(implicit_targets)
+        has_hostile = HOSTILE_IMPLICIT_TARGETS.intersection(implicit_targets)
+
+        if has_friendly != has_hostile:
+            return has_friendly, has_hostile
 
         # Spells with implicit target set to 0 can have both friendly and hostile targets.
         # These spells include passives, testing spells and npc spells.
@@ -115,7 +118,7 @@ class EffectTargets:
                 self.casting_spell.spell_entry.Targets & SpellTargetMask.ENEMIES:
             return True, False
 
-        # Neutral targets can target friendly. Use target context if given to resolve.
+        # Neutral targets can target any unit. Use target context if given to resolve.
         if NEUTRAL_IMPLICIT_TARGETS.intersection(implicit_targets):
             return not unit_target or not self.casting_spell.spell_caster.can_attack_target(unit_target), \
                 unit_target is None
@@ -129,7 +132,9 @@ class EffectTargets:
         self.previous_targets_a = self.resolved_targets_a
         self.previous_targets_b = self.resolved_targets_b
         self.resolved_targets_a = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_a)
-        self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
+        if self.target_effect.implicit_target_b != SpellImplicitTargets.TARGET_INITIAL:
+            # Don't consider INITIAL in B as set.
+            self.resolved_targets_b = self.resolve_implicit_targets_reference(self.target_effect.implicit_target_b)
 
     def remove_object_from_targets(self, guid):
         if len(self.resolved_targets_a) > 0 and isinstance(self.resolved_targets_a[0], ObjectManager):
@@ -578,6 +583,15 @@ FRIENDLY_IMPLICIT_TARGETS = {
     SpellImplicitTargets.TARGET_SINGLE_PARTY,
     SpellImplicitTargets.TARGET_AREAEFFECT_PARTY,  # Power infuses the target's party increasing their Shadow resistance by $s1 for $d.
     # SpellImplicitTargets.TARGET_SCRIPT  # Resolved separately
+}
+
+HOSTILE_IMPLICIT_TARGETS = {
+    SpellImplicitTargets.TARGET_RANDOM_ENEMY_CHAIN_IN_AREA,
+    SpellImplicitTargets.TARGET_ENEMY_UNIT,
+    SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA,
+    SpellImplicitTargets.TARGET_ALL_ENEMY_IN_AREA_INSTANT,
+    SpellImplicitTargets.TARGET_AREA_EFFECT_ENEMY_CHANNEL,
+    SpellImplicitTargets.TARGET_HOSTILE_UNIT_SELECTION
 }
 
 NEUTRAL_IMPLICIT_TARGETS = {
