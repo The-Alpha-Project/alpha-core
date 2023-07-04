@@ -194,7 +194,8 @@ class EffectTargets:
 
     @staticmethod
     def resolve_area_effect_custom(casting_spell, target_effect):
-        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        # TODO missing spell_script_target table for filtering A targets.
+        return target_effect.targets.resolved_targets_a
 
     @staticmethod
     def resolve_chain_damage(casting_spell, target_effect):
