@@ -2870,10 +2870,10 @@ begin not atomic
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('3062', '10004');
         
         -- Murak Winterborn
-        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('373', '10001');
-        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('373', '10002');
-        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('373', '10003');
-        INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('373', '10004');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('373', '10001');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('373', '10002');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('373', '10003');
+        INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('373', '10004');
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('373', '10001');
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('373', '10002');
         INSERT INTO `creature_quest_finisher` (`entry`, `quest`) VALUES ('373', '10003');
