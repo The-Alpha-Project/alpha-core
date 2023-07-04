@@ -129,7 +129,7 @@ class Vector(object):
             result.o = self.o
         else:
             result.o = self.get_angle_towards_vector(result)
-        return
+        return result
 
     def get_point_in_middle(self, vector, map_id=-1):
         x = (self.x + vector.x) / 2
