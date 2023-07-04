@@ -120,7 +120,7 @@ class EffectTargets:
             return not unit_target or not self.casting_spell.spell_caster.can_attack_target(unit_target), \
                 unit_target is None
 
-        return False, True
+        return True, True
 
     def resolve_targets(self):
         if not self.simple_targets:
