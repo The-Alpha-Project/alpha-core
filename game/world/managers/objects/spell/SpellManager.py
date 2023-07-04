@@ -820,7 +820,8 @@ class SpellManager:
             # Refresh targets.
             casting_spell.resolve_target_info_for_effect(effect.effect_index)
 
-            if effect.is_periodic() and not effect.has_periodic_ticks_remaining():
+            if effect.is_periodic() and not effect.has_periodic_ticks_remaining() or \
+                casting_spell.get_duration() != -1 and effect.applied_aura_duration <= 0:
                 is_finished = True
 
             self.apply_spell_effects(casting_spell, update=True, update_index=effect.effect_index)
