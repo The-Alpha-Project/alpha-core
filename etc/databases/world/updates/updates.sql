@@ -2793,12 +2793,5 @@ begin not atomic
         insert into`applied_updates`values ('020720232');
     end if;
 
-    -- 03/07/2023 1
-    if (select count(*) from `applied_updates` where id='030720231') = 0 then
-        ALTER TABLE `quest_template` CHANGE COLUMN `ReqItemId1` `ReqItemId1` INT(10) NOT NULL DEFAULT 0;
-
-        insert into`applied_updates`values ('030720231');
-    end if;
-
 end $
 delimiter ;

@@ -25,7 +25,7 @@ class SellItemHandler(object):
 
                 stack_count = item.item_instance.stackcount
 
-                # Client seems to send zero at least when simply right clicking, default to selling whole stack.
+                # Client seems to send zero at least when simply right-clicking, default to selling whole stack.
                 if sell_amount <= 0:
                     sell_amount = stack_count
 

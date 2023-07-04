@@ -351,10 +351,6 @@ class QuestManager(object):
         if class_is_required and not (quest_template.RequiredClasses & self.player_mgr.class_mask):
             return False
 
-        if quest_template.ReqItemId1 < 0:
-            if self.player_mgr.inventory.get_item_count(abs(quest_template.ReqItemId1)) >= quest_template.ReqItemCount1:
-                return False
-
         # Satisfies required skill?
         skill_is_required = quest_template.RequiredSkill > 0
         if skill_is_required:
@@ -621,7 +617,7 @@ class QuestManager(object):
         req_items_count_list = QuestHelpers.generate_req_item_count_list(quest)
         for index, creature_or_go in enumerate(req_creatures_or_gos):
             data += pack(
-                '<4iB',
+                '<4IB',
                 creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
                 req_creatures_or_gos_count_list[index],
                 req_items[index],

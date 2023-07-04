@@ -1,5 +1,6 @@
 -- There's no confirmed way to obtain all items required to summon shaman totems. This update adds a repeatable quest to
 -- all shaman trainers so shaman players can obtain them.
+-- TODO: Implement conditions on quests so theese are only visible if the player doesn't have the item already.
 
 
 -- Earth Totem
