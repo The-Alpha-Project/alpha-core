@@ -2793,5 +2793,16 @@ begin not atomic
         insert into`applied_updates`values ('020720232');
     end if;
 
+    -- 04/07/2023 1
+    if (select count(*) from `applied_updates` where id='040720231') = 0 then
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.3087', `spawn_positionY` = '-137.575', `spawn_positionZ` = '11.2933' WHERE (`spawn_id` = '47447');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.3294', `spawn_positionY` = '-137.5541', `spawn_positionZ` = '10.7427' WHERE (`spawn_id` = '47449');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.4392', `spawn_positionY` = '-137.4797', `spawn_positionZ` = '10.2576' WHERE (`spawn_id` = '47450');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.60', `spawn_positionY` = '-138.40', `spawn_positionZ` = '10.561' WHERE (`spawn_id` = '47451');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68', `spawn_positionY` = '-139.10', `spawn_positionZ` = '8.5955' WHERE (`spawn_id` = '47452');
+
+        insert into`applied_updates`values ('040720231');
+    end if;
+
 end $
 delimiter ;
