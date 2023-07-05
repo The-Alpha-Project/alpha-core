@@ -2804,6 +2804,77 @@ begin not atomic
         -- Port Master Szik
         UPDATE `creature_template` SET `equipment_id` = '400000' WHERE (`entry` = '2662');
 
+        -- Ironforge Mountaineer's stats.
+        UPDATE `creature_template` SET `level_min` = '18', `level_max` = '22' WHERE (`entry` = '727');
+        -- Change Frostmane Hold quest's experience reward.
+        UPDATE `quest_template` SET `RewXP` = '750' WHERE (`entry` = '287');
+        -- Change A Favour for Evershine quest's experience reward.
+        UPDATE `quest_template` SET `RewXP` = '600' WHERE (`entry` = '319');
+        -- Unequip Mountaineer Barleybrew
+        UPDATE `creature_template` SET `equipment_id` = '0' WHERE (`entry` = '1959');
+        -- Change A Pilot's Revenge quest's experience reward.
+        UPDATE `quest_template` SET `RewXP` = '575' WHERE (`entry` = '417');
+        -- Change an Elite's lvl.
+        UPDATE `creature_template` SET `level_min` = '12', `level_max` = '12' WHERE (`entry` = '1388');
+        -- Change Evershine quest's experience reward.
+        UPDATE `quest_template` SET `RewXP` = '170' WHERE (`entry` = '318');
+        -- Change binders' lvls. Kerik Firebeard and Fulgar Iceforge should be changed to lvl 65.
+        UPDATE `creature_template` SET `level_min` = '65', `level_max` = '65' WHERE (`entry` = '2297');
+        UPDATE `creature_template` SET `level_min` = '65', `level_max` = '65' WHERE (`entry` = '2296');
+        -- Rudra Amberstill should /beg when offering the Protecting the Herd quest.
+        UPDATE `quest_template` SET `DetailsEmote1` = '20' WHERE (`entry` = '314');
+        -- Change Coldridge Mountaineers' lvl and equipment.
+        UPDATE `creature_equip_template` SET `equipentry2` = '1985' WHERE (`entry` = '853');
+        UPDATE `creature_template` SET `level_min` = '9', `level_max` = '12' WHERE (`entry` = '853');
+        -- Change an NPC's subname, Keeg Gibn should have a subname.
+        UPDATE `creature_template` SET `subname` = 'Drinks' WHERE (`entry` = '1697');
+        -- Change an NPC's subname.
+        UPDATE `quest_template` SET `RewXP` = '1150' WHERE (`entry` = '412');
+        -- Ironforge Guards should be lvl 90.
+        UPDATE `creature_template` SET `level_min` = '90', `level_max` = '90' WHERE (`entry` = '5595');
+        -- Springspindle Fizzlegear should be lvl 35.
+        -- Gryth Thurden should be lvl 45.
+        -- Soleil Stonemantle, Bailey Stonemandle and Barnum Stonemantle should be lvl 35.
+        UPDATE `creature_template` SET `level_min` = '35', `level_max` = '35' WHERE (`entry` = '5174');
+        UPDATE `creature_template` SET `level_min` = '45', `level_max` = '45' WHERE (`entry` = '1573');
+        UPDATE `creature_template` SET `level_min` = '35', `level_max` = '35' WHERE (`entry` = '5099');
+        UPDATE `creature_template` SET `level_min` = '35', `level_max` = '35' WHERE (`entry` = '2461');
+        UPDATE `creature_template` SET `level_min` = '35', `level_max` = '35' WHERE (`entry` = '2460');
+        -- Change the quest's text, Knowledge in the Deeps , Ashenvale -> Darkshore.
+        UPDATE `quest_template` SET `Details` = 'As you might know, I collect lore.  Old lore.  Powerful lore.  Lore that opens doorways, and lore that can awaken Those Who Sleep.$B$BThere are rumors of an old piece of lore, the Lorgalis Manuscript, at the bottom of Blackfathom Deeps in Darkshore.  That place is the old dwelling of long-dead elves.  Elves who held great knowledge before their city fell to ruin.$B$BSearch Blackfathom Deeps for the manuscript.  Do this, and I will not forget it.  Not even after ... the end days.' WHERE (`entry` = '971');
+        -- Change The Reports quest's experience reward.
+        UPDATE `quest_template` SET `RewXP` = '575' WHERE (`entry` = '291');
+        -- Fizzlebang Booms should be renamed Fizzlebang Sparks.
+        UPDATE `creature_template` SET `name` = 'Fizzlebang Sparks' WHERE (`entry` = '5569');
+        -- Bretta Goldfury should have a DisplayID of 3077, the same as Skolmin Goldfury.
+        UPDATE `creature_template` SET `display_id1` = '3077' WHERE (`entry` = '5123');
+        -- Report to Ironforge should award 490 experience.
+        UPDATE `quest_template` SET `RewXP` = '490' WHERE (`entry` = '301');
+        -- Peria Lamenur and her Tamed Cat should be lvl 50.
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '2878');
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50' WHERE (`entry` = '5438');
+        -- Grelin Whitebeard should wield [Monster - Staff, Crooked].
+        UPDATE `creature_template` SET `equipment_id` = '786' WHERE (`entry` = '786');
+        INSERT INTO `creature_equip_template` (`entry`, `equipentry1`, `equipentry2`, `equipentry3`) VALUES ('786', '1908', '0', '0');
+        -- Apprentice Soren should wield [Monster - Torch] (The only main hand torch in the database).
+        UPDATE `item_template` SET `display_id` = '6537' WHERE (`entry` = '1906');
+        UPDATE `item_template` SET `display_id` = '6537' WHERE (`entry` = '6088');
+        --  Adjust The Stolen Journal quest's experience reward.
+        UPDATE `quest_template` SET `RewXP` = '550' WHERE (`entry` = '218');
+        -- Swap Anvilmar trainers' locations.
+        UPDATE `spawns_creatures` SET `position_x` = '-6048.79', `position_y` = '391.078', `position_z` = '398.958', `orientation` = '3.63028' WHERE (`spawn_id` = '421');
+        UPDATE `spawns_creatures` SET `position_x` = '-6093.75', `position_y` = '404.918', `position_z` = '395.62', `orientation` = '4.5204' WHERE (`spawn_id` = '1024');
+        -- Change Coldridge Mail Delivery (part 1)'s experience reward.
+        UPDATE `quest_template` SET `RewXP` = '10' WHERE (`entry` = '233');
+        -- Change Senir's Observations (part 1) quest's experience reward
+        UPDATE `quest_template` SET `RewXP` = '110' WHERE (`entry` = '282');
+        -- Change Senir's Observations (part 2) quest's experience reward.
+        UPDATE `alpha_world`.`quest_template` SET `RewXP` = '220' WHERE (`entry` = '420');
+
+
+
+
+
         insert into`applied_updates`values ('040720231');
     end if;
 
