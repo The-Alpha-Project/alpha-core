@@ -2801,6 +2801,9 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68.60', `spawn_positionY` = '-138.40', `spawn_positionZ` = '10.561' WHERE (`spawn_id` = '47451');
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '68', `spawn_positionY` = '-139.10', `spawn_positionZ` = '8.5955' WHERE (`spawn_id` = '47452');
 
+        -- Port Master Szik
+        UPDATE `creature_template` SET `equipment_id` = '400000' WHERE (`entry` = '2662');
+
         insert into`applied_updates`values ('040720231');
     end if;
 
