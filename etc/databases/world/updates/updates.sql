@@ -2871,10 +2871,6 @@ begin not atomic
         -- Change Senir's Observations (part 2) quest's experience reward.
         UPDATE `alpha_world`.`quest_template` SET `RewXP` = '220' WHERE (`entry` = '420');
 
-
-
-
-
         insert into`applied_updates`values ('040720231');
     end if;
 
