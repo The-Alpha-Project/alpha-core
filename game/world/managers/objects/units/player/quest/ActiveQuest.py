@@ -29,7 +29,7 @@ class ActiveQuest:
         self.area_triggers = WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[self.quest.entry]
 
     def requires_area_trigger(self, trigger_id):
-        return trigger_id in self.area_triggers and self.db_state.explored == 0
+        return self.area_triggers and trigger_id in self.area_triggers and self.db_state.explored == 0
 
     def is_quest_complete(self, quest_giver_guid):
         quest_giver = None
