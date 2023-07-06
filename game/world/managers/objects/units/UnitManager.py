@@ -604,7 +604,7 @@ class UnitManager(ObjectManager):
         self.mana_regen_timer = min(5, self.mana_regen_timer + elapsed)
 
         # Mana regen disruption.
-        if self.spell_manager.get_casting_spell():
+        if self.spell_manager.get_casting_spell(ignore_melee=True):
             self.mana_regen_timer = 0
 
         # Every 2 seconds.

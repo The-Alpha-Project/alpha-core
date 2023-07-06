@@ -220,7 +220,7 @@ class SpellManager:
         weapon = self.caster.get_current_weapon_for_attack_type(attack_type)
         # No weapon and spell requires it, interrupt.
         if not weapon:
-            self.interrupt_casting_spell()
+            self.remove_cast(casting_spell, interrupted=True)
             return
 
         # Check if the current weapon satisfies spell requirements.
@@ -229,7 +229,7 @@ class SpellManager:
         item_class = weapon.item_template.class_
         item_subclass_mask = 1 << weapon.item_template.subclass
         if required_item_class != item_class or not required_item_subclass & item_subclass_mask:
-            self.interrupt_casting_spell()
+            self.remove_cast(casting_spell, interrupted=True)
 
     def handle_item_cast_attempt(self, item, spell_target, target_mask):
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
@@ -568,7 +568,7 @@ class SpellManager:
                             casting_spell.handle_partial_interrupt()
                             continue
 
-                    self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                    self.remove_cast(casting_spell, interrupted=True)
                 continue
 
             if casting_spell.cast_state == SpellState.SPELL_STATE_ACTIVE:
@@ -588,14 +588,14 @@ class SpellManager:
                     elif flag & SpellInterruptFlags.SPELL_INTERRUPT_FLAG_AUTOATTACK:
                         continue  # Skip auto attack for partial interrupts.
 
-                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                self.remove_cast(casting_spell, interrupted=True)
 
     def interrupt_casting_spell(self, cooldown_penalty=0):
-        casting_spell = self.get_casting_spell()
+        casting_spell = self.get_casting_spell(ignore_melee=True)
         if not casting_spell:
             return
 
-        self.remove_cast(casting_spell, cast_result=SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+        self.remove_cast(casting_spell, interrupted=True)
         self.set_on_cooldown(casting_spell, cooldown_penalty=cooldown_penalty)
 
     def remove_cast(self, casting_spell, cast_result=SpellCheckCastResult.SPELL_NO_ERROR,
@@ -628,7 +628,7 @@ class SpellManager:
 
         # Always make sure to set interrupted result if necessary.
         # Client interrupts animations/sounds for a given world object to observers upon unsuccessful casts.
-        if interrupted:
+        if interrupted and cast_result != SpellCheckCastResult.SPELL_FAILED_DONT_REPORT:
             cast_result = SpellCheckCastResult.SPELL_FAILED_INTERRUPTED
 
         if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
@@ -699,7 +699,7 @@ class SpellManager:
     def remove_colliding_casts(self, current_cast):
         for casting_spell in self.casting_spells:
             if casting_spell.cast_state == SpellState.SPELL_STATE_CASTING or casting_spell.is_channeled():
-                self.remove_cast(casting_spell, SpellCheckCastResult.SPELL_FAILED_INTERRUPTED, interrupted=True)
+                self.remove_cast(casting_spell, interrupted=True)
                 continue
 
             if ExtendedSpellData.AuraSourceRestrictions.are_colliding_auras(casting_spell.spell_entry.ID,
@@ -994,20 +994,20 @@ class SpellManager:
                     spell.cast_state == SpellState.SPELL_STATE_ACTIVE and
                     not spell.is_channeled()])
 
-    def get_casting_spell(self):
+    def get_casting_spell(self, ignore_melee=False):
         for spell in list(self.casting_spells):
             if spell.triggered:
                 # Ignore triggered casts - they can have casting time but shouldn't affect other casts.
                 continue
 
-            if spell.cast_state != SpellState.SPELL_STATE_CASTING and not \
-                    (spell.is_channeled() and spell.cast_state == SpellState.SPELL_STATE_ACTIVE):
-                continue
-            return spell
+            if spell.cast_state == SpellState.SPELL_STATE_CASTING or \
+                    (spell.cast_state == SpellState.SPELL_STATE_ACTIVE and spell.is_channeled()) or \
+                    (spell.cast_state == SpellState.SPELL_STATE_DELAYED and spell.casts_on_swing() and not ignore_melee):
+                return spell
         return None
 
     def is_casting(self):
-        return self.get_casting_spell() is not None
+        return self.get_casting_spell(ignore_melee=True) is not None
 
     def validate_cast(self, casting_spell) -> bool:
         if self.is_on_cooldown(casting_spell.spell_entry):
