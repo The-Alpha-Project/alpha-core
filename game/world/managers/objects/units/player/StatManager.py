@@ -434,13 +434,22 @@ class StatManager(object):
                             current = self.item_stats.get(stat_type, 0)
                             self.item_stats[stat_type] = current + stat.value
 
-                    # Add resistances/block.
+                    # Add resistances.
                     separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
                                       UnitStats.RESISTANCE_HOLY: item.item_template.holy_res,
                                       UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
                                       UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
                                       UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
                                       UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res}
+
+                    # Add resistance enchant bonuses (only armor in 0.5.3).
+                    resistance_enchants = EnchantmentManager.get_enchantments_by_type(item,
+                                                                                      ItemEnchantmentType.RESISTANCE)
+
+                    for res_enchant in resistance_enchants:
+                        res_stat = UnitStats.RESISTANCE_START << res_enchant.effect_spell
+                        separate_stats[res_stat] += res_enchant.effect_points
+
                     for stat, value in separate_stats.items():
                         self.item_stats[stat] = self.item_stats.get(stat, 0) + value
 
