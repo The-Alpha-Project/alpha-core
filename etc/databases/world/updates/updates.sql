@@ -2877,7 +2877,7 @@ begin not atomic
     -- 06/07/2023 1
     if (select count(*) from `applied_updates` where id='060720231') = 0 then
 
-        ALTER TABLE `quest_template` ADD COLUMN `RequiredCondition` MEDIUMINT(5) NOT NULL DEFAULT 0 AFTER `RequiredSkillValue`;
+        ALTER TABLE `quest_template` ADD COLUMN `RequiredCondition` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0 AFTER `RequiredSkillValue`;
         UPDATE `quest_template` SET `RequiredCondition` = 778 WHERE `entry` = 207;
         UPDATE `quest_template` SET `RequiredCondition` = 215 WHERE `entry` = 215;
         UPDATE `quest_template` SET `RequiredCondition` = 790 WHERE `entry` = 690;
