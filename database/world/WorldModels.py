@@ -708,6 +708,7 @@ class QuestTemplate(Base):
     RequiredRaces = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     RequiredSkill = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     RequiredSkillValue = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
+    RequiredCondition = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     RepObjectiveFaction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
     RepObjectiveValue = Column(MEDIUMINT(9), nullable=False, server_default=text("'0'"))
     RequiredMinRepFaction = Column(SMALLINT(5), nullable=False, server_default=text("'0'"))
