@@ -181,9 +181,8 @@ class SpellEffect:
         # take into account initial target friendliness and the nature of the effect's implicit targets.
         target = self.casting_spell.initial_target if self.casting_spell.initial_target_is_unit_or_player() else None
 
-        if self.effect_type == SpellEffects.SPELL_EFFECT_APPLY_AURA:
-            if self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
-                return True
+        if self.aura_type and self.casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_AURA_IS_DEBUFF:
+            return True
 
         can_target_friendly, can_target_hostile = self.targets.get_target_hostility_info(unit_target=target)
 

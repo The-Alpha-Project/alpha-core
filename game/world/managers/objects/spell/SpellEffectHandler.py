@@ -339,9 +339,12 @@ class SpellEffectHandler:
             effect.area_aura_holder = AreaAuraHolder(effect)
             previous_targets = []
         else:
-            previous_targets = effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
+            # B is always specifying for area auras if set (only 6672, 6755).
+            previous_targets = effect.targets.previous_targets_b if effect.targets.previous_targets_b else \
+                effect.targets.previous_targets_a if effect.targets.previous_targets_a else []
 
-        current_targets = effect.targets.resolved_targets_a
+        current_targets = effect.targets.resolved_targets_b if effect.targets.resolved_targets_b else \
+            effect.targets.resolved_targets_a
 
         new_targets = [unit for unit in current_targets if
                        unit not in previous_targets]  # Targets that can't have the aura yet.
