@@ -3,6 +3,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.Logger import Logger
+from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.PetCodes import PetSlot
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
@@ -142,6 +143,9 @@ class ActivePet:
                 movement_type = spawn.movement_type
             else:
                 Logger.error(f'Unable to locate SpawnCreature with id {self.creature.spawn_id} upon pet detach.')
+
+        if pet_data.summon_spell_id and self._pet_manager.owner.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            self._pet_manager.owner.spell_manager.unlock_spell_cooldown(pet_data.summon_spell_id)
 
         if self.is_permanent():
             pet_data.save(self.creature)
