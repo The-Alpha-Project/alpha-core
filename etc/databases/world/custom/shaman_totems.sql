@@ -23,21 +23,6 @@ INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxL
 UPDATE `quest_template` SET `RequiredCondition` = '1678807' WHERE (`entry` = '10004');
 
 
--- Conditions, not having the item.
-
--- 1678804:  Not (Target Has 1 Stacks Of Item 5175 In Inventory) -- Earth Totem
-DELETE FROM `conditions` WHERE `condition_entry`=1678804;
-INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678804, 2, 5175, 1, 0, 0, 1);
--- 1678805:  Not (Target Has 1 Stacks Of Item 5176 In Inventory) -- Fire Totem
-DELETE FROM `conditions` WHERE `condition_entry`=1678805;
-INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678805, 2, 5176, 1, 0, 0, 1);
--- 1678806:  Not (Target Has 1 Stacks Of Item 5177 In Inventory) -- Water Totem
-DELETE FROM `conditions` WHERE `condition_entry`=1678806;
-INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678806, 2, 5177, 1, 0, 0, 1);
--- 1678807:  Not (Target Has 1 Stacks Of Item 5178 In Inventory) - Air Totem
-DELETE FROM `conditions` WHERE `condition_entry`=1678807;
-INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678807, 2, 5178, 1, 0, 0, 1);
-
 -- Beram Skychaser
 INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3032', '10001');
 INSERT INTO `creature_quest_starter` (`entry`, `quest`) VALUES ('3032', '10002');

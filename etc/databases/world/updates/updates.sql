@@ -2889,5 +2889,28 @@ begin not atomic
         insert into`applied_updates`values ('060720231');
     end if;
 
+    -- 06/07/2023 2
+    if (select count(*) from `applied_updates` where id='060720232') = 0 then
+        
+        -- Shamans.
+        -- Item Conditions, not having the totems.
+        -- This aint custom, since we need to take ownership of the ID's from Conditions table, else it could be used by something else in the future invalidating the custom quests.
+
+        -- 1678804:  Not (Target Has 1 Stacks Of Item 5175 In Inventory) -- Earth Totem
+        DELETE FROM `conditions` WHERE `condition_entry`=1678804;
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678804, 2, 5175, 1, 0, 0, 1);
+        -- 1678805:  Not (Target Has 1 Stacks Of Item 5176 In Inventory) -- Fire Totem
+        DELETE FROM `conditions` WHERE `condition_entry`=1678805;
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678805, 2, 5176, 1, 0, 0, 1);
+        -- 1678806:  Not (Target Has 1 Stacks Of Item 5177 In Inventory) -- Water Totem
+        DELETE FROM `conditions` WHERE `condition_entry`=1678806;
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678806, 2, 5177, 1, 0, 0, 1);
+        -- 1678807:  Not (Target Has 1 Stacks Of Item 5178 In Inventory) - Air Totem
+        DELETE FROM `conditions` WHERE `condition_entry`=1678807;
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678807, 2, 5178, 1, 0, 0, 1);
+
+        insert into`applied_updates`values ('060720232');
+    end if;
+
 end $
 delimiter ;
