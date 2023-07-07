@@ -7,6 +7,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
@@ -357,6 +358,11 @@ class QuestManager(object):
             skill_required_value = quest_template.RequiredSkillValue
             player_skill_value = self.player_mgr.skill_manager.get_total_skill_value(quest_template.RequiredSkill)
             if player_skill_value < skill_required_value:
+                return False
+
+        # Satisfies condition?
+        if quest_template.RequiredCondition:
+            if not ConditionChecker.validate(quest_template.RequiredCondition, self.player_mgr, self.player_mgr):
                 return False
 
         # Finishing a quest, it is valid because it was already taken.

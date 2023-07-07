@@ -2869,7 +2869,7 @@ begin not atomic
         -- Change Senir's Observations (part 1) quest's experience reward
         UPDATE `quest_template` SET `RewXP` = '110' WHERE (`entry` = '282');
         -- Change Senir's Observations (part 2) quest's experience reward.
-        UPDATE `alpha_world`.`quest_template` SET `RewXP` = '220' WHERE (`entry` = '420');
+        UPDATE `quest_template` SET `RewXP` = '220' WHERE (`entry` = '420');
 
         insert into`applied_updates`values ('040720231');
     end if;

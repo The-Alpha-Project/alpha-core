@@ -22,5 +22,6 @@ class DestroyItemHandler(object):
                 return 0
 
             world_session.player_mgr.inventory.remove_item(bag, source_slot, True)
+            world_session.player_mgr.quest_manager.update_surrounding_quest_status()
 
         return 0
