@@ -31,10 +31,10 @@ INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3
 -- 1678805:  Not (Target Has 1 Stacks Of Item 5176 In Inventory) -- Fire Totem
 DELETE FROM `conditions` WHERE `condition_entry`=1678805;
 INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678805, 2, 5176, 1, 0, 0, 1);
--- 1678806:  Not (Target Has 1 Stacks Of Item 5176 In Inventory) -- Water Totem
+-- 1678806:  Not (Target Has 1 Stacks Of Item 5177 In Inventory) -- Water Totem
 DELETE FROM `conditions` WHERE `condition_entry`=1678806;
 INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678806, 2, 5177, 1, 0, 0, 1);
--- 1678807:  Not (Target Has 1 Stacks Of Item 5176 In Inventory) - Air Totem
+-- 1678807:  Not (Target Has 1 Stacks Of Item 5178 In Inventory) - Air Totem
 DELETE FROM `conditions` WHERE `condition_entry`=1678807;
 INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (1678807, 2, 5178, 1, 0, 0, 1);
 
