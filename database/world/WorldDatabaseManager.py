@@ -880,7 +880,7 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def get_quest_conditions_by_type(condition_type):
-            result = []
+            result = set()
             for entry, quest_template in WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.items():
                 if not quest_template.RequiredCondition:
                     continue
@@ -889,7 +889,7 @@ class WorldDatabaseManager(object):
                     continue
                 if condition.type != condition_type:
                     continue
-                result.append(condition)
+                result.add(condition)
 
             return result
 

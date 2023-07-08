@@ -507,7 +507,8 @@ class WorldLoader:
 
     @staticmethod
     def load_quest_conditions_items():
-        quest_item_conditions = WorldDatabaseManager.QuestTemplateHolder.get_quest_conditions_by_type(ConditionType.CONDITION_ITEM)
+        quest_item_conditions = WorldDatabaseManager.QuestTemplateHolder.get_quest_conditions_by_type(
+            ConditionType.CONDITION_ITEM)
         length = len(quest_item_conditions)
         count = 0
 

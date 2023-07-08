@@ -126,5 +126,3 @@ class VendorUtils:
         data = pack('<Q3I', vendor.guid, vendor_slot, max_count, count)
         packet = PacketWriter.get_packet(OpCode.SMSG_BUY_ITEM, data)
         MapManager.send_surrounding(packet, player_mgr)
-
-        return
