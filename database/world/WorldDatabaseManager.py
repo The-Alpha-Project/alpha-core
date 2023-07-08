@@ -863,7 +863,7 @@ class WorldDatabaseManager(object):
         QUEST_CONDITION_ITEMS = set()
 
         @staticmethod
-        def load_quest_item_condition(quest_condition):
+        def load_item_from_quest_item_condition(quest_condition):
             WorldDatabaseManager.QuestItemConditionsHolder.QUEST_CONDITION_ITEMS.add(quest_condition.value1)
 
         @staticmethod

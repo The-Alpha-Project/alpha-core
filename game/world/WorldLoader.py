@@ -512,7 +512,7 @@ class WorldLoader:
         count = 0
 
         for quest_item_condition in quest_item_conditions:
-            WorldDatabaseManager.QuestItemConditionsHolder.load_quest_item_condition(quest_item_condition)
+            WorldDatabaseManager.QuestItemConditionsHolder.load_item_from_quest_item_condition(quest_item_condition)
             count += 1
             Logger.progress('Loading quest conditions items...', count, length)
 
