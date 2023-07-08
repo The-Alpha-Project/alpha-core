@@ -2929,7 +2929,7 @@ begin not atomic
 
         DELETE FROM `creature_ai_scripts` WHERE `id`=112601;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(112601, 0, 0, 15, 3385, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Large Crag Boar - Cast Spell Rushing Charge');
+(112601, 0, 0, 15, 3385, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Large Crag Boar - Cast Boar Charge');
 
         -- New creature spell lists. Winter Wolves should use Furious Howl.
         UPDATE `creature_template` SET `spell_list_id` = '11310' WHERE (`entry` = '1131');
@@ -2941,6 +2941,11 @@ begin not atomic
         UPDATE `creature_equip_template` SET `equipentry1` = '1909' WHERE (`entry` = '1229');
         -- Maxan Anvol should wield [Monster - Staff, Basic]
         UPDATE `creature_equip_template` SET `equipentry1` = '1907' WHERE (`entry` = '1226');
+        -- Magis Stonemantle should wield [Monster - Staff, Basic].
+        INSERT INTO `creature_equip_template` (`entry`, `equipentry1`, `equipentry2`, `equipentry3`) VALUES ('1228', '1907', '0', '0');
+        UPDATE `creature_template` SET `equipment_id` = '1228' WHERE (`entry` = '1228');
+        -- Azar Stronghammer should wield [Monster - Mace, Basic Metal Hammer].
+        UPDATE `creature_equip_template` SET `equipentry1` = '1903' WHERE (`entry` = '1232');
 
         insert into`applied_updates`values ('060720232');
     end if;
