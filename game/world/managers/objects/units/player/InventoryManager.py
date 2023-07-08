@@ -382,7 +382,7 @@ class InventoryManager(object):
             self.remove_bag(target_slot)
 
         if not swap_item and clear_slot:
-            # Update the quest db state if needed. (Destroying item).
+            # Update the quest db state if needed. (Destroying item affects a quest, or forced update).
             self.owner.quest_manager.pop_item(target_item.item_template.entry)
 
             # Update equipment.

@@ -112,7 +112,7 @@ class ConditionChecker:
         # Count = condition_value2.
         if not ConditionChecker.is_player(target):
             return False
-        return target.inventory.get_item_count(condition.value1) > condition.value2
+        return target.inventory.get_item_count(condition.value1) >= condition.value2
 
     @staticmethod
     def check_condition_item_equipped(condition, _source, target):

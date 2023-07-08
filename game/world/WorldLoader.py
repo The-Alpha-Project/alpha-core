@@ -8,6 +8,7 @@ from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
+from utils.constants.ConditionCodes import ConditionType
 
 
 class WorldLoader:
@@ -83,6 +84,7 @@ class WorldLoader:
         WorldLoader.load_faction_templates()
         WorldLoader.load_locks()
         WorldLoader.load_conditions()
+        WorldLoader.load_quest_conditions_items()
 
         # Character related data
         WorldLoader.load_groups()
@@ -500,6 +502,19 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading quest templates...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_quest_conditions_items():
+        quest_item_conditions = WorldDatabaseManager.QuestTemplateHolder.get_quest_conditions_by_type(ConditionType.CONDITION_ITEM)
+        length = len(quest_item_conditions)
+        count = 0
+
+        for quest_item_condition in quest_item_conditions:
+            WorldDatabaseManager.QuestItemConditionsHolder.load_item_from_quest_item_condition(quest_item_condition)
+            count += 1
+            Logger.progress('Loading quest conditions items...', count, length)
 
         return length
 

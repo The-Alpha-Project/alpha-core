@@ -116,11 +116,15 @@ class VendorUtils:
             return
 
         player_mgr.mod_money(total_cost * -1)
-        if vendor_data.is_limited_item(item_id):
-            vendor_data.update_limited_item(item_id, qty=count)
-            # Available count changed, update vendor.
-            vendor_slot = vendor_data.get_item_slot(item_id)
-            max_count = vendor_data.get_max_count(item_id)
-            data = pack('<Q3I', vendor.guid, vendor_slot, max_count, count)
-            packet = PacketWriter.get_packet(OpCode.SMSG_BUY_ITEM, data)
-            MapManager.send_surrounding(packet, player_mgr)
+        if not vendor_data.is_limited_item(item_id):
+            return
+
+        vendor_data.update_limited_item(item_id, qty=count)
+        # Available count changed, update vendor.
+        vendor_slot = vendor_data.get_item_slot(item_id)
+        max_count = vendor_data.get_max_count(item_id)
+        data = pack('<Q3I', vendor.guid, vendor_slot, max_count, count)
+        packet = PacketWriter.get_packet(OpCode.SMSG_BUY_ITEM, data)
+        MapManager.send_surrounding(packet, player_mgr)
+
+        return

@@ -7,6 +7,7 @@ from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
+from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 from game.world.managers.objects.units.player.quest.ActiveQuest import ActiveQuest
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
@@ -357,6 +358,11 @@ class QuestManager(object):
             skill_required_value = quest_template.RequiredSkillValue
             player_skill_value = self.player_mgr.skill_manager.get_total_skill_value(quest_template.RequiredSkill)
             if player_skill_value < skill_required_value:
+                return False
+
+        # Satisfies condition?
+        if quest_template.RequiredCondition:
+            if not ConditionChecker.validate(quest_template.RequiredCondition, self.player_mgr, self.player_mgr):
                 return False
 
         # Finishing a quest, it is valid because it was already taken.
@@ -1059,11 +1065,15 @@ class QuestManager(object):
         self.build_update()
 
     def pop_item(self, item_entry):
-        should_update = False
+        # Check if the item is required by a quest condition.
+        should_update = WorldDatabaseManager.QuestItemConditionsHolder.is_condition_involved_for_item(item_entry)
+
+        # Do necessary update for player.
         for active_quest in list(self.active_quests.values()):
-            if active_quest.requires_item(item_entry):
-                active_quest.update_required_items_from_inventory()
-                should_update = True
+            if not active_quest.requires_item(item_entry):
+                continue
+            active_quest.update_required_items_from_inventory()
+            should_update = True
 
         if should_update:
             self.update_surrounding_quest_status()
