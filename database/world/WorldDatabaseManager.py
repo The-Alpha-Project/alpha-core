@@ -859,6 +859,17 @@ class WorldDatabaseManager(object):
                 return []
             return WorldDatabaseManager.QuestExclusiveGroupsHolder.EXCLUSIVE_GROUPS[group_id]
 
+    class QuestItemConditionsHolder:
+        QUEST_CONDITION_ITEMS = set()
+
+        @staticmethod
+        def load_quest_item_condition(quest_condition):
+            WorldDatabaseManager.QuestItemConditionsHolder.QUEST_CONDITION_ITEMS.add(quest_condition.value1)
+
+        @staticmethod
+        def is_condition_involved_for_item(item_entry):
+            return item_entry in WorldDatabaseManager.QuestItemConditionsHolder.QUEST_CONDITION_ITEMS
+
     class QuestTemplateHolder:
         QUEST_TEMPLATES: dict[int, QuestTemplate] = {}
 
@@ -866,6 +877,21 @@ class WorldDatabaseManager(object):
         def load_quest_template(quest_template):
             WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES[quest_template.entry] = quest_template
             WorldDatabaseManager.QuestExclusiveGroupsHolder.load_exclusive_group(quest_template)
+
+        @staticmethod
+        def get_quest_conditions_by_type(condition_type):
+            result = []
+            for entry, quest_template in WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.items():
+                if not quest_template.RequiredCondition:
+                    continue
+                condition = WorldDatabaseManager.ConditionHolder.condition_get_by_id(quest_template.RequiredCondition)
+                if not condition:
+                    continue
+                if condition.type != condition_type:
+                    continue
+                result.append(condition)
+
+            return result
 
         @staticmethod
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:

@@ -1065,13 +1065,18 @@ class QuestManager(object):
         self.build_update()
 
     def pop_item(self, item_entry):
-        should_update = False
-        for active_quest in list(self.active_quests.values()):
-            if active_quest.requires_item(item_entry):
-                active_quest.update_required_items_from_inventory()
-                should_update = True
+        # Check if the item is required by a quest condition.
+        should_update = WorldDatabaseManager.QuestItemConditionsHolder.is_condition_involved_for_item(item_entry)
 
-        return should_update
+        # Do necessary update for player.
+        for active_quest in list(self.active_quests.values()):
+            if not active_quest.requires_item(item_entry):
+                continue
+            active_quest.update_required_items_from_inventory()
+            should_update = True
+
+        if should_update:
+            self.update_surrounding_quest_status()
 
     def reward_item(self, item_entry, item_count):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)

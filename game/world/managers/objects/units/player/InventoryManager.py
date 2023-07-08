@@ -352,7 +352,7 @@ class InventoryManager(object):
         return None
 
     # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
-    def remove_item(self, target_bag, target_slot, clear_slot=True, swap_item=None, force_quest_update=False):
+    def remove_item(self, target_bag, target_slot, clear_slot=True, swap_item=None):
         target_container = self.get_container(target_bag)
         if not target_container:
             return
@@ -383,8 +383,7 @@ class InventoryManager(object):
 
         if not swap_item and clear_slot:
             # Update the quest db state if needed. (Destroying item affects a quest, or forced update).
-            if force_quest_update or self.owner.quest_manager.pop_item(target_item.item_template.entry):
-                self.owner.quest_manager.update_surrounding_quest_status()
+            self.owner.quest_manager.pop_item(target_item.item_template.entry)
 
             # Update equipment.
             if target_item.is_equipped():

@@ -27,6 +27,6 @@ class DestroyItemHandler(object):
                 player_mgr.inventory.send_equip_error(InventoryError.BAG_NOT_EMPTY, item)
                 return 0
 
-            player_mgr.inventory.remove_item(bag, source_slot, clear_slot=True, force_quest_update=True)
+            player_mgr.inventory.remove_item(bag, source_slot, clear_slot=True)
 
         return 0
