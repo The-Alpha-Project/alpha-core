@@ -1071,8 +1071,7 @@ class QuestManager(object):
                 active_quest.update_required_items_from_inventory()
                 should_update = True
 
-        if should_update:
-            self.update_surrounding_quest_status()
+        return should_update
 
     def reward_item(self, item_entry, item_count):
         item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry)
