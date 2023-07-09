@@ -201,6 +201,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
         # Already doing it.
+        # TODO: Define event types in order to filter.
         if command.source.movement_manager.has_spline_events():
             return
         emotes = ScriptHelpers.get_filtered_datalong(command)
