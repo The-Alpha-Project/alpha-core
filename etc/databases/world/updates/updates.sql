@@ -2965,8 +2965,11 @@ begin not atomic
         UPDATE `creature_ai_events` SET `comment` = 'Large Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112601');
         -- The People's Militia Incorrect Text 
         UPDATE `quest_template` SET `RequestItemsText` = 'We have not time to talk, $N. The Defias Pillagers are denying the people of Westfall the peace and prosperity they deserve. Make sure at least 20 Defias Pillagers have been killed. That will send a clear message that corruption is not welcome here.' WHERE (`entry` = '13');
-        -- Radnaal Maneweaver, not ignored, wrong Z (Falling underground)
-        UPDATE `spawns_creatures` SET `ignored` = '0', `position_z` = '1326.81' WHERE (`spawn_id` = '46719');
+        -- Radnaal Maneweaver, wrong Z (Falling underground)
+        UPDATE `spawns_creatures` SET `position_z` = '1326.81' WHERE (`spawn_id` = '46719');
+        -- Nerra.
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('3699', '0', '0', '0', '1', '10129.12', '1663.828', '1325.139', '2.546', '300', '300', '0', '100', '0', '0', '0', '0', '0');
+
 
         insert into`applied_updates`values ('080720231');
     end if;
