@@ -2955,5 +2955,13 @@ begin not atomic
         insert into`applied_updates`values ('060720232');
     end if;
 
+    -- 08/07/2023 1
+    if (select count(*) from `applied_updates` where id='080720231') = 0 then     
+        -- Invalid factions 1070 -> 14 (Monster: Not Social) Private Hendel, Theramore Deserter.
+        UPDATE `creature_template` SET `faction` = '14' WHERE (`entry` = '4966');
+        UPDATE `creature_template` SET `faction` = '14' WHERE (`entry` = '5057');
+
+        insert into`applied_updates`values ('080720231');
+    end if;
 end $
 delimiter ;

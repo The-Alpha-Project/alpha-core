@@ -76,7 +76,8 @@ class ScriptHandler:
             if not script.is_complete():
                 continue
             # Finished all actions, remove.
-            self.script_queue.remove(script)
+            if script in self.script_queue:
+                self.script_queue.remove(script)
 
         # Check if we need to initialize or remove ooc event.
         self._check_ooc_events(now)
@@ -625,8 +626,7 @@ class ScriptHandler:
         # source = Creature
         # datalong = despawn_delay
         if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and command.source.is_alive:
-            # TODO: handle despawn delay
-            command.source.despawn()
+            command.source.despawn(ttl=command.datalong)
         else:
             Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info()}.')
 
@@ -1285,9 +1285,14 @@ class ScriptHandler:
         command.source.object_ai.assist_unit(command.target)
 
     @staticmethod
-    def handle_script_command_combat_stop(_command):
+    def handle_script_command_combat_stop(command):
         # source = Unit
-        Logger.debug('ScriptHandler: handle_script_command_combat_stop not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
+            return
+
+        command.source.attack_stop()
+        command.source.leave_combat()
 
     @staticmethod
     def handle_script_command_add_aura(_command):

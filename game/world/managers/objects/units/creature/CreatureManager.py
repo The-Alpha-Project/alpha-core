@@ -571,6 +571,14 @@ class CreatureManager(UnitManager):
                 return False
         return True
 
+    # override
+    def despawn(self, ttl=0):
+        if ttl:
+            # Delayed despawn.
+            self.time_to_live_timer = ttl / 1000  # Seconds.
+            return
+        super().despawn()
+
     def _check_time_to_live(self, elapsed):
         if self.time_to_live_timer > 0:
             self.time_to_live_timer -= elapsed
