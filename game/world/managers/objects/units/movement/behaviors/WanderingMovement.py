@@ -60,17 +60,24 @@ class WanderingMovement(BaseMovement):
     def _get_wandering_point(self):
         start_point = self.unit.spawn_position
         random_point = start_point.get_random_point_in_radius(self.wandering_distance, map_id=self.unit.map_id)
-        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, self.unit.location, random_point)
-        if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
+
+        # Check line of sight.
+        if not MapManager.los_check(self.unit.map_id, self.unit.location, random_point.get_ray_vector(is_terrain=True)):
             return False, start_point
 
-        map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
-        if not map_.is_active_cell_for_location(random_point):
+        # Validate a path to the wandering point.
+        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, self.unit.location, random_point)
+        if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
             return False, start_point
 
         # Ignore point if 'slope' above 2.5.
         diff = math.fabs(random_point.z - self.unit.location.z)
         if diff > 2.5:
+            return False, start_point
+        
+        # Do not wander into inactive cells.
+        map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
+        if not map_.is_active_cell_for_location(random_point):
             return False, start_point
 
         return True, random_point
