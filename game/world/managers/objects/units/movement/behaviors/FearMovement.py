@@ -14,17 +14,35 @@ from utils.constants.UnitCodes import UnitFlags
 SEARCH_RANDOM_RADIUS = 5.0
 MIN_QUIET_DISTANCE = 28.0
 MAX_QUIET_DISTANCE = 43.0 - SEARCH_RANDOM_RADIUS
+FLEE_ASSISTANCE_RADIUS = 30.0
 
 
 # TODO: Namigator: FindRandomPointAroundCircle (Detour)
 #  We need a valid path for fear else unexpected collisions can mess things up.
 class FearMovement(BaseMovement):
-    def __init__(self, fear_duration_secs, spline_callback):
+    def __init__(self, fear_duration_secs, spline_callback, seek_assist=False):
         super().__init__(move_type=MoveType.FEAR, spline_callback=spline_callback)
         self.fear_duration = fear_duration_secs
+        self.seek_assist = seek_assist
+        self.assist_unit = None
         self.waypoints: list[Vector] = []
         self.can_move = True
         self.expected_fear_end_timestamp = time.time() + fear_duration_secs
+
+    def initialize(self, unit):
+        super().initialize(unit)
+        unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
+        if not self.seek_assist or not unit.combat_target:
+            return True
+        # Should search assistance, search for a friendly unit.
+        units = MapManager.get_surrounding_units_by_location(unit.location, unit.map_id, unit.instance_id,
+                                                             FLEE_ASSISTANCE_RADIUS)[0].values()
+        for unit in units:
+            if not unit.threat_manager.unit_can_assist_help_call(unit, unit.combat_target):
+                continue
+            self.assist_unit = unit
+            break
+        return True
 
     # override
     def update(self, now, elapsed):
@@ -36,8 +54,14 @@ class FearMovement(BaseMovement):
 
         super().update(now, elapsed)
 
+    def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
+        super().on_new_position(new_position, waypoint_completed, remaining_waypoints)
+        # Was seeking for assist and found it, end timer.
+        if self.assist_unit and self.assist_unit.combat_target.guid == self.unit.combat_target.guid:
+            self.fear_duration = 0
+
     def on_spline_finished(self):
-        self.can_move = True
+        self.can_move = self.fear_duration > 0
 
     def _trigger_fear(self):
         # Attack stop if needed, else unit will keep trying to turn towards target.
@@ -85,6 +109,10 @@ class FearMovement(BaseMovement):
         return [fear_point]
 
     def _get_fear_point(self):
+        # Looking for assist.
+        if self.assist_unit:
+            return self.assist_unit.location
+
         attacker = self.unit.combat_target
         if attacker:
             distance_from_caster = self.unit.location.distance(attacker.location)

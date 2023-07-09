@@ -994,14 +994,15 @@ class ScriptHandler:
             return
 
         flee_text = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
-        command.source.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
         ChatManager.send_monster_message(command.source, flee_text.male_text,
                                          ChatMsgs.CHAT_MSG_MONSTER_EMOTE, Languages.LANG_UNIVERSAL,
                                          ChatHandler.get_range_by_type(ChatMsgs.CHAT_MSG_MONSTER_EMOTE),
                                          command.target)
         if command.source.spell_manager:
             command.source.spell_manager.remove_casts(remove_active=False)
-        command.source.movement_manager.move_fear(duration_seconds=7)  # Flee for 7 seconds.
+        seek_assist = command.datalong != 0
+        # Flee for 7 seconds or until assist is found (If nearby units can assist).
+        command.source.movement_manager.move_fear(duration_seconds=7, seek_assist=seek_assist)
 
     @staticmethod
     def handle_script_command_deal_damage(command):

@@ -128,12 +128,12 @@ class MovementManager:
     def move_flight(self, waypoints):
         self.set_behavior(FlightMovement(waypoints, self.spline_callback))
 
-    def move_fear(self, duration_seconds):
+    def move_fear(self, duration_seconds, seek_assist=False):
         current_fear_behavior = self.movement_behaviors.get(MoveType.FEAR, None)
         # Do not allow shorter fear to override a current fear.
         if current_fear_behavior and current_fear_behavior.fear_duration > duration_seconds:
             return
-        self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback))
+        self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback, seek_assist=seek_assist))
 
     def move_automatic_waypoints_from_script(self, command_move_info=None):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, command_move_info=command_move_info))

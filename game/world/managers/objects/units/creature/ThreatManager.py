@@ -180,7 +180,7 @@ class ThreatManager:
         units = MapManager.get_surrounding_units_by_location(self.owner.location, self.owner.map_id,
                                                              self.owner.instance_id,
                                                              self._call_for_help_range)[0].values()
-        helping_units = [unit for unit in units if unit != self.owner and self.unit_can_assist_help_call(unit, source)]
+        helping_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
         [unit.threat_manager.add_threat(source, threat, is_call_for_help=True) for unit in helping_units]
 
     def can_resolve_target(self):
@@ -220,6 +220,8 @@ class ThreatManager:
         elif not unit.can_assist_help_calls():
             return False
         elif unit.get_creature_family() != self.owner.get_creature_family():
+            return False
+        elif not MapManager.los_check(unit.map_id, self.owner.get_ray_position(), unit.get_ray_position()):
             return False
         return True
 
