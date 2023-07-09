@@ -2960,9 +2960,11 @@ begin not atomic
         -- Invalid factions 1070 -> 14 (Monster: Not Social) Private Hendel, Theramore Deserter.
         UPDATE `creature_template` SET `faction` = '14' WHERE (`entry` = '4966');
         UPDATE `creature_template` SET `faction` = '14' WHERE (`entry` = '5057');
-
+        -- Wrong event descriptions.
         UPDATE `creature_ai_events` SET `comment` = 'Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112501');
         UPDATE `creature_ai_events` SET `comment` = 'Large Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112601');
+        -- The People's Militia Incorrect Text 
+        UPDATE `quest_template` SET `RequestItemsText` = 'We have not time to talk, $N. The Defias Pillagers are denying the people of Westfall the peace and prosperity they deserve. Make sure at least 20 Defias Pillagers have been killed. That will send a clear message that corruption is not welcome here.' WHERE (`entry` = '13');
 
         insert into`applied_updates`values ('080720231');
     end if;
