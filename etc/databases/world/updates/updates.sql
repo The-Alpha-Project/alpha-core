@@ -2969,7 +2969,11 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_z` = '1326.81' WHERE (`spawn_id` = '46719');
         -- Nerra.
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('3699', '0', '0', '0', '1', '10129.12', '1663.828', '1325.139', '2.546', '300', '300', '0', '100', '0', '0', '0', '0', '0');
-
+        -- Elder Crag Boar should use Boar Charge.
+        UPDATE `creature_ai_events` SET `comment` = 'Elder Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112701');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=112701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(112701, 0, 0, 15, 3385, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elder Crag Boar - Cast Boar Charge');
 
         insert into`applied_updates`values ('080720231');
     end if;
