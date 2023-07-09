@@ -2961,6 +2961,9 @@ begin not atomic
         UPDATE `creature_template` SET `faction` = '14' WHERE (`entry` = '4966');
         UPDATE `creature_template` SET `faction` = '14' WHERE (`entry` = '5057');
 
+        UPDATE `creature_ai_events` SET `comment` = 'Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112501');
+        UPDATE `creature_ai_events` SET `comment` = 'Large Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112601');
+
         insert into`applied_updates`values ('080720231');
     end if;
 end $
