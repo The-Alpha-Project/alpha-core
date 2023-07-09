@@ -5,7 +5,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
-from utils.constants.UnitCodes import UnitStates
+from utils.constants.UnitCodes import UnitStates, SplineType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
 from game.world.managers.objects.units.movement.behaviors.GroupMovement import GroupMovement
@@ -38,6 +38,7 @@ class MovementManager:
             MoveType.WANDER: None,
             MoveType.IDLE: None,
         }
+        self.spline_events = []
 
     def initialize(self):
         if self.is_player:
@@ -77,6 +78,7 @@ class MovementManager:
         if spline:
             self.stop(force=True)
         self.unit.movement_spline = None
+        self.spline_events.clear()
         if clean_behaviors:
             self._remove_invalid_expired_behaviors()
 
@@ -93,7 +95,10 @@ class MovementManager:
         current_behavior = self._get_current_behavior()
 
         if not current_behavior:
+            self._update_spline_events(elapsed)
             return
+        elif self.spline_events:
+            self.spline_events.clear()
 
         # Resuming or cascaded into a previous movement, reset.
         if is_resume or movements_removed:
@@ -184,6 +189,23 @@ class MovementManager:
     def try_build_movement_packet(self):
         spline = self._get_current_spline()
         return spline.try_build_movement_packet() if spline else None
+
+    def add_spline_event(self, spline_event):
+        self.spline_events.append(spline_event)
+
+    def add_spline_events(self, events):
+        [self.add_spline_event(event) for event in events]
+
+    def has_spline_events(self):
+        return self.spline_events
+
+    def _update_spline_events(self, elapsed):
+        if not self.spline_events:
+            return
+        for spline_event in list(self.spline_events):
+            spline_event.update(elapsed)
+            if spline_event.triggered:
+                self.spline_events.remove(spline_event)
 
     def _handle_ooc_pause(self, elapsed):
         if self.pause_ooc_timer:

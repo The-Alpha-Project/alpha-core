@@ -12,6 +12,8 @@ from game.world.managers.objects.script.ScriptOocEvent import ScriptOocEvent
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.movement.helpers.CommandMoveInfo import CommandMoveInfo
+from game.world.managers.objects.units.movement.helpers.SplineEvent import SplineRestoreOrientationEvent, \
+    SplineTargetedEmoteEvent
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
@@ -198,13 +200,21 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
+        # Already doing it.
+        if command.source.movement_manager.has_spline_events():
+            return
         emotes = ScriptHelpers.get_filtered_datalong(command)
-        if emotes:
-            command.source.play_emote(random.choice(emotes))
-            if command.dataint and command.target:
-                # TODO: Properly handle delays and returning back to default orientation.
-                #  https://github.com/vmangos/core/blob/1ee2d05c4532e89ddce76740e5888ff873ce2623/src/game/Maps/ScriptCommands.cpp#L88
-                command.source.movement_manager.face_target(command.target)
+        if not emotes:
+            return
+        # Pause ooc if needed.
+        command.source.object_ai.player_interacted()
+        # Face target.
+        if not command.dataint or not command.target:
+            return
+        emote = random.choice(emotes)
+        targeted_emote_event = SplineTargetedEmoteEvent(command.source, command.target, start_seconds=2, emote=emote)
+        reset_orientation_event = SplineRestoreOrientationEvent(command.source, start_seconds=6)
+        command.source.movement_manager.add_spline_events([targeted_emote_event, reset_orientation_event])
 
     @staticmethod
     def handle_script_command_field_set(_command):
