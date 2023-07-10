@@ -16,7 +16,7 @@ class MakeMonsterAttackMeHandler(object):
         if not world_session.account_mgr.is_gm():
             return 0
 
-        if len(reader.data) >= 8:  # Avoid handling empty debug AI state packet.
+        if len(reader.data) >= 8:  # Avoid handling empty make monster attack me packet.
             guid = unpack('<Q', reader.data[:8])[0]
             unit = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
             if unit and unit.is_hostile_to(player_mgr):
