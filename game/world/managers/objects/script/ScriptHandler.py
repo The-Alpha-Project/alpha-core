@@ -12,6 +12,8 @@ from game.world.managers.objects.script.ScriptOocEvent import ScriptOocEvent
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.movement.helpers.CommandMoveInfo import CommandMoveInfo
+from game.world.managers.objects.units.movement.helpers.SplineEvent import SplineRestoreOrientationEvent, \
+    SplineTargetedEmoteEvent
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
@@ -76,7 +78,8 @@ class ScriptHandler:
             if not script.is_complete():
                 continue
             # Finished all actions, remove.
-            self.script_queue.remove(script)
+            if script in self.script_queue:
+                self.script_queue.remove(script)
 
         # Check if we need to initialize or remove ooc event.
         self._check_ooc_events(now)
@@ -197,13 +200,22 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
+        # Already doing it.
+        # TODO: Define event types in order to filter.
+        if command.source.movement_manager.has_spline_events():
+            return
         emotes = ScriptHelpers.get_filtered_datalong(command)
-        if emotes:
-            command.source.play_emote(random.choice(emotes))
-            if command.dataint and command.target:
-                # TODO: Properly handle delays and returning back to default orientation.
-                #  https://github.com/vmangos/core/blob/1ee2d05c4532e89ddce76740e5888ff873ce2623/src/game/Maps/ScriptCommands.cpp#L88
-                command.source.movement_manager.face_target(command.target)
+        if not emotes:
+            return
+        # Pause ooc if needed.
+        command.source.object_ai.player_interacted()
+        # Face target.
+        if not command.dataint or not command.target:
+            return
+        emote = random.choice(emotes)
+        targeted_emote_event = SplineTargetedEmoteEvent(command.source, command.target, start_seconds=2, emote=emote)
+        reset_orientation_event = SplineRestoreOrientationEvent(command.source, start_seconds=6)
+        command.source.movement_manager.add_spline_events([targeted_emote_event, reset_orientation_event])
 
     @staticmethod
     def handle_script_command_field_set(_command):
@@ -625,8 +637,7 @@ class ScriptHandler:
         # source = Creature
         # datalong = despawn_delay
         if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and command.source.is_alive:
-            # TODO: handle despawn delay
-            command.source.despawn()
+            command.source.despawn(ttl=command.datalong)
         else:
             Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info()}.')
 
@@ -994,14 +1005,15 @@ class ScriptHandler:
             return
 
         flee_text = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
-        command.source.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
         ChatManager.send_monster_message(command.source, flee_text.male_text,
                                          ChatMsgs.CHAT_MSG_MONSTER_EMOTE, Languages.LANG_UNIVERSAL,
                                          ChatHandler.get_range_by_type(ChatMsgs.CHAT_MSG_MONSTER_EMOTE),
                                          command.target)
         if command.source.spell_manager:
             command.source.spell_manager.remove_casts(remove_active=False)
-        command.source.movement_manager.move_fear(duration_seconds=7)  # Flee for 7 seconds.
+        seek_assist = command.datalong != 0
+        # Flee for 7 seconds or until assist is found (If nearby units can assist).
+        command.source.movement_manager.move_fear(duration_seconds=7, seek_assist=seek_assist)
 
     @staticmethod
     def handle_script_command_deal_damage(command):
@@ -1284,9 +1296,14 @@ class ScriptHandler:
         command.source.object_ai.assist_unit(command.target)
 
     @staticmethod
-    def handle_script_command_combat_stop(_command):
+    def handle_script_command_combat_stop(command):
         # source = Unit
-        Logger.debug('ScriptHandler: handle_script_command_combat_stop not implemented yet')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
+            return
+
+        command.source.attack_stop()
+        command.source.leave_combat()
 
     @staticmethod
     def handle_script_command_add_aura(_command):
