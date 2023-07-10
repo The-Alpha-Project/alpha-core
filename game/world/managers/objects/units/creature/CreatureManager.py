@@ -800,7 +800,7 @@ class CreatureManager(UnitManager):
         if is_under_water and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=True)
             MapManager.send_surrounding(self.get_heartbeat_packet(), self)
-        elif self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
+        elif not is_under_water and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=False)
             MapManager.send_surrounding(self.get_heartbeat_packet(), self)
 
