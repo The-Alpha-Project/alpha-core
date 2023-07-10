@@ -2960,6 +2960,18 @@ begin not atomic
         -- Invalid factions 1070 -> 14 (Monster: Not Social) Private Hendel, Theramore Deserter.
         UPDATE `creature_template` SET `faction` = '14' WHERE (`entry` = '4966');
         UPDATE `creature_template` SET `faction` = '14' WHERE (`entry` = '5057');
+        -- Wrong event descriptions.
+        UPDATE `creature_ai_events` SET `comment` = 'Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112501');
+        UPDATE `creature_ai_events` SET `comment` = 'Large Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112601');
+        -- The People's Militia Incorrect Text 
+        UPDATE `quest_template` SET `RequestItemsText` = 'We have not time to talk, $N. The Defias Pillagers are denying the people of Westfall the peace and prosperity they deserve. Make sure at least 20 Defias Pillagers have been killed. That will send a clear message that corruption is not welcome here.' WHERE (`entry` = '13');
+        -- Radnaal Maneweaver, wrong Z (Falling underground)
+        UPDATE `spawns_creatures` SET `position_z` = '1326.81' WHERE (`spawn_id` = '46719');
+        -- Elder Crag Boar should use Boar Charge.
+        UPDATE `creature_ai_events` SET `comment` = 'Elder Crag Boar - Cast Boar Charge on Aggro' WHERE (`id` = '112701');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=112701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(112701, 0, 0, 15, 3385, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elder Crag Boar - Cast Boar Charge');
 
         insert into`applied_updates`values ('080720231');
     end if;
