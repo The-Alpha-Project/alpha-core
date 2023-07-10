@@ -200,7 +200,7 @@ class ItemManager(ObjectManager):
         if item_template and item_template.entry > 0:
             item = CharacterInventory(
                 owner=owner,
-                creator=creator if creator and not item_template.stackable else 0,
+                creator=creator if creator and item_template.stackable == 1 else 0,
                 item_template=item_template.entry,
                 stackcount=stack_count,
                 slot=slot,
