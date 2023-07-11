@@ -448,7 +448,8 @@ class EffectTargets:
                                                            distance_loc=caster.location,
                                                            radius=target_effect.get_radius())
 
-        units.remove(caster)
+        if caster in units:
+            units.remove(caster)
         return units
 
     @staticmethod
