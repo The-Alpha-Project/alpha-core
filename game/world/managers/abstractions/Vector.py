@@ -66,13 +66,13 @@ class Vector(object):
         self.x = self.y = self.z = self.o = 0
 
     def distance(self, vector=None, x=0, y=0, z=0, decimals=3):
-        return round(math.sqrt(self.distance_sqrd(vector.x, vector.y, vector.z) if vector else
-                               self.distance_sqrd(x, y, z)), decimals)
+        return round(math.sqrt(self.distance_sqrd(vector) if vector else
+                               self.distance_sqrd(x=x, y=y, z=z)), decimals)
 
-    def distance_sqrd(self, x, y, z):
-        d_x = self.x - x
-        d_y = self.y - y
-        d_z = self.z - z
+    def distance_sqrd(self, vector=None, x=0, y=0, z=0):
+        d_x = self.x - (vector.x if vector else x)
+        d_y = self.y - (vector.y if vector else y)
+        d_z = self.z - (vector.z if vector else z)
 
         return d_x ** 2 + d_y ** 2 + d_z ** 2
 
