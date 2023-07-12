@@ -391,10 +391,12 @@ class ScriptHandler:
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
+
         # Units.
         if command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
             command.source.near_teleport(Vector(command.x, command.y, command.z, command.o))
             return
+
         # Players.
         command.source.teleport(command.datalong, Vector(command.x, command.y, command.z, command.o), is_instant=True)
 
@@ -1349,7 +1351,7 @@ class ScriptHandler:
             return
 
         if not command.source.creature_group:
-            Logger.warning(f'ScriptHandler: No source or target, aborting {command.get_info()}')
+            Logger.warning(f'ScriptHandler: No creature group, aborting {command.get_info()}')
             return
 
         command.source.creature_group.remove_member(command.source)
@@ -1358,19 +1360,15 @@ class ScriptHandler:
     def handle_script_command_set_go_state(command):
         # source = GameObject
         # datalong = GOState
-        if command.target:
-            target = command.target
-        elif command.source:
-            target = command.source
-        else:
-            Logger.warning(f'ScriptHandler: No source or target, aborting {command.get_info()}')
+        if not command.source:
+            Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
             return
 
-        if target.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
+        if command.source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return
 
-        target.set_state(GameObjectStates(command.datalong))
+        command.source.set_state(GameObjectStates(command.datalong))
 
     @staticmethod
     def handle_script_command_quest_credit(_command):
