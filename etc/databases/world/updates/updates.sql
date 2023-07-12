@@ -2975,5 +2975,14 @@ begin not atomic
 
         insert into`applied_updates`values ('080720231');
     end if;
+
+    -- 13/07/2023 1
+    if (select count(*) from `applied_updates` where id='130720231') = 0 then
+
+        -- Fix spell 124 target position. (Not used below but still)
+        UPDATE `spell_target_position` SET `target_map` = '0', `target_position_x` = '2851.201', `target_position_y` = '-711.075', `target_position_z` = '144.4', `target_orientation` = '5.45' WHERE (`id` = '427') and (`target_map` = '189');
+
+        insert into`applied_updates`values ('130720231');
+    end if;
 end $
 delimiter ;

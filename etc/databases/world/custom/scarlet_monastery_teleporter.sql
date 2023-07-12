@@ -1,8 +1,5 @@
 -- Scarlet Monastery Game Object Teleporter
 
--- Fix spell 124 target position. (Not used below but still)
-UPDATE `spell_target_position` SET `target_map` = '0', `target_position_x` = '2851.201', `target_position_y` = '-711.075', `target_position_z` = '144.4', `target_orientation` = '5.45' WHERE (`id` = '427') and (`target_map` = '189');
-
 -- GO template.
 DELETE FROM `gameobject_template` WHERE `entry`=3000492;
 INSERT INTO `gameobject_template` VALUES (3000492 , 1, 327, "Scarlet Monastery Teleporter", 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "");
