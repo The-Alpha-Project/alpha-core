@@ -2,7 +2,7 @@
 
 -- GO template.
 DELETE FROM `gameobject_template` WHERE `entry`=3000492;
-INSERT INTO `gameobject_template` VALUES (3000492 , 1, 327, "Scarlet Monastery Teleporter", 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "");
+INSERT INTO `gameobject_template` VALUES (3000492 , 1, 327, "[CUSTOM] Scarlet Monastery Teleporter", 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "");
 
 -- GO spawn entry.
 DELETE FROM `spawns_gameobjects` WHERE `spawn_entry`=3000492;
