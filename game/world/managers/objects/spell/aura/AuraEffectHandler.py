@@ -224,7 +224,7 @@ class AuraEffectHandler:
                 spell.initial_target = effect_target
                 break
 
-        effect_target.spell_manager.start_spell_cast(initialized_spell=spell)
+        caster.spell_manager.start_spell_cast(initialized_spell=spell)
 
     @staticmethod
     def handle_track_creatures(aura, effect_target, remove):
