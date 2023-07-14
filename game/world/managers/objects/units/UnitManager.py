@@ -716,6 +716,15 @@ class UnitManager(ObjectManager):
                                        spell_school=spell.get_damage_school(),
                                        spell_miss_reason=miss_reason, hit_info=hit_flags)
 
+        if spell.casts_on_swing():
+            damage_info.hit_info |= HitInfo.DEFERRED_LOGGING
+
+        if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
+            damage_info.target_state = VictimStates.VS_IMMUNE
+
+        if miss_reason != SpellMissReason.MISS_REASON_NONE:
+            return damage_info
+
         subclass = 0
         if self.get_type_id() == ObjectTypeIds.ID_PLAYER and damage_info.attack_type != -1:
             equipped_weapon = self.get_current_weapon_for_attack_type(damage_info.attack_type)
@@ -734,13 +743,6 @@ class UnitManager(ObjectManager):
         else:
             damage_info.base_damage = self.stat_manager.apply_bonuses_for_damage(base_damage, spell_school,
                                                                                  target, subclass)
-
-        if spell.casts_on_swing():
-            damage_info.hit_info |= HitInfo.DEFERRED_LOGGING
-
-        if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
-            damage_info.target_state = VictimStates.VS_IMMUNE
-            return damage_info
 
         # From 0.5.5 patch notes:
         #     "Critical hits with ranged weapons now do 100% extra damage."

@@ -857,8 +857,9 @@ class SpellManager:
         # The client expects the source to only be set for unit casters.
         source_unit = self.caster.guid if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else 0
 
-        data = [self.caster.guid, source_unit,
-                casting_spell.spell_entry.ID, casting_spell.cast_flags]
+        # Exclude proc flag from GO - proc casts are visible in 0.5.5 screenshots.
+        data = [self.caster.guid, source_unit, casting_spell.spell_entry.ID,
+                casting_spell.cast_flags & ~SpellCastFlags.CAST_FLAG_PROC]
 
         signature = '<2QIHB'  # caster, source, ID, flags .. (targets, ammo info).
 
