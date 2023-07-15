@@ -740,13 +740,13 @@ class StatManager(object):
         dodge_chance = self.get_total_stat(UnitStats.DODGE_CHANCE, accept_float=True) + rating_difference * 0.0004
         roll = random.random()
         if self.unit_mgr.can_dodge(attacker.location) and roll < dodge_chance:
-            return HitInfo.DODGE
+            return HitInfo.DODGE | HitInfo.SUCCESS
 
         if allow_parry:
             parry_chance = self.get_total_stat(UnitStats.PARRY_CHANCE, accept_float=True) + rating_difference * 0.0004
             roll = random.random()
             if self.unit_mgr.can_parry(attacker.location) and roll < parry_chance:
-                return HitInfo.PARRY
+                return HitInfo.PARRY | HitInfo.SUCCESS
 
         rating_difference_block = self._get_combat_rating_difference(attacker.level, combat_rating,
                                                                      use_block=self.unit_mgr.can_block())
@@ -754,7 +754,7 @@ class StatManager(object):
         block_chance = self.get_total_stat(UnitStats.BLOCK_CHANCE, accept_float=True) + rating_difference_block * 0.0004
         roll = random.random()
         if self.unit_mgr.can_block(attacker.location) and roll < block_chance:
-            return HitInfo.BLOCK
+            return HitInfo.BLOCK | HitInfo.SUCCESS
 
         if allow_crit:
             critical_chance = self._get_base_crit_chance_against_self(attacker, attack_type)
