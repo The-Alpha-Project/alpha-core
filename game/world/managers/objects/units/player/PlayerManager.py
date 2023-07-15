@@ -266,11 +266,6 @@ class PlayerManager(UnitManager):
         # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
 
-        # If alive, apply passives and cast when learned spells.
-        if self.is_alive:
-            self.spell_manager.cast_passive_spells()
-            self.spell_manager.apply_cast_when_learned_spells()
-
         # Load & Apply enchantments.
         self.enchantment_manager.apply_enchantments(load=True)
 
