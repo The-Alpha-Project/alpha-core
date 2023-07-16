@@ -233,6 +233,7 @@ class PlayerManager(UnitManager):
 
     def set_player_to_deathbind_location(self):
         self.map_id = self.deathbind.deathbind_map
+        self.instance_id = self.map_id
         self.location.x = self.deathbind.deathbind_position_x
         self.location.y = self.deathbind.deathbind_position_y
         self.location.z = self.deathbind.deathbind_position_z
@@ -733,6 +734,10 @@ class PlayerManager(UnitManager):
             self.respawn(pending_teleport.recovery_percentage)
             self.spirit_release_timer = 0
             self.resurrect_data = None
+            # Update passives, learned spells and stat bonuses.
+            self.spell_manager.cast_passive_spells()
+            self.spell_manager.apply_cast_when_learned_spells()
+            self.stat_manager.apply_bonuses()
 
         if not changed_map:
             # Get us in a new cell.
