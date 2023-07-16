@@ -233,7 +233,8 @@ class CreatureManager(UnitManager):
             self.combat_reach = creature_model_info.combat_reach
             self.gender = creature_model_info.gender
 
-        if self.creature_template.scale == 0:
+        # No scale or creature was summoned, look for scale according to display id.
+        if self.creature_template.scale == 0 or self.summoner:
             display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
             if display_scale and display_scale.CreatureModelScale > 0:
                 self.native_scale = display_scale.CreatureModelScale

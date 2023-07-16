@@ -615,6 +615,18 @@ class SpellEffectHandler:
 
         caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, creature_id=effect.misc_value)
 
+    # TODO:
+    #  EffectMultipleValue <= 0, guardian pets use their caster level modified by EffectMultipleValue.
+    #  Can't have more than 15 guardians. (Need a way to do this lookup for unit caster).
+    #  Level of pet summoned using engineering item based at engineering skill level.
+    #  Should use PetManager?
+    @staticmethod
+    def handle_summon_guardian(casting_spell, effect, caster, target):
+        creature_entry = effect.misc_value
+        if not creature_entry:
+            return
+        SpellEffectHandler.handle_summon_wild(casting_spell, effect, caster, target)
+
     @staticmethod
     def handle_summon_wild(casting_spell, effect, caster, target):
         creature_entry = effect.misc_value
@@ -975,6 +987,7 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_PICKPOCKET: SpellEffectHandler.handle_pick_pocket,
     SpellEffects.SPELL_EFFECT_ADD_FARSIGHT: SpellEffectHandler.handle_add_farsight,
     SpellEffects.SPELL_EFFECT_SUMMON_WILD: SpellEffectHandler.handle_summon_wild,
+    SpellEffects.SPELL_EFFECT_SUMMON_GUARDIAN: SpellEffectHandler.handle_summon_guardian,
     SpellEffects.SPELL_EFFECT_RESURRECT: SpellEffectHandler.handle_resurrect,
     SpellEffects.SPELL_EFFECT_EXTRA_ATTACKS: SpellEffectHandler.handle_extra_attacks,
     SpellEffects.SPELL_EFFECT_DUMMY: SpellEffectHandler.handle_dummy,
