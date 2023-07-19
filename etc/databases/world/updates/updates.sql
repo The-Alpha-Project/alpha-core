@@ -2994,5 +2994,13 @@ begin not atomic
 
         insert into`applied_updates`values ('160720231');
     end if;
+
+    -- 18/07/2023 1
+    if (select count(*) from `applied_updates` where id='180720231') = 0 then
+        -- Set Sarilus Foulborne spell list.
+        UPDATE `creature_template` SET `spell_list_id` = '3986' WHERE (`entry` = '3986');
+
+        insert into`applied_updates`values ('180720231');
+    end if;
 end $
 delimiter ;

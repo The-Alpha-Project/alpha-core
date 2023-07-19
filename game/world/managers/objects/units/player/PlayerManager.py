@@ -1590,9 +1590,9 @@ class PlayerManager(UnitManager):
 
     # override
     def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
-        if self.is_god:
-            return False
-
+        # Set damage to 0 but still continue, else threat system will fail to link units.
+        # Causing leave_combat to fail using god mode, affecting also Beastmaster.
+        damage_info.total_damage = 0 if self.is_god else damage_info.total_damage
         return super().receive_damage(damage_info, source, casting_spell=casting_spell, is_periodic=is_periodic)
 
     # override
