@@ -769,7 +769,7 @@ class UnitManager(ObjectManager):
         target.receive_damage(damage_info, source=self, casting_spell=casting_spell, is_periodic=is_periodic)
 
     def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):
-        # This method will return whether or not the unit is suitable to keep receiving damage.
+        # This method will return whether the unit is suitable to keep receiving damage.
         if not self.is_alive:
             return False
 
@@ -875,15 +875,16 @@ class UnitManager(ObjectManager):
         return True
 
     def _threat_assist(self, target, source_threat: float):
-        if target.in_combat:
-            creature_observers = [attacker for attacker
-                                  in target.threat_manager.get_threat_holder_units()
-                                  if not attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER]
-            observers_size = len(creature_observers)
-            if observers_size > 0:
-                threat = source_threat / observers_size
-                for creature in creature_observers:
-                    creature.threat_manager.add_threat(self, threat)
+        # Target not in combat or self is creature.
+        if not target.in_combat:
+            return
+        creature_observers = [attacker for attacker
+                              in target.threat_manager.get_threat_holder_units()
+                              if not attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER]
+        if not creature_observers:
+            return
+        threat = source_threat / len(creature_observers)
+        [creature.threat_manager.add_threat(self, threat) for creature in creature_observers]
 
     def send_spell_cast_debug_info(self, damage_info, casting_spell):
         is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER

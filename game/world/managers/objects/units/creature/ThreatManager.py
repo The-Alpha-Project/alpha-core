@@ -90,12 +90,6 @@ class ThreatManager:
         if not source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        # Check hostility.
-        # TODO: This is a safe guard until the root cause is found for units having aggro from another friendly
-        #  unit (npc vs npc), seems to be related to healing spells/buffs casted between them.
-        if not self.owner.is_hostile_to(source):
-            return
-
         if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
             return
 
