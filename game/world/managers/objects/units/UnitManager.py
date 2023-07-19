@@ -875,7 +875,6 @@ class UnitManager(ObjectManager):
         return True
 
     def _threat_assist(self, target, source_threat: float):
-        # Target not in combat or self is creature.
         if not target.in_combat:
             return
         creature_observers = [attacker for attacker
