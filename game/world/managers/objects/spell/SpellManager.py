@@ -860,7 +860,6 @@ class SpellManager:
 
         hit_count = 0
         miss_count = 1
-        # Exclude proc flag from GO - proc casts are visible in 0.5.5 screenshots.
         data = [damage_info.attacker.guid, damage_info.attacker.guid, casting_spell.spell_entry.ID,
                 casting_spell.cast_flags | SpellCastFlags.CAST_FLAG_PROC, hit_count, miss_count,
                 SpellMissReason.MISS_REASON_RESIST, damage_info.target.guid, SpellTargetMask.UNIT,
