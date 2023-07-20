@@ -52,6 +52,8 @@ class DamageInfoHolder:
         if self.hit_info & SpellHitFlags.REFLECTED:
             flags &= ~(WorldTextFlags.NORMAL_DAMAGE | WorldTextFlags.CRIT)
             flags |= WorldTextFlags.MISS_ABSORBED
+        if self.absorb:
+            flags |= WorldTextFlags.MISS_ABSORBED
 
         data = pack('<Q2IiIQ', self.target.guid, self.total_damage, self.base_damage, flags, self.spell_id, self.attacker.guid)
         return PacketWriter.get_packet(OpCode.SMSG_DAMAGE_DONE, data)

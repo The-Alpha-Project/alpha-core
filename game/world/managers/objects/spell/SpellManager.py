@@ -853,6 +853,24 @@ class SpellManager:
         chr_race = DbcDatabaseManager.chr_races_get_by_race(self.caster.race)
         self.handle_cast_attempt(chr_race.LoginEffectSpellID, self.caster, SpellTargetMask.SELF, validate=False)
 
+    # TODO: This is a workaround for not being able to properly display resists.
+    def send_spell_resist_result(self, casting_spell, damage_info):
+        if casting_spell.spell_caster == damage_info.target:
+            return
+
+        hit_count = 0
+        miss_count = 1
+        # Exclude proc flag from GO - proc casts are visible in 0.5.5 screenshots.
+        data = [damage_info.attacker.guid, damage_info.attacker.guid, casting_spell.spell_entry.ID,
+                casting_spell.cast_flags | SpellCastFlags.CAST_FLAG_PROC, hit_count, miss_count,
+                SpellMissReason.MISS_REASON_RESIST, damage_info.target.guid, SpellTargetMask.UNIT,
+                damage_info.target.guid]
+
+        signature = '<2QIH3BQHQ'
+        is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
+        MapManager.send_surrounding(packet, self.caster, include_self=is_player)
+
     def send_spell_go(self, casting_spell):
         # The client expects the source to only be set for unit casters.
         source_unit = self.caster.guid if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else 0
