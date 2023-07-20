@@ -860,12 +860,11 @@ class SpellManager:
 
         hit_count = 0
         miss_count = 1
+        signature = '<2QIH3BQHQ'
         data = [damage_info.attacker.guid, damage_info.attacker.guid, casting_spell.spell_entry.ID,
                 casting_spell.cast_flags | SpellCastFlags.CAST_FLAG_PROC, hit_count, miss_count,
                 SpellMissReason.MISS_REASON_RESIST, damage_info.target.guid, SpellTargetMask.UNIT,
                 damage_info.target.guid]
-
-        signature = '<2QIH3BQHQ'
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
         MapManager.send_surrounding(packet, self.caster, include_self=is_player)
