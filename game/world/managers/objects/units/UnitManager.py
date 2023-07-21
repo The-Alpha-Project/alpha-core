@@ -722,6 +722,11 @@ class UnitManager(ObjectManager):
         if miss_reason in {SpellMissReason.MISS_REASON_EVADED, SpellMissReason.MISS_REASON_IMMUNE}:
             damage_info.target_state = VictimStates.VS_IMMUNE
 
+        if miss_reason == SpellMissReason.MISS_REASON_RESIST:
+            damage_info.proc_ex = ProcFlagsExLegacy.RESIST
+            damage_info.base_damage = base_damage
+            damage_info.resist = base_damage
+
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
             return damage_info
 
@@ -896,6 +901,9 @@ class UnitManager(ObjectManager):
         # Healing effects are displayed to the affected player only.
         elif casting_spell.initial_target_is_player() and target_is_player:
             damage_info.target.enqueue_packet(spell_debug_packet)
+
+        if damage_info.resist:
+            self.spell_manager.send_spell_resist_result(casting_spell, damage_info)
 
     def set_current_target(self, guid):
         self.current_target = guid
