@@ -168,8 +168,8 @@ class GridManager:
     def _get_surrounding_cells_by_location(self, x, y, map_, instance_id):
         near_cells = set()
 
-        for x2 in range(-1, 1 + 1):
-            for y2 in range(-1, 1 + 1):
+        for x2 in range(-1, 2):
+            for y2 in range(-1, 2):
                 cell_coords = CellUtils.get_cell_key(x + (x2 * CELL_SIZE), y + (y2 * CELL_SIZE), map_, instance_id)
                 if cell_coords not in self.cells:
                     continue
