@@ -198,7 +198,7 @@ class GridManager:
         gameobject_index = 0
         dynamic_index = 0
         corpse_index = 0
-        # Define return collection and indexes dynamically.
+        # Resolve return collection and indexes dynamically.
         for index in range(len(object_types)):
             surrounding_objects.append(dict())
             if object_types[index] == ObjectTypeIds.ID_PLAYER:
