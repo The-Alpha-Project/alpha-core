@@ -3017,5 +3017,13 @@ begin not atomic
 
         insert into`applied_updates`values ('220720231');
     end if;
+
+    -- 22/07/2023 2
+    if (select count(*) from `applied_updates` where id='220720232') = 0 then
+        -- Torc the Orc missing npc_gossip link.
+        INSERT INTO `npc_gossip` (`npc_guid`, `textid`) VALUES ('400033','3148');
+
+        insert into`applied_updates`values ('220720232');
+    end if;
 end $
 delimiter ;
