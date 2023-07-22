@@ -1,5 +1,4 @@
 import math
-from time import time
 
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
