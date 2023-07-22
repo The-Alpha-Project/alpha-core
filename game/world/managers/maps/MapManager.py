@@ -123,10 +123,11 @@ class MapManager:
 
     @staticmethod
     def initialize_pending_tiles():
-        if not PENDING_TILE_INITIALIZATION_QUEUE.empty():
-            key = PENDING_TILE_INITIALIZATION_QUEUE.get()
-            map_id, x, y = str(key).rsplit(',')
-            MapManager.initialize_adt_tile(int(map_id), float(x), float(y))
+        if PENDING_TILE_INITIALIZATION_QUEUE.empty():
+            return
+        key = PENDING_TILE_INITIALIZATION_QUEUE.get()
+        map_id, x, y = str(key).rsplit(',')
+        MapManager.initialize_adt_tile(int(map_id), float(x), float(y))
 
     @staticmethod
     def initialize_adt_tile(map_id, x, y):

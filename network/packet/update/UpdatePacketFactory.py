@@ -80,7 +80,7 @@ class UpdatePacketFactory(object):
         if not self._validate_field_existence(index):
             return False
 
-        if FIELDS_ENCAPSULATION[self.fields_type][index] == EncapsulationType.PRIVATE and requester.guid != self.owner_guid:
+        if requester.guid != self.owner_guid and FIELDS_ENCAPSULATION[self.fields_type][index] == EncapsulationType.PRIVATE:
             # self._debug_field_acquisition(requester, index, was_protected=True)
             return False
 

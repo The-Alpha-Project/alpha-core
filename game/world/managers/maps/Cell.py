@@ -9,6 +9,8 @@ class Cell:
         self.min_y = min_y
         self.max_x = max_x
         self.max_y = max_y
+        self.mid_x = (min_x + max_x) / 2
+        self.mid_y = (min_y + max_y) / 2
         self.map_id = map_id
         self.instance_id = instance_id
         self.key = key
@@ -152,18 +154,19 @@ class Cell:
     def send_all(self, packet, source, include_source=False, exclude=None, use_ignore=False):
         players_reached = set()
         for guid, player_mgr in list(self.players.items()):
-            if player_mgr.online:
-                if not include_source and player_mgr.guid == source.guid:
-                    continue
-                if exclude and player_mgr.guid in exclude:
-                    continue
-                if use_ignore and source and player_mgr.friends_manager.has_ignore(source.guid):
-                    continue
-                # Never send messages to a player that does not know the source object.
-                if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
-                    continue
-                players_reached.add(player_mgr.guid)
-                player_mgr.enqueue_packet(packet)
+            if not player_mgr.online:
+                continue
+            if not include_source and player_mgr.guid == source.guid:
+                continue
+            if exclude and player_mgr.guid in exclude:
+                continue
+            if use_ignore and source and player_mgr.friends_manager.has_ignore(source.guid):
+                continue
+            # Never send messages to a player that does not know the source object.
+            if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
+                continue
+            players_reached.add(player_mgr.guid)
+            player_mgr.enqueue_packet(packet)
 
         # If this cell has cameras, route packets.
         for camera in FarSightManager.get_cell_cameras(self):
@@ -175,16 +178,17 @@ class Cell:
         else:
             players_reached = set()
             for guid, player_mgr in list(self.players.items()):
-                if player_mgr.online and player_mgr.location.distance(source.location) <= range_:
-                    if not include_source and player_mgr.guid == source.guid:
-                        continue
-                    if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
-                        continue
-                    # Never send messages to a player that does not know the source object.
-                    if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
-                        continue
-                    players_reached.add(player_mgr.guid)
-                    player_mgr.enqueue_packet(packet)
+                if not player_mgr.online or not player_mgr.location.distance(source.location) <= range_:
+                    continue
+                if not include_source and player_mgr.guid == source.guid:
+                    continue
+                if use_ignore and player_mgr.friends_manager.has_ignore(source.guid):
+                    continue
+                # Never send messages to a player that does not know the source object.
+                if not player_mgr.guid == source.guid and source.guid not in player_mgr.known_objects:
+                    continue
+                players_reached.add(player_mgr.guid)
+                player_mgr.enqueue_packet(packet)
 
             # If this cell has cameras, route packets.
             for camera in FarSightManager.get_cell_cameras(self):

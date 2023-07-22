@@ -1,4 +1,6 @@
 import math
+from time import time
+
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
@@ -336,13 +338,13 @@ class PlayerManager(UnitManager):
                                                                         0, 0, 0, 0, 0))
 
     def get_action_buttons(self):
-        data = b''
+        data = bytearray()
         player_buttons = RealmDatabaseManager.character_get_buttons(self.player.guid)
         for x in range(MAX_ACTION_BUTTONS):
             if player_buttons and x in player_buttons:
-                data += pack('<i', player_buttons[x])
+                data.extend(pack('<i', player_buttons[x]))
             else:
-                data += pack('<i', 0)
+                data.extend(pack('<i', 0))
         return PacketWriter.get_packet(OpCode.SMSG_ACTION_BUTTONS, data)
 
     def get_deathbind_packet(self):
@@ -410,10 +412,10 @@ class PlayerManager(UnitManager):
         active_objects = dict()
 
         if objects:
-            if object_type == ObjectTypeIds.ID_PLAYER:
-                update_func = self._update_known_player
-            elif object_type == ObjectTypeIds.ID_UNIT:
+            if object_type == ObjectTypeIds.ID_UNIT:
                 update_func = self._update_known_creature
+            elif object_type == ObjectTypeIds.ID_PLAYER:
+                update_func = self._update_known_player
             elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
                 update_func = self._update_known_gameobject
             elif object_type == ObjectTypeIds.ID_DYNAMICOBJECT:
@@ -974,7 +976,7 @@ class PlayerManager(UnitManager):
         self.loot_selection = LootSelection(loot_manager.world_object, loot_type)
 
         # Loot item data.
-        item_data = b''
+        item_data = bytearray()
         # Items for query data.
         item_templates = []
 
@@ -998,30 +1000,30 @@ class PlayerManager(UnitManager):
                     item_templates.append(loot.item.item_template)
                     item_count += 1
 
-                    item_data += pack(
+                    item_data.extend(pack(
                         '<B3I',
                         slot,
                         loot.item.item_template.entry,
                         loot.quantity,
                         loot.item.item_template.display_id,
-                    )
+                    ))
                 slot += 1
 
             # At this point, this player has access to the loot window, add him to the active looters.
             loot_manager.add_active_looter(self)
 
         # Set the header, now that we know how many actual items were sent.
-        data = pack(
+        data = bytearray(pack(
             '<QBIB',
             loot_manager.world_object.guid,
             loot_type,
             loot_manager.current_money,
             item_count
-        )
+        ))
 
         # Append item data and send all the packed item detail queries for current loot, if any.
         if item_count:
-            data += item_data
+            data.extend(item_data)
             self.enqueue_packets(ItemManager.get_item_query_packets(item_templates))
 
         packet = PacketWriter.get_packet(OpCode.SMSG_LOOT_RESPONSE, data)

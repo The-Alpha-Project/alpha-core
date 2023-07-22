@@ -386,25 +386,24 @@ class GameObjectManager(ObjectManager):
 
     # override
     def _get_fields_update(self, is_create, requester):
-        data = b''
+        data = bytearray()
         mask = self.update_packet_factory.update_mask.copy()
-        for field_index in range(self.update_packet_factory.update_mask.field_count):
+        for index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
-            if not is_create and mask[field_index] == 0 and not self.update_packet_factory.is_dynamic_field(
-                    field_index):
+            if not is_create and mask[index] == 0 and not self.update_packet_factory.is_dynamic_field(index):
                 continue
             # Check for encapsulation, turn off the bit if requester has no read access.
-            if not self.update_packet_factory.has_read_rights_for_field(field_index, requester):
-                mask[field_index] = 0
+            if not self.update_packet_factory.has_read_rights_for_field(index, requester):
+                mask[index] = 0
                 continue
             # Handle dynamic field, turn on this extra bit.
-            if self.update_packet_factory.is_dynamic_field(field_index):
-                data += pack('<I', self.generate_dynamic_field_value(requester))
-                mask[field_index] = 1
+            if self.update_packet_factory.is_dynamic_field(index):
+                data.extend(pack('<I', self.generate_dynamic_field_value(requester)))
+                mask[index] = 1
             else:
                 # Append field value and turn on bit on mask.
-                data += self.update_packet_factory.update_values_bytes[field_index]
-                mask[field_index] = 1
+                data.extend(self.update_packet_factory.update_values_bytes[index])
+                mask[index] = 1
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
     def _check_time_to_live(self, elapsed):

@@ -26,13 +26,15 @@ class ReputationManager(object):
             self.reputations[reputation.index] = reputation
 
     def send_initialize_factions(self, set_visible=True):
-        data = pack('<I', CLIENT_MAX)
+        data = bytearray(pack('<I', CLIENT_MAX))
         for x in range(CLIENT_MAX):
             if x in self.reputations:
                 faction = DbcDatabaseManager.FactionHolder.faction_get_by_index(x)
-                data += pack('<Bi', self.reputations[x].flags, self.reputations[x].standing - faction.ReputationBase_1)
+                flags = self.reputations[x].flags
+                standing = self.reputations[x].standing
+                data.extend(pack('<Bi', flags, standing - faction.ReputationBase_1))
             else:
-                data += pack('<Bi', 0, 0)
+                data.extend(pack('<Bi', 0, 0))
         packet = PacketWriter.get_packet(OpCode.SMSG_INITIALIZE_FACTIONS, data)
         self.player_mgr.enqueue_packet(packet)
 

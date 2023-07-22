@@ -304,7 +304,7 @@ class WorldServerSessionHandler:
         # MapManager tile loading.
         tile_loading_scheduler = BackgroundScheduler()
         tile_loading_scheduler._daemon = True
-        tile_loading_scheduler.add_job(MapManager.initialize_pending_tiles, 'interval', seconds=1.0, max_instances=4)
+        tile_loading_scheduler.add_job(MapManager.initialize_pending_tiles, 'interval', seconds=2.0, max_instances=4)
         tile_loading_scheduler.start()
 
         # Cell deactivation.

@@ -199,11 +199,11 @@ class SpellManager:
     def get_initial_spells(self) -> bytes:
         spell_buttons = RealmDatabaseManager.character_get_spell_buttons(self.caster.guid)
 
-        data = pack('<BH', 0, len(self.spells))
+        data = bytearray(pack('<BH', 0, len(self.spells)))
         for spell_id, spell in self.spells.items():
             index = spell_buttons[spell.spell] if spell.spell in spell_buttons else 0
-            data += pack('<2h', spell.spell, index)
-        data += pack('<H', 0)
+            data.extend(pack('<2h', spell.spell, index))
+        data.extend(pack('<H', 0))
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 

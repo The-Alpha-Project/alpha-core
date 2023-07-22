@@ -140,10 +140,10 @@ class Spline(object):
             self.initialize()
 
         # Fill header.
-        data = self._get_header_bytes()
+        data = bytearray(self._get_header_bytes())
 
         if not self.is_type(SplineType.SPLINE_TYPE_STOP):
-            data += self._get_payload_bytes()
+            data.extend(self._get_payload_bytes())
 
         return PacketWriter.get_packet(OpCode.SMSG_MONSTER_MOVE, data)
 
