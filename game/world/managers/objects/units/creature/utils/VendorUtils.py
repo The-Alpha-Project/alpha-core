@@ -43,12 +43,12 @@ class VendorUtils:
             vendor_data = VendorUtils.VENDOR_DATA[creature_mgr.guid]
 
         item_templates = []
-        items_data = b''
+        items_data = bytearray()
 
         for count, item_entry in enumerate(vendor_data.get_vendor_items()):
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_entry.item)
             if item_template:
-                items_data += pack(
+                items_data.extend(pack(
                     '<7I',
                     count + 1,  # m_muid, acts as slot counter.
                     item_template.entry,
@@ -57,14 +57,14 @@ class VendorUtils:
                     item_template.buy_price,
                     item_template.max_durability,  # Max durability (not implemented in 0.5.3).
                     item_template.buy_count  # Stack count.
-                )
+                ))
                 item_templates.append(item_template)
 
         item_count = len(item_templates)
         if item_count == 0:
-            items_data += pack('<B', 0)
+            items_data.extend(pack('<B', 0))
         else:
-            items_data += items_data
+            items_data.extend(items_data)
 
         data = pack(f'<QB{len(items_data)}s', creature_mgr.guid, item_count, items_data)
 

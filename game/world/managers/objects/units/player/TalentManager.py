@@ -25,7 +25,7 @@ class TalentManager(object):
         return talent_points_cost
 
     def send_talent_list(self):
-        talent_bytes: bytes = b''
+        talent_bytes: bytearray = bytearray()
         talent_count: int = 0
 
         for training_spell in WorldDatabaseManager.TrainerSpellHolder.TALENTS:
@@ -76,13 +76,12 @@ class TalentManager(object):
             if succeeded_spell != 0 and succeeded_spell in self.player_mgr.spell_manager.spells:
                 status = TrainerServices.TRAINER_SERVICE_NOT_SHOWN
 
-            talent_bytes += TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
-                                                        talent_points_cost, 0,  # 0 Skill point cost.
-                                                        spell.BaseLevel,
-                                                        training_spell.reqskill,
-                                                        training_spell.reqskillvalue,
-                                                        0,  # Required skill data.
-                                                        preceded_spell)
+            talent_bytes.extend(
+                TrainerUtils.get_spell_data(training_spell.spell, status, 0,  # 0 Money cost.
+                                            talent_points_cost, 0,  # 0 Skill point cost.
+                                            spell.BaseLevel, training_spell.reqskill, training_spell.reqskillvalue,
+                                            0,  # Required skill data.
+                                            preceded_spell))
             talent_count += 1
 
         data = pack('<Q2I', self.player_mgr.guid, TrainerTypes.TRAINER_TYPE_TALENTS, talent_count) + talent_bytes

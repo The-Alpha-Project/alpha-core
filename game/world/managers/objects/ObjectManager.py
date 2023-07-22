@@ -115,37 +115,42 @@ class ObjectManager:
         if not self.initialized:
             self.initialize_field_values()
 
+        # Initialize bytearray.
+        data = bytearray()
+
         # Base structure.
-        data = self._get_base_structure(UpdateTypes.CREATE_OBJECT)
+        data.extend(self._get_base_structure(UpdateTypes.CREATE_OBJECT))
 
         # Object type.
-        data += pack('<B', self.get_type_id())
+        data.extend(pack('<B', self.get_type_id()))
 
         # Movement fields.
-        data += self._get_movement_fields()
+        data.extend(self._get_movement_fields())
 
         # Misc fields.
         combat_unit = UnitManager.UnitManager(self).combat_target if self.get_type_mask() & ObjectTypeFlags.TYPE_UNIT \
             else None
-        data += pack(
+        data.extend(pack(
             '<3IQ',
             1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
             1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
             0,  # TimerId
             combat_unit.guid if combat_unit else 0,  # Victim GUID
-        )
+        ))
 
         # Normal update fields.
-        data += self._get_fields_update(True, requester)
+        data.extend(self._get_fields_update(True, requester))
 
         return data
 
     def get_partial_update_bytes(self, requester):
+        data = bytearray()
+
         # Base structure.
-        data = self._get_base_structure(UpdateTypes.PARTIAL)
+        data.extend(self._get_base_structure(UpdateTypes.PARTIAL))
 
         # Normal update fields.
-        data += self._get_fields_update(False, requester)
+        data.extend(self._get_fields_update(False, requester))
 
         return data
 
@@ -272,7 +277,7 @@ class ObjectManager:
         return data
 
     def _get_fields_update(self, is_create, requester):
-        data = b''
+        data = bytearray()
         mask = self.update_packet_factory.update_mask.copy()
         for field_index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
@@ -283,7 +288,7 @@ class ObjectManager:
                 mask[field_index] = 0
                 continue
             # Append field value and turn on bit on mask.
-            data += self.update_packet_factory.update_values_bytes[field_index]
+            data.extend(self.update_packet_factory.update_values_bytes[field_index])
             mask[field_index] = 1
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 

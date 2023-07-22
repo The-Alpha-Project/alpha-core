@@ -513,24 +513,24 @@ class QuestManager(object):
         if len(message_bytes) > 256:
             message_bytes = message_bytes[:255] + b'\x00'
 
-        data = pack(
+        data = bytearray(pack(
             f'<Q{len(message_bytes)}s2iB',
             quest_giver_guid,
             message_bytes,
             0,
             emote,
             len(quests)
-        )
+        ))
 
         for entry in quests:
             quest_title = PacketWriter.string_to_bytes(quests[entry].quest.Title)
-            data += pack(
+            data.extend(pack(
                 f'<3I{len(quest_title)}s',
                 entry,
                 quests[entry].quest_giver_state,
                 quests[entry].quest.QuestLevel,
                 quest_title
-            )
+            ))
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_LIST, data))
 
@@ -539,7 +539,7 @@ class QuestManager(object):
         quest_title = PacketWriter.string_to_bytes(quest_template.Title)
         quest_details = PacketWriter.string_to_bytes(quest_template.Details)
         quest_objectives = PacketWriter.string_to_bytes(quest_template.Objectives)
-        data = pack(
+        data = bytearray(pack(
             f'<QI{len(quest_title)}s{len(quest_details)}s{len(quest_objectives)}sI',
             quest_giver_guid,
             quest_template.entry,
@@ -547,36 +547,36 @@ class QuestManager(object):
             quest_details,
             quest_objectives,
             1 if activate_accept else 0
-        )
+        ))
 
         # Reward choices
         rew_choice_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_item_list(quest_template)))
         rew_choice_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_count_list(quest_template)))
-        data += pack('<I', len(rew_choice_item_list))
+        data.extend(pack('<I', len(rew_choice_item_list)))
         for index, item in enumerate(rew_choice_item_list):
-            data += self._gen_item_struct(item, rew_choice_count_list[index])
+            data.extend(self._gen_item_struct(item, rew_choice_count_list[index]))
 
         # Reward items
         rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(quest_template)))
         rew_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(quest_template)))
-        data += pack('<I', len(rew_item_list))
+        data.extend(pack('<I', len(rew_item_list)))
         for index, item in enumerate(rew_item_list):
-            data += self._gen_item_struct(item, rew_count_list[index])
+            data.extend(self._gen_item_struct(item, rew_count_list[index]))
 
         # Reward money
-        data += pack('<I', quest_template.RewOrReqMoney)
+        data.extend(pack('<I', quest_template.RewOrReqMoney))
 
         # Emotes
-        data += pack('<I', 4)
+        data.extend(pack('<I', 4))
         for index in range(1, 5):
             detail_emote = int(eval(f'quest_template.DetailsEmote{index}'))
             detail_emote_delay = eval(f'quest_template.DetailsEmoteDelay{index}')
-            data += pack('<2I', detail_emote, detail_emote_delay)
+            data.extend(pack('<2I', detail_emote, detail_emote_delay))
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
 
     def send_quest_query_response(self, quest):
-        data = pack(
+        data = bytearray(pack(
             f'<3Ii4I',
             quest.entry,
             quest.Method,
@@ -586,25 +586,25 @@ class QuestManager(object):
             quest.NextQuestInChain,
             quest.RewOrReqMoney,
             quest.SrcItemId
-        )
+        ))
 
         # Rewards given no matter what.
         rew_item_list = QuestHelpers.generate_rew_item_list(quest)
         rew_item_count_list = QuestHelpers.generate_rew_count_list(quest)
         for index, item in enumerate(rew_item_list):
-            data += pack('<2I', item, rew_item_count_list[index])
+            data.extend(pack('<2I', item, rew_item_count_list[index]))
 
         # Reward choices.
         rew_choice_item_list = QuestHelpers.generate_rew_choice_item_list(quest)
         rew_choice_count_list = QuestHelpers.generate_rew_choice_count_list(quest)
         for index, item in enumerate(rew_choice_item_list):
-            data += pack('<2I', item, rew_choice_count_list[index])
+            data.extend(pack('<2I', item, rew_choice_count_list[index]))
 
         title_bytes = PacketWriter.string_to_bytes(quest.Title)
         details_bytes = PacketWriter.string_to_bytes(quest.Details)
         objectives_bytes = PacketWriter.string_to_bytes(quest.Objectives)
         end_bytes = PacketWriter.string_to_bytes(quest.EndText)
-        data += pack(
+        data.extend(pack(
             f'<I2fI{len(title_bytes)}s{len(details_bytes)}s{len(objectives_bytes)}s{len(end_bytes)}s',
             quest.PointMapId,
             quest.PointX,
@@ -614,7 +614,7 @@ class QuestManager(object):
             details_bytes,
             objectives_bytes,
             end_bytes,
-        )
+        ))
 
         # Required kills / Required items count.
         req_creatures_or_gos = QuestHelpers.generate_req_creature_or_go_list(quest)
@@ -622,14 +622,14 @@ class QuestManager(object):
         req_items = QuestHelpers.generate_req_item_list(quest)
         req_items_count_list = QuestHelpers.generate_req_item_count_list(quest)
         for index, creature_or_go in enumerate(req_creatures_or_gos):
-            data += pack(
+            data.extend(pack(
                 '<4IB',
                 creature_or_go if creature_or_go >= 0 else (creature_or_go * -1) | 0x80000000,
                 req_creatures_or_gos_count_list[index],
                 req_items[index],
                 req_items_count_list[index],
                 0x0  # Unknown, if missing, multiple objective quests will not display properly.
-            )
+            ))
 
             # Send query details for gameobjects and creatures in case they are out of range.
             if creature_or_go < 0:
@@ -645,10 +645,10 @@ class QuestManager(object):
         req_objective_text_list = QuestHelpers.generate_objective_text_list(quest)
         for index, objective_text in enumerate(req_objective_text_list):
             req_objective_text_bytes = PacketWriter.string_to_bytes(req_objective_text_list[index])
-            data += pack(
+            data.extend(pack(
                 f'{len(req_objective_text_bytes)}s',
                 req_objective_text_bytes
-            )
+            ))
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUEST_QUERY_RESPONSE, data))
 
@@ -671,7 +671,7 @@ class QuestManager(object):
 
         quest_title_bytes = PacketWriter.string_to_bytes(quest_title)
         request_items_text_bytes = PacketWriter.string_to_bytes(request_items_text)
-        data = pack(
+        data = bytearray(pack(
             f'<QI{len(quest_title_bytes)}s{len(request_items_text_bytes)}s3I',
             quest_giver_id,
             quest.entry,
@@ -680,20 +680,20 @@ class QuestManager(object):
             0,  # Emote delay
             quest.CompleteEmote if is_completable else quest.IncompleteEmote,
             close_on_cancel,  # Close Window after cancel
-        )
+        ))
 
         req_items = list(filter((0).__ne__, QuestHelpers.generate_req_item_list(quest)))
         req_items_count_list = list(filter((0).__ne__, QuestHelpers.generate_req_item_count_list(quest)))
-        data += pack('<I', len(req_items))
+        data.extend(pack('<I', len(req_items)))
         for index in range(len(req_items)):
-            data += self._gen_item_struct(req_items[index], req_items_count_list[index])
+            data.extend(self._gen_item_struct(req_items[index], req_items_count_list[index]))
 
-        data += pack(
+        data.extend(pack(
             '<3I',
             0x02,  # MaskMatch
             0x03 if is_completable else 0x00,  # Completable = Player has items?
             0x04,  # HasFaction
-        )
+        ))
 
         packet = PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_REQUEST_ITEMS, data)
         self.player_mgr.enqueue_packet(packet)
@@ -716,45 +716,45 @@ class QuestManager(object):
         display_dialog_text = quest.OfferRewardText
 
         dialog_text_bytes = PacketWriter.string_to_bytes(display_dialog_text)
-        data = pack(
+        data = bytearray(pack(
             f'<QI{len(quest_title_bytes)}s{len(dialog_text_bytes)}sI',
             quest_giver_guid,
             quest.entry,
             quest_title_bytes,
             dialog_text_bytes,
             1 if enable_next else 0  # enable_next
-        )
+        ))
 
         # Emote count, always 4.
-        data += pack('<I', 4)
+        data.extend(pack('<I', 4))
         for i in range(1, 5):
             offer_emote = eval(f'quest.OfferRewardEmote{i}')
             offer_emote_delay = eval(f'quest.OfferRewardEmoteDelay{i}')
-            data += pack('<2I', offer_emote, offer_emote_delay)
+            data.extend(pack('<2I', offer_emote, offer_emote_delay))
 
         if QuestHelpers.has_pick_reward(quest):
             # Reward choices
             rew_choice_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_item_list(quest)))
             rew_choice_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_choice_count_list(quest)))
-            data += pack('<I', len(rew_choice_item_list))
+            data.extend(pack('<I', len(rew_choice_item_list)))
             for index, item in enumerate(rew_choice_item_list):
-                data += self._gen_item_struct(item, rew_choice_count_list[index])
+                data.extend(self._gen_item_struct(item, rew_choice_count_list[index]))
         else:
-            data += pack('<I', 0)
+            data.extend(pack('<I', 0))
 
         #  Apart from available rewards to pick from, sometimes there are rewards you will also get, no matter what.
         if QuestHelpers.has_item_reward(quest):
             # Required items
             rew_item_list = list(filter((0).__ne__, QuestHelpers.generate_rew_item_list(quest)))
             rew_count_list = list(filter((0).__ne__, QuestHelpers.generate_rew_count_list(quest)))
-            data += pack('<I', len(rew_item_list))
+            data.extend(pack('<I', len(rew_item_list)))
             for index, item in enumerate(rew_item_list):
-                data += self._gen_item_struct(item, rew_count_list[index])
+                data.extend(self._gen_item_struct(item, rew_count_list[index]))
         else:
-            data += pack('<I', 0)
+            data.extend(pack('<I', 0))
 
         # Reward Money, 0.5.3 does not handle spells as a possible reward. CGPlayer_C::OnQuestGiverChooseReward.
-        data += pack('<I', quest.RewOrReqMoney if quest.RewOrReqMoney >= 0 else -quest.RewOrReqMoney)
+        data.extend(pack('<I', quest.RewOrReqMoney if quest.RewOrReqMoney >= 0 else -quest.RewOrReqMoney))
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_OFFER_REWARD, data))
 
     def handle_accept_quest(self, quest_id, quest_giver_guid, shared=False, quest_giver=None, is_item=False):
@@ -955,22 +955,22 @@ class QuestManager(object):
         # Update db quest status as rewarded.
         active_quest.update_quest_status(rewarded=True)
 
-        data = pack(
+        data = bytearray(pack(
             '<4I',
             quest_id,
             3,  # Investigate
             int(given_xp * config.Server.Settings.xp_rate),
             given_gold
-        )
+        ))
 
         # Remove required quest items from player inventory.
         for req_item, count in required_items.items():
             self.player_mgr.inventory.remove_items(req_item, count)
 
         # Quest item(s) rewards. (Client will announce them).
-        data += pack('<I', len(rew_item_list))
+        data.extend(pack('<I', len(rew_item_list)))
         for rew_item, count in reward_items.items():
-            data += pack('<2I', rew_item, count)
+            data.extend(pack('<2I', rew_item, count))
             self.player_mgr.inventory.add_item(entry=rew_item, count=count, show_item_get=False)
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_COMPLETE, data))

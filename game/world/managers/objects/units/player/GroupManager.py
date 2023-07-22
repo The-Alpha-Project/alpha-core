@@ -159,13 +159,13 @@ class GroupManager(object):
         member_count = len(self.members) if player_mgr.guid == self.group.leader_guid else len(self.members) - 1
 
         # Header
-        data = pack(
+        data = bytearray(pack(
             f'<I{len(leader_name_bytes)}sQB',
             member_count,
             leader_name_bytes,
             self.group.leader_guid,
             1 if leader and leader.online else 0
-        )
+        ))
 
         # Fill all group members except self or leader.
         for member in list(self.members.values()):
@@ -175,18 +175,18 @@ class GroupManager(object):
             member_player = WorldSessionStateHandler.find_player_by_guid(member.guid)
             member_name_bytes = PacketWriter.string_to_bytes(member.character.name)
 
-            data += pack(
+            data.extend(pack(
                 f'<{len(member_name_bytes)}sQB',
                 member_name_bytes,
                 member.guid,
                 1 if member_player and member_player.online else 0
-            )
+            ))
 
-        data += pack(
+        data.extend(pack(
             '<BQ',
             self.group.loot_method,
             self.group.loot_master  # Master Looter guid
-        )
+        ))
 
         return PacketWriter.get_packet(OpCode.SMSG_GROUP_LIST, data)
 

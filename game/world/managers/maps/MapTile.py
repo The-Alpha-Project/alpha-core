@@ -93,9 +93,9 @@ class MapTile(object):
                            f'Map:{self.cell_map} Tile:{self.adt_x},{self.adt_y}')
             return False
         else:
-            self.area_information = [[None for r in range(RESOLUTION_AREA_INFO)] for c in range(RESOLUTION_AREA_INFO)]
-            self.liquid_information = [[None for r in range(RESOLUTION_LIQUIDS)] for c in range(RESOLUTION_LIQUIDS)]
-            self.z_height_map = [[0 for r in range(RESOLUTION_ZMAP)] for c in range(RESOLUTION_ZMAP)]
+            self.area_information = [[None for _ in range(RESOLUTION_AREA_INFO)] for _ in range(RESOLUTION_AREA_INFO)]
+            self.liquid_information = [[None for _ in range(RESOLUTION_LIQUIDS)] for _ in range(RESOLUTION_LIQUIDS)]
+            self.z_height_map = [[0 for _ in range(RESOLUTION_ZMAP)] for _ in range(RESOLUTION_ZMAP)]
 
             with open(maps_path, "rb") as map_tiles:
                 version = PacketReader.read_string(map_tiles.read(10), 0)
@@ -114,13 +114,10 @@ class MapTile(object):
                         zone_id = unpack('<i', map_tiles.read(4))[0]
                         if zone_id == -1:  # No area information.
                             continue
-                        area_number = unpack('<I', map_tiles.read(4))[0]
-                        area_flags = unpack('<B', map_tiles.read(1))[0]
-                        area_level = unpack('<B', map_tiles.read(1))[0]
-                        area_explore_bit = unpack('<H', map_tiles.read(2))[0]
-                        area_faction_mask = unpack('<B', map_tiles.read(1))[0]
+                        # Area, flags, level, explore_bit, faction_mask.
+                        area, flag, lvl, explore, faction = unpack('<I2BHB', map_tiles.read(9))
                         # noinspection PyTypeChecker
-                        self.area_information[x][y] = AreaInformation(zone_id, area_number, area_flags, area_level, area_explore_bit, area_faction_mask)
+                        self.area_information[x][y] = AreaInformation(zone_id, area, flag, lvl, explore, faction)
 
                 # Liquids
                 for x in range(RESOLUTION_LIQUIDS):

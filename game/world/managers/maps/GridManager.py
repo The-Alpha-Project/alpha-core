@@ -138,7 +138,8 @@ class GridManager:
                 for creature in list(cell.creatures.values()):
                     self.active_cell_callback(creature)
 
-    def _update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None, has_changes=False, has_inventory_changes=False):
+    def _update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None, has_changes=False,
+                                     has_inventory_changes=False):
         # Avoid update calls if no players are present.
         if exclude_cells is None:
             exclude_cells = set()
@@ -149,31 +150,30 @@ class GridManager:
         source_cell = self.cells.get(cell_key)
         if source_cell:
             for cell in self._get_surrounding_cells_by_cell(source_cell):
-                if cell not in exclude_cells:
-                    cell.update_players_surroundings(world_object=world_object, has_changes=has_changes,
-                                                     has_inventory_changes=has_inventory_changes)
-                    affected_cells.add(cell)
+                if cell in exclude_cells:
+                    continue
+                cell.update_players_surroundings(world_object=world_object, has_changes=has_changes,
+                                                 has_inventory_changes=has_inventory_changes)
+                affected_cells.add(cell)
 
         return affected_cells
 
     def _get_surrounding_cells_by_cell(self, cell):
-        mid_x = (cell.min_x + cell.max_x) / 2
-        mid_y = (cell.min_y + cell.max_y) / 2
-        return self._get_surrounding_cells_by_location(mid_x, mid_y, cell.map_id, cell.instance_id)
+        return self._get_surrounding_cells_by_location(cell.mid_x, cell.max_y, cell.map_id, cell.instance_id)
 
-    def _get_surrounding_cells_by_object(self, world_object, x_s=-1, x_m=1, y_s=-1, y_m=1):
-        vector = world_object.location
-        return self._get_surrounding_cells_by_location(vector.x, vector.y, world_object.map_id, world_object.instance_id,
-                                                       x_s=x_s, x_m=x_m, y_s=y_s, y_m=y_m)
+    def _get_surrounding_cells_by_object(self, world_object):
+        pos = world_object.location
+        return self._get_surrounding_cells_by_location(pos.x, pos.y, world_object.map_id, world_object.instance_id)
 
-    def _get_surrounding_cells_by_location(self, x, y, map_, instance_id, x_s=-1, x_m=1, y_s=-1, y_m=1):
+    def _get_surrounding_cells_by_location(self, x, y, map_, instance_id):
         near_cells = set()
 
-        for x2 in range(x_s, x_m + 1):
-            for y2 in range(y_s, y_m + 1):
+        for x2 in range(-1, 2):
+            for y2 in range(-1, 2):
                 cell_coords = CellUtils.get_cell_key(x + (x2 * CELL_SIZE), y + (y2 * CELL_SIZE), map_, instance_id)
-                if cell_coords in self.cells:
-                    near_cells.add(self.cells[cell_coords])
+                if cell_coords not in self.cells:
+                    continue
+                near_cells.add(self.cells[cell_coords])
 
         return near_cells
 
@@ -188,8 +188,7 @@ class GridManager:
     def send_surrounding_in_range(self, packet, world_object, range_, include_self=True, exclude=None,
                                   use_ignore=False):
         for cell in self._get_surrounding_cells_by_object(world_object):
-            cell.send_all_in_range(
-                packet, range_, world_object, include_self, exclude, use_ignore)
+            cell.send_all_in_range(packet, range_, world_object, include_self, exclude, use_ignore)
 
     def get_surrounding_objects(self, world_object, object_types):
         surrounding_objects = []
@@ -199,7 +198,7 @@ class GridManager:
         gameobject_index = 0
         dynamic_index = 0
         corpse_index = 0
-        # Define return collection and indexes dynamically.
+        # Resolve return collection and indexes dynamically.
         for index in range(len(object_types)):
             surrounding_objects.append(dict())
             if object_types[index] == ObjectTypeIds.ID_PLAYER:

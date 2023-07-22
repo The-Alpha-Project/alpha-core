@@ -250,7 +250,7 @@ class ItemManager(ObjectManager):
         spell_stats = SpellStat.generate_spell_stat_list(item_template)
 
         item_name_bytes = PacketWriter.string_to_bytes(item_template.name)
-        data = pack(
+        data = bytearray(pack(
             f'<3I{len(item_name_bytes)}ssss6I2i7I',
             item_template.entry,
             item_template.class_,
@@ -271,15 +271,15 @@ class ItemManager(ObjectManager):
             item_template.max_count,
             item_template.stackable,
             item_template.container_slots
-        )
+        ))
 
         for stat in stats:
-            data += pack('<2i', stat.stat_type, stat.value)
+            data.extend(pack('<2i', stat.stat_type, stat.value))
 
         for damage_stat in damage_stats:
-            data += pack('<3i', int(damage_stat.minimum), int(damage_stat.maximum), damage_stat.stat_type)
+            data.extend(pack('<3i', int(damage_stat.minimum), int(damage_stat.maximum), damage_stat.stat_type))
 
-        data += pack(
+        data.extend(pack(
             '<6i3I',
             item_template.armor,
             item_template.holy_res,
@@ -290,20 +290,20 @@ class ItemManager(ObjectManager):
             item_template.delay,
             item_template.ammo_type,
             0  # Durability, not implemented client side.
-        )
+        ))
 
         for spell_stat in spell_stats:
-            data += pack(
+            data.extend(pack(
                 '<Q4i',
                 spell_stat.spell_id,
                 spell_stat.trigger,
                 spell_stat.charges,
                 spell_stat.cooldown,
                 spell_stat.category_cooldown
-            )
+            ))
 
         description_bytes = PacketWriter.string_to_bytes(item_template.description)
-        data += pack(
+        data.extend(pack(
             f'<I{len(description_bytes)}s5IiI',
             item_template.bonding,
             description_bytes,
@@ -314,7 +314,7 @@ class ItemManager(ObjectManager):
             item_template.lock_id,
             item_template.material,
             item_template.sheath
-        )
+        ))
 
         return data
 
@@ -515,7 +515,7 @@ class ItemManager(ObjectManager):
         # Attempting to optimize packet size by sending only unique items
         # leads to some items not having an icon (in bank only? Only case noticed when testing).
 
-        query_data = b''
+        query_data = bytearray()
         written_items = 0
         while item_templates:
             item = item_templates.pop()
@@ -528,16 +528,16 @@ class ItemManager(ObjectManager):
                     item_templates.append(item)
                 else:
                     # Last item to send.
-                    query_data += item_bytes
+                    query_data.extend(item_bytes)
                     written_items += 1
 
                 packet = pack(f'<I{len(query_data)}s', written_items, query_data)
                 packets.append(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, packet))
-                query_data = b''
+                query_data = bytearray()
                 written_items = 0
                 continue
 
-            query_data += item_bytes
+            query_data.extend(item_bytes)
             written_items += 1
 
         return packets
