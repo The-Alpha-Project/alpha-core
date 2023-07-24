@@ -91,10 +91,9 @@ class MapExtractor:
         if not DataHolders.AREA_TABLES_BY_MAP:
             Logger.error(f'Unable to read area tables from {dbc_path}.')
             exit()
-
-        # Interested in ADT based maps, not WMO based.
+   
         for dbc_map in DataHolders.get_maps():
-            # Only main maps have heightfield.
+            # Interested in ADT based maps, not WMO based.
             if not dbc_map.is_in_map:
                 continue
             # Check if Map.dbc data points to a valid wdt file.
