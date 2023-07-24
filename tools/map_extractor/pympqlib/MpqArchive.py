@@ -138,16 +138,16 @@ class MpqArchive:
         return 0
 
     def build_mpq_hashes(self, data):
-        stream = BytesIO(data)
-        for i in range(0, self.header.hash_table_size):
-            self.mpq_hashes.append(MpqHash.from_data(stream))
+        with BytesIO(data) as stream:
+            for i in range(0, self.header.hash_table_size):
+                self.mpq_hashes.append(MpqHash.from_data(stream))
 
     def build_mpq_entries(self, data):
-        stream = BytesIO(data)
-        for i in range(0, self.header.block_table_size):
-            mpq_entry = MpqEntry.from_data(self, stream)
-            self.mpq_entries.append(mpq_entry)
-            Logger.progress(f'{self.name} unpacking data...', i + 1, self.header.block_table_size, divisions=1)
+        with BytesIO(data) as stream:
+            for i in range(0, self.header.block_table_size):
+                mpq_entry = MpqEntry.from_data(self, stream)
+                self.mpq_entries.append(mpq_entry)
+                Logger.progress(f'{self.name} unpacking data...', i + 1, self.header.block_table_size, divisions=1)
 
     def build_storm_buffer(self):
         seed = 0x100001
