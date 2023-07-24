@@ -50,12 +50,13 @@ class MapExtractor:
             Logger.error(f'Unable to locate {WOW_MAPS_FOLDER}.')
             exit()
 
-        # Flush existent files.
+        # Validate /etc/maps.
         map_files_path = PathManager.get_maps_path()
         if not os.path.exists(map_files_path):
             Logger.error(f'Unable to locate {map_files_path}.')
             exit()
 
+        # Flush existent files.
         filelist = [f for f in os.listdir(map_files_path) if f.endswith(".map")]
         if filelist:
             Logger.warning(f'Existent {len(filelist)} .map files will be deleted, continue? Y/N [Y]')
