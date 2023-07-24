@@ -75,7 +75,6 @@ class MapExtractor:
             if not map_dbc or not area_table_dbc:
                 exit()
 
-            # Read records as DbcMapAlpha.
             with DbcReader(buffer=archive.read_file_bytes(map_dbc)) as dbc_reader:
                 for dbc_map in dbc_reader.read_records_by_type(Map):
                     DataHolders.add_map(dbc_map)
