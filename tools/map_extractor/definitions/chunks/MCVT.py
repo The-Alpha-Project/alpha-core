@@ -7,7 +7,6 @@ class MCVT:
         self.v9 = [[0.0 for _ in range(9)] for _ in range(9)]
         self.v8 = [[0.0 for _ in range(8)] for _ in range(8)]
         self.heights = [0.0] * (8 * 8 + 9 * 9)
-        self.low_res_matrix = [[0.0 for _ in range(9)] for _ in range(9)]
         self.is_flat = True
         self.height = 0.0
 
@@ -28,8 +27,6 @@ class MCVT:
         self.v9 = None
         self.v8.clear()
         self.v8 = None
-        self.low_res_matrix.clear()
-        self.low_res_matrix = None
 
     @staticmethod
     def from_reader(stream_reader):
@@ -73,13 +70,5 @@ class MCVT:
             for x in range(8):
                 for y in range(8):
                     mcvt.v8[x][y] = unpack('<f', _v8.read(4))[0]
-
-        # Low res matrix.
-        r_index = 0
-        for x in range(9):
-            for y in range(9):
-                mcvt.low_res_matrix[x][y] = mcvt.heights[r_index]
-                r_index += 1
-            r_index += 8
 
         return mcvt
