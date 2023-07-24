@@ -64,7 +64,7 @@ class MapExtractor:
             else:
                 exit()
 
-        # Extract available maps at Map.dbc.
+        # Extract available maps and area tables from dbc.
         with MpqArchive(dbc_path) as archive:
             map_dbc = archive.find_file('Map.dbc')
             area_table_dbc = archive.find_file('AreaTable.dbc')
