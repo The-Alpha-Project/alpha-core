@@ -1,5 +1,5 @@
 class VanillaAreaHelper:
-    # 1.12 required date for exploration in alpha.
+    # 1.12 required data for exploration in alpha.
 
     @staticmethod
     def get_vanilla_area_data(area_id):
