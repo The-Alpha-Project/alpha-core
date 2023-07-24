@@ -109,6 +109,6 @@ class MapExtractor:
         # Finished.
         filelist = [f for f in os.listdir(map_files_path) if f.endswith(".map")]
         if filelist:
-            Logger.success(f'Generation for {len(filelist)} completed.')
+            Logger.success(f'Generated {len(filelist)} .map files.')
         else:
-            Logger.warning('Unable to extract map files.')
+            Logger.error('Unable to extract map files.')
