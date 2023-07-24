@@ -83,8 +83,10 @@ class Wdt:
             for y in range(Constants.TILE_BLOCK_SIZE):
                 current += 1
                 tile_info: TileHeader = self.tile_information[x][y]
-                if tile_info and tile_info.size:
-                    self.stream_reader.set_position(tile_info.offset)
-                    with Adt.from_reader(self.dbc_map.id, x, y, self.stream_reader) as adt:
-                        adt.write_to_map_file()
                 Logger.progress(f'Processing ADT tiles for [{self.dbc_map.name}]...', current, total)
+                if not tile_info or not tile_info.size:
+                    continue
+                self.stream_reader.set_position(tile_info.offset)
+                # Parse and write .map file for this adt.
+                with Adt.from_reader(self.dbc_map.id, x, y, self.stream_reader) as adt:
+                    adt.write_to_map_file()
