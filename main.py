@@ -8,6 +8,7 @@ from game.realm.RealmManager import RealmManager
 from game.world import WorldManager
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.MapTile import MapTile
+from tools.map_extractor.MapExtractor import MapExtractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
@@ -21,6 +22,13 @@ parser.add_argument(
     '-l', '--launch',
     help='-l realm to launch realm or -l to launch world, if nothing is specified both are launched',
     dest='launch',
+    action='store',
+    default=None
+)
+parser.add_argument(
+    '-e', '--extract',
+    help='-e maps in order to extract .map files',
+    dest='extract',
     action='store',
     default=None
 )
@@ -50,6 +58,10 @@ if __name__ == '__main__':
             exit()
     except AttributeError:
         print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
+        exit()
+
+    if args.extract == 'maps':
+        MapExtractor.run()
         exit()
 
     # Validate if maps available and if version match.

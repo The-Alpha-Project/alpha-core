@@ -1,6 +1,5 @@
 from os import path
 
-
 class PathManager:
     ROOT_PATH = ''
 

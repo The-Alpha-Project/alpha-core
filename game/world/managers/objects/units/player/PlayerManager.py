@@ -293,6 +293,7 @@ class PlayerManager(UnitManager):
 
         self.spell_manager.send_login_effect()
         self.pet_manager.handle_login()
+        self.on_zone_change(self.zone)
 
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
@@ -751,7 +752,7 @@ class PlayerManager(UnitManager):
         if not changed_map:
             self.movement_flags |= MoveFlags.MOVEFLAG_MOVED
             heart_beat_packet = self.get_heartbeat_packet()
-            MapManager.send_surrounding(heart_beat_packet, self, False)
+            MapManager.send_surrounding(heart_beat_packet, self, True)
 
         # Update managers.
         self.friends_manager.send_update_to_friends()
@@ -1182,25 +1183,37 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
 
     def on_zone_change(self, new_zone):
+        is_new_zone = new_zone != self.zone
         # Update player zone.
         self.zone = new_zone
-        # Update friends and group.
-        self.friends_manager.send_update_to_friends()
-        if self.group_manager:
-            self.group_manager.send_update()
+
+        if is_new_zone:
+            # Update friends and group.
+            self.friends_manager.send_update_to_friends()
+            if self.group_manager:
+                self.group_manager.send_update()
 
         # Checks below this condition can only happen if map loading is enabled.
         if not config.Server.Settings.use_map_tiles:
             return
 
         # Exploration handling (only if player is not flying).
-        if not self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
-            area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
-            if not area_information:
-                return
-            # Check if we need to set this zone as explored.
-            if area_information.explore_bit >= 0 and not self.has_area_explored(area_information.explore_bit):
-                self.set_area_explored(area_information)
+        if self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+            return
+
+        area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
+
+        # Did not find, or zone id does not match due resolution, try to resolve.
+        if not area_information or area_information.zone_id != new_zone:
+            area_information = DbcDatabaseManager.AreaInformationHolder.get_by_map_and_zone(self.map_id, new_zone)
+
+        # Did not find a match from neither, MapTile area information nor cached AreaInformation.
+        if not area_information:
+            return
+
+        # Check if we need to set this zone as explored.
+        if area_information.explore_bit >= 0 and not self.has_area_explored(area_information.explore_bit):
+            self.set_area_explored(area_information)
 
     def has_area_explored(self, area_explore_bit):
         return self.explored_areas[area_explore_bit]

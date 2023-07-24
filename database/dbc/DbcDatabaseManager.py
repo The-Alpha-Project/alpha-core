@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.dbc.DbcModels import *
+from game.world.managers.maps.helpers.AreaInformation import AreaInformation
 from game.world.managers.objects.locks.LockHolder import LockHolder
 from utils.ConfigManager import *
 from utils.constants.SpellCodes import SpellImplicitTargets
@@ -103,6 +104,36 @@ class DbcDatabaseManager:
         res = dbc_db_session.query(AreaTable.ID).all()
         dbc_db_session.close()
         return [area_id[0] for area_id in res]
+
+    class AreaInformationHolder:
+        # AreaInformation is used by the exploration feature, it gets filled by MapTiles.
+        BY_ZONE_AND_AREA = {}
+
+        @staticmethod
+        def get_by_map_and_zone(map_id, zone_id):
+            if map_id not in DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA:
+                return None
+            if zone_id not in DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id]:
+                return None
+            # Find matching AreaNumber for given zone.
+            area_by_zone = DbcDatabaseManager.area_get_by_id_and_map_id(zone_id, map_id)
+            if not area_by_zone:
+                return None
+            # Check if the entry for this area number exists.
+            if area_by_zone.AreaNumber not in DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id][zone_id]:
+                return None
+            return DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id][zone_id].get(area_by_zone.AreaNumber, None)
+
+        @staticmethod
+        def get_or_create(map_id, zone_id, area_number, area_flags, area_level, explore_bit):
+            if map_id not in DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA:
+                DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id] = {}
+            if zone_id not in DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id]:
+                DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id][zone_id] = {}
+            if area_number not in DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id][zone_id]:
+                DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id][zone_id][area_number] =\
+                    AreaInformation(zone_id, area_number, area_flags, area_level, explore_bit)
+            return DbcDatabaseManager.AreaInformationHolder.BY_ZONE_AND_AREA[map_id][zone_id].get(area_number, None)
 
     # EmoteText
 
