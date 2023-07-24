@@ -42,6 +42,7 @@ class Adt:
                 heightfield.write_to_file(file_writer)
             # Write area information.
             self._write_area_information(file_writer)
+            # Write liquids.
             with LiquidAdtWriter(self) as liquids:
                 liquids.write_to_file(file_writer)
 
