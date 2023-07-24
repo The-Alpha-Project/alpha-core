@@ -91,7 +91,7 @@ class MapExtractor:
         if not DataHolders.AREA_TABLES_BY_MAP:
             Logger.error(f'Unable to read area tables from {dbc_path}.')
             exit()
-   
+
         for dbc_map in DataHolders.get_maps():
             # Interested in ADT based maps, not WMO based.
             if not dbc_map.is_in_map:
