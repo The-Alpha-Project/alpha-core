@@ -22,7 +22,8 @@ class MpqReader:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.data = None
-        self.entry_stream.close()
+        if self.entry_stream:
+            self.entry_stream.close()
 
     def end_of_stream(self):
         if not self.data or not self.entry_stream:
