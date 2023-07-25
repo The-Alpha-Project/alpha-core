@@ -203,13 +203,13 @@ class GridManager:
             surrounding_objects.append(dict())
             if object_types[index] == ObjectTypeIds.ID_PLAYER:
                 players_index = index
-            if object_types[index] == ObjectTypeIds.ID_UNIT:
+            elif object_types[index] == ObjectTypeIds.ID_UNIT:
                 creatures_index = index
-            if object_types[index] == ObjectTypeIds.ID_GAMEOBJECT:
+            elif object_types[index] == ObjectTypeIds.ID_GAMEOBJECT:
                 gameobject_index = index
-            if object_types[index] == ObjectTypeIds.ID_DYNAMICOBJECT:
+            elif object_types[index] == ObjectTypeIds.ID_DYNAMICOBJECT:
                 dynamic_index = index
-            if object_types[index] == ObjectTypeIds.ID_CORPSE:
+            elif object_types[index] == ObjectTypeIds.ID_CORPSE:
                 corpse_index = index
 
         # Original surrounding cells for requester.

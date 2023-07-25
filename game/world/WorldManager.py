@@ -230,41 +230,6 @@ class WorldServerSessionHandler:
                                         max_instances=1)
         player_update_scheduler.start()
 
-        # Known players updates.
-        known_players_scheduler = BackgroundScheduler()
-        known_players_scheduler._daemon = True
-        known_players_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
-                                        seconds=0.5, max_instances=1, args=(ObjectTypeIds.ID_PLAYER,))
-        known_players_scheduler.start()
-
-        # Known creatures updates.
-        known_creatures_scheduler = BackgroundScheduler()
-        known_creatures_scheduler._daemon = True
-        known_creatures_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
-                                          seconds=1, max_instances=1, args=(ObjectTypeIds.ID_UNIT,))
-        known_creatures_scheduler.start()
-
-        # Known gameobjects updates.
-        known_gameobjects_scheduler = BackgroundScheduler()
-        known_gameobjects_scheduler._daemon = True
-        known_gameobjects_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
-                                                  seconds=2, max_instances=1, args=(ObjectTypeIds.ID_GAMEOBJECT,))
-        known_gameobjects_scheduler.start()
-
-        # Known dynamic objects updates.
-        known_dynobjects_scheduler = BackgroundScheduler()
-        known_dynobjects_scheduler._daemon = True
-        known_dynobjects_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
-                                                     seconds=1, max_instances=1, args=(ObjectTypeIds.ID_DYNAMICOBJECT,))
-        known_dynobjects_scheduler.start()
-
-        # Known corpse objects updates.
-        known_corpses_scheduler = BackgroundScheduler()
-        known_corpses_scheduler._daemon = True
-        known_corpses_scheduler.add_job(WorldSessionStateHandler.update_known_world_objects, 'interval',
-                                                      seconds=2, max_instances=1, args=(ObjectTypeIds.ID_CORPSE,))
-        known_corpses_scheduler.start()
-
         # Creature updates.
         creature_update_scheduler = BackgroundScheduler()
         creature_update_scheduler._daemon = True

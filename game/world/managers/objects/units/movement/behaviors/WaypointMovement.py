@@ -90,9 +90,6 @@ class WaypointMovement(BaseMovement):
         if self._should_use_facing(current_wp):
             self.unit.movement_manager.face_angle(current_wp.orientation)
 
-        # Prevent players from seeing the mob stuck by updating its position using a heartbeat.
-        MapManager.send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)
-
         if current_wp.script_id:
             self.unit.script_handler.enqueue_script(self.unit, self.unit, ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
                                                     current_wp.script_id)

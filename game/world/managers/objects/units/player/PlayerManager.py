@@ -76,7 +76,14 @@ class PlayerManager(UnitManager):
         self.known_objects = dict()
         self.known_items = dict()
         self.known_stealth_units = dict()
-        self.pending_known_object_types_updates = set()
+
+        self.pending_known_object_types_updates = {
+            ObjectTypeIds.ID_PLAYER: False,
+            ObjectTypeIds.ID_UNIT: False,
+            ObjectTypeIds.ID_GAMEOBJECT: False,
+            ObjectTypeIds.ID_DYNAMICOBJECT: False,
+            ObjectTypeIds.ID_CORPSE: False
+        }
 
         self.player = player
         self.online = online
@@ -398,12 +405,20 @@ class PlayerManager(UnitManager):
 
     def enqueue_known_objects_update(self, object_type=None):
         if object_type:
-            self.pending_known_object_types_updates.add(object_type)
+            self.pending_known_object_types_updates[object_type] = True
             return
 
         for type_id in ObjectTypeIds:
-            if ObjectTypeIds.ID_UNIT <= type_id <= ObjectTypeIds.ID_CORPSE:
-                self.pending_known_object_types_updates.add(type_id)
+            if type_id not in self.pending_known_object_types_updates:
+                continue
+            self.pending_known_object_types_updates[type_id] = True
+
+    def update_surrounding_known_objects(self):
+        for obj_type, update in self.pending_known_object_types_updates.items():
+            if not update:
+                continue
+            self.pending_known_object_types_updates[obj_type] = False
+            self.update_known_objects_for_type(obj_type)
 
     def update_known_objects_for_type(self, object_type):
         objects = MapManager.get_surrounding_objects(self, [object_type])[0]
@@ -424,14 +439,13 @@ class PlayerManager(UnitManager):
                 update_func = self._update_known_corpse
 
             # Surrounding objects.
-            for object_ in objects.values():
-                update_func(object_, active_objects)
+            [update_func(object_, active_objects) for object_ in objects.values()]
 
         # World objects which are known but no longer active to self should be destroyed.
         if self.known_objects:
             for guid, known_object in list(self.known_objects.items()):
                 if guid not in active_objects and known_object.get_type_id() == object_type:
-                    self.destroy_near_object(guid)
+                    self.destroy_near_object(guid, object_type=object_type)
 
         active_objects.clear()
 
@@ -541,14 +555,17 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(movement_packet)
         self.known_objects[player_mgr.guid] = player_mgr
 
-    def destroy_near_object(self, guid):
-        implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
+    def destroy_near_object(self, guid, object_type=None):
+        implements_known_players = {ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
         known_object = self.known_objects.get(guid)
+        if known_object and not object_type:
+            object_type = known_object.get_type_id()
+
         if known_object:
-            is_player = known_object.get_type_id() == ObjectTypeIds.ID_PLAYER
+            is_player = object_type == ObjectTypeIds.ID_PLAYER
             del self.known_objects[guid]
             # Remove self from creature/go known players if needed.
-            if known_object.get_type_id() in implements_known_players:
+            if object_type in implements_known_players:
                 if self.guid in known_object.known_players:
                     del known_object.known_players[self.guid]
             # Destroy other player items for self.
@@ -1648,6 +1665,8 @@ class PlayerManager(UnitManager):
         if now > self.last_tick > 0 and self.online:
             elapsed = now - self.last_tick
 
+            # Surrounding timer.
+            self.update_surroundings_timer += elapsed
             # Relocation timer.
             self.relocation_call_for_help_timer += elapsed
 
@@ -1735,10 +1754,16 @@ class PlayerManager(UnitManager):
                 self.synchronize_db_player()
 
             # If not teleporting, notify self movement to surrounding units for proximity aggro.
-            if not self.update_lock and self.relocation_call_for_help_timer >= 1:
-                if self.pending_relocation:
-                    self._on_relocation()
-                self.relocation_call_for_help_timer = 0
+            if not self.update_lock:
+                # Relocation.
+                if self.relocation_call_for_help_timer >= 1:
+                    if self.pending_relocation:
+                        self._on_relocation()
+                    self.relocation_call_for_help_timer = 0
+                # Update known surrounding objects.
+                if self.update_surroundings_timer >= 1:
+                    self.update_surrounding_known_objects()
+                    self.update_surroundings_timer = 0
 
         self.last_tick = now
 
