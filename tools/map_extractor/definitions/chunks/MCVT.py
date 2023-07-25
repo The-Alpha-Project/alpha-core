@@ -8,16 +8,16 @@ class MCVT:
         self.v8 = [[0.0 for _ in range(8)] for _ in range(8)]
         self.heights = [0.0] * (8 * 8 + 9 * 9)
         self.is_flat = True
-        self.height = 0.0
+        self.flat_height = 0.0
 
     def get_v8(self, x, y):
         if self.is_flat:
-            return self.height
+            return self.flat_height
         return self.v8[x][y]
 
     def get_v9(self, x, y):
         if self.is_flat:
-            return self.height
+            return self.flat_height
         return self.v9[x][y]
 
     def flush(self):
@@ -49,9 +49,9 @@ class MCVT:
                             h_index += 1
 
         for idx, h in enumerate(mcvt.heights):
-            if mcvt.height == 0.0:
-                mcvt.height = mcvt.heights[idx]
-            if h != mcvt.height:
+            if mcvt.flat_height == 0.0:
+                mcvt.flat_height = mcvt.heights[idx]
+            if h != mcvt.flat_height:
                 mcvt.is_flat = False
                 break
 
