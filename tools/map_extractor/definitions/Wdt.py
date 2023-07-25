@@ -83,7 +83,7 @@ class Wdt:
             for y in range(Constants.TILE_BLOCK_SIZE):
                 current += 1
                 tile_info: TileHeader = self.tile_information[x][y]
-                Logger.progress(f'Processing ADT tiles for [{self.dbc_map.name}]...', current, total)
+                Logger.progress(f'Processing ADT tiles for [{self.dbc_map.name}]...', current, total, divisions=total)
                 if not tile_info or not tile_info.size:
                     continue
                 self.stream_reader.set_position(tile_info.offset)
