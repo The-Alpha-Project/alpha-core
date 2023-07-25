@@ -76,7 +76,14 @@ class PlayerManager(UnitManager):
         self.known_objects = dict()
         self.known_items = dict()
         self.known_stealth_units = dict()
-        self.pending_known_object_types_updates = set()
+
+        self.pending_known_object_types_updates = {
+            ObjectTypeIds.ID_PLAYER: False,
+            ObjectTypeIds.ID_UNIT: False,
+            ObjectTypeIds.ID_GAMEOBJECT: False,
+            ObjectTypeIds.ID_DYNAMICOBJECT: False,
+            ObjectTypeIds.ID_CORPSE: False
+        }
 
         self.player = player
         self.online = online
@@ -293,6 +300,7 @@ class PlayerManager(UnitManager):
 
         self.spell_manager.send_login_effect()
         self.pet_manager.handle_login()
+        self.on_zone_change(self.zone)
 
     def logout(self):
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_LOGOUT_COMPLETE))
@@ -397,12 +405,20 @@ class PlayerManager(UnitManager):
 
     def enqueue_known_objects_update(self, object_type=None):
         if object_type:
-            self.pending_known_object_types_updates.add(object_type)
+            self.pending_known_object_types_updates[object_type] = True
             return
 
         for type_id in ObjectTypeIds:
-            if ObjectTypeIds.ID_UNIT <= type_id <= ObjectTypeIds.ID_CORPSE:
-                self.pending_known_object_types_updates.add(type_id)
+            if type_id not in self.pending_known_object_types_updates:
+                continue
+            self.pending_known_object_types_updates[type_id] = True
+
+    def update_surrounding_known_objects(self):
+        for obj_type, update in self.pending_known_object_types_updates.items():
+            if not update:
+                continue
+            self.pending_known_object_types_updates[obj_type] = False
+            self.update_known_objects_for_type(obj_type)
 
     def update_known_objects_for_type(self, object_type):
         objects = MapManager.get_surrounding_objects(self, [object_type])[0]
@@ -423,14 +439,13 @@ class PlayerManager(UnitManager):
                 update_func = self._update_known_corpse
 
             # Surrounding objects.
-            for object_ in objects.values():
-                update_func(object_, active_objects)
+            [update_func(object_, active_objects) for object_ in objects.values()]
 
         # World objects which are known but no longer active to self should be destroyed.
         if self.known_objects:
             for guid, known_object in list(self.known_objects.items()):
                 if guid not in active_objects and known_object.get_type_id() == object_type:
-                    self.destroy_near_object(guid)
+                    self.destroy_near_object(guid, object_type=object_type)
 
         active_objects.clear()
 
@@ -540,14 +555,17 @@ class PlayerManager(UnitManager):
                 self.enqueue_packet(movement_packet)
         self.known_objects[player_mgr.guid] = player_mgr
 
-    def destroy_near_object(self, guid):
-        implements_known_players = [ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT]
+    def destroy_near_object(self, guid, object_type=None):
+        implements_known_players = {ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
         known_object = self.known_objects.get(guid)
+        if known_object and not object_type:
+            object_type = known_object.get_type_id()
+
         if known_object:
-            is_player = known_object.get_type_id() == ObjectTypeIds.ID_PLAYER
+            is_player = object_type == ObjectTypeIds.ID_PLAYER
             del self.known_objects[guid]
             # Remove self from creature/go known players if needed.
-            if known_object.get_type_id() in implements_known_players:
+            if object_type in implements_known_players:
                 if self.guid in known_object.known_players:
                     del known_object.known_players[self.guid]
             # Destroy other player items for self.
@@ -751,7 +769,7 @@ class PlayerManager(UnitManager):
         if not changed_map:
             self.movement_flags |= MoveFlags.MOVEFLAG_MOVED
             heart_beat_packet = self.get_heartbeat_packet()
-            MapManager.send_surrounding(heart_beat_packet, self, False)
+            MapManager.send_surrounding(heart_beat_packet, self, True)
 
         # Update managers.
         self.friends_manager.send_update_to_friends()
@@ -1182,25 +1200,37 @@ class PlayerManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
 
     def on_zone_change(self, new_zone):
+        is_new_zone = new_zone != self.zone
         # Update player zone.
         self.zone = new_zone
-        # Update friends and group.
-        self.friends_manager.send_update_to_friends()
-        if self.group_manager:
-            self.group_manager.send_update()
+
+        if is_new_zone:
+            # Update friends and group.
+            self.friends_manager.send_update_to_friends()
+            if self.group_manager:
+                self.group_manager.send_update()
 
         # Checks below this condition can only happen if map loading is enabled.
         if not config.Server.Settings.use_map_tiles:
             return
 
         # Exploration handling (only if player is not flying).
-        if not self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
-            area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
-            if not area_information:
-                return
-            # Check if we need to set this zone as explored.
-            if area_information.explore_bit >= 0 and not self.has_area_explored(area_information.explore_bit):
-                self.set_area_explored(area_information)
+        if self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+            return
+
+        area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
+
+        # Did not find, or zone id does not match due resolution, try to resolve.
+        if not area_information or area_information.zone_id != new_zone:
+            area_information = DbcDatabaseManager.AreaInformationHolder.get_by_map_and_zone(self.map_id, new_zone)
+
+        # Did not find a match from neither, MapTile area information nor cached AreaInformation.
+        if not area_information:
+            return
+
+        # Check if we need to set this zone as explored.
+        if area_information.explore_bit >= 0 and not self.has_area_explored(area_information.explore_bit):
+            self.set_area_explored(area_information)
 
     def has_area_explored(self, area_explore_bit):
         return self.explored_areas[area_explore_bit]
@@ -1635,6 +1665,8 @@ class PlayerManager(UnitManager):
         if now > self.last_tick > 0 and self.online:
             elapsed = now - self.last_tick
 
+            # Surrounding timer.
+            self.update_surroundings_timer += elapsed
             # Relocation timer.
             self.relocation_call_for_help_timer += elapsed
 
@@ -1722,10 +1754,16 @@ class PlayerManager(UnitManager):
                 self.synchronize_db_player()
 
             # If not teleporting, notify self movement to surrounding units for proximity aggro.
-            if not self.update_lock and self.relocation_call_for_help_timer >= 1:
-                if self.pending_relocation:
-                    self._on_relocation()
-                self.relocation_call_for_help_timer = 0
+            if not self.update_lock:
+                # Relocation.
+                if self.relocation_call_for_help_timer >= 1:
+                    if self.pending_relocation:
+                        self._on_relocation()
+                    self.relocation_call_for_help_timer = 0
+                # Update known surrounding objects.
+                if self.update_surroundings_timer >= 1:
+                    self.update_surrounding_known_objects()
+                    self.update_surroundings_timer = 0
 
         self.last_tick = now
 

@@ -9,12 +9,12 @@ class PacketWriter(object):
     HEADER_SIZE = 6
 
     @staticmethod
-    def string_to_bytes(value):
+    def string_to_bytes(value, encoding='latin1'):
         if value is None:
             value = ''
 
         try:
-            return value.encode('latin1') + b'\x00'
+            return value.encode(encoding) + b'\x00'
         except UnicodeEncodeError:
             Logger.error(f'Error when trying to encode the following string: {value}')
             return b'\x00'

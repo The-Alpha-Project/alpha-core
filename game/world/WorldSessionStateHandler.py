@@ -97,16 +97,6 @@ class WorldSessionStateHandler(object):
                 session.player_mgr.update(now)
 
     @staticmethod
-    def update_known_world_objects(obj_type):
-        for session in WORLD_SESSIONS:
-            if not session.player_mgr or not session.player_mgr.online:
-                continue
-            if session.player_mgr.update_lock or obj_type not in session.player_mgr.pending_known_object_types_updates:
-                continue
-            session.player_mgr.pending_known_object_types_updates.remove(obj_type)
-            session.player_mgr.update_known_objects_for_type(obj_type)
-
-    @staticmethod
     def save_characters():
         try:
             online_player_count = 0

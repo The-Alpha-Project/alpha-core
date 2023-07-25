@@ -18,6 +18,16 @@ class PacketReader(object):
         return OpCode(self.opcode).name
 
     @staticmethod
+    def read_string_from_stream(stream, terminator='\x00'):
+        tmp_string = ''
+        tmp_char = chr(unpack('<B', stream.read(1))[0])
+        while tmp_char != terminator:
+            tmp_string += tmp_char
+            tmp_char = chr(unpack('<B', stream.read(1))[0])
+
+        return tmp_string
+
+    @staticmethod
     def read_string(packet, start, terminator='\x00'):
         char_list = []
         for ci in packet[start:]:
