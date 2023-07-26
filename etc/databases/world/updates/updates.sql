@@ -3025,5 +3025,99 @@ begin not atomic
 
         insert into`applied_updates`values ('220720232');
     end if;
+
+    -- 26/07/2023 2
+    if (select count(*) from `applied_updates` where id='260720232') = 0 then
+        -- Escorting Erland
+        DELETE FROM `generic_scripts` WHERE `id`=43507;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES (43507, 0, 0, 70, 435, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1014, 'Escorting Erland - Fail Quest');
+
+        DELETE FROM `quest_start_scripts` WHERE `id`=435;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(435, 0, 0, 61, 435, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1014, 43507, 0, 0, 0, 0, 0, 'Escorting Erland - Start Map Event'),
+(435, 0, 1, 22, 232, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Set Faction Escortee'),
+(435, 0, 2, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland  - Remove NPC flags.'),
+(435, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 481, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - SayText'),
+(435, 0, 4, 60, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Start Waypoints');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197801;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197801, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 482, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Say Start 2');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197802;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197802, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 484, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Say End Text'),
+(197802, 0, 0, 7, 435, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Complete Quest');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197803;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197803, 0, 0, 0, 0, 0, 0, 0, 1950, 0, 8, 2, 534, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Rane Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197804;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197804, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 535, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Erland Reply');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197805;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197805, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 536, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Check Next');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197806;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197806, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 537, 0, 0, 0, 0, 0, 0, 0, 0, 'Ecorting Erland - Hello Quinn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197807;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197807, 0, 0, 0, 0, 0, 0, 0, 1951, 0, 8, 2, 539, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Quinn Reply');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197808;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197808, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 538, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Bye'),
+(197808, 20, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Despawn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197809;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197809, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 483, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Almost There.');
+
+        -- Events list for Deathstalker Erland
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1978;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (1, 1978, 0, 4, 0, 100, 3, 0, 0, 0, 0, 197801, 0, 0, 'Deathstalker Erland - Aggro Text');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=197801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197801, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 543, 544, 541, 0, 0, 0, 0, 0, 0, 'Deathstalker Erland - Aggro Text');
+
+        DELETE FROM `creature_movement_template` WHERE `entry`=1978;
+        INSERT INTO `creature_movement_template`
+        VALUES 
+        ('1978', '0', '1406.32', '1083.1', '52.55', '100', '0', '0', '0'),
+        ('1978', '1', '1400.49', '1080.42', '52.5', '100', '0', '0', '197801'),
+        ('1978', '2', '1388.48', '1083.1', '52.52', '100', '0', '0', '0'),
+        ('1978', '3', '1370.16', '1084.02', '52.3', '100', '0', '0', '0'),
+        ('1978', '4', '1359.02', '1080.85', '52.46', '100', '0', '0', '0'),
+        ('1978', '5', '1341.43', '1087.39', '52.69', '100', '0', '0', '0'),
+        ('1978', '6', '1321.93', '1090.51', '50.66', '100', '0', '0', '0'),
+        ('1978', '7', '1312.98', '1095.91', '47.49', '100', '0', '0', '0'),
+        ('1978', '8', '1301.09', '1102.94', '47.76', '100', '0', '0', '0'),
+        ('1978', '9', '1297.73', '1106.35', '50.18', '100', '0', '0', '0'),
+        ('1978', '10', '1295.49', '1124.32', '50.49', '100', '0', '0', '0'),
+        ('1978', '11', '1294.84', '1137.25', '51.75', '100', '0', '0', '197809'),
+        ('1978', '12', '1292.89', '1158.99', '52.65', '100', '0', '0', '0'),
+        ('1978', '13', '1290.75', '1168.67', '52.56', '100', '2000', '0', '197802'),
+        ('1978', '14', '1287.12', '1203.49', '52.66', '100', '5000', '0', '197803'),
+        ('1978', '15', '1288.3', '1203.89', '52.68', '100', '5000', '0', '197804'),
+        ('1978', '16', '1288.3', '1203.89', '52.68', '100', '5000', '0', '197805'),
+        ('1978', '17', '1290.72', '1207.44', '52.69', '100', '0', '0', '0'),
+        ('1978', '18', '1297.5', '1207.18', '53.74', '100', '0', '0', '0'),
+        ('1978', '19', '1301.32', '1220.9', '53.74', '100', '0', '0', '0'),
+        ('1978', '20', '1298.55', '1220.43', '53.74', '100', '0', '0', '0'),
+        ('1978', '21', '1297.38', '1212.87', '58.51', '100', '0', '0', '0'),
+        ('1978', '22', '1297.8', '1210.04', '58.51', '100', '0', '0', '0'),
+        ('1978', '23', '1305.01', '1206.1', '58.51', '100', '0', '0', '0'),
+        ('1978', '24', '1310.51', '1207.36', '58.51', '100', '5000', '0', '197806'),
+        ('1978', '25', '1312.59', '1207.21', '58.51', '100', '5000', '0', '197807'),
+        ('1978', '26', '1312.59', '1207.21', '58.51', '100', '30000', '0', '197808');
+
+        insert into`applied_updates`values ('260720232');
+    end if;
 end $
 delimiter ;
