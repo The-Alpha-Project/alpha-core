@@ -3042,7 +3042,7 @@ begin not atomic
 
         DELETE FROM `creature_movement_scripts` WHERE `id`=197801;
         INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(197801, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 482, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Say Start 2');
+(197801, 0, 0, 0, 0, 0, 0, 0, 435, 0, 21, 0, 482, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Say Start 2');
 
         DELETE FROM `creature_movement_scripts` WHERE `id`=197802;
         INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
