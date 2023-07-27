@@ -422,7 +422,7 @@ class ScriptHandler:
         if command.datalong not in player.quest_manager.active_quests:
             return True
 
-        in_range = player.location.distance(quest_giver.location) <= command.datalong2
+        in_range = not command.datalong2 or player.location.distance(quest_giver.location) <= command.datalong2
         if command.datalong3 and player.group_manager and in_range:
             player.group_manager.reward_quest_completion(player, command.datalong)
             return

@@ -229,13 +229,43 @@ class ScriptManager:
 
     @staticmethod
     def handle_map_event_source(caster, target=None, param1=None, param2=None, spell_template=None):
-        Logger.warning(f'Unimplemented script target: handle_map_event_source.')
-        return None
+        target = caster if caster else target
+        if not target:
+            Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve target for event {param1}.')
+            return None
+        map_ = target.get_map()
+        if not map_:
+            Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve map for event {param1}.')
+            return None
+        scripted_event = map_.map_event_manager.get_map_event_data(param1)
+        if not scripted_event:
+            Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve scripted_event {param1}.')
+            return None
+        target = scripted_event.get_source()
+        if not target:
+            Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve source for scripted_event {param1}.')
+            return None
+        return target
 
     @staticmethod
     def handle_map_event_target(caster, target=None, param1=None, param2=None, spell_template=None):
-        Logger.warning(f'Unimplemented script target: handle_map_event_target.')
-        return None
+        target = caster if caster else target
+        if not target:
+            Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve target for event {param1}.')
+            return None
+        map_ = target.get_map()
+        if not map_:
+            Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve map for event {param1}.')
+            return None
+        scripted_event = map_.map_event_manager.get_map_event_data(param1)
+        if not scripted_event:
+            Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve scripted_event {param1}.')
+            return None
+        target = scripted_event.get_target()
+        if not target:
+            Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve target for scripted_event {param1}.')
+            return None
+        return target
 
     @staticmethod
     def handle_map_event_extra_target(caster, target=None, param1=None, param2=None, spell_template=None):
