@@ -71,7 +71,7 @@ class AuraManager:
                 continue  # Area auras are updated by AreaAuraHolder.
 
             aura.update(timestamp)  # Update duration and handle periodic effects.
-            if aura.has_duration() and aura.get_duration() <= 0:
+            if aura.has_duration() and aura.get_duration() <= 0 or aura.get_heartbeat_resist_result(timestamp):
                 self.remove_aura(aura)
 
     def can_apply_aura(self, aura) -> bool:
