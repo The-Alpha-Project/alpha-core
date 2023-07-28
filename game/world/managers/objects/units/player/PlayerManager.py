@@ -678,6 +678,8 @@ class PlayerManager(UnitManager):
         else:
             # Always remove the player from world before sending a Loading Screen, preventing unexpected packets
             # while the screen is still present.
+            self.leave_combat()
+            self.threat_manager.reset()
             # Remove to others.
             MapManager.remove_object(self)
             # Destroy all objects known to self.
