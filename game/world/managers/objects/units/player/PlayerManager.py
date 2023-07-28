@@ -655,6 +655,10 @@ class PlayerManager(UnitManager):
         # Remove from transport.
         self.movement_info.remove_from_transport()
 
+        # Leave combat.
+        self.leave_combat()
+        self.threat_manager.reset()
+
         # Same map.
         if self.map_id == pending_teleport.destination_map:
             data = pack(
@@ -678,8 +682,6 @@ class PlayerManager(UnitManager):
         else:
             # Always remove the player from world before sending a Loading Screen, preventing unexpected packets
             # while the screen is still present.
-            self.leave_combat()
-            self.threat_manager.reset()
             # Remove to others.
             MapManager.remove_object(self)
             # Destroy all objects known to self.
