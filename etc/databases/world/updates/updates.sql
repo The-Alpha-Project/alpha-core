@@ -3119,5 +3119,36 @@ begin not atomic
 
         insert into`applied_updates`values ('260720232');
     end if;
+
+    -- 27/07/2023 1
+    if (select count(*) from `applied_updates` where id='270720231') = 0 then
+        -- Escorting Erland, skip dialogs if source/targets not found.
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197803;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197803, 0, 0, 0, 0, 0, 0, 0, 1950, 0, 8, 18, 534, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Rane Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197804;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197804, 0, 0, 0, 0, 0, 0, 0, 1950, 0, 8, 16, 535, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Erland Reply');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197805;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197805, 0, 0, 0, 0, 0, 0, 0, 1950, 0, 8, 16, 536, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Check Next');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197806;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197806, 0, 0, 0, 0, 0, 0, 0, 1951, 0, 8, 16, 537, 0, 0, 0, 0, 0, 0, 0, 0, 'Ecorting Erland - Hello Quinn');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197807;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197807, 0, 0, 0, 0, 0, 0, 0, 1951, 0, 8, 18, 539, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Quinn Reply');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=197808;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(197808, 0, 0, 0, 0, 0, 0, 0, 1951, 0, 8, 16, 538, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Bye'),
+(197808, 60, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Escorting Erland - Despawn');
+
+        insert into`applied_updates`values ('270720231');
+    end if;
 end $
 delimiter ;

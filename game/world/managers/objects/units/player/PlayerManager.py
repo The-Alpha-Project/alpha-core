@@ -1957,6 +1957,10 @@ class PlayerManager(UnitManager):
         return super().can_attack_target(target)
 
     # override
+    def is_in_world(self):
+        return self.online and not self.update_lock and self.get_map()
+
+    # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_PLAYER
 

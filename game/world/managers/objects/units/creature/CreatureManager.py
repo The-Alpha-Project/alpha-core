@@ -889,6 +889,9 @@ class CreatureManager(UnitManager):
     def get_creature_family(self):
         return self.creature_template.beast_family
 
+    def is_in_world(self):
+        return self.is_spawned and self.get_map()
+
     # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_UNIT

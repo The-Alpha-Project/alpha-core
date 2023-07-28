@@ -57,7 +57,7 @@ class ScriptManager:
     @staticmethod
     def handle_nearest_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param1
-        targets = ScriptManager._get_surrounding_units(caster, friends_only=False, include_players=False)
+        targets = ScriptManager._get_surrounding_units(caster, friends_only=False, include_players=False, alive=True)
         if not targets:
             return None
         # Sort by distance.
@@ -72,7 +72,8 @@ class ScriptManager:
     def handle_random_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         entry: Optional[int] = param2
-        units = ScriptManager._get_surrounding_units(caster, search_range=search_range, include_players=False)
+        units = ScriptManager._get_surrounding_units(caster, search_range=search_range, include_players=False,
+                                                     alive=True)
         if not units:
             return None
         shuffle(units)
@@ -146,7 +147,8 @@ class ScriptManager:
         friendlies = ScriptManager._get_surrounding_units(caster,
                                                           search_range=search_range,
                                                           friends_only=True,
-                                                          exclude_unit=exclude_target)
+                                                          exclude_unit=exclude_target,
+                                                          in_combat=True)
         # Did not find any friendlies.
         if not friendlies:
             return None
@@ -356,7 +358,7 @@ class ScriptManager:
 
     @staticmethod
     def _filter_units(unit_caller, units_list, search_range=0.0, friends_only=False, enemies_only=False,
-                      exclude_unit=None):
+                      exclude_unit=None, alive=False, in_combat=False):
         # Only within search range, if given.
         if search_range > 0:
             units_list = [unit for unit in units_list if unit_caller.location.distance(unit.location) < search_range]
@@ -369,12 +371,18 @@ class ScriptManager:
         # Exclude unit, if provided.
         if exclude_unit:
             units_list = [unit for unit in units_list if unit != exclude_unit]
+        # Only alive.
+        if alive:
+            units_list = [unit for unit in units_list if unit.is_alive]
+        # Only in combat.
+        if in_combat:
+            units_list = [unit for unit in units_list if unit.in_combat]
 
         return units_list
 
     @staticmethod
     def _get_surrounding_players(unit_caller, search_range=0.0, friends_only=False,
-                                 enemies_only=False) -> Optional[list[UnitManager]]:
+                                 enemies_only=False, alive=False) -> Optional[list[UnitManager]]:
         surrounding_players_list = list(MapManager.get_surrounding_players(unit_caller).values())
 
         # Did not find surrounding players.
@@ -382,13 +390,13 @@ class ScriptManager:
             return []
 
         surrounding_players_list = ScriptManager._filter_units(unit_caller, surrounding_players_list, search_range,
-                                                               friends_only, enemies_only, None)
+                                                               friends_only, enemies_only, None, alive)
 
         return surrounding_players_list if surrounding_players_list else []
 
     @staticmethod
     def _get_surrounding_units(unit_caller, search_range=0.0, friends_only=False, enemies_only=False,
-                               exclude_unit=None, include_players=True) -> list[UnitManager]:
+                               exclude_unit=None, include_players=True, alive=False, in_combat=False) -> list[UnitManager]:
         # Surrounding units including players.
         surrounding_units = MapManager.get_surrounding_units(unit_caller, include_players=include_players)
         # Merge if needed.
@@ -402,7 +410,7 @@ class ScriptManager:
             return []
 
         surrounding_units_list = ScriptManager._filter_units(unit_caller, surrounding_units_list, search_range,
-                                                             friends_only, enemies_only, exclude_unit)
+                                                             friends_only, enemies_only, exclude_unit, alive, in_combat)
 
         return surrounding_units_list if surrounding_units_list else []
 

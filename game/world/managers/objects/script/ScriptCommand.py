@@ -30,6 +30,13 @@ class ScriptCommand:
         self.source = None
         self.target = None
 
+    def resolve_initial_targets(self, source, target):
+        if self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS:
+            if not source or not target or not source.is_in_world() or not target.is_in_world():
+                return False, None, None
+
+        return True, source, target
+
     def resolve_final_targets(self, source, target):
         # Swap target and source if needed.
         if self.data_flags & ScriptFlags.SF_GENERAL_SWAP_INITIAL_TARGETS:
@@ -42,7 +49,7 @@ class ScriptCommand:
             target = ScriptManager.get_target_by_type(source, target, self.target_type,
                                                       self.target_param1, self.target_param2)
             if not target:
-                if self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS:
+                if not self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS:
                     Logger.error(f'Unable to find target for script {self.script_id}')
                 return False, None, None
 
