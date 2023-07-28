@@ -382,8 +382,8 @@ begin not atomic
         -- Fix Helena Atwood's OOC script (used NYI spell id)
         update creature_ai_scripts set datalong = 1485 where id = 566901;
 
-        -- Restore Skeletal Enforcer based on level 24-25 Skeletal Fiend
-        update creature_template set name = "Skeletal Enforcer", faction = 21, static_flags = 0, level_min = 24, level_max = 25, health_min = 664, health_max = 712, armor = 1009, dmg_min = 36, dmg_max = 46, attack_power = 106, loot_id = 531, pickpocket_loot_id = 531, gold_min = 33, gold_max = 48, ai_name = 'EventAI', movement_type = 1, mechanic_immune_mask = 8602131 where entry = 725;
+        -- Restore Skeletal Enforcer based on level 25-26 Skeletal Fiend
+        update creature_template set name = "Skeletal Enforcer", faction = 21, static_flags = 0, level_min = 25, level_max = 26, health_min = 664, health_max = 712, armor = 1009, dmg_min = 36, dmg_max = 46, attack_power = 106, loot_id = 531, pickpocket_loot_id = 531, gold_min = 33, gold_max = 48, ai_name = 'EventAI', movement_type = 1, equipment_id=5128 , mechanic_immune_mask = 8602131 where entry = 725;
         -- Spawn Skeletal Enforcer as replacement for some Skeletal Fiend and Skeletal Horror on Duskwood Cemetary
         update spawns_creatures set spawn_entry1 = 725 where spawn_id in(4941, 5160, 5040, 4944);
         update spawns_creatures set spawn_entry1 = 725 where spawn_id in(5178, 4993, 4974, 5942);
@@ -706,7 +706,7 @@ begin not atomic
 
         -- Rot Hide Gnoll (atm scale is way too big)
         UPDATE `creature_template`
-        SET `display_id1`=3196
+        SET `display_id1`=5128
         WHERE `entry`=1674;
 
         insert into`applied_updates`values ('050420231');
