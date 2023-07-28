@@ -407,7 +407,6 @@ class ScriptHandler:
         # datalong = quest_id
         # datalong2 = distance or 0
         # datalong3 = (bool) group
-        quest_target = None
         if not ConditionChecker.is_player(command.source) and not ConditionChecker.is_player(command.target):
             Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no player found!')
             return True  # Abort.

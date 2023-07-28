@@ -31,6 +31,11 @@ class Script:
                 return
             self.commands.remove(script_command)
 
+            # Try to resolve initial targets for this command.
+            succeed, source, target = script_command.resolve_initial_targets(self.source, self.target)
+            if not succeed:
+                continue
+
             # Try to resolve the final targets for this command.
             succeed, source, target = script_command.resolve_final_targets(self.source, self.target)
             if not succeed:

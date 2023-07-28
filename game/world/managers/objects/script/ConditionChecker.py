@@ -395,7 +395,7 @@ class ConditionChecker:
                 return True
 
         if condition.value1 & EscortConditionFlags.CF_ESCORT_TARGET_DEAD:
-            if not target.is_alive or not target.is_online:
+            if not target.is_alive or not target.online:
                 return True
 
         if condition.value2:

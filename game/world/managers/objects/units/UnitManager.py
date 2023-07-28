@@ -1742,6 +1742,9 @@ class UnitManager(ObjectManager):
 
         self.set_stand_state(StandState.UNIT_STANDING)
 
+    def is_in_world(self):
+        pass
+
     def get_map(self):
         return MapManager.get_map(self.map_id, self.instance_id)
 

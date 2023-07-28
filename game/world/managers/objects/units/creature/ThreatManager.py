@@ -1,5 +1,6 @@
 import random
 from dataclasses import dataclass
+from multiprocessing import RLock
 from typing import Optional
 
 from game.world.managers.maps.MapManager import MapManager
@@ -26,12 +27,14 @@ class ThreatManager:
 
     def __init__(self, owner: UnitManager, call_for_help_range=0):
         self.owner = owner
+        self.holders_lock = RLock()
         self.holders: dict[int, ThreatHolder] = {}
         self.current_holder: Optional[ThreatHolder] = None
         self._call_for_help_range = call_for_help_range
 
     def has_aggro_from(self, target):
-        return target.guid in self.holders
+        with self.holders_lock:
+            return target.guid in self.holders
 
     def has_aggro(self):
         return self.get_targets_count() > 0
@@ -40,7 +43,7 @@ class ThreatManager:
         return len(self.holders)
 
     def get_threat_holder_units(self):
-        return [holder.unit for holder in self.holders.values()]
+        return [holder.unit for holder in list(self.holders.values())]
 
     def update_unit_threat_modifier(self, unit_mgr, remove=False):
         max_holder = self._get_max_threat_holder()
@@ -62,24 +65,27 @@ class ThreatManager:
             self.remove_unit_threat(unit)
             unit.threat_manager.remove_unit_threat(self.owner)
 
-        self.holders.clear()
+        with self.holders_lock:
+            self.holders.clear()
         self.current_holder = None
 
     def remove_unit_threat(self, unit):
-        if unit.guid in self.holders:
-            # Reset current holder if needed.
-            if self.current_holder == self.holders[unit.guid]:
-                self.current_holder = None
-            # Pop unit from threat holders.
-            self.holders.pop(unit.guid)
-            # Remove from self casts if needed.
-            if not unit.is_alive:
-                self.owner.spell_manager.remove_unit_from_all_cast_targets(unit.guid)
-            # Remove from unit casts if needed.
-            if not self.owner.is_alive:
-                unit.spell_manager.remove_unit_from_all_cast_targets(self.owner.guid)
-            if unit.threat_manager.has_aggro_from(self.owner):
-                unit.threat_manager.remove_unit_threat(self.owner)
+        with self.holders_lock:
+            if unit.guid in self.holders:
+                # Reset current holder if needed.
+                if self.current_holder == self.holders[unit.guid]:
+                    self.current_holder = None
+                # Pop unit from threat holders.
+                with self.holders_lock:
+                    self.holders.pop(unit.guid)
+                # Remove from self casts if needed.
+                if not unit.is_alive:
+                    self.owner.spell_manager.remove_unit_from_all_cast_targets(unit.guid)
+                # Remove from unit casts if needed.
+                if not self.owner.is_alive:
+                    unit.spell_manager.remove_unit_from_all_cast_targets(self.owner.guid)
+                if unit.threat_manager.has_aggro_from(self.owner):
+                    unit.threat_manager.remove_unit_threat(self.owner)
 
         if not self.has_aggro():
             self.owner.leave_combat()
@@ -103,7 +109,8 @@ class ThreatManager:
 
         if source is not self.owner:
             self.owner.enter_combat(source)
-            source_holder = self.holders.get(source.guid)
+            with self.holders_lock:
+                source_holder = self.holders.get(source.guid)
             # Update existent holder.
             if source_holder:
                 new_threat = source_holder.total_raw_threat + threat
@@ -113,7 +120,8 @@ class ThreatManager:
             elif threat >= 0.0:
                 if not is_call_for_help:
                     self.call_for_help(source, threat)
-                self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
+                with self.holders_lock:
+                    self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
                 # Force both units to be linked through threat.
                 if not source.threat_manager.has_aggro_from(self.owner):
                     source.threat_manager.add_threat(self.owner)

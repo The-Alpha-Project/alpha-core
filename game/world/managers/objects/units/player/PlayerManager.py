@@ -655,6 +655,10 @@ class PlayerManager(UnitManager):
         # Remove from transport.
         self.movement_info.remove_from_transport()
 
+        # Leave combat.
+        self.leave_combat()
+        self.threat_manager.reset()
+
         # Same map.
         if self.map_id == pending_teleport.destination_map:
             data = pack(
@@ -1955,6 +1959,10 @@ class PlayerManager(UnitManager):
                 return False
 
         return super().can_attack_target(target)
+
+    # override
+    def is_in_world(self):
+        return self.online and not self.update_lock and self.get_map()
 
     # override
     def get_type_mask(self):
