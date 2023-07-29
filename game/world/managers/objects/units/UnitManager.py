@@ -1647,6 +1647,10 @@ class UnitManager(ObjectManager):
             return False
         self.is_alive = False
 
+        self.pending_relocation = False
+        self.set_has_moved(False, False, True)
+        self.relocation_call_for_help_timer = 0;
+
         if self.object_ai:
             self.object_ai.just_died(killer)
 
@@ -1775,7 +1779,7 @@ class UnitManager(ObjectManager):
 
     def notify_move_in_line_of_sight(self):
         if self.beast_master or self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT \
-                or self.unit_state & UnitStates.SANCTUARY:
+                or self.unit_state & UnitStates.SANCTUARY or not self.is_alive or not self.is_spawned:
             return
 
         result = MapManager.get_surrounding_units(self, False)
