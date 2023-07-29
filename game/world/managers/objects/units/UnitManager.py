@@ -1781,23 +1781,37 @@ class UnitManager(ObjectManager):
         if self.beast_master or self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT \
                 or self.unit_state & UnitStates.SANCTUARY or not self.is_alive or not self.is_spawned:
             return
+        self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
+        surrounding_units = MapManager.get_surrounding_units(self, not self_is_player)
 
-        result = MapManager.get_surrounding_units(self, False)
-        for unit in result.values():
+        # Merge units and players.
+        if not self_is_player:
+            surrounding_units = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
+        # Only creatures.
+        else:
+            surrounding_units = surrounding_units.values()
+
+        for unit in surrounding_units:
             distance = unit.location.distance(self.location)
-            if distance > unit.get_detection_range() or not unit.is_hostile_to(self):
+            unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+            detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
+            if distance > detection_range or not unit.can_attack_target(self):
                 continue
             if unit.threat_manager.has_aggro_from(self):
                 continue
             # Check for stealth/invisibility.
-            can_detect_self, alert = unit.can_detect_target(self, distance)
-            if alert and self.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            unit_can_detect_self, alert = unit.can_detect_target(self, distance)
+            if alert and self_is_player:
                 unit.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
-            if not can_detect_self:
+            if not unit_can_detect_self:
                 continue
             if not MapManager.los_check(self.map_id, unit.get_ray_position(), self.get_ray_position()):
                 continue
-            unit.object_ai.move_in_line_of_sight(self)
+            # Player standing still case.
+            if unit_is_player and not unit.pending_relocation:
+                unit.pending_relocation = True
+            elif not unit_is_player:
+                unit.object_ai.move_in_line_of_sight(self)
 
     def set_has_moved(self, has_moved, has_turned, flush=False):
         # Only turn off once processed.
