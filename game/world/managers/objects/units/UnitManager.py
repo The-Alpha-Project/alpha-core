@@ -409,7 +409,6 @@ class UnitManager(ObjectManager):
         if not victim or not self.is_alive or not victim.is_alive or victim.unit_state & UnitStates.SANCTUARY:
             return
 
-        self.aura_manager.check_aura_interrupts(attacked=True)
         if attack_type == AttackTypes.BASE_ATTACK:
             # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
@@ -435,6 +434,7 @@ class UnitManager(ObjectManager):
 
         self.send_attack_state_update(damage_info)
         self.deal_damage(damage_info.target, damage_info)
+        self.aura_manager.check_aura_interrupts(attacked=True)
 
     def execute_extra_attacks(self):
         while self.extra_attacks > 0:
