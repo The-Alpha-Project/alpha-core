@@ -527,8 +527,14 @@ class CreatureManager(UnitManager):
                 self.aura_manager.update(now)
                 # Sanctuary check.
                 self.update_sanctuary(elapsed)
-                # Movement Updates.
+                # AI.
+                if self.object_ai:
+                    self.object_ai.update_ai(elapsed)
+                # Movement Updates, order matters.
                 self.movement_manager.update(now, elapsed)
+                # Attack Update.
+                self.attack_update(elapsed)
+                # Movement checks.
                 if self.has_moved or self.has_turned:
                     # Relocate only if x, y changed.
                     if self.has_moved and not self.pending_relocation:
@@ -536,11 +542,6 @@ class CreatureManager(UnitManager):
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
-                # AI.
-                if self.object_ai:
-                    self.object_ai.update_ai(elapsed)
-                # Attack Update.
-                self.attack_update(elapsed)
             # Dead creature with no spawn point, handle destroy.
             elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.

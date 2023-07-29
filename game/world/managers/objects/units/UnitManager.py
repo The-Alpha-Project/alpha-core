@@ -1780,14 +1780,10 @@ class UnitManager(ObjectManager):
 
         result = MapManager.get_surrounding_units(self, False)
         for unit in result.values():
-            if not unit.object_ai.is_ready_for_new_attack():
-                continue
             distance = unit.location.distance(self.location)
-            if distance > unit.get_detection_range():
+            if distance > unit.get_detection_range() or not unit.is_hostile_to(self):
                 continue
-            if not unit.is_hostile_to(self):
-                continue
-            if unit.combat_target == self or unit.threat_manager.has_aggro_from(self):
+            if unit.threat_manager.has_aggro_from(self):
                 continue
             # Check for stealth/invisibility.
             can_detect_self, alert = unit.can_detect_target(self, distance)
@@ -1798,9 +1794,6 @@ class UnitManager(ObjectManager):
             if not MapManager.los_check(self.map_id, unit.get_ray_position(), self.get_ray_position()):
                 continue
             unit.object_ai.move_in_line_of_sight(self)
-            active_pet = unit.pet_manager.get_active_controlled_pet()
-            if active_pet:
-                unit.object_ai.move_in_line_of_sight(active_pet.creature)
 
     def set_has_moved(self, has_moved, has_turned, flush=False):
         # Only turn off once processed.
