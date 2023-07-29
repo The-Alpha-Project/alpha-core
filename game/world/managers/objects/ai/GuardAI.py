@@ -24,12 +24,8 @@ class GuardAI(CreatureAI):
         return Permits.PERMIT_BASE_NO
 
     # override
-    def move_in_line_of_sight(self, unit=None):
-        if not self.is_ready_for_new_attack():
-            return
-        unit = self.get_proximity_target(unit=unit)
-        if unit:
-            self.creature.object_ai.attacked_by(unit)
+    def move_in_line_of_sight(self, unit):
+        self.creature.object_ai.attacked_by(unit)
 
     # override
     def enter_combat(self, source=None):

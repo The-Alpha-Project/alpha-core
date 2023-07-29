@@ -541,11 +541,14 @@ class InventoryManager(object):
 
         return InventoryError.BAG_INV_FULL
 
-    def get_remaining_space(self):
+    def get_remaining_space(self, include_ammo=False):
         empty_slots = 0
         for container_slot, container in list(self.containers.items()):
             if not container:
                 continue
+            if not include_ammo:
+                if not container.is_backpack and container.item_template.class_ != ItemClasses.ITEM_CLASS_CONTAINER:
+                    continue
             empty_slots += container.get_empty_slots()
         return empty_slots
 

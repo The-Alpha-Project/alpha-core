@@ -768,6 +768,8 @@ class ScriptHandler:
         else:
             command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=True)
 
+        command.source.movement_manager.set_speed_dirty()
+
     @staticmethod
     def handle_script_command_attack_start(command):
         # source = Creature

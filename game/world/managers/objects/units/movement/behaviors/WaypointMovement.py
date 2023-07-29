@@ -2,7 +2,7 @@ import time
 
 from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType, ScriptTypes
+from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.movement.helpers.MovementWaypoint import MovementWaypoint
@@ -27,6 +27,9 @@ class WaypointMovement(BaseMovement):
     # override
     def initialize(self, unit):
         super().initialize(unit)
+
+        # Walk is on by default.
+        self.unit.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=True)
 
         # Triggered from scripts.
         if self.command_move_info:
@@ -72,6 +75,7 @@ class WaypointMovement(BaseMovement):
     # override
     def update(self, now, elapsed):
         if self._can_perform_waypoint(now):
+            self.speed_dirty = False
             self._perform_waypoint()
             self.last_waypoint_movement = now
             self.wait_time_seconds = self.spline.get_total_time_secs()
@@ -111,14 +115,23 @@ class WaypointMovement(BaseMovement):
         return not self.unit.is_alive or (not self.waypoints and not self.spline)
 
     def _can_perform_waypoint(self, now):
-        return self.waypoints and not self.spline and now > self.last_waypoint_movement + self.wait_time_seconds
+        return self.waypoints and not self.spline \
+            and (now > self.last_waypoint_movement + self.wait_time_seconds or self.speed_dirty)
 
     def _perform_waypoint(self):
         waypoint = self._get_waypoint()
-        speed = config.Unit.Defaults.walk_speed if not self.speed else self.speed
+        speed = self._get_speed()
         spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint.location], speed=speed,
                                                    extra_time_seconds=waypoint.wait_time_seconds)
         self.spline_callback(spline, movement_behavior=self)
+
+    # TODO: We are missing a lot of code regarding speed handling.
+    #  VMaNGOS - Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
+    #  VMaNGOS - SetWalk() / UnitStates.
+    #  Probably all speeds should go through StatsManager.
+    def _get_speed(self):
+        return self.speed if self.speed else config.Unit.Defaults.walk_speed if \
+            self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK else config.Unit.Defaults.run_speed
 
     # noinspection PyMethodMayBeStatic
     def _movement_waypoints_from_vectors(self, points):

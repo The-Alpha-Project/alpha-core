@@ -1934,10 +1934,7 @@ class PlayerManager(UnitManager):
             self.stealth_detect_timer = 0
 
     def _on_relocation(self):
-        for guid, unit in MapManager.get_surrounding_units(self).items():
-            # Skip notify if the unit is already in combat with self, not alive or not spawned.
-            if not unit.threat_manager.has_aggro_from(self) and unit.is_alive and unit.is_spawned:
-                unit.notify_moved_in_line_of_sight(self)
+        self.notify_move_in_line_of_sight()
 
     # override
     def on_cell_change(self):

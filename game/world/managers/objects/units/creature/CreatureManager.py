@@ -24,7 +24,7 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
     MoveType
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
-    PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
+    PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState, UnitStates
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -790,7 +790,10 @@ class CreatureManager(UnitManager):
 
     def _on_relocation(self):
         self._update_swimming_state()
-        self.object_ai.move_in_line_of_sight()
+        self.notify_move_in_line_of_sight()
+
+    def get_detection_range(self):
+        return self.creature_template.detection_range
 
     # Automatically set/remove swimming move flag on units.
     def _update_swimming_state(self):
@@ -804,10 +807,6 @@ class CreatureManager(UnitManager):
         elif not is_under_water and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=False)
             MapManager.send_surrounding(self.get_heartbeat_packet(), self)
-
-    # override
-    def notify_moved_in_line_of_sight(self, target):
-        self.object_ai.move_in_line_of_sight(unit=target)
 
     # override
     def has_mainhand_weapon(self):

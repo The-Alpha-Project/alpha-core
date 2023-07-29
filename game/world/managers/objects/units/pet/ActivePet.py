@@ -173,4 +173,4 @@ class ActivePet:
         self.creature.threat_manager.add_threat(self._pet_manager.owner)
 
         # Notify about owner proximity.
-        self.creature.notify_moved_in_line_of_sight(self._pet_manager.owner)
+        self.creature.object_ai.move_in_line_of_sight(self._pet_manager.owner)

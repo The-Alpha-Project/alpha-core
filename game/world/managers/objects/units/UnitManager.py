@@ -26,7 +26,8 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
     SpellSchoolMask, SpellTargetMask, SpellAttributesEx
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
+    AIReactionStates
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -1768,9 +1769,38 @@ class UnitManager(ObjectManager):
     def on_cell_change(self):
         pass
 
-    # override
-    def notify_moved_in_line_of_sight(self, target):
-        pass
+    # Used by creatures.
+    def get_detection_range(self):
+        return 0
+
+    def notify_move_in_line_of_sight(self):
+        if self.beast_master or self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT \
+                or self.unit_state & UnitStates.SANCTUARY:
+            return
+
+        result = MapManager.get_surrounding_units(self, False)
+        for unit in result.values():
+            if not unit.object_ai.is_ready_for_new_attack():
+                continue
+            distance = unit.location.distance(self.location)
+            if distance > unit.get_detection_range():
+                continue
+            if not unit.is_hostile_to(self):
+                continue
+            if unit.combat_target == self or unit.threat_manager.has_aggro_from(self):
+                continue
+            # Check for stealth/invisibility.
+            can_detect_self, alert = unit.can_detect_target(self, distance)
+            if alert and self.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                unit.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
+            if not can_detect_self:
+                continue
+            if not MapManager.los_check(self.map_id, unit.get_ray_position(), self.get_ray_position()):
+                continue
+            unit.object_ai.move_in_line_of_sight(self)
+            active_pet = unit.pet_manager.get_active_controlled_pet()
+            if active_pet:
+                unit.object_ai.move_in_line_of_sight(active_pet.creature)
 
     def set_has_moved(self, has_moved, has_turned, flush=False):
         # Only turn off once processed.
