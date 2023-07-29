@@ -3150,5 +3150,23 @@ begin not atomic
 
         insert into`applied_updates`values ('270720231');
     end if;
+
+    -- 29/07/2023 1
+    if (select count(*) from `applied_updates` where id='290720231') = 0 then
+        -- Deadly Poison <Rank 1> Level 30
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '25') and (`spell` = '2843');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '26') and (`spell` = '2843');
+        -- Deadly Poison <Rank 2> Level 38
+        UPDATE `trainer_template` SET `reqlevel` = '38' WHERE (`template_entry` = '25') and (`spell` = '2844');
+        UPDATE `trainer_template` SET `reqlevel` = '38' WHERE (`template_entry` = '26') and (`spell` = '2844');
+        -- Crippling Poison <Rank 1> Level 20
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '25') and (`spell` = '3422');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '26') and (`spell` = '3422');
+        -- Crippling Poison <Rank 2> Level 50
+        UPDATE `trainer_template` SET `reqlevel` = '50' WHERE (`template_entry` = '25') and (`spell` = '3423');
+        UPDATE `trainer_template` SET `reqlevel` = '50' WHERE (`template_entry` = '26') and (`spell` = '3423');
+
+        insert into`applied_updates`values ('290720231');
+    end if;
 end $
 delimiter ;
