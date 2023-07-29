@@ -26,7 +26,8 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
     SpellSchoolMask, SpellTargetMask, SpellAttributesEx
-from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags
+from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
+    AIReactionStates
 from utils.constants.UpdateFields import UnitFields
 
 
@@ -408,7 +409,6 @@ class UnitManager(ObjectManager):
         if not victim or not self.is_alive or not victim.is_alive or victim.unit_state & UnitStates.SANCTUARY:
             return
 
-        self.aura_manager.check_aura_interrupts(attacked=True)
         if attack_type == AttackTypes.BASE_ATTACK:
             # No recent extra attack only at any non-extra attack.
             if not extra and self.extra_attacks > 0:
@@ -434,6 +434,7 @@ class UnitManager(ObjectManager):
 
         self.send_attack_state_update(damage_info)
         self.deal_damage(damage_info.target, damage_info)
+        self.aura_manager.check_aura_interrupts(attacked=True)
 
     def execute_extra_attacks(self):
         while self.extra_attacks > 0:
@@ -1646,6 +1647,10 @@ class UnitManager(ObjectManager):
             return False
         self.is_alive = False
 
+        self.pending_relocation = False
+        self.set_has_moved(False, False, True)
+        self.relocation_call_for_help_timer = 0;
+
         if self.object_ai:
             self.object_ai.just_died(killer)
 
@@ -1768,9 +1773,45 @@ class UnitManager(ObjectManager):
     def on_cell_change(self):
         pass
 
-    # override
-    def notify_moved_in_line_of_sight(self, target):
-        pass
+    # Used by creatures.
+    def get_detection_range(self):
+        return 0
+
+    def notify_move_in_line_of_sight(self):
+        if self.beast_master or self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT \
+                or self.unit_state & UnitStates.SANCTUARY or not self.is_alive or not self.is_spawned:
+            return
+        self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
+        surrounding_units = MapManager.get_surrounding_units(self, not self_is_player)
+
+        # Merge units and players.
+        if not self_is_player:
+            surrounding_units = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
+        # Only creatures.
+        else:
+            surrounding_units = surrounding_units.values()
+
+        for unit in surrounding_units:
+            distance = unit.location.distance(self.location)
+            unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+            detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
+            if distance > detection_range or not unit.can_attack_target(self):
+                continue
+            if unit.threat_manager.has_aggro_from(self):
+                continue
+            # Check for stealth/invisibility.
+            unit_can_detect_self, alert = unit.can_detect_target(self, distance)
+            if alert and self_is_player:
+                unit.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
+            if not unit_can_detect_self:
+                continue
+            if not MapManager.los_check(self.map_id, unit.get_ray_position(), self.get_ray_position()):
+                continue
+            # Player standing still case.
+            if unit_is_player and not unit.pending_relocation:
+                unit.pending_relocation = True
+            elif not unit_is_player:
+                unit.object_ai.move_in_line_of_sight(self)
 
     def set_has_moved(self, has_moved, has_turned, flush=False):
         # Only turn off once processed.

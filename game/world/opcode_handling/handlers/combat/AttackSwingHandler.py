@@ -8,7 +8,6 @@ class AttackSwingHandler(object):
     @staticmethod
     def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty attack swing packet.
-            # TODO: Finish implementing this
             enemy_guid = unpack('<Q', reader.data[:8])[0]
             enemy = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, enemy_guid, include_players=True)
 

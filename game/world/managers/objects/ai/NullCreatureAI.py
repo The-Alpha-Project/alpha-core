@@ -11,7 +11,7 @@ class NullCreatureAI(CreatureAI):
         pass
 
     # override
-    def move_in_line_of_sight(self, unit=None):
+    def move_in_line_of_sight(self, unit):
         pass
 
     # override

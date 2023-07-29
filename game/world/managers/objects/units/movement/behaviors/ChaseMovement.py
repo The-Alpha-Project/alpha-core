@@ -94,7 +94,7 @@ class ChaseMovement(BaseMovement):
 
     # override
     def can_remove(self):
-        return not self.unit.combat_target or not self.unit.combat_target.is_alive \
+        return (not self.unit.combat_target and not self.unit.in_combat) \
             or self.unit.is_evading or not self.unit.is_alive
 
     # override

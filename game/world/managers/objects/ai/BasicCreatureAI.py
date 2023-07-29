@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
+
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
+from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.UnitCodes import AIReactionStates
 
 if TYPE_CHECKING:
     from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
@@ -33,12 +37,10 @@ class BasicCreatureAI(CreatureAI):
         pass
 
     # override
-    def move_in_line_of_sight(self, unit=None):
+    def move_in_line_of_sight(self, unit):
         if not self.is_ready_for_new_attack():
             return
-        unit = self.get_proximity_target(unit=unit)
-        if unit:
-            self.creature.object_ai.attacked_by(unit)
+        self.creature.object_ai.attacked_by(unit)
 
     # override
     def just_respawned(self):

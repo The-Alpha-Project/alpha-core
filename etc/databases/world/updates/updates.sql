@@ -3150,5 +3150,29 @@ begin not atomic
 
         insert into`applied_updates`values ('270720231');
     end if;
+
+    -- 29/07/2023 1
+    if (select count(*) from `applied_updates` where id='290720231') = 0 then
+        -- Deadly Poison <Rank 1> Level 30
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '25') and (`spell` = '2843');
+        UPDATE `trainer_template` SET `reqlevel` = '30' WHERE (`template_entry` = '26') and (`spell` = '2843');
+        -- Deadly Poison <Rank 2> Level 38
+        UPDATE `trainer_template` SET `reqlevel` = '38' WHERE (`template_entry` = '25') and (`spell` = '2844');
+        UPDATE `trainer_template` SET `reqlevel` = '38' WHERE (`template_entry` = '26') and (`spell` = '2844');
+        -- Crippling Poison <Rank 1> Level 20
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '25') and (`spell` = '3422');
+        UPDATE `trainer_template` SET `reqlevel` = '20' WHERE (`template_entry` = '26') and (`spell` = '3422');
+        -- Crippling Poison <Rank 2> Level 50
+        UPDATE `trainer_template` SET `reqlevel` = '50' WHERE (`template_entry` = '25') and (`spell` = '3423');
+        UPDATE `trainer_template` SET `reqlevel` = '50' WHERE (`template_entry` = '26') and (`spell` = '3423');
+
+        -- Changed Skeletal Enforcer level range to 25-26 and equipped with [Monster - Axe, 2H Rev. Bearded Single Bladed]
+        UPDATE `creature_template` SET `level_min` = '25', `level_max` = '26', `equipment_id` = '725' WHERE (`entry` = '725');
+        INSERT INTO `creature_equip_template` (`entry`, `equipentry1`, `equipentry2`, `equipentry3`) VALUES ('725', '5288', '0', '0');
+        -- Rot Hide Gnoll Display ID.
+        UPDATE `creature_template` SET `display_id1` = '847' WHERE (`entry` = '1674');
+
+        insert into`applied_updates`values ('290720231');
+    end if;
 end $
 delimiter ;

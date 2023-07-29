@@ -428,7 +428,7 @@ class CreatureAI:
         pass
 
     # Called when a unit moves within visibility distance.
-    def move_in_line_of_sight(self, unit: Optional[UnitManager] = None):
+    def move_in_line_of_sight(self, unit):
         pass
 
     # Called when a player interacts with this creature.
@@ -441,46 +441,8 @@ class CreatureAI:
                and self.creature.react_state == CreatureReactStates.REACT_AGGRESSIVE \
                and not self.creature.is_evading \
                and not self.creature.unit_state & UnitStates.STUNNED \
-               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED
-
-    def get_proximity_target(self, unit=None):
-        detection_range = self.creature.creature_template.detection_range
-        if not unit:
-            result = MapManager.get_surrounding_units(self.creature, True)
-            source_units = list(result[0].values()) + list(result[1].values())
-        else:
-            source_units = [unit]
-
-        hostile_units = []
-        for unit in source_units:
-            if unit.beast_master or not self.creature.is_hostile_to(unit) or not unit.is_alive:
-                continue
-            if self.creature.combat_target == unit or unit.threat_manager.has_aggro_from(self.creature):
-                continue
-            hostile_units.append(unit)
-            active_pet = unit.pet_manager.get_active_controlled_pet()
-            if active_pet:
-                hostile_units.append(active_pet.creature)
-        for victim in hostile_units:
-            victim_distance = victim.location.distance(self.creature.location)
-            if victim_distance > detection_range:
-                continue
-            # Sanctuary.
-            if victim.unit_state & UnitStates.SANCTUARY:
-                continue
-            # Not while flying.
-            if victim.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
-                continue
-            # Check for stealth/invisibility.
-            can_detect_victim, alert = self.creature.can_detect_target(victim, victim_distance)
-            if alert and victim.get_type_id() == ObjectTypeIds.ID_PLAYER and not victim.beast_master:
-                self.send_ai_reaction(victim, AIReactionStates.AI_REACT_ALERT)
-            if not can_detect_victim:
-                continue
-            # Basic LoS check.
-            if not MapManager.los_check(victim.map_id, self.creature.get_ray_position(), victim.get_ray_position()):
-                continue
-            return victim
+               and not self.creature.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
+               and not self.creature.combat_target
 
     def on_scripted_event(self, event_id, data):
         pass

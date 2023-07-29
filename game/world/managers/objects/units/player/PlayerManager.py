@@ -1920,24 +1920,21 @@ class PlayerManager(UnitManager):
                     # Unit is no longer stealth, pop.
                     if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
                         del self.known_stealth_units[guid]
-                    self.enqueue_known_objects_update(object_type=ObjectTypeIds.ID_UNIT)
+                    self.enqueue_known_objects_update(object_type=unit.get_type_id())
                 # Unit is stealth but remains visible to us, should destroy.
                 elif is_stealth and not can_detect and guid in self.known_objects:
-                    self.enqueue_known_objects_update(object_type=ObjectTypeIds.ID_UNIT)
+                    self.enqueue_known_objects_update(object_type=unit.get_type_id())
                 # Unit is no longer stealth, can detect, and we don't know this unit, should create.
                 elif not is_stealth and can_detect and guid not in self.known_objects:
                     # Unit is no longer stealth, pop.
                     if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
                         del self.known_stealth_units[guid]
-                    self.enqueue_known_objects_update(object_type=ObjectTypeIds.ID_UNIT)
+                    self.enqueue_known_objects_update(object_type=unit.get_type_id())
 
             self.stealth_detect_timer = 0
 
     def _on_relocation(self):
-        for guid, unit in MapManager.get_surrounding_units(self).items():
-            # Skip notify if the unit is already in combat with self, not alive or not spawned.
-            if not unit.threat_manager.has_aggro_from(self) and unit.is_alive and unit.is_spawned:
-                unit.notify_moved_in_line_of_sight(self)
+        self.notify_move_in_line_of_sight()
 
     # override
     def on_cell_change(self):
