@@ -411,6 +411,12 @@ class SkillManager(object):
         if not character_skill:
             return False
 
+        # Gathering skill gain.
+        if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
+                                            SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM):
+            self.handle_gather_skill_gain(casting_spell)
+            return True
+
         # Profession cast skill gain.
         if skill.SkillType == SkillLineType.SECONDARY or skill_line_ability.TrivialSkillLineRankHigh != 0:
             # Special case of casting enchants on items in trade window.
@@ -423,12 +429,6 @@ class SkillManager(object):
                     return False
 
             self.handle_profession_skill_gain(casting_spell.spell_entry.ID)
-            return True
-
-        # Gathering skill gain.
-        if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
-                                            SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM):
-            self.handle_gather_skill_gain(casting_spell)
             return True
 
         if (casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()) and \
