@@ -45,6 +45,9 @@ class Vector(object):
             # Calculate destination Z, default Z if not possible.
             return MapManager.calculate_z(map_id, x, y, default_z)
 
+    def set_orientation(self, orientation):
+        self.o = orientation
+
     def get_ray_vector(self, world_object=None, is_terrain=False):
         new_vector = self.copy()
         if world_object:
@@ -98,10 +101,10 @@ class Vector(object):
         return -arc / 2 < vector_angle < arc / 2
 
     def face_angle(self, angle):
-        self.o = angle
+        self.set_orientation(angle)
 
     def face_point(self, vector):
-        self.o = self.get_angle_towards_vector(vector)
+        self.set_orientation(self.get_angle_towards_vector(vector))
 
     def get_angle_towards_vector(self, vector):
         # orientation is offset by pi/2 and reversed to atan2.
@@ -126,9 +129,9 @@ class Vector(object):
 
         result = Vector(x3, y3, z3, z_locked=z_locked)
         if self.o != 0:
-            result.o = self.o
+            result.set_orientation(self.o)
         else:
-            result.o = self.get_angle_towards_vector(result)
+            result.set_orientation(self.get_angle_towards_vector(result))
         return result
 
     def get_point_in_middle(self, vector, map_id=-1):
