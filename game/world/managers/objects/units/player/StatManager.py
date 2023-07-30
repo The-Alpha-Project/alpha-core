@@ -900,6 +900,15 @@ class StatManager(object):
         if random.random() < spell_crit_chance:
             hit_flags |= SpellHitFlags.CRIT
 
+        miss_chance = self.get_spell_resist_chance_against_self(casting_spell)
+
+        roll = random.random()
+        if roll < miss_chance:
+            return SpellMissReason.MISS_REASON_RESIST, hit_flags
+
+        return SpellMissReason.MISS_REASON_NONE, hit_flags
+
+    def get_spell_resist_chance_against_self(self, casting_spell):
         # TODO Research is needed on how resist mechanics worked in alpha.
         # 0.7 patch notes:
         # "Players and some creatures now have the ability to resist damage from offensive spells and abilities
@@ -911,6 +920,13 @@ class StatManager(object):
 
         # Base spell miss chance from SpellCaster::MagicSpellHitChance.
         # Modified to use spell school skill rating instead of unit levels for the attacker.
+        caster = casting_spell.spell_caster
+        spell_school = casting_spell.spell_entry.School
+
+        is_base_attack_spell = casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()
+        attack_type = casting_spell.get_attack_type() if is_base_attack_spell else -1
+        attacker_combat_rating = caster.stat_manager.get_combat_rating_for_attack(attack_type=attack_type,
+                                                                                  casting_spell=casting_spell)
         rating_difference = self.unit_mgr.level * 5 - attacker_combat_rating
         rating_mod = rating_difference / 5 / 100
 
@@ -939,11 +955,7 @@ class StatManager(object):
         if resist_mod:
             miss_chance = 1 - (1 - miss_chance) * (1 - resist_mod)
 
-        roll = random.random()
-        if roll < miss_chance:
-            return SpellMissReason.MISS_REASON_RESIST, hit_flags
-
-        return SpellMissReason.MISS_REASON_NONE, hit_flags
+        return miss_chance
 
     def update_base_weapon_attributes(self, attack_type=0):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:

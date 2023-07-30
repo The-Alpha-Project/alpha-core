@@ -168,27 +168,6 @@ class SpellEffectHandler:
             target.use(caster, target)
         elif target.get_type_id() == ObjectTypeIds.ID_ITEM:
             target.set_unlocked()
-        else:
-            Logger.debug(f'Unimplemented open lock spell effect.')
-            return
-
-        lock_type = effect.misc_value
-        lock_id = target.lock
-        bonus_points = effect.get_effect_simple_points()
-
-        # Lock opening is already validated at this point, but use can_open_lock to fetch lock info.
-        lock_result = LockManager.can_open_lock(caster, lock_type, lock_id,
-                                                cast_item=casting_spell.source_item,
-                                                bonus_points=bonus_points)
-
-        if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            # Handle unique skill gain per herb node.
-            if lock_result.skill_type == SkillTypes.HERBALISM and caster.guid in target.unlocked_by:
-                return
-            target.unlocked_by.add(caster.guid)
-
-        caster.skill_manager.handle_gather_skill_gain(lock_result.skill_type,
-                                                      lock_result.required_skill_value)
 
     @staticmethod
     def handle_energize(casting_spell, effect, caster, target):
@@ -300,9 +279,6 @@ class SpellEffectHandler:
 
         # Add the item to player inventory.
         target.inventory.add_item(effect.item_type, count=amount, created_by=caster.guid)
-
-        # Craft Skill gain if needed.
-        target.skill_manager.handle_profession_skill_gain(casting_spell.spell_entry.ID)
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
@@ -849,8 +825,6 @@ class SpellEffectHandler:
         # Apply permanent enchantment.
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
                                                               duration, charges)
-
-        caster.skill_manager.handle_profession_skill_gain(casting_spell.spell_entry.ID)
 
         # Save item.
         target.save()

@@ -16,7 +16,7 @@ from utils.ConfigManager import config
 from utils.Formulas import PlayerFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemClasses, ItemSubClasses, InventoryError
-from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockTypes
+from utils.constants.MiscCodes import SkillCategories, Languages, AttackTypes, LockTypes, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellEffects
 from utils.constants.UpdateFields import PlayerFields
@@ -408,16 +408,35 @@ class SkillManager(object):
 
         character_skill, skill, skill_line_ability = self.get_skill_info_for_spell_id(casting_spell.spell_entry.ID)
 
-        if not character_skill or (skill.SkillType == SkillLineType.SECONDARY and
-                                   skill.CategoryID == SkillCategories.CLASS_SKILL):
-            # Character doesn't have the required skill or the related skill is a profession.
+        if not character_skill:
             return False
+
+        # Gathering skill gain.
+        if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
+                                            SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM):
+            self.handle_gather_skill_gain(casting_spell)
+            return True
+
+        # Profession cast skill gain.
+        if skill.SkillType == SkillLineType.SECONDARY or skill_line_ability.TrivialSkillLineRankHigh != 0:
+            # Special case of casting enchants on items in trade window.
+            #  TODO: enchanting materials are still consumed on cast.
+            effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
+                                                      SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
+            if effect:
+                targets = effect.targets.get_resolved_effect_targets_by_type(ItemManager)
+                if not len(targets) or targets[0].get_owner_guid() != self.player_mgr.guid:
+                    return False
+
+            self.handle_profession_skill_gain(casting_spell.spell_entry.ID)
+            return True
 
         if (casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()) and \
                 skill.ID == self._get_skill_id_for_current_weapon(casting_spell.get_attack_type()):
             return False  # Don't reward weapon skill for base attack spells - skill is rewarded on hit instead.
 
         self.handle_offense_skill_gain_chance(skill.ID)
+        return True
 
     def _get_skill_id_for_current_weapon(self, attack_type):
         equipped_weapon = self.player_mgr.get_current_weapon_for_attack_type(attack_type)
@@ -486,24 +505,45 @@ class SkillManager(object):
         self.build_update()
         return True
 
-    def handle_gather_skill_gain(self, skill_type, required_skill_value):
+    def handle_gather_skill_gain(self, casting_spell):
+        effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
+                                                  SpellEffects.SPELL_EFFECT_OPEN_LOCK_ITEM)
+        lock_type = effect.misc_value
+        target = casting_spell.initial_target
+
+        lock_id = target.lock
+        bonus_points = effect.get_effect_simple_points()
+
+        # Use can_open_lock to fetch lock info.
+        from game.world.managers.objects.locks.LockManager import LockManager
+        lock_result = LockManager.can_open_lock(self.player_mgr, lock_type, lock_id,
+                                                cast_item=casting_spell.source_item,
+                                                bonus_points=bonus_points)
+
+        if target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            # Handle unique skill gain per herb node.
+            if lock_result.skill_type == SkillTypes.HERBALISM and self.player_mgr.guid in target.unlocked_by:
+                return
+            target.unlocked_by.add(self.player_mgr.guid)
+
         gather_skill_gain_factor = 1  # TODO: configurable.
-        if skill_type not in self.skills:
+        if lock_result.skill_type not in self.skills:
             return False
-        skill = self.skills[skill_type]
+
+        skill = self.skills[lock_result.skill_type]
         if skill.value >= skill.max:
             return False
 
         chance = SkillManager._get_skill_gain_chance(skill.value,
-                                                     required_skill_value + 100,
-                                                     required_skill_value + 50,
-                                                     required_skill_value + 25)
+                                                     lock_result.required_skill_value + 100,
+                                                     lock_result.required_skill_value + 50,
+                                                     lock_result.required_skill_value + 25)
 
-        if skill_type == SkillTypes.MINING:
+        if lock_result.skill_type == SkillTypes.MINING:
             mining_skill_chance_steps = 75  # TODO: configurable.
             chance = chance >> int(skill.value / mining_skill_chance_steps)
 
-        self._roll_profession_skill_gain_chance(skill_type, chance, gather_skill_gain_factor)
+        self._roll_profession_skill_gain_chance(lock_result.skill_type, chance, gather_skill_gain_factor)
 
     @staticmethod
     def get_skill_and_skill_line_for_spell_id(spell_id, race, class_):
