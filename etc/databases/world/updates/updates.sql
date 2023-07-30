@@ -3174,5 +3174,113 @@ begin not atomic
 
         insert into`applied_updates`values ('290720231');
     end if;
+
+    -- 29/07/2023 2
+    if (select count(*) from `applied_updates` where id='290720232') = 0 then
+
+        -- Corporal Keeshan - Shield Bash
+        UPDATE `creature_template` SET `spell_list_id` = '3490' WHERE (`entry` = '349');
+
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (3490, 'Corporal Keeshan', 1672, 100, 1, 0, 0, 320, 0, 0, 8, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        -- Missing In Action Scripts.
+        DELETE FROM `quest_start_scripts` WHERE `id`=219;
+        INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(219, 0, 0, 61, 219, 0, 0, 0, 0, 0, 0, 0, 21901, 0, 1014, 21901, 0, 0, 0, 0, 0, 'Missing in Action - Start Map Event'),
+(219, 0, 2, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Remove NPC flags'),
+(219, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 16, 25, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Say Text'),
+(219, 3, 4, 60, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Start Waypoints');
+
+        -- Success condition 21901: Target Has Done Quest 219
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (21901, 8, 219, 0, 0, 0, 0);
+        
+        -- Fail condition script.
+        DELETE FROM `generic_scripts` WHERE `id`=21901;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(21901, 0, 0, 70, 219, 0, 0, 0, 219, 0, 21, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1014, 'Missing in Action - Fail Quest');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=34901;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(34901, 0, 0, 0, 0, 0, 0, 0, 219, 0, 21, 16, 26, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Take Break Text'),
+(34901, 0, 0, 28, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 117, 'Missing in Action - Sit'),
+(34901, 44, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 117, 'Missing in Action - Stand'),
+(34901, 45, 0, 0, 0, 0, 0, 0, 219, 0, 21, 16, 27, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Say Text After Break');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=34902;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(34902, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - SayText, Run.'),
+(34902, 0, 0, 25, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Misisng in Action - Set Running');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=34903;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(34903, 0, 0, 0, 0, 0, 0, 0, 219, 0, 21, 16, 29, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Say Text'),
+(34903, 0, 0, 7, 219, 60, 1, 0, 219, 0, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Quest Complete');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=34904;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+(34904, 0, 0, 0, 0, 0, 0, 0, 219, 0, 21, 16, 30, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Say Goodbye'),
+(34904, 60, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Despawn.');
+
+        -- Waypoints.
+        DELETE FROM `creature_movement_template` WHERE `entry`=349;
+        INSERT INTO `creature_movement_template`
+        VALUES
+        (349,1,-8769.59,-2185.73,141.975,100, 0,0,0),
+        (349,2,-8776.54,-2193.78,140.96,100, 0,0,0),
+        (349,3,-8783.29,-2194.82,140.462,100, 0,0,0),
+        (349,4,-8792.52,-2188.8,142.078,100, 0,0,0),
+        (349,5,-8807.55,-2186.1,141.504,100, 0,0,0),
+        (349,6,-8818,-2184.8,139.153,100, 0,0,0),
+        (349,7,-8825.81,-2188.84,138.459,100, 0,0,0),
+        (349,8,-8827.52,-2199.81,139.622,100, 0,0,0),
+        (349,9,-8821.14,-2212.64,143.126,100, 0,0,0),
+        (349,10,-8809.18,-2230.46,143.438,100, 0,0,0),
+        (349,11,-8797.04,-2240.72,146.548,100, 0,0,0),
+        (349,12,-8795.24,-2251.81,146.808,100, 0,0,0),
+        (349,13,-8780.16,-2258.62,148.554,100, 0,0,0),
+        (349,14,-8762.65,-2259.56,151.144,100, 0,0,0),
+        (349,15,-8754.36,-2253.74,152.243,100, 0,0,0),
+        (349,16,-8741.87,-2251,154.486,100, 0,0,0),
+        (349,17,-8733.22,-2251.01,154.36,100, 0,0,0),
+        (349,18,-8717.47,-2245.04,154.686,100, 0,0,0),
+        (349,19,-8712.24,-2246.83,154.709,100, 0,0,0),
+        (349,20,-8693.84,-2240.41,152.91,100, 0,0,0),
+        (349,21,-8681.82,-2245.33,155.518,100, 0,0,0),
+        (349,22,-8669.86,-2252.77,154.854,100, 0,0,0),
+        (349,23,-8670.56,-2264.69,156.978,100, 0,0,0),
+        (349,24,-8676.56,-2269.2,155.411,100, 0,0,0),
+        (349,25,-8673.34,-2288.65,157.054,100, 0,0, 0),
+        (349,26,-8677.76,-2302.56,155.917, 3.146, 45000,0, 34901),
+        (349,27,-8682.46,-2321.69,155.917,100, 0,0,0),
+        (349,28,-8690.4,-2331.78,155.971,100, 0,0,0),
+        (349,29,-8715.1,-2353.95,156.188,100, 0,0,0),
+        (349,30,-8748.04,-2370.7,157.988,100, 0,0,0),
+        (349,31,-8780.9,-2421.37,156.109,100, 0,0,0),
+        (349,32,-8792.01,-2453.38,142.746,100, 0,0,0),
+        (349,33,-8804.78,-2472.43,134.192,100, 0,0,0),
+        (349,34,-8841.35,-2503.63,132.276,100, 0,0,0),
+        (349,35,-8867.57,-2529.89,134.739,100, 0,0,0),
+        (349,36,-8870.67,-2542.08,131.044,100, 0,0,0),
+        (349,37,-8922.05,-2585.31,132.446,100, 0,0,34902),
+        (349,38,-8949.08,-2596.87,132.537,100, 0,0,0),
+        (349,39,-8993.46,-2604.04,130.756,100, 0,0,0),
+        (349,40,-9006.71,-2598.47,127.966,100, 0,0,0),
+        (349,41,-9038.96,-2572.71,124.748,100, 0,0,0),
+        (349,42,-9046.92,-2560.64,124.447,100, 0,0,0),
+        (349,43,-9066.69,-2546.63,123.11,100, 0,0,0),
+        (349,44,-9077.54,-2541.67,121.17,100, 0,0,0),
+        (349,45,-9125.32,-2490.06,116.057,100, 0,0,0),
+        (349,46,-9145.06,-2442.24,108.232,100, 0,0,0),
+        (349,47,-9158.2,-2425.36,105.5,100, 0,0,0),
+        (349,48,-9151.92,-2393.67,100.856,100, 0,0,0),
+        (349,49,-9165.19,-2376.03,94.8215,100, 0,0,0),
+        (349,50,-9187.1,-2360.52,89.9231,100, 0,0,0),
+        (349,51,-9235.44,-2305.24,77.9253,100, 0,0,0),
+        (349,52,-9264.73,-2292.92,70.0089,100, 0,0,0),
+        (349,53,-9277.47,-2296.19,68.0896, 0, 4000,0,34903),
+        (349,54,-9277.47,-2296.19,68.0896, 0, 4000,0,34904);
+
+        insert into`applied_updates`values ('290720232');
+    end if;
 end $
 delimiter ;

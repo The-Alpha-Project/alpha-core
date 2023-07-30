@@ -14,7 +14,7 @@ class ScriptedEvent:
         self.source = source
         self.target = target
         self.map_id = map_id
-        self.expire_time = time.time() + expire_time
+        self.expire_time = time.time() + expire_time if expire_time else -1
         self.failure_condition = failure_condition
         self.failure_script = failure_script
         self.success_condition = success_condition
@@ -29,7 +29,8 @@ class ScriptedEvent:
             return
 
         # While active, keep checking fail/success conditions.
-        if self.expire_time >= now:
+        # No expire time - Event should have both failure and success conditions set.
+        if self.expire_time == -1 or self.expire_time >= now:
             if self.failure_condition and ConditionChecker.validate(self.failure_condition, self.source, self.target):
                 self.end_event(False)
             elif self.success_condition and ConditionChecker.validate(self.success_condition, self.source, self.target):

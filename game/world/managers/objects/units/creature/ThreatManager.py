@@ -1,11 +1,12 @@
 import random
+import time
 from dataclasses import dataclass
 from typing import Optional
 
 from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
-from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
 from utils.constants.UnitCodes import CreatureReactStates, UnitStates, UnitFlags
 
@@ -15,17 +16,17 @@ class ThreatHolder:
     unit: UnitManager
     total_raw_threat: float
     threat_mod: float
+    time_added: float
 
     def get_total_threat(self):
-        weight = 1E-4 if self.unit.get_type_id() == ObjectTypeIds.ID_UNIT else 0.0
-        return self.total_raw_threat + self.threat_mod + weight
+        return self.total_raw_threat + self.threat_mod
 
 
 class ThreatManager:
     THREAT_NOT_TO_LEAVE_COMBAT = 1E-4
 
     def __init__(self, owner: UnitManager, call_for_help_range=0):
-        self.owner = owner
+        self.unit = owner
         self.holders: dict[int, ThreatHolder] = {}
         self.current_holder: Optional[ThreatHolder] = None
         self._call_for_help_range = call_for_help_range
@@ -57,10 +58,10 @@ class ThreatManager:
     def reset(self):
         # Remove threat between self and attackers.
         for unit in self.get_threat_holder_units():
-            if not unit.threat_manager.has_aggro_from(self.owner):
+            if not unit.threat_manager.has_aggro_from(self.unit):
                 continue
             self.remove_unit_threat(unit)
-            unit.threat_manager.remove_unit_threat(self.owner)
+            unit.threat_manager.remove_unit_threat(self.unit)
 
         self.holders.clear()
         self.current_holder = None
@@ -74,15 +75,15 @@ class ThreatManager:
             self.holders.pop(unit.guid)
             # Remove from self casts if needed.
             if not unit.is_alive:
-                self.owner.spell_manager.remove_unit_from_all_cast_targets(unit.guid)
+                self.unit.spell_manager.remove_unit_from_all_cast_targets(unit.guid)
             # Remove from unit casts if needed.
-            if not self.owner.is_alive:
-                unit.spell_manager.remove_unit_from_all_cast_targets(self.owner.guid)
-            if unit.threat_manager.has_aggro_from(self.owner):
-                unit.threat_manager.remove_unit_threat(self.owner)
+            if not self.unit.is_alive:
+                unit.spell_manager.remove_unit_from_all_cast_targets(self.unit.guid)
+            if unit.threat_manager.has_aggro_from(self.unit):
+                unit.threat_manager.remove_unit_threat(self.unit)
 
         if not self.has_aggro():
-            self.owner.leave_combat()
+            self.unit.leave_combat()
 
     def add_threat(self, source, threat: float = THREAT_NOT_TO_LEAVE_COMBAT, threat_mod: int = 0,
                    is_call_for_help: bool = False):
@@ -90,19 +91,19 @@ class ThreatManager:
         if not source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        if not self.owner.is_alive or not self.owner.is_spawned or not source.is_alive:
+        if not self.unit.is_alive or not self.unit.is_spawned or not source.is_alive:
             return
 
         # Notify pet that owner has been attacked.
-        active_pet = self.owner.pet_manager.get_active_controlled_pet()
+        active_pet = self.unit.pet_manager.get_active_controlled_pet()
         if active_pet:
             active_pet.creature.object_ai.owner_attacked_by(source)
 
         if threat < 0.0:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
 
-        if source is not self.owner:
-            self.owner.enter_combat(source)
+        if source is not self.unit:
+            self.unit.enter_combat(source)
             source_holder = self.holders.get(source.guid)
             # Update existent holder.
             if source_holder:
@@ -113,10 +114,10 @@ class ThreatManager:
             elif threat >= 0.0:
                 if not is_call_for_help:
                     self.call_for_help(source, threat)
-                self.holders[source.guid] = ThreatHolder(source, threat, threat_mod)
+                self.holders[source.guid] = ThreatHolder(source, threat, threat_mod, time.time())
                 # Force both units to be linked through threat.
-                if not source.threat_manager.has_aggro_from(self.owner):
-                    source.threat_manager.add_threat(self.owner)
+                if not source.threat_manager.has_aggro_from(self.unit):
+                    source.threat_manager.add_threat(self.unit)
 
         # If the threat comes from a pet, owner should be added to this unit threat list.
         charmer_or_summoner = source.get_charmer_or_summoner()
@@ -131,7 +132,7 @@ class ThreatManager:
 
         # Threat target switching.
         if max_threat_holder != self.current_holder:
-            if not self.current_holder or self.owner.can_attack_target(self.current_holder.unit) or \
+            if not self.current_holder or self.unit.can_attack_target(self.current_holder.unit) or \
                     self._is_exceeded_current_threat_melee_range(max_threat_holder.get_total_threat()):
                 self.current_holder = max_threat_holder
 
@@ -159,12 +160,12 @@ class ThreatManager:
             return random.choice(relevant_holders[:-1]).unit
         # Farthest or Nearest targets.
         else:
-            surrounding_units = MapManager.get_surrounding_units(self.owner, include_players=True)
+            surrounding_units = MapManager.get_surrounding_units(self.unit, include_players=True)
             units_in_range = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
             units_in_aggro_list = [h.unit for h in relevant_holders if h.unit in units_in_range]
             if len(units_in_aggro_list) > 0:
                 # Sort found units by distance.
-                units_in_aggro_list.sort(key=lambda player: player.location.distance(self.owner.location))
+                units_in_aggro_list.sort(key=lambda player: player.location.distance(self.unit.location))
                 if attacking_target == AttackingTarget.ATTACKING_TARGET_NEAREST:
                     return units_in_aggro_list[0]
                 elif attacking_target == AttackingTarget.ATTACKING_TARGET_FARTHEST:
@@ -177,58 +178,58 @@ class ThreatManager:
     def call_for_help(self, source, threat=THREAT_NOT_TO_LEAVE_COMBAT):
         if not self._call_for_help_range:
             return
-        units = MapManager.get_surrounding_units_by_location(self.owner.location, self.owner.map_id,
-                                                             self.owner.instance_id,
+        units = MapManager.get_surrounding_units_by_location(self.unit.location, self.unit.map_id,
+                                                             self.unit.instance_id,
                                                              self._call_for_help_range)[0].values()
         helping_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
         [unit.threat_manager.add_threat(source, threat, is_call_for_help=True) for unit in helping_units]
 
     def can_resolve_target(self):
-        if not self.owner.is_alive:
+        if not self.unit.is_alive:
             return False
-        if self.owner.unit_state & UnitStates.STUNNED:
+        if self.unit.unit_state & UnitStates.STUNNED:
             return False
-        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+        elif self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
             return False
-        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED:
+        elif self.unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED:
             return False
-        elif self.owner.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+        elif self.unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
 
         return True
 
     # 0.5.3 has no faction template flags.
-    def unit_can_assist_help_call(self, unit, source):
-        if unit == self.owner:
+    def unit_can_assist_help_call(self, caller_unit, source):
+        if caller_unit == self.unit:
             return False
-        elif unit.is_pet() or unit.is_evading:
+        elif caller_unit.is_pet() or caller_unit.is_evading:
             return False
-        elif unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
+        elif caller_unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
-        elif unit.unit_state & UnitStates.STUNNED:
+        elif caller_unit.unit_state & UnitStates.STUNNED:
             return False
-        elif unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
+        elif caller_unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
             return False
-        elif self.owner.faction != unit.faction and self.owner.is_hostile_to(unit):
+        elif self.unit.faction != caller_unit.faction and self.unit.is_hostile_to(caller_unit):
             return False
-        elif not unit.can_attack_target(source) or not unit.is_hostile_to(source):
+        elif not caller_unit.can_attack_target(source) or not caller_unit.is_hostile_to(source):
             return False
-        elif unit.in_combat:
+        elif caller_unit.in_combat:
             return False
-        elif unit.react_state == CreatureReactStates.REACT_PASSIVE:
+        elif caller_unit.react_state == CreatureReactStates.REACT_PASSIVE:
             return False
-        elif not unit.can_assist_help_calls():
+        elif not caller_unit.can_assist_help_calls():
             return False
-        elif unit.get_creature_family() != self.owner.get_creature_family():
+        elif caller_unit.get_creature_family() != self.unit.get_creature_family():
             return False
-        elif not MapManager.los_check(unit.map_id, self.owner.get_ray_position(), unit.get_ray_position()):
+        elif not MapManager.los_check(caller_unit.map_id, self.unit.get_ray_position(), caller_unit.get_ray_position()):
             return False
         return True
 
     # TODO: Optimize this method?
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
         relevant_holders = self._get_sorted_threat_collection()
-        return None if not relevant_holders else relevant_holders[-1]
+        return None if not relevant_holders else relevant_holders[0]
 
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
@@ -238,12 +239,11 @@ class ThreatManager:
         for holder in list(self.holders.values()):
             if not holder.unit.is_alive:
                 continue
-            if self.owner.can_attack_target(holder.unit) or holder.unit.is_hostile_to(self.owner):
+            if self.unit.can_attack_target(holder.unit) or holder.unit.is_hostile_to(self.unit):
                 relevant_holders.append(holder)
 
-        # Sort by threat.
-        relevant_holders.sort(key=lambda h: h.get_total_threat())
-        return relevant_holders
+        # Sort by threat and time added, to avoid unstable sorting when more than 1 unit have the same threat.
+        return sorted(relevant_holders, key=lambda h: (h.get_total_threat(), -h.time_added), reverse=True)
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):

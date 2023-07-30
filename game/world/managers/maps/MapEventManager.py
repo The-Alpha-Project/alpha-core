@@ -7,7 +7,10 @@ class MapEventManager:
         self.scripted_events: dict[int, ScriptedEvent] = {}
 
     def update(self, now):
-        for scripted_event in self.scripted_events.values():
+        for event_id, scripted_event in list(self.scripted_events.items()):
+            if scripted_event.ended:
+                self.scripted_events.pop(event_id)
+                continue
             scripted_event.update(now)
 
     def add_event(self, source, target, map_id, event_id, time_limit, success_condition, success_script,
