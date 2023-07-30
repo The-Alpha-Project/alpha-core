@@ -1271,8 +1271,8 @@ class ScriptHandler:
     def handle_script_command_fail_quest(command):
         # source = Player
         # datalong = quest_id
-        if command.source.quest_target:
-            command.source.quest_target.quest_manager.fail_quest_by_id(command.datalong)
+        if command.source:
+            command.source.quest_manager.fail_quest_by_id(command.datalong)
         else:
             Logger.warning('ScriptHandler: handle_script_command_fail_quest failed, no valid target')
 

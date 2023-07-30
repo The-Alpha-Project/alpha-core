@@ -594,14 +594,15 @@ class CreatureManager(UnitManager):
     def attack(self, victim: UnitManager):
         had_target = self.combat_target and self.combat_target.is_alive
         super().attack(victim)
-        if not had_target:
-            # Stand if necessary.
-            if self.stand_state != StandState.UNIT_STANDING:
-                self.set_stand_state(StandState.UNIT_STANDING)
-            # Remove emote.
-            if self.emote_state:
-                self.set_emote_state(0)
-            self.object_ai.attack_start(victim)
+        if had_target:
+            return
+        # Stand if necessary.
+        if self.stand_state != StandState.UNIT_STANDING:
+            self.set_stand_state(StandState.UNIT_STANDING)
+        # Remove emote.
+        if self.emote_state:
+            self.set_emote_state(0)
+        self.object_ai.attack_start(victim)
 
     # override
     def attack_update(self, elapsed):

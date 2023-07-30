@@ -125,9 +125,13 @@ class MovementManager:
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
 
     def move_chase(self):
+        if self.movement_behaviors[MoveType.CHASE]:
+            return
         self.set_behavior(ChaseMovement(spline_callback=self.spline_callback))
 
     def move_home(self, waypoints):
+        if self.movement_behaviors[MoveType.EVADE]:
+            return
         self.set_behavior(EvadeMovement(waypoints, self.spline_callback))
 
     def move_flight(self, waypoints):

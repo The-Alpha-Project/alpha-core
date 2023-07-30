@@ -3186,14 +3186,18 @@ begin not atomic
         -- Missing In Action Scripts.
         DELETE FROM `quest_start_scripts` WHERE `id`=219;
         INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(219, 0, 0, 61, 219, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1014, 21901, 0, 0, 0, 0, 0, 'Missing in Action - Start Map Event'),
+(219, 0, 0, 61, 219, 0, 0, 0, 0, 0, 0, 0, 21901, 0, 1014, 21901, 0, 0, 0, 0, 0, 'Missing in Action - Start Map Event'),
 (219, 0, 2, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Remove NPC flags'),
 (219, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 16, 25, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Say Text'),
 (219, 3, 4, 60, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Missing in Action - Start Waypoints');
 
+        -- Success condition 21901: Target Has Done Quest 219
+        INSERT INTO `conditions` (`condition_entry`, `type`, `value1`, `value2`, `value3`, `value4`, `flags`) VALUES (21901, 8, 219, 0, 0, 0, 0);
+        
+        -- Fail condition script.
         DELETE FROM `generic_scripts` WHERE `id`=21901;
         INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(21901, 0, 0, 70, 219, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1014, 'Missing in Action - Fail Quest');
+(21901, 0, 0, 70, 219, 0, 0, 0, 219, 0, 21, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1014, 'Missing in Action - Fail Quest');
 
         DELETE FROM `creature_movement_scripts` WHERE `id`=34901;
         INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES

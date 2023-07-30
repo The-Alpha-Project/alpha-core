@@ -1150,6 +1150,11 @@ class QuestManager(object):
 
         if notify:
             self.send_quest_failed_event(active_quest.quest.entry)
+
+        # Repeatable and not timed, remove.
+        if QuestHelpers.is_quest_repeatable(active_quest.quest) and not QuestHelpers.is_timed_quest(active_quest.quest):
+            self.remove_quest(active_quest.quest.entry)
+
         if update_surrounding:
             self.update_surrounding_quest_status()
 
