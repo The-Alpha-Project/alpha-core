@@ -251,9 +251,10 @@ class EffectTargets:
     def resolve_random_enemy_chain_in_area(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
+    # TODO missing spell_script_target table for filtering A targets.
     @staticmethod
     def resolve_area_effect_custom(casting_spell, target_effect):
-        # TODO missing spell_script_target table for filtering A targets.
+        Logger.warning(f'Unimplemented scripted targets called for spell {casting_spell.spell_entry.ID}')
         return target_effect.targets.resolved_targets_a
 
     @staticmethod
