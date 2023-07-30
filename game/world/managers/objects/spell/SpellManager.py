@@ -946,7 +946,9 @@ class SpellManager:
 
     def set_on_cooldown(self, casting_spell, cooldown_penalty=0):
         spell = casting_spell.spell_entry
-        unlocks_on_trigger = casting_spell.unlock_cooldown_on_trigger()
+        # Don't lock cooldown if it unlocks on aura fade and the target is immune to it.
+        unlocks_on_trigger = casting_spell.unlock_cooldown_on_trigger() and \
+                             not casting_spell.is_target_immune_to_aura(casting_spell.initial_target)
 
         # If a penalty was provided or the spell comes from a creature spell,
         # Set the spell on cooldown for the given penalty or a new cd if it is greater than the spell dbc cooldown.
@@ -971,6 +973,9 @@ class SpellManager:
 
         data = pack('<IQI', spell.ID, self.caster.guid, cooldown_entry.cooldown_length)
         self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_SPELL_COOLDOWN, data))
+
+        if casting_spell.unlock_cooldown_on_trigger() and not unlocks_on_trigger:
+            self.unlock_spell_cooldown(spell.ID)
 
     def unlock_spell_cooldown(self, spell_id):
         if spell_id not in self.cooldowns:
