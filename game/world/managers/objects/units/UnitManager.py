@@ -1778,9 +1778,9 @@ class UnitManager(ObjectManager):
         return 0
 
     def notify_move_in_line_of_sight(self):
-        if self.beast_master or self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT \
-                or self.unit_state & UnitStates.SANCTUARY or not self.is_alive or not self.is_spawned:
+        if self.beast_master:
             return
+
         self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         surrounding_units = MapManager.get_surrounding_units(self, not self_is_player)
 
@@ -1795,7 +1795,7 @@ class UnitManager(ObjectManager):
             distance = unit.location.distance(self.location)
             unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
             detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
-            if distance > detection_range or not unit.can_attack_target(self):
+            if distance > detection_range or not unit.is_hostile_to(self) or not unit.can_attack_target(self):
                 continue
             if unit.threat_manager.has_aggro_from(self):
                 continue
@@ -1808,7 +1808,7 @@ class UnitManager(ObjectManager):
             if not MapManager.los_check(self.map_id, unit.get_ray_position(), self.get_ray_position()):
                 continue
             # Player standing still case.
-            if unit_is_player and not unit.pending_relocation:
+            if unit_is_player and not unit.pending_relocation and not unit.beast_master:
                 unit.pending_relocation = True
             elif not unit_is_player:
                 unit.object_ai.move_in_line_of_sight(self)
