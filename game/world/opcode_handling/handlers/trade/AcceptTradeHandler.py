@@ -111,7 +111,6 @@ class AcceptTradeHandler(object):
             player.trade_data = None
             other_player.trade_data = None
         else:
-            other_player_trade.set_accepted(True)
             TradeManager.send_trade_status(other_player, TradeStatus.TRADE_STATUS_ACCEPTED)
 
         return 0
