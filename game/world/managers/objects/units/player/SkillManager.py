@@ -414,6 +414,7 @@ class SkillManager(object):
         # Profession cast skill gain.
         if skill.SkillType == SkillLineType.SECONDARY or skill_line_ability.TrivialSkillLineRankHigh != 0:
             # Special case of casting enchants on items in trade window.
+            #  TODO: enchanting materials are still consumed on cast.
             effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_PERMANENT,
                                                       SpellEffects.SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY)
             if effect:
