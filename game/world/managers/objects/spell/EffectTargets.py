@@ -252,6 +252,7 @@ class EffectTargets:
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
     # TODO missing spell_script_target table for filtering A targets.
+    #  Related to issue https://github.com/The-Alpha-Project/alpha-core/issues/1258
     @staticmethod
     def resolve_area_effect_custom(casting_spell, target_effect):
         Logger.warning(f'Unimplemented scripted targets called for spell {casting_spell.spell_entry.ID}')
