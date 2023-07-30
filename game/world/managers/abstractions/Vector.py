@@ -128,10 +128,9 @@ class Vector(object):
         z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z))
 
         result = Vector(x3, y3, z3, z_locked=z_locked)
-        if self.o != 0:
-            result.set_orientation(self.o)
-        else:
-            result.set_orientation(self.get_angle_towards_vector(result))
+        orientation = self.o if self.o != 0 else self.get_angle_towards_vector(result)
+        result.set_orientation(orientation)
+
         return result
 
     def get_point_in_middle(self, vector, map_id=-1):
