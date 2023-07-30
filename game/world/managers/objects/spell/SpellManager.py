@@ -1137,6 +1137,11 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
                 return False
 
+            if validation_target.is_alive and \
+                casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_RESURRECT):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGET_NOT_DEAD)
+                return False
+
             if not validation_target.is_alive and not \
                     (casting_spell.spell_entry.Targets & SpellTargetMask.UNIT_DEAD):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_TARGETS_DEAD)
