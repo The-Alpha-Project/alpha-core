@@ -98,6 +98,7 @@ class AcceptTradeHandler(object):
 
             # Apply enchantment to item (if any).
             player_trade.apply_proposed_enchant()
+            other_player_trade.apply_proposed_enchant()
 
             player.mod_money(other_player_trade.money)
             player.mod_money(-player_trade.money)
