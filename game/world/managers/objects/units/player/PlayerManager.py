@@ -414,14 +414,17 @@ class PlayerManager(UnitManager):
             self.pending_known_object_types_updates[type_id] = True
 
     def update_surrounding_known_objects(self):
-        for obj_type, update in self.pending_known_object_types_updates.items():
-            if not update:
-                continue
-            self.pending_known_object_types_updates[obj_type] = False
-            self.update_known_objects_for_type(obj_type)
+        obj_types = [object_type for object_type in self.pending_known_object_types_updates.keys()
+                     if self.pending_known_object_types_updates[object_type]]
 
-    def update_known_objects_for_type(self, object_type):
-        objects = MapManager.get_surrounding_objects(self, [object_type])[0]
+        # Retrieve all needed objects.
+        objects = MapManager.get_surrounding_objects(self, obj_types)
+        # Update each object type.
+        [self.update_known_objects_for_type(obj_type, objects[obj_types.index(obj_type)]) for obj_type in obj_types]
+
+    def update_known_objects_for_type(self, object_type, objects):
+        # Flag as obj type updated.
+        self.pending_known_object_types_updates[object_type] = False
 
         # Which objects were found in self surroundings.
         active_objects = dict()
