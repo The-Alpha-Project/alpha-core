@@ -1092,8 +1092,6 @@ class UnitManager(ObjectManager):
         yards_per_level = 1.5 if self_is_player else 5.0 / 6.0
 
         # TODO: consider 'Stealth' player skill?.
-        #  Vanilla handles invisibility using masks, mod invisibility misc values are always 0 for us.
-        #  For now, merge stealth and invisibility handling, use greater skill.
         if target_is_player:
             stealth_skill = target.stat_manager.get_total_stat(UnitStats.STEALTH)
         else:
