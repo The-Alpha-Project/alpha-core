@@ -24,7 +24,6 @@ class MovementManager:
         self.unit = unit
         self.is_player = self.unit.get_type_id() == ObjectTypeIds.ID_PLAYER
         self.pause_ooc_timer = 0
-        self.lazy_start_timer = 1
         self.default_behavior_type = None
         self.active_behavior_type = None
         # Available move behaviors with priority.
@@ -45,9 +44,6 @@ class MovementManager:
     def initialize(self):
         if self.is_player:
             return
-
-        # Lazy initialization time.
-        self.lazy_start_timer = 2 if not self.is_player and self.unit.subtype == CreatureSubtype.SUBTYPE_GENERIC else 1
 
         # Make sure to flush any existent behaviors if this was re-initialized.
         self.flush()
@@ -88,11 +84,6 @@ class MovementManager:
             self._remove_invalid_expired_behaviors()
 
     def update(self, now, elapsed):
-        # Grace period of 4 seconds when this creature spawns.
-        if self.lazy_start_timer and not self.unit.in_combat:
-            self.lazy_start_timer = max(0, self.lazy_start_timer - elapsed)
-            return
-
         is_resume = self._handle_ooc_pause(elapsed)
 
         if not self._can_move():
