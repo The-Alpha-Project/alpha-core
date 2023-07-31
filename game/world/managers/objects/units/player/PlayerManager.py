@@ -865,6 +865,7 @@ class PlayerManager(UnitManager):
         if super().change_speed(speed):
             data = pack('<f', self.running_speed)
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
+            MapManager.send_surrounding(self.generate_movement_packet(), self, False)
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:

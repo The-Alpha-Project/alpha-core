@@ -1046,8 +1046,9 @@ class UnitManager(ObjectManager):
         # Limit to 0-56 and assign object field.
         change_speed = super().change_speed(speed)
         # Speed was modified, update current spline if needed.
-        if change_speed and self.is_moving():
+        if change_speed:
             self.movement_manager.set_speed_dirty()
+
         return change_speed
 
     # override

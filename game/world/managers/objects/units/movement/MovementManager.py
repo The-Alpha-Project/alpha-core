@@ -47,7 +47,7 @@ class MovementManager:
             return
 
         # Lazy initialization time.
-        self.lazy_start_timer = 4 if not self.is_player and self.unit.subtype == CreatureSubtype.SUBTYPE_GENERIC else 1
+        self.lazy_start_timer = 2 if not self.is_player and self.unit.subtype == CreatureSubtype.SUBTYPE_GENERIC else 1
 
         # Make sure to flush any existent behaviors if this was re-initialized.
         self.flush()

@@ -131,7 +131,7 @@ class WaypointMovement(BaseMovement):
     #  Probably all speeds should go through StatsManager.
     def _get_speed(self):
         return self.speed if self.speed else config.Unit.Defaults.walk_speed if \
-            self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK else config.Unit.Defaults.run_speed
+            self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK else self.unit.running_speed
 
     # noinspection PyMethodMayBeStatic
     def _movement_waypoints_from_vectors(self, points):
