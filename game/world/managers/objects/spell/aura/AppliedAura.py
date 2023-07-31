@@ -1,6 +1,9 @@
+import random
+import time
+
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.aura.AuraEffectHandler import AuraEffectHandler
-from utils.constants.SpellCodes import SpellEffects, DispelType, SpellAttributesEx
+from utils.constants.SpellCodes import SpellEffects, DispelType, SpellAttributesEx, SpellAttributes
 
 
 class AppliedAura:
@@ -25,6 +28,9 @@ class AppliedAura:
 
         # If this aura is passive, the index of the active component of this aura, if any.
         self.active_aura_index = -1
+
+        # Previous heartbeat resist timestamp.
+        self.previous_heartbeat = time.time()
 
         for effect in casting_spell.get_effects():
             if effect.effect_index >= spell_effect.effect_index:
@@ -87,3 +93,18 @@ class AppliedAura:
             AuraEffectHandler.handle_aura_effect_change(self, self.target)
 
         self.spell_effect.remove_old_periodic_effect_ticks()
+
+    def get_heartbeat_resist_result(self, timestamp):
+        # PvE heartbeat resist, same as VMaNGOS.
+
+        if not self.has_duration() or not self.harmful or self.passive or not \
+            self.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_HEARTBEAT_RESIST:
+            return False
+
+        if timestamp - self.previous_heartbeat <= 5:
+            return False
+
+        self.previous_heartbeat = timestamp
+        resist_chance = self.target.stat_manager.get_spell_resist_chance_against_self(self.source_spell)
+
+        return random.random() < resist_chance
