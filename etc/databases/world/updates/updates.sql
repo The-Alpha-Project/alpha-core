@@ -3282,5 +3282,15 @@ begin not atomic
 
         insert into`applied_updates`values ('290720232');
     end if;
+
+    -- 30/07/2023 1
+    if (select count(*) from `applied_updates` where id='300720231') = 0 then
+        -- Bo - Move spawn location to its first waypoint.
+        UPDATE `spawns_creatures` SET `position_x` = '-9425.55', `position_y` = '129.192', `position_z` = '59.5418' WHERE (`spawn_id` = '80320');
+
+        insert into`applied_updates`values ('300720231');
+    end if;
+
+
 end $
 delimiter ;
