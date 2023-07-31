@@ -15,6 +15,7 @@ from utils.ChatLogManager import ChatLogManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
+
 # Initialize argument parser.
 parser = argparse.ArgumentParser()
 parser.add_argument(
