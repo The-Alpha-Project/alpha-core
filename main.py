@@ -15,7 +15,6 @@ from utils.ChatLogManager import ChatLogManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
-
 # Initialize argument parser.
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -29,8 +28,8 @@ parser.add_argument(
     '-e', '--extract',
     help='-e maps in order to extract .map files',
     dest='extract',
-    action='store',
-    default=None
+    action='store_true',
+    default=False
 )
 args = parser.parse_args()
 
@@ -60,7 +59,7 @@ if __name__ == '__main__':
         print(f'Invalid config.yml version. Expected {ConfigManager.EXPECTED_VERSION}, none found.')
         exit()
 
-    if args.extract == 'maps':
+    if args.extract:
         MapExtractor.run()
         exit()
 
@@ -124,7 +123,7 @@ if __name__ == '__main__':
             Logger.info('Shutting down the core...')
 
         ChatLogManager.exit()
-    
+
     # Send SIGTERM to processes.
     # Add checks to send SIGTERM to only running process
     if launch_world:
