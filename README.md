@@ -10,7 +10,7 @@ You will need a realm, a dbc and a world database, more info can be found in the
 
 Once you create the three databases, populate them using the corresponding sql files located inside `etc/databases`. If there are any sql updates, apply them in order.
 
-To generate .map files, look for the `Extractor` settings inside `config.yml`, set `wow_root_path` and then run `main.py -e maps`, after that, enable `use_map_tiles` setting.
+To generate .map files, look for the `Extractor` settings inside `config.yml`, set `wow_root_path` and then run `main.py -e`, after that, enable `use_map_tiles` setting.
 
 ## Run in Docker
 
