@@ -4,8 +4,9 @@ from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
+from utils.constants.CustomCodes import CreatureSubtype
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
-from utils.constants.UnitCodes import UnitStates, SplineType
+from utils.constants.UnitCodes import UnitStates
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
 from game.world.managers.objects.units.movement.behaviors.GroupMovement import GroupMovement
