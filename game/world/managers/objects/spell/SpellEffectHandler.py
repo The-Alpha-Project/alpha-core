@@ -542,7 +542,7 @@ class SpellEffectHandler:
 
         # Terrain targeted leaps (ie. blink).
         if casting_spell.initial_target_is_terrain():
-            leap_target.o = leaper.location.o
+            leap_target.set_orientation(leap_target.location.o)
             leaper.teleport(caster.map_id, leap_target, is_instant=True)
             return
 

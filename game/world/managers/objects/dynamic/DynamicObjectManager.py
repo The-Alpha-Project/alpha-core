@@ -75,7 +75,7 @@ class DynamicObjectManager(ObjectManager):
             target = target.get_ray_vector(is_terrain=True)
 
         if orientation:
-            target.o = orientation
+            target.set_orientation(orientation)
 
         effect.casting_spell.dynamic_object = DynamicObjectManager.spawn(effect.casting_spell.spell_caster,
                                                                          target, effect.get_radius(), effect,
