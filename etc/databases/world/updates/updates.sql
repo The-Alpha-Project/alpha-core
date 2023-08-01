@@ -3292,5 +3292,12 @@ begin not atomic
     end if;
 
 
+    if (select count(*) from `applied_updates` where id='0108202301') = 0 then
+        --mud Thresh, may need some adjusting also need to figure out how to remove certain spawn locations
+        UPDATE 'creature_template' SET 'level_min' = 15, 'level_max' = 16, 'display_id1' = 1752, 'spell_id1' = 6530, 'name' = "Mud Thresh",  'AQUATIC' = 262144 WHERE (entry = 3461);
+
+        insert into`applied_updates`values ('0108202315');
+    end if;
+
 end $
 delimiter ;
