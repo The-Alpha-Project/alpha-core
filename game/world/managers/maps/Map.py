@@ -60,6 +60,37 @@ class Map:
     def is_pvp(self):
         return self.dbc_map.PVP == 1
 
+    def add_event(self, source, target, map_id, event_id, time_limit, success_condition, success_script,
+                  failure_condition, failure_script):
+        self.map_event_manager.add_event(source, target, map_id, event_id, time_limit, success_condition,
+                                         success_script, failure_condition, failure_script)
+
+    def end_event(self, event_id, success):
+        self.map_event_manager.end_event(event_id, success)
+
+    def add_event_target(self, target, event_id, success_condition, success_script, failure_condition, failure_script):
+        self.map_event_manager.add_event_target(target, event_id, success_condition, success_script, failure_condition,
+                                                failure_script)
+
+    def remove_event_target(self, target, event_id, condition_id, options):
+        self.map_event_manager.remove_event_target(target, event_id, condition_id, options)
+
+    def set_event_data(self, event_id, index, data, options):
+        self.map_event_manager.set_event_data(event_id, index, data, options)
+
+    def edit_map_event_data(self, event_id, success_condition, success_script, failure_condition, failure_script):
+        self.map_event_manager.edit_map_event_data(event_id, success_condition, success_script, failure_condition,
+                                                   failure_script)
+
+    def send_event_data(self, event_id, data_index, options):
+        self.map_event_manager.send_event_data(event_id, data_index, options)
+
+    def get_map_event_data(self, event_id):
+        return self.map_event_manager.get_map_event_data(event_id)
+
+    def is_event_active(self, event_id):
+        return self.map_event_manager.is_event_active(event_id)
+
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
         self.script_handler.enqueue_script(source, target, script_type, script_id, delay=delay, ooc_event=ooc_event)
 

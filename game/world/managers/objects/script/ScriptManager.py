@@ -238,7 +238,7 @@ class ScriptManager:
         if not map_:
             Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve map for event {param1}.')
             return None
-        scripted_event = map_.map_event_manager.get_map_event_data(param1)
+        scripted_event = map_.get_map_event_data(param1)
         if not scripted_event:
             Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve scripted_event {param1}.')
             return None
@@ -258,7 +258,7 @@ class ScriptManager:
         if not map_:
             Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve map for event {param1}.')
             return None
-        scripted_event = map_.map_event_manager.get_map_event_data(param1)
+        scripted_event = map_.get_map_event_data(param1)
         if not scripted_event:
             Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve scripted_event {param1}.')
             return None

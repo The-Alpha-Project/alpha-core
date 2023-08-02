@@ -1176,9 +1176,8 @@ class ScriptHandler:
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.add_event(command.source, command.target, command.source.map_id, command.datalong,
-                                         command.datalong2, command.dataint, command.dataint2, command.dataint3,
-                                         command.dataint4)
+        map_.add_event(command.source, command.target, command.source.map_id, command.datalong, command.datalong2,
+                       command.dataint, command.dataint2, command.dataint3, command.dataint4)
 
     @staticmethod
     def handle_script_command_end_map_event(command):
@@ -1195,7 +1194,7 @@ class ScriptHandler:
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.end_event(command.datalong, command.datalong2)
+        map_.end_event(command.datalong, command.datalong2)
 
     @staticmethod
     def handle_script_command_add_map_event_target(command):
@@ -1216,8 +1215,8 @@ class ScriptHandler:
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.add_event_target(command.target, command.datalong, command.dataint,
-                                                command.dataint2, command.dataint3, command.dataint4)
+        map_.add_event_target(command.target, command.datalong, command.dataint, command.dataint2, command.dataint3,
+                              command.dataint4)
 
     @staticmethod
     def handle_script_command_remove_map_event_target(command):
@@ -1236,8 +1235,7 @@ class ScriptHandler:
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.remove_event_target(command.target, command.datalong, command.datalong2,
-                                                   command.datalong3)
+        map_.remove_event_target(command.target, command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
     def handle_script_command_set_map_event_data(command):
@@ -1256,8 +1254,7 @@ class ScriptHandler:
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.set_event_data(command.datalong, command.datalong2, command.datalong3,
-                                              command.datalong4)
+        map_.set_event_data(command.datalong, command.datalong2, command.datalong3, command.datalong4)
 
     @staticmethod
     def handle_script_command_send_map_event(command):
@@ -1275,7 +1272,7 @@ class ScriptHandler:
                            f'and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.send_event_data(command.datalong, command.datalong2, command.datalong3)
+        map_.send_event_data(command.datalong, command.datalong2, command.datalong3)
 
     @staticmethod
     def handle_script_command_set_default_movement(_command):
@@ -1312,8 +1309,8 @@ class ScriptHandler:
                            f'and/or instance ({command.source.instance_id}).')
             return
 
-        map_.map_event_manager.edit_map_event_data(command.datalong, command.dataint, command.dataint2,
-                                                   command.dataint3, command.dataint4)
+        map_.edit_map_event_data(command.datalong, command.dataint, command.dataint2, command.dataint3,
+                                 command.dataint4)
 
     @staticmethod
     def handle_script_command_fail_quest(command):

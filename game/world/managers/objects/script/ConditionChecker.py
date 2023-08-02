@@ -517,7 +517,7 @@ class ConditionChecker:
         if not map_instance:
             return False
 
-        event = map_instance.map_event_manager.get_map_event_data(condition.value1)
+        event = map_instance.get_map_event_data(condition.value1)
         if not event:
             return False
 
@@ -536,10 +536,10 @@ class ConditionChecker:
         # Checks if a scripted Map event is active.
         # Condition_value1 = event id.
         map_instance = source.get_map()
-        if map_instance:
-            return map_instance.map_event_manager.is_event_active(condition.value1)
+        if not map_instance:
+            return False
 
-        return False
+        return map_instance.is_event_active(condition.value1)
 
     @staticmethod
     def check_condition_line_of_sight(_condition, source, target):
@@ -667,7 +667,7 @@ class ConditionChecker:
         map_ = unit.get_map(unit.map_id, unit.instance_id)
         if not map_:
             return False
-        scripted_event = map_.map_event_manager.get_map_event_data(condition.value1)
+        scripted_event = map_.get_map_event_data(condition.value1)
         if scripted_event:
             for event_target in scripted_event.event_targets:
                 satisfied = satisfied and ConditionChecker.validate(condition.value2, _source, event_target)
