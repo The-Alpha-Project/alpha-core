@@ -3291,16 +3291,10 @@ begin not atomic
         insert into`applied_updates`values ('310720231');
     end if;
 
-
+    --01/08/2023
     if (select count(*) from `applied_updates` where id='010820231') = 0 then
-        --01/08/2023
-        --mostly devwr4 teaching klorine28 what to do (thanks)
-        >>> static_flags = 268959760  <- Current Flags
-        >>> static_flags |= 262144    <- Add AQUATIC
-        >>> static_flags &= ~524288   <- Remove AMPHIBIOUS
         
-        static_flags:
-        268697616
+        --mostly devwr4 teaching klorine28 what to do (thanks)
         -- Update DisplayID, name and static_flags. for mud thresh
         UPDATE `creature_template` SET `display_id1` = '1752', `name` = 'Mud Thresh', `static_flags` = '268697616' WHERE (`entry` = '3461');
         
