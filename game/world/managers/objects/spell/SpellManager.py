@@ -920,7 +920,7 @@ class SpellManager:
 
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
-        self.caster().send_surrounding(packet, self.caster, include_self=is_player)
+        self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
     def flush_cooldowns(self):
         for spell_id, cooldown_entry in list(self.cooldowns.items()):
