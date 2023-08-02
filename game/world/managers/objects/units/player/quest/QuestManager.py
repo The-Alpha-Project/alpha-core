@@ -979,7 +979,7 @@ class QuestManager(object):
             self.cast_reward_spell(quest_giver.guid, active_quest)
 
         # Handle quest end script, if any.
-        if quest_giver.script_handler:
+        if quest_giver:
             quest_giver.get_map().script_handler.enqueue_script(source=quest_giver, target=self.player_mgr,
                                                                 script_type=ScriptTypes.SCRIPT_TYPE_QUEST_END,
                                                                 script_id=quest_id)
