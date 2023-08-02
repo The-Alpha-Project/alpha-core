@@ -67,6 +67,9 @@ class Map:
     def is_active_cell_for_location(self, location):
         return self.grid_manager.is_active_cell_for_location(location)
 
+    def get_area_information(self, map_id, x, y):
+        return self.map_manager.get_area_information(map_id, x, y)
+
     def get_parent_zone_id(self, zone_id, map_id):
         return self.map_manager.get_parent_zone_id(zone_id, map_id)
 
