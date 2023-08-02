@@ -39,8 +39,6 @@ class AIEventHandler:
                 enqueue_script(self.creature, target=None, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
     def on_enter_combat(self, source=None):
-        self.creature.script_handler.reset()  # Reset any scripts that were queued before combat (e.g. on spawn).
-
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
