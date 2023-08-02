@@ -3291,10 +3291,9 @@ begin not atomic
         insert into`applied_updates`values ('310720231');
     end if;
 
-    --01/08/2023
+    --01/08/2023 1
     if (select count(*) from `applied_updates` where id='010820231') = 0 then
         
-        --mostly devwr4 teaching klorine28 what to do (thanks)
         -- Update DisplayID, name and static_flags. for mud thresh
         UPDATE `creature_template` SET `display_id1` = '1752', `name` = 'Mud Thresh', `static_flags` = '268697616' WHERE (`entry` = '3461');
         
@@ -3317,7 +3316,9 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '-1317.19', `position_z` = '86.161' WHERE (`spawn_id` = '14973');
         UPDATE `spawns_creatures` SET `position_x` = '-1279.18', `position_y` = '-2969.77', `position_z` = '86.16' WHERE (`spawn_id` = '14969');
         UPDATE `spawns_creatures` SET `position_x` = '-1237.41', `position_y` = '-2970.69', `position_z` = '86.1426' WHERE (`spawn_id` = '14968');
+
         insert into`applied_updates`values ('010820231');
+
     end if;
 
 end $
