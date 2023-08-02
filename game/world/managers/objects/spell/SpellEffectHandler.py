@@ -5,18 +5,16 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
-from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import SpellEffectDummyHandler, ExtendedSpellData
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.DuelManager import DuelManager
-from game.world.managers.objects.units.player.SkillManager import SkillManager, SkillTypes
+from game.world.managers.objects.units.player.SkillManager import SkillManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
@@ -155,7 +153,7 @@ class SpellEffectHandler:
                                            spell_id=casting_spell.spell_entry.ID,
                                            faction=caster.faction, ttl=3600)
 
-        MapManager.spawn_object(world_object_instance=arbiter)
+        caster.get_map().spawn_object(world_object_instance=arbiter)
 
         DuelManager.request_duel(caster, target, arbiter)
 
@@ -378,7 +376,7 @@ class SpellEffectHandler:
         # Remove existing totem in this slot.
         caster.pet_manager.detach_totem(totem_slot)
         caster.pet_manager.add_totem_from_spell(creature_manager, casting_spell)
-        MapManager.spawn_object(world_object_instance=creature_manager)
+        caster.get_map().spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
     def handle_summon_object_wild(casting_spell, effect, caster, target):
@@ -414,7 +412,7 @@ class SpellEffectHandler:
                                               summoner=caster,
                                               spell_id=casting_spell.spell_entry.ID,
                                               faction=faction, ttl=duration)
-        MapManager.spawn_object(world_object_instance=gameobject)
+        caster.get_map().spawn_object(world_object_instance=gameobject)
 
     @staticmethod
     def handle_summon_possessed(casting_spell, effect, caster, target):
@@ -431,7 +429,7 @@ class SpellEffectHandler:
                                                   possessed=True,
                                                   subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
 
-        MapManager.spawn_object(world_object_instance=creature_manager)
+        caster.get_map().spawn_object(world_object_instance=creature_manager)
         FarSightManager.add_camera(creature_manager, caster)
 
     @staticmethod
@@ -648,7 +646,7 @@ class SpellEffectHandler:
                 Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
                 return
 
-            MapManager.spawn_object(world_object_instance=creature_manager)
+            caster.get_map().spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):

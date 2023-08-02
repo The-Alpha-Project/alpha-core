@@ -1,6 +1,5 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from utils.constants.SpellCodes import SpellTargetMask
 
 
@@ -25,7 +24,7 @@ class SpellFocusManager:
             self.remaining_cooldown = max(0, self.remaining_cooldown - elapsed)
             return
 
-        surrounding_creatures, surrounding_players = MapManager.get_surrounding_units_by_location(
+        surrounding_creatures, surrounding_players = self.gameobject.get_map().get_surrounding_units_by_location(
             self.gameobject.location, self.gameobject.map_id, self.gameobject.instance_id, self.radius,
             include_players=True)
 

@@ -1,6 +1,4 @@
 from struct import unpack
-
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
 
@@ -14,7 +12,7 @@ class TaxiQueryNodesHandler(object):
             if guid <= 0:
                 return 0
 
-            flight_master: CreatureManager = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+            flight_master: CreatureManager = world_session.player_mgr.get_map().get_surrounding_unit_by_guid(world_session.player_mgr, guid)
             if not flight_master:
                 return 0
 

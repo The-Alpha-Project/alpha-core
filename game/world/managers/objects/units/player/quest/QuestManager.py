@@ -3,7 +3,6 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterQuestState
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -773,9 +772,9 @@ class QuestManager(object):
             high_guid = GuidUtils.extract_high_guid(quest_giver_guid)
 
             if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.player_mgr, quest_giver_guid)
+                quest_giver = self.player_mgr.get_map().get_surrounding_gameobject_by_guid(self.player_mgr, quest_giver_guid)
             elif high_guid == HighGuid.HIGHGUID_UNIT:
-                quest_giver = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
+                quest_giver = self.player_mgr.get_map().get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
             elif high_guid == HighGuid.HIGHGUID_ITEM:
                 quest_giver = self.player_mgr.inventory.get_item_by_guid(quest_giver_guid)
                 quest_item_starter = quest_giver
@@ -811,9 +810,9 @@ class QuestManager(object):
         # Otherwise, the quest_giver would be None and this leads to a crash.
         # Same goes for item quest starters since they have no script handler.
         if quest_giver and not is_item:
-            quest_giver.script_handler.enqueue_script(source=quest_giver, target=self.player_mgr,
-                                                      script_type=ScriptTypes.SCRIPT_TYPE_QUEST_START,
-                                                      script_id=quest_id)
+            quest_giver.get_map().script_handler.enqueue_script(source=quest_giver, target=self.player_mgr,
+                                                                script_type=ScriptTypes.SCRIPT_TYPE_QUEST_START,
+                                                                script_id=quest_id)
 
         # If player is in a group and quest has QUEST_FLAGS_PARTY_ACCEPT flag, let other members accept it too.
         if self.player_mgr.group_manager and not shared:
@@ -981,9 +980,9 @@ class QuestManager(object):
 
         # Handle quest end script, if any.
         if quest_giver.script_handler:
-            quest_giver.script_handler.enqueue_script(source=quest_giver, target=self.player_mgr,
-                                                      script_type=ScriptTypes.SCRIPT_TYPE_QUEST_END,
-                                                      script_id=quest_id)
+            quest_giver.get_map().script_handler.enqueue_script(source=quest_giver, target=self.player_mgr,
+                                                                script_type=ScriptTypes.SCRIPT_TYPE_QUEST_END,
+                                                                script_id=quest_id)
 
         # Remove from active quests if needed.
         if quest.entry in self.active_quests:
@@ -1049,7 +1048,7 @@ class QuestManager(object):
             return []
 
     def cast_reward_spell(self, quest_giver_guid, active_quest):
-        quest_giver_unit = MapManager.get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
+        quest_giver_unit = self.player_mgr.get_map().get_surrounding_unit_by_guid(self.player_mgr, quest_giver_guid)
         if quest_giver_unit:
             quest_giver_unit.spell_manager.handle_cast_attempt(active_quest.quest.RewSpellCast, self.player_mgr,
                                                                SpellTargetMask.UNIT, validate=False)

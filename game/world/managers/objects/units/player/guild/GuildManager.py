@@ -3,7 +3,6 @@ from struct import pack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager, Guild, GuildMember
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.guild.GuildPendingInvite import GuildPendingInvite
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
@@ -317,7 +316,7 @@ class GuildManager(object):
         GuildManager.send_emblem_result(player_mgr, GuildEmblemResult.ERR_GUILDEMBLEM_SUCCESS)
 
         query_packet = self.build_guild_query()
-        MapManager.send_surrounding(query_packet, player_mgr, include_self=True)
+        player_mgr.get_map().send_surrounding(query_packet, player_mgr, include_self=True)
 
     def build_guild_query(self):
         data = pack('<I', self.guild.guild_id)

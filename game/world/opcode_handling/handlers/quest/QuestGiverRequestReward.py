@@ -2,7 +2,6 @@ from struct import unpack
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
 from utils.constants.MiscCodes import HighGuid
-from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
 
 
@@ -29,9 +28,9 @@ class QuestGiverRequestReward(object):
                     is_item = True
                     quest_giver = player_mgr.inventory.get_item_by_guid(guid)
                 elif high_guid == HighGuid.HIGHGUID_UNIT:
-                    quest_giver = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
+                    quest_giver = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
                 elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                    quest_giver = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
+                    quest_giver = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)
 
             if not quest_giver:
                 Logger.error(f'Error in {reader.opcode_str()}, could not find quest giver with guid: {guid}.')

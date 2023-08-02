@@ -1,6 +1,4 @@
 from struct import unpack
-
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import *
 from utils.constants.OpCodes import OpCode
 
@@ -15,6 +13,7 @@ class PlayerMacroHandler(object):
                 voice_packet = PacketWriter.get_packet(OpCode.SMSG_PLAYER_MACRO,
                                                        pack('<QI', world_session.player_mgr.guid,
                                                             category))
-                MapManager.send_surrounding(voice_packet, world_session.player_mgr, include_self=True)
+                world_session.player_mgr.get_map().send_surrounding(voice_packet, world_session.player_mgr,
+                                                                    include_self=True)
 
         return 0

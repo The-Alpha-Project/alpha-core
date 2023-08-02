@@ -3,17 +3,20 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapEventManager import MapEventManager
 from game.world.managers.maps.helpers.Constants import MapType
+from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from utils.ConfigManager import config
 from utils.Logger import Logger
 
 
 class Map:
-    def __init__(self, map_id, active_cell_callback, instance_id):
+    def __init__(self, map_id, active_cell_callback, instance_id, map_manager):
         self.id = map_id
+        self.map_manager = map_manager
         self.dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         self.instance_id = instance_id
         self.grid_manager = GridManager(map_id, instance_id, active_cell_callback)
         self.name = self.dbc_map.MapName_enUS
+        self.script_handler = ScriptHandler(self)
         self.map_event_manager = MapEventManager()
 
     def initialize(self):
@@ -63,6 +66,36 @@ class Map:
 
     def is_active_cell_for_location(self, location):
         return self.grid_manager.is_active_cell_for_location(location)
+
+    def get_parent_zone_id(self, zone_id, map_id):
+        return self.map_manager.get_parent_zone_id(zone_id, map_id)
+
+    def can_reach_object(self, source_object, target_object):
+        return self.map_manager.can_reach_object(source_object, target_object)
+
+    def get_liquid_information(self, map_id, x, y, z, ignore_z=False):
+        return self.map_manager(map_id, x, y, z, ignore_z=ignore_z)
+
+    def get_area_number_by_zone_id(self, zone_id):
+        return self.map_manager.get_area_number_by_zone_id(zone_id)
+
+    def validate_teleport_destination(self, map_id, x, y):
+        return self.map_manager.validate_teleport_destination(map_id, x, y)
+
+    def calculate_path(self, map_id, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
+        return self.map_manager.calculate_path(map_id, start_vector, end_vector)
+
+    def calculate_z_for_object(self, world_object):
+        return self.map_manager.calculate_z_for_object(world_object)
+
+    def calculate_z(self, map_id, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
+        return self.map_manager.calculate_z(map_id, x, y, current_z=current_z)
+
+    def los_check(self, map_id, start_vector, end_vector):
+        return self.map_manager.los_check(map_id, start_vector, end_vector)
+
+    def get_tile(self, x, y):
+        return self.map_manager.get_tile(x, y)
 
     def spawn_object(self, world_object_spawn=None, world_object_instance=None):
         self.grid_manager.spawn_object(world_object_spawn, world_object_instance)
@@ -136,8 +169,9 @@ class Map:
     def update_corpses(self):
         self.grid_manager.update_corpses()
 
-    def update_map_events(self, now):
+    def update_map_scripts_and_events(self, now):
         self.map_event_manager.update(now)
+        self.script_handler.update(now)
 
     def deactivate_cells(self):
         self.grid_manager.deactivate_cells()

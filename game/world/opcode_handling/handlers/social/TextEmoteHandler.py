@@ -1,5 +1,4 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
 from utils.ConfigManager import config
@@ -17,7 +16,8 @@ class TextEmoteHandler(object):
 
             if emote:
                 data = pack('<QI', world_session.player_mgr.guid, emote_text_id)
-                target = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid, include_players=True)
+                target = world_session.player_mgr.get_map().get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                                                         guid, include_players=True)
 
                 if not target:
                     data += pack('<B', 0)

@@ -1,6 +1,5 @@
 import math
 
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.Formulas import UnitFormulas, Distances
 from utils.Logger import Logger
@@ -75,14 +74,11 @@ class ChaseMovement(BaseMovement):
         final_location = combat_target.location
         # Use direct combat location if target is over water.
         if not combat_target.is_swimming():
-            failed, in_place, path = MapManager.calculate_path(unit.map_id, unit.location, final_location)
+            failed, in_place, path = self.unit.get_map().calculate_path(unit.map_id, unit.location, final_location)
             if not failed and not in_place:
                 final_location = path[0]
             elif in_place:
                 return
-            # Unable to find a path while Namigator is enabled, log warning and use combat location directly.
-            elif MapManager.NAMIGATOR_LOADED:
-                Logger.warning(f'Unable to find path, map {unit.map_id} loc {unit.location} end {combat_target.location}')
 
         speed = self.unit.running_speed
         spline = SplineBuilder.build_normal_spline(unit, points=[final_location], speed=speed)

@@ -1,7 +1,6 @@
 from enum import IntEnum
 from struct import pack
 
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ChatFlags, ChatMsgs, Languages
@@ -105,8 +104,8 @@ class ChatAddonManager:
         unit = None
 
         if not unit_id:
-            unit = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection,
-                                                           include_players=True)
+            unit = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection,
+                                                                     include_players=True)
             unit = player_mgr if not unit else unit
             unit_id = 'player' if unit and unit.guid == player_mgr.guid or not unit else 'target'
             error_code = AddonErrorCodes.SUCCESS if unit is not None else AddonErrorCodes.INVALID_TARGET
@@ -119,8 +118,8 @@ class ChatAddonManager:
                 if player_mgr.combat_target and player_mgr.current_selection == player_mgr.combat_target.guid:
                     unit = player_mgr.combat_target
                 else:
-                    unit = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection,
-                                                                   include_players=True)
+                    unit = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection,
+                                                                             include_players=True)
                 error_code = AddonErrorCodes.SUCCESS if unit is not None else AddonErrorCodes.INVALID_TARGET
             elif 'party' in unit_id:
                 if not player_mgr.group_manager or not player_mgr.group_manager.is_party_formed():

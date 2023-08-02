@@ -65,7 +65,7 @@ class MapManager:
         if map_id not in MAPS:
             MAPS[map_id] = dict()
 
-        new_map = Map(map_id, MapManager.on_cell_turn_active, instance_id=instance_id)
+        new_map = Map(map_id, MapManager.on_cell_turn_active, instance_id=instance_id, map_manager=MapManager)
         MAPS[map_id][instance_id] = new_map
         new_map.initialize()
         MapManager._build_map_namigator(new_map)
@@ -149,14 +149,6 @@ class MapManager:
                     MAPS_TILES[map_id][adt_x + i][adt_y + j].initialize(namigator)
 
         return True
-
-    @staticmethod
-    def get_map_by_object(world_object):
-        try:
-            return MAPS[world_object.map_id][world_object.instance_id]
-        except (KeyError, AttributeError, TypeError):
-            Logger.error(f'Unable to retrieve Map for Id {world_object.map_id}, Instance {world_object.instance_id}')
-            return None
 
     @staticmethod
     def get_map(map_id, instance_id) -> Optional[Map]:
@@ -374,6 +366,7 @@ class MapManager:
                                               end_vector.x, end_vector.y, end_vector.z)
 
         if len(navigation_path) == 0:
+            Logger.warning(f'Unable to find path, map {map_id} loc {start_vector} end {end_vector}')
             return True, False, [end_vector]
 
         # Pop starting location, we already have that and WoW client seems to crash when sending
@@ -382,6 +375,7 @@ class MapManager:
 
         # Validate length again.
         if len(navigation_path) == 0:
+            Logger.warning(f'Unable to find path, map {map_id} loc {start_vector} end {end_vector}')
             return True, False, [end_vector]
 
         from game.world.managers.abstractions.Vector import Vector
@@ -605,7 +599,7 @@ class MapManager:
 
     @staticmethod
     def update_object(world_object, has_changes=False, has_inventory_changes=False):
-        map_ = MapManager.get_map_by_object(world_object)
+        map_ = world_object.get_map()
         try:
             map_.update_object(world_object, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
         except AttributeError:
@@ -623,7 +617,7 @@ class MapManager:
 
     @staticmethod
     def remove_object(world_object):
-        MapManager.get_map_by_object(world_object).remove_object(world_object)
+        world_object.get_map().remove_object(world_object)
         FarSightManager.remove_camera(world_object)
 
     @staticmethod
@@ -632,25 +626,24 @@ class MapManager:
         if not world_object.current_cell and include_self and world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             world_object.enqueue_packet(packet)
         elif world_object.current_cell:
-            MapManager.get_map_by_object(world_object).send_surrounding(
-                packet, world_object, include_self, exclude, use_ignore)
+            world_object.get_map().send_surrounding(packet, world_object, include_self, exclude, use_ignore)
 
     @staticmethod
     def send_surrounding_in_range(packet, world_object, range_, include_self=True, exclude=None, use_ignore=False):
-        return MapManager.get_map_by_object(world_object).send_surrounding_in_range(
-            packet, world_object, range_, include_self, exclude, use_ignore)
+        return world_object.get_map().send_surrounding_in_range(packet, world_object, range_, include_self, exclude,
+                                                                use_ignore)
 
     @staticmethod
     def get_surrounding_objects(world_object, object_types):
-        return MapManager.get_map_by_object(world_object).get_surrounding_objects(world_object, object_types)
+        return world_object.get_map().get_surrounding_objects(world_object, object_types)
 
     @staticmethod
     def get_surrounding_players(world_object):
-        return MapManager.get_map_by_object(world_object).get_surrounding_players(world_object)
+        return world_object.get_map().get_surrounding_players(world_object)
 
     @staticmethod
     def get_surrounding_units(world_object, include_players=False):
-        return MapManager.get_map_by_object(world_object).get_surrounding_units(world_object, include_players)
+        return world_object.get_map().get_surrounding_units(world_object, include_players)
 
     @staticmethod
     def get_creature_spawn_by_id(map_id, instance_id, spawn_id):
@@ -662,8 +655,7 @@ class MapManager:
 
     @staticmethod
     def get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id):
-        return MapManager.get_map_by_object(world_object).get_surrounding_creature_spawn_by_spawn_id(
-            world_object, spawn_id)
+        return world_object.get_map().get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id)
 
     @staticmethod
     def get_surrounding_units_by_location(vector, target_map, target_instance_id, range_, include_players=False):
@@ -684,25 +676,23 @@ class MapManager:
 
     @staticmethod
     def get_surrounding_gameobjects(world_object):
-        return MapManager.get_map_by_object(world_object).get_surrounding_gameobjects(world_object)
+        return world_object.get_map().get_surrounding_gameobjects(world_object)
 
     @staticmethod
     def get_surrounding_player_by_guid(world_object, guid):
-        return MapManager.get_map_by_object(world_object).get_surrounding_player_by_guid(world_object, guid)
+        return world_object.get_map().get_surrounding_player_by_guid(world_object, guid)
 
     @staticmethod
     def get_surrounding_unit_by_guid(world_object, guid, include_players=False):
-        return MapManager.get_map_by_object(world_object).get_surrounding_unit_by_guid(
-            world_object, guid, include_players)
+        return world_object.get_map().get_surrounding_unit_by_guid(world_object, guid, include_players)
 
     @staticmethod
     def get_surrounding_gameobject_by_guid(world_object, guid):
-        return MapManager.get_map_by_object(world_object).get_surrounding_gameobject_by_guid(world_object, guid)
+        return world_object.get_map().get_surrounding_gameobject_by_guid(world_object, guid)
 
     @staticmethod
     def get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id):
-        return MapManager.get_map_by_object(world_object).get_surrounding_gameobject_spawn_by_spawn_id(world_object,
-                                                                                                       spawn_id)
+        return world_object.get_map().get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id)
 
     @staticmethod
     def update_creatures():
@@ -735,11 +725,11 @@ class MapManager:
                 instance_map.update_corpses()
 
     @staticmethod
-    def update_map_events():
+    def update_map_scripts_and_events():
         now = time.time()
         for map_id, instances in MAPS.items():
             for instance_map in instances.values():
-                instance_map.update_map_events(now)
+                instance_map.update_map_scripts_and_events(now)
 
     @staticmethod
     def deactivate_cells():

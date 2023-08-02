@@ -1,6 +1,4 @@
 from struct import pack
-
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.ChannelManager import ChannelManager
 from game.world.managers.objects.units.player.GroupManager import GroupManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
@@ -39,8 +37,9 @@ class ChatManager(object):
 
     @staticmethod
     def send_chat_message(world_session, guid, chat_flags, message, chat_type, lang, range_):
-        MapManager.send_surrounding_in_range(ChatManager._get_message_packet(guid, chat_flags, message, chat_type, lang),
-                                             world_session.player_mgr, range_, use_ignore=True)
+        world_session.player_mgr.get_map().send_surrounding_in_range(
+            ChatManager._get_message_packet(guid, chat_flags, message, chat_type, lang),
+            world_session.player_mgr, range_, use_ignore=True)
         ChatLogManager.log_chat(world_session.player_mgr, message, chat_type)
 
     @staticmethod
@@ -48,7 +47,7 @@ class ChatManager(object):
         target_guid = target.guid if target else sender.guid
         packet = ChatManager._get_monster_message_packet(sender.creature_template.name, target_guid,
                                                          ChatFlags.CHAT_TAG_NONE, message, chat_type, lang)
-        MapManager.send_surrounding_in_range(packet, sender, range_, use_ignore=False)
+        sender.get_map().send_surrounding_in_range(packet, sender, range_, use_ignore=False)
 
     @staticmethod
     def send_channel_message(sender, channel_name, message, lang):

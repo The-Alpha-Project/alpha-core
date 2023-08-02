@@ -7,11 +7,9 @@ from typing import TYPE_CHECKING, Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.AIEventHandler import AIEventHandler
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
-from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
@@ -338,7 +336,7 @@ class CreatureAI:
         if (cast_flags & CastFlags.CF_TARGET_UNREACHABLE and
                 (self.creature.is_within_interactable_distance(target)
                  or self.creature.is_moving() or not (self.creature.unit_state & UnitStates.ROOTED)
-                 or not MapManager.can_reach_object(self.creature, target))):
+                 or not self.creature.get_map().can_reach_object(self.creature, target))):
             return SpellCheckCastResult.SPELL_FAILED_MOVING
 
         if not cast_flags & CastFlags.CF_FORCE_CAST:

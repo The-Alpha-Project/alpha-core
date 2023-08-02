@@ -7,7 +7,6 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSkill
 from database.world.WorldDatabaseManager import WorldDatabaseManager, ItemTemplate
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from network.packet.PacketWriter import PacketWriter
@@ -603,8 +602,8 @@ class SkillManager(object):
             return False
 
         # Search the skill zone by parent zone id.
-        zone_skill = WorldDatabaseManager.fishing_skill_get_by_entry(
-            MapManager.get_parent_zone_id(self.player_mgr.zone, self.player_mgr.map_id))
+        parent_zone_id = self.player_mgr.get_map().get_parent_zone_id(self.player_mgr.zone, self.player_mgr.map_id)
+        zone_skill = WorldDatabaseManager.fishing_skill_get_by_entry(parent_zone_id)
         if not zone_skill:
             return False
 

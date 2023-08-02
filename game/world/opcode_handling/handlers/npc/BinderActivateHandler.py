@@ -1,6 +1,5 @@
 from struct import unpack
 
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.constants.OpCodes import OpCode
@@ -15,7 +14,7 @@ class BinderActivateHandler(object):
     def handle(world_session, reader):
         if len(reader.data) >= 8:  # Avoid handling empty binder activate packet.
             binder_guid = unpack('<Q', reader.data[:8])[0]
-            binder = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, binder_guid)
+            binder = world_session.player_mgr.get_map().get_surrounding_unit_by_guid(world_session.player_mgr, binder_guid)
             if not binder or binder.location.distance(world_session.player_mgr.location) > Formulas.Distances.MAX_BIND_DISTANCE:
                 return 0
 

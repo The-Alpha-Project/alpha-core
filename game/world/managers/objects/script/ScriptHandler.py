@@ -4,7 +4,6 @@ import random
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.Script import Script
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
@@ -30,8 +29,8 @@ from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFie
 
 class ScriptHandler:
 
-    def __init__(self, world_object):
-        self.owner = world_object
+    def __init__(self, map_):
+        self.map = map_
         self.script_queue = set()
         self.ooc_ignore = set()
         self.ooc_events = {}
@@ -43,10 +42,7 @@ class ScriptHandler:
         # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
-            if self.owner.get_type_id() == ObjectTypeIds.ID_UNIT and self.owner.creature_template.script_name:
-                Logger.warning(f'Unimplemented advanced script: {self.owner.creature_template.script_name}.')
-            elif self.owner.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and self.owner.gobject_template.script_name:
-                Logger.warning(f'Unimplemented advanced script: {self.owner.gobject_template.script_name}.')
+            Logger.warning(f'Unimplemented advanced script: {script_id}.')
             return
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, ooc_event=ooc_event)
@@ -87,10 +83,10 @@ class ScriptHandler:
     def _check_ooc_events(self, now):
         if not self.ooc_events:
             return
-        if self.owner.in_combat or self.owner.is_evading:
-            return
 
         for event_id, ooc_event in list(self.ooc_events.items()):
+            if ooc_event.source.in_combat or ooc_event.source.is_evading:
+                continue
             # Check if we should remove the ongoing ooc event.
             if ooc_event.started and ooc_event.is_complete(now):
                 ooc_event.started = False
@@ -101,11 +97,11 @@ class ScriptHandler:
                 # Initialize the ooc event.
                 ooc_event.initialize(now)
                 for script_id in ooc_event.script_ids:
-                    self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
+                    self.enqueue_script(ooc_event.source, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
                                         script_id=script_id, delay=ooc_event.delay, ooc_event=ooc_event)
 
-    def set_random_ooc_event(self, target, event, forced=False):
-        if not ConditionChecker.validate(event.condition_id, self.owner, target):
+    def set_random_ooc_event(self, source, target, event, forced=False):
+        if not ConditionChecker.validate(event.condition_id, source, target):
             return
 
         # Ignored or already running a script.
@@ -120,7 +116,7 @@ class ScriptHandler:
             if event.id in self.ooc_ignore:
                 self.ooc_ignore.remove(event.id)
 
-        occ_event = ScriptOocEvent(event, target, self.owner, forced=forced)
+        occ_event = ScriptOocEvent(event, source, target, forced=forced)
         # Has no scripts, ignore.
         if not occ_event.scripts:
             self.ooc_ignore.add(event.id)
@@ -443,7 +439,12 @@ class ScriptHandler:
         # target = GameObject (from datalong, provided source or target)
         # datalong = db_guid
         # datalong2 = despawn_delay
-        go_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
+        go_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
             return
@@ -454,7 +455,12 @@ class ScriptHandler:
         # source = GameObject(from datalong, provided source or target)
         # datalong = db_guid
         # datalong2 = despawn_delay
-        go_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
+        go_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
             return
@@ -474,10 +480,15 @@ class ScriptHandler:
         # x/y/z/o = coordinates
         if not command.source:
             return
-        
+
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
         if command.datalong3:
-            units = MapManager.get_surrounding_units_by_location(command.source.location, command.source.map_id,
-                                                                 command.source.instance_id, command.datalong4)
+            units = map_.get_surrounding_units_by_location(command.source.location, command.source.map_id,
+                                                           command.source.instance_id, command.datalong4)
             summoned = [unit for unit in units if unit.creature_template.entry == command.datalong]
             if summoned and len(summoned) >= command.datalong3:
                 return
@@ -490,13 +501,13 @@ class ScriptHandler:
                                                   else CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
         if not creature_manager:
             return
-        MapManager.spawn_object(world_object_instance=creature_manager)
+        map_.spawn_object(world_object_instance=creature_manager)
 
         # Generic script.
         if command.dataint2:
-            creature_manager.script_handler.enqueue_script(source=creature_manager, target=None,
-                                                           script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                           script_id=command.dataint2)
+            creature_manager.get_map().script_handler.enqueue_script(source=creature_manager, target=None,
+                                                                     script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                                                     script_id=command.dataint2)
         # Attack target.
         if command.dataint3 <= 0:  # Can be -1.
             return
@@ -520,12 +531,17 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
 
-        provided_spawn_id = command.datalong
-        if provided_spawn_id:
-            gobject_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, provided_spawn_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
+        spawn_id = command.datalong
+        if spawn_id:
+            gobject_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, spawn_id)
             if not gobject_spawn:
                 Logger.warning(f'ScriptHandler: Aborting {command.get_info()}, '
-                               f'Gameobject with Spawn ID {provided_spawn_id} not found.')
+                               f'Gameobject with Spawn ID {spawn_id} not found.')
                 return
             gobject_spawn.gameobject_instance.use()
         elif command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
@@ -547,12 +563,17 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
             return
 
-        provided_spawn_id = command.datalong
-        if provided_spawn_id:
-            gobject_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, provided_spawn_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
+        spawn_id = command.datalong
+        if spawn_id:
+            gobject_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, spawn_id)
             if not gobject_spawn:
                 Logger.warning(f'ScriptHandler: Aborting {command.get_info()}, '
-                               f'Gameobject with Spawn ID {provided_spawn_id} not found.')
+                               f'Gameobject with Spawn ID {spawn_id} not found.')
                 return
             gobject_spawn.gameobject_instance.set_ready()
         elif command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
@@ -1146,7 +1167,11 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_start_map_event invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
@@ -1161,7 +1186,11 @@ class ScriptHandler:
         # source = Map
         # datalong = event_id
         # datalong2 = (bool) success
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_end_map_event invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
@@ -1178,7 +1207,11 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_add_map_event_target invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
@@ -1194,7 +1227,11 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = condition_id
         # datalong3 = eRemoveMapEventTargetOptions
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_remove_map_event_target invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
@@ -1210,7 +1247,11 @@ class ScriptHandler:
         # datalong2 = index
         # datalong3 = data
         # datalong4 = eSetMapScriptDataOptions
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_set_map_event_data invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
@@ -1225,7 +1266,11 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = data
         # datalong3 = eSendMapEventOptions
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_send_map_event invalid map ({command.source.map_id}) '
                            f'and/or instance ({command.source.instance_id}).')
@@ -1258,7 +1303,11 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_edit_map_event invalid map ({command.source.map_id}) '
                            f'and/or instance ({command.source.instance_id}).')

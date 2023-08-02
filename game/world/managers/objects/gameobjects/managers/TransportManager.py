@@ -3,7 +3,6 @@ from database.dbc.DbcModels import TransportAnimation
 from game.world import WorldManager
 from bisect import bisect_left
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import GameObjectStates
 
@@ -98,7 +97,7 @@ class TransportManager:
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=self.owner,
                                               ttl=1)
-        MapManager.spawn_object(world_object_instance=gameobject)
+        self.owner.get_map().spawn_object(world_object_instance=gameobject)
 
     def _get_time(self):
         return int(WorldManager.get_seconds_since_startup() * 1000) % self.total_time

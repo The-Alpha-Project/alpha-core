@@ -1,12 +1,7 @@
 from __future__ import annotations
-
 from typing import TYPE_CHECKING, Optional
-
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
-from utils.constants.MiscCodes import ObjectTypeIds
-from utils.constants.UnitCodes import AIReactionStates
 
 if TYPE_CHECKING:
     from game.world.managers.objects.units.creature.CreatureManager import CreatureManager

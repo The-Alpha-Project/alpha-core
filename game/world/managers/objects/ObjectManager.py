@@ -2,7 +2,6 @@ from struct import pack, unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
@@ -228,7 +227,7 @@ class ObjectManager:
         # TODO - This method is a hackfix for force-updating single fields.
         #  Implement something like the following instead:
         # self.set_uint32(field_index, 0, force=true)
-        MapManager.update_object(self, has_changes=True)
+        self.get_map().update_object(self, has_changes=True)
 
     def _get_base_structure(self, update_type):
         return pack(
@@ -389,15 +388,19 @@ class ObjectManager:
             self.object_ai.just_despawned()
         # Destroy completely.
         if self.is_default and not ttl:
-            MapManager.remove_object(self)
+            self.get_map().remove_object(self)
             return
         # Despawn (De-activate)
-        MapManager.update_object(self, has_changes=True)
+        self.get_map().update_object(self, has_changes=True)
 
     # override
     def respawn(self):
         self.is_spawned = True
-        MapManager.update_object(world_object=self, has_changes=True)
+        self.get_map().update_object(world_object=self, has_changes=True)
+
+    def get_map(self):
+        from game.world.managers.maps.MapManager import MapManager
+        return MapManager.get_map(self.map_id, self.instance_id)
 
     # override
     def is_above_water(self):
@@ -405,15 +408,15 @@ class ObjectManager:
 
     # override
     def is_under_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                               self.location.z)
+        liquid_information = self.get_map().get_liquid_information(self.map_id, self.location.x, self.location.y,
+                                                                   self.location.z)
 
         return liquid_information and self.location.z + (self.current_scale * 1.8) < liquid_information.height
 
     # override
     def is_in_deep_water(self):
-        liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                               self.location.z)
+        liquid_information = self.get_map().get_liquid_information(self.map_id, self.location.x, self.location.y,
+                                                                   self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
     def is_casting(self):

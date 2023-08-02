@@ -1,8 +1,6 @@
 import math
 from random import random
 from struct import pack, unpack
-
-from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 
 
@@ -42,6 +40,7 @@ class Vector(object):
         if map_id == -1 or (not config.Server.Settings.use_map_tiles and not config.Server.Settings.use_nav_tiles):
             return default_z, False
         else:
+            from game.world.managers.maps.MapManager import MapManager
             # Calculate destination Z, default Z if not possible.
             return MapManager.calculate_z(map_id, x, y, default_z)
 

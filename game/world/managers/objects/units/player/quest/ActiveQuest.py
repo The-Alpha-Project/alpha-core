@@ -3,10 +3,8 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from utils.GuidUtils import GuidUtils
-from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.MiscCodes import HighGuid
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.quest.QuestHelpers import QuestHelpers
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
@@ -36,9 +34,9 @@ class ActiveQuest:
         high_guid = GuidUtils.extract_high_guid(quest_giver_guid)
 
         if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-            quest_giver = MapManager.get_surrounding_gameobject_by_guid(self.owner, quest_giver_guid)
+            quest_giver = self.owner.get_map().get_surrounding_gameobject_by_guid(self.owner, quest_giver_guid)
         elif high_guid == HighGuid.HIGHGUID_UNIT:
-            quest_giver = MapManager.get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
+            quest_giver = self.owner.get_map().get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
 
         if not quest_giver:
             return False

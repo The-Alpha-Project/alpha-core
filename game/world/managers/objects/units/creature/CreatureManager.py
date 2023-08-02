@@ -2,10 +2,8 @@ from random import randint
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ai.AIFactory import AIFactory
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
-from game.world.managers.objects.script.ScriptHandler import ScriptHandler
 from game.world.managers.objects.spell.ExtendedSpellData import ShapeshiftInfo
 from game.world.managers.objects.units.UnitManager import UnitManager
 from game.world.managers.objects.units.creature.CreatureLootManager import CreatureLootManager
@@ -24,7 +22,7 @@ from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes,
     MoveType
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
-    PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState, UnitStates
+    PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
 from utils.constants.UpdateFields import ObjectFields, UnitFields
 
 
@@ -33,7 +31,6 @@ class CreatureManager(UnitManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.spawn_id = 0
-        self.script_handler = None
         self.entry = 0
         self.guid = 0
         self.creature_template = None
@@ -141,9 +138,6 @@ class CreatureManager(UnitManager):
         self.power_1 = int((self.mana_percent / 100) * self.max_power_1)
 
         self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
-
-        # Creatures can use scripts.
-        self.script_handler = ScriptHandler(self)
 
         # Reset pickpocket state.
         if self.pickpocket_loot_manager:
@@ -454,7 +448,8 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        failed, in_place, waypoints = MapManager.calculate_path(self.map_id, self.location, self.spawn_position.copy())
+        failed, in_place, waypoints = self.get_map().calculate_path(self.map_id, self.location,
+                                                                    self.spawn_position.copy())
 
         # We are at spawn position already.
         if in_place:
@@ -550,10 +545,7 @@ class CreatureManager(UnitManager):
             # Check if this creature object should be updated yet or not.
             if has_changes or self.has_moved:
                 self.set_has_moved(False, False, flush=True)
-                MapManager.update_object(self, has_changes=has_changes)
-
-            # Scripts need to be always updated to make on-death scripts possible.
-            self.script_handler.update(now)
+                self.get_map().update_object(self, has_changes=has_changes)
 
             if self.relocation_call_for_help_timer >= 1:
                 if self.pending_relocation:
@@ -698,8 +690,6 @@ class CreatureManager(UnitManager):
 
         self.unit_flags = UnitFlags.UNIT_FLAG_STANDARD
 
-        self.script_handler.reset()
-
         return super().die(killer)
 
     def reward_kill_xp(self, player):
@@ -730,12 +720,13 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
 
     def near_teleport(self, location):
-        if not MapManager.validate_teleport_destination(self.map_id, location.x, location.y):
+        map_ = self.get_map()
+        if not map_.validate_teleport_destination(self.map_id, location.x, location.y):
             return False
         self.movement_manager.reset()
         self.location = location.copy()
-        MapManager.update_object(self)
-        MapManager.send_surrounding(self.get_heartbeat_packet(), self, False)
+        map_.update_object(self)
+        map_.send_surrounding(self.get_heartbeat_packet(), self, False)
         if location == self.spawn_position:
             self.on_at_home()
         return True
@@ -805,10 +796,10 @@ class CreatureManager(UnitManager):
         is_under_water = self.is_under_water()
         if is_under_water and not self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=True)
-            MapManager.send_surrounding(self.get_heartbeat_packet(), self)
+            self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
         elif not is_under_water and self.movement_flags & MoveFlags.MOVEFLAG_SWIMMING:
             self.set_move_flag(MoveFlags.MOVEFLAG_SWIMMING, active=False)
-            MapManager.send_surrounding(self.get_heartbeat_packet(), self)
+            self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
 
     # override
     def has_mainhand_weapon(self):

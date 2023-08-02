@@ -7,7 +7,6 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.spell.aura.AuraManager import AuraManager
@@ -308,14 +307,14 @@ class UnitManager(ObjectManager):
 
     def send_attack_start(self, victim_guid):
         data = pack('<2Q', self.guid, victim_guid)
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data), self)
+        self.get_map().send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTART, data), self)
 
     def send_attack_stop(self, victim_guid):
         # Last uint32 is "deceased"; can be either 1 (self is dead), or 0, (self is alive).
         # Forces the unit to face the corpse and disables clientside
         # turning (UnitFlags.DisableMovement) CGUnit_C::OnAttackStop
         data = pack('<2QI', self.guid, victim_guid, 0 if self.is_alive else 1)
-        MapManager.send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
+        self.get_map().send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
         # Don't update melee swing timers while casting, stunned, pacified or fleeing..
@@ -559,7 +558,7 @@ class UnitManager(ObjectManager):
     def send_attack_state_update(self, damage_info):
         is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         attack_state_packet = damage_info.get_attacker_state_update_packet()
-        MapManager.send_surrounding(attack_state_packet, self, include_self=is_player)
+        self.get_map().send_surrounding(attack_state_packet, self, include_self=is_player)
 
     def calculate_base_attack_damage(self, attack_type: AttackTypes, attack_school: SpellSchools, target,
                                      used_ammo: Optional[ItemManager] = None, apply_bonuses=True):
@@ -898,9 +897,9 @@ class UnitManager(ObjectManager):
         spell_debug_packet = damage_info.get_attacker_state_update_spell_info_packet()
         target_is_player = damage_info.target.get_type_id() == ObjectTypeIds.ID_PLAYER
         if not damage_info.hit_info & SpellHitFlags.HEALED:
-            MapManager.send_surrounding(spell_debug_packet, self, include_self=is_player)
+            self.get_map().send_surrounding(spell_debug_packet, self, include_self=is_player)
             damage_done_packet = damage_info.get_damage_done_packet()
-            MapManager.send_surrounding(damage_done_packet, self, include_self=is_player)
+            self.get_map().send_surrounding(damage_done_packet, self, include_self=is_player)
         # Healing effects are displayed to the affected player only.
         elif casting_spell.initial_target_is_player() and target_is_player:
             damage_info.target.enqueue_packet(spell_debug_packet)
@@ -1033,7 +1032,7 @@ class UnitManager(ObjectManager):
     def get_possessed_unit(self):
         possessed_id = self.get_uint64(UnitFields.UNIT_FIELD_CHARM)
         if possessed_id:
-            unit = MapManager.get_surrounding_unit_by_guid(self, possessed_id, include_players=True)
+            unit = self.get_map().get_surrounding_unit_by_guid(self, possessed_id, include_players=True)
             return unit if unit and unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED else None
         return None
 
@@ -1184,7 +1183,7 @@ class UnitManager(ObjectManager):
         else:
             self.movement_flags &= ~move_flag
 
-        MapManager.send_surrounding(self.get_heartbeat_packet(), self)
+        self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
         return is_active
 
     def set_dynamic_type_flag(self, type_flag, active, index=-1) -> bool:
@@ -1220,10 +1219,11 @@ class UnitManager(ObjectManager):
         return len(effects) > 0  # Return True if this flag should be set for the unit.
 
     def play_emote(self, emote):
-        if emote != 0:
-            data = pack('<IQ', emote, self.guid)
-            MapManager.send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data),
-                                                 self, config.World.Chat.ChatRange.emote_range)
+        if not emote:
+            return
+        range_ = config.World.Chat.ChatRange.emote_range
+        data = pack('<IQ', emote, self.guid)
+        self.get_map().send_surrounding_in_range(PacketWriter.get_packet(OpCode.SMSG_EMOTE, data), self, range_)
 
     def summon_mount(self, creature_entry):
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_entry)
@@ -1666,7 +1666,7 @@ class UnitManager(ObjectManager):
         # Flush movement manager and notify none movement flags to observers.
         self.movement_manager.flush()
         self.movement_flags = MoveFlags.MOVEFLAG_NONE
-        MapManager.send_surrounding(self.generate_movement_packet(), self, include_self=False)
+        self.get_map().send_surrounding(self.generate_movement_packet(), self, include_self=False)
 
         # Reset threat manager.
         self.threat_manager.reset()
@@ -1750,9 +1750,6 @@ class UnitManager(ObjectManager):
     def is_in_world(self):
         pass
 
-    def get_map(self):
-        return MapManager.get_map(self.map_id, self.instance_id)
-
     # Implemented by CreatureManager and PlayerManager
     def get_bytes_0(self):
         pass
@@ -1781,8 +1778,9 @@ class UnitManager(ObjectManager):
         if self.beast_master:
             return
 
+        map_ = self.get_map()
         self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
-        surrounding_units = MapManager.get_surrounding_units(self, not self_is_player)
+        surrounding_units = map_.get_surrounding_units(self, not self_is_player)
 
         # Merge units and players.
         if not self_is_player:
@@ -1805,7 +1803,7 @@ class UnitManager(ObjectManager):
                 unit.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
             if not unit_can_detect_self:
                 continue
-            if not MapManager.los_check(self.map_id, unit.get_ray_position(), self.get_ray_position()):
+            if not map_.los_check(self.map_id, unit.get_ray_position(), self.get_ray_position()):
                 continue
             # Player standing still case.
             if unit_is_player and not unit.pending_relocation and not unit.beast_master:

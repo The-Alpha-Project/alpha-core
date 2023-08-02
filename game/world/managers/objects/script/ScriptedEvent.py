@@ -45,8 +45,8 @@ class ScriptedEvent:
             Logger.error(f'No source found to trigger end script for event {self.event_id}, aborting.')
             return
 
-        self.source.script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                  self.success_script if success else self.failure_script)
+        self.source.get_map().script_handler.enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                                            self.success_script if success else self.failure_script)
 
     def send_event_data(self, data_index, options):
         if options == SendMapEventOptions.SO_SENDMAPEVENT_ALL_TARGETS:

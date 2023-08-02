@@ -4,7 +4,6 @@ from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.managers.TransportManager import TransportManager
 from game.world.managers.objects.gameobjects.managers.FishingNodeManager import FishingNodeManager
 from game.world.managers.objects.gameobjects.GameObjectLootManager import GameObjectLootManager
@@ -32,7 +31,6 @@ class GameObjectManager(ObjectManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.spawn_id = 0
-        self.script_handler = None
         self.entry = 0
         self.guid = 0
         self.gobject_template = None
@@ -128,9 +126,6 @@ class GameObjectManager(ObjectManager):
                 self.gobject_template.type == GameObjectTypes.TYPE_TRAP or \
                 self.gobject_template.type == GameObjectTypes.TYPE_CHEST:
             self.lock = gobject_template.data0
-
-        # Gameobjects can run scripts.
-        self.script_handler = ScriptHandler(self)
 
     # override
     def initialize_field_values(self):
@@ -304,7 +299,7 @@ class GameObjectManager(ObjectManager):
             self._handle_fishing_node(player)
 
         # TODO: Do we need separate AI handler for gameobjects?
-        self.script_handler.enqueue_script(self, player, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)
+        self.get_map().script_handler.enqueue_script(self, player, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)
 
     def set_state(self, state):
         self.state = state
@@ -360,7 +355,7 @@ class GameObjectManager(ObjectManager):
     def send_custom_animation(self, animation):
         data = pack('<QI', self.guid, animation)
         packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_CUSTOM_ANIM, data)
-        MapManager.send_surrounding(packet, self, include_self=False)
+        self.get_map().send_surrounding(packet, self, include_self=False)
 
     # TODO: Handle more dynamic cases if needed.
     def generate_dynamic_field_value(self, requester):
@@ -440,15 +435,12 @@ class GameObjectManager(ObjectManager):
                     if self.transport_manager:
                         self.transport_manager.update()
 
-                # ScriptHandler update.
-                self.script_handler.update(now)
-
                 # SpellManager update.
                 self.spell_manager.update(now)
 
             # Check if this game object should be updated yet or not.
             if self.has_pending_updates():
-                MapManager.update_object(self, has_changes=True)
+                self.get_map().update_object(self, has_changes=True)
 
         self.last_tick = now
 

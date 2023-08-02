@@ -6,7 +6,6 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.dbc.DbcModels import Spell, SpellRange, SpellDuration, SpellCastTimes, SpellVisual
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.dynamic.DynamicObjectManager import DynamicObjectManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -104,13 +103,13 @@ class CastingSpell:
         if caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             selection = caster.current_selection
             self.targeted_unit_on_cast_start = caster if not selection \
-                else MapManager.get_surrounding_unit_by_guid(self.spell_caster, selection, include_players=True)
+                else caster.get_map().get_surrounding_unit_by_guid(self.spell_caster, selection, include_players=True)
 
         if self.is_fishing_spell():
             # Locate liquid vector in front of the caster.
-            self.initial_target = MapManager.find_liquid_location_in_range(self.spell_caster,
-                                                                           self.range_entry.RangeMin,
-                                                                           self.range_entry.RangeMax)
+            self.initial_target = caster.get_map().find_liquid_location_in_range(self.spell_caster,
+                                                                                 self.range_entry.RangeMin,
+                                                                                 self.range_entry.RangeMax)
 
         self.cast_flags = SpellCastFlags.CAST_FLAG_NONE
 
@@ -615,5 +614,6 @@ class CastingSpell:
         else:
             return
 
-        MapManager.send_surrounding(PacketWriter.get_packet(final_opcode, data), self.spell_caster,
-                                    include_self=self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER)
+        is_player = self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER
+        self.spell_caster.get_map().send_surrounding(PacketWriter.get_packet(final_opcode, data), self.spell_caster,
+                                                     include_self=is_player)

@@ -3,7 +3,6 @@ from struct import pack, unpack
 
 from game.world import WorldManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObjectBuilder
 from game.world.managers.objects.units.movement.helpers.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
@@ -109,7 +108,7 @@ class Spline(object):
                                               GameObjectStates.GO_STATE_READY,
                                               summoner=self.unit,
                                               ttl=1)
-        MapManager.spawn_object(world_object_instance=gameobject)
+        self.unit.get_map().spawn_object(world_object_instance=gameobject)
 
     def is_complete(self):
         return not self.pending_waypoints and self.elapsed >= self.get_total_time_ms()

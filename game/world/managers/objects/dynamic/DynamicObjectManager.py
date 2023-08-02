@@ -1,4 +1,3 @@
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
@@ -61,7 +60,7 @@ class DynamicObjectManager(ObjectManager):
     def spawn(summoner, location, radius, effect, dynamic_type, ttl=-1):
         dynamic_object = DynamicObjectManager(owner=summoner, location=location, radius=radius, effect=effect,
                                               dynamic_type=dynamic_type, ttl=ttl)
-        MapManager.spawn_object(world_object_instance=dynamic_object)
+        summoner.get_map().spawn_object(world_object_instance=dynamic_object)
         return dynamic_object
 
     @classmethod
