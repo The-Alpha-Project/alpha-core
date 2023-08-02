@@ -3293,10 +3293,30 @@ begin not atomic
 
 
     if (select count(*) from `applied_updates` where id='0108202301') = 0 then
-        --mud Thresh, may need some adjusting also need to figure out how to remove certain spawn locations
-        UPDATE 'creature_template' SET 'level_min' = 15, 'level_max' = 16, 'display_id1' = 1752, 'spell_id1' = 6530, 'name' = "Mud Thresh",  'AQUATIC' = 262144 WHERE (entry = 3461);
+--mostly devwr4 teaching klorine28 what to do (thanks)
+-- Update DisplayID, name and static_flags. for mud thresh
+UPDATE `creature_template` SET `display_id1` = '1752', `name` = 'Mud Thresh', `static_flags` = '268697616' WHERE (`entry` = '3461');
 
-        insert into`applied_updates`values ('0108202315');
+-- Update the related quest text and reward money. for the quest altered being
+UPDATE `quest_template` SET `Details` = 'Your findings are incredible, $N.  These oases hold properties that must come from an outside source.  Or perhaps an inside one.$B$BI want to know how these fissures are affecting the beasts who drink from the oases\ water.$B$BHunt mud threshers at the Lushwater and Stagnant Oases.  Bring me their hides so I may examine them.', `Objectives` = 'Bring 8 Mud Thresh Hides to Tonga Runetotem at the Crossroads.', `OfferRewardText` = 'Thank you, $N.  Studying the beasts of an area can tell much about the area itself.  We shall see what tale these hides tell.$B$BPlease accept my gratitude for your aid ... and perhaps you can use these coins.  I find that I do not need them.', `RequestItemsText` = 'How goes your collection?  Did you get the hides?', `RewOrReqMoney` = '750' WHERE (`entry` = '880');
+
+--The spell_list already points to 34610 in 'creature_spells', which already has the spell set, update its name.
+UPDATE `creature_spells` SET `name` = 'Barrens - Mud Thresher' WHERE (`entry` = '34610');
+
+-- Bring those spawns outside water into water.
+-- https://db.thealphaproject.eu/index.php?action=show_quest&id=880 (Helps)
+UPDATE `spawns_creatures` SET `position_x` = '-1070.88', `position_y` = '-2200.54', `position_z` = '78.3212' WHERE (`spawn_id` = '14962');
+UPDATE `spawns_creatures` SET `position_x` = '-1121.84', `position_y` = '-2247.62', `position_z` = '78.4574' WHERE (`spawn_id` = '14946');
+UPDATE `spawns_creatures` SET `position_x` = '-1115.4', `position_z` = '78.3876' WHERE (`spawn_id` = '14941');
+UPDATE `spawns_creatures` SET `position_x` = '-1091.6', `position_y` = '-2038.12', `position_z` = '78.199' WHERE (`spawn_id` = '14966');
+UPDATE `spawns_creatures` SET `position_x` = '-1078.92', `position_y` = '-2021.58', `position_z` = '78.25' WHERE (`spawn_id` = '14944');
+UPDATE `spawns_creatures` SET `position_x` = '-1212.26', `position_y` = '-2998.36', `position_z` = '85.95' WHERE (`spawn_id` = '14960');
+UPDATE `spawns_creatures` SET `position_x` = '-1250.93', `position_z` = '86.114' WHERE (`spawn_id` = '14953');
+UPDATE `spawns_creatures` SET `position_x` = '-1261.16', `position_z` = '86.16' WHERE (`spawn_id` = '14967');
+UPDATE `spawns_creatures` SET `position_x` = '-1317.19', `position_z` = '86.161' WHERE (`spawn_id` = '14973');
+UPDATE `spawns_creatures` SET `position_x` = '-1279.18', `position_y` = '-2969.77', `position_z` = '86.16' WHERE (`spawn_id` = '14969');
+UPDATE `spawns_creatures` SET `position_x` = '-1237.41', `position_y` = '-2970.69', `position_z` = '86.1426' WHERE (`spawn_id` = '14968');
+        insert into`applied_updates`values ('0108202301');
     end if;
 
 end $
