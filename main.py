@@ -27,7 +27,7 @@ parser.add_argument(
 )
 parser.add_argument(
     '-e', '--extract',
-    help='-e maps in order to extract .map files',
+    help='-e in order to extract .map files',
     dest='extract',
     action='store_true',
     default=False
