@@ -77,7 +77,7 @@ class Map:
         return self.map_manager.can_reach_object(source_object, target_object)
 
     def get_liquid_information(self, map_id, x, y, z, ignore_z=False):
-        return self.map_manager(map_id, x, y, z, ignore_z=ignore_z)
+        return self.map_manager.get_liquid_information(map_id, x, y, z, ignore_z=ignore_z)
 
     def get_area_number_by_zone_id(self, zone_id):
         return self.map_manager.get_area_number_by_zone_id(zone_id)
