@@ -10,7 +10,7 @@ from utils.Logger import Logger
 
 class Map:
     def __init__(self, map_id, active_cell_callback, instance_id, map_manager):
-        self.id = map_id
+        self.map_id = map_id
         self.map_manager = map_manager
         self.dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         self.instance_id = instance_id
@@ -60,6 +60,9 @@ class Map:
     def is_pvp(self):
         return self.dbc_map.PVP == 1
 
+    def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
+        self.script_handler.enqueue_script(source, target, script_type, script_id, delay=delay, ooc_event=ooc_event)
+
     # GridManager.
     def is_active_cell(self, cell_coords):
         return self.grid_manager.is_active_cell(cell_coords)
@@ -67,35 +70,36 @@ class Map:
     def is_active_cell_for_location(self, location):
         return self.grid_manager.is_active_cell_for_location(location)
 
-    def get_area_information(self, map_id, x, y):
-        return self.map_manager.get_area_information(map_id, x, y)
+    def get_area_information(self, x, y):
+        return self.map_manager.get_area_information(self.map_id, x, y)
 
-    def get_parent_zone_id(self, zone_id, map_id):
-        return self.map_manager.get_parent_zone_id(zone_id, map_id)
+    def get_parent_zone_id(self, zone_id):
+        return self.map_manager.get_parent_zone_id(zone_id, self.map_id)
 
     def can_reach_object(self, source_object, target_object):
         return self.map_manager.can_reach_object(source_object, target_object)
 
-    def get_liquid_information(self, map_id, x, y, z, ignore_z=False):
-        return self.map_manager.get_liquid_information(map_id, x, y, z, ignore_z=ignore_z)
+    def get_liquid_information(self, x, y, z, ignore_z=False):
+        return self.map_manager.get_liquid_information(self.map_id, x, y, z, ignore_z=ignore_z)
 
     def get_area_number_by_zone_id(self, zone_id):
         return self.map_manager.get_area_number_by_zone_id(zone_id)
 
-    def validate_teleport_destination(self, map_id, x, y):
+    def validate_teleport_destination(self, x, y, map_id=-1):
+        map_id = self.map_id if map_id == -1 else map_id
         return self.map_manager.validate_teleport_destination(map_id, x, y)
 
-    def calculate_path(self, map_id, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
-        return self.map_manager.calculate_path(map_id, start_vector, end_vector)
+    def calculate_path(self, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
+        return self.map_manager.calculate_path(self.map_id, start_vector, end_vector)
 
     def calculate_z_for_object(self, world_object):
         return self.map_manager.calculate_z_for_object(world_object)
 
-    def calculate_z(self, map_id, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
-        return self.map_manager.calculate_z(map_id, x, y, current_z=current_z)
+    def calculate_z(self, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
+        return self.map_manager.calculate_z(self.map_id, x, y, current_z=current_z)
 
-    def los_check(self, map_id, start_vector, end_vector):
-        return self.map_manager.los_check(map_id, start_vector, end_vector)
+    def los_check(self, start_vector, end_vector):
+        return self.map_manager.los_check(self.map_id, start_vector, end_vector)
 
     def get_tile(self, x, y):
         return self.map_manager.get_tile(x, y)

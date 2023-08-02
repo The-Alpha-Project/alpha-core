@@ -102,7 +102,7 @@ class FearMovement(BaseMovement):
             return [fear_point]
         for search_range in range(0, int(SEARCH_RANDOM_RADIUS)):
             destination = fear_point.get_random_point_in_radius(search_range, self.unit.map_id)
-            failed, in_place, path = self.unit.get_map().calculate_path(self.unit.map_id, self.unit.location, destination)
+            failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, destination)
             if not failed:
                 return path
         return [fear_point]
@@ -135,5 +135,5 @@ class FearMovement(BaseMovement):
 
         x = self.unit.location.x + (dist * math.cos(angle))
         y = self.unit.location.y + (dist * math.sin(angle))
-        z = self.unit.get_map().calculate_z(self.unit.map_id, x, y, self.unit.location.z)[0]
+        z = self.unit.get_map().calculate_z(x, y, self.unit.location.z)[0]
         return Vector(x, y, z)

@@ -547,7 +547,7 @@ class ConditionChecker:
         # Checks if the source has line of sight to the target.
         if not source or not target:
             return False
-        return source.get_map().los_check(source.map_id, source.location, target.location)
+        return source.get_map().los_check(source.location, target.location)
 
     @staticmethod
     def check_condition_distance_to_target(condition, source, target):

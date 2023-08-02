@@ -610,14 +610,14 @@ class PlayerManager(UnitManager):
             self.player.money = self.coinage
             self.player.online = self.online
 
-    def teleport(self, map_, location, is_instant=False, recovery: float = -1.0):
-        dbc_map = DbcDatabaseManager.map_get_by_id(map_)
+    def teleport(self, map_id, location, is_instant=False, recovery: float = -1.0):
+        dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         if not dbc_map:
-            Logger.warning(f'Teleport, invalid map {map_}.')
+            Logger.warning(f'Teleport, invalid map {map_id}.')
             return False
 
-        if not self.get_map().validate_teleport_destination(map_, location.x, location.y):
-            Logger.warning(f'Teleport, invalid destination, Map {map_}, X {location.x} Y {location.y}.')
+        if not self.get_map().validate_teleport_destination(location.x, location.y, map_id):
+            Logger.warning(f'Teleport, invalid destination, Map {map_id}, X {location.x} Y {location.y}.')
             return False
 
         # End duel and detach pets if this is a long-distance teleport.
@@ -638,7 +638,7 @@ class PlayerManager(UnitManager):
                                                      origin_location=self.location.copy(),
                                                      origin_map=self.map_id,
                                                      destination_location=location.copy(),
-                                                     destination_map=map_)
+                                                     destination_map=map_id)
 
         self.pending_teleport_data.append(pending_teleport)
 
@@ -1227,7 +1227,7 @@ class PlayerManager(UnitManager):
         if self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             return
 
-        area_information = self.get_map().get_area_information(self.map_id, self.location.x, self.location.y)
+        area_information = self.get_map().get_area_information(self.location.x, self.location.y)
 
         # Did not find, or zone id does not match due resolution, try to resolve.
         if not area_information or area_information.zone_id != new_zone:
@@ -1274,8 +1274,8 @@ class PlayerManager(UnitManager):
 
     def update_swimming_state(self, state):
         if state:
-            self.liquid_information = self.get_map().get_liquid_information(self.map_id, self.location.x,
-                                                                            self.location.y, self.location.z)
+            self.liquid_information = self.get_map().get_liquid_information(self.location.x, self.location.y,
+                                                                            self.location.z)
             if not self.liquid_information:
                 Logger.warning(f'Unable to retrieve liquids information. Map {self.map_id} X {self.location.x} Y '
                                f'{self.location.y}')
@@ -1304,8 +1304,8 @@ class PlayerManager(UnitManager):
     def update_liquid_information(self):
         # Retrieve the latest liquid information, only if player is swimming.
         if self.is_swimming():
-            self.liquid_information = self.get_map().get_liquid_information(self.map_id, self.location.x,
-                                                                            self.location.y, self.location.z)
+            self.liquid_information = self.get_map().get_liquid_information(self.location.x, self.location.y,
+                                                                            self.location.z)
 
     # override
     def initialize_field_values(self):

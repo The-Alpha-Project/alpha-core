@@ -136,9 +136,8 @@ class ScriptHandler:
         scripts = [datalong for datalong in ScriptHelpers.get_filtered_datalong(command)]
         weights = [dataint for dataint in ScriptHelpers.get_filtered_dataint(command)]
         script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
-        command.source.script_handler.enqueue_script(source=command.source, target=command.target,
-                                                     script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                     script_id=script_id)
+        command.source.get_map().enqueue_script(source=command.source, target=command.target,
+                                                script_type=ScriptTypes.SCRIPT_TYPE_GENERIC, script_id=script_id)
 
     @staticmethod
     def handle_script_command_talk(command):
@@ -505,9 +504,9 @@ class ScriptHandler:
 
         # Generic script.
         if command.dataint2:
-            creature_manager.get_map().script_handler.enqueue_script(source=creature_manager, target=None,
-                                                                     script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                                     script_id=command.dataint2)
+            creature_manager.get_map().enqueue_script(source=creature_manager, target=None,
+                                                      script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                                      script_id=command.dataint2)
         # Attack target.
         if command.dataint3 <= 0:  # Can be -1.
             return

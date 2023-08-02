@@ -40,10 +40,11 @@ class GroupMovement(BaseMovement):
             return
         current_wp = self._get_waypoint()
         self._waypoint_push_back()
-        if current_wp.script_id:
-            self.unit.get_map().script_handler.enqueue_script(source=self.unit, target=self.unit,
-                                                              script_type=ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
-                                                              script_id=current_wp.script_id)
+        if not current_wp.script_id:
+            return
+        self.unit.get_map().enqueue_script(source=self.unit, target=self.unit,
+                                           script_type=ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
+                                           script_id=current_wp.script_id)
 
     # override
     def reset(self):

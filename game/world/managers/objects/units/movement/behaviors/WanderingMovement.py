@@ -61,11 +61,11 @@ class WanderingMovement(BaseMovement):
         random_point = start_point.get_random_point_in_radius(self.wandering_distance, map_id=self.unit.map_id)
         map_ = self.unit.get_map()
         # Check line of sight.
-        if not map_.los_check(self.unit.map_id, self.unit.location, random_point.get_ray_vector(is_terrain=True)):
+        if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True)):
             return False, start_point
 
         # Validate a path to the wandering point.
-        failed, in_place, path = map_.calculate_path(self.unit.map_id, self.unit.location, random_point)
+        failed, in_place, path = map_.calculate_path(self.unit.location, random_point)
         if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
             return False, start_point
 

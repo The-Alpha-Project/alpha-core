@@ -1803,7 +1803,7 @@ class UnitManager(ObjectManager):
                 unit.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
             if not unit_can_detect_self:
                 continue
-            if not map_.los_check(self.map_id, unit.get_ray_position(), self.get_ray_position()):
+            if not map_.los_check(unit.get_ray_position(), self.get_ray_position()):
                 continue
             # Player standing still case.
             if unit_is_player and not unit.pending_relocation and not unit.beast_master:

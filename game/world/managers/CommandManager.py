@@ -817,7 +817,7 @@ class CommandManager(object):
         unit = CommandManager._target_or_self(world_session)
         source_ray = world_session.player_mgr.get_ray_position()
         dest_ray = unit.get_ray_position()
-        los = unit.get_map().los_check(unit.map_id, source_ray, dest_ray)
+        los = unit.get_map().los_check(source_ray, dest_ray)
 
         return 0, f'Is in line of sight: {los}\nSource: {source_ray}\nTarget: {dest_ray}\nMap: {unit.map_id}'
 

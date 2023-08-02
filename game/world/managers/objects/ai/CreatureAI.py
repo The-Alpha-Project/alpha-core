@@ -332,7 +332,7 @@ class CreatureAI:
             return SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE
 
         # This spell should only be cast when we cannot get into melee range.
-        #  TODO: We need to known which type of movement the unit is 'using', chase, spline, etc..
+        #  TODO: We need to know which type of movement the unit is 'using', chase, spline, etc..
         if (cast_flags & CastFlags.CF_TARGET_UNREACHABLE and
                 (self.creature.is_within_interactable_distance(target)
                  or self.creature.is_moving() or not (self.creature.unit_state & UnitStates.ROOTED)

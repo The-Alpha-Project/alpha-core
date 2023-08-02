@@ -328,8 +328,7 @@ class MapManager:
         if source_object.map_id not in MAPS_NAMIGATOR:
             return True
 
-        failed, in_place, navigation_path = MapManager.calculate_path(source_object.map_id, source_object.location,
-                                                                      target_object.location)
+        failed, in_place, navigation_path = MapManager.calculate_path(source_object.location, target_object.location)
         return not failed
 
     @staticmethod
@@ -501,12 +500,13 @@ class MapManager:
         from game.world.managers.abstractions.Vector import Vector
         start_range = min_range
         start_location = world_object.location
+        map_ = world_object.get_map()
         liquids_vectors = []
         while start_range <= max_range:
             fx = start_location.x + start_range * math.cos(start_location.o)
             fy = start_location.y + start_range * math.sin(start_location.o)
             fz = start_location.z
-            liquid_info = MapManager.get_liquid_information(world_object.map_id, fx, fy, fz, ignore_z=True)
+            liquid_info = map_.get_liquid_information(fx, fy, fz, ignore_z=True)
             if liquid_info:
                 liquids_vectors.append(Vector(fx, fy, liquid_info.height))
             start_range += 1

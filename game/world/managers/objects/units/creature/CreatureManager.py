@@ -448,8 +448,7 @@ class CreatureManager(UnitManager):
             return
 
         # Get the path we are using to get back to spawn location.
-        failed, in_place, waypoints = self.get_map().calculate_path(self.map_id, self.location,
-                                                                    self.spawn_position.copy())
+        failed, in_place, waypoints = self.get_map().calculate_path(self.location, self.spawn_position.copy())
 
         # We are at spawn position already.
         if in_place:
@@ -721,7 +720,7 @@ class CreatureManager(UnitManager):
 
     def near_teleport(self, location):
         map_ = self.get_map()
-        if not map_.validate_teleport_destination(self.map_id, location.x, location.y):
+        if not map_.validate_teleport_destination(location.x, location.y):
             return False
         self.movement_manager.reset()
         self.location = location.copy()

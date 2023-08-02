@@ -221,8 +221,7 @@ class ThreatManager:
             return False
         elif caller_unit.get_creature_family() != self.unit.get_creature_family():
             return False
-        elif not caller_unit.get_map().los_check(caller_unit.map_id, self.unit.get_ray_position(),
-                                                 caller_unit.get_ray_position()):
+        elif not caller_unit.get_map().los_check(self.unit.get_ray_position(), caller_unit.get_ray_position()):
             return False
         return True
 

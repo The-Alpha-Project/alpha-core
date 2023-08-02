@@ -408,15 +408,12 @@ class ObjectManager:
 
     # override
     def is_under_water(self):
-        liquid_information = self.get_map().get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                                   self.location.z)
-
+        liquid_information = self.get_map().get_liquid_information(self.location.x, self.location.y, self.location.z)
         return liquid_information and self.location.z + (self.current_scale * 1.8) < liquid_information.height
 
     # override
     def is_in_deep_water(self):
-        liquid_information = self.get_map().get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                                   self.location.z)
+        liquid_information = self.get_map().get_liquid_information(self.location.x, self.location.y, self.location.z)
         return liquid_information and liquid_information.liquid_type == LiquidTypes.DEEP
 
     def is_casting(self):

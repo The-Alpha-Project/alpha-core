@@ -299,7 +299,7 @@ class GameObjectManager(ObjectManager):
             self._handle_fishing_node(player)
 
         # TODO: Do we need separate AI handler for gameobjects?
-        self.get_map().script_handler.enqueue_script(self, player, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)
+        self.get_map().enqueue_script(self, player, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)
 
     def set_state(self, state):
         self.state = state

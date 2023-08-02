@@ -94,9 +94,10 @@ class WaypointMovement(BaseMovement):
             self.unit.movement_manager.face_angle(current_wp.orientation)
 
         if current_wp.script_id:
-            self.unit.get_map().script_handler.enqueue_script(source=self.unit, target=self.unit,
-                                                              script_type=ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
-                                                              script_id=current_wp.script_id)
+            self.unit.get_map().enqueue_script(source=self.unit, target=self.unit,
+                                               script_type=ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT,
+                                               script_id=current_wp.script_id)
+
         # If this is a default behavior, make it cyclic.
         if self.should_repeat:
             self._waypoint_push_back()

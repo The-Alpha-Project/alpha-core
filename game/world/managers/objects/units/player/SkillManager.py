@@ -602,7 +602,7 @@ class SkillManager(object):
             return False
 
         # Search the skill zone by parent zone id.
-        parent_zone_id = self.player_mgr.get_map().get_parent_zone_id(self.player_mgr.zone, self.player_mgr.map_id)
+        parent_zone_id = self.player_mgr.get_map().get_parent_zone_id(self.player_mgr.zone)
         zone_skill = WorldDatabaseManager.fishing_skill_get_by_entry(parent_zone_id)
         if not zone_skill:
             return False
