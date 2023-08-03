@@ -3291,16 +3291,15 @@ begin not atomic
         insert into`applied_updates`values ('310720231');
     end if;
 
-    --01/08/2023 1
+    -- 01/08/2023 1
     if (select count(*) from `applied_updates` where id='010820231') = 0 then
-        
-        -- Update DisplayID, name and static_flags. for mud thresh
+        -- Update DisplayID, name and static_flags.
         UPDATE `creature_template` SET `display_id1` = '1752', `name` = 'Mud Thresh', `static_flags` = '268697616' WHERE (`entry` = '3461');
         
-        -- Update the related quest text and reward money. for the quest altered being
-        UPDATE `quest_template` SET `Details` = 'Your findings are incredible, $N.  These oases hold properties that must come from an outside source.  Or perhaps an inside one.$B$BI want to know how these fissures are affecting the beasts who drink from the oases\ water.$B$BHunt mud threshers at the Lushwater and Stagnant Oases.  Bring me their hides so I may examine them.', `Objectives` = 'Bring 8 Mud Thresh Hides to Tonga Runetotem at the Crossroads.', `OfferRewardText` = 'Thank you, $N.  Studying the beasts of an area can tell much about the area itself.  We shall see what tale these hides tell.$B$BPlease accept my gratitude for your aid ... and perhaps you can use these coins.  I find that I do not need them.', `RequestItemsText` = 'How goes your collection?  Did you get the hides?', `RewOrReqMoney` = '750' WHERE (`entry` = '880');
+        -- Update the related quest text and reward money.
+        UPDATE `quest_template` SET `Details` = 'Your findings are incredible, $N.  These oases hold properties that must come from an outside source.  Or perhaps an inside one.$B$BI want to know how these fissures are affecting the beasts who drink from the oases\' water.$B$BHunt mud threshers at the Lushwater and Stagnant Oases.  Bring me their hides so I may examine them.', `Objectives` = 'Bring 8 Mud Thresh Hides to Tonga Runetotem at the Crossroads.', `OfferRewardText` = 'Thank you, $N.  Studying the beasts of an area can tell much about the area itself.  We shall see what tale these hides tell.$B$BPlease accept my gratitude for your aid ... and perhaps you can use these coins.  I find that I do not need them.', `RequestItemsText` = 'How goes your collection?  Did you get the hides?', `RewOrReqMoney` = '750' WHERE (`entry` = '880');
         
-        --The spell_list already points to 34610 in 'creature_spells', which already has the spell set, update its name.
+        -- The spell_list already points to 34610 in 'creature_spells', which already have the spell set, update its name.
         UPDATE `creature_spells` SET `name` = 'Barrens - Mud Thresher' WHERE (`entry` = '34610');
         
         -- Bring those spawns outside water into water.
