@@ -135,5 +135,5 @@ class FearMovement(BaseMovement):
 
         x = self.unit.location.x + (dist * math.cos(angle))
         y = self.unit.location.y + (dist * math.sin(angle))
-        z = self.unit.get_map().calculate_z(x, y, self.unit.location.z)[0]
+        z = self.unit.get_map().calculate_z(x, y, self.unit.location.z, is_rand_point=True)[0]
         return Vector(x, y, z)

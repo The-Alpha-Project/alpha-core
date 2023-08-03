@@ -126,8 +126,8 @@ class Map:
     def calculate_z_for_object(self, world_object):
         return self.map_manager.calculate_z_for_object(world_object)
 
-    def calculate_z(self, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
-        return self.map_manager.calculate_z(self.map_id, x, y, current_z=current_z)
+    def calculate_z(self, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, z_locked (Could not use map files Z)
+        return self.map_manager.calculate_z(self.map_id, x, y, current_z=current_z, is_rand_point=is_rand_point)
 
     def los_check(self, start_vector, end_vector):
         return self.map_manager.los_check(self.map_id, start_vector, end_vector)
