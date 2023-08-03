@@ -10,7 +10,7 @@ from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP, RESOLUTION_AREA_INFO, \
-    RESOLUTION_LIQUIDS
+    RESOLUTION_LIQUIDS, BLOCK_SIZE
 from game.world.managers.maps.Map import Map, MapType
 from game.world.managers.maps.MapTile import MapTile, MapTileStates
 from game.world.managers.maps.helpers.Namigator import Namigator
@@ -74,7 +74,7 @@ class MapManager:
 
     @staticmethod
     def _build_map_namigator(map_: Map):
-        if map_.id in MAPS_NO_NAVIGATION or MapManager.NAMIGATOR_FAILED or map_.id in MAPS_NAMIGATOR \
+        if map_.map_id in MAPS_NO_NAVIGATION or MapManager.NAMIGATOR_FAILED or map_.map_id in MAPS_NAMIGATOR \
                 or not config.Server.Settings.use_nav_tiles:
             return
 
@@ -83,9 +83,9 @@ class MapManager:
             nav_root_path = PathManager.get_navs_path()
             nav_map_path = PathManager.get_nav_map_path(map_.name)
             if not path.exists(nav_root_path) or not path.exists(nav_map_path):
-                Logger.warning(f'[Namigator] Skip {map_.name} ID {map_.id}, no data.')
+                Logger.warning(f'[Namigator] Skip {map_.name} ID {map_.map_id}, no data.')
                 return
-            MAPS_NAMIGATOR[map_.id] = pathfind.Map(nav_root_path, f'{map_.name}')
+            MAPS_NAMIGATOR[map_.map_id] = pathfind.Map(nav_root_path, f'{map_.name}')
             Logger.success(f'[Namigator] Successfully loaded for map {map_.name}')
             MapManager.NAMIGATOR_LOADED = True
         except ImportError:
@@ -96,7 +96,7 @@ class MapManager:
             return
 
     @staticmethod
-    def enqueue_adt_tile_initialization(map_id, raw_x, raw_y):
+    def enqueue_adt_tile_load(map_id, raw_x, raw_y):
         with QUEUE_LOCK:
             adt_x, adt_y = MapManager.get_tile(raw_x, raw_y)
 
@@ -110,13 +110,13 @@ class MapManager:
 
     @staticmethod
     def _build_map_adt_tiles(map_: Map):
-        if map_.id in MAPS_TILES:
+        if map_.map_id in MAPS_TILES:
             return
 
-        MAPS_TILES[map_.id] = [[None for r in range(64)] for c in range(64)]
-        for adt_x in range(64):
-            for adt_y in range(64):
-                MAPS_TILES[map_.id][adt_x][adt_y] = MapTile(map_.id, adt_x, adt_y)
+        MAPS_TILES[map_.map_id] = [[None for r in range(64)] for c in range(64)]
+        for adt_x in range(BLOCK_SIZE):
+            for adt_y in range(BLOCK_SIZE):
+                MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_.map_id, adt_x, adt_y)
 
         Logger.success(f'[MAP] Successfully built ADT tiles for map {map_.name}')
         return True
@@ -134,8 +134,7 @@ class MapManager:
         if map_id not in MAP_LIST:
             return False
 
-        adt_x = MapManager.get_tile_x(x)
-        adt_y = MapManager.get_tile_y(y)
+        adt_x, adt_y = MapManager.get_tile(x, y)
 
         # Map namigator instance, if available.
         namigator = MAPS_NAMIGATOR[map_id] if map_id in MAPS_NAMIGATOR and MapManager.NAMIGATOR_LOADED else None
@@ -159,7 +158,7 @@ class MapManager:
             return None
 
     @staticmethod
-    def get_or_create_instance_map(instance_token):
+    def get_or_create_instance_map(instance_token) -> Map:
         if instance_token.map_id not in MAPS:
             MAPS[instance_token.map_id] = dict()
         # If the instance does not exist, create it.
@@ -190,8 +189,7 @@ class MapManager:
 
     @staticmethod
     def on_cell_turn_active(world_object):
-        MapManager.enqueue_adt_tile_initialization(world_object.map_id, world_object.location.x,
-                                                   world_object.location.y)
+        MapManager.enqueue_adt_tile_load(world_object.map_id, world_object.location.x, world_object.location.y)
 
     @staticmethod
     def validate_maps():
@@ -204,42 +202,20 @@ class MapManager:
         return True
 
     @staticmethod
-    def get_unit_tile(world_object):
-        tile_x, tile_y = MapManager.get_tile(world_object.location.x, world_object.location.y)
-        tile = MAPS_TILES[world_object.map_id][tile_x][tile_y]
-        return tile
+    def calculate_tile(x, y, resolution=RESOLUTION_ZMAP - 1):
+        x = MapManager.validate_map_coord(x)
+        y = MapManager.validate_map_coord(y)
+        adt_x = int(32.0 - (x / ADT_SIZE))
+        adt_y = int(32.0 - (y / ADT_SIZE))
+        cell_x = int(resolution * (32.0 - (x / ADT_SIZE) - adt_x))
+        cell_y = int(resolution * (32.0 - (y / ADT_SIZE) - adt_y))
+        return adt_x, adt_y, cell_x, cell_y
 
     @staticmethod
     def get_tile(x, y):
-        tile_x = int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)
-        tile_y = int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)
-        return [tile_x, tile_y]
-
-    @staticmethod
-    def get_tile_x(x):
-        tile_x = int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)
-        return tile_x
-
-    @staticmethod
-    def get_tile_y(y):
-        tile_y = int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)
-        return tile_y
-
-    @staticmethod
-    def get_submap_tile_x(x):
-        tile_x = int((RESOLUTION_ZMAP - 1) *
-                     (32.0 - MapManager.validate_map_coord(x) / ADT_SIZE
-                      - int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)))
-
-        return tile_x
-
-    @staticmethod
-    def get_submap_tile_y(y):
-        tile_y = int((RESOLUTION_ZMAP - 1) *
-                     (32.0 - MapManager.validate_map_coord(y) / ADT_SIZE
-                      - int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)))
-
-        return tile_y
+        adt_x = int(32.0 - MapManager.validate_map_coord(x) / ADT_SIZE)
+        adt_y = int(32.0 - MapManager.validate_map_coord(y) / ADT_SIZE)
+        return [adt_x, adt_y]
 
     @staticmethod
     def calculate_nav_z_for_object(world_object):
@@ -281,43 +257,35 @@ class MapManager:
         return heights[0], False
 
     @staticmethod
-    def los_check(map_id, start_vector, end_vector):
+    def los_check(map_id, src_loc, dst_loc):
         # No nav tiles or unable to load Namigator, can't check LoS.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return True
 
-        if map_id not in MAPS_NAMIGATOR:
+        # Grab namigator instance if available.
+        namigator = MAPS_NAMIGATOR.get(map_id, None)
+        if not namigator:
             return True
 
         # Calculate source adt coordinates for x,y.
-        source_adt_x, source_adt_y, _, _ = MapManager.calculate_tile(start_vector.x, start_vector.y,
-                                                                     (RESOLUTION_ZMAP - 1))
+        src_adt_x, src_adt_y, _, _ = MapManager.calculate_tile(src_loc.x, src_loc.y, (RESOLUTION_ZMAP - 1))
 
         # Calculate destination adt coordinates for x,y.
-        destination_adt_x, destination_adt_y, _, _ = MapManager.calculate_tile(end_vector.x, end_vector.y,
-                                                                               (RESOLUTION_ZMAP - 1))
+        dst_adt_x, dst_adt_y, _, _ = MapManager.calculate_tile(dst_loc.x, dst_loc.y, (RESOLUTION_ZMAP - 1))
 
         # Check if loaded or unable to load, return True if this fails.
-        if MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x,
-                                       source_adt_y) != MapTileStates.READY:
+        if MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y) != MapTileStates.READY:
             return True
 
         # Check if loaded or unable to load, return True if this fails.
-        if MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x,
-                                       destination_adt_y) != MapTileStates.READY:
+        if MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y) != MapTileStates.READY:
             return True
 
-        # Calculate path.
-        namigator = MAPS_NAMIGATOR[map_id]
-
-        los = namigator.line_of_sight(start_vector.x, start_vector.y, start_vector.z,
-                                      end_vector.x, end_vector.y, end_vector.z)
-
-        return los
+        return namigator.line_of_sight(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z)
 
     @staticmethod
-    def can_reach_object(source_object, target_object):
-        if source_object.map_id != target_object.map_id:
+    def can_reach_object(src_object, dst_object):
+        if src_object.map_id != dst_object.map_id:
             return False
 
         # If nav tiles disabled or unable to load Namigator, return as True.
@@ -325,48 +293,43 @@ class MapManager:
             return True
 
         # We don't have navs loaded for a given map, return True.
-        if source_object.map_id not in MAPS_NAMIGATOR:
+        if src_object.map_id not in MAPS_NAMIGATOR:
             return True
 
-        failed, in_place, navigation_path = MapManager.calculate_path(source_object.location, target_object.location)
+        failed, in_place, _ = MapManager.calculate_path(src_object.map_id, src_object.location, dst_object.location)
         return not failed
 
     @staticmethod
-    def calculate_path(map_id, start_vector, end_vector) -> tuple:  # bool failed, in_place, path list.
+    def calculate_path(map_id, src_loc, dst_loc) -> tuple:  # bool failed, in_place, path list.
         # If nav tiles disabled or unable to load Namigator, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
-            return False, False, [end_vector]
+            return False, False, [dst_loc]
 
         # We don't have navs loaded for a given map, return end vector.
-        if map_id not in MAPS_NAMIGATOR:
-            return False, False, [end_vector]
+        namigator = MAPS_NAMIGATOR.get(map_id, None)
+        if not namigator:
+            return False, False, [dst_loc]
 
         # Calculate source adt coordinates for x,y.
-        source_adt_x, source_adt_y, _, _ = MapManager.calculate_tile(start_vector.x, start_vector.y,
-                                                                     (RESOLUTION_ZMAP - 1))
+        src_adt_x, src_adt_y = MapManager.get_tile(src_loc.x, src_loc.y)
 
         # Calculate destination adt coordinates for x,y.
-        destination_adt_x, destination_adt_y, _, _ = MapManager.calculate_tile(end_vector.x, end_vector.y,
-                                                                               (RESOLUTION_ZMAP - 1))
+        dst_adt_x, dst_adt_y = MapManager.get_tile(dst_loc.x, dst_loc.y)
 
         # Check if loaded or unable to load.
-        if MapManager._check_tile_load(map_id, start_vector.x, start_vector.y, source_adt_x,
-                                       source_adt_y) != MapTileStates.READY:
-            return True, False, [end_vector]
+        if MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y) != MapTileStates.READY:
+            return True, False, [dst_loc]
 
         # Check if loaded or unable to load.
-        if MapManager._check_tile_load(map_id, end_vector.x, end_vector.y, destination_adt_x,
-                                       destination_adt_y) != MapTileStates.READY:
-            return True, False, [end_vector]
+        if MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y) != MapTileStates.READY:
+            return True, False, [dst_loc]
 
         # Calculate path.
-        namigator = MAPS_NAMIGATOR[map_id]
-        navigation_path = namigator.find_path(start_vector.x, start_vector.y, start_vector.z,
-                                              end_vector.x, end_vector.y, end_vector.z)
+        navigation_path = namigator.find_path(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z)
 
         if len(navigation_path) == 0:
-            Logger.warning(f'Unable to find path, map {map_id} loc {start_vector} end {end_vector}')
-            return True, False, [end_vector]
+            Logger.warning(f'Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
+            return True, False, [dst_loc]
 
         # Pop starting location, we already have that and WoW client seems to crash when sending
         # movements with too short of a diff.
@@ -374,25 +337,13 @@ class MapManager:
 
         # Validate length again.
         if len(navigation_path) == 0:
-            Logger.warning(f'Unable to find path, map {map_id} loc {start_vector} end {end_vector}')
-            return True, False, [end_vector]
+            Logger.warning(f'Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
+            return True, False, [dst_loc]
 
         from game.world.managers.abstractions.Vector import Vector
         vectors = [Vector(waypoint[0], waypoint[1], waypoint[2]) for waypoint in navigation_path]
 
         return False, False if len(vectors) > 0 else True, vectors
-
-    @staticmethod
-    def compute_path_length(_path):
-        result = 0
-        for i in range(len(_path)):
-            delta_x = _path[i][0] - _path[i + 1][0]
-            delta_y = _path[i][1] - _path[i + 1][1]
-            delta_z = _path[i][2] - _path[i + 1][2]
-
-            result += delta_x * delta_x + delta_y * delta_y + delta_z * delta_z
-
-        return math.sqrt(result)
 
     @staticmethod
     def validate_teleport_destination(map_id, x, y):
@@ -408,27 +359,27 @@ class MapManager:
         if map_id > 1:
             return True
 
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
-        if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) == MapTileStates.UNUSABLE:
+        adt_x, adt_y = MapManager.get_tile(x, y)
+        if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) == MapTileStates.UNUSABLE:
             return False
 
         return True
 
     @staticmethod
-    def calculate_z_for_object(world_object):
-        return world_object.location.calculate_z(world_object.location.x, world_object.location.y, world_object.map_id,
-                                                 world_object.location.z)
+    def calculate_z_for_object(w_object):
+        return MapManager.calculate_z(w_object.map_id, w_object.location.x, w_object.location.y, w_object.location.z)
 
     # noinspection PyBroadException
     @staticmethod
-    def calculate_z(map_id, x, y, current_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
+    def calculate_z(map_id, x, y, current_z=0.0, is_rand_point=False) -> tuple:
+        # float, z_locked (Could not use map files Z)
         if not config.Server.Settings.use_nav_tiles and not config.Server.Settings.use_map_tiles:
             return current_z, False
         try:
-            map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, (RESOLUTION_ZMAP - 1))
+            adt_x, adt_y, cell_x, cell_y = MapManager.calculate_tile(x, y)
 
             # No tile data available or busy loading.
-            if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
+            if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
                 return current_z, False
 
             # Always prioritize Namigator if enabled.
@@ -438,23 +389,24 @@ class MapManager:
                     return nav_z, False
 
             try:
-                x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - map_tile_x) - tile_local_x
-                y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / ADT_SIZE) - map_tile_y) - tile_local_y
-                val_1 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y)
-                val_2 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y)
+                x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - adt_x) - cell_x
+                y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / ADT_SIZE) - adt_y) - cell_y
+                val_1 = MapManager.get_height(map_id, adt_x, adt_y, cell_x, cell_y)
+                val_2 = MapManager.get_height(map_id, adt_x, adt_y, cell_x + 1, cell_y)
                 top_height = MapManager._lerp(val_1, val_2, x_normalized)
-                val_3 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x, tile_local_y + 1)
-                val_4 = MapManager.get_height(map_id, map_tile_x, map_tile_y, tile_local_x + 1, tile_local_y + 1)
+                val_3 = MapManager.get_height(map_id, adt_x, adt_y, cell_x, cell_y + 1)
+                val_4 = MapManager.get_height(map_id, adt_x, adt_y, cell_x + 1, cell_y + 1)
                 bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
                 calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
                 # If maps Z is different or exactly the same, try nav Z, if that also fails, current Z will be returned.
                 diff = math.fabs(current_z - calculated_z)
-                if (diff > 1 or not diff) and current_z:
+                err = 1 if not is_rand_point else 4
+                if (diff > err or not diff) and current_z:
                     return current_z, True
                 return calculated_z, False
             except:
-                tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
-                return tile.z_height_map[tile_local_x][tile_local_x], False
+                tile = MAPS_TILES[map_id][adt_x][adt_y]
+                return tile.z_height_map[cell_x][cell_x], False
         except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0, False
@@ -462,13 +414,13 @@ class MapManager:
     @staticmethod
     def get_area_information(map_id, x, y):
         try:
-            resolution = RESOLUTION_AREA_INFO - 1
-            map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, resolution)
+            adt_x, adt_y, cell_x, cell_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
 
-            if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
+            if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
                 return None
-            tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
-            area_information = tile.get_area_at(tile_local_x, tile_local_y)
+
+            tile = MAPS_TILES[map_id][adt_x][adt_y]
+            area_information = tile.get_area_at(cell_x, cell_y)
             return area_information if area_information else None
         except:
             Logger.error(traceback.format_exc())
@@ -479,13 +431,13 @@ class MapManager:
         if not config.Server.Settings.use_map_tiles:
             return None
         try:
-            map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
+            adt_x, adt_y, cell_x, cell_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
 
-            if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
+            if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
                 return None
 
-            tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
-            liquids = tile.get_liquids_at(tile_local_x, tile_local_y)
+            tile = MAPS_TILES[map_id][adt_x][adt_y]
+            liquids = tile.get_liquids_at(cell_x, cell_y)
             return liquids if liquids and liquids.height > z else liquids if liquids and ignore_z else None
         except:
             Logger.error(traceback.format_exc())
@@ -519,26 +471,26 @@ class MapManager:
 
     @staticmethod
     def _validate_liquid_tile(map_id, x, y):
-        map_tile_x, map_tile_y, tile_local_x, tile_local_y = MapManager.calculate_tile(x, y, RESOLUTION_LIQUIDS - 1)
-        if MapManager._check_tile_load(map_id, x, y, map_tile_x, map_tile_y) != MapTileStates.READY:
+        adt_x, adt_y = MapManager.get_tile(x, y)
+        if MapManager._check_tile_load(map_id, x, y, adt_x, adt_y) != MapTileStates.READY:
             return False
         return True
 
     @staticmethod
-    def _check_tile_load(map_id, location_x, location_y, map_tile_x, map_tile_y):
+    def _check_tile_load(map_id, location_x, location_y, adt_x, adt_y):
         # Check if the map is valid first.
         if map_id not in MAPS or map_id not in MAPS_TILES:
             Logger.warning(f'Wrong map, {map_id} not found.')
         else:
             try:
-                tile = MAPS_TILES[map_id][map_tile_x][map_tile_y]
+                tile = MAPS_TILES[map_id][adt_x][adt_y]
                 if tile.is_ready() and tile.can_use():
                     return MapTileStates.READY
                 # Loaded but has no maps or navs data.
                 elif tile.is_ready() and not tile.can_use():
                     return MapTileStates.UNUSABLE
                 elif not tile.is_loading() and not tile.is_initialized():
-                    MapManager.enqueue_adt_tile_initialization(map_id, location_x, location_y)
+                    MapManager.enqueue_adt_tile_load(map_id, location_x, location_y)
                     return MapTileStates.LOADING
                 # Initialized but still loading.
                 elif tile.is_loading():
@@ -546,36 +498,26 @@ class MapManager:
             except:
                 Logger.error(f'Error retrieving tile information for the following position: '
                              f'Map ID: {map_id}, X: {location_x}, Y: {location_y}, '
-                             f'Tile X: {map_tile_x}, Tile Y: {map_tile_y}.')
+                             f'Tile X: {adt_x}, Tile Y: {adt_y}.')
         return MapTileStates.UNUSABLE
 
     @staticmethod
-    def calculate_tile(x, y, resolution):
-        x = MapManager.validate_map_coord(x)
-        y = MapManager.validate_map_coord(y)
-        map_tile_x = int(32.0 - (x / ADT_SIZE))
-        map_tile_y = int(32.0 - (y / ADT_SIZE))
-        tile_local_x = int(resolution * (32.0 - (x / ADT_SIZE) - map_tile_x))
-        tile_local_y = int(resolution * (32.0 - (y / ADT_SIZE) - map_tile_y))
-        return map_tile_x, map_tile_y, tile_local_x, tile_local_y
+    def get_height(map_id, adt_x, adt_y, cell_x, cell_y):
+        if cell_x > RESOLUTION_ZMAP:
+            adt_x = int(adt_x + 1)
+            cell_x = int(cell_x - RESOLUTION_ZMAP)
+        elif cell_x < 0:
+            adt_x = int(adt_x - 1)
+            cell_x = int(-cell_x - 1)
 
-    @staticmethod
-    def get_height(map_id, map_tile_x, map_tile_y, map_tile_local_x, map_tile_local_y):
-        if map_tile_local_x > RESOLUTION_ZMAP:
-            map_tile_x = int(map_tile_x + 1)
-            map_tile_local_x = int(map_tile_local_x - RESOLUTION_ZMAP)
-        elif map_tile_local_x < 0:
-            map_tile_x = int(map_tile_x - 1)
-            map_tile_local_x = int(-map_tile_local_x - 1)
+        if cell_y > RESOLUTION_ZMAP:
+            adt_y = int(adt_y + 1)
+            cell_y = int(cell_y - RESOLUTION_ZMAP)
+        elif cell_y < 0:
+            adt_y = int(adt_y - 1)
+            cell_y = int(-cell_y - 1)
 
-        if map_tile_local_y > RESOLUTION_ZMAP:
-            map_tile_y = int(map_tile_y + 1)
-            map_tile_local_y = int(map_tile_local_y - RESOLUTION_ZMAP)
-        elif map_tile_local_y < 0:
-            map_tile_y = int(map_tile_y - 1)
-            map_tile_local_y = int(-map_tile_local_y - 1)
-
-        return MAPS_TILES[map_id][map_tile_x][map_tile_y].get_z_at(map_tile_local_x, map_tile_local_y)
+        return MAPS_TILES[map_id][adt_x][adt_y].get_z_at(cell_x, cell_y)
 
     @staticmethod
     def validate_map_coord(coord):
@@ -589,110 +531,6 @@ class MapManager:
     @staticmethod
     def _lerp(value1, value2, amount):
         return value1 + (value2 - value1) * amount
-
-    # Object methods (wrappers around GridManager methods)
-
-    @staticmethod
-    def unit_should_relocate(world_object, destination, destination_map, destination_instance):
-        return MapManager.get_map(destination_map, world_object.instance_id).unit_should_relocate(
-            world_object, destination, destination_map, destination_instance)
-
-    @staticmethod
-    def update_object(world_object, has_changes=False, has_inventory_changes=False):
-        map_ = world_object.get_map()
-        try:
-            map_.update_object(world_object, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
-        except AttributeError:
-            Logger.warning(f'Did not find Map {world_object.map_id}, update_object()')
-
-    @staticmethod
-    def spawn_object(world_object_spawn=None, world_object_instance=None):
-        map_id = world_object_spawn.map_id if world_object_spawn else world_object_instance.map_id
-        instance_id = world_object_spawn.instance_id if world_object_spawn else world_object_instance.instance_id
-        map_: Map = MapManager.get_map(map_id, instance_id)
-        try:
-            map_.spawn_object(world_object_spawn, world_object_instance)
-        except AttributeError:
-            Logger.warning(f'Did not find Map {map_id}, spawn_object()')
-
-    @staticmethod
-    def remove_object(world_object):
-        world_object.get_map().remove_object(world_object)
-        FarSightManager.remove_camera(world_object)
-
-    @staticmethod
-    def send_surrounding(packet, world_object, include_self=True, exclude=None, use_ignore=False):
-        # Send direct message if not yet in a Cell, includes self and is player.
-        if not world_object.current_cell and include_self and world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            world_object.enqueue_packet(packet)
-        elif world_object.current_cell:
-            world_object.get_map().send_surrounding(packet, world_object, include_self, exclude, use_ignore)
-
-    @staticmethod
-    def send_surrounding_in_range(packet, world_object, range_, include_self=True, exclude=None, use_ignore=False):
-        return world_object.get_map().send_surrounding_in_range(packet, world_object, range_, include_self, exclude,
-                                                                use_ignore)
-
-    @staticmethod
-    def get_surrounding_objects(world_object, object_types):
-        return world_object.get_map().get_surrounding_objects(world_object, object_types)
-
-    @staticmethod
-    def get_surrounding_players(world_object):
-        return world_object.get_map().get_surrounding_players(world_object)
-
-    @staticmethod
-    def get_surrounding_units(world_object, include_players=False):
-        return world_object.get_map().get_surrounding_units(world_object, include_players)
-
-    @staticmethod
-    def get_creature_spawn_by_id(map_id, instance_id, spawn_id):
-        return MapManager.get_map(map_id, instance_id).get_creature_spawn_by_id(spawn_id)
-
-    @staticmethod
-    def get_gameobject_spawn_by_id(map_id, instance_id, spawn_id):
-        return MapManager.get_map(map_id, instance_id).get_gameobject_spawn_by_id(spawn_id)
-
-    @staticmethod
-    def get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id):
-        return world_object.get_map().get_surrounding_creature_spawn_by_spawn_id(world_object, spawn_id)
-
-    @staticmethod
-    def get_surrounding_units_by_location(vector, target_map, target_instance_id, range_, include_players=False):
-        map_ = MapManager.get_map(target_map, target_instance_id)
-        try:
-            return map_.get_surrounding_units_by_location(vector, target_map, target_instance_id, range_,
-                                                          include_players)
-        except AttributeError:
-            return [{}, {}]
-
-    @staticmethod
-    def get_surrounding_players_by_location(vector, target_map, target_instance_id, range_):
-        map_ = MapManager.get_map(target_map, target_instance_id)
-        try:
-            return map_.get_surrounding_players_by_location(vector, target_map, target_instance_id, range_)
-        except AttributeError:
-            return [{}, {}]
-
-    @staticmethod
-    def get_surrounding_gameobjects(world_object):
-        return world_object.get_map().get_surrounding_gameobjects(world_object)
-
-    @staticmethod
-    def get_surrounding_player_by_guid(world_object, guid):
-        return world_object.get_map().get_surrounding_player_by_guid(world_object, guid)
-
-    @staticmethod
-    def get_surrounding_unit_by_guid(world_object, guid, include_players=False):
-        return world_object.get_map().get_surrounding_unit_by_guid(world_object, guid, include_players)
-
-    @staticmethod
-    def get_surrounding_gameobject_by_guid(world_object, guid):
-        return world_object.get_map().get_surrounding_gameobject_by_guid(world_object, guid)
-
-    @staticmethod
-    def get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id):
-        return world_object.get_map().get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id)
 
     @staticmethod
     def update_creatures():

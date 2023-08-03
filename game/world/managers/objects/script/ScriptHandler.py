@@ -504,9 +504,8 @@ class ScriptHandler:
 
         # Generic script.
         if command.dataint2:
-            creature_manager.get_map().enqueue_script(source=creature_manager, target=None,
-                                                      script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                      script_id=command.dataint2)
+            map_.enqueue_script(source=creature_manager, target=None, script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                script_id=command.dataint2)
         # Attack target.
         if command.dataint3 <= 0:  # Can be -1.
             return

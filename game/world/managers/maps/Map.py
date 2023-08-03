@@ -1,11 +1,12 @@
+from utils.ConfigManager import config
+from utils.Logger import Logger
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.maps.GridManager import GridManager
 from game.world.managers.maps.MapEventManager import MapEventManager
 from game.world.managers.maps.helpers.Constants import MapType
 from game.world.managers.objects.script.ScriptHandler import ScriptHandler
-from utils.ConfigManager import config
-from utils.Logger import Logger
 
 
 class Map:
@@ -14,8 +15,8 @@ class Map:
         self.map_manager = map_manager
         self.dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         self.instance_id = instance_id
-        self.grid_manager = GridManager(map_id, instance_id, active_cell_callback)
         self.name = self.dbc_map.MapName_enUS
+        self.grid_manager = GridManager(map_id, instance_id, active_cell_callback)
         self.script_handler = ScriptHandler(self)
         self.map_event_manager = MapEventManager()
 
@@ -60,6 +61,8 @@ class Map:
     def is_pvp(self):
         return self.dbc_map.PVP == 1
 
+    # Map events.
+
     def add_event(self, source, target, map_id, event_id, time_limit, success_condition, success_script,
                   failure_condition, failure_script):
         self.map_event_manager.add_event(source, target, map_id, event_id, time_limit, success_condition,
@@ -91,15 +94,12 @@ class Map:
     def is_event_active(self, event_id):
         return self.map_event_manager.is_event_active(event_id)
 
+    # Scripts.
+
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
         self.script_handler.enqueue_script(source, target, script_type, script_id, delay=delay, ooc_event=ooc_event)
 
-    # GridManager.
-    def is_active_cell(self, cell_coords):
-        return self.grid_manager.is_active_cell(cell_coords)
-
-    def is_active_cell_for_location(self, location):
-        return self.grid_manager.is_active_cell_for_location(location)
+    # Map helpers.
 
     def get_area_information(self, x, y):
         return self.map_manager.get_area_information(self.map_id, x, y)
@@ -134,6 +134,8 @@ class Map:
 
     def get_tile(self, x, y):
         return self.map_manager.get_tile(x, y)
+
+    # GridManager helpers.
 
     def spawn_object(self, world_object_spawn=None, world_object_instance=None):
         self.grid_manager.spawn_object(world_object_spawn, world_object_instance)
@@ -192,6 +194,13 @@ class Map:
     def get_surrounding_gameobject_spawn_by_spawn_id(self, world_object, spawn_id):
         return self.grid_manager.get_surrounding_gameobject_spawn_by_spawn_id(world_object, spawn_id)
 
+    def is_active_cell(self, cell_coords):
+        return self.grid_manager.is_active_cell(cell_coords)
+
+    def is_active_cell_for_location(self, location):
+        return self.grid_manager.is_active_cell_for_location(location)
+
+    # Objects updates.
     def update_creatures(self):
         self.grid_manager.update_creatures()
 

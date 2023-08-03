@@ -281,7 +281,7 @@ class PlayerManager(UnitManager):
         self.stat_manager.apply_bonuses(replenish=first_login)
 
         # Place player in a world cell.
-        MapManager.update_object(self)
+        self.get_map().update_object(self)
 
         # Try to resume pending flight once player has been created and set on a world cell.
         if taxi_resume_info.is_valid() and not self.taxi_manager.resume_taxi_flight():
