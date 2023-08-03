@@ -1,6 +1,5 @@
 from struct import unpack, pack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ActivateTaxiReplies
 from utils.constants.OpCodes import OpCode
@@ -12,7 +11,8 @@ class ActivateTaxiHandler(object):
     def handle(world_session, reader):
         if len(reader.data) >= 16:  # Avoid handling empty activate taxi packet.
             guid, start_node, dest_node = unpack('<Q2I', reader.data[:16])
-            flight_master = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, guid)
+            flight_master = world_session.player_mgr.get_map().get_surrounding_unit_by_guid(
+                world_session.player_mgr, guid)
 
             if not flight_master:
                 return 0

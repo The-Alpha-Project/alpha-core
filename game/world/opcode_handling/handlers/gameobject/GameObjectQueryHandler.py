@@ -1,7 +1,5 @@
 from struct import unpack
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 
 
@@ -13,7 +11,7 @@ class GameObjectQueryHandler(object):
             entry, guid = unpack('<IQ', reader.data[:12])
             if guid > 0:
                 player_mgr = world_session.player_mgr
-                gobject_mgr = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
+                gobject_mgr = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)
                 if gobject_mgr:
                     player_mgr.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject_mgr))
                 else:  # Fallback just in case.

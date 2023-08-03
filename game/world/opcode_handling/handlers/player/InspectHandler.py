@@ -1,7 +1,6 @@
 from struct import unpack
 
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import *
@@ -20,7 +19,7 @@ class InspectHandler(object):
         if len(reader.data) >= 8:  # Avoid handling empty inspect packet.
             guid = unpack('<Q', reader.data[:8])[0]
             if guid > 0:
-                inspected_player: PlayerManager = MapManager.get_surrounding_player_by_guid(player_mgr, guid)
+                inspected_player: PlayerManager = player_mgr.get_map().get_surrounding_player_by_guid(player_mgr, guid)
                 if not inspected_player or not inspected_player.is_alive:
                     return 0
 

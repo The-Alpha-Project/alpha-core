@@ -82,6 +82,9 @@ class PlayerLoginHandler(object):
         # Initialize stats first to have existing base stats for further calculations.
         player_mgr.stat_manager.init_stats()
 
+        # Need to make sure map/instance exist before applying passives and cast when learned. (They need a Map)
+        player_mgr.ensure_map_exists()
+
         # Passive spells contain skill and proficiency learning.
         # Perform passive spell casts after loading skills to avoid duplicate database entries.
         if player_mgr.is_alive:

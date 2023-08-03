@@ -1,6 +1,4 @@
 from struct import unpack
-
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.player.trade.TradeData import TradeData
 from game.world.managers.objects.units.player.trade.TradeManager import TradeManager
 from utils.constants.MiscCodes import TradeStatus
@@ -14,7 +12,7 @@ class InitiateTradeHandler(object):
             guid = unpack('<Q', reader.data[:8])[0]
             if guid > 0:
                 player = world_session.player_mgr
-                trade_player = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
+                trade_player = player.get_map().get_surrounding_player_by_guid(world_session.player_mgr, guid)
                 trade_status = None
                 if not trade_player or not trade_player.is_alive:
                     trade_status = TradeStatus.TRADE_STATUS_PLAYER_NOT_FOUND

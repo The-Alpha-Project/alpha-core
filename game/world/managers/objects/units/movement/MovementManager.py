@@ -1,10 +1,8 @@
 from typing import Optional
 
-from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
-from utils.constants.CustomCodes import CreatureSubtype
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType, MoveFlags
 from utils.constants.UnitCodes import UnitStates
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
@@ -65,7 +63,7 @@ class MovementManager:
         if movement_behavior:
             movement_behavior.spline = spline
         if movement_packet:
-            MapManager.send_surrounding(movement_packet, self.unit, include_self=self.is_player)
+            self.unit.get_map().send_surrounding(movement_packet, self.unit, include_self=self.is_player)
 
     def flush(self):
         self.reset(clean_behaviors=True)

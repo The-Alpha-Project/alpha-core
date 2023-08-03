@@ -1,7 +1,6 @@
 from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 
 
@@ -16,7 +15,7 @@ class BuyBankSlotHandler(object):
 
         if len(reader.data) >= 8:  # Avoid handling empty buy bank slot packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            banker = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
+            banker = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
             if banker:
                 next_slot = player_mgr.player.bankslots + 1
                 slot_cost = DbcDatabaseManager.bank_get_slot_cost(next_slot)

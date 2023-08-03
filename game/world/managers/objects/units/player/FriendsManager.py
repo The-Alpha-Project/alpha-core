@@ -3,7 +3,6 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterSocial
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import FriendResults, FriendStatus
@@ -166,7 +165,7 @@ class FriendsManager(object):
                     '<QB3I',
                     player_mgr.guid,
                     FriendStatus.FRIEND_STATUS_ONLINE,
-                    MapManager.get_parent_zone_id(player_mgr.zone, player_mgr.map_id),
+                    player_mgr.get_map().get_parent_zone_id(player_mgr.zone),
                     player_mgr.level,
                     player_mgr.class_
                 )
@@ -197,7 +196,7 @@ class FriendsManager(object):
                     FriendResults.FRIEND_ONLINE,
                     self.owner.guid,
                     FriendStatus.FRIEND_STATUS_ONLINE,
-                    MapManager.get_parent_zone_id(self.owner.zone, self.owner.map_id),
+                    self.owner.get_map().get_parent_zone_id(self.owner.zone),
                     self.owner.level,
                     self.owner.class_
                 )

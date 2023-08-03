@@ -1,5 +1,4 @@
 from struct import error
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import *
@@ -51,7 +50,7 @@ class MovementHandler:
 
                 # Broadcast unit mover movement to surroundings.
                 movement_packet = PacketWriter.get_packet(OpCode(reader.opcode), move_info.get_bytes())
-                MapManager.send_surrounding(movement_packet, unit_mover, include_self=False)
+                player_mgr.get_map().send_surrounding(movement_packet, unit_mover, include_self=False)
 
             except (AttributeError, error):
                 Logger.error(f'Error while handling {reader.opcode_str()}, skipping. Data: {reader.data}')

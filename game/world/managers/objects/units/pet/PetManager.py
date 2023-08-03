@@ -5,7 +5,6 @@ from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
@@ -161,7 +160,7 @@ class PetManager:
             spell_level = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id).SpellLevel
             active_pet.initialize_spells(level_override=spell_level)
 
-        MapManager.spawn_object(world_object_instance=creature_manager)
+        self.owner.get_map().spawn_object(world_object_instance=creature_manager)
 
     def detach_active_pets(self, is_logout=False):
         for index, pet in list(self.active_pets.items()):
@@ -229,7 +228,8 @@ class PetManager:
         if target_guid == 0:
             target_unit = self.owner
         else:
-            target_unit = MapManager.get_surrounding_unit_by_guid(active_pet_unit, target_guid, include_players=True)
+            target_unit = self.owner.get_map().get_surrounding_unit_by_guid(active_pet_unit, target_guid,
+                                                                            include_players=True)
 
         if not target_unit:
             return
@@ -373,7 +373,7 @@ class PetManager:
         if creature.get_type_id() != ObjectTypeIds.ID_UNIT or not creature.spawn_id:
             return
 
-        spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
+        spawn = self.owner.get_map().get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
         if not spawn:
             Logger.error(f'Unable to locate spawn {creature.spawn_id} for creature.')
             return

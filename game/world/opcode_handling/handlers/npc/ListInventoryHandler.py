@@ -1,7 +1,6 @@
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from struct import unpack
 
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.creature.utils.VendorUtils import VendorUtils
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils import Formulas
@@ -21,7 +20,7 @@ class ListInventoryHandler(object):
             if npc_guid <= 0:
                 return 0
 
-            vendor: CreatureManager = MapManager.get_surrounding_unit_by_guid(player_mgr, npc_guid)
+            vendor: CreatureManager = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, npc_guid)
             if vendor and vendor.location.distance(player_mgr.location) < Formulas.Distances.MAX_SHOP_DISTANCE:
                 vendor.object_ai.player_interacted()
                 # If vendor is a quest giver and player has an active quest involving this NPC, send quest window

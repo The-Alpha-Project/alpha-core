@@ -1,6 +1,4 @@
 from struct import pack
-
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketReader import *
 from network.packet.PacketWriter import PacketWriter
 
@@ -12,7 +10,8 @@ class PetNameQueryHandler(object):
         if len(reader.data) >= 12:  # Avoid handling empty pet name query packet.
             pet_id, pet_guid = unpack('<IQ', reader.data[:12])
 
-            pet_creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr, pet_guid)
+            pet_creature = world_session.player_mgr.get_map().get_surrounding_unit_by_guid(world_session.player_mgr,
+                                                                                           pet_guid)
             owner = pet_creature.get_charmer_or_summoner()
             if not owner:
                 return 0

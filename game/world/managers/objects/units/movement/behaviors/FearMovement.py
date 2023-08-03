@@ -3,7 +3,6 @@ import random
 import time
 
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.ConfigManager import config
 from utils.constants.MiscCodes import MoveType, MoveFlags
@@ -35,8 +34,8 @@ class FearMovement(BaseMovement):
         if not self.seek_assist or not unit.combat_target:
             return True
         # Should search assistance, search for a friendly unit.
-        units = MapManager.get_surrounding_units_by_location(unit.location, unit.map_id, unit.instance_id,
-                                                             FLEE_ASSISTANCE_RADIUS)[0].values()
+        units = unit.get_map().get_surrounding_units_by_location(unit.location, unit.map_id, unit.instance_id,
+                                                                 FLEE_ASSISTANCE_RADIUS)[0].values()
         for unit in units:
             if not unit.threat_manager.unit_can_assist_help_call(unit, unit.combat_target):
                 continue
@@ -89,7 +88,7 @@ class FearMovement(BaseMovement):
     # override
     def on_removed(self):
         self.unit.movement_flags = MoveFlags.MOVEFLAG_NONE
-        MapManager.send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)
+        self.unit.get_map().send_surrounding(self.unit.get_heartbeat_packet(), self.unit, include_self=False)
         # Remove fleeing flag if not caused by auras (ie. scripted flee).
         self.unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, False)
 
@@ -103,7 +102,7 @@ class FearMovement(BaseMovement):
             return [fear_point]
         for search_range in range(0, int(SEARCH_RANDOM_RADIUS)):
             destination = fear_point.get_random_point_in_radius(search_range, self.unit.map_id)
-            failed, in_place, path = MapManager.calculate_path(self.unit.map_id, self.unit.location, destination)
+            failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, destination)
             if not failed:
                 return path
         return [fear_point]
@@ -136,5 +135,5 @@ class FearMovement(BaseMovement):
 
         x = self.unit.location.x + (dist * math.cos(angle))
         y = self.unit.location.y + (dist * math.sin(angle))
-        z = MapManager.calculate_z(self.unit.map_id, x, y, self.unit.location.z)[0]
+        z = self.unit.get_map().calculate_z(x, y, self.unit.location.z, is_rand_point=True)[0]
         return Vector(x, y, z)

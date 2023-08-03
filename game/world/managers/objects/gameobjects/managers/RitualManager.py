@@ -1,5 +1,4 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
 from utils.constants.SpellCodes import SpellTargetMask, SpellCheckCastResult
@@ -69,7 +68,7 @@ class RitualManager:
     def channel_end(self, caster):
         # If the ritual caster interrupts channeling, interrupt others and remove the portal.
         if caster is self.ritual_object.summoner:
-            MapManager.remove_object(self.ritual_object)
+            self.ritual_object.get_map().remove_object(self.ritual_object)
             for player in self.ritual_participants:
                 # Note that this call will lead to _handle_summoning_channel_end() calls from the participants.
                 player.spell_manager.remove_cast_by_id(self.ritual_channel_spell_id)

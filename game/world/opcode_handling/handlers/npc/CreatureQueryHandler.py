@@ -1,7 +1,5 @@
 from struct import unpack
-
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
 
 
@@ -14,7 +12,7 @@ class CreatureQueryHandler(object):
             if not guid:
                 return 0
             player_mgr = world_session.player_mgr
-            creature_mgr = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
+            creature_mgr = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
             if creature_mgr:
                 player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature_mgr))
             else:  # Fallback just in case.

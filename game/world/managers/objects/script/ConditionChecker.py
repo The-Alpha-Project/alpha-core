@@ -221,7 +221,6 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_cant_path_to_victim(_condition, source, target):
-        from game.world.managers.maps.MapManager import MapManager
         # Requires Unit source.
         # Returns True if source cannot path to target.
         # Unused in 0.5.3.
@@ -230,7 +229,7 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(source):
             return False
 
-        return not MapManager.can_reach_object(source, target)
+        return not source.get_map().can_reach_object(source, target)
 
     @staticmethod
     def check_condition_race_class(condition, _source, target):
@@ -319,9 +318,8 @@ class ConditionChecker:
             Logger.warning('CONDITION_NEARBY_CREATURE: No target, aborting.')
             return False
 
-        from game.world.managers.maps.MapManager import MapManager
-        creatures = MapManager.get_surrounding_units_by_location(target.location, target.map_id, target.instance_id,
-                                                                 condition.value2)
+        creatures = target.get_map().get_surrounding_units_by_location(target.location, target.map_id,
+                                                                       target.instance_id, condition.value2)
         for creature in creatures[0].values():
             if creature.creature_template.entry != condition.value1:
                 continue
@@ -344,8 +342,7 @@ class ConditionChecker:
             Logger.warning('CONDITION_NEARBY_GAMEOBJECT: No target, aborting.')
             return False
 
-        from game.world.managers.maps.MapManager import MapManager
-        for guid, gobject in list(MapManager.get_surrounding_gameobjects(target).items()):
+        for guid, gobject in list(target.get_map().get_surrounding_gameobjects(target).items()):
             distance = target.location.distance(gobject.location)
             if distance <= condition.value2 and gobject.gobject_template.entry == condition.value1:
                 return True
@@ -510,18 +507,17 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_map_event_data(condition, source, _target):
-        from game.world.managers.maps.MapManager import MapManager
         # Requires Map.
         # Gets data from a scripted Map event and checks the returned value.
         # Condition_value1 = event id.
         # Condition_value2 = index.
         # Condition_value3 = data.
         # Condition_value4 = 0 equal, 1 equal or higher, 2 equal or lower.
-        map_instance = MapManager.get_map(source.map_id, source.instance_id)
+        map_instance = source.get_map()
         if not map_instance:
             return False
 
-        event = map_instance.map_event_manager.get_map_event_data(condition.value1)
+        event = map_instance.get_map_event_data(condition.value1)
         if not event:
             return False
 
@@ -536,24 +532,22 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_map_event_active(condition, source, _target):
-        from game.world.managers.maps.MapManager import MapManager
         # Requires Map.
         # Checks if a scripted Map event is active.
         # Condition_value1 = event id.
-        map_instance = MapManager.get_map(source.map_id, source.instance_id)
-        if map_instance:
-            return map_instance.map_event_manager.is_event_active(condition.value1)
+        map_instance = source.get_map()
+        if not map_instance:
+            return False
 
-        return False
+        return map_instance.is_event_active(condition.value1)
 
     @staticmethod
     def check_condition_line_of_sight(_condition, source, target):
-        from game.world.managers.maps.MapManager import MapManager
         # Requires WorldObject source and target.
         # Checks if the source has line of sight to the target.
         if not source or not target:
             return False
-        return MapManager.los_check(source.map_id, source.location, target.location)
+        return source.get_map().los_check(source.location, target.location)
 
     @staticmethod
     def check_condition_distance_to_target(condition, source, target):
@@ -664,17 +658,16 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_map_event_targets(condition, _source, _target):
-        from game.world.managers.maps.MapManager import MapManager
         # Requires Map.
         # True if all extra targets that are part of the given event satisfy the given condition.
         # Condition_value1 = event id.
         # Condition_value2 = condition id.
         satisfied = True
         unit = _source if _source else _target
-        map_ = MapManager.get_map(unit.map_id, unit.instance_id)
+        map_ = unit.get_map(unit.map_id, unit.instance_id)
         if not map_:
             return False
-        scripted_event = map_.map_event_manager.get_map_event_data(condition.value1)
+        scripted_event = map_.get_map_event_data(condition.value1)
         if scripted_event:
             for event_target in scripted_event.event_targets:
                 satisfied = satisfied and ConditionChecker.validate(condition.value2, _source, event_target)
@@ -776,7 +769,6 @@ class ConditionChecker:
 
     @staticmethod
     def check_condition_nearby_player(condition, _source, target):
-        from game.world.managers.maps.MapManager import MapManager
         # Requires Unit target.
         # Checks if a player is within radius.
         # Condition_value1 = 0 any, 1 hostile, 2 friendly.
@@ -784,7 +776,7 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target):
             return False
         radius = condition.value2
-        units = MapManager.get_surrounding_players(target)
+        units = target.get_map().get_surrounding_players(target)
         for player in units:
             if condition.value1 == 0 and player.location.distance(target.location) <= radius:
                 return True

@@ -47,7 +47,8 @@ class GameObjectSpawn:
             self.gameobject_instance.respawn()
             return
 
-        MapManager.spawn_object(world_object_spawn=self, world_object_instance=self.gameobject_instance)
+        self.gameobject_instance.get_map().spawn_object(world_object_spawn=self,
+                                                        world_object_instance=self.gameobject_instance)
 
     def despawn(self, ttl=0):
         if not self.gameobject_instance or not self.gameobject_instance.is_spawned:
@@ -99,4 +100,3 @@ class GameObjectSpawn:
 
     def _generate_gameobject_template(self):
         return self._get_gameobject_entry()
-

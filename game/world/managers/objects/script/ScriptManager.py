@@ -2,7 +2,6 @@ from random import choice, shuffle
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds
@@ -86,7 +85,7 @@ class ScriptManager:
     @staticmethod
     def handle_creature_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
         spawn_id: Optional[int] = param1
-        spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(caster, spawn_id)
+        spawn = caster.get_map().get_surrounding_creature_spawn_by_spawn_id(caster, spawn_id)
         if not spawn or not spawn.creature_instance or not spawn.creature_instance.is_alive:
             return None
         return spawn.creature_instance
@@ -99,7 +98,7 @@ class ScriptManager:
     @staticmethod
     def handle_nearest_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param1
-        go_objects = list(MapManager.get_surrounding_gameobjects(caster).values())
+        go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
         # Sort by distance.
@@ -113,7 +112,7 @@ class ScriptManager:
     @staticmethod
     def handle_random_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param2
-        go_objects = list(MapManager.get_surrounding_gameobjects(caster).values())
+        go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
             return None
         shuffle(go_objects)
@@ -126,7 +125,7 @@ class ScriptManager:
     @staticmethod
     def handle_gameobject_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
         spawn_id: Optional[int] = param1
-        spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(caster, spawn_id)
+        spawn = caster.get_map().get_surrounding_gameobject_spawn_by_spawn_id(caster, spawn_id)
         if not spawn or not spawn.gameobject_instance or not spawn.gameobject_instance.is_spawned:
             return None
         return spawn.gameobject_instance
@@ -239,7 +238,7 @@ class ScriptManager:
         if not map_:
             Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve map for event {param1}.')
             return None
-        scripted_event = map_.map_event_manager.get_map_event_data(param1)
+        scripted_event = map_.get_map_event_data(param1)
         if not scripted_event:
             Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve scripted_event {param1}.')
             return None
@@ -259,7 +258,7 @@ class ScriptManager:
         if not map_:
             Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve map for event {param1}.')
             return None
-        scripted_event = map_.map_event_manager.get_map_event_data(param1)
+        scripted_event = map_.get_map_event_data(param1)
         if not scripted_event:
             Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve scripted_event {param1}.')
             return None
@@ -383,7 +382,7 @@ class ScriptManager:
     @staticmethod
     def _get_surrounding_players(unit_caller, search_range=0.0, friends_only=False,
                                  enemies_only=False, alive=False) -> Optional[list[UnitManager]]:
-        surrounding_players_list = list(MapManager.get_surrounding_players(unit_caller).values())
+        surrounding_players_list = list(unit_caller.get_map().get_surrounding_players(unit_caller).values())
 
         # Did not find surrounding players.
         if not surrounding_players_list:
@@ -398,7 +397,7 @@ class ScriptManager:
     def _get_surrounding_units(unit_caller, search_range=0.0, friends_only=False, enemies_only=False,
                                exclude_unit=None, include_players=True, alive=False, in_combat=False) -> list[UnitManager]:
         # Surrounding units including players.
-        surrounding_units = MapManager.get_surrounding_units(unit_caller, include_players=include_players)
+        surrounding_units = unit_caller.get_map().get_surrounding_units(unit_caller, include_players=include_players)
         # Merge if needed.
         if include_players:
             surrounding_units_list = list(surrounding_units[0].values()) + list(surrounding_units[1].values())

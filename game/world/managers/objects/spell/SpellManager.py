@@ -10,7 +10,6 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager, CharacterS
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
@@ -18,7 +17,6 @@ from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.spell.CooldownEntry import CooldownEntry
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
-from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
@@ -779,7 +777,7 @@ class SpellManager:
         # Spell start.
         data = pack(signature, *data)
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_START, data)
-        MapManager.send_surrounding(packet, self.caster, include_self=is_player)
+        self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
     def handle_channel_start(self, casting_spell):
         if not casting_spell.is_channeled():
@@ -867,7 +865,7 @@ class SpellManager:
                 damage_info.target.guid]
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
-        MapManager.send_surrounding(packet, self.caster, include_self=is_player)
+        self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
     def send_spell_go(self, casting_spell):
         # The client expects the source to only be set for unit casters.
@@ -922,7 +920,7 @@ class SpellManager:
 
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
-        MapManager.send_surrounding(packet, self.caster, include_self=is_player)
+        self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
     def flush_cooldowns(self):
         for spell_id, cooldown_entry in list(self.cooldowns.items()):
@@ -1095,7 +1093,7 @@ class SpellManager:
         # Required nearby spell focus GO.
         spell_focus_type = casting_spell.spell_entry.RequiresSpellFocus
         if spell_focus_type:
-            surrounding_gos = [go for go in MapManager.get_surrounding_gameobjects(self.caster).values()]
+            surrounding_gos = [go for go in self.caster.get_map().get_surrounding_gameobjects(self.caster).values()]
 
             # Check if any nearby GO is the required spell focus.
             if not any([go.gobject_template.type == GameObjectTypes.TYPE_SPELL_FOCUS and
@@ -1201,7 +1199,7 @@ class SpellManager:
             # Line of sight.
             target_ray_vector = validation_target.get_ray_position() if not is_terrain \
                 else target_loc.get_ray_vector(is_terrain=True)
-            if not MapManager.los_check(self.caster.map_id, self.caster.get_ray_position(), target_ray_vector):
+            if not self.caster.get_map().los_check(self.caster.get_ray_position(), target_ray_vector):
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_LINE_OF_SIGHT)
                 return False
 
@@ -1438,8 +1436,8 @@ class SpellManager:
             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
             return False
 
-        channel_object = MapManager.get_surrounding_gameobject_by_guid(self.caster,
-                                                                       self.caster.channel_object)
+        channel_object = self.caster.get_map().get_surrounding_gameobject_by_guid(self.caster,
+                                                                                  self.caster.channel_object)
         if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL \
                 or channel_object.summoner is not self.caster:
             self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_DONT_REPORT)
@@ -1450,19 +1448,19 @@ class SpellManager:
     def _handle_fishing_node_end(self):
         if not self.caster.channel_object:
             return
-        fishing_node_object = MapManager.get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
+        fishing_node_object = self.caster.get_map().get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
         if not fishing_node_object or fishing_node_object.gobject_template.type != GameObjectTypes.TYPE_FISHINGNODE:
             return
         # If this was an interrupt or miss hook, remove the bobber.
         # Else, it will be removed upon CMSG_LOOT_RELEASE.
         if not fishing_node_object.fishing_node_manager.hook_result:
-            MapManager.remove_object(fishing_node_object)
+            self.caster.get_map().remove_object(fishing_node_object)
 
     def _handle_summoning_channel_end(self):
         # Specific handling of ritual of summoning interrupting.
         if not self.caster.channel_object:
             return
-        channel_object = MapManager.get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
+        channel_object = self.caster.get_map().get_surrounding_gameobject_by_guid(self.caster, self.caster.channel_object)
         if not channel_object or channel_object.gobject_template.type != GameObjectTypes.TYPE_RITUAL:
             return
         channel_object.ritual_manager.channel_end(self.caster)
@@ -1668,7 +1666,7 @@ class SpellManager:
                 return
             data = pack('<QIB', self.caster.guid, spell_id, error)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
-            MapManager.send_surrounding(packet, self.caster, include_self=is_player)
+            self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
         if not is_player:
             charmer_or_summoner = self.caster.get_charmer_or_summoner()

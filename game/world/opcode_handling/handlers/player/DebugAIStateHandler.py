@@ -1,6 +1,5 @@
 from struct import unpack, pack
 
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import PacketWriter
@@ -26,9 +25,9 @@ class DebugAIStateHandler(object):
 
             high_guid: HighGuid = GuidUtils.extract_high_guid(guid)
             if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PLAYER:
-                world_object = MapManager.get_surrounding_unit_by_guid(player_mgr, guid, include_players=True)
+                world_object = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid, include_players=True)
             else:
-                world_object = MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
+                world_object = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)
 
             # No object with that Guid? Return.
             if not world_object:

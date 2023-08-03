@@ -5,8 +5,9 @@ from utils.constants.ScriptCodes import EventFlags
 
 
 class ScriptOocEvent:
-    def __init__(self, event, target, owner, forced=False):
-        self.owner = owner
+    def __init__(self, event, source, target, forced=False):
+        self.source = source
+        self.target = target
         self.comment = event.comment
         self.event_id = event.id
         self.event_flags = event.event_flags
@@ -14,7 +15,6 @@ class ScriptOocEvent:
         self.scripts = ScriptHelpers.get_filtered_event_scripts(event)
         self.delay = 0 if forced else uniform(event.event_param1 / 1000, event.event_param2 / 1000)
         self.repeat = 0 if forced else uniform(event.event_param3 / 1000, event.event_param4 / 1000)
-        self.target = target
         self.script_ids = []
         self.started = False
         self.time_added = 0
@@ -27,7 +27,7 @@ class ScriptOocEvent:
     def check_phase(self):
         if not self.phase_mask:
             return True
-        return self.owner.object_ai.script_phase & self.phase_mask
+        return self.source.object_ai.script_phase & self.phase_mask
 
     def should_repeat(self):
         return self.repeat > 0 and self.event_flags & EventFlags.REPEATABLE
