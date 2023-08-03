@@ -245,13 +245,18 @@ class PlayerManager(UnitManager):
         self.location.y = self.deathbind.deathbind_position_y
         self.location.z = self.deathbind.deathbind_position_z
 
-    def complete_login(self, first_login=False):
+    def ensure_map_exists(self):
         from game.world.managers.maps.MapManager import MapManager
         instance_token = InstancesManager.get_or_create_instance_token_by_player(self, self.map_id)
         self.instance_id = instance_token.id
         if MapManager.is_dungeon_map_id(self.map_id) and not MapManager.get_or_create_instance_map(instance_token):
             self.set_player_to_deathbind_location()
+            # Player might no longer be part of the group holding the instance token.
+            Logger.info(f'Unable to create instance Map {self.map_id} upon logging in, using deathbind location.')
+        else:
+            Logger.info(f'Player logging into Map {self.map_id} Instance {self.instance_id}')
 
+    def complete_login(self, first_login=False):
         self.online = True
 
         # Join default channels.
