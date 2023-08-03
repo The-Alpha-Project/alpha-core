@@ -268,10 +268,10 @@ class MapManager:
             return True
 
         # Calculate source adt coordinates for x,y.
-        src_adt_x, src_adt_y, _, _ = MapManager.calculate_tile(src_loc.x, src_loc.y, (RESOLUTION_ZMAP - 1))
+        src_adt_x, src_adt_y = MapManager.get_tile(src_loc.x, src_loc.y)
 
         # Calculate destination adt coordinates for x,y.
-        dst_adt_x, dst_adt_y, _, _ = MapManager.calculate_tile(dst_loc.x, dst_loc.y, (RESOLUTION_ZMAP - 1))
+        dst_adt_x, dst_adt_y = MapManager.get_tile(dst_loc.x, dst_loc.y)
 
         # Check if loaded or unable to load, return True if this fails.
         if MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y) != MapTileStates.READY:
@@ -415,6 +415,8 @@ class MapManager:
 
     @staticmethod
     def get_area_information(map_id, x, y):
+        if not config.Server.Settings.use_map_tiles:
+            return None
         try:
             adt_x, adt_y, cell_x, cell_y = MapManager.calculate_tile(x, y, RESOLUTION_AREA_INFO - 1)
 
