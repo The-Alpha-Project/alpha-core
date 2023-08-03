@@ -54,6 +54,7 @@ class ScriptHandler:
             return SCRIPT_COMMANDS[script_command.command](script_command)
         except KeyError:
             Logger.warning(f'Unknown script command: {script_command.command}.')
+            return True  # Abort.
 
     # noinspection PyMethodMayBeStatic
     def resolve_script_actions(self, script_type, script_id):
