@@ -633,7 +633,7 @@ class CommandManager(object):
             if event.creature_id != creature.entry:
                 return -1, 'invalid creature for provided event.'
 
-            creature.get_map().script_handler.set_random_ooc_event(creature, event, forced=True)
+            creature.get_map().set_random_ooc_event(creature, event, forced=True)
             return 0, f'Triggered event {event.comment}.'
         except:
             return -1, 'invalid event id.'

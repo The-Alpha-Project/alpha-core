@@ -79,7 +79,7 @@ class AIEventHandler:
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
-            self.creature.get_map().script_handler.set_random_ooc_event(self.creature, None, event)
+            self.creature.get_map().set_random_ooc_event(self.creature, None, event)
 
     def on_death(self, killer=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)

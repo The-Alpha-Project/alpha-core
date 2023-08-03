@@ -94,6 +94,11 @@ class Map:
     def is_event_active(self, event_id):
         return self.map_event_manager.is_event_active(event_id)
 
+    # OOC Events
+
+    def set_random_ooc_event(self, source, target, event, forced=False):
+        self.script_handler.set_random_ooc_event(source, target, event, forced=forced)
+
     # Scripts.
 
     def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
