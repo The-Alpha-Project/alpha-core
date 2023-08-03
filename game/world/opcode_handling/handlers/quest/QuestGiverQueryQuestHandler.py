@@ -1,6 +1,5 @@
 from struct import unpack
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
@@ -31,13 +30,13 @@ class QuestGiverQueryQuestHandler(object):
 
             high_guid = GuidUtils.extract_high_guid(guid)
             if high_guid == HighGuid.HIGHGUID_UNIT:
-                quest_giver = quest_giver if quest_giver else MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
+                quest_giver = quest_giver if quest_giver else player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
                 if not quest_giver:
                     return 0
                 elif not player_mgr.quest_manager.check_quest_giver_npc_is_related(quest_giver, quest_entry):
                     return 0
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                quest_giver = quest_giver if quest_giver else MapManager.get_surrounding_gameobject_by_guid(player_mgr, guid)
+                quest_giver = quest_giver if quest_giver else player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)
                 if not quest_giver:
                     return 0
             elif high_guid == HighGuid.HIGHGUID_ITEM:

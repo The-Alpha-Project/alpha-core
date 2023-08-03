@@ -7,7 +7,6 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.maps.InstancesManager import InstancesManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.helpers.PendingTeleportDataHolder import PendingTeleportDataHolder
 from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -246,12 +245,18 @@ class PlayerManager(UnitManager):
         self.location.y = self.deathbind.deathbind_position_y
         self.location.z = self.deathbind.deathbind_position_z
 
-    def complete_login(self, first_login=False):
+    def ensure_map_exists(self):
+        from game.world.managers.maps.MapManager import MapManager
         instance_token = InstancesManager.get_or_create_instance_token_by_player(self, self.map_id)
         self.instance_id = instance_token.id
         if MapManager.is_dungeon_map_id(self.map_id) and not MapManager.get_or_create_instance_map(instance_token):
             self.set_player_to_deathbind_location()
+            # Player might no longer be part of the group holding the instance token.
+            Logger.info(f'Unable to create instance Map {self.map_id} upon logging in, using deathbind location.')
+        else:
+            Logger.info(f'Player logging into Map {self.map_id} Instance {self.instance_id}')
 
+    def complete_login(self, first_login=False):
         self.online = True
 
         # Join default channels.
@@ -281,7 +286,7 @@ class PlayerManager(UnitManager):
         self.stat_manager.apply_bonuses(replenish=first_login)
 
         # Place player in a world cell.
-        MapManager.update_object(self)
+        self.get_map().update_object(self)
 
         # Try to resume pending flight once player has been created and set on a world cell.
         if taxi_resume_info.is_valid() and not self.taxi_manager.resume_taxi_flight():
@@ -319,7 +324,7 @@ class PlayerManager(UnitManager):
         # Channels weren't saved on logout until Patch 0.5.5
         ChannelManager.leave_all_channels(self, logout=True)
 
-        MapManager.remove_object(self)
+        self.get_map().remove_object(self)
 
         self.friends_manager.send_offline_notification()
         self.session.save_character()
@@ -418,7 +423,7 @@ class PlayerManager(UnitManager):
                      if self.pending_known_object_types_updates[object_type]]
 
         # Retrieve all needed objects.
-        objects = MapManager.get_surrounding_objects(self, obj_types)
+        objects = self.get_map().get_surrounding_objects(self, obj_types)
         # Update each object type.
         [self.update_known_objects_for_type(obj_type, objects[obj_types.index(obj_type)]) for obj_type in obj_types]
 
@@ -610,14 +615,14 @@ class PlayerManager(UnitManager):
             self.player.money = self.coinage
             self.player.online = self.online
 
-    def teleport(self, map_, location, is_instant=False, recovery: float = -1.0):
-        dbc_map = DbcDatabaseManager.map_get_by_id(map_)
+    def teleport(self, map_id, location, is_instant=False, recovery: float = -1.0):
+        dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
         if not dbc_map:
-            Logger.warning(f'Teleport, invalid map {map_}.')
+            Logger.warning(f'Teleport, invalid map {map_id}.')
             return False
 
-        if not MapManager.validate_teleport_destination(map_, location.x, location.y):
-            Logger.warning(f'Teleport, invalid destination, Map {map_}, X {location.x} Y {location.y}.')
+        if not self.get_map().validate_teleport_destination(location.x, location.y, map_id):
+            Logger.warning(f'Teleport, invalid destination, Map {map_id}, X {location.x} Y {location.y}.')
             return False
 
         # End duel and detach pets if this is a long-distance teleport.
@@ -638,7 +643,7 @@ class PlayerManager(UnitManager):
                                                      origin_location=self.location.copy(),
                                                      origin_map=self.map_id,
                                                      destination_location=location.copy(),
-                                                     destination_map=map_)
+                                                     destination_map=map_id)
 
         self.pending_teleport_data.append(pending_teleport)
 
@@ -686,7 +691,7 @@ class PlayerManager(UnitManager):
             # Always remove the player from world before sending a Loading Screen, preventing unexpected packets
             # while the screen is still present.
             # Remove to others.
-            MapManager.remove_object(self)
+            self.get_map().remove_object(self)
             # Destroy all objects known to self.
             self.destroy_all_known_objects()
             # Flush known items/objects cache.
@@ -707,6 +712,7 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_NEW_WORLD, data))
 
     def spawn_player_from_teleport(self):
+        from game.world.managers.maps.MapManager import MapManager
         # Pending teleport information.
         pending_teleport = self.pending_teleport_data[0]
 
@@ -767,16 +773,16 @@ class PlayerManager(UnitManager):
 
         if not changed_map:
             # Get us in a new cell.
-            MapManager.update_object(self)
+            self.get_map().update_object(self)
         else:
-            MapManager.spawn_object(world_object_instance=self)
+            self.get_map().spawn_object(world_object_instance=self)
 
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)
         if not changed_map:
             self.movement_flags |= MoveFlags.MOVEFLAG_MOVED
             heart_beat_packet = self.get_heartbeat_packet()
-            MapManager.send_surrounding(heart_beat_packet, self, True)
+            self.get_map().send_surrounding(heart_beat_packet, self, True)
 
         # Update managers.
         self.friends_manager.send_update_to_friends()
@@ -865,7 +871,7 @@ class PlayerManager(UnitManager):
         if super().change_speed(speed):
             data = pack('<f', self.running_speed)
             self.session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SPEED_CHANGE, data))
-            MapManager.send_surrounding(self.generate_movement_packet(), self, False)
+            self.get_map().send_surrounding(self.generate_movement_packet(), self, False)
 
     def change_swim_speed(self, swim_speed=0):
         if swim_speed <= 0:
@@ -875,7 +881,7 @@ class PlayerManager(UnitManager):
         self.swim_speed = swim_speed
         data = pack('<f', self.swim_speed)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FORCE_SWIM_SPEED_CHANGE, data))
-        MapManager.send_surrounding(self.generate_movement_packet(), self)
+        self.get_map().send_surrounding(self.generate_movement_packet(), self)
 
     def change_walk_speed(self, walk_speed=0):
         if walk_speed <= 0:
@@ -885,7 +891,7 @@ class PlayerManager(UnitManager):
         self.walk_speed = walk_speed
         data = pack('<f', self.walk_speed)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_WALK_SPEED, data))
-        MapManager.send_surrounding(self.generate_movement_packet(), self)
+        self.get_map().send_surrounding(self.generate_movement_packet(), self)
 
     def change_turn_speed(self, turn_speed=0):
         if turn_speed <= 0:
@@ -893,7 +899,7 @@ class PlayerManager(UnitManager):
         self.turn_rate = turn_speed
         data = pack('<f', self.turn_rate)
         self.enqueue_packet(PacketWriter.get_packet(OpCode.MSG_MOVE_SET_TURN_RATE, data))
-        MapManager.send_surrounding(self.generate_movement_packet(), self)
+        self.get_map().send_surrounding(self.generate_movement_packet(), self)
 
     # override
     def update_power_type(self):
@@ -949,10 +955,10 @@ class PlayerManager(UnitManager):
         # Resolve loot target first.
         target_world_object = None
         if high_guid == HighGuid.HIGHGUID_UNIT:
-            target_world_object = MapManager.get_surrounding_unit_by_guid(self, loot_selection.object_guid,
-                                                                          include_players=False)
+            target_world_object = self.get_map().get_surrounding_unit_by_guid(self, loot_selection.object_guid,
+                                                                              include_players=False)
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-            target_world_object = MapManager.get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
+            target_world_object = self.get_map().get_surrounding_gameobject_by_guid(self, self.loot_selection.object_guid)
         elif high_guid == HighGuid.HIGHGUID_ITEM:
             target_world_object = self.inventory.get_item_by_guid(self.loot_selection.object_guid)
         else:
@@ -1226,7 +1232,7 @@ class PlayerManager(UnitManager):
         if self.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
             return
 
-        area_information = MapManager.get_area_information(self.map_id, self.location.x, self.location.y)
+        area_information = self.get_map().get_area_information(self.location.x, self.location.y)
 
         # Did not find, or zone id does not match due resolution, try to resolve.
         if not area_information or area_information.zone_id != new_zone:
@@ -1273,8 +1279,8 @@ class PlayerManager(UnitManager):
 
     def update_swimming_state(self, state):
         if state:
-            self.liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                                        self.location.z)
+            self.liquid_information = self.get_map().get_liquid_information(self.location.x, self.location.y,
+                                                                            self.location.z)
             if not self.liquid_information:
                 Logger.warning(f'Unable to retrieve liquids information. Map {self.map_id} X {self.location.x} Y '
                                f'{self.location.y}')
@@ -1303,8 +1309,8 @@ class PlayerManager(UnitManager):
     def update_liquid_information(self):
         # Retrieve the latest liquid information, only if player is swimming.
         if self.is_swimming():
-            self.liquid_information = MapManager.get_liquid_information(self.map_id, self.location.x, self.location.y,
-                                                                        self.location.z)
+            self.liquid_information = self.get_map().get_liquid_information(self.location.x, self.location.y,
+                                                                            self.location.z)
 
     # override
     def initialize_field_values(self):
@@ -1752,13 +1758,13 @@ class PlayerManager(UnitManager):
 
             # Update system, propagate player changes to surrounding units.
             if self.online and has_changes or has_inventory_changes:
-                MapManager.update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
+                self.get_map().update_object(self, has_changes=has_changes, has_inventory_changes=has_inventory_changes)
             # Not dirty, has a pending teleport and a teleport is not ongoing.
             elif not has_changes and not has_inventory_changes and self.pending_teleport_data and not self.update_lock:
                 self.trigger_teleport()
             # Do normal update.
             else:
-                MapManager.update_object(self)
+                self.get_map().update_object(self)
                 self.synchronize_db_player()
 
             # If not teleporting, notify self movement to surrounding units for proximity aggro.
@@ -1956,7 +1962,7 @@ class PlayerManager(UnitManager):
                 return True
 
             # Only allow pvp in pvp maps (PvP system was not added until Patch 0.7).
-            if not MapManager.get_map(target.map_id, target.instance_id).is_pvp():
+            if not self.get_map().is_pvp():
                 return False
 
         return super().can_attack_target(target)

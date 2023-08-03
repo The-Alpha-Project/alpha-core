@@ -1,4 +1,3 @@
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.guids.GuidManager import GuidManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
@@ -87,7 +86,7 @@ class CorpseManager(ObjectManager):
     @staticmethod
     def spawn(player_mgr):
         corpse = CorpseManager(owner=player_mgr)
-        MapManager.update_object(corpse)
+        player_mgr.get_map().update_object(corpse)
         return corpse
 
     # override

@@ -2,10 +2,9 @@ import math
 import time
 from random import randint
 
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType, MoveFlags
+from utils.constants.MiscCodes import MoveType
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
 
 
@@ -60,13 +59,13 @@ class WanderingMovement(BaseMovement):
     def _get_wandering_point(self):
         start_point = self.unit.spawn_position
         random_point = start_point.get_random_point_in_radius(self.wandering_distance, map_id=self.unit.map_id)
-
+        map_ = self.unit.get_map()
         # Check line of sight.
-        if not MapManager.los_check(self.unit.map_id, self.unit.location, random_point.get_ray_vector(is_terrain=True)):
+        if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True)):
             return False, start_point
 
         # Validate a path to the wandering point.
-        failed, in_place, path = MapManager.calculate_path(self.unit.map_id, self.unit.location, random_point)
+        failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
         if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
             return False, start_point
 
@@ -76,7 +75,6 @@ class WanderingMovement(BaseMovement):
             return False, start_point
         
         # Do not wander into inactive cells.
-        map_ = MapManager.get_map(self.unit.map_id, self.unit.instance_id)
         if not map_.is_active_cell_for_location(random_point):
             return False, start_point
 

@@ -8,8 +8,6 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from network.packet.PacketReader import PacketReader
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
-from utils.Logger import Logger
 from utils.constants.MiscCodes import TrainerServices, TrainerTypes, TrainingFailReasons
 from struct import unpack
 from network.packet.PacketWriter import *
@@ -95,7 +93,7 @@ class TrainerBuySpellHandler(object):
 
     @staticmethod
     def handle_trainer_buy_spell(player_mgr, trainer_guid, training_spell_id):
-        unit = MapManager.get_surrounding_unit_by_guid(player_mgr, trainer_guid)
+        unit = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, trainer_guid)
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(unit.entry)
         trainer_templates = WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer(creature_template.entry)
 

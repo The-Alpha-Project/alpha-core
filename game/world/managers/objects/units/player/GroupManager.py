@@ -3,7 +3,6 @@ from struct import pack
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import Group, GroupMember
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
@@ -591,7 +590,7 @@ class GroupManager(object):
             player_mgr.level if player_mgr else character.level,
             player_mgr.map_id if player_mgr else character.map,
             # Client expects an AreaNumber from AreaTable, not a zone id.
-            MapManager.get_area_number_by_zone_id(player_mgr.zone if player_mgr else character.zone),
+            player_mgr.get_map().get_area_number_by_zone_id(player_mgr.zone if player_mgr else character.zone),
             player_mgr.class_ if player_mgr else character.class_,
             player_mgr.location.x if player_mgr else character.position_x,
             player_mgr.location.y if player_mgr else character.position_y,

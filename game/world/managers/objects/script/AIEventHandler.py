@@ -28,18 +28,19 @@ class AIEventHandler:
 
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
+        map_ = self.creature.get_map()
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
 
-            script_id = event.action1_script
-            if script_id:
-                self.creature.script_handler.enqueue_script(self.creature, None, ScriptTypes.SCRIPT_TYPE_AI, script_id)
+            script = event.action1_script
+            if not script:
+                continue
+            map_.enqueue_script(self.creature, target=None, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
     def on_enter_combat(self, source=None):
-        self.creature.script_handler.reset()  # Reset any scripts that were queued before combat (e.g. on spawn).
-
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
+        map_ = self.creature.get_map()
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
@@ -47,11 +48,13 @@ class AIEventHandler:
             choices = ScriptHelpers.get_filtered_event_scripts(event)
             script = choice(choices)
 
-            if script:
-                self.creature.script_handler.enqueue_script(self.creature, source, ScriptTypes.SCRIPT_TYPE_AI, script)
+            if not script:
+                continue
+            map_.enqueue_script(self.creature, target=source, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
-    def on_damage_taken(self, attacker=None):
+    def on_damage_taken(self, target=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
+        map_ = self.creature.get_map()
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
@@ -66,30 +69,35 @@ class AIEventHandler:
                 continue
 
             script = event.action1_script
-            if script:
-                self._lock_event(event, now)
-                self.creature.script_handler.enqueue_script(self.creature, attacker, ScriptTypes.SCRIPT_TYPE_AI, script)
+            if not script:
+                continue
+            self._lock_event(event, now)
+            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
     def on_idle(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
+        map_ = self.creature.get_map()
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
-            self.creature.script_handler.set_random_ooc_event(self.creature, event)
+            map_.set_random_ooc_event(self.creature, None, event)
 
     def on_death(self, killer=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
+        map_ = self.creature.get_map()
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
             choices = ScriptHelpers.get_filtered_event_scripts(event)
             script = choice(choices)
 
-            if script:
-                self.creature.script_handler.enqueue_script(self.creature, killer, ScriptTypes.SCRIPT_TYPE_AI, script)
+            if not script:
+                continue
+            map_.enqueue_script(self.creature, target=killer, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
     def on_emote_received(self, player, emote):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RECEIVE_EMOTE)
+        map_ = self.creature.get_map()
         for event in events:
             if event.event_param1 != emote:
                 continue
@@ -97,8 +105,9 @@ class AIEventHandler:
             # TODO: Check conditions (EmoteId, Condition, CondValue1, CondValue2).
 
             script = event.action1_script
-            if script:
-                self.creature.script_handler.enqueue_script(self.creature, player, ScriptTypes.SCRIPT_TYPE_AI, script)
+            if not script:
+                continue
+            map_.enqueue_script(self.creature, target=player, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
     def _event_get_by_type(self, event_type):
         # Skip for charmed units.

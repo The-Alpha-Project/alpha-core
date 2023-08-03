@@ -1,6 +1,4 @@
 from struct import unpack
-
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 
@@ -18,7 +16,7 @@ class MakeMonsterAttackMeHandler(object):
 
         if len(reader.data) >= 8:  # Avoid handling empty make monster attack me packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            unit = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
+            unit = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
             if unit and unit.is_hostile_to(player_mgr):
                 unit.attack(player_mgr)
 

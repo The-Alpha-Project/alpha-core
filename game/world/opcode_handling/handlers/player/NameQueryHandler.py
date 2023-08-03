@@ -1,7 +1,6 @@
 from struct import pack, unpack
 
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from network.packet.PacketReader import PacketReader
 from network.packet.PacketWriter import PacketWriter
@@ -19,7 +18,7 @@ class NameQueryHandler(object):
 
         if len(reader.data) >= 8:  # Avoid handling empty name query packet.
             guid = unpack('<Q', reader.data[:8])[0]
-            requested_player = MapManager.get_surrounding_player_by_guid(world_session.player_mgr, guid)
+            requested_player = player_mgr.get_map().get_surrounding_player_by_guid(world_session.player_mgr, guid)
 
             if requested_player:
                 player = requested_player.player

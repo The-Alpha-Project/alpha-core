@@ -30,6 +30,11 @@ class ScriptCommand:
         self.source = None
         self.target = None
 
+    # Script commands should return False by default.
+    # If they return True the rest of the script is aborted.
+    def should_abort(self):
+        return self.data_flags & ScriptFlags.SF_GENERAL_ABORT_ON_FAILURE
+
     def resolve_initial_targets(self, source, target):
         if self.data_flags & ScriptFlags.SF_GENERAL_SKIP_MISSING_TARGETS:
             if not source or not target or not source.is_in_world() or not target.is_in_world():

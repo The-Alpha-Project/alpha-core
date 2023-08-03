@@ -2,7 +2,6 @@ from struct import pack
 from typing import Optional
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.units.creature.vendors.VendorData import VendorData
 from network.packet.PacketWriter import PacketWriter
@@ -76,7 +75,7 @@ class VendorUtils:
 
     @staticmethod
     def handle_buy_item(player_mgr, vendor_guid, item_id, count, bag_guid=0, slot=0):
-        vendor = MapManager.get_surrounding_unit_by_guid(player_mgr, vendor_guid)
+        vendor = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, vendor_guid)
         # Unable to locate vendor.
         if not vendor:
             player_mgr.inventory.send_buy_error(BuyResults.BUY_ERR_DISTANCE_TOO_FAR, item_id, vendor_guid)
@@ -125,4 +124,4 @@ class VendorUtils:
         max_count = vendor_data.get_max_count(item_id)
         data = pack('<Q3I', vendor.guid, vendor_slot, max_count, count)
         packet = PacketWriter.get_packet(OpCode.SMSG_BUY_ITEM, data)
-        MapManager.send_surrounding(packet, player_mgr)
+        player_mgr.get_map().send_surrounding(packet, player_mgr)

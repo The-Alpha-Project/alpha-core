@@ -8,7 +8,6 @@ from database.world.WorldModels import CreatureTemplate
 from game.world import WorldManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.ChatManager import ChatManager
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
@@ -60,15 +59,12 @@ class CommandManager(object):
 
     @staticmethod
     def _target_or_self(world_session, only_players=False):
-        if world_session.player_mgr.current_selection \
-                and world_session.player_mgr.current_selection != world_session.player_mgr.guid:
+        player_mgr = world_session.player_mgr
+        if player_mgr.current_selection and player_mgr.current_selection != player_mgr.guid:
             if only_players:
-                unit = MapManager.get_surrounding_player_by_guid(world_session.player_mgr,
-                                                                 world_session.player_mgr.current_selection)
+                unit = player_mgr.get_map().get_surrounding_player_by_guid(player_mgr, player_mgr.current_selection)
             else:
-                unit = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                               world_session.player_mgr.current_selection,
-                                                               include_players=True)
+                unit = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection, True)
             if unit:
                 return unit
 
@@ -128,13 +124,15 @@ class CommandManager(object):
 
     @staticmethod
     def gps(world_session, args):
-        player_x = world_session.player_mgr.location.x
-        player_y = world_session.player_mgr.location.y
-        player_z = world_session.player_mgr.location.z
-        player_o = world_session.player_mgr.location.o
-        maps_z, z_locked = MapManager.calculate_z_for_object(world_session.player_mgr)
+        player_mgr = world_session.player_mgr
+        map_ = player_mgr.get_map()
+        player_x = player_mgr.location.x
+        player_y = player_mgr.location.y
+        player_z = player_mgr.location.z
+        player_o = player_mgr.location.o
+        maps_z, z_locked = map_.calculate_z_for_object(player_mgr)
         maps_z_str = f'{maps_z:.3f}' if not z_locked else 'Invalid'
-        adt_tile = MapManager.get_tile(player_x, player_y)
+        adt_tile = map_.get_tile(player_x, player_y)
         return 0, f'Map: {world_session.player_mgr.map_id}\n' \
                   f'InstanceID: {world_session.player_mgr.instance_id}\n' \
                   f'Zone: {world_session.player_mgr.zone}\n' \
@@ -606,8 +604,8 @@ class CommandManager(object):
     @staticmethod
     def weaponmode(world_session, args):
         try:
-            creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                               world_session.player_mgr.current_selection)
+            player_mgr = world_session.player_mgr
+            creature = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection)
             if creature:
                 weapon_mode = int(args)
                 if weapon_mode < 0 or weapon_mode >= WeaponMode.NUMMODES:
@@ -622,8 +620,8 @@ class CommandManager(object):
     @staticmethod
     def fevent(world_session, args):
         try:
-            creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                               world_session.player_mgr.current_selection)
+            player_mgr = world_session.player_mgr
+            creature = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection)
             if not creature:
                 return -1, 'unable to locate creature.'
 
@@ -635,7 +633,7 @@ class CommandManager(object):
             if event.creature_id != creature.entry:
                 return -1, 'invalid creature for provided event.'
 
-            creature.script_handler.set_random_ooc_event(creature, event, forced=True)
+            creature.get_map().set_random_ooc_event(creature, event, forced=True)
             return 0, f'Triggered event {event.comment}.'
         except:
             return -1, 'invalid event id.'
@@ -658,8 +656,8 @@ class CommandManager(object):
 
     @staticmethod
     def creature_info(world_session, args):
-        creature = MapManager.get_surrounding_unit_by_guid(world_session.player_mgr,
-                                                           world_session.player_mgr.current_selection)
+        player_mgr = world_session.player_mgr
+        creature = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection)
         if creature:
             return 0, f'[{creature.get_name()}]\n' \
                       f'Spawn ID: {creature.spawn_id}\n' \
@@ -693,22 +691,24 @@ class CommandManager(object):
             else:
                 max_distance = 10
             found_count = 0
-            for guid, gobject in list(MapManager.get_surrounding_gameobjects(world_session.player_mgr).items()):
-                distance = world_session.player_mgr.location.distance(gobject.location)
-                if distance <= max_distance:
-                    found_count += 1
-                    ChatManager.send_system_message(world_session,
-                                                    f'[{gobject.get_name()}]\n'
-                                                    f'Spawn ID: {gobject.spawn_id}\n'
-                                                    f'Guid: {gobject.get_low_guid()}\n'
-                                                    f'Entry: {gobject.gobject_template.entry}\n'
-                                                    f'Display ID: {gobject.current_display_id}\n'
-                                                    f'X: {gobject.location.x}, '
-                                                    f'Y: {gobject.location.y}, '
-                                                    f'Z: {gobject.location.z}, '
-                                                    f'O: {gobject.location.o}, '
-                                                    f'Map: {gobject.map_id}\n'
-                                                    f'Distance: {distance}')
+            player_mgr = world_session.player_mgr
+            for guid, gobject in list(player_mgr.get_map().get_surrounding_gameobjects(player_mgr).items()):
+                distance = player_mgr.location.distance(gobject.location)
+                if distance > max_distance:
+                    continue
+                found_count += 1
+                ChatManager.send_system_message(world_session,
+                                                f'[{gobject.get_name()}]\n'
+                                                f'Spawn ID: {gobject.spawn_id}\n'
+                                                f'Guid: {gobject.get_low_guid()}\n'
+                                                f'Entry: {gobject.gobject_template.entry}\n'
+                                                f'Display ID: {gobject.current_display_id}\n'
+                                                f'X: {gobject.location.x}, '
+                                                f'Y: {gobject.location.y}, '
+                                                f'Z: {gobject.location.z}, '
+                                                f'O: {gobject.location.o}, '
+                                                f'Map: {gobject.map_id}\n'
+                                                f'Distance: {distance}')
             return 0, f'{found_count} game objects found within {max_distance} distance units.'
         except ValueError:
             return -1, 'please specify a valid distance.'
@@ -816,7 +816,7 @@ class CommandManager(object):
         unit = CommandManager._target_or_self(world_session)
         source_ray = world_session.player_mgr.get_ray_position()
         dest_ray = unit.get_ray_position()
-        los = MapManager.los_check(unit.map_id, source_ray, dest_ray)
+        los = unit.get_map().los_check(source_ray, dest_ray)
 
         return 0, f'Is in line of sight: {los}\nSource: {source_ray}\nTarget: {dest_ray}\nMap: {unit.map_id}'
 
@@ -879,7 +879,7 @@ class CommandManager(object):
             if not creature_instance:
                 return -1, f'creature entry {creature_entry} not found'
             else:
-                MapManager.spawn_object(world_object_instance=creature_instance)
+                player_mgr.get_map().spawn_object(world_object_instance=creature_instance)
         except (IndexError, ValueError):
             return -1, 'please specify a valid creature entry.'
 
@@ -892,14 +892,15 @@ class CommandManager(object):
             player_mgr = world_session.player_mgr
 
             if not creature_guid or creature_guid == 0:
-                creature_instance = MapManager.get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection)
+                creature_instance = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr,
+                                                                                      player_mgr.current_selection)
             else:
-                creature_instance = MapManager.get_surrounding_unit_by_guid(player_mgr, creature_guid)
+                creature_instance = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, creature_guid)
 
             if not creature_instance:
                 return -1, f'creature not found'
             else:
-                MapManager.remove_object(creature_instance)
+                player_mgr.get_map().remove_object(creature_instance)
 
         except (IndexError, ValueError):
             return -1, 'please select a valid creature.'

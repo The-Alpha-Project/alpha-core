@@ -5,7 +5,6 @@ from typing import Union, Optional
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.spell.ExtendedSpellData import SummonedObjectPositions
 from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHandler
@@ -187,12 +186,12 @@ class EffectTargets:
             source = caster
 
         if casting_spell.initial_target_is_terrain():
-            result = MapManager.get_surrounding_units_by_location(source,
-                                                                  caster.map_id, caster.instance_id,
-                                                                  target_effect.get_radius(), include_players=True)
+            result = caster.get_map().get_surrounding_units_by_location(source,
+                                                                        caster.map_id, caster.instance_id,
+                                                                        target_effect.get_radius(), include_players=True)
             units = list(result[0].values()) + list(result[1].values())
         else:
-            units = MapManager.get_surrounding_units(source, include_players=True)
+            units = source.get_map().get_surrounding_units(source, include_players=True)
             units = list(units[0].values()) + list(units[1].values())
 
         if not enemies_only and not friends_only and not distance_loc and not \

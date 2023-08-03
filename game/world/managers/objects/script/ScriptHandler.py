@@ -4,7 +4,6 @@ import random
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.Script import Script
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
@@ -30,8 +29,8 @@ from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFie
 
 class ScriptHandler:
 
-    def __init__(self, world_object):
-        self.owner = world_object
+    def __init__(self, map_):
+        self.map = map_
         self.script_queue = set()
         self.ooc_ignore = set()
         self.ooc_events = {}
@@ -43,10 +42,7 @@ class ScriptHandler:
         # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
-            if self.owner.get_type_id() == ObjectTypeIds.ID_UNIT and self.owner.creature_template.script_name:
-                Logger.warning(f'Unimplemented advanced script: {self.owner.creature_template.script_name}.')
-            elif self.owner.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT and self.owner.gobject_template.script_name:
-                Logger.warning(f'Unimplemented advanced script: {self.owner.gobject_template.script_name}.')
+            Logger.warning(f'Unimplemented advanced script: {script_id}.')
             return
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, ooc_event=ooc_event)
@@ -55,9 +51,10 @@ class ScriptHandler:
     # noinspection PyMethodMayBeStatic
     def handle_script_command_execution(self, script_command):
         try:
-            SCRIPT_COMMANDS[script_command.command](script_command)
+            return SCRIPT_COMMANDS[script_command.command](script_command)
         except KeyError:
             Logger.warning(f'Unknown script command: {script_command.command}.')
+            return True  # Abort.
 
     # noinspection PyMethodMayBeStatic
     def resolve_script_actions(self, script_type, script_id):
@@ -87,10 +84,10 @@ class ScriptHandler:
     def _check_ooc_events(self, now):
         if not self.ooc_events:
             return
-        if self.owner.in_combat or self.owner.is_evading:
-            return
 
         for event_id, ooc_event in list(self.ooc_events.items()):
+            if ooc_event.source.in_combat or ooc_event.source.is_evading:
+                continue
             # Check if we should remove the ongoing ooc event.
             if ooc_event.started and ooc_event.is_complete(now):
                 ooc_event.started = False
@@ -101,11 +98,11 @@ class ScriptHandler:
                 # Initialize the ooc event.
                 ooc_event.initialize(now)
                 for script_id in ooc_event.script_ids:
-                    self.enqueue_script(self.owner, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
+                    self.enqueue_script(ooc_event.source, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
                                         script_id=script_id, delay=ooc_event.delay, ooc_event=ooc_event)
 
-    def set_random_ooc_event(self, target, event, forced=False):
-        if not ConditionChecker.validate(event.condition_id, self.owner, target):
+    def set_random_ooc_event(self, source, target, event, forced=False):
+        if not ConditionChecker.validate(event.condition_id, source, target):
             return
 
         # Ignored or already running a script.
@@ -120,7 +117,7 @@ class ScriptHandler:
             if event.id in self.ooc_ignore:
                 self.ooc_ignore.remove(event.id)
 
-        occ_event = ScriptOocEvent(event, target, self.owner, forced=forced)
+        occ_event = ScriptOocEvent(event, source, target, forced=forced)
         # Has no scripts, ignore.
         if not occ_event.scripts:
             self.ooc_ignore.add(event.id)
@@ -140,9 +137,9 @@ class ScriptHandler:
         scripts = [datalong for datalong in ScriptHelpers.get_filtered_datalong(command)]
         weights = [dataint for dataint in ScriptHelpers.get_filtered_dataint(command)]
         script_id = random.choices(scripts, cum_weights=weights, k=1)[0]
-        command.source.script_handler.enqueue_script(source=command.source, target=command.target,
-                                                     script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                     script_id=script_id)
+        command.source.get_map().enqueue_script(source=command.source, target=command.target,
+                                                script_type=ScriptTypes.SCRIPT_TYPE_GENERIC, script_id=script_id)
+        return False
 
     @staticmethod
     def handle_script_command_talk(command):
@@ -152,7 +149,7 @@ class ScriptHandler:
         # dataint = broadcast_text id. dataint2-4 optional for random selected text.
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         texts = ScriptHelpers.get_filtered_dataint(command)
         if texts:
@@ -160,11 +157,11 @@ class ScriptHandler:
             broadcast_message = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(text_id)
         else:
             Logger.warning(f'ScriptHandler: Broadcast messages for {command.get_info()}, not found.')
-            return
+            return command.should_abort()
 
         if command.source.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Wrong target type, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         if command.source.gender == Genders.GENDER_MALE and broadcast_message.male_text:
             text_to_say = broadcast_message.male_text
@@ -175,7 +172,7 @@ class ScriptHandler:
 
         if not text_to_say:
             Logger.warning(f'ScriptHandler: Broadcast message {text_id} has no text to say.')
-            return
+            return command.should_abort()
 
         chat_msg_type = ChatMsgs.CHAT_MSG_MONSTER_SAY
         lang = broadcast_message.language_id
@@ -192,6 +189,8 @@ class ScriptHandler:
         if broadcast_message.emote_id1 != 0:
             command.source.play_emote(broadcast_message.emote_id1)
 
+        return False
+
     @staticmethod
     def handle_script_command_emote(command):
         # source = Unit
@@ -199,30 +198,34 @@ class ScriptHandler:
         # dataint = (bool) is_targeted
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
         # Already doing it.
         # TODO: Define event types in order to filter.
         if command.source.movement_manager.has_spline_events():
-            return
+            return command.should_abort()
         emotes = ScriptHelpers.get_filtered_datalong(command)
         if not emotes:
-            return
+            return command.should_abort()
         # Pause ooc if needed.
         command.source.object_ai.player_interacted()
         # Face target.
         if not command.dataint or not command.target:
-            return
+            return command.should_abort()
         emote = random.choice(emotes)
         targeted_emote_event = SplineTargetedEmoteEvent(command.source, command.target, start_seconds=2, emote=emote)
         reset_orientation_event = SplineRestoreOrientationEvent(command.source, start_seconds=6)
         command.source.movement_manager.add_spline_events([targeted_emote_event, reset_orientation_event])
 
+        return False
+
     @staticmethod
-    def handle_script_command_field_set(_command):
+    def handle_script_command_field_set(command):
         # source = Object
         # datalong = field_id
         # datalong2 = value
         Logger.debug('ScriptHandler: handle_script_command_field_set not implemented yet')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_move_to(command):
@@ -236,7 +239,7 @@ class ScriptHandler:
         # x/y/z/o = coordinates
         if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         coordinates_type = command.datalong
         time_ = command.datalong2
@@ -261,12 +264,14 @@ class ScriptHandler:
             location = Vector(target_point.x, target_point.y, target_point.z, command.o)
         elif coordinates_type == MoveToCoordinateTypes.SO_MOVETO_COORDINATES_RANDOM_POINT:
             # Unclear how this works as the data doesn't seem to provide any information about the radius.
-            return
+            return command.should_abort()
 
         if angle:
             command.source.movement_manager.set_face_angle(angle)
         if location:
             command.source.movement_manager.move_to_point(location, speed)
+
+        return False
 
     @staticmethod
     def handle_script_command_modify_flags(command):
@@ -276,7 +281,7 @@ class ScriptHandler:
         # datalong3 = ModifyFlagsOptions
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         # enum UpdateFields5875
         # {
@@ -317,7 +322,7 @@ class ScriptHandler:
         except KeyError:
             Logger.warning(f'ScriptHandler: Equivalence for 5875 flags not found ({command.datalong}), '
                            f'aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         # TODO: Finish adding more equivalences.
         # Value equivalences.  # TODO: Do this on loading?
@@ -344,7 +349,7 @@ class ScriptHandler:
         # Player extra flags.
         elif flag_data[0] == PlayerFields.PLAYER_BYTES_2:
             # TODO: Not implemented, doesn't seem relevant for 0.5.3 as PlayerFlags are very limited.
-            return
+            return command.should_abort()
 
         # Set flag.
         if command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
@@ -371,6 +376,8 @@ class ScriptHandler:
                 else:
                     flag_data[2](flag_data[0], command.datalong2)
 
+        return False
+
     # TODO: Missing delayed handling. (SPELL_STATE_DELAYED)
     @staticmethod
     def handle_script_command_interrupt_casts(command):
@@ -379,8 +386,10 @@ class ScriptHandler:
         # datalong2 = spell_id (optional)
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
         command.source.spell_manager.remove_cast_by_id(command.datalong2, interrupted=True)
+
+        return False
 
     @staticmethod
     def handle_script_command_teleport_to(command):
@@ -390,15 +399,17 @@ class ScriptHandler:
         # x/y/z/o = coordinates
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         # Units.
         if command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
             command.source.near_teleport(Vector(command.x, command.y, command.z, command.o))
-            return
+            return command.should_abort()
 
         # Players.
         command.source.teleport(command.datalong, Vector(command.x, command.y, command.z, command.o), is_instant=True)
+
+        return False
 
     @staticmethod
     def handle_script_command_quest_explored(command):
@@ -409,33 +420,39 @@ class ScriptHandler:
         # datalong3 = (bool) group
         if not ConditionChecker.is_player(command.source) and not ConditionChecker.is_player(command.target):
             Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no player found!')
-            return True  # Abort.
+            return command.should_abort()
 
         player = command.source if ConditionChecker.is_player(command.source) else command.target
         quest_giver = command.target if ConditionChecker.is_player(command.source) else command.source
 
         if not quest_giver:
             Logger.warning('ScriptHandler: handle_script_command_quest_explored failed, no quest_target found!')
-            return True
+            return command.should_abort()
 
         if command.datalong not in player.quest_manager.active_quests:
-            return True
+            return command.should_abort()
 
         in_range = not command.datalong2 or player.location.distance(quest_giver.location) <= command.datalong2
         if command.datalong3 and player.group_manager and in_range:
             player.group_manager.reward_quest_completion(player, command.datalong)
-            return
+            return command.should_abort()
 
         if in_range:
             player.quest_manager.active_quests[command.datalong].set_explored_or_event_complete()
             player.quest_manager.reward_quest_event()
+        else:
+            return command.should_abort()
+
+        return False
 
     @staticmethod
-    def handle_script_command_kill_credit(_command):
+    def handle_script_command_kill_credit(command):
         # source = Player (from provided source or target)
         # datalong = creature entry
         # datalong2 = bool (0=personal credit, 1=group credit)
         Logger.debug('ScriptHandler: handle_script_command_kill_credit not implemented yet')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_respawn_gameobject(command):
@@ -443,22 +460,36 @@ class ScriptHandler:
         # target = GameObject (from datalong, provided source or target)
         # datalong = db_guid
         # datalong2 = despawn_delay
-        go_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
+        go_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
         go_spawn.spawn(ttl=command.datalong2)
+
+        return False
 
     @staticmethod
     def handle_script_command_despawn_gameobject(command):
         # source = GameObject(from datalong, provided source or target)
         # datalong = db_guid
         # datalong2 = despawn_delay
-        go_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
+        go_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, command.datalong)
         if not go_spawn:
             Logger.warning(f'ScriptHandler: No gameobject {command.datalong} found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
         go_spawn.despawn(ttl=command.datalong2)
+
+        return False
 
     @staticmethod
     def handle_script_command_temp_summon_creature(command):
@@ -473,14 +504,20 @@ class ScriptHandler:
         # dataint4 = despawn_type (see enum TempSummonType)
         # x/y/z/o = coordinates
         if not command.source:
-            return
-        
+            Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}.')
+            return command.should_abort()
+
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
         if command.datalong3:
-            units = MapManager.get_surrounding_units_by_location(command.source.location, command.source.map_id,
-                                                                 command.source.instance_id, command.datalong4)
+            units = map_.get_surrounding_units_by_location(command.source.location, command.source.map_id,
+                                                           command.source.instance_id, command.datalong4)
             summoned = [unit for unit in units if unit.creature_template.entry == command.datalong]
             if summoned and len(summoned) >= command.datalong3:
-                return
+                return command.should_abort()
 
         creature_manager = CreatureBuilder.create(command.datalong, Vector(command.x, command.y, command.z, command.o),
                                                   command.source.map_id, command.source.instance_id,
@@ -489,17 +526,16 @@ class ScriptHandler:
                                                   if command.dataint4 > 0
                                                   else CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
         if not creature_manager:
-            return
-        MapManager.spawn_object(world_object_instance=creature_manager)
+            return command.should_abort()
+        map_.spawn_object(world_object_instance=creature_manager)
 
         # Generic script.
         if command.dataint2:
-            creature_manager.script_handler.enqueue_script(source=creature_manager, target=None,
-                                                           script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
-                                                           script_id=command.dataint2)
+            map_.enqueue_script(source=creature_manager, target=None, script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
+                                script_id=command.dataint2)
         # Attack target.
         if command.dataint3 <= 0:  # Can be -1.
-            return
+            return command.should_abort()
 
         from game.world.managers.objects.script.ScriptManager import ScriptManager
         attack_target = ScriptManager.get_target_by_type(command.source, command.target, command.dataint3)
@@ -510,6 +546,8 @@ class ScriptHandler:
         # TODO: dataint4 = despawn_type. Not currently supported by CreatureBuilder.create() so this needs to be added.
         #  For now we just use TEMP_SUMMON if dataint4 is not 0 and SUBTYPE_GENERIC if it is.
 
+        return False
+
     @staticmethod
     def handle_script_command_open_door(command):
         # source = GameObject (from datalong, provided source or target)
@@ -518,15 +556,20 @@ class ScriptHandler:
         # datalong2 = reset_delay
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
-        provided_spawn_id = command.datalong
-        if provided_spawn_id:
-            gobject_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, provided_spawn_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
+        spawn_id = command.datalong
+        if spawn_id:
+            gobject_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, spawn_id)
             if not gobject_spawn:
                 Logger.warning(f'ScriptHandler: Aborting {command.get_info()}, '
-                               f'Gameobject with Spawn ID {provided_spawn_id} not found.')
-                return
+                               f'Gameobject with Spawn ID {spawn_id} not found.')
+                return command.should_abort()
             gobject_spawn.gameobject_instance.use()
         elif command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             command.source.use()
@@ -536,6 +579,7 @@ class ScriptHandler:
             command.target.use()
 
         # TODO: Handle reset_delay
+        return False
 
     @staticmethod
     def handle_script_command_close_door(command):
@@ -545,15 +589,20 @@ class ScriptHandler:
         # datalong2 = reset_delay
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
-        provided_spawn_id = command.datalong
-        if provided_spawn_id:
-            gobject_spawn = MapManager.get_surrounding_gameobject_spawn_by_spawn_id(command.source, provided_spawn_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
+        spawn_id = command.datalong
+        if spawn_id:
+            gobject_spawn = map_.get_surrounding_gameobject_spawn_by_spawn_id(command.source, spawn_id)
             if not gobject_spawn:
                 Logger.warning(f'ScriptHandler: Aborting {command.get_info()}, '
-                               f'Gameobject with Spawn ID {provided_spawn_id} not found.')
-                return
+                               f'Gameobject with Spawn ID {spawn_id} not found.')
+                return command.should_abort()
             gobject_spawn.gameobject_instance.set_ready()
         elif command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             command.source.set_ready()
@@ -563,6 +612,7 @@ class ScriptHandler:
             command.target.set_ready()
 
         # TODO: Handle reset_delay
+        return False
 
     @staticmethod
     def handle_script_command_activate_object(command):
@@ -574,13 +624,14 @@ class ScriptHandler:
             target = command.source
         else:
             Logger.warning(f'ScriptHandler: No source or target, aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         if target.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
-            return
+            return command.should_abort()
 
         target.use()
+        return False
 
     @staticmethod
     def handle_script_command_remove_aura(command):
@@ -588,8 +639,11 @@ class ScriptHandler:
         # datalong = spell_id
         if command.source and command.source.aura_manager:
             command.source.aura_manager.cancel_auras_by_spell_id(command.datalong)
-        else:
-            Logger.warning(f'ScriptHandler: No aura manager found, aborting {command.get_info()}.')
+            return False
+
+        Logger.warning(f'ScriptHandler: No aura manager found, aborting {command.get_info()}.')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_cast_spell(command):
@@ -599,11 +653,11 @@ class ScriptHandler:
         # datalong2 = eCastSpellFlags
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(command.datalong)
         if not spell_entry:
-            return
+            return command.should_abort()
 
         target = command.target if command.target else command.source
         target_mask = SpellTargetMask.UNIT if command.target else SpellTargetMask.SELF
@@ -619,9 +673,11 @@ class ScriptHandler:
             cast_result = command.source.object_ai.try_to_cast(target, spell, command.datalong2, chance=100)
             if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
                 Logger.warning(f'[Script] Unable to cast spell {command.datalong}, script_id {command.script_id}.')
-                return
+                return command.should_abort()
 
         command.source.spell_manager.start_spell_cast(initialized_spell=spell)
+
+        return False
 
     @staticmethod
     def handle_script_command_create_item(command):
@@ -630,8 +686,11 @@ class ScriptHandler:
         # datalong2 = amount
         if command.source and command.source.inventory:
             command.source.inventory.add_item(command.datalong, command.datalong2)
-        else:
-            Logger.warning(f'ScriptHandler: No inventory found, aborting aborting {command.get_info()}.')
+            return False
+
+        Logger.warning(f'ScriptHandler: No inventory found, aborting aborting {command.get_info()}.')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_despawn_creature(command):
@@ -639,8 +698,11 @@ class ScriptHandler:
         # datalong = despawn_delay
         if command.source and command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and command.source.is_alive:
             command.source.despawn(ttl=command.datalong)
-        else:
-            Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info()}.')
+            return False
+
+        Logger.warning(f'ScriptHandler: No valid source found or source is dead, aborting {command.get_info()}.')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_set_equipment(command):
@@ -651,18 +713,18 @@ class ScriptHandler:
         # dataint3 = ranged item_id
         if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         if command.datalong == 1:
             command.source.reset_virtual_equipment()
-            return
-
         if command.dataint > 0:
             command.source.set_virtual_equipment(0, command.dataint)
         if command.dataint2 > 0:
             command.source.set_virtual_equipment(1, command.dataint2)
         if command.dataint3 > 0:
             command.source.set_virtual_equipment(2, command.dataint3)
+
+        return False
 
     @staticmethod
     def handle_script_command_movement(command):
@@ -675,14 +737,18 @@ class ScriptHandler:
         # o = angle (only for some motion types)
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
         Logger.debug('ScriptHandler: handle_script_command_movement not implemented yet')
 
+        return command.should_abort()
+
     @staticmethod
-    def handle_script_command_set_activeobject(_command):
+    def handle_script_command_set_activeobject(command):
         # source = Creature
         # datalong = (bool) 0=off, 1=on
         Logger.debug('ScriptHandler: handle_script_command_set_activeobject not implemented yet')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_set_faction(command):
@@ -691,11 +757,13 @@ class ScriptHandler:
         # datalong2 = see enum TemporaryFactionFlags
         if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
         if not command.datalong:
             command.source.reset_faction()
         else:
             command.source.set_faction(command.datalong)
+
+        return False
 
     @staticmethod
     def handle_script_command_morph_to_entry_or_model(command):
@@ -704,26 +772,29 @@ class ScriptHandler:
         # datalong2 = (bool) is_display_id
         if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         if not command.source.is_alive:
-            return
+            return command.should_abort()
 
         creature_or_model_entry = command.datalong
         display_id = command.datalong2
 
         if not creature_or_model_entry:
             command.source.reset_display_id()
-            return
+            return command.should_abort()
         elif display_id:
             command.source.set_display_id(display_id)
-            return
+            return command.should_abort()
 
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_model_entry)
         if creature_template:
             command.source.set_display_id(creature_template.display_id)
         else:
             Logger.warning(f'ScriptHandler: No creature template found, aborting {command.get_info()}.')
+            return command.should_abort()
+
+        return False
 
     @staticmethod
     def handle_script_command_mount_to_entry_or_model(command):
@@ -733,10 +804,10 @@ class ScriptHandler:
         # datalong3 = (bool) permanent
         if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         if not command.source.is_alive:
-            return
+            return command.should_abort()
 
         display_id = command.datalong2
         creature_or_model_entry = command.datalong
@@ -754,13 +825,15 @@ class ScriptHandler:
             else:
                 command.source.unmount()
 
+        return False
+
     @staticmethod
     def handle_script_command_set_run(command):
         # source = Creature
         # datalong = (bool) 0 = off, 1 = on
         if not command.source or not command.source.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             Logger.warning(f'ScriptHandler: No creature manager found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         run_enabled = command.datalong == 1
         if run_enabled:
@@ -770,27 +843,34 @@ class ScriptHandler:
 
         command.source.movement_manager.set_speed_dirty()
 
+        return False
+
     @staticmethod
     def handle_script_command_attack_start(command):
         # source = Creature
         # target = Player
         if not command.source:
             Logger.warning(f'ScriptHandler: Invalid attacker, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         attacker = command.source
         victim = command.target
 
         if victim and victim.is_alive:
             attacker.attack(victim)
-        else:
-            Logger.warning(f'ScriptHandler: Unable to resolve target, aborting {command.get_info()}.')
+            return False
+
+        Logger.warning(f'ScriptHandler: Unable to resolve target, aborting {command.get_info()}.')
+
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_update_entry(_command):
+    def handle_script_command_update_entry(command):
         # source = Creature
         # datalong = creature_entry
         Logger.debug('ScriptHandler: handle_script_command_update_entry not implemented yet')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_stand_state(command):
@@ -798,23 +878,30 @@ class ScriptHandler:
         # datalong = stand_state (enum UnitStandStateType)
         if command.source and command.source.is_alive:
             command.source.set_stand_state(command.datalong)
-        else:
-            Logger.warning(f'ScriptHandler: No source found or source is dead, aborting {command.get_info()}.')
+            return False
+
+        Logger.warning(f'ScriptHandler: No source found or source is dead, aborting {command.get_info()}.')
+
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_modify_threat(_command):
+    def handle_script_command_modify_threat(command):
         # source = Creature
         # datalong = eModifyThreatTargets
         # x = percent
         Logger.debug('ScriptHandler: handle_script_command_modify_threat not implemented yet')
 
+        return command.should_abort()
+
     @staticmethod
-    def handle_script_command_terminate_script(_command):
+    def handle_script_command_terminate_script(command):
         # source = Any
         # datalong = creature_entry
         # datalong2 = search_distance
         # datalong3 = eTerminateScriptOptions
         Logger.debug('ScriptHandler: handle_script_command_terminate_script not implemented yet')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_terminate_condition(command):
@@ -830,7 +917,7 @@ class ScriptHandler:
             result = True
 
         if not command.datalong2:
-            return
+            return command.should_abort()
 
         _target = None
         if ConditionChecker.is_player(command.source):
@@ -843,7 +930,7 @@ class ScriptHandler:
 
         if not _target:
             Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         if _target.online and result:
             if _target.group_manager:
@@ -851,13 +938,18 @@ class ScriptHandler:
             else:
                 _target.quest_manager.fail_quest_by_id(command.datalong2)
 
+        return False
+
     @staticmethod
     def handle_script_command_enter_evade_mode(command):
         # source = Creature
         if command.source and command.source.object_ai:
             command.source.leave_combat()
-        else:
-            Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
+            return False
+
+        Logger.warning(f'ScriptHandler: Invalid target, aborting {command.get_info()}.')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_set_home_position(command):
@@ -866,22 +958,24 @@ class ScriptHandler:
         # x/y/z/o = coordinates
         if not command.source or command.source.get_type_id() != ObjectTypeIds.ID_UNIT:
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         if not command.source.spawn_id:
             Logger.warning(f'ScriptHandler: No spawn id, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         # All other SetHomePositionOptions are not valid for 0.5.3.
         if command.datalong != SetHomePositionOptions.SET_HOME_DEFAULT_POSITION:
-            return
+            return command.should_abort()
 
         spawn = WorldDatabaseManager.creature_spawn_get_by_spawn_id(command.source.spawn_id)
         if not spawn:
             Logger.warning(f'ScriptHandler: Unable to locate spawn, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         command.source.spawn_position = spawn.get_default_location()
+
+        return False
 
     @staticmethod
     def handle_script_command_turn_to(command):
@@ -891,33 +985,39 @@ class ScriptHandler:
         # datalong = eTurnToFacingOptions
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}).')
-            return
+            return command.should_abort()
 
         if not command.target and command.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
             Logger.warning(f'ScriptHandler: No target found, aborting {command.get_info()}).')
-            return
+            return command.should_abort()
 
         if command.datalong == TurnToFacingOptions.SO_TURNTO_FACE_TARGET:
             command.source.movement_manager.face_target(command.target)
         else:
             command.source.movement_manager.face_angle(command.o)
 
+        return False
+
     @staticmethod
-    def handle_script_command_set_inst_data(_command):
+    def handle_script_command_set_inst_data(command):
         # source = Map
         # datalong = field
         # datalong2 = data
         # datalong3 = eSetInstDataOptions
         Logger.debug('ScriptHandler: handle_script_command_set_inst_data not implemented yet')
 
+        return command.should_abort()
+
     @staticmethod
-    def handle_script_command_set_inst_data64(_command):
+    def handle_script_command_set_inst_data64(command):
         # source = Map
         # target = Object (when saving guid)
         # datalong = field
         # datalong2 = data
         # datalong3 = eSetInstData64Options
         Logger.debug('ScriptHandler: handle_script_command_set_inst_data64 not implemented yet')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_remove_item(command):
@@ -935,14 +1035,19 @@ class ScriptHandler:
 
         if src and src.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
             src.inventory.remove_items(command.datalong, command.datalong2)
-        else:
-            Logger.warning('ScriptHandler: Neither source nor target are a player, aborting SCRIPT_COMMAND_REMOVE_ITEM')
+            return False
+
+        Logger.warning('ScriptHandler: Neither source nor target are a player, aborting SCRIPT_COMMAND_REMOVE_ITEM')
+
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_remove_object(_command):
+    def handle_script_command_remove_object(command):
         # source = GameObject
         # target = Unit
         Logger.debug('ScriptHandler: handle_script_command_remove_object not implemented yet')
+
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_set_melee_attack(command):
@@ -950,8 +1055,10 @@ class ScriptHandler:
         # datalong = (bool) 0 = off, 1 = on
         if not command.source:
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
         command.source.object_ai.set_melee_attack(command.datalong > 0)
+
+        return False
 
     @staticmethod
     def handle_script_command_set_combat_movement(command):
@@ -959,9 +1066,11 @@ class ScriptHandler:
         # datalong = (bool) 0 = off, 1 = on
         if not command.source or not ConditionChecker.is_creature(command.source):
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         command.source.object_ai.set_combat_movement(command.datalong > 0)
+
+        return False
 
     @staticmethod
     def handle_script_command_set_phase(command):
@@ -970,7 +1079,7 @@ class ScriptHandler:
         # datalong2 = eSetPhaseOptions
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         if command.datalong2 == SetPhaseOptions.SO_SETPHASE_RAW:
             command.source.object_ai.script_phase = command.datalong
@@ -979,15 +1088,19 @@ class ScriptHandler:
         elif command.datalong2 == SetPhaseOptions.SO_SETPHASE_DECREMENT:
             command.source.object_ai.script_phase = max(0, command.source.object_ai.script_phase - command.datalong)
 
+        return False
+
     @staticmethod
     def handle_script_command_set_phase_random(command):
         # source = Creature
         # datalong1-4 = phase
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
+
         command.source.object_ai.script_phase = random.choice([command.datalong1, command.datalong2,
                                                                command.datalong3, command.datalong4])
+        return False
 
     @staticmethod
     def handle_script_command_set_phase_range(command):
@@ -996,8 +1109,11 @@ class ScriptHandler:
         # datalong2 = phase_max
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
-            return
+            return command.should_abort()
+
         command.source.object_ai.script_phase = random.randrange(command.datalong, command.datalong2)
+
+        return False
 
     @staticmethod
     def handle_script_command_flee(command):
@@ -1005,7 +1121,7 @@ class ScriptHandler:
         # datalong = seek_assistance (bool) 0 = off, 1 = on
         if not command.source or not command.source.is_alive:
             Logger.warning(f'ScriptHandler: No source or source is dead, aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         flee_text = WorldDatabaseManager.BroadcastTextHolder.broadcast_text_get_by_id(1150)
         ChatManager.send_monster_message(command.source, flee_text.male_text,
@@ -1018,6 +1134,8 @@ class ScriptHandler:
         # Flee for 7 seconds or until assist is found (If nearby units can assist).
         command.source.movement_manager.move_fear(duration_seconds=7, seek_assist=seek_assist)
 
+        return False
+
     @staticmethod
     def handle_script_command_deal_damage(command):
         # source = Unit
@@ -1026,7 +1144,7 @@ class ScriptHandler:
         # datalong2 = (bool) is_percent
         if not command.source or not command.target:
             Logger.warning(f'ScriptHandler: No source or no target, aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         if command.datalong2 == 1:
             # Damage is a percentage of the target's health.
@@ -1039,8 +1157,10 @@ class ScriptHandler:
             damage_info = DamageInfoHolder(attacker=attacker, target=command.target, total_damage=damage_to_deal,
                                            damage_school_mask=SpellSchoolMask.SPELL_SCHOOL_MASK_NORMAL)
             command.source.deal_damage(command.target, damage_info)
-        else:
-            Logger.warning(f'ScriptHandler: Attempted to deal 0 damage, aborting {command.get_info()}')
+            return False
+
+        Logger.warning(f'ScriptHandler: Attempted to deal 0 damage, aborting {command.get_info()}')
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_set_sheath(command):
@@ -1048,12 +1168,14 @@ class ScriptHandler:
         # datalong = see enum WeaponMode
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
-            return
+            return command.should_abort()
         # 0.5.3 weapon modes for sheathed and unsheathed status are swapped compared to later versions.
         # In order to keep full compatibility with VMaNGOS scripts, we do the swap here instead of changing the value
         # in the database.
         weapon_mode = command.datalong ^ 1 if command.datalong < 2 else command.datalong
         command.source.set_weapon_mode(weapon_mode)
+
+        return False
 
     @staticmethod
     def handle_script_command_invincibility(command):
@@ -1062,31 +1184,36 @@ class ScriptHandler:
         # datalong2 = (bool) is_percent
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
-            return
+            return command.should_abort()
         invincibility_hp_lvl = command.source.max_health * command.datalong / 100 if command.datalong2 else \
             command.datalong
         command.source.invincibility_hp_level = invincibility_hp_lvl
 
+        return False
+
     @staticmethod
-    def handle_script_command_game_event(_command):
+    def handle_script_command_game_event(command):
         # source = None
         # datalong = event_id
         # datalong2 = (bool) start
         # datalong3 = (bool) overwrite
         Logger.debug('ScriptHandler: handle_script_command_game_event not implemented yet')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_set_server_variable(_command):
+    def handle_script_command_set_server_variable(command):
         # source = None
         # datalong = index
         # datalong2 = value
         Logger.debug('ScriptHandler: handle_script_command_set_server_variable not implemented yet')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_remove_guardians(_command):
+    def handle_script_command_remove_guardians(command):
         # source = Unit
         # datalong = creature_id
         Logger.debug('ScriptHandler: handle_script_command_remove_guardians not implemented yet')
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_add_spell_cooldown(command):
@@ -1095,14 +1222,15 @@ class ScriptHandler:
         # datalong2 = cooldown in seconds
         if not command.source or not ConditionChecker.is_unit(command.source):
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(command.datalong)
         if not spell:
             Logger.warning(f'ScriptHandler: Invalid spell Id, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         command.source.spell_manager.set_on_cooldown(spell, command.datalong2 * 1000)
+        return False
 
     @staticmethod
     def handle_script_command_remove_spell_cooldown(command):
@@ -1110,15 +1238,17 @@ class ScriptHandler:
         # datalong = spell_id
         if not command.source or not ConditionChecker.is_unit(command.source):
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
 
         command.source.spell_manager.unlock_spell_cooldown(command.datalong)
+        return False
 
     @staticmethod
-    def handle_script_command_set_react_state(_command):
+    def handle_script_command_set_react_state(command):
         # source = Creature
         # datalong = see enum ReactStates
         Logger.debug('ScriptHandler: handle_script_command_set_react_state not implemented yet')
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_start_waypoints(command):
@@ -1131,11 +1261,13 @@ class ScriptHandler:
         # dataint2 = overwrite_entry
         if not command.source:
             Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return
+            return command.should_abort()
         move_info = CommandMoveInfo(wp_source=WaypointPathOrigin(command.datalong), start_point=command.datalong2,
                                     initial_delay=command.datalong3, repeat=command.datalong4 > 0,
                                     overwrite_guid=command.dataint, overwrite_entry=command.dataint2)
         command.source.movement_manager.move_automatic_waypoints_from_script(command_move_info=move_info)
+
+        return False
 
     @staticmethod
     def handle_script_command_start_map_event(command):
@@ -1146,28 +1278,38 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_start_map_event invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
-            return
+            return command.should_abort()
 
-        map_.map_event_manager.add_event(command.source, command.target, command.source.map_id, command.datalong,
-                                         command.datalong2, command.dataint, command.dataint2, command.dataint3,
-                                         command.dataint4)
+        map_.add_event(command.source, command.target, command.source.map_id, command.datalong, command.datalong2,
+                       command.dataint, command.dataint2, command.dataint3, command.dataint4)
+
+        return False
 
     @staticmethod
     def handle_script_command_end_map_event(command):
         # source = Map
         # datalong = event_id
         # datalong2 = (bool) success
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_end_map_event invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
-            return
+            return command.should_abort()
 
-        map_.map_event_manager.end_event(command.datalong, command.datalong2)
+        map_.end_event(command.datalong, command.datalong2)
+        return False
 
     @staticmethod
     def handle_script_command_add_map_event_target(command):
@@ -1178,14 +1320,19 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_add_map_event_target invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
-            return
+            return command.should_abort()
 
-        map_.map_event_manager.add_event_target(command.target, command.datalong, command.dataint,
-                                                command.dataint2, command.dataint3, command.dataint4)
+        map_.add_event_target(command.target, command.datalong, command.dataint, command.dataint2, command.dataint3,
+                              command.dataint4)
+        return False
 
     @staticmethod
     def handle_script_command_remove_map_event_target(command):
@@ -1194,14 +1341,18 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = condition_id
         # datalong3 = eRemoveMapEventTargetOptions
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_remove_map_event_target invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
-            return
+            return command.should_abort()
 
-        map_.map_event_manager.remove_event_target(command.target, command.datalong, command.datalong2,
-                                                   command.datalong3)
+        map_.remove_event_target(command.target, command.datalong, command.datalong2, command.datalong3)
+        return False
 
     @staticmethod
     def handle_script_command_set_map_event_data(command):
@@ -1210,14 +1361,18 @@ class ScriptHandler:
         # datalong2 = index
         # datalong3 = data
         # datalong4 = eSetMapScriptDataOptions
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_set_map_event_data invalid map '
                            f'({command.source.map_id}) and/or instance ({command.source.instance_id}).')
-            return
+            return command.should_abort()
 
-        map_.map_event_manager.set_event_data(command.datalong, command.datalong2, command.datalong3,
-                                              command.datalong4)
+        map_.set_event_data(command.datalong, command.datalong2, command.datalong3, command.datalong4)
+        return False
 
     @staticmethod
     def handle_script_command_send_map_event(command):
@@ -1225,30 +1380,37 @@ class ScriptHandler:
         # datalong = event_id
         # datalong2 = data
         # datalong3 = eSendMapEventOptions
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_send_map_event invalid map ({command.source.map_id}) '
                            f'and/or instance ({command.source.instance_id}).')
-            return
+            return command.should_abort()
 
-        map_.map_event_manager.send_event_data(command.datalong, command.datalong2, command.datalong3)
+        map_.send_event_data(command.datalong, command.datalong2, command.datalong3)
+        return False
 
     @staticmethod
-    def handle_script_command_set_default_movement(_command):
+    def handle_script_command_set_default_movement(command):
         # source = Creature
         # datalong = movement_type
         # datalong2 = (bool) always_replace
         # datalong3 = param1
         Logger.debug('ScriptHandler: handle_script_command_set_default_movement not implemented yet')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_start_script_for_all(_command):
+    def handle_script_command_start_script_for_all(command):
         # source = WorldObject
         # datalong = script_id
         # datalong2 = eStartScriptForAllOptions
         # datalong3 = object_entry
         # datalong4 = search_radius
         Logger.debug('ScriptHandler: handle_script_command_start_script_for_all not implemented yet')
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_edit_map_event(command):
@@ -1258,14 +1420,20 @@ class ScriptHandler:
         # dataint2 = success_script
         # dataint3 = failure_condition
         # dataint4 = failure_script
-        map_ = MapManager.get_map(command.source.map_id, command.source.instance_id)
+        map_ = command.source.get_map()
+        if not map_:
+            Logger.warning(f'ScriptHandler: No map found, aborting {command.get_info()}.')
+            return command.should_abort()
+
         if not map_:
             Logger.warning(f'ScriptHandler: handle_script_command_edit_map_event invalid map ({command.source.map_id}) '
                            f'and/or instance ({command.source.instance_id}).')
-            return
+            return command.should_abort()
 
-        map_.map_event_manager.edit_map_event_data(command.datalong, command.dataint, command.dataint2,
-                                                   command.dataint3, command.dataint4)
+        map_.edit_map_event_data(command.datalong, command.dataint, command.dataint2, command.dataint3,
+                                 command.dataint4)
+
+        return False
 
     @staticmethod
     def handle_script_command_fail_quest(command):
@@ -1273,8 +1441,10 @@ class ScriptHandler:
         # datalong = quest_id
         if command.source:
             command.source.quest_manager.fail_quest_by_id(command.datalong)
-        else:
-            Logger.warning('ScriptHandler: handle_script_command_fail_quest failed, no valid target')
+            return False
+
+        Logger.warning('ScriptHandler: handle_script_command_fail_quest failed, no valid target')
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_respawn_creature(command):
@@ -1282,11 +1452,13 @@ class ScriptHandler:
         # datalong = (bool) even_if_alive
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         if command.datalong or not command.source.is_alive:
             command.source.despawn()
             command.source.respawn()
+
+        return False
 
     @staticmethod
     def handle_script_command_assist_unit(command):
@@ -1294,26 +1466,29 @@ class ScriptHandler:
         # target = Unit
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         command.source.object_ai.assist_unit(command.target)
+        return False
 
     @staticmethod
     def handle_script_command_combat_stop(command):
         # source = Unit
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         command.source.attack_stop()
         command.source.leave_combat()
+        return False
 
     @staticmethod
-    def handle_script_command_add_aura(_command):
+    def handle_script_command_add_aura(command):
         # source = Unit
         # datalong = spell_id
         # datalong2 = flags
         Logger.debug('ScriptHandler: handle_script_command_add_aura not implemented yet')
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_add_threat(command):
@@ -1321,41 +1496,46 @@ class ScriptHandler:
         # target = Unit
         if not command.source or not command.target:
             Logger.warning(f'ScriptHandler: No source or target, aborting {command.get_info()}')
-            return
+            return command.should_abort()
         if command.source.is_alive and command.source.in_combat:
             command.source.threat_manager.add_threat(command.target)
-        else:
-            Logger.warning(f'ScriptHandler: Source is not in combat, aborting {command.get_info()}')
+            return False
+
+        Logger.warning(f'ScriptHandler: Source is not in combat, aborting {command.get_info()}')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_summon_object(_command):
+    def handle_script_command_summon_object(command):
         # source = WorldObject
         # datalong = gameobject_entry
         # datalong2 = respawn_time
         # x/y/z/o = coordinates
         Logger.debug('ScriptHandler: handle_script_command_summon_object not implemented yet')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_join_creature_group(_command):
+    def handle_script_command_join_creature_group(command):
         # source = Creature
         # target = Creature
         # datalong = OptionFlags
         # x = distance
         # o = angle
         Logger.debug('ScriptHandler: handle_script_command_join_creature_group not implemented yet')
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_leave_creature_group(command):
         # source = Creature
         if not command.source or not ConditionChecker.is_creature(command.source):
             Logger.warning(f'ScriptHandler: No or invalid target (must be creature), aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         if not command.source.creature_group:
             Logger.warning(f'ScriptHandler: No creature group, aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         command.source.creature_group.remove_member(command.source)
+        return False
 
     @staticmethod
     def handle_script_command_set_go_state(command):
@@ -1363,61 +1543,69 @@ class ScriptHandler:
         # datalong = GOState
         if not command.source:
             Logger.warning(f'ScriptHandler: No source, aborting {command.get_info()}')
-            return
+            return command.should_abort()
 
         if command.source.get_type_id() != ObjectTypeIds.ID_GAMEOBJECT:
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
-            return
+            return command.should_abort()
 
         command.source.set_state(GameObjectStates(command.datalong))
+        return False
 
     @staticmethod
-    def handle_script_command_quest_credit(_command):
+    def handle_script_command_quest_credit(command):
         # source = Player (from provided source or target)
         # target = WorldObject (from provided source or target)
         Logger.debug('ScriptHandler: handle_script_command_quest_credit not implemented yet')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_send_script_event(_command):
+    def handle_script_command_send_script_event(command):
         # source = Creature
         # target = WorldObject
         # datalong = event_id
         # datalong2 = event_data
         Logger.debug('ScriptHandler: handle_script_command_send_script_event not implemented yet')
+        return command.should_abort()
 
     @staticmethod
     def handle_script_command_reset_door_or_button(command):
         # source = GameObject
         if not command.source or not ConditionChecker.is_gameobject(command.source):
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
-            return
+            return command.should_abort()
 
         command.source.gameobject_instance.set_ready()
+        return False
 
     @staticmethod
-    def handle_script_command_set_command_state(_command):
+    def handle_script_command_set_command_state(command):
         # source = Creature
         # datalong = command_state (see enum CommandStates)
         Logger.debug('ScriptHandler: handle_script_command_set_command_state not implemented yet')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_play_custom_anim(_command):
+    def handle_script_command_play_custom_anim(command):
         # source = GameObject
         # datalong = anim_id
         Logger.debug('ScriptHandler: handle_script_command_play_custom_anim not implemented yet')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_start_script_on_group(_command):
+    def handle_script_command_start_script_on_group(command):
         # source = Unit
         # datalong1-4 = generic_script id
         # dataint1-4 = chance (total cant be above 100)
         Logger.debug('ScriptHandler: handle_script_command_start_script_on_group not implemented yet')
+        return command.should_abort()
 
     @staticmethod
-    def handle_script_command_call_for_help(_command):
+    def handle_script_command_call_for_help(command):
         # source = Creature
         # x = radius
         Logger.debug('ScriptHandler: handle_script_command_call_for_help not implemented yet')
+        return command.should_abort()
 
     # Script types.
 
@@ -1451,9 +1639,10 @@ SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_QUEST_START: ScriptHandler.handle_script_type_quest_start,
     ScriptTypes.SCRIPT_TYPE_QUEST_END: ScriptHandler.handle_script_type_quest_end,
     ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
-    # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
     ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
     ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
+    # Unused in 0.5.3.
+    # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
     # ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,
     # ScriptTypes.SCRIPT_TYPE_SPELL: ScriptHandler.handle_script_type_spell
 }

@@ -7,11 +7,9 @@ from typing import TYPE_CHECKING, Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.script.AIEventHandler import AIEventHandler
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
-from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
@@ -334,11 +332,11 @@ class CreatureAI:
             return SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE
 
         # This spell should only be cast when we cannot get into melee range.
-        #  TODO: We need to known which type of movement the unit is 'using', chase, spline, etc..
+        #  TODO: We need to know which type of movement the unit is 'using', chase, spline, etc..
         if (cast_flags & CastFlags.CF_TARGET_UNREACHABLE and
                 (self.creature.is_within_interactable_distance(target)
                  or self.creature.is_moving() or not (self.creature.unit_state & UnitStates.ROOTED)
-                 or not MapManager.can_reach_object(self.creature, target))):
+                 or not self.creature.get_map().can_reach_object(self.creature, target))):
             return SpellCheckCastResult.SPELL_FAILED_MOVING
 
         if not cast_flags & CastFlags.CF_FORCE_CAST:

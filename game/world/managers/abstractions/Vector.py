@@ -1,8 +1,6 @@
 import math
 from random import random
 from struct import pack, unpack
-
-from game.world.managers.maps.MapManager import MapManager
 from utils.ConfigManager import config
 
 
@@ -38,12 +36,13 @@ class Vector(object):
         return vector
 
     @staticmethod
-    def calculate_z(x, y, map_id, default_z=0.0) -> tuple:  # float, z_locked (Could not use map files Z)
+    def calculate_z(x, y, map_id, default_z=0.0, is_rand_point=False) -> tuple:  # float, z_locked (Could not use map files Z)
         if map_id == -1 or (not config.Server.Settings.use_map_tiles and not config.Server.Settings.use_nav_tiles):
             return default_z, False
         else:
+            from game.world.managers.maps.MapManager import MapManager
             # Calculate destination Z, default Z if not possible.
-            return MapManager.calculate_z(map_id, x, y, default_z)
+            return MapManager.calculate_z(map_id, x, y, default_z, is_rand_point=is_rand_point)
 
     def set_orientation(self, orientation):
         self.o = orientation
@@ -125,7 +124,7 @@ class Vector(object):
         factor = offset / general_distance
         x3 = self.x + factor * (vector.x - self.x)
         y3 = self.y + factor * (vector.y - self.y)
-        z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z))
+        z3, z_locked = Vector.calculate_z(x3, y3, map_id, self.z + factor * (vector.z - self.z), is_rand_point=True)
 
         result = Vector(x3, y3, z3, z_locked=z_locked)
         orientation = self.o if self.o != 0 else self.get_angle_towards_vector(result)
@@ -136,7 +135,7 @@ class Vector(object):
     def get_point_in_middle(self, vector, map_id=-1):
         x = (self.x + vector.x) / 2
         y = (self.y + vector.y) / 2
-        z, z_locked = Vector.calculate_z(x, y, map_id, (self.z + vector.z) / 2)
+        z, z_locked = Vector.calculate_z(x, y, map_id, (self.z + vector.z) / 2, is_rand_point=True)
 
         return Vector(x, y, z, z_locked=z_locked)
 
@@ -147,14 +146,14 @@ class Vector(object):
 
         x = self.x + (r * math.cos(theta))
         y = self.y + (r * math.sin(theta))
-        z, z_locked = Vector.calculate_z(x, y, map_id, self.z)
+        z, z_locked = Vector.calculate_z(x, y, map_id, self.z, is_rand_point=True)
 
         return Vector(x, y, z, z_locked=z_locked)
 
     def get_point_in_radius_and_angle(self, radius, angle, final_orientation=-1, map_id=-1):
         x = self.x + (radius * math.cos(self.o + angle))
         y = self.y + (radius * math.sin(self.o + angle))
-        z, z_locked = Vector.calculate_z(x, y, map_id, self.z)
+        z, z_locked = Vector.calculate_z(x, y, map_id, self.z, is_rand_point=True)
         o = self.o if final_orientation == -1 else final_orientation
 
         return Vector(x, y, z, o, z_locked=z_locked)

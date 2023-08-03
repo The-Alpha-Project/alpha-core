@@ -1,5 +1,4 @@
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
-from game.world.managers.maps.MapManager import MapManager
 from struct import unpack
 
 from game.world.managers.objects.units.creature.utils.TrainerUtils import TrainerUtils
@@ -24,7 +23,7 @@ class TrainerListHandler(object):
                 return 0
             # NPC offering.
             else:
-                trainer: CreatureManager = MapManager.get_surrounding_unit_by_guid(player_mgr, guid)
+                trainer: CreatureManager = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
 
             if trainer and trainer.is_within_interactable_distance(player_mgr):
                 available_quests: int = 0

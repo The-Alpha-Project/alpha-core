@@ -3,7 +3,6 @@ import time
 from dataclasses import dataclass
 from typing import Optional
 
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.UnitManager import UnitManager
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags
@@ -160,7 +159,7 @@ class ThreatManager:
             return random.choice(relevant_holders[:-1]).unit
         # Farthest or Nearest targets.
         else:
-            surrounding_units = MapManager.get_surrounding_units(self.unit, include_players=True)
+            surrounding_units = self.unit.get_map().get_surrounding_units(self.unit, include_players=True)
             units_in_range = list(surrounding_units[0].values()) + list(surrounding_units[1].values())
             units_in_aggro_list = [h.unit for h in relevant_holders if h.unit in units_in_range]
             if len(units_in_aggro_list) > 0:
@@ -178,9 +177,9 @@ class ThreatManager:
     def call_for_help(self, source, threat=THREAT_NOT_TO_LEAVE_COMBAT):
         if not self._call_for_help_range:
             return
-        units = MapManager.get_surrounding_units_by_location(self.unit.location, self.unit.map_id,
-                                                             self.unit.instance_id,
-                                                             self._call_for_help_range)[0].values()
+        units = self.unit.get_map().get_surrounding_units_by_location(self.unit.location, self.unit.map_id,
+                                                                      self.unit.instance_id,
+                                                                      self._call_for_help_range)[0].values()
         helping_units = [unit for unit in units if self.unit_can_assist_help_call(unit, source)]
         [unit.threat_manager.add_threat(source, threat, is_call_for_help=True) for unit in helping_units]
 
@@ -222,7 +221,7 @@ class ThreatManager:
             return False
         elif caller_unit.get_creature_family() != self.unit.get_creature_family():
             return False
-        elif not MapManager.los_check(caller_unit.map_id, self.unit.get_ray_position(), caller_unit.get_ray_position()):
+        elif not caller_unit.get_map().los_check(self.unit.get_ray_position(), caller_unit.get_ray_position()):
             return False
         return True
 

@@ -1,6 +1,5 @@
 from struct import pack
 
-from game.world.managers.maps.MapManager import MapManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.DuelCodes import *
 from utils.constants.MiscCodes import ObjectTypeIds
@@ -99,7 +98,7 @@ class DuelManager(object):
 
         # Send either the duel ended by natural means or if it was canceled/interrupted
         packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_COMPLETE, pack('<B', duel_complete_flag))
-        MapManager.send_surrounding(packet, self.arbiter)
+        self.arbiter.get_map().send_surrounding(packet, self.arbiter)
 
         # Was not interrupted, broadcast duel result.
         if duel_complete_flag == DuelComplete.DUEL_FINISHED:
@@ -108,7 +107,7 @@ class DuelManager(object):
             data = pack(f'<B{len(winner_name_bytes)}s{len(loser_name_bytes)}s', duel_winner_flag, winner_name_bytes,
                         loser_name_bytes)
             packet = PacketWriter.get_packet(OpCode.SMSG_DUEL_WINNER, data)
-            MapManager.send_surrounding(packet, self.arbiter)
+            self.arbiter.get_map().send_surrounding(packet, self.arbiter)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_CANCEL_COMBAT)
         for entry in list(self.players.values()):
@@ -126,7 +125,7 @@ class DuelManager(object):
             entry.player.aura_manager.remove_harmful_auras_by_caster(entry.target.guid)
 
         # Clean up arbiter go and cleanup.
-        MapManager.remove_object(self.arbiter)
+        self.arbiter.get_map().remove_object(self.arbiter)
 
         # Finally, flush this DualManager instance.
         self.flush()

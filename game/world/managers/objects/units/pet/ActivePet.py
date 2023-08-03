@@ -1,5 +1,4 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.Logger import Logger
@@ -126,15 +125,14 @@ class ActivePet:
         self.update_stats(reset=True)
 
         movement_type = MovementTypes.IDLE
+        map_ = self.creature.get_map()
         # Check if this is a borrowed creature instance.
         if self.creature.spawn_id:
-            spawn = MapManager.get_surrounding_creature_spawn_by_spawn_id(self.creature,
-                                                                          self.creature.spawn_id)
+            spawn = map_.get_surrounding_creature_spawn_by_spawn_id(self.creature, self.creature.spawn_id)
             # This creature might be too far from its spawn upon detach, search in all map cells.
             if not spawn:
-                spawn = MapManager.get_creature_spawn_by_id(self.creature.map_id,
-                                                            self.creature.instance_id,
-                                                            self.creature.spawn_id)
+                spawn = map_.get_creature_spawn_by_id(self.creature.map_id, self.creature.instance_id,
+                                                      self.creature.spawn_id)
 
             # Creature spawn should be found at this point.
             if spawn:

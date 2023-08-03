@@ -5,7 +5,6 @@ from os import path
 from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from game.world.managers.maps.helpers.AreaInformation import AreaInformation
 from game.world.managers.maps.helpers.Constants import RESOLUTION_ZMAP, RESOLUTION_LIQUIDS, RESOLUTION_AREA_INFO
 from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from network.packet.PacketReader import PacketReader
