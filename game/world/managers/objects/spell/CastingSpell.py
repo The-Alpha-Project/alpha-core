@@ -615,5 +615,5 @@ class CastingSpell:
             return
 
         is_player = self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER
-        self.spell_caster.get_map().send_surrounding(PacketWriter.get_packet(final_opcode, data), self.spell_caster,
-                                                     include_self=is_player)
+        packet = PacketWriter.get_packet(final_opcode, data)
+        self.spell_caster.get_map().send_surrounding(packet, self.spell_caster, include_self=is_player)
