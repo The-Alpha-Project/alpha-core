@@ -49,7 +49,9 @@ class Script:
                 continue
 
             # Execute action.
-            self.script_handler.handle_script_command_execution(script_command)
+            should_abort = self.script_handler.handle_script_command_execution(script_command)
+            if should_abort:
+                self.abort()
 
     def abort(self):
         Logger.warning(f'Script {self.id} aborted.')
