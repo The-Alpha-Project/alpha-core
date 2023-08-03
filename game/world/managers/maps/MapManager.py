@@ -300,7 +300,7 @@ class MapManager:
         return not failed
 
     @staticmethod
-    def calculate_path(map_id, src_loc, dst_loc) -> tuple:  # bool failed, in_place, path list.
+    def calculate_path(map_id, src_loc, dst_loc, los=False) -> tuple:  # bool failed, in_place, path list.
         # If nav tiles disabled or unable to load Namigator, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return False, False, [dst_loc]
@@ -328,7 +328,8 @@ class MapManager:
         navigation_path = namigator.find_path(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z)
 
         if len(navigation_path) == 0:
-            Logger.warning(f'Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
+            if not los:
+                Logger.warning(f'Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
             return True, False, [dst_loc]
 
         # Pop starting location, we already have that and WoW client seems to crash when sending
@@ -337,7 +338,8 @@ class MapManager:
 
         # Validate length again.
         if len(navigation_path) == 0:
-            Logger.warning(f'Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
+            if not los:
+                Logger.warning(f'Unable to find path, map {map_id} loc {src_loc} end {dst_loc}')
             return True, False, [dst_loc]
 
         from game.world.managers.abstractions.Vector import Vector
