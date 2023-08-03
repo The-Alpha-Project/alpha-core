@@ -3317,7 +3317,6 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '-1237.41', `position_y` = '-2970.69', `position_z` = '86.1426' WHERE (`spawn_id` = '14968');
 
         insert into`applied_updates`values ('010820231');
-
     end if;
 
 end $
