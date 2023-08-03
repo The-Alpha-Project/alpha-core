@@ -44,7 +44,7 @@ class ScriptedEvent:
         if not self.source:
             Logger.error(f'No source found to trigger end script for event {self.event_id}, aborting.')
             return
-        
+
         script = self.success_script if success else self.failure_script
         self.source.get_map().enqueue_script(self.source, self.target, ScriptTypes.SCRIPT_TYPE_GENERIC, script)
 
