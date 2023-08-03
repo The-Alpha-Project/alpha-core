@@ -64,8 +64,7 @@ class CommandManager(object):
             if only_players:
                 unit = player_mgr.get_map().get_surrounding_player_by_guid(player_mgr, player_mgr.current_selection)
             else:
-                unit = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection,
-                                                                         include_players=True)
+                unit = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, player_mgr.current_selection, True)
             if unit:
                 return unit
 
