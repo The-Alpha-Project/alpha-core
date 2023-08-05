@@ -9,6 +9,7 @@ from game.world.managers.maps.helpers.Constants import RESOLUTION_ZMAP, RESOLUTI
 from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from network.packet.PacketReader import PacketReader
 from utils.ConfigManager import config
+from utils.Float16 import Float16
 from utils.Logger import Logger
 from utils.PathManager import PathManager
 
@@ -48,6 +49,8 @@ class MapTile(object):
         return self.area_information[cell_x][cell_y]
 
     def get_z_at(self, cell_x, cell_y):
+        if config.Server.Settings.z_packed:
+            return Float16.decompress(self.z_height_map[cell_x][cell_y])
         return self.z_height_map[cell_x][cell_y]
 
     def is_initialized(self):
@@ -106,6 +109,9 @@ class MapTile(object):
                 # Height Map
                 for x in range(RESOLUTION_ZMAP):
                     for y in range(RESOLUTION_ZMAP):
+                        if config.Server.Settings.z_packed:
+                            self.z_height_map[x][y] = unpack('>h', map_tiles.read(2))[0]
+                            continue
                         self.z_height_map[x][y] = unpack('<f', map_tiles.read(4))[0]
 
                 # ZoneID, AreaNumber, AreaFlags, AreaLevel, AreaExploreFlag(Bit).
