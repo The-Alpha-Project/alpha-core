@@ -5,8 +5,6 @@ from tools.map_extractor.helpers.Constants import Constants
 from utils.Float16 import Float16
 
 Z_RESOLUTION = 256
-Z_PACKED_POSITIVE = 1000
-
 
 class HeightField:
 
@@ -49,7 +47,7 @@ class HeightField:
                     file_stream.write(pack('<f', self.calculate_z(cy, cx)))
                     continue
                 # 16 bit Half precision.
-                file_stream.write(pack('>h', Float16.compress(self.calculate_z(cy, cx) + Z_PACKED_POSITIVE)))
+                file_stream.write(pack('>h', Float16.compress(self.calculate_z(cy, cx))))
 
     def calculate_z(self, cy, cx):
         # Reuse vectors.
