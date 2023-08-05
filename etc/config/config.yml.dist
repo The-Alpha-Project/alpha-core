@@ -100,5 +100,5 @@ Extractor:
     Maps:
         # World of Warcraft root directory.
         wow_root_path: ''
-        # Heightfield resolution. (64 or 256)
+        # Heightfield resolution. (64, 128 or 256)
         z_resolution: 256
