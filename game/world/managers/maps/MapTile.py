@@ -21,7 +21,7 @@ class MapTileStates(IntEnum):
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.50'
+    EXPECTED_VERSION = 'ACMAP_1.60'
 
     def __init__(self, map_id, adt_x, adt_y):
         self.initialized = False

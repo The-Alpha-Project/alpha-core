@@ -48,10 +48,8 @@ class HeightField:
                 if not self.z_packed:
                     file_stream.write(pack('<f', self.calculate_z(cy, cx)))
                     continue
-                z = self.calculate_z(cy, cx) + Z_PACKED_POSITIVE
-                float16 = Float16.compress(z)
-                # 16 bit half precision.
-                file_stream.write(pack('>h', float16))
+                # 16 bit Half precision.
+                file_stream.write(pack('>h', Float16.compress(self.calculate_z(cy, cx) + Z_PACKED_POSITIVE)))
 
     def calculate_z(self, cy, cx):
         # Reuse vectors.

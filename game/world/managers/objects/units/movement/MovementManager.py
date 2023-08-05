@@ -26,16 +26,16 @@ class MovementManager:
         self.active_behavior_type = None
         # Available move behaviors with priority.
         self.movement_behaviors = {
-            MoveType.EVADE: None,
-            MoveType.FLIGHT: None,
-            MoveType.FEAR: None,
-            MoveType.DISTRACTED: None,
-            MoveType.CHASE: None,
-            MoveType.PET: None,
-            MoveType.GROUP: None,
-            MoveType.WAYPOINTS: None,
-            MoveType.WANDER: None,
-            MoveType.IDLE: None,
+            MoveType.EVADE: Optional[BaseMovement],
+            MoveType.FLIGHT: Optional[BaseMovement],
+            MoveType.FEAR: Optional[BaseMovement],
+            MoveType.DISTRACTED: Optional[BaseMovement],
+            MoveType.CHASE: Optional[BaseMovement],
+            MoveType.PET: Optional[BaseMovement],
+            MoveType.GROUP: Optional[BaseMovement],
+            MoveType.WAYPOINTS: Optional[BaseMovement],
+            MoveType.WANDER: Optional[BaseMovement],
+            MoveType.IDLE: Optional[BaseMovement],
         }
         self.spline_events = []
 
@@ -69,6 +69,8 @@ class MovementManager:
         self.reset(clean_behaviors=True)
         for move_type in self.movement_behaviors.keys():
             self.movement_behaviors[move_type] = None
+        if not self.unit.is_alive:
+            self.stop(force=True)
 
     def reset(self, clean_behaviors=False):
         self.pause_ooc_timer = 0
