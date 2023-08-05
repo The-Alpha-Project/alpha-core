@@ -26,16 +26,16 @@ class MovementManager:
         self.active_behavior_type = None
         # Available move behaviors with priority.
         self.movement_behaviors = {
-            MoveType.EVADE: Optional[BaseMovement],
-            MoveType.FLIGHT: Optional[BaseMovement],
-            MoveType.FEAR: Optional[BaseMovement],
-            MoveType.DISTRACTED: Optional[BaseMovement],
-            MoveType.CHASE: Optional[BaseMovement],
-            MoveType.PET: Optional[BaseMovement],
-            MoveType.GROUP: Optional[BaseMovement],
-            MoveType.WAYPOINTS: Optional[BaseMovement],
-            MoveType.WANDER: Optional[BaseMovement],
-            MoveType.IDLE: Optional[BaseMovement],
+            MoveType.EVADE: None,
+            MoveType.FLIGHT: None,
+            MoveType.FEAR: None,
+            MoveType.DISTRACTED: None,
+            MoveType.CHASE: None,
+            MoveType.PET: None,
+            MoveType.GROUP: None,
+            MoveType.WAYPOINTS: None,
+            MoveType.WANDER: None,
+            MoveType.IDLE: None
         }
         self.spline_events = []
 
@@ -223,6 +223,8 @@ class MovementManager:
     def _remove_invalid_expired_behaviors(self):
         movements_removed = False
         for move_type, behavior in list(self.movement_behaviors.items()):
+            if not isinstance(behavior, BaseMovement):
+                continue
             if behavior and behavior.can_remove() and not behavior.is_default:
                 movements_removed = True
                 self._remove_behavior(behavior)
@@ -244,9 +246,10 @@ class MovementManager:
 
     def _update_active_behavior_type(self):
         for move_type, behavior in list(self.movement_behaviors.items()):
-            if behavior:
-                self.active_behavior_type = behavior.move_type
-                break
+            if not isinstance(behavior, BaseMovement):
+                continue
+            self.active_behavior_type = behavior.move_type
+            break
 
     def _remove_behavior(self, movement_behavior):
         self.movement_behaviors[movement_behavior.move_type] = None
