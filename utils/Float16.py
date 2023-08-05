@@ -4,6 +4,7 @@ import struct
 import binascii
 
 
+F16_ENSURE_POSITIVE = 1000
 F16_EXPONENT_BITS = 0x1F
 F16_EXPONENT_SHIFT = 10
 F16_EXPONENT_BIAS = 15
@@ -15,6 +16,7 @@ F16_MAX_EXPONENT = (F16_EXPONENT_BITS << F16_EXPONENT_SHIFT)
 class Float16:
     @staticmethod
     def compress(float32):
+        float32 += F16_ENSURE_POSITIVE
         a = struct.pack('>f', float32)
         b = binascii.hexlify(a)
 
@@ -57,5 +59,4 @@ class Float16:
         e = e + (127 - 15)
         f = f << 13
         i = int((s << 31) | (e << 23) | f)
-        from tools.map_extractor.helpers.HeightField import Z_PACKED_POSITIVE
-        return struct.unpack('f', struct.pack('I', i))[0] - Z_PACKED_POSITIVE
+        return struct.unpack('f', struct.pack('I', i))[0] - F16_ENSURE_POSITIVE
