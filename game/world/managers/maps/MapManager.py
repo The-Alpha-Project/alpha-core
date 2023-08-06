@@ -412,7 +412,6 @@ class MapManager:
                     found, z2 = MapManager.get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tol)
                     # Found a valid Z near current Z, return not protected.
                     if found:
-                        print('z2')
                         return z2, False
                     # Unable to find Z on both tries, return protected.
                     return current_z, True
