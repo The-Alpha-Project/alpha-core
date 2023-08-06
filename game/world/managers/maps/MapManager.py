@@ -443,8 +443,6 @@ class MapManager:
         return MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
 
     @staticmethod
-    # TODO, validate if there is something off between extractor and MapManager cell calculations.
-    #  Seems a bit off needing to expand the search to -3 +3 range in order to find a valid Z.
     def get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tolerance=1.0):
         for i in range(-3, 3):
             for j in range(-3, 3):
