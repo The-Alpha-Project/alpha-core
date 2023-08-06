@@ -368,6 +368,14 @@ class MapManager:
         return True
 
     @staticmethod
+    def validate_map_coord(coord):
+        if coord > 32.0 * ADT_SIZE:
+            return 32.0 * ADT_SIZE
+        elif coord < -32.0 * ADT_SIZE:
+            return -32.0 * ADT_SIZE
+        return coord
+
+    @staticmethod
     def calculate_z_for_object(w_object):
         return MapManager.calculate_z(w_object.map_id, w_object.location.x, w_object.location.y, w_object.location.z)
 
@@ -378,6 +386,10 @@ class MapManager:
         if not config.Server.Settings.use_nav_tiles and not config.Server.Settings.use_map_tiles:
             return current_z, False
         try:
+            # Checking both axis within boundaries.
+            x = MapManager.validate_map_coord(x)
+            y = MapManager.validate_map_coord(y)
+
             adt_x, adt_y, cell_x, cell_y = MapManager.calculate_tile(x, y)
 
             # No tile data available or busy loading.
