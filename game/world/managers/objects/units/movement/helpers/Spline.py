@@ -59,12 +59,13 @@ class Spline(object):
         if not self.initialized:
             return False, None, False
 
+        # Spline is complete but has extra time.
+        if not self.pending_waypoints:
+            return False, None, False
+
         self.total_waypoint_timer += elapsed
         self.elapsed += elapsed * 1000  # Milliseconds.
         self.elapsed_since_last_location += elapsed
-
-        if not self.pending_waypoints:
-            return False, None, False
 
         current_waypoint = self.pending_waypoints[0]
 
