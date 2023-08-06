@@ -3319,5 +3319,13 @@ begin not atomic
         insert into`applied_updates`values ('010820231');
     end if;
 
+    -- 06/08/2023 1
+    if (select count(*) from `applied_updates` where id='060820231') = 0 then
+        -- Invalid sign.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26434');
+
+        insert into`applied_updates`values ('060820231');
+    end if;
+
 end $
 delimiter ;
