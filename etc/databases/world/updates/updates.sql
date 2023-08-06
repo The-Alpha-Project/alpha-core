@@ -3323,6 +3323,9 @@ begin not atomic
     if (select count(*) from `applied_updates` where id='060820231') = 0 then
         -- Invalid sign.
         UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26434');
+        -- Skeletal Mage display id.
+        UPDATE `creature_template` SET `display_id1` = '201' WHERE (`entry` = '203');
+
 
         insert into`applied_updates`values ('060820231');
     end if;
