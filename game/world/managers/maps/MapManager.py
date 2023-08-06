@@ -386,7 +386,7 @@ class MapManager:
         if not config.Server.Settings.use_nav_tiles and not config.Server.Settings.use_map_tiles:
             return current_z, False
         try:
-            # Checking both axis within boundaries.
+            # Check both axis within boundaries.
             x = MapManager.validate_map_coord(x)
             y = MapManager.validate_map_coord(y)
 
