@@ -410,7 +410,7 @@ class MapManager:
                 if (math.fabs(current_z - calculated_z) > tol) and current_z:
                     found, z2 = MapManager.get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tol)
                     # Not locked if found, else current z locked.
-                    return z2, False if found else current_z, True
+                    return (z2, False) if found else (current_z, True)
                 # First Z was valid.
                 return calculated_z, False
             except:
