@@ -404,17 +404,13 @@ class MapManager:
 
             try:
                 calculated_z = MapManager.get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x, cell_y)
-                diff = math.fabs(current_z - calculated_z)
                 # Tolerance.
                 tol = 1.1 if not is_rand_point else 2
                 # If Z goes outside boundaries, expand our search.
-                if (diff > tol or not diff) and current_z:
+                if (math.fabs(current_z - calculated_z) > tol) and current_z:
                     found, z2 = MapManager.get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tol)
-                    # Found a valid Z near current Z, return not protected.
-                    if found:
-                        return z2, False
-                    # Unable to find Z on both tries, return protected.
-                    return current_z, True
+                    # Not locked if found, else current z locked.
+                    return z2, False if found else current_z, True
                 # First Z was valid.
                 return calculated_z, False
             except:
