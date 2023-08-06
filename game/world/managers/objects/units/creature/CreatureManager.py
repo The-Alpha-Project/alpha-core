@@ -326,7 +326,7 @@ class CreatureManager(UnitManager):
         return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_NO_ASSIST
 
     def should_always_run_ooc(self):
-        return not self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_ALWAYS_RUN
+        return self.creature_template.flags_extra & CreatureFlagsExtra.CREATURE_FLAG_EXTRA_ALWAYS_RUN
 
     def is_critter(self):
         return self.creature_template.type == CreatureTypes.AMBIENT
