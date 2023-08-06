@@ -28,11 +28,6 @@ class MapExtractor:
             Logger.error(f'Data path "{config.Extractor.Maps.wow_root_path}" does not exist.')
             exit()
 
-        # Validate Z resolution.
-        if config.Extractor.Maps.z_resolution not in {64, 256}:
-            Logger.error('Invalid Z resolution. (64, 256)')
-            exit()
-
         # Validate /Data/.
         data_path = os.path.join(config.Extractor.Maps.wow_root_path, WOW_DATA_FOLDER)
         if not os.path.exists(data_path):

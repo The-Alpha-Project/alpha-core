@@ -1,4 +1,6 @@
 from io import BytesIO
+
+from game.world.managers.maps.helpers.Constants import BLOCK_SIZE
 from utils.Logger import Logger
 from tools.map_extractor.definitions.Adt import Adt
 from tools.map_extractor.helpers.Constants import Constants
@@ -54,8 +56,8 @@ class Wdt:
             return
 
         # Tiles information.
-        for x in range(64):
-            for y in range(64):
+        for x in range(BLOCK_SIZE):
+            for y in range(BLOCK_SIZE):
                 self.tile_information[x][y] = TileHeader.from_reader(self.stream_reader)
 
         error, token, size = self.stream_reader.read_chunk_information('MDNM')

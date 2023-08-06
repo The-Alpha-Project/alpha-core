@@ -16,6 +16,7 @@ from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
 from network.packet.PacketWriter import PacketWriter
+from utils.ConfigManager import config
 from utils.Formulas import UnitFormulas
 from utils.Logger import Logger
 from utils.constants import CustomCodes
@@ -552,13 +553,9 @@ class SpellEffectHandler:
         charge_location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_id)
         charge_location.face_point(target.location)
 
-        # Invalid Z can cause players to fall off terrain.
-        if charge_location.z_locked:
-            Logger.warning(f'Unable to calculate valid Z for Charge/HeroicLeap at Map {caster.map_id} '
-                           f'X {charge_location.x} '
-                           f'Y {charge_location.y} '
-                           f'Z {charge_location.z}.')
-            return
+        # Always increase Z when not using namigator to protect players from falling off world.
+        if config.Server.Settings.use_map_tiles and not config.Server.Settings.use_nav_tiles:
+            charge_location.z += 1.5
 
         # Stop movement if target is currently moving with waypoints.
         target.movement_manager.stop()

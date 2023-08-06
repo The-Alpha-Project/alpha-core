@@ -1,6 +1,6 @@
 from game.world.managers.maps.helpers import CellUtils
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType, ScriptTypes
+from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
 from game.world.managers.objects.units.movement.behaviors.BaseMovement import BaseMovement
@@ -13,6 +13,13 @@ class GroupMovement(BaseMovement):
         self.last_waypoint_movement = 0
         self.wait_time_seconds = 0
         self._is_lagging = False
+
+    # override
+    def initialize(self, unit):
+        super().initialize(unit)
+        # Use either walk or run speed by default.
+        self.unit.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not self.unit.should_always_run_ooc())
+        return True
 
     # override
     def update(self, now, elapsed):
@@ -61,8 +68,9 @@ class GroupMovement(BaseMovement):
             self.unit.creature_group.leader and now > self.last_waypoint_movement + self.wait_time_seconds
 
     def _perform_waypoint(self):
+        creature_group = self.unit.creature_group
         waypoint = self._get_waypoint()
-        speed = config.Unit.Defaults.walk_speed
+        speed = self._get_speed(creature_group)
         spline = SplineBuilder.build_normal_spline(self.unit, points=[waypoint.location], speed=speed,
                                                    extra_time_seconds=waypoint.wait_time_seconds)
         self.spline_callback(spline, movement_behavior=self)
@@ -74,12 +82,20 @@ class GroupMovement(BaseMovement):
         spline = SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed)
         self.spline_callback(spline, movement_behavior=self)
 
+    def _get_speed(self, creature_group):
+        force_running = not creature_group.leader.movement_flags & MoveFlags.MOVEFLAG_WALK
+        # If the leader is running, use running for group members.
+        if force_running:
+            return self.unit.running_speed
+        return config.Unit.Defaults.walk_speed if \
+            self.unit.movement_flags & MoveFlags.MOVEFLAG_WALK else self.unit.running_speed
+
     def _get_follow_position_and_speed(self, creature_mgr, elapsed):
         creature_group = self.unit.creature_group
         if creature_mgr.guid not in creature_group.members or not creature_group.leader:
             return None, 0
         group_member = creature_group.members[creature_mgr.guid]
-        speed = config.Unit.Defaults.walk_speed
+        speed = self._get_speed(creature_group)
         leader_distance = max(0.2, group_member.distance_leader - (elapsed * speed))
         location = creature_group.leader.location.get_point_in_radius_and_angle(leader_distance, group_member.angle)
         creature_distance = group_member.creature.location.distance(location) - (elapsed * speed)

@@ -1649,7 +1649,7 @@ class UnitManager(ObjectManager):
 
         self.pending_relocation = False
         self.set_has_moved(False, False, True)
-        self.relocation_call_for_help_timer = 0;
+        self.relocation_call_for_help_timer = 0
 
         if self.object_ai:
             self.object_ai.just_died(killer)
@@ -1663,10 +1663,9 @@ class UnitManager(ObjectManager):
         # Leave combat if needed.
         self.leave_combat()
 
-        # Flush movement manager and notify none movement flags to observers.
+        # Flush movement manager.
         self.movement_manager.flush()
         self.movement_flags = MoveFlags.MOVEFLAG_NONE
-        self.get_map().send_surrounding(self.generate_movement_packet(), self, include_self=False)
 
         # Reset threat manager.
         self.threat_manager.reset()

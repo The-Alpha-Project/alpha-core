@@ -1,5 +1,5 @@
 class Constants:
-    MAPS_VERSION = 'ACMAP_1.50'
+    MAPS_VERSION = 'ACMAP_1.60'
     TILE_BLOCK_SIZE = 64
     TILE_SIZE = 16
     CELL_SIZE = 8

@@ -2,13 +2,15 @@ from struct import pack
 from utils.ConfigManager import config
 from game.world.managers.abstractions.Vector import Vector
 from tools.map_extractor.helpers.Constants import Constants
+from utils.Float16 import Float16
 
+Z_RESOLUTION = 256
 
 class HeightField:
 
     def __init__(self, adt):
         self.tiles = adt.tiles
-        self.z_resolution = config.Extractor.Maps.z_resolution
+        self.z_packed = config.Extractor.Maps.z_packed
         self.v9 = [[0.0 for _ in range(129)] for _ in range(129)]
         self.v8 = [[0.0 for _ in range(128)] for _ in range(128)]
         self.p = Vector()
@@ -38,17 +40,22 @@ class HeightField:
         self.v9[128][128] = self.tiles[15][15].mcvt.get_v9(8, 8)
 
     def write_to_file(self, file_stream):
-        for cy in range(self.z_resolution):
-            for cx in range(self.z_resolution):
-                file_stream.write(pack('<f', self.calculate_z(cy, cx)))
+        for cy in range(Z_RESOLUTION):
+            for cx in range(Z_RESOLUTION):
+                # 32 bit Full precision.
+                if not self.z_packed:
+                    file_stream.write(pack('<f', self.calculate_z(cy, cx)))
+                    continue
+                # 16 bit Half precision.
+                file_stream.write(pack('>h', Float16.compress(self.calculate_z(cy, cx))))
 
     def calculate_z(self, cy, cx):
         # Reuse vectors.
         p: Vector = self.p
         v: list[Vector] = self.v
 
-        x = (cy * Constants.TILE_SIZE_YARDS) / (self.z_resolution - 1)
-        z = (cx * Constants.TILE_SIZE_YARDS) / (self.z_resolution - 1)
+        x = (cy * Constants.TILE_SIZE_YARDS) / (Z_RESOLUTION - 1)
+        z = (cx * Constants.TILE_SIZE_YARDS) / (Z_RESOLUTION - 1)
 
         # Find quadrant.
         xc = int(x / Constants.UNIT_SIZE)

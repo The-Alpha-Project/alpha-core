@@ -3319,5 +3319,39 @@ begin not atomic
         insert into`applied_updates`values ('010820231');
     end if;
 
+    -- 06/08/2023 1
+    if (select count(*) from `applied_updates` where id='060820231') = 0 then
+        -- Invalid sign.
+        UPDATE `spawns_gameobjects` SET `ignored` = '1' WHERE (`spawn_id` = '26434');
+        -- Skeletal Mage display id.
+        UPDATE `creature_template` SET `display_id1` = '201' WHERE (`entry` = '203');
+        -- Aldric Moore - Mail -> Leather Merchant
+        UPDATE `creature_template` SET `subname` = 'Leather Armor Merchant' WHERE (`entry` = '1294');
+        UPDATE `npc_vendor` SET `item` = '236' WHERE (`entry` = '1294') and (`item` = '285');
+        UPDATE `npc_vendor` SET `item` = '237' WHERE (`entry` = '1294') and (`item` = '286');
+        UPDATE `npc_vendor` SET `item` = '238' WHERE (`entry` = '1294') and (`item` = '287');
+        UPDATE `npc_vendor` SET `item` = '239' WHERE (`entry` = '1294') and (`item` = '718');
+        UPDATE `npc_vendor` SET `item` = '796' WHERE (`entry` = '1294') and (`item` = '847');
+        UPDATE `npc_vendor` SET `item` = '797' WHERE (`entry` = '1294') and (`item` = '848');
+        UPDATE `npc_vendor` SET `item` = '798' WHERE (`entry` = '1294') and (`item` = '849');
+        UPDATE `npc_vendor` SET `item` = '799' WHERE (`entry` = '1294') and (`item` = '850');
+        UPDATE `npc_vendor` SET `item` = '843' WHERE (`entry` = '1294') and (`item` = '1845');
+        UPDATE `npc_vendor` SET `item` = '844' WHERE (`entry` = '1294') and (`item` = '1846');
+        UPDATE `npc_vendor` SET `item` = '845' WHERE (`entry` = '1294') and (`item` = '1852');
+        UPDATE `npc_vendor` SET `item` = '846' WHERE (`entry` = '1294') and (`item` = '1853');
+        UPDATE `npc_vendor` SET `item` = '1839' WHERE (`entry` = '1294') and (`item` = '2392');
+        UPDATE `npc_vendor` SET `item` = '1840' WHERE (`entry` = '1294') and (`item` = '2393');
+        UPDATE `npc_vendor` SET `item` = '1843' WHERE (`entry` = '1294') and (`item` = '2394');
+        UPDATE `npc_vendor` SET `item` = '1844' WHERE (`entry` = '1294') and (`item` = '2395');
+        UPDATE `npc_vendor` SET `item` = '1849' WHERE (`entry` = '1294') and (`item` = '2396');
+        UPDATE `npc_vendor` SET `item` = '1850' WHERE (`entry` = '1294') and (`item` = '2397');
+
+        --  Krolg display_id.
+        UPDATE `creature_template` SET `display_id1` = '2003' WHERE (`entry` = '3897');
+
+
+        insert into`applied_updates`values ('060820231');
+    end if;
+
 end $
 delimiter ;
