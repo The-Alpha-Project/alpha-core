@@ -553,15 +553,6 @@ class MapManager:
         return MapTileStates.UNUSABLE
 
     @staticmethod
-    def validate_map_coord(coord):
-        if coord > 32.0 * ADT_SIZE:
-            return 32.0 * ADT_SIZE
-        elif coord < -32.0 * ADT_SIZE:
-            return -32 * ADT_SIZE
-        else:
-            return coord
-
-    @staticmethod
     def _lerp(value1, value2, amount):
         return value1 + ((value2 - value1) * amount)
 
