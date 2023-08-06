@@ -3346,6 +3346,10 @@ begin not atomic
         UPDATE `npc_vendor` SET `item` = '1849' WHERE (`entry` = '1294') and (`item` = '2396');
         UPDATE `npc_vendor` SET `item` = '1850' WHERE (`entry` = '1294') and (`item` = '2397');
 
+        --  Krolg display_id.
+        UPDATE `creature_template` SET `display_id1` = '2003' WHERE (`entry` = '3897');
+
+
         insert into`applied_updates`values ('060820231');
     end if;
 
