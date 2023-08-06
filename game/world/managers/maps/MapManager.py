@@ -207,8 +207,8 @@ class MapManager:
         y = MapManager.validate_map_coord(y)
         adt_x = int(32.0 - (x / ADT_SIZE))
         adt_y = int(32.0 - (y / ADT_SIZE))
-        cell_x = int(resolution * (32.0 - (x / ADT_SIZE) - adt_x))
-        cell_y = int(resolution * (32.0 - (y / ADT_SIZE) - adt_y))
+        cell_x = int(round(resolution * (32.0 - (x / ADT_SIZE) - adt_x)))
+        cell_y = int(round(resolution * (32.0 - (y / ADT_SIZE) - adt_y)))
         return adt_x, adt_y, cell_x, cell_y
 
     @staticmethod
@@ -400,6 +400,7 @@ class MapManager:
                     found, z2 = MapManager.get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tol)
                     # Found a valid Z near current Z, return not protected.
                     if found:
+                        print('z2')
                         return z2, False
                     # Unable to find Z on both tries, return protected.
                     return current_z, True
@@ -444,12 +445,12 @@ class MapManager:
 
     @staticmethod
     def get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tolerance=1.0):
-        for i in range(-3, 3):
-            for j in range(-3, 3):
+        for i in range(-2, 2):
+            for j in range(-2, 2):
                 height = MapManager.get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x + i, cell_y + j)
                 if abs(current_z - height) < tolerance:
                     return True, height
-
+        # Not found.
         return False, current_z
 
     @staticmethod
@@ -555,7 +556,7 @@ class MapManager:
 
     @staticmethod
     def _lerp(value1, value2, amount):
-        return value1 + (value2 - value1) * amount
+        return value1 + ((value2 - value1) * amount)
 
     @staticmethod
     def update_creatures():
