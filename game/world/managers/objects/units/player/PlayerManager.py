@@ -1298,7 +1298,7 @@ class PlayerManager(UnitManager):
     def is_under_water(self):
         if not self.liquid_information or not self.is_swimming():
             return False
-        return self.location.z + (self.current_scale * 2) < self.liquid_information.height
+        return self.location.z + (self.current_scale * 2) < self.liquid_information.get_height()
 
     # override
     def is_in_deep_water(self):

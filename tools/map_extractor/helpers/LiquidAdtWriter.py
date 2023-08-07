@@ -1,11 +1,14 @@
 from struct import pack
 from tools.map_extractor.helpers.Constants import Constants
 from tools.map_extractor.definitions.enums.LiquidFlags import LiquidFlags
+from utils.ConfigManager import config
+from utils.Float16 import Float16
 
 
 class LiquidAdtWriter:
     def __init__(self, adt):
         self.adt = adt
+        self.use_float_16 = config.Extractor.Maps.use_float_16
         self.lq_show = [[False for _ in range(Constants.GRID_SIZE)] for _ in range(Constants.GRID_SIZE)]
         self.lq_height = [[0.0 for _ in range(Constants.GRID_SIZE + 1)] for _ in range(Constants.GRID_SIZE + 1)]
         self.lq_flags = [[0 for _ in range(Constants.GRID_SIZE + 1)] for _ in range(Constants.GRID_SIZE + 1)]
@@ -59,6 +62,11 @@ class LiquidAdtWriter:
             for x in range(Constants.GRID_SIZE):
                 if self.lq_show[y][x] is True:
                     file_writer.write(pack('<b', self.lq_flags[y][x]))
-                    file_writer.write(pack('<f', self.lq_height[y][x]))
+                    # 32 bit Full precision.
+                    if not self.use_float_16:
+                        file_writer.write(pack('<f', self.lq_height[y][x]))
+                        continue
+                    # 16 bit Half precision.
+                    file_writer.write(pack('>h', Float16.compress(self.lq_height[y][x])))
                 else:
                     file_writer.write(pack('<b', -1))

@@ -6,11 +6,12 @@ from utils.Float16 import Float16
 
 Z_RESOLUTION = 256
 
+
 class HeightField:
 
     def __init__(self, adt):
         self.tiles = adt.tiles
-        self.z_packed = config.Extractor.Maps.z_packed
+        self.use_float_16 = config.Extractor.Maps.use_float_16
         self.v9 = [[0.0 for _ in range(129)] for _ in range(129)]
         self.v8 = [[0.0 for _ in range(128)] for _ in range(128)]
         self.p = Vector()
@@ -43,7 +44,7 @@ class HeightField:
         for cy in range(Z_RESOLUTION):
             for cx in range(Z_RESOLUTION):
                 # 32 bit Full precision.
-                if not self.z_packed:
+                if not self.use_float_16:
                     file_stream.write(pack('<f', self.calculate_z(cy, cx)))
                     continue
                 # 16 bit Half precision.
