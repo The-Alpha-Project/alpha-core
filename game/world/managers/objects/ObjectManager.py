@@ -409,7 +409,7 @@ class ObjectManager:
     # override
     def is_under_water(self):
         liquid_information = self.get_map().get_liquid_information(self.location.x, self.location.y, self.location.z)
-        return liquid_information and self.location.z + (self.current_scale * 1.8) < liquid_information.height
+        return liquid_information and self.location.z + (self.current_scale * 1.8) < liquid_information.get_height()
 
     # override
     def is_in_deep_water(self):

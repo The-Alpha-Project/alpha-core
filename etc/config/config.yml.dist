@@ -35,7 +35,10 @@ Server:
         cell_size: 64  # Shouldn't be much bigger than 200
         console_mode: True  # Set it to False if you intend to run the server on background
         use_map_tiles: False  # If True, place 0.5.3 .map files at '/etc/maps/'
-        z_packed: False  # True if heightfield was extracted using float packing.
+        # Float16
+        # True if .map files were extracted using float 16 setting.
+        # In order to reduce size and ram, heightfield and liquids can be extracted using half precision 16bit floats.
+        use_float_16: False
         # Nav tiles:
         # If True, place *nix '.so' or Windows '.pyd' from Namigator inside './namigator'. (https://github.com/The-Alpha-Project/namigator)
         # Also, place extracted BHV and NAVS data inside 'etc/navs/'. They need to be extracted with the MapBuilder tool
@@ -100,5 +103,5 @@ Extractor:
     Maps:
         # World of Warcraft root directory.
         wow_root_path: ''
-        # True for half precision float packing.
-        z_packed: False
+        # True for half precision 16 bit floats.
+        use_float_16: False

@@ -6,7 +6,6 @@ from struct import unpack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.maps.helpers.Constants import RESOLUTION_ZMAP, RESOLUTION_LIQUIDS, RESOLUTION_AREA_INFO
-from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from network.packet.PacketReader import PacketReader
 from utils.ConfigManager import config
 from utils.Float16 import Float16
@@ -21,16 +20,17 @@ class MapTileStates(IntEnum):
 
 
 class MapTile(object):
-    EXPECTED_VERSION = 'ACMAP_1.60'
+    EXPECTED_VERSION = 'ACMAP_1.70'
 
-    def __init__(self, map_id, adt_x, adt_y):
+    def __init__(self, map_, adt_x, adt_y):
+        self.map_ = map_
+        self.map_id = map_.map_id
         self.initialized = False
         self.ready = False
         self.has_maps = False
         self.has_navigation = False
         self.adt_x = adt_x
         self.adt_y = adt_y
-        self.map_id = map_id
         self.area_information = None
         self.liquid_information = None
         self.z_height_map = None
@@ -49,7 +49,7 @@ class MapTile(object):
         return self.area_information[cell_x][cell_y]
 
     def get_z_at(self, cell_x, cell_y):
-        if config.Server.Settings.z_packed:
+        if config.Server.Settings.use_float_16:
             return Float16.decompress(self.z_height_map[cell_x][cell_y])
         return self.z_height_map[cell_x][cell_y]
 
@@ -99,6 +99,7 @@ class MapTile(object):
             self.area_information = [[None for _ in range(RESOLUTION_AREA_INFO)] for _ in range(RESOLUTION_AREA_INFO)]
             self.liquid_information = [[None for _ in range(RESOLUTION_LIQUIDS)] for _ in range(RESOLUTION_LIQUIDS)]
             self.z_height_map = [[0 for _ in range(RESOLUTION_ZMAP)] for _ in range(RESOLUTION_ZMAP)]
+            use_f16 = config.Server.Settings.use_float_16
 
             with open(maps_path, "rb") as map_tiles:
                 version = PacketReader.read_string_from_stream(map_tiles)
@@ -109,7 +110,7 @@ class MapTile(object):
                 # Height Map
                 for x in range(RESOLUTION_ZMAP):
                     for y in range(RESOLUTION_ZMAP):
-                        if config.Server.Settings.z_packed:
+                        if use_f16:
                             self.z_height_map[x][y] = unpack('>h', map_tiles.read(2))[0]
                             continue
                         self.z_height_map[x][y] = unpack('<f', map_tiles.read(4))[0]
@@ -133,9 +134,12 @@ class MapTile(object):
                         liquid_type = unpack('<b', map_tiles.read(1))[0]
                         if liquid_type == -1:  # No liquid information / not rendered.
                             continue
-                        height = unpack('<f', map_tiles.read(4))[0]
+                        if use_f16:
+                            height = unpack('>h', map_tiles.read(2))[0]
+                        else:
+                            height = unpack('<f', map_tiles.read(4))[0]
                         # noinspection PyTypeChecker
-                        self.liquid_information[x][y] = LiquidInformation(liquid_type, height)
+                        self.liquid_information[x][y] = self.map_.get_liquid_or_create(liquid_type, height, use_f16)
         return True
 
     # noinspection PyMethodMayBeStatic

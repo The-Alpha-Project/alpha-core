@@ -13,12 +13,12 @@ from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP
     RESOLUTION_LIQUIDS, BLOCK_SIZE
 from game.world.managers.maps.Map import Map, MapType
 from game.world.managers.maps.MapTile import MapTile, MapTileStates
+from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from game.world.managers.maps.helpers.Namigator import Namigator
-from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.PathManager import PathManager
-from utils.constants.MiscCodes import ObjectTypeIds
+
 
 MAPS: dict[int, dict[int, Map]] = {}
 MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
@@ -31,6 +31,7 @@ MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90,
 
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
+LIQUIDS_CACHE = {}
 PENDING_TILE_INITIALIZATION = {}
 PENDING_TILE_INITIALIZATION_QUEUE = _queue.SimpleQueue()
 QUEUE_LOCK = RLock()
@@ -116,7 +117,7 @@ class MapManager:
         MAPS_TILES[map_.map_id] = [[None for r in range(64)] for c in range(64)]
         for adt_x in range(BLOCK_SIZE):
             for adt_y in range(BLOCK_SIZE):
-                MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_.map_id, adt_x, adt_y)
+                MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_, adt_x, adt_y)
 
         Logger.success(f'[MAP] Successfully built ADT tiles for map {map_.name}')
         return True
@@ -186,6 +187,13 @@ class MapManager:
             if parent:
                 return parent.ID
         return zone_id
+
+    @staticmethod
+    def get_liquid_or_create(liquid_type, height, use_float_16):
+        key = f'{liquid_type}.{round(height, 4)}'
+        if key not in LIQUIDS_CACHE:
+            LIQUIDS_CACHE[key] = LiquidInformation(liquid_type, height, use_float_16)
+        return LIQUIDS_CACHE[key]
 
     @staticmethod
     def on_cell_turn_active(world_object):
@@ -489,7 +497,7 @@ class MapManager:
 
             tile = MAPS_TILES[map_id][adt_x][adt_y]
             liquids = tile.get_liquids_at(cell_x, cell_y)
-            return liquids if liquids and liquids.height > z else liquids if liquids and ignore_z else None
+            return liquids if liquids and liquids.get_height() > z else liquids if liquids and ignore_z else None
         except:
             Logger.error(traceback.format_exc())
             return None
@@ -511,7 +519,7 @@ class MapManager:
             fz = start_location.z
             liquid_info = map_.get_liquid_information(fx, fy, fz, ignore_z=True)
             if liquid_info:
-                liquids_vectors.append(Vector(fx, fy, liquid_info.height))
+                liquids_vectors.append(Vector(fx, fy, liquid_info.get_height()))
             start_range += 1
 
         if len(liquids_vectors) == 0:
