@@ -3386,6 +3386,17 @@ begin not atomic
         INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '10', '-5376.484', '277.488', '394.261', '100', '0', '0', '0');
         INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '11', '-5387.113', '288.699', '394.158', '100', '0', '0', '0');
 
+        -- Barkeep Belm shouldn't sell Moonberry Juice and Soft Banana Bread.
+        DELETE FROM `npc_vendor` WHERE (`entry` = '1247') and (`item` = '1645');
+        DELETE FROM `npc_vendor` WHERE (`entry` = '1247') and (`item` = '4601');
+
+        -- Spawn a White Ram.
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400438', '4777', '0', '0', '0', '0', '-5540.217', '-1336.507', '398.664', '2.642', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+
+        -- Kreg Bilmn should sell Unlit Poor Torches.
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('1691', '6183', '0', '0', '0', '0');
+
+
         insert into`applied_updates`values ('060820232');
     end if;
 
