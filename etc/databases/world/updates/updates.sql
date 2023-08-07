@@ -3353,5 +3353,41 @@ begin not atomic
         insert into`applied_updates`values ('060820231');
     end if;
 
+
+    -- 06/08/2023 2
+    if (select count(*) from `applied_updates` where id='060820232') = 0 then
+        -- Man Brewnall Village with Mountaineers
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400436', '724', '0', '0', '0', '0', '-5382.093', '296.163', '393.711', '1.174', '300', '300', '0', '100', '100', '2', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400437', '724', '0', '0', '0', '0', '-5342.680', '270.096', '389.924', '1.656', '300', '300', '0', '100', '100', '2', '0', '0', '0');
+
+        -- Waypoints around camp.
+        DELETE FROM `creature_movement` WHERE `id`=400436;
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '1', '-5382.09', '296.163', '393.711', '1.174', '3000', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '2', '-5386.013', '305.535', '393.975', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '3', '-5598.224', '306.474', '395.696', '100', '1000', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '4', '-5386.488', '322.309', '394.674', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '5', '-5364.005', '325.863', '394.2444', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '6', '-5351.439', '317.126', '394.231', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '7', '-5353.012', '299.844', '394.627', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '8', '-5340.248', '269.987', '389.800', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '9', '-5358.914', '275.520', '394.103', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '10', '-5376.484', '277.488', '394.261', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400436', '11', '-5387.113', '288.699', '394.158', '100', '0', '0', '0');
+        DELETE FROM `creature_movement` WHERE `id`=400437;
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '1', '-5382.09', '296.163', '393.711', '1.174', '3000', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '2', '-5386.013', '305.535', '393.975', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '3', '-5598.224', '306.474', '395.696', '100', '1000', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '4', '-5386.488', '322.309', '394.674', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '5', '-5364.005', '325.863', '394.2444', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '6', '-5351.439', '317.126', '394.231', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '7', '-5353.012', '299.844', '394.627', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '8', '-5340.248', '269.987', '389.800', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '9', '-5358.914', '275.520', '394.103', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '10', '-5376.484', '277.488', '394.261', '100', '0', '0', '0');
+        INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES ('400437', '11', '-5387.113', '288.699', '394.158', '100', '0', '0', '0');
+
+        insert into`applied_updates`values ('060820232');
+    end if;
+
 end $
 delimiter ;
