@@ -1183,7 +1183,10 @@ class UnitManager(ObjectManager):
         else:
             self.movement_flags &= ~move_flag
 
-        self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
+        # Did the flag actually change?
+        if (is_active and not self.movement_flags & move_flag) or (not is_active and self.movement_flags & move_flag):
+            self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
+
         return is_active
 
     def set_dynamic_type_flag(self, type_flag, active, index=-1) -> bool:

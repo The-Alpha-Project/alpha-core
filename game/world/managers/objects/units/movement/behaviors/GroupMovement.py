@@ -16,9 +16,9 @@ class GroupMovement(BaseMovement):
 
     # override
     def initialize(self, unit):
-        super().initialize(unit)
         # Use either walk or run speed by default.
-        self.unit.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not self.unit.should_always_run_ooc())
+        unit.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not unit.should_always_run_ooc())
+        super().initialize(unit)
         return True
 
     # override
