@@ -1178,13 +1178,15 @@ class UnitManager(ObjectManager):
     def set_move_flag(self, move_flag, active, index=-1) -> bool:
         is_active = self._set_effect_flag_state(MoveFlags, move_flag, active, index)
 
+        flag_changed = (is_active and not self.movement_flags & move_flag) or \
+                       (not is_active and self.movement_flags & move_flag)
+
         if is_active:
             self.movement_flags |= move_flag
         else:
             self.movement_flags &= ~move_flag
 
-        # Did the flag actually change?
-        if (is_active and not self.movement_flags & move_flag) or (not is_active and self.movement_flags & move_flag):
+        if flag_changed:
             self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
 
         return is_active
