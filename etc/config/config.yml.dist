@@ -36,7 +36,7 @@ Server:
         console_mode: True  # Set it to False if you intend to run the server on background
         use_map_tiles: False  # If True, place 0.5.3 .map files at '/etc/maps/'
         # Float16
-        # True if .map files were extracted using float 16 setting.
+        # True if .map files were extracted using 16bit floats.
         # In order to reduce size and ram, heightfield and liquids can be extracted using half precision 16bit floats.
         use_float_16: False
         # Nav tiles:
@@ -103,5 +103,5 @@ Extractor:
     Maps:
         # World of Warcraft root directory.
         wow_root_path: ''
-        # True for half precision 16 bit floats.
+        # True for half precision 16bit floats.
         use_float_16: False
