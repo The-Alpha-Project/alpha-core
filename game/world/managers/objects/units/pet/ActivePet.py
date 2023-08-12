@@ -74,6 +74,8 @@ class ActivePet:
         if not pet_stats:
             Logger.warning(f'Unable to locate pet level stats for creature entry '
                            f'{pet_data.creature_template.entry} level {pet_data.get_level()}')
+            # Use default stats.
+            pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(1, pet_data.get_level())
 
         if pet_stats or reset:
             self.creature.stat_manager.base_stats[UnitStats.HEALTH] = self.creature.max_health if reset else pet_stats.hp

@@ -158,20 +158,14 @@ class FriendsManager(object):
 
         for entry in friends_list:
             player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.friend)
-            # If player is online.
-            if player_mgr and player_mgr.online:
-                self.owner.enqueue_packet(NameQueryHandler.get_query_details(player_mgr.player))
-                data += pack(
-                    '<QB3I',
-                    player_mgr.guid,
-                    FriendStatus.FRIEND_STATUS_ONLINE,
-                    player_mgr.get_map().get_parent_zone_id(player_mgr.zone),
-                    player_mgr.level,
-                    player_mgr.class_
-                )
             # If player is offline.
-            else:
+            if not player_mgr or not player_mgr.online:
                 data += pack('QB', entry.friend, FriendStatus.FRIEND_STATUS_OFFLINE)
+                continue
+            # If player is online.
+            self.owner.enqueue_packet(NameQueryHandler.get_query_details(player_mgr.player))
+            data += pack('<QB3I', player_mgr.guid, FriendStatus.FRIEND_STATUS_ONLINE,
+                         player_mgr.get_map().get_parent_zone_id(player_mgr.zone), player_mgr.level, player_mgr.class_)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_LIST, data)
         self.owner.enqueue_packet(packet)
@@ -188,33 +182,33 @@ class FriendsManager(object):
 
     def send_online_notification(self):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
-        for friend in have_me_as_friend:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(friend.guid)
-            if player_mgr and not player_mgr.friends_manager.has_ignore(self.owner.guid):
-                data = pack(
-                    '<BQB3I',
-                    FriendResults.FRIEND_ONLINE,
-                    self.owner.guid,
-                    FriendStatus.FRIEND_STATUS_ONLINE,
-                    self.owner.get_map().get_parent_zone_id(self.owner.zone),
-                    self.owner.level,
-                    self.owner.class_
-                )
-                packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-                player_mgr.enqueue_packet(packet)
+        online = [player for player in have_me_as_friend if WorldSessionStateHandler.find_player_by_guid(player.guid)]
+        packet = self._get_online_notification_packet()
+        [player.enqueue_packet(packet) for player in online if not player.friends_manager.has_ignore(self.owner.guid)]
+
+    def _get_online_notification_packet(self):
+        data = pack(
+            '<BQB3I',
+            FriendResults.FRIEND_ONLINE,
+            self.owner.guid,
+            FriendStatus.FRIEND_STATUS_ONLINE,
+            self.owner.get_map().get_parent_zone_id(self.owner.zone),
+            self.owner.level,
+            self.owner.class_
+        )
+        return PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
 
     def send_offline_notification(self):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
-        for friend in have_me_as_friend:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(friend.guid)
-            if player_mgr and not player_mgr.friends_manager.has_ignore(self.owner.guid):
-                data = pack('<BQB', FriendResults.FRIEND_OFFLINE, self.owner.guid, FriendStatus.FRIEND_STATUS_OFFLINE)
-                packet = PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
-                player_mgr.enqueue_packet(packet)
+        online = [player for player in have_me_as_friend if WorldSessionStateHandler.find_player_by_guid(player.guid)]
+        packet = self._get_offline_notification_packet()
+        [player.enqueue_packet(packet) for player in online if not player.friends_manager.has_ignore(self.owner.guid)]
+
+    def _get_offline_notification_packet(self):
+        data = pack('<BQB', FriendResults.FRIEND_OFFLINE, self.owner.guid, FriendStatus.FRIEND_STATUS_OFFLINE)
+        return PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
 
     def send_update_to_friends(self):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
-        for friend in have_me_as_friend:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(friend.guid)
-            if player_mgr:
-                player_mgr.friends_manager.send_friends()
+        online = [player for player in have_me_as_friend if WorldSessionStateHandler.find_player_by_guid(player.guid)]
+        [player.friends_manager.send_friends() for player in online]

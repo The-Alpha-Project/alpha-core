@@ -257,10 +257,12 @@ class GroupManager(object):
         if not player_mgr:
             return
         if target_player_guid not in self.members:
-            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
+                                                     PartyResults.ERR_TARGET_NOT_IN_YOUR_GROUP_S)
             return
         elif self.group.leader_guid != player_guid:
-            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '', PartyResults.ERR_NOT_LEADER)
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_LEAVE, '',
+                                                     PartyResults.ERR_NOT_LEADER)
             return
 
         self.leave_party(target_player_guid, is_kicked=True)
@@ -487,37 +489,42 @@ class GroupManager(object):
             player_mgr.group_manager = GROUPS[group_id]
 
     @staticmethod
-    def invite_player(player_mgr, target_player_mgr):
-        if player_mgr.is_hostile_to(target_player_mgr):
-            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_PLAYER_WRONG_FACTION)
+    def invite_player(player_mgr, target_player):
+        if player_mgr.is_hostile_to(target_player):
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE,
+                                                     target_player.get_name(), PartyResults.ERR_PLAYER_WRONG_FACTION)
             return
 
-        if target_player_mgr.friends_manager.has_ignore(player_mgr.guid):
-            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_IGNORING_YOU_S)
+        if target_player.friends_manager.has_ignore(player_mgr.guid):
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE,
+                                                     target_player.get_name(), PartyResults.ERR_IGNORING_YOU_S)
             return
 
-        if target_player_mgr.group_manager and target_player_mgr.group_manager.is_party_formed():
-            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_ALREADY_IN_GROUP_S)
+        if target_player.group_manager and target_player.group_manager.is_party_formed():
+            GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE,
+                                                     target_player.get_name(), PartyResults.ERR_ALREADY_IN_GROUP_S)
             return
 
         if player_mgr.group_manager:
             if player_mgr.group_manager.group.leader_guid != player_mgr.guid:
-                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_NOT_LEADER)
+                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE,
+                                                         target_player.get_name(), PartyResults.ERR_NOT_LEADER)
                 return
 
             if player_mgr.group_manager.is_full():
-                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_GROUP_FULL)
+                GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE,
+                                                         target_player.get_name(), PartyResults.ERR_GROUP_FULL)
                 return
 
-            if not player_mgr.group_manager.try_add_member(target_player_mgr, True):
+            if not player_mgr.group_manager.try_add_member(target_player, True):
                 return
         else:
             new_group = GroupManager._create_group(player_mgr)
             player_mgr.group_manager = GroupManager(new_group)
-            if not player_mgr.group_manager.try_add_member(target_player_mgr, invite=True):
+            if not player_mgr.group_manager.try_add_member(target_player, invite=True):
                 return
 
-        target_player_mgr.has_pending_group_invite = True
+        target_player.has_pending_group_invite = True
         name_bytes = PacketWriter.string_to_bytes(player_mgr.get_name())
         data = pack(
             f'<{len(name_bytes)}s',
@@ -525,9 +532,9 @@ class GroupManager(object):
         )
 
         packet = PacketWriter.get_packet(OpCode.SMSG_GROUP_INVITE, data)
-        target_player_mgr.enqueue_packet(packet)
+        target_player.enqueue_packet(packet)
 
-        GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player_mgr.get_name(), PartyResults.ERR_PARTY_RESULT_OK)
+        GroupManager.send_group_operation_result(player_mgr, PartyOperations.PARTY_OP_INVITE, target_player.get_name(), PartyResults.ERR_PARTY_RESULT_OK)
 
     @staticmethod
     def send_group_operation_result(player, group_operation, name, result):
@@ -571,6 +578,7 @@ class GroupManager(object):
 
     @staticmethod
     def _build_party_member_stats(group_member):
+        from game.world.managers.maps.MapManager import MapManager
         player_mgr = WorldSessionStateHandler.find_player_by_guid(group_member.guid)
         character = None
 
@@ -590,7 +598,7 @@ class GroupManager(object):
             player_mgr.level if player_mgr else character.level,
             player_mgr.map_id if player_mgr else character.map,
             # Client expects an AreaNumber from AreaTable, not a zone id.
-            player_mgr.get_map().get_area_number_by_zone_id(player_mgr.zone if player_mgr else character.zone),
+            MapManager.get_area_number_by_zone_id(player_mgr.zone if player_mgr else character.zone),
             player_mgr.class_ if player_mgr else character.class_,
             player_mgr.location.x if player_mgr else character.position_x,
             player_mgr.location.y if player_mgr else character.position_y,

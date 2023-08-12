@@ -3398,5 +3398,63 @@ begin not atomic
         insert into`applied_updates`values ('060820232');
     end if;
 
+    -- 10/08/2023 1
+    if (select count(*) from `applied_updates` where id='100820231') = 0 then
+        -- Bring back a lost quest [Ambushed in the Forest]
+        INSERT INTO `quest_template` (`entry`, `Method`, `ZoneOrSort`, `MinLevel`, `MaxLevel`, `QuestLevel`, `Type`, `RequiredClasses`, `RequiredRaces`, `RequiredSkill`, `RequiredSkillValue`, `RequiredCondition`, `RepObjectiveFaction`, `RepObjectiveValue`, `RequiredMinRepFaction`, `RequiredMinRepValue`, `RequiredMaxRepFaction`, `RequiredMaxRepValue`, `SuggestedPlayers`, `LimitTime`, `QuestFlags`, `SpecialFlags`, `PrevQuestId`, `NextQuestId`, `ExclusiveGroup`, `NextQuestInChain`, `SrcItemId`, `SrcItemCount`, `SrcSpell`, `Title`, `Details`, `Objectives`, `OfferRewardText`, `RequestItemsText`, `EndText`, `ObjectiveText1`, `ObjectiveText2`, `ObjectiveText3`, `ObjectiveText4`, `ReqItemId1`, `ReqItemId2`, `ReqItemId3`, `ReqItemId4`, `ReqItemCount1`, `ReqItemCount2`, `ReqItemCount3`, `ReqItemCount4`, `ReqSourceId1`, `ReqSourceId2`, `ReqSourceId3`, `ReqSourceId4`, `ReqSourceCount1`, `ReqSourceCount2`, `ReqSourceCount3`, `ReqSourceCount4`, `ReqCreatureOrGOId1`, `ReqCreatureOrGOId2`, `ReqCreatureOrGOId3`, `ReqCreatureOrGOId4`, `ReqCreatureOrGOCount1`, `ReqCreatureOrGOCount2`, `ReqCreatureOrGOCount3`, `ReqCreatureOrGOCount4`, `ReqSpellCast1`, `ReqSpellCast2`, `ReqSpellCast3`, `ReqSpellCast4`, `RewChoiceItemId1`, `RewChoiceItemId2`, `RewChoiceItemId3`, `RewChoiceItemId4`, `RewChoiceItemId5`, `RewChoiceItemId6`, `RewChoiceItemCount1`, `RewChoiceItemCount2`, `RewChoiceItemCount3`, `RewChoiceItemCount4`, `RewChoiceItemCount5`, `RewChoiceItemCount6`, `RewItemId1`, `RewItemId2`, `RewItemId3`, `RewItemId4`, `RewItemCount1`, `RewItemCount2`, `RewItemCount3`, `RewItemCount4`, `RewRepFaction1`, `RewRepFaction2`, `RewRepFaction3`, `RewRepFaction4`, `RewRepFaction5`, `RewRepValue1`, `RewRepValue2`, `RewRepValue3`, `RewRepValue4`, `RewRepValue5`, `RewXP`, `RewOrReqMoney`, `RewSpell`, `RewSpellCast`, `RewMailTemplateId`, `RewMailDelaySecs`, `RewMailMoney`, `PointMapId`, `PointX`, `PointY`, `PointOpt`, `DetailsEmote1`, `DetailsEmote2`, `DetailsEmote3`, `DetailsEmote4`, `DetailsEmoteDelay1`, `DetailsEmoteDelay2`, `DetailsEmoteDelay3`, `DetailsEmoteDelay4`, `IncompleteEmote`, `CompleteEmote`, `OfferRewardEmote1`, `OfferRewardEmote2`, `OfferRewardEmote3`, `OfferRewardEmote4`, `OfferRewardEmoteDelay1`, `OfferRewardEmoteDelay2`, `OfferRewardEmoteDelay3`, `OfferRewardEmoteDelay4`, `StartScript`, `CompleteScript`, `ignored`) VALUES ('172', '2', '0', '25', '0', '25', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Ambushed in the Forest', 'Lord Ebonlocke sent me to Stormwind to represent Darkshire at the recent council of the House of Nobles. I was tasked with requesting military aid in light of the undead infestation which has taken over the forest.$B$BBut on my way back a band of thieves ambushed me. I was forced to drive my cart to The Rotting Orchard in southern Duskwood.$B$BBefore the thieves could rob me of my goods, a pack of ferocious Worgen overtook the thugs. Now I need you to retrieve my satchel from the chest in the wagon.', 'Retrieve Ambassador Berrybuck\'s satchel and bring it back to him in Darkshire.', 'Most impressive, $N. I can\'t thank you enough for your assistance. This satchel contains all of my notes and correspondence from my recent trip to Stormwind. Now, I must present the dark news to Lord Ebonlocke. We might not have the assistance of the Stormwind Army but at least we have our Night Watch.', 'Were you able to locate my satchel? I had it stashed in my chest which was in the back of the wagon. Last I saw, the thieves had the cart south at The Rotting Orchard.', '', '', '', '', '', '1923', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '1982', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0');
+
+        -- Add A Talking Head to Rot Hide Graverobbers' loot table.
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES ('1941', '3317', '2', '0', '1', '1', '0');
+        -- Adjust the lvl and lvl requirement of Resting in Pieces quest.
+        UPDATE `quest_template` SET `MinLevel` = '0', `QuestLevel` = '12' WHERE (`entry` = '460');
+
+        -- Change [Raptor Thieves] quest's characteristics.
+        UPDATE `quest_template` SET `Title` = 'Stolen Silver', `Details` = 'Not long ago, a shipment of silver was stolen from our guard tower.  It was meant as payroll to the Crossroads\' guards, and we want that silver back.$B$BThe strange thing is... we caught one of the thieves on the night of the theft.  And... it was a raptor!  Unbelievable!$B$BI don\'t know what raptors would want with silver.  But I don\'t care -- I want it back, and I want the raptors dead so they won\'t steal from us again!$B$BSearch for raptors in the Barrens.  Collect  their heads, and find out stolen silver.', `Objectives` = 'Bring 15 Raptor Heads and 4 crates of Stolen Silver to Gazrog at the Crossroads.', `OfferRewardText` = 'You found the silver! And what\'s more important, you got rid of the raptors!$B$BThank you, $N.  You are a $c of worth.', `ReqItemId2` = '5061', `ReqItemCount1` = '15', `ReqItemCount2` = '4' WHERE (`entry` = '869');
+
+        -- Stolen Silver, stackable 4.
+        UPDATE `item_template` SET `stackable` = '4' WHERE (`entry` = '5061');
+        -- Drop from Raptors.
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES ('3254', '5061', '11', '0', '1', '1', '0');
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES ('3255', '5061', '11', '0', '1', '1', '0');
+        INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `condition_id`) VALUES ('3256', '5061', '11', '0', '1', '1', '0');
+        -- Remove [Sunscale Scytheclaw] spawns from their proto-nest.
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE `spawn_id` in ('20070', '19988', '20061', '20060', '20005', '20064', '20063', '20065');
+
+        -- Rebald Yorglun <Raptor Trainer>. Level, stats from another level 50.
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50', `health_min` = '2768', `health_max` = '2768', `armor` = '2999', `dmg_min` = '85', `dmg_max` = '109' WHERE (`entry` = '4621');
+        -- Jackson Bayne <Boar Trainer>, same, add tamed board.
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50', `health_min` = '2768', `health_max` = '2768', `armor` = '2999', `dmg_min` = '85', `dmg_max` = '109', `spell_id1` = '7905' WHERE (`entry` = '2939');
+        -- Frank Ward <Bird Trainer>, same, add tamed bird.
+        UPDATE `creature_template` SET `level_min` = '50', `level_max` = '50', `health_min` = '2768', `health_max` = '2768', `armor` = '2999', `dmg_min` = '85', `dmg_max` = '109', `spell_id1` = '7904' WHERE (`entry` = '2940');
+        -- Hurom Juggendolf <Boar Trainer>, add boar.
+        UPDATE `creature_template` SET `spell_id1` = '7905' WHERE (`entry` = '2880');
+        -- Kyln Longclaw <Boar Trainer>, level 10.
+        UPDATE `creature_template` SET `level_min` = '10', `level_max` = '10', `health_min` = '198', `health_max` = '198', `armor` = '20', `dmg_min` = '9', `dmg_max` = '13', `attack_power` = '62' WHERE (`entry` = '3697');
+        -- Whaldak Darkbenk <Spider Trainer>, level 30.
+        UPDATE `creature_template` SET `level_min` = '30', `level_max` = '30', `armor` = '1200', `dmg_min` = '42', `dmg_max` = '53', `attack_power` = '122' WHERE (`entry` = '2872');
+        -- Henria Derth <Wolf Trainer>, tamed wolf, faction.
+        UPDATE `creature_template` SET `faction` = '57', `spell_id1` = '4946' WHERE (`entry` = '2870');
+        -- Brogun Stoneshield <Boar Trainer>, add boar, faction.
+        UPDATE `creature_template` SET `spell_id1` = '7905', `faction` = '57' WHERE (`entry` = '5118');
+        -- Aldric Hunter <Bear Trainer>, add bear.
+        UPDATE `creature_template` SET `spell_id1` = '7903' WHERE (`entry` = '2938');
+        -- Claude Erksine <Bear Trainer>, add bear.
+        UPDATE `creature_template` SET `spell_id1` = '7903' WHERE (`entry` = '3545');
+        -- Karrina Mekenda <Bird Trainer>, add bird.
+        UPDATE `creature_template` SET `spell_id1` = '7904' WHERE (`entry` = '2879');
+        -- Kar Stormsinger <Bird Trainer>, add bird.
+        UPDATE `creature_template` SET `spell_id1` = '7904' WHERE (`entry` = '3690');
+        -- Reban Freerunner <Tallstrider Trainer>, add strider.
+        UPDATE `creature_template` SET `spell_id1` = '7913' WHERE (`entry` = '3688');
+        -- Tamed Turtle.
+        UPDATE `creature_template` SET `level_min` = '39', `level_max` = '39', `faction` = '85' WHERE (`entry` = '5448');
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('5448', '0', '0', '0', '1', '-3144.601', '-2841.289', '34.626', '5.13', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        -- Varng <Turtle Trainer>, level 39, stats.
+        UPDATE `creature_template` SET `level_min` = '39', `level_max` = '39', `health_min` = '1677', `health_max` = '1677', `armor` = '1834', `dmg_min` = '57', `dmg_max` = '74', `attack_power` = '152' WHERE (`entry` = '4881');
+        -- Om'kan  <Spider Trainer>, level 39, stats.
+        UPDATE `creature_template` SET `level_min` = '39', `level_max` = '39', `health_min` = '1677', `health_max` = '1677', `armor` = '1834', `dmg_min` = '57', `dmg_max` = '74', `attack_power` = '152' WHERE (`entry` = '4882');
+
+        insert into`applied_updates`values ('100820231');
+    end if;
 end $
 delimiter ;
