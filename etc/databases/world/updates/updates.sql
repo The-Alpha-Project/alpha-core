@@ -3446,6 +3446,8 @@ begin not atomic
         UPDATE `creature_template` SET `spell_id1` = '7904' WHERE (`entry` = '3690');
         -- Reban Freerunner <Tallstrider Trainer>, add strider.
         UPDATE `creature_template` SET `spell_id1` = '7913' WHERE (`entry` = '3688');
+        -- Tamed Turtle.
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('5448', '0', '0', '0', '1', '-3144.601', '-2841.289', '34.626', '5.13', '300', '300', '0', '100', '100', '0', '0', '0', '0');
 
         insert into`applied_updates`values ('100820231');
     end if;
