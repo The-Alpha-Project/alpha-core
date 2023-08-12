@@ -35,7 +35,7 @@ class MovementManager:
             MoveType.GROUP: None,
             MoveType.WAYPOINTS: None,
             MoveType.WANDER: None,
-            MoveType.IDLE: None,
+            MoveType.IDLE: None
         }
         self.spline_events = []
 
@@ -69,6 +69,8 @@ class MovementManager:
         self.reset(clean_behaviors=True)
         for move_type in self.movement_behaviors.keys():
             self.movement_behaviors[move_type] = None
+        if not self.unit.is_alive:
+            self.stop(force=True)
 
     def reset(self, clean_behaviors=False):
         self.pause_ooc_timer = 0
@@ -221,6 +223,8 @@ class MovementManager:
     def _remove_invalid_expired_behaviors(self):
         movements_removed = False
         for move_type, behavior in list(self.movement_behaviors.items()):
+            if not isinstance(behavior, BaseMovement):
+                continue
             if behavior and behavior.can_remove() and not behavior.is_default:
                 movements_removed = True
                 self._remove_behavior(behavior)
@@ -242,9 +246,10 @@ class MovementManager:
 
     def _update_active_behavior_type(self):
         for move_type, behavior in list(self.movement_behaviors.items()):
-            if behavior:
-                self.active_behavior_type = behavior.move_type
-                break
+            if not isinstance(behavior, BaseMovement):
+                continue
+            self.active_behavior_type = behavior.move_type
+            break
 
     def _remove_behavior(self, movement_behavior):
         self.movement_behaviors[movement_behavior.move_type] = None

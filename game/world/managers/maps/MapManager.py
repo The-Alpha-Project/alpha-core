@@ -13,12 +13,12 @@ from game.world.managers.maps.helpers.Constants import ADT_SIZE, RESOLUTION_ZMAP
     RESOLUTION_LIQUIDS, BLOCK_SIZE
 from game.world.managers.maps.Map import Map, MapType
 from game.world.managers.maps.MapTile import MapTile, MapTileStates
+from game.world.managers.maps.helpers.LiquidInformation import LiquidInformation
 from game.world.managers.maps.helpers.Namigator import Namigator
-from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.PathManager import PathManager
-from utils.constants.MiscCodes import ObjectTypeIds
+
 
 MAPS: dict[int, dict[int, Map]] = {}
 MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
@@ -31,6 +31,7 @@ MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90,
 
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
+LIQUIDS_CACHE = {}
 PENDING_TILE_INITIALIZATION = {}
 PENDING_TILE_INITIALIZATION_QUEUE = _queue.SimpleQueue()
 QUEUE_LOCK = RLock()
@@ -116,7 +117,7 @@ class MapManager:
         MAPS_TILES[map_.map_id] = [[None for r in range(64)] for c in range(64)]
         for adt_x in range(BLOCK_SIZE):
             for adt_y in range(BLOCK_SIZE):
-                MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_.map_id, adt_x, adt_y)
+                MAPS_TILES[map_.map_id][adt_x][adt_y] = MapTile(map_, adt_x, adt_y)
 
         Logger.success(f'[MAP] Successfully built ADT tiles for map {map_.name}')
         return True
@@ -188,6 +189,13 @@ class MapManager:
         return zone_id
 
     @staticmethod
+    def get_liquid_or_create(liquid_type, height, use_float_16):
+        key = f'{liquid_type}.{round(height, 4)}'
+        if key not in LIQUIDS_CACHE:
+            LIQUIDS_CACHE[key] = LiquidInformation(liquid_type, height, use_float_16)
+        return LIQUIDS_CACHE[key]
+
+    @staticmethod
     def on_cell_turn_active(world_object):
         MapManager.enqueue_adt_tile_load(world_object.map_id, world_object.location.x, world_object.location.y)
 
@@ -207,8 +215,8 @@ class MapManager:
         y = MapManager.validate_map_coord(y)
         adt_x = int(32.0 - (x / ADT_SIZE))
         adt_y = int(32.0 - (y / ADT_SIZE))
-        cell_x = int(resolution * (32.0 - (x / ADT_SIZE) - adt_x))
-        cell_y = int(resolution * (32.0 - (y / ADT_SIZE) - adt_y))
+        cell_x = int(round(resolution * (32.0 - (x / ADT_SIZE) - adt_x)))
+        cell_y = int(round(resolution * (32.0 - (y / ADT_SIZE) - adt_y)))
         return adt_x, adt_y, cell_x, cell_y
 
     @staticmethod
@@ -368,6 +376,14 @@ class MapManager:
         return True
 
     @staticmethod
+    def validate_map_coord(coord):
+        if coord > 32.0 * ADT_SIZE:
+            return 32.0 * ADT_SIZE
+        elif coord < -32.0 * ADT_SIZE:
+            return -32.0 * ADT_SIZE
+        return coord
+
+    @staticmethod
     def calculate_z_for_object(w_object):
         return MapManager.calculate_z(w_object.map_id, w_object.location.x, w_object.location.y, w_object.location.z)
 
@@ -378,6 +394,10 @@ class MapManager:
         if not config.Server.Settings.use_nav_tiles and not config.Server.Settings.use_map_tiles:
             return current_z, False
         try:
+            # Check both axis within boundaries.
+            x = MapManager.validate_map_coord(x)
+            y = MapManager.validate_map_coord(y)
+
             adt_x, adt_y, cell_x, cell_y = MapManager.calculate_tile(x, y)
 
             # No tile data available or busy loading.
@@ -391,20 +411,15 @@ class MapManager:
                     return nav_z, False
 
             try:
-                x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - adt_x) - cell_x
-                y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / ADT_SIZE) - adt_y) - cell_y
-                val_1 = MapManager.get_height(map_id, adt_x, adt_y, cell_x, cell_y)
-                val_2 = MapManager.get_height(map_id, adt_x, adt_y, cell_x + 1, cell_y)
-                top_height = MapManager._lerp(val_1, val_2, x_normalized)
-                val_3 = MapManager.get_height(map_id, adt_x, adt_y, cell_x, cell_y + 1)
-                val_4 = MapManager.get_height(map_id, adt_x, adt_y, cell_x + 1, cell_y + 1)
-                bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
-                calculated_z = MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
-                # If maps Z is different or exactly the same, try nav Z, if that also fails, current Z will be returned.
-                diff = math.fabs(current_z - calculated_z)
-                err = 1 if not is_rand_point else 4
-                if (diff > err or not diff) and current_z:
-                    return current_z, True
+                calculated_z = MapManager.get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x, cell_y)
+                # Tolerance.
+                tol = 1.1 if not is_rand_point else 2
+                # If Z goes outside boundaries, expand our search.
+                if (math.fabs(current_z - calculated_z) > tol) and current_z:
+                    found, z2 = MapManager.get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tol)
+                    # Not locked if found, else current z locked.
+                    return (z2, False) if found else (current_z, True)
+                # First Z was valid.
                 return calculated_z, False
             except:
                 tile = MAPS_TILES[map_id][adt_x][adt_y]
@@ -412,6 +427,46 @@ class MapManager:
         except:
             Logger.error(traceback.format_exc())
             return current_z if current_z else 0.0, False
+
+    @staticmethod
+    def get_cell_height(map_id, adt_x, adt_y, cell_x, cell_y):
+        if cell_x > RESOLUTION_ZMAP:
+            adt_x = int(adt_x + 1)
+            cell_x = int(cell_x - RESOLUTION_ZMAP)
+        elif cell_x < 0:
+            adt_x = int(adt_x - 1)
+            cell_x = int(-cell_x - 1)
+
+        if cell_y > RESOLUTION_ZMAP:
+            adt_y = int(adt_y + 1)
+            cell_y = int(cell_y - RESOLUTION_ZMAP)
+        elif cell_y < 0:
+            adt_y = int(adt_y - 1)
+            cell_y = int(-cell_y - 1)
+
+        return MAPS_TILES[map_id][adt_x][adt_y].get_z_at(cell_x, cell_y)
+
+    @staticmethod
+    def get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x, cell_y):
+        x_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (x / ADT_SIZE) - adt_x) - cell_x
+        y_normalized = (RESOLUTION_ZMAP - 1) * (32.0 - (y / ADT_SIZE) - adt_y) - cell_y
+        val_1 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x, cell_y)
+        val_2 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x + 1, cell_y)
+        top_height = MapManager._lerp(val_1, val_2, x_normalized)
+        val_3 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x, cell_y + 1)
+        val_4 = MapManager.get_cell_height(map_id, adt_x, adt_y, cell_x + 1, cell_y + 1)
+        bottom_height = MapManager._lerp(val_3, val_4, x_normalized)
+        return MapManager._lerp(top_height, bottom_height, y_normalized)  # Z
+
+    @staticmethod
+    def get_near_height(map_id, x, y, adt_x, adt_y, cell_x, cell_y, current_z, tolerance=1.0):
+        for i in range(-2, 2):
+            for j in range(-2, 2):
+                height = MapManager.get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x + i, cell_y + j)
+                if abs(current_z - height) < tolerance:
+                    return True, height
+        # Not found.
+        return False, current_z
 
     @staticmethod
     def get_area_information(map_id, x, y):
@@ -442,7 +497,7 @@ class MapManager:
 
             tile = MAPS_TILES[map_id][adt_x][adt_y]
             liquids = tile.get_liquids_at(cell_x, cell_y)
-            return liquids if liquids and liquids.height > z else liquids if liquids and ignore_z else None
+            return liquids if liquids and liquids.get_height() > z else liquids if liquids and ignore_z else None
         except:
             Logger.error(traceback.format_exc())
             return None
@@ -464,7 +519,7 @@ class MapManager:
             fz = start_location.z
             liquid_info = map_.get_liquid_information(fx, fy, fz, ignore_z=True)
             if liquid_info:
-                liquids_vectors.append(Vector(fx, fy, liquid_info.height))
+                liquids_vectors.append(Vector(fx, fy, liquid_info.get_height()))
             start_range += 1
 
         if len(liquids_vectors) == 0:
@@ -506,35 +561,8 @@ class MapManager:
         return MapTileStates.UNUSABLE
 
     @staticmethod
-    def get_height(map_id, adt_x, adt_y, cell_x, cell_y):
-        if cell_x > RESOLUTION_ZMAP:
-            adt_x = int(adt_x + 1)
-            cell_x = int(cell_x - RESOLUTION_ZMAP)
-        elif cell_x < 0:
-            adt_x = int(adt_x - 1)
-            cell_x = int(-cell_x - 1)
-
-        if cell_y > RESOLUTION_ZMAP:
-            adt_y = int(adt_y + 1)
-            cell_y = int(cell_y - RESOLUTION_ZMAP)
-        elif cell_y < 0:
-            adt_y = int(adt_y - 1)
-            cell_y = int(-cell_y - 1)
-
-        return MAPS_TILES[map_id][adt_x][adt_y].get_z_at(cell_x, cell_y)
-
-    @staticmethod
-    def validate_map_coord(coord):
-        if coord > 32.0 * ADT_SIZE:
-            return 32.0 * ADT_SIZE
-        elif coord < -32.0 * ADT_SIZE:
-            return -32 * ADT_SIZE
-        else:
-            return coord
-
-    @staticmethod
     def _lerp(value1, value2, amount):
-        return value1 + (value2 - value1) * amount
+        return value1 + ((value2 - value1) * amount)
 
     @staticmethod
     def update_creatures():

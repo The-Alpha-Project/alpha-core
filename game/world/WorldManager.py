@@ -94,22 +94,21 @@ class WorldServerSessionHandler:
             while self.keep_alive:
                 reader = self.incoming_pending.get(block=True, timeout=None)
                 # We've been blocking, by now keep_alive might be false.
-                if reader and self.keep_alive:  # Can be None if we shut down the thread.
-                    if not reader.opcode:
-                        continue
-                    handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
-                    if handler:
-                        res = handler(self, reader)
-                        if res == 0:
-                            Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
-                        elif res == 1:
-                            Logger.debug(f'[{self.client_address[0]}] Ignoring {reader.opcode_str()}')
-                        elif res < 0:
-                            break
-                    elif not found:
-                        Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
-                else:
+                if not reader or not self.keep_alive:  # Can be None if we shut down the thread.
                     break
+                if not reader.opcode:
+                    continue
+                handler, found = Definitions.get_handler_from_packet(self, reader.opcode)
+                if handler:
+                    res = handler(self, reader)
+                    if res == 0:
+                        Logger.debug(f'[{self.client_address[0]}] Handling {reader.opcode_str()}')
+                    elif res == 1:
+                        Logger.debug(f'[{self.client_address[0]}] Ignoring {reader.opcode_str()}')
+                    elif res < 0:
+                        break
+                elif not found:
+                    Logger.warning(f'[{self.client_address[0]}] Received unknown data: {reader.data}')
         except:
             # Can be multiple since it includes handlers execution.
             Logger.error(traceback.format_exc())

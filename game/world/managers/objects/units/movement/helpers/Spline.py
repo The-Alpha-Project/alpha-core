@@ -24,6 +24,7 @@ class Spline(object):
         self.facing = facing
         self.speed = speed
         self.elapsed = elapsed  # Milliseconds.
+        self.elapsed_since_last_location = 0  # Elapsed since we were able to update unit location on this spline.
         self.total_time = total_time  # Milliseconds.
         self.points = points
         self.pending_waypoints: list[PendingWaypoint] = []
@@ -60,7 +61,9 @@ class Spline(object):
 
         self.total_waypoint_timer += elapsed
         self.elapsed += elapsed * 1000  # Milliseconds.
+        self.elapsed_since_last_location += elapsed
 
+        # Spline is complete but has extra time.
         if not self.pending_waypoints:
             return False, None, False
 
@@ -70,9 +73,10 @@ class Spline(object):
         if is_complete:
             self.pending_waypoints.pop(0)
 
-        new_position = self._get_position(current_waypoint, elapsed, is_complete)
+        new_position = self._get_position(current_waypoint, self.elapsed_since_last_location, is_complete)
 
         if new_position:
+            self.elapsed_since_last_location = 0
             if config.Server.Settings.debug_movement:
                 self._debug_position(new_position)
             # While in movement (guessed position) always face target destination.
@@ -91,6 +95,7 @@ class Spline(object):
             self._validate_orientation(self.unit, pending_waypoint)
             return pending_waypoint.location
         guessed_distance = self.speed * elapsed
+        # This can return None.
         return self.unit.location.get_point_in_between(guessed_distance, pending_waypoint.location,
                                                        map_id=self.unit.map_id)
 

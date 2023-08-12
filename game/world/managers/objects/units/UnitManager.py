@@ -1178,12 +1178,19 @@ class UnitManager(ObjectManager):
     def set_move_flag(self, move_flag, active, index=-1) -> bool:
         is_active = self._set_effect_flag_state(MoveFlags, move_flag, active, index)
 
+        flag_changed = (is_active and not self.movement_flags & move_flag) or \
+                       (not is_active and self.movement_flags & move_flag)
+
         if is_active:
             self.movement_flags |= move_flag
         else:
             self.movement_flags &= ~move_flag
 
-        self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
+        # Only broadcast swimming, rooted or immobilized.
+        if flag_changed and move_flag in {MoveFlags.MOVEFLAG_SWIMMING, MoveFlags.MOVEFLAG_ROOTED,
+                                          MoveFlags.MOVEFLAG_IMMOBILIZED}:
+            self.get_map().send_surrounding(self.get_heartbeat_packet(), self)
+
         return is_active
 
     def set_dynamic_type_flag(self, type_flag, active, index=-1) -> bool:
@@ -1649,7 +1656,7 @@ class UnitManager(ObjectManager):
 
         self.pending_relocation = False
         self.set_has_moved(False, False, True)
-        self.relocation_call_for_help_timer = 0;
+        self.relocation_call_for_help_timer = 0
 
         if self.object_ai:
             self.object_ai.just_died(killer)
@@ -1663,10 +1670,9 @@ class UnitManager(ObjectManager):
         # Leave combat if needed.
         self.leave_combat()
 
-        # Flush movement manager and notify none movement flags to observers.
+        # Flush movement manager.
         self.movement_manager.flush()
         self.movement_flags = MoveFlags.MOVEFLAG_NONE
-        self.get_map().send_surrounding(self.generate_movement_packet(), self, include_self=False)
 
         # Reset threat manager.
         self.threat_manager.reset()

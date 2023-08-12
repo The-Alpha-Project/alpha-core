@@ -1,7 +1,6 @@
 import time
-
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
+from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags, ObjectTypeIds
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.movement.helpers.MovementWaypoint import MovementWaypoint
@@ -27,8 +26,8 @@ class WaypointMovement(BaseMovement):
     def initialize(self, unit):
         super().initialize(unit)
 
-        # Walk is on by default.
-        self.unit.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=True)
+        # Use either walk or run speed by default.
+        self.unit.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not self.unit.should_always_run_ooc())
 
         # Triggered from scripts.
         if self.command_move_info:

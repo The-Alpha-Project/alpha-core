@@ -106,6 +106,9 @@ class Map:
 
     # Map helpers.
 
+    def get_liquid_or_create(self, liquid_type, height, use_float_16):
+        return self.map_manager.get_liquid_or_create(liquid_type, height, use_float_16)
+
     def get_area_information(self, x, y):
         return self.map_manager.get_area_information(self.map_id, x, y)
 

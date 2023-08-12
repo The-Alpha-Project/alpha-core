@@ -35,7 +35,7 @@ class CreatureGroupManager:
             self.original_leader_spawn_id = creature_mgr.spawn_id
             # Generate waypoints that will be used by the current/temporary leader.
             creature_movement = WorldDatabaseManager.CreatureMovementHolder.get_waypoints_for_creature(
-                creature_mgr.entry, creature_mgr.guid)
+                creature_mgr.entry, creature_mgr.spawn_id)
             if creature_movement:
                 creature_movement.sort(key=lambda wp: wp.point)
                 self.waypoints = self._get_sorted_waypoints_by_distance(creature_movement)
