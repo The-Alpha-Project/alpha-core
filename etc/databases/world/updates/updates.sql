@@ -3450,6 +3450,8 @@ begin not atomic
         INSERT INTO `spawns_creatures` (`spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('5448', '0', '0', '0', '1', '-3144.601', '-2841.289', '34.626', '5.13', '300', '300', '0', '100', '100', '0', '0', '0', '0');
         -- Varng <Turtle Trainer>, level 39, stats.
         UPDATE `creature_template` SET `level_min` = '39', `level_max` = '39', `health_min` = '1677', `health_max` = '1677', `armor` = '1834', `dmg_min` = '57', `dmg_max` = '74', `attack_power` = '152' WHERE (`entry` = '4881');
+        -- Om'kan  <Spider Trainer>, level 39, stats.
+        UPDATE `creature_template` SET `level_min` = '39', `level_max` = '39', `health_min` = '1677', `health_max` = '1677', `armor` = '1834', `dmg_min` = '57', `dmg_max` = '74', `attack_power` = '152' WHERE (`entry` = '4882');
 
         insert into`applied_updates`values ('100820231');
     end if;
