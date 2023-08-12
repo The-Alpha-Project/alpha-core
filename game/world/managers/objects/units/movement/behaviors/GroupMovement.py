@@ -108,8 +108,9 @@ class GroupMovement(BaseMovement):
                 return None, 0
             if not self._is_lagging:
                 self._is_lagging = creature_distance > group_member.distance_leader * 2
-        else:
+        else:  # Within desired range, skip move.
             self._is_lagging = False
+            return None, 0
 
         # Catch up if lagging behind.
         if self._is_lagging:
