@@ -10,7 +10,7 @@ from game.world.managers.objects.spell.aura.AuraEffectHandler import PERIODIC_AU
 from game.world.managers.objects.spell.EffectTargets import EffectTargets
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from utils.constants.MiscCodes import ObjectTypeFlags
-from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellAttributesEx, SpellImmunity, SpellMissReason
+from utils.constants.SpellCodes import SpellEffects, SpellAttributes, SpellImmunity, SpellMissReason
 from utils.constants.UnitCodes import PowerTypes
 
 
@@ -55,7 +55,8 @@ class SpellEffect:
         self.radius_entry = DbcDatabaseManager.spell_radius_get_by_id(self.radius_index) if self.radius_index else None
         self.casting_spell = casting_spell
 
-        is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS or AuraEffectDummyHandler.is_periodic(casting_spell.spell_entry.ID)
+        spell_id = casting_spell.spell_entry.ID
+        is_periodic = self.aura_type in PERIODIC_AURA_EFFECTS or AuraEffectDummyHandler.is_periodic(spell_id)
         # Descriptions of periodic effects with a period of 0 either imply regeneration every 5s or say "per tick".
         self.aura_period = (self.aura_period if self.aura_period else 5000) if is_periodic else 0
         if is_periodic and casting_spell.is_channeled():
@@ -167,7 +168,8 @@ class SpellEffect:
     def get_radius(self) -> float:
         if not self.radius_entry:
             return 0
-        return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel * self.caster_effective_level)
+        return min(self.radius_entry.RadiusMax, self.radius_entry.Radius + self.radius_entry.RadiusPerLevel
+                   * self.caster_effective_level)
 
     def is_harmful(self):
         if self._harmful is None:
@@ -201,7 +203,7 @@ class SpellEffect:
     def is_target_immune(self, target):
         # Validate target and check harmfulness.
         if not target or not isinstance(target, ObjectManager) or \
-            not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+                not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return False
 
         # Spell school/effect aura.
