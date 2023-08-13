@@ -9,6 +9,7 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes
 from utils.constants.OpCodes import OpCode
+from utils.constants.SpellCodes import SpellImmunity
 from utils.constants.UnitCodes import UnitReaction, UnitFlags, UnitStates
 from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
@@ -418,6 +419,11 @@ class ObjectManager:
 
     def is_casting(self):
         return self.spell_manager.is_casting()
+
+    # override
+    def has_immunity(self, immunity_type: SpellImmunity, immunity_arg: int, is_mask=False, source=None,
+                     is_friendly=False):
+        return False
 
     # override
     def is_totem(self):
