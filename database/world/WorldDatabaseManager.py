@@ -733,8 +733,10 @@ class WorldDatabaseManager(object):
         return res
         
     class QuestRelationHolder:
-        QUEST_CREATURE_STARTERS: [int, list[t_creature_quest_starter]] = {}
-        QUEST_CREATURE_FINISHERS = {}
+        QUEST_UNIT_STARTERS: [int, list[t_creature_quest_starter]] = {}
+        QUEST_UNIT_FINISHERS = {}
+        UNIT_STARTER_BY_QUEST: [int, list[t_creature_quest_starter]] = {}
+        UNIT_FINISHER_BY_QUEST: [int, list[t_creature_quest_starter]] = {}
         QUEST_GAMEOBJECT_STARTERS: [int, list[t_gameobject_quest_starter]] = {}
         QUEST_GAMEOBJECT_FINISHERS = {}
         AREA_TRIGGER_RELATION = {}
@@ -747,56 +749,76 @@ class WorldDatabaseManager(object):
             WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[area_trigger_relation.quest].append(area_trigger_relation.id)
 
         @staticmethod
-        def load_creature_starter_quest(creature_quest_starter):
-            if creature_quest_starter.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS:
-                WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS[creature_quest_starter.entry] = []
+        def load_creature_starter_quest(unit_quest_starter):
+            if unit_quest_starter.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_STARTERS:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_STARTERS[unit_quest_starter.entry] = []
 
-            WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS[creature_quest_starter.entry]\
-                .append(creature_quest_starter)
+            WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_STARTERS[unit_quest_starter.entry] \
+                .append(unit_quest_starter)
 
-        @staticmethod
-        def load_creature_finisher_quest(creature_quest_finisher):
-            if creature_quest_finisher.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS:
-                WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS[creature_quest_finisher.entry] = []
+            if unit_quest_starter.quest not in WorldDatabaseManager.QuestRelationHolder.UNIT_STARTER_BY_QUEST:
+                WorldDatabaseManager.QuestRelationHolder.UNIT_STARTER_BY_QUEST[unit_quest_starter.quest] = []
 
-            WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS[creature_quest_finisher.entry]\
-                .append(creature_quest_finisher)
+            WorldDatabaseManager.QuestRelationHolder.UNIT_STARTER_BY_QUEST[unit_quest_starter.quest]\
+                .append(unit_quest_starter.entry)
 
         @staticmethod
-        def load_gameobject_starter_quest(gameobject_quest_starter):
-            if gameobject_quest_starter.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS:
-                WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[gameobject_quest_starter.entry] = []
+        def load_creature_finisher_quest(unit_quest_finisher):
+            if unit_quest_finisher.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_FINISHERS:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_FINISHERS[unit_quest_finisher.entry] = []
 
-            WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[gameobject_quest_starter.entry] \
-                .append(gameobject_quest_starter)
+            WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_FINISHERS[unit_quest_finisher.entry]\
+                .append(unit_quest_finisher)
+
+            if unit_quest_finisher.quest not in WorldDatabaseManager.QuestRelationHolder.UNIT_FINISHER_BY_QUEST:
+                WorldDatabaseManager.QuestRelationHolder.UNIT_FINISHER_BY_QUEST[unit_quest_finisher.quest] = []
+
+            WorldDatabaseManager.QuestRelationHolder.UNIT_FINISHER_BY_QUEST[unit_quest_finisher.quest] \
+                .append(unit_quest_finisher.entry)
 
         @staticmethod
-        def load_gameobject_finisher_quest(gameobject_quest_finisher):
-            if gameobject_quest_finisher.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS:
-                WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[gameobject_quest_finisher.entry] = []
+        def load_gameobject_starter_quest(go_quest_starter):
+            if go_quest_starter.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[go_quest_starter.entry] = []
 
-            WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[gameobject_quest_finisher.entry] \
-                .append(gameobject_quest_finisher)
+            WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[go_quest_starter.entry] \
+                .append(go_quest_starter)
+
+        @staticmethod
+        def load_gameobject_finisher_quest(go_quest_finisher):
+            if go_quest_finisher.entry not in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS:
+                WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[go_quest_finisher.entry] = []
+
+            WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[go_quest_finisher.entry] \
+                .append(go_quest_finisher)
 
         @staticmethod
         def creature_quest_starter_get_by_entry(entry) -> list[t_creature_quest_starter]:
-            return WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS[entry] \
-                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_STARTERS else []
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_STARTERS.get(entry, [])
+
+        @staticmethod
+        def creature_quest_starter_entry_by_quest(quest_id):
+            if quest_id not in WorldDatabaseManager.QuestRelationHolder.UNIT_STARTER_BY_QUEST:
+                return 0
+            return WorldDatabaseManager.QuestRelationHolder.UNIT_STARTER_BY_QUEST.get(quest_id, [])[0]
 
         @staticmethod
         def creature_quest_finisher_get_by_entry(entry) -> list[t_creature_quest_finisher]:
-            return WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS[entry] \
-                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_CREATURE_FINISHERS else []
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_UNIT_FINISHERS.get(entry, [])
+
+        @staticmethod
+        def creature_quest_finisher_entry_by_quest(quest_id):
+            if quest_id not in WorldDatabaseManager.QuestRelationHolder.UNIT_FINISHER_BY_QUEST:
+                return 0
+            return WorldDatabaseManager.QuestRelationHolder.UNIT_FINISHER_BY_QUEST.get(quest_id, [])[0]
 
         @staticmethod
         def gameobject_quest_starter_get_by_entry(entry) -> list[t_gameobject_quest_starter]:
-            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[entry] \
-                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS else []
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[entry].get(entry, [])
 
         @staticmethod
         def gameobject_quest_finisher_get_by_entry(entry) -> list[t_gameobject_quest_finisher]:
-            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[entry] \
-                if entry in WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS else []
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[entry].get(entry, [])
 
     @staticmethod
     def creature_quest_starter_get_all() -> list[t_creature_quest_starter]:
