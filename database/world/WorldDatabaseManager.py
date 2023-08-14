@@ -1219,6 +1219,7 @@ class WorldDatabaseManager(object):
     # Quest Gossip.
 
     class QuestGossipHolder:
+        GOSSIP_MENU: dict[int, GossipMenu] = {}
         NPC_GOSSIPS: dict[int, NpcGossip] = {}
         NPC_TEXTS: dict[int, NpcText] = {}
         DEFAULT_GREETING_TEXT_ID = 68  # Greetings $N
@@ -1228,9 +1229,17 @@ class WorldDatabaseManager(object):
             WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS[npc_gossip.npc_guid] = npc_gossip
 
         @staticmethod
+        def load_gossip_menu(gossip_menu: GossipMenu):
+            WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU[gossip_menu.entry] = gossip_menu
+
+        @staticmethod
         def load_npc_text(npc_text: NpcText):
             WorldDatabaseManager.QuestGossipHolder.NPC_TEXTS[npc_text.id] = npc_text
-        
+
+        @staticmethod
+        def gossip_menu_by_entry(entry):
+            return WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU.get(entry, None)
+
         @staticmethod
         def npc_gossip_get_by_guid(npc_guid: int) -> Optional[NpcGossip]:
             return WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS.get(npc_guid & ~HighGuid.HIGHGUID_UNIT)
@@ -1238,6 +1247,13 @@ class WorldDatabaseManager(object):
         @staticmethod
         def npc_text_get_by_id(text_id: int) -> Optional[NpcText]:
             return WorldDatabaseManager.QuestGossipHolder.NPC_TEXTS.get(text_id)
+
+    @staticmethod
+    def gossip_menu_get_all() -> list[GossipMenu]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(GossipMenu).all()
+        world_db_session.close()
+        return res
 
     @staticmethod
     def npc_gossip_get_all() -> list[NpcGossip]:

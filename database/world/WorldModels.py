@@ -1116,11 +1116,21 @@ class SpawnsGameobjects(Base):
     ignored = Column(TINYINT(1), nullable=False, server_default=text("'0'"))
 
 
+class GossipMenu(Base):
+    __tablename__ = 'gossip_menu'
+
+    entry = Column(SMALLINT(6), primary_key=True, nullable=False, server_default=text("0"))
+    text_id = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("0"))
+    script_id = Column(MEDIUMINT(8), nullable=False, server_default=text("0"))
+    condition_id = Column(MEDIUMINT(8), nullable=False, server_default=text("0"))
+
+
 class NpcGossip(Base):
     __tablename__ = 'npc_gossip'
 
     npc_guid = Column(ForeignKey('spawns_creatures.spawn_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("'0'"))
     textid = Column(ForeignKey('npc_text.id', ondelete='CASCADE', onupdate='CASCADE'), nullable=False, index=True, server_default=text("'0'"))
+
 
 class PageText(Base):
     __tablename__ = 'page_text'
