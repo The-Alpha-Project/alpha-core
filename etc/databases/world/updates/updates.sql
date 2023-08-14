@@ -3456,5 +3456,13 @@ begin not atomic
 
         insert into`applied_updates`values ('100820231');
     end if;
+
+    -- 03/08/2023 1
+    if (select count(*) from `applied_updates` where id='030820231') = 0 then
+        -- https://github.com/The-Alpha-Project/alpha-core/issues/1199
+        UPDATE `quest_template` SET `Title` = 'Awaiting Word', `OfferRewardText` = 'Hm, it seems that Watcher Dodds hasn''t been receiving my progress reports. I will have to take more care when I send my next. Thank you for bringing word to me.', `RewXP` = 1250 WHERE `entry` = 236;
+
+        insert into`applied_updates`values ('030820231');
+    end if;
 end $
 delimiter ;
