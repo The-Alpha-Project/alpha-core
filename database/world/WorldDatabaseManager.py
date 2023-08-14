@@ -821,11 +821,11 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def gameobject_quest_starter_get_by_entry(entry) -> list[t_gameobject_quest_starter]:
-            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS[entry].get(entry, [])
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_STARTERS.get(entry, [])
 
         @staticmethod
         def gameobject_quest_finisher_get_by_entry(entry) -> list[t_gameobject_quest_finisher]:
-            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS[entry].get(entry, [])
+            return WorldDatabaseManager.QuestRelationHolder.QUEST_GAMEOBJECT_FINISHERS.get(entry, [])
 
     @staticmethod
     def creature_quest_starter_get_all() -> list[t_creature_quest_starter]:
