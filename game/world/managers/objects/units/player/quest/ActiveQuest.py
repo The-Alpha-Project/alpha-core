@@ -22,9 +22,9 @@ class ActiveQuest:
         self.area_triggers = None
         self.failed = False
         self.load_area_triggers()
-        self.set_quest_givers()
+        self.set_quest_givers_entries()
 
-    def set_quest_givers(self):
+    def set_quest_givers_entries(self):
         self.quest_starter_entry = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_entry_by_quest(
             self.quest.entry)
         self.quest_finisher_entry = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_entry_by_quest(

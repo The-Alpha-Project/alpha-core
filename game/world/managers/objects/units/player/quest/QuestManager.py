@@ -1218,18 +1218,23 @@ class QuestManager(object):
     def update_single_quest(self, quest_id, slot=-1):
         progress = 0
         timer = 0
-        if quest_id in self.active_quests:
-            progress = self.active_quests[quest_id].get_progress()
-            timer = self.active_quests[quest_id].get_timer()
-            if slot == -1:
-                slot = list(self.active_quests.keys()).index(quest_id)
+        quest_starter_entry = 0
+        quest_finisher_entry = 0
+
+        active_quest = self.active_quests.get(quest_id, None)
+        if active_quest:
+            progress = active_quest.get_progress()
+            timer = active_quest.get_timer()
+            slot = slot if slot != -1 else list(self.active_quests.keys()).index(quest_id)
+            quest_starter_entry = active_quest.quest_starter_entry
+            quest_finisher_entry = active_quest.quest_finisher_entry
 
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6), quest_id)
-        # TODO Finish / investigate below values
-        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, 0)  # quest giver ID ?
-        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, 0)  # quest rewarder ID ?
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, quest_starter_entry)
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, quest_finisher_entry)
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 3, progress)  # quest progress
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, timer)  # quest time failure
+        # TODO investigate below value
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 5, 0)  # number of mobs to kill
 
     def build_update(self):
