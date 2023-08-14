@@ -251,11 +251,11 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_reference_loot_template(reference_loot_template):
-            if reference_loot_template.entry not in \
-                    WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES:
-                WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[reference_loot_template.entry] = []
+            entry = reference_loot_template.entry
+            if entry not in WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES:
+                WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[entry] = []
 
-            WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[reference_loot_template.entry] \
+            WorldDatabaseManager.ReferenceLootTemplateHolder.REFERENCE_LOOT_TEMPLATES[entry]\
                 .append(reference_loot_template)
 
         @staticmethod
@@ -276,12 +276,11 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_pickpocketing_loot_template(pickpocketing_loot_template):
-            if pickpocketing_loot_template.entry not in \
-                    WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES:
-                WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[
-                    pickpocketing_loot_template.entry] = []
+            entry = pickpocketing_loot_template.entry
+            if entry not in WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES:
+                WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[entry] = []
 
-            WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[pickpocketing_loot_template.entry] \
+            WorldDatabaseManager.PickPocketingLootTemplateHolder.PICKPOCKETING_LOOT_TEMPLATES[entry]\
                 .append(pickpocketing_loot_template)
 
         @staticmethod
@@ -305,7 +304,8 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_gameobject_template(gameobject_template):
-            WorldDatabaseManager.GameobjectTemplateHolder.GAMEOBJECT_TEMPLATES[gameobject_template.entry] = gameobject_template
+            entry = gameobject_template.entry
+            WorldDatabaseManager.GameobjectTemplateHolder.GAMEOBJECT_TEMPLATES[entry] = gameobject_template
 
         @staticmethod
         def gameobject_get_by_entry(entry) -> Optional[GameobjectTemplate]:
@@ -440,11 +440,13 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_creature_groups(creature_group):
+            leader_guid = creature_group.leader_guid
+            member_guid = creature_group.member_guid
             if creature_group.leader_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
-                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[creature_group.leader_guid] = creature_group
+                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[leader_guid] = creature_group
 
             if creature_group.member_guid not in WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER:
-                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[creature_group.member_guid] = creature_group
+                WorldDatabaseManager.CreatureGroupsHolder.CREATURE_GROUP_BY_MEMBER[member_guid] = creature_group
 
         @staticmethod
         def get_group_by_member_spawn_id(spawn_id):
@@ -458,22 +460,25 @@ class WorldDatabaseManager(object):
         CREATURE_MOVEMENT_SPECIAL: [int, list[CreatureMovementSpecial]] = {}
 
         @staticmethod
-        def load_creature_movement_template(creature_movement_template):
-            if creature_movement_template.entry not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
-                WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_movement_template.entry] = []
-            WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[creature_movement_template.entry].append(creature_movement_template)
+        def load_creature_movement_template(movement_template):
+            entry = movement_template.entry
+            if entry not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES:
+                WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[entry] = []
+            WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_TEMPLATES[entry].append(movement_template)
 
         @staticmethod
         def load_creature_movement(creature_movement):
-            if creature_movement.id not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
-                WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_movement.id] = []
-            WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[creature_movement.id].append(creature_movement)
+            id_ = creature_movement.id
+            if id_ not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS:
+                WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[id_] = []
+            WorldDatabaseManager.CreatureMovementHolder.CREATURE_WAYPOINTS[id_].append(creature_movement)
 
         @staticmethod
         def load_creature_movement_special(creature_movement_special):
-            if creature_movement_special.id not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL:
-                WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[creature_movement_special.id] = []
-            WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[creature_movement_special.id].append(
+            id_ = creature_movement_special.id
+            if id_ not in WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL:
+                WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[id_] = []
+            WorldDatabaseManager.CreatureMovementHolder.CREATURE_MOVEMENT_SPECIAL[id_].append(
                 creature_movement_special)
 
         @staticmethod
@@ -532,7 +537,7 @@ class WorldDatabaseManager(object):
             return trainers
 
     @staticmethod
-    def creature_template_get_all() -> list[CreatureModelInfo]:
+    def creature_template_get_all() -> list[CreatureTemplate]:
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureTemplate).all()
         world_db_session.close()
@@ -597,10 +602,11 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_creature_loot_template(creature_loot_template):
-            if creature_loot_template.entry not in WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES:
-                WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[creature_loot_template.entry] = []
+            entry = creature_loot_template.entry
+            if entry not in WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES:
+                WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[entry] = []
 
-            WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[creature_loot_template.entry]\
+            WorldDatabaseManager.CreatureLootTemplateHolder.CREATURE_LOOT_TEMPLATES[entry]\
                 .append(creature_loot_template)
 
         @staticmethod
@@ -620,10 +626,11 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_skinning_loot_template(skinning_loot_template):
-            if skinning_loot_template.entry not in WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES:
-                WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[skinning_loot_template.entry] = []
+            entry = skinning_loot_template.entry
+            if entry not in WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES:
+                WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[entry] = []
 
-            WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[skinning_loot_template.entry]\
+            WorldDatabaseManager.SkinningLootTemplateHolder.SKINNING_LOOT_TEMPLATES[entry]\
                 .append(skinning_loot_template)
 
         @staticmethod
@@ -682,8 +689,8 @@ class WorldDatabaseManager(object):
                 WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry] = []
 
             for index in range(WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELLS_MAX_SPELLS):
-                spell_template = CreatureSpellsEntry(creature_spell, index + 1)
-                WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry].append(spell_template)
+                template = CreatureSpellsEntry(creature_spell, index + 1)
+                WorldDatabaseManager.CreatureSpellHolder.CREATURE_SPELL_TEMPLATE[creature_spell.entry].append(template)
 
         @staticmethod
         def get_creature_spell_by_spell_list_id(spell_list_id) -> Optional[list[CreatureSpell]]:
@@ -742,11 +749,11 @@ class WorldDatabaseManager(object):
         AREA_TRIGGER_RELATION = {}
 
         @staticmethod
-        def load_area_trigger_quest_relation(area_trigger_relation):
-            if area_trigger_relation.quest not in WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION:
-                WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[area_trigger_relation.quest] = []
+        def load_area_trigger_quest_relation(relation):
+            if relation.quest not in WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION:
+                WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[relation.quest] = []
 
-            WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[area_trigger_relation.quest].append(area_trigger_relation.id)
+            WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION[relation.quest].append(relation.id)
 
         @staticmethod
         def load_creature_starter_quest(unit_quest_starter):
@@ -1019,13 +1026,15 @@ class WorldDatabaseManager(object):
             if event.id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID:
                 WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_ID[event.id] = event
 
-            if event.creature_id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID:
-                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id] = {}
+            creature_id = event.creature_id
+            event_type = event.event_type
+            if creature_id not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID:
+                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[creature_id] = {}
 
-            if event.event_type not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id]:
-                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id][event.event_type] = []
+            if event_type not in WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[creature_id]:
+                WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[creature_id][event_type] = []
 
-            WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[event.creature_id][event.event_type].append(event)
+            WorldDatabaseManager.CreatureAiEventHolder.EVENTS_BY_CREATURE_ID[creature_id][event_type].append(event)
 
         @staticmethod
         def creature_ai_events_get_by_creature_entry(entry):
@@ -1094,14 +1103,17 @@ class WorldDatabaseManager(object):
         
         @staticmethod
         def load_default_profession_spell(default_profession_spell: DefaultProfessionSpell):
-            WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[(default_profession_spell.trainer_spell, default_profession_spell.default_spell)] = default_profession_spell
+            key = (default_profession_spell.trainer_spell, default_profession_spell.default_spell)
+            WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[key] = default_profession_spell
 
         @staticmethod
         def default_profession_spells_get_by_trainer_spell_id(trainer_spell_id: int) -> list[DefaultProfessionSpell]:
             default_profession_spells: list[DefaultProfessionSpell] = []
             for profession_spell in WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS:
-                if WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[profession_spell].trainer_spell == trainer_spell_id:
-                    default_profession_spells.append(WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[profession_spell])
+                default = WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[profession_spell]
+                if default.trainer_spell == trainer_spell_id:
+                    default_profession_spells.append(
+                        WorldDatabaseManager.DefaultProfessionSpellHolder.DEFAULT_PROFESSION_SPELLS[profession_spell])
 
             return default_profession_spells
 
@@ -1122,11 +1134,15 @@ class WorldDatabaseManager(object):
 
         @staticmethod
         def load_trainer_spell(trainer_spell: TrainerTemplate):
-            WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[(trainer_spell.template_entry, trainer_spell.spell)] = trainer_spell
+            key = (trainer_spell.template_entry, trainer_spell.spell)
+            WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[key] = trainer_spell
             # If this trainer template references a talent spell, load it in the corresponding table too.
-            if trainer_spell.template_entry == WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID:
-                WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL[trainer_spell.spell] = trainer_spell.playerspell
-                WorldDatabaseManager.TrainerSpellHolder.TALENTS.append(trainer_spell)
+            if trainer_spell.template_entry != WorldDatabaseManager.TrainerSpellHolder.TRAINER_TEMPLATE_TALENT_ID:
+                return
+            t_spell = trainer_spell.spell
+            p_spell = trainer_spell.playerspell
+            WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL[t_spell] = p_spell
+            WorldDatabaseManager.TrainerSpellHolder.TALENTS.append(trainer_spell)
 
         @staticmethod
         def get_player_spell_by_trainer_spell_id(trainer_spell_id):
@@ -1134,16 +1150,16 @@ class WorldDatabaseManager(object):
                 trainer_spell_id in WorldDatabaseManager.TrainerSpellHolder.PLAYER_TALENT_SPELL_BY_TRAINER_SPELL else 0
 
         @staticmethod
-        def trainer_spells_get_by_trainer(trainer_entry_id: int) -> list[TrainerTemplate]:
+        def trainer_spells_get_by_trainer(trainer_entry: int) -> list[TrainerTemplate]:
             creature_template: CreatureTemplate = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(
-                trainer_entry_id)
-            return WorldDatabaseManager.TrainerSpellHolder.trainer_spells_get_by_trainer_id(creature_template.trainer_id)
+                trainer_entry)
+            return WorldDatabaseManager.TrainerSpellHolder.spells_get_by_trainer_id(creature_template.trainer_id)
 
         @staticmethod
-        def trainer_spells_get_by_trainer_id(trainer_template_id: int) -> list[TrainerTemplate]:
+        def spells_get_by_trainer_id(template_id: int) -> list[TrainerTemplate]:
             trainer_spells: list[TrainerTemplate] = []
             for t_spell in WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS:
-                if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == trainer_template_id:
+                if WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell].template_entry == template_id:
                     trainer_spells.append(WorldDatabaseManager.TrainerSpellHolder.TRAINER_SPELLS[t_spell])
 
             return trainer_spells
@@ -1248,7 +1264,7 @@ class WorldDatabaseManager(object):
             # broadcast text.
             broadcast_text.male_text = broadcast_text.male_text.replace('%s ', '')
             broadcast_text.female_text = broadcast_text.female_text.replace('%s ', '')
-            # Default to LANG_UNIVERSAL for non existent languages to prevent client crash.
+            # Default to LANG_UNIVERSAL for non-existent languages to prevent client crash.
             if broadcast_text.language_id > Languages.LANG_TROLL:
                 Logger.warning(f'Invalid language id {broadcast_text.language_id} for '
                                f'broadcast text {broadcast_text.entry}.')
