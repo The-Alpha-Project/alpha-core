@@ -3480,7 +3480,8 @@ begin not atomic
 
         insert into`applied_updates`values ('130820231');
     end if;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -- 03/08/2023 1
+
+    -- 15/08/2023 1
     if (select count(*) from `applied_updates` where id='150820231') = 0 then
         -- https://github.com/vmangos/core/commit/4b4ef6682df96d9398ffc43507ad1d19486c9471
         INSERT INTO `creature_spells` VALUES (18950,'Silverpine Forest - Pyrewood Elder',2053,100,15,0,0,0,3,15,10,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
