@@ -15,11 +15,20 @@ from utils.constants.OpCodes import OpCode
 class ActiveQuest:
     def __init__(self, quest_db_state, player_mgr, quest):
         self.owner = player_mgr
+        self.quest_starter_entry = 0
+        self.quest_finisher_entry = 0
         self.db_state = quest_db_state
         self.quest = quest
         self.area_triggers = None
         self.failed = False
         self.load_area_triggers()
+        self.set_quest_givers_entries()
+
+    def set_quest_givers_entries(self):
+        self.quest_starter_entry = WorldDatabaseManager.QuestRelationHolder.creature_quest_starter_entry_by_quest(
+            self.quest.entry)
+        self.quest_finisher_entry = WorldDatabaseManager.QuestRelationHolder.creature_quest_finisher_entry_by_quest(
+            self.quest.entry)
 
     def load_area_triggers(self):
         if self.quest.entry not in WorldDatabaseManager.QuestRelationHolder.AREA_TRIGGER_RELATION:

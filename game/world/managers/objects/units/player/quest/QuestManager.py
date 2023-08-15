@@ -277,10 +277,8 @@ class QuestManager(object):
         elif quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT and quest_giver.is_trainer():
             text = QuestManager.get_default_greeting_text(quest_giver)
             self.send_quest_giver_quest_list(text, 0, quest_giver_guid, quest_menu.items)
-        elif quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
-            # TODO: e.g. Stone of Remembrance - Needs broadcast_text table.
-            Logger.warning(f'Missing handling for quest giver {quest_giver.get_name()}, '
-                           f'Entry: {quest_giver.entry}.')
+        else:
+            Logger.warning(f'Unhandled quest giver hello for quest giver entry {quest_giver.entry}')
 
     def get_quest_state(self, quest_entry):
         if quest_entry in self.active_quests:
@@ -434,26 +432,41 @@ class QuestManager(object):
             text_entry = quest_giver_gossip_entry.textid
         quest_giver_text_entry: NpcText = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(text_entry)
 
-        # Gameobjects quest starters don't have this.
-        if not quest_giver_text_entry:
-            return False, '', 0
+        if not quest_giver_gossip_entry and quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            gossip_text = QuestManager._get_gossip_menu_gossip_text(quest_giver, quest_giver.gobject_template.data3)
+            return True if gossip_text else False, gossip_text, 0
 
         quest_giver_greeting = QuestManager._gossip_text_choose_by_gender(quest_giver, quest_giver_text_entry)
-
         return True if quest_giver_gossip_entry else False, quest_giver_greeting, quest_giver_text_entry.em0_0
+
+    @staticmethod
+    def _get_gossip_menu_gossip_text(quest_giver, gossip_entry):
+        if not gossip_entry:
+            return None
+        gossip_menu = WorldDatabaseManager.QuestGossipHolder.gossip_menu_by_entry(gossip_entry)
+        if not gossip_menu or not gossip_menu.text_id:
+            return None
+        npc_text = WorldDatabaseManager.QuestGossipHolder.npc_text_get_by_id(gossip_menu.text_id)
+        if not npc_text:
+            return None
+        gossip_text = QuestManager._gossip_text_choose_by_gender(quest_giver, npc_text)
+        return gossip_text if gossip_text else None
 
     @staticmethod
     def _gossip_text_choose_by_gender(quest_giver, text: NpcText):
         # Text based on gender.
         male_greeting = text.text0_0
         female_greeting = text.text0_1
-        if quest_giver.get_type_id() == ObjectTypeIds.ID_UNIT:
-            # If male or agnostic to gender.
-            if quest_giver.gender == UnitCodes.Genders.GENDER_MALE or not female_greeting:
-                return male_greeting
-            else:
-                return female_greeting
-        return male_greeting
+
+        # Gameobject.
+        if quest_giver.get_type_id() != ObjectTypeIds.ID_UNIT:
+            return male_greeting
+
+        # Male or agnostic to gender.
+        if quest_giver.gender == UnitCodes.Genders.GENDER_MALE or not female_greeting:
+            return male_greeting
+
+        return female_greeting
 
     # Quest status only works for units, sending a gameobject guid crashes the client.
     def update_surrounding_quest_status(self):
@@ -1205,18 +1218,23 @@ class QuestManager(object):
     def update_single_quest(self, quest_id, slot=-1):
         progress = 0
         timer = 0
-        if quest_id in self.active_quests:
-            progress = self.active_quests[quest_id].get_progress()
-            timer = self.active_quests[quest_id].get_timer()
-            if slot == -1:
-                slot = list(self.active_quests.keys()).index(quest_id)
+        quest_starter_entry = 0
+        quest_finisher_entry = 0
+
+        active_quest = self.active_quests.get(quest_id, None)
+        if active_quest:
+            progress = active_quest.get_progress()
+            timer = active_quest.get_timer()
+            slot = slot if slot != -1 else list(self.active_quests.keys()).index(quest_id)
+            quest_starter_entry = active_quest.quest_starter_entry
+            quest_finisher_entry = active_quest.quest_finisher_entry
 
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6), quest_id)
-        # TODO Finish / investigate below values
-        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, 0)  # quest giver ID ?
-        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, 0)  # quest rewarder ID ?
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 1, quest_starter_entry)
+        self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 2, quest_finisher_entry)
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 3, progress)  # quest progress
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 4, timer)  # quest time failure
+        # TODO investigate below value
         self.player_mgr.set_uint32(PlayerFields.PLAYER_QUEST_LOG_1_1 + (slot * 6) + 5, 0)  # number of mobs to kill
 
     def build_update(self):

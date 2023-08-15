@@ -64,11 +64,14 @@ class WorldLoader:
             WorldLoader.load_creature_display_info()
             WorldLoader.load_creature_model_info()
             WorldLoader.load_creature_families()
-            WorldLoader.load_npc_gossip()
-            WorldLoader.load_npc_text()
-            WorldLoader.load_broadcast_text()
         else:
             Logger.info('Skipped creature loading.')
+
+        # Gossip/Text related.
+        WorldLoader.load_gossip_menus()
+        WorldLoader.load_npc_gossip()
+        WorldLoader.load_npc_text()
+        WorldLoader.load_broadcast_text()
 
         WorldLoader.load_area_trigger_quest_relations()
         WorldLoader.load_quests()
@@ -726,6 +729,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading creature families...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_gossip_menus():
+        gossip_menus = WorldDatabaseManager.gossip_menu_get_all()
+        length = len(gossip_menus)
+        count = 0
+
+        for gossip_menu in gossip_menus:
+            WorldDatabaseManager.QuestGossipHolder.load_gossip_menu(gossip_menu)
+
+            count += 1
+            Logger.progress('Loading gossip menu...', count, length)
 
         return length
 

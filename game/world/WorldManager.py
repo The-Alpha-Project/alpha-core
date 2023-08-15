@@ -82,7 +82,7 @@ class WorldServerSessionHandler:
             try:
                 data = self.outgoing_pending.get(block=True, timeout=None)
                 # We've been blocking, by now keep_alive might be false.
-                # data can be None if we shutdown the thread.
+                # data can be None if we shut down the thread.
                 if data and self.keep_alive:
                     self.client_socket.sendall(data)
             except OSError:
