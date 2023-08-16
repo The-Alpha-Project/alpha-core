@@ -3519,6 +3519,7 @@ begin not atomic
         -- Partial #1149 - Relocate Hall of Arms trainers, we only need move one, the other is already at right pos and Muren doesnt exist for 0.5.3
         UPDATE `spawns_creatures` SET `position_x` = -5045.593, `position_y` = -1266.671, `position_z`= 528.520, `orientation` = 5.429 WHERE `spawn_id` = 2020;
 
+        insert into`applied_updates`values ('160820231');
     end if;
 end $
 delimiter ;
