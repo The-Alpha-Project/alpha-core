@@ -435,6 +435,42 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    @staticmethod
+    def creature_pools_get_all() -> list[CreaturesPool]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(CreaturesPool).all()
+        world_db_session.close()
+        return res
+
+    class CreaturePoolsHolder:
+        POOLS_BY_POOL_ENTRY: dict[int, list[CreaturesPool]] = {}
+        POOLS_BY_SPAWN_ID: dict[int, list[CreaturesPool]] = {}
+
+        @staticmethod
+        def load_creature_pool(pool: CreaturesPool):
+            pool_entry: int = pool.pool_entry
+            spawn_id: int = pool.id
+            if spawn_id in WorldDatabaseManager.CreaturePoolsHolder.POOLS_BY_SPAWN_ID:
+                Logger.warning(f'Skipping creature spawn pool (spawn id {spawn_id}): has already been loaded')
+                return
+            elif 0.0 > pool.chance or pool.chance > 100.0:
+                Logger.warning(f'Skipping creature spawn pool (spawn id {spawn_id}): invalid chance {pool.chance}')
+                return
+            else:
+                existing_pools = WorldDatabaseManager.CreaturePoolsHolder.POOLS_BY_POOL_ENTRY.get(pool_entry)
+                if existing_pools is None:
+                    new_pools = [pool]
+                    WorldDatabaseManager.CreaturePoolsHolder.POOLS_BY_POOL_ENTRY[pool_entry] = new_pools
+                    WorldDatabaseManager.CreaturePoolsHolder.POOLS_BY_SPAWN_ID[spawn_id] = new_pools
+                else:
+                    existing_pools.append(pool)
+                    WorldDatabaseManager.CreaturePoolsHolder.POOLS_BY_SPAWN_ID[spawn_id] = existing_pools
+
+        @staticmethod
+        def get_creature_pools_by_spawn_id(spawn_id: int) -> Optional[list[CreaturesPool]]:
+            return WorldDatabaseManager.CreaturePoolsHolder.POOLS_BY_SPAWN_ID.get(spawn_id)
+
+
     class CreatureGroupsHolder:
         CREATURE_GROUP_BY_MEMBER: dict = {}
 
