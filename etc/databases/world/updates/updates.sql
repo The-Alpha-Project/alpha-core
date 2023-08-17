@@ -3489,5 +3489,42 @@ begin not atomic
 
         insert into`applied_updates`values ('150820231');
     end if;
+
+    -- 16/08/2023 2
+    if (select count(*) from `applied_updates` where id='160820232') = 0 then
+
+        DROP TABLE IF EXISTS `creature_pools`;
+
+        /*!40101 SET @saved_cs_client     = @@character_set_client */;
+        /*!40101 SET character_set_client = utf8 */;
+        CREATE TABLE `creature_pools` (
+        `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `chance` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `description` varchar(255) NOT NULL DEFAULT '',
+        PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+        /*!40101 SET character_set_client = @saved_cs_client */;
+
+
+        -- CREATURE POOLING WORKING EXAMPLE WITH VULTROS IN WESTFALL
+        INSERT INTO creature_pools (id, pool_entry, chance, description) 
+        VALUES
+            (28407, 1, 0, "Vultros"),
+            (99118, 1, 0, "Vultros"),
+            (99119, 1, 0, "Vultros"),
+            (99120, 1, 0, "Vultros"),
+            (99121, 1, 0, "Vultros"),
+            (99122, 1, 0, "Vultros"),
+            (99123, 1, 0, "Vultros"),
+            (99124, 1, 0, "Vultros"),
+            (99125, 1, 0, "Vultros"),
+            (99126, 1, 0, "Vultros"),
+            (99127, 1, 0, "Vultros"),
+            (99128, 1, 0, "Vultros"),
+            (99129, 1, 0, "Vultros");
+        
+        insert into`applied_updates`values ('160820232');
+    end if;
 end $
 delimiter ;
