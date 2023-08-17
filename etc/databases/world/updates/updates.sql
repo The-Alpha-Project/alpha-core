@@ -3489,5 +3489,37 @@ begin not atomic
 
         insert into`applied_updates`values ('150820231');
     end if;
+
+    -- 16/08/2023 1
+    if (select count(*) from `applied_updates` where id='160820231') = 0 then
+
+        -- Closes #1270
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4209  WHERE `spawn_id` = 46417;
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4208  WHERE `spawn_id` = 46418;
+
+        -- Closes #1241
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 2889  WHERE `spawn_id` IN (8186, 8177, 8189, 8180, 7685, 7069, 7690);
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 2890  WHERE `spawn_id` IN (8176, 8185, 7718, 8191, 7167, 7068, 7071, 8188);
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 2891  WHERE `spawn_id` IN (8183, 8180, 8193, 8192, 7166,  7065, 7064);
+        -- we take StoneVault Cave Lurker stats, same level range, same mob type
+        UPDATE `creature_template` SET `level_min` = 38, `level_max` = 39, `health_min` = 4185, `health_max` = 4377, `armor` = 1651, `dmg_min` = 193, `dmg_max` = 249, `attack_power` = 152, `type` = 7, `faction` = 59 WHERE `entry` IN (2889, 2890, 2891);
+
+        -- Closes #1231 
+        UPDATE `spawns_creatures` SET `position_x` =  9962.853, `position_y` = 2285.110 , `position_z` = 1341.394, `orientation` =  4.683 WHERE `spawn_id` = 50146;
+        UPDATE `creature_template` SET `level_min` = 60, `level_max` = 60 WHERE `entry` = 3936;
+        UPDATE `quest_template` SET `Title` = 'Reception from Shandris' , `QuestLevel` = 23, `Objectives` = 'Find Shandris Feathermoon in Darnassus.', `Details` = "$N, I am sure Shandris Feathermoon herself would like to thank you for taking part in this mission.$B$BIt may not appear so on the surface, but what you've helped start could very well strengthen our foothold in the Stonetalon Mountains.$B$BIf you consider yourself our ally against these atrocities, go see Shandris in the Hall of Justice in Darnassus." WHERE `entry` = 1081;
+
+        -- Closes #1229
+        UPDATE `spawns_creatures` SET `position_x` = -6378.781, `position_y` = -2958.422 WHERE `spawn_id` = 400209;
+        UPDATE `spawns_creatures` SET `position_x` = -6381.360, `position_y` = -2954.211 WHERE `spawn_id` = 400163;
+
+        -- Partial #1149 - Relocate an NPC to Kharanos
+        UPDATE `spawns_creatures` SET `position_x` = -5652.914, `position_y` = 495.150, `position_z`= 396.68, `orientation` = 1.901 WHERE `spawn_id` = 265;
+
+        -- Partial #1149 - Relocate Hall of Arms trainers, we only need move one, the other is already at right pos and Muren doesnt exist for 0.5.3
+        UPDATE `spawns_creatures` SET `position_x` = -5045.593, `position_y` = -1266.671, `position_z`= 528.520, `orientation` = 5.429 WHERE `spawn_id` = 2020;
+
+        insert into`applied_updates`values ('160820231');
+    end if;
 end $
 delimiter ;
