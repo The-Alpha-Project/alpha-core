@@ -182,6 +182,16 @@ t_creature_spells_scripts = Table(
     Column('comments', String(255), nullable=False)
 )
 
+class CreaturesPool(Base):
+    __tablename__ = 'creature_pools'
+
+    id = Column(ForeignKey('spawns_creatures.spawn_id', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True)
+    pool_entry = Column(MEDIUMINT(8), nullable=False, comment='Pool Identifier')
+    chance = Column(Float, nullable=False, server_default=text("'0'"))
+    description = Column(Text)
+
+    creature_spawn = relationship('SpawnsCreatures', lazy='joined')
+
 
 class CreatureGroup(Base):
     __tablename__ = 'creature_groups'
