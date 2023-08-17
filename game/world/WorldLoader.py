@@ -244,19 +244,6 @@ class WorldLoader:
 
     @staticmethod
     def load_creature_pools():
-        pools = WorldDatabaseManager.creature_pools_get_all()
-        length = len(pools)
-        count = 0
-
-        for pool in pools:
-            WorldDatabaseManager.CreaturePoolsHolder.load_creature_pool(pool)
-            count += 1
-            Logger.progress('Loading creature spawn pools...', count, length)
-
-        return length
-
-    @staticmethod
-    def load_creature_pools():
         creature_pools = WorldDatabaseManager.creature_pools_get_all()
         length = len(creature_pools)
         count = 0
