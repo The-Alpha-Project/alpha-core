@@ -56,6 +56,7 @@ class WorldLoader:
             WorldLoader.load_creature_movement()
             WorldLoader.load_creature_movement_templates()
             WorldLoader.load_creature_movement_special()
+            WorldLoader.load_creature_pools()
             WorldLoader.load_creature_groups()
             WorldLoader.load_creature_equip_templates()
             WorldLoader.load_creature_on_kill_reputation()
@@ -240,6 +241,33 @@ class WorldLoader:
             Logger.progress('Loading gameobject quest finishers...', count, length)
 
         return length
+
+    @staticmethod
+    def load_creature_pools():
+        pools = WorldDatabaseManager.creature_pools_get_all()
+        length = len(pools)
+        count = 0
+
+        for pool in pools:
+            WorldDatabaseManager.CreaturePoolsHolder.load_creature_pool(pool)
+            count += 1
+            Logger.progress('Loading creature spawn pools...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_creature_pools():
+        creature_pools = WorldDatabaseManager.creature_pools_get_all()
+        length = len(creature_pools)
+        count = 0
+
+        for pool in creature_pools:
+            WorldDatabaseManager.CreaturePoolsHolder.load_creature_pool(pool)
+            count += 1
+            Logger.progress('Loading creature pool...', count, length)
+
+        return length
+
 
     @staticmethod
     def load_creature_groups():
