@@ -3,11 +3,14 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 
 class PoolHolder:
 
+    # key is pool entry, value is list of spawn_id
+    # {1234: [9234], 4321: [2134], ...}
     ACTIVE_POOL_CREATURE_SPAWN_IDS = {}
     ACTIVE_POOL_GAMEOBJECT_SPAWN_IDS = {}
 
     @staticmethod
     def get_chosen_pool_creature_spawn(spawn_id):
+        """get a randomized creature from a pool of creatures"""
         creature = None
         pool_entry = None
         creature_pools = PoolHolder._get_creature_pools_by_spawn_id(spawn_id)
