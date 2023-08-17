@@ -3522,7 +3522,10 @@ begin not atomic
             (99126, 1, 0, "Vultros"),
             (99127, 1, 0, "Vultros"),
             (99128, 1, 0, "Vultros"),
-            (99129, 1, 0, "Vultros");
+            (99129, 1, 0, "Vultros"),
+            (99130, 1, 0, "Vultros"),
+            (99131, 1, 0, "Vultros"),
+            (99132, 1, 0, "Vultros");
         
         insert into`applied_updates`values ('160820232');
     end if;
