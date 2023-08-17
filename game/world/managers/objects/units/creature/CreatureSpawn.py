@@ -81,6 +81,7 @@ class CreatureSpawn:
             spawned_pool_creatures = PoolHolder.get_creature_spawn_ids_by_pool_entry(pool_entry)                
 
         if not spawned_pool_creatures:
+            self.location = self.get_default_location()
             self.respawn_timer = 0
             self.respawn_time = randint(self.creature_spawn.spawntimesecsmin, self.creature_spawn.spawntimesecsmax)
             self.creature_instance = CreatureBuilder.create(creature_template_id, self.location,
@@ -110,7 +111,6 @@ class CreatureSpawn:
         self.health_percent = creature.health_percent
         self.mana_percent = creature.mana_percent
         self.map_id = creature.map
-        self.location = self.get_default_location()
         self.addon = creature.addon
         self.pool_entry = pool_entry
 
