@@ -5,8 +5,8 @@ class PoolHolder:
 
     # key is pool entry, value is list of spawn_id
     # {1234: [9234], 4321: [2134], ...}
-    ACTIVE_POOL_CREATURE_SPAWN_IDS = {}
-    ACTIVE_POOL_GAMEOBJECT_SPAWN_IDS = {}
+    ACTIVE_POOL_CREATURE_SPAWN_IDS: dict[int, list[int]] = {}
+    ACTIVE_POOL_GAMEOBJECT_SPAWN_IDS: dict[int, list[int]] = {}
 
     @staticmethod
     def get_chosen_pool_creature_spawn(spawn_id):
