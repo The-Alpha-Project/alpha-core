@@ -3497,7 +3497,7 @@ begin not atomic
         UPDATE `spawns_creatures` SET `spawn_entry1` = 4209  WHERE `spawn_id` = 46417;
         UPDATE `spawns_creatures` SET `spawn_entry1` = 4208  WHERE `spawn_id` = 46418;
 
-        -- Closes #1251
+        -- Closes #1241
         UPDATE `spawns_creatures` SET `spawn_entry1` = 2889  WHERE `spawn_id` IN (8186, 8177, 8189, 8180, 7685, 7069, 7690);
         UPDATE `spawns_creatures` SET `spawn_entry1` = 2890  WHERE `spawn_id` IN (8176, 8185, 7718, 8191, 7167, 7068, 7071, 8188);
         UPDATE `spawns_creatures` SET `spawn_entry1` = 2891  WHERE `spawn_id` IN (8183, 8180, 8193, 8192, 7166,  7065, 7064);
