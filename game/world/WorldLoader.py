@@ -31,7 +31,7 @@ class WorldLoader:
 
         # Unit class level stats.
         WorldLoader.load_player_class_level_stats()
-        WOrldLoader.load_creature_class_level_stats()
+        WorldLoader.load_creature_class_level_stats()
 
         # Spells.
         WorldLoader.load_spells()
