@@ -348,6 +348,19 @@ class WorldLoader:
         return length
 
     @staticmethod
+    def load_creature_class_level_stats():
+        creature_class_level_stats = WorldDatabaseManager.creature_class_level_stats_get_all()
+        length = len(creature_class_level_stats)
+        count = 0
+
+        for stats in creature_class_level_stats:
+            WorldDatabaseManager.CreatureClassLevelStatsHolder.load_creature_class_level_stats(stats)
+            count += 1
+            Logger.progress('Loading creature loot templates...', count, length)
+
+        return length
+
+    @staticmethod
     def load_skinning_loot_templates():
         skinning_loot_templates = WorldDatabaseManager.skinning_get_loot_templates()
         length = len(skinning_loot_templates)
