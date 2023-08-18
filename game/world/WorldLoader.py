@@ -29,8 +29,9 @@ class WorldLoader:
         WorldLoader.load_pickpocketing_loot_templates()
         WorldLoader.load_item_loot_templates()
 
-        # Player class level stats.
+        # Unit class level stats.
         WorldLoader.load_player_class_level_stats()
+        WOrldLoader.load_creature_class_level_stats()
 
         # Spells.
         WorldLoader.load_spells()
