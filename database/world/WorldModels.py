@@ -858,6 +858,27 @@ class Worldports(Base):
     name = Column(String(255), nullable=False, server_default=text("''"))
 
 
+class CreatureClassLevelStats(Base):
+    __tablename__ = 'creature_classlevelstats'
+
+    class_ = Column(TINYINT(3), nullable=False, server_default=text("0"))
+    level = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
+    melee_damage = Column(Float, nullable=False, server_default=text("'0'"))
+    ranged_damage = Column(Float, nullable=False, server_default=text("'0'"))
+    attack_power = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    ranged_attack_power = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    health = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    base_health = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    mana = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    base_mana = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    stength = Column(TINYINT(3), nullable=False)
+    agility = Column(TINYINT(3), nullable=False)
+    stamina = Column(TINYINT(3), nullable=False)
+    intellect = Column(TINYINT(3), nullable=False)
+    spirit = Column(TINYINT(3), nullable=False)
+    armor = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+
+
 class CreatureOnkillReputation(Base):
     __tablename__ = 'creature_onkill_reputation'
     __table_args__ = {'comment': 'Creature OnKill Reputation gain'}
