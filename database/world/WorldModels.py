@@ -262,7 +262,7 @@ class CreatureTemplate(Base):
     rank = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     xp_multiplier = Column(Float, nullable=False, server_default=text("'1'"))
     damage_multiplier = Column(Float, nullable=False, server_default=text("'1'"))
-    armor_mutiplier = Column(Float, nullable=False, server_default=text("'1'"))
+    armor_multiplier = Column(Float, nullable=False, server_default=text("'1'"))
     health_multiplier = Column(Float, nullable=False, server_default=text("'1'"))
     mana_multiplier = Column(Float, nullable=False, server_default=text("'1'"))
     damage_variance = Column(Float, nullable=False, server_default=text("'0.14'"))
