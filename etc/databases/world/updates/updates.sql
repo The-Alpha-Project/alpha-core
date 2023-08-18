@@ -3525,6 +3525,9 @@ begin not atomic
     -- 19/08/2023 1
     if (select count(*) from `applied_updates` where id='190820231') = 0 then
 
+
+        -- CREATURE_CLASSLEVELSTATS TABLE CREATION
+
         DROP TABLE IF EXISTS `creature_classlevelstats`;
 
         /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -3550,6 +3553,27 @@ begin not atomic
         PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
         /*!40101 SET character_set_client = @saved_cs_client */;
+
+
+        -- CREATURE_TEMPLATE TABLE ALTERATION
+
+        ALTER TABLE `creature_template` DROP COLUMN `health_min`;
+        ALTER TABLE `creature_template` DROP COLUMN `health_max`;
+        ALTER TABLE `creature_template` DROP COLUMN `mana_min`;
+        ALTER TABLE `creature_template` DROP COLUMN `mana_max`;
+        ALTER TABLE `creature_template` DROP COLUMN `dmg_min`;
+        ALTER TABLE `creature_template` DROP COLUMN `dmg_max`;
+        ALTER TABLE `creature_template` DROP COLUMN `ranged_dmg_min`;
+        ALTER TABLE `creature_template` DROP COLUMN `ranged_dmg_max`;
+        ALTER TABLE `creature_template` DROP COLUMN `armor`;
+        ALTER TABLE `creature_template` DROP COLUMN `attack_power`;
+        ALTER TABLE `creature_template` DROP COLUMN `ranged_attack_power`;
+        ALTER TABLE `creature_template` RENAME COLUMN `dmg_multiplier` TO `damage_multiplier`;
+        ALTER TABLE `creature_template` RENAME COLUMN `dmg_school` TO `damage_school`;
+        ALTER TABLE `creature_template` ADD COLUMN `damage_variance` float NOT NULL DEFAULT 1 AFTER `damage_school`;
+        ALTER TABLE `creature_template` ADD COLUMN `armor_multiplier` float NOT NULL DEFAULT 1 AFTER `damage_multiplier`;
+        ALTER TABLE `creature_template` ADD COLUMN `mana_multiplier` float NOT NULL DEFAULT 1 AFTER `damage_multiplier`;
+        ALTER TABLE `creature_template` ADD COLUMN `health_multiplier` float NOT NULL DEFAULT 1 AFTER `damage_multiplier`;
 
         insert into`applied_updates`values ('190820231');
     end if;
