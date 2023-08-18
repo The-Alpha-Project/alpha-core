@@ -861,16 +861,17 @@ class Worldports(Base):
 class CreatureClassLevelStats(Base):
     __tablename__ = 'creature_classlevelstats'
 
+    id = Column(INTEGER(11), autoincrement=True, primary_key=True)
     class_ = Column(TINYINT(3), nullable=False, server_default=text("0"))
     level = Column(TINYINT(3), nullable=False, server_default=text("'0'"))
     melee_damage = Column(Float, nullable=False, server_default=text("'0'"))
     ranged_damage = Column(Float, nullable=False, server_default=text("'0'"))
-    attack_power = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    ranged_attack_power = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    health = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    base_health = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    mana = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
-    base_mana = Column(INTEGER(10), nullable=False, server_default=text("'0'"))
+    attack_power = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    ranged_attack_power = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    health = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    base_health = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    mana = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
+    base_mana = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     stength = Column(TINYINT(3), nullable=False)
     agility = Column(TINYINT(3), nullable=False)
     stamina = Column(TINYINT(3), nullable=False)
