@@ -30,7 +30,7 @@ class PoolHolder:
 
     @staticmethod
     def set_creature_pool_entry(pool_entry, spawn_ids):
-        PoolHolder.ACTIVE_POOL_CREATURE_SPAWN_IDS.get[pool_entry, spawn_ids]
+        PoolHolder.ACTIVE_POOL_CREATURE_SPAWN_IDS[pool_entry] = spawn_ids
 
     @staticmethod
     def add_active_creature_spawn(pool_entry, spawn_id):
