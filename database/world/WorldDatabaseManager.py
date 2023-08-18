@@ -622,7 +622,7 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureClassLevelStatsHolder:
-        CREATURE_CLASS_LEVEL_STATS = [int, CreatureClassLevelStats] = {}
+        CREATURE_CLASS_LEVEL_STATS: [int, CreatureClassLevelStats] = {}
 
         @staticmethod
         def load_creature_class_level_stats(creature_class_level_stats):
@@ -630,7 +630,7 @@ class WorldDatabaseManager(object):
                 creature_class_level_stats
 
         @staticmethod
-        def creature_class_level_stats_get_by_id(creature_class_level_stats_id) -> Optional[CreatureLevelStats]:
+        def creature_class_level_stats_get_by_id(creature_class_level_stats_id) -> Optional[CreatureClassLevelStats]:
             return WorldDatabaseManager.CreatureClassLevelStatsHolder.CREATURE_CLASS_LEVEL_STATS.\
                 get(creature_class_level_stats_id)
 
