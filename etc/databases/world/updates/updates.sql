@@ -3521,5 +3521,37 @@ begin not atomic
 
         insert into`applied_updates`values ('160820231');
     end if;
+
+    -- 19/08/2023 1
+    if (select count(*) from `applied_updates` where id='190820231') = 0 then
+
+        DROP TABLE IF EXISTS `creature_classlevelstats`;
+
+        /*!40101 SET @saved_cs_client     = @@character_set_client */;
+        /*!40101 SET character_set_client = utf8 */;
+        CREATE TABLE `creature_classlevelstats` (
+        `id` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `class` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `level` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `melee_damage` float NOT NULL DEFAULT 0,
+        `ranged_damage` float NOT NULL DEFAULT 0,
+        `attack_power` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `ranged_attack_power` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `health` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `base_health` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `mana` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `base_mana` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `strength` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `agility` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `stamina` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `intellect` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `spirit` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `armor` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+        /*!40101 SET character_set_client = @saved_cs_client */;
+
+        insert into`applied_updates`values ('190820231');
+    end if;
 end $
 delimiter ;
