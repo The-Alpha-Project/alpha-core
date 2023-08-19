@@ -28,7 +28,7 @@ class CreatureFormulas:
 
     @staticmethod
     def get_min_max_damage(damage, damage_multipiler, damage_variance):
-        damage_average = damage * damage_variance
+        damage_average = damage * damage_multiplier
         damage_variance = damage_average * damage_variance
 
         return int(damage_average - damage_variance), int(damage_average + damage_variance)
