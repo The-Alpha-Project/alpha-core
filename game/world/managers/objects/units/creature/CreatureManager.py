@@ -927,9 +927,7 @@ class CreatureManager(UnitManager):
     def get_creature_class_level_stats(self):
         constraint_level = min(self.level, 63)
         creature_class_level_stats = WorldDatabaseManager.creature_class_level_stats_get_by_class_id(
-            1, # In vMangos, unit_class have different values than Alpha core
-               # Since unit_class is used for other stuff in the current implementation
-               # we use unit_class = 1 as placeholder, TODO: change that
+            self.class_,
             constraint_level,
         )
 
