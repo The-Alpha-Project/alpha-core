@@ -635,7 +635,7 @@ class WorldDatabaseManager(object):
                 creature_class_level_stats
 
         @staticmethod
-        def creature_class_level_stats_get_by_class_id(class_id, level) -> Optional[CreatureClassLevelStats]:
+        def creature_class_level_stats_get_by_class_and_level(class_id, level) -> Optional[CreatureClassLevelStats]:
             return WorldDatabaseManager.CreatureClassLevelStatsHolder.CREATURE_CLASS_LEVEL_STATS[class_id][level]
 
     @staticmethod
