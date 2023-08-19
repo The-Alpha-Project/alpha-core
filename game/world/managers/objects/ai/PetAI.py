@@ -33,6 +33,8 @@ class PetAI(CreatureAI):
         if owner.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if self.creature.combat_target and not self.creature.combat_target.is_alive:
                 self.creature.combat_target = self.select_next_target()
+            if not self.creature.combat_target and self.creature.in_combat:
+                self.creature.leave_combat()
             return
 
         if self.creature.combat_target != owner.combat_target:

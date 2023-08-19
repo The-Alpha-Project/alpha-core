@@ -50,6 +50,10 @@ class PetMovement(BaseMovement):
             self.pet_range_move = None
 
     # override
+    def can_remove(self):
+        return not self.unit.is_alive or not self.unit.get_charmer_or_summoner()
+
+    # override
     def reset(self):
         self.spline = None
         self.pet_range_move = None
