@@ -356,7 +356,7 @@ class WorldLoader:
         for stats in creature_class_level_stats:
             WorldDatabaseManager.CreatureClassLevelStatsHolder.load_creature_class_level_stats(stats)
             count += 1
-            Logger.progress('Loading creature loot templates...', count, length)
+            Logger.progress('Loading creature class level stats...', count, length)
 
         return length
 
