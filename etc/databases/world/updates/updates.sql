@@ -3568,8 +3568,8 @@ begin not atomic
         ALTER TABLE `creature_template` DROP COLUMN `armor`;
         ALTER TABLE `creature_template` DROP COLUMN `attack_power`;
         ALTER TABLE `creature_template` DROP COLUMN `ranged_attack_power`;
-        ALTER TABLE `creature_template` RENAME COLUMN `dmg_multiplier` TO `damage_multiplier`;
-        ALTER TABLE `creature_template` RENAME COLUMN `dmg_school` TO `damage_school`;
+        ALTER TABLE `creature_template` CHANGE COLUMN `dmg_multiplier` `damage_multiplier` float NOT NULL DEFAULT 1;
+        ALTER TABLE `creature_template` CHANGE COLUMN `dmg_school` `damage_school` tinyint(4) NOT NULL DEFAULT 0;
         ALTER TABLE `creature_template` ADD COLUMN `damage_variance` float NOT NULL DEFAULT 0.14 AFTER `damage_school`;
         ALTER TABLE `creature_template` ADD COLUMN `armor_multiplier` float NOT NULL DEFAULT 1 AFTER `damage_multiplier`;
         ALTER TABLE `creature_template` ADD COLUMN `mana_multiplier` float NOT NULL DEFAULT 1 AFTER `damage_multiplier`;

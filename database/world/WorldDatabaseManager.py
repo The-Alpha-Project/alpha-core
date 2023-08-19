@@ -598,7 +598,7 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureLootTemplateHolder:
-        CREATURE_LOOT_TEMPLATES: [int, CreatureLootTemplate] = {}
+        CREATURE_LOOT_TEMPLATES: [int, list[CreatureLootTemplate]] = {}
 
         @staticmethod
         def load_creature_loot_template(creature_loot_template):
@@ -622,19 +622,21 @@ class WorldDatabaseManager(object):
         return res
 
     class CreatureClassLevelStatsHolder:
-        CREATURE_CLASS_LEVEL_STATS: [int, CreatureClassLevelStats] = {}
+        CREATURE_CLASS_LEVEL_STATS: [int, dict[int, CreatureClassLevelStats]] = {}
 
         @staticmethod
         def load_creature_class_level_stats(creature_class_level_stats):
-            WorldDatabaseManager.CreatureClassLevelStatsHolder.CREATURE_CLASS_LEVEL_STATS[creature_class_level_stats] = \
+            class_id = creature_class_level_stats.class_
+            level = creature_class_level_stats.level
+            if class_id not in WorldDatabaseManager.CreatureClassLevelStatsHolder.CREATURE_CLASS_LEVEL_STATS:
+                WorldDatabaseManager.CreatureClassLevelStatsHolder.CREATURE_CLASS_LEVEL_STATS[class_id] = {}
+
+            WorldDatabaseManager.CreatureClassLevelStatsHolder.CREATURE_CLASS_LEVEL_STATS[class_id][level] = \
                 creature_class_level_stats
 
         @staticmethod
         def creature_class_level_stats_get_by_class_id(class_id, level) -> Optional[CreatureClassLevelStats]:
-            world_db_session = SessionHolder()
-            res = world_db_session.query(CreatureClassLevelStats).filter_by(class_=class_id, level=level).first()
-            world_db_session.close()
-            return res
+            return WorldDatabaseManager.CreatureClassLevelStatsHolder.CREATURE_CLASS_LEVEL_STATS[class_id][level]
 
     @staticmethod
     def creature_class_level_stats_get_all() -> Optional[list[CreatureClassLevelStats]]:
@@ -644,7 +646,7 @@ class WorldDatabaseManager(object):
         return res
 
     class SkinningLootTemplateHolder:
-        SKINNING_LOOT_TEMPLATES: [int, SkinningLootTemplate] = {}
+        SKINNING_LOOT_TEMPLATES: [int, list[SkinningLootTemplate]] = {}
 
         @staticmethod
         def load_skinning_loot_template(skinning_loot_template):
@@ -703,7 +705,7 @@ class WorldDatabaseManager(object):
 
     class CreatureSpellHolder:
         CREATURE_SPELLS_MAX_SPELLS = 8
-        CREATURE_SPELL_TEMPLATE: [int, CreatureSpellsEntry] = {}
+        CREATURE_SPELL_TEMPLATE: [int, list[CreatureSpellsEntry]] = {}
 
         @staticmethod
         def load_creature_spells(creature_spell):
