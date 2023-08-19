@@ -630,23 +630,17 @@ class WorldDatabaseManager(object):
                 creature_class_level_stats
 
         @staticmethod
-        def creature_class_level_stats_get_by_id(creature_class_level_stats_id) -> Optional[CreatureClassLevelStats]:
-            return WorldDatabaseManager.CreatureClassLevelStatsHolder.CREATURE_CLASS_LEVEL_STATS.\
-                get(creature_class_level_stats_id)
+        def creature_class_level_stats_get_by_class_id(class_id, level) -> Optional[CreatureClassLevelStats]:
+            world_db_session = SessionHolder()
+            res = world_db_session.query(CreatureClassLevelStats).filter_by(class_=class_id, level=level).first()
+            world_db_session.close()
+            return res
 
     @staticmethod
     def creature_class_level_stats_get_all() -> Optional[list[CreatureClassLevelStats]]:
         world_db_session = SessionHolder()
         res = world_db_session.query(CreatureClassLevelStats).all()
         world_db_session.close()
-        return res
-
-    @staticmethod
-    def creature_class_level_stats_get_by_class_id(class_id, level):
-        world_db_session = SessionHolder()
-        res = world_db_session.query(CreatureClassLevelStats).filter_by(class_=class_id, level=level).first()
-        world_db_session.close()
-
         return res
 
     class SkinningLootTemplateHolder:

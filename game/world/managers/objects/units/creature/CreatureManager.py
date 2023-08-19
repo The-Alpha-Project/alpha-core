@@ -56,8 +56,17 @@ class CreatureManager(UnitManager):
         self.wearing_offhand_weapon = False
         self.wearing_ranged_weapon = False
         self.ranged_attack_time = 0
+        self.dmg_min = 0
+        self.dmg_max = 0
         self.ranged_dmg_min = 0
         self.ranged_dmg_max = 0
+        self.strength = 0
+        self.agility = 0
+        self.stamina = 0
+        self.intellect = 0
+        self.spirit = 0
+        self.attack_power = 0
+        self.ranged_attack_power = 0
         self.destroy_time = 0
         self.destroy_timer = 420  # Standalone instances, destroyed after 7 minutes.
         self.virtual_item_info = {}
@@ -77,14 +86,10 @@ class CreatureManager(UnitManager):
         self.has_parry_passive = True
 
     # This can also be used to 'morph' the creature.
-    def initialize_from_creature_template(
-        self, 
-        creature_template, 
-        subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
-
+    def initialize_from_creature_template(self, creature_template, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
         if not creature_template:
             return
-            
+
         self.entry = creature_template.entry
         self.creature_template = creature_template
         self.entry = self.creature_template.entry
@@ -104,26 +109,20 @@ class CreatureManager(UnitManager):
         self.subtype = subtype
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
         
-        # Specific stats for class and level
+        # Get specific stats for class and level.
         creature_class_level_stats = self.get_creature_class_level_stats()
 
-        melee_dmg_min, melee_dmg_max = CreatureFormulas.calculate_min_max_damage(
+        # Calculate stats.
+        self.dmg_min, self.dmg_max = CreatureFormulas.calculate_min_max_damage(
             creature_class_level_stats.melee_damage,
             creature_template.damage_multiplier,
             creature_template.damage_variance
         )
-
-        ranged_dmg_min, ranged_dmg_max = CreatureFormulas.calculate_min_max_damage(
+        self.ranged_dmg_min, self.ranged_dmg_max = CreatureFormulas.calculate_min_max_damage(
             creature_class_level_stats.ranged_damage,
             creature_template.damage_multiplier,
             creature_template.damage_variance
         )
-
-        # Stats
-        self.dmg_min = melee_dmg_min
-        self.dmg_max = melee_dmg_max
-        self.ranged_dmg_min = ranged_dmg_min
-        self.ranged_dmg_max = ranged_dmg_max
         self.resistance_0 = int(creature_class_level_stats.armor * creature_template.armor_multiplier)
         self.resistance_1 = self.creature_template.holy_res
         self.resistance_2 = self.creature_template.fire_res
@@ -926,9 +925,8 @@ class CreatureManager(UnitManager):
 
     def get_creature_class_level_stats(self):
         constraint_level = min(self.level, 63)
-        creature_class_level_stats = WorldDatabaseManager.creature_class_level_stats_get_by_class_id(
+        creature_class_level_stats = WorldDatabaseManager.CreatureClassLevelStatsHolder.creature_class_level_stats_get_by_class_id(
             self.class_,
             constraint_level,
         )
-
         return creature_class_level_stats

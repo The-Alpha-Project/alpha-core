@@ -61,7 +61,8 @@ class UnitFormulas(object):
     def get_reach_for_weapon(item_template):
         # The weapon reach unit field was removed in patch 0.10.
         # We use swing reach for now.
-        item_info = DbcDatabaseManager.item_get_subclass_info_by_class_and_subclass(item_template.class_, item_template.subclass)
+        item_info = DbcDatabaseManager.item_get_subclass_info_by_class_and_subclass(item_template.class_,
+                                                                                    item_template.subclass)
         if item_info:
             return item_info.WeaponSwingSize
         return 0
@@ -69,7 +70,8 @@ class UnitFormulas(object):
     # Taken from the 0.5.3 client
     @staticmethod
     def interactable_distance(attacker, target):
-        return (attacker.weapon_reach + attacker.combat_reach + target.weapon_reach + target.combat_reach + 1.3333334) * 1.05 * 0.89999998
+        return ((attacker.weapon_reach + attacker.combat_reach + target.weapon_reach + target.combat_reach + 1.3333334)
+                * 1.05 * 0.89999998)
 
     @staticmethod
     def combat_distance(attacker, target):
