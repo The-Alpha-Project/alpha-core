@@ -865,11 +865,11 @@ class CreatureClassLevelStats(Base):
     base_health = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     mana = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
     base_mana = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
-    strength = Column(TINYINT(3), nullable=False)
-    agility = Column(TINYINT(3), nullable=False)
-    stamina = Column(TINYINT(3), nullable=False)
-    intellect = Column(TINYINT(3), nullable=False)
-    spirit = Column(TINYINT(3), nullable=False)
+    strength = Column(MEDIUMINT(8), nullable=False)
+    agility = Column(MEDIUMINT(8), nullable=False)
+    stamina = Column(MEDIUMINT(8), nullable=False)
+    intellect = Column(MEDIUMINT(8), nullable=False)
+    spirit = Column(MEDIUMINT(8), nullable=False)
     armor = Column(MEDIUMINT(8), nullable=False, server_default=text("'0'"))
 
 
