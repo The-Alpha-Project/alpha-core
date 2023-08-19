@@ -27,6 +27,13 @@ class Distances:
 class CreatureFormulas:
 
     @staticmethod
+    def get_min_max_damage(damage, damage_multipiler, damage_variance):
+        damage_average = damage * damage_variance
+        damage_variance = damage_average * damage_variance
+
+        return int(damage_average - damage_variance), int(damage_average + damage_variance)
+
+    @staticmethod
     def xp_reward(creature_level, player_level, is_elite=False):
         if player_level >= 60:
             return 0
@@ -58,16 +65,6 @@ class UnitFormulas(object):
         if item_info:
             return item_info.WeaponSwingSize
         return 0
-
-    @staticmethod
-    def calculate_max_health_and_max_power(creature_mgr, level):
-        c_template = creature_mgr.creature_template
-        rel_level = 0
-        if c_template.level_max != c_template.level_min:
-            rel_level = ((level - c_template.level_min) / (c_template.level_max - c_template.level_min))
-        max_health = c_template.health_min + int(rel_level * (c_template.health_max - c_template.health_min))
-        max_power1 = c_template.mana_min + int(rel_level * (c_template.mana_max - c_template.mana_min))
-        return max_health, max_power1
 
     # Taken from the 0.5.3 client
     @staticmethod
