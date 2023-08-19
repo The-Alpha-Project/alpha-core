@@ -14,7 +14,7 @@ from game.world.managers.objects.units.creature.utils.CreatureUtils import Creat
 from game.world.managers.objects.units.creature.groups.CreatureGroupManager import CreatureGroupManager
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
-from utils.Formulas import UnitFormulas, Distances
+from utils.Formulas import CreatureFormulas, Distances
 from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import CustomCodes
@@ -77,28 +77,24 @@ class CreatureManager(UnitManager):
         self.has_parry_passive = True
 
     # This can also be used to 'morph' the creature.
-    def initialize_from_creature_template(self, creature_template, subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
+    def initialize_from_creature_template(
+        self, 
+        creature_template, 
+        subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC):
+
         if not creature_template:
             return
-
+            
         self.entry = creature_template.entry
         self.creature_template = creature_template
         self.entry = self.creature_template.entry
         self.class_ = self.creature_template.unit_class
-        self.resistance_0 = self.creature_template.armor
-        self.resistance_1 = self.creature_template.holy_res
-        self.resistance_2 = self.creature_template.fire_res
-        self.resistance_3 = self.creature_template.nature_res
-        self.resistance_4 = self.creature_template.frost_res
-        self.resistance_5 = self.creature_template.shadow_res
         self.npc_flags = self.creature_template.npc_flags
         self.static_flags = self.creature_template.static_flags
         self.regen_flags = self.creature_template.regeneration
         self.virtual_item_info = {}  # Slot: VirtualItemInfoHolder
         self.base_attack_time = self.creature_template.base_attack_time
         self.ranged_attack_time = self.creature_template.ranged_attack_time
-        self.ranged_dmg_min = self.creature_template.ranged_dmg_min
-        self.ranged_dmg_max = self.creature_template.ranged_dmg_max
         self.unit_flags = self.creature_template.unit_flags
         self.emote_state = 0
         self.faction = self.creature_template.faction
@@ -106,6 +102,45 @@ class CreatureManager(UnitManager):
         self.spell_list_id = self.creature_template.spell_list_id
         self.sheath_state = WeaponMode.NORMALMODE
         self.subtype = subtype
+        self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
+        
+        # Specific stats for class and level
+        creature_class_level_stats = self.get_creature_class_level_stats()
+
+        melee_dmg_min, melee_dmg_max = CreatureFormulas.calculate_min_max_damage(
+            creature_class_level_stats.melee_damage,
+            creature_template.damage_multiplier,
+            creature_template.damage_variance
+        )
+
+        ranged_dmg_min, ranged_dmg_max = CreatureFormulas.calculate_min_max_damage(
+            creature_class_level_stats.ranged_damage,
+            creature_template.damage_multiplier,
+            creature_template.damage_variance
+        )
+
+        # Stats
+        self.dmg_min = melee_dmg_min
+        self.dmg_max = melee_dmg_max
+        self.ranged_dmg_min = ranged_dmg_min
+        self.ranged_dmg_max = ranged_dmg_max
+        self.resistance_0 = int(creature_class_level_stats.armor * creature_template.armor_multiplier)
+        self.resistance_1 = self.creature_template.holy_res
+        self.resistance_2 = self.creature_template.fire_res
+        self.resistance_3 = self.creature_template.nature_res
+        self.resistance_4 = self.creature_template.frost_res
+        self.resistance_5 = self.creature_template.shadow_res
+        self.strength = creature_class_level_stats.strength
+        self.agility = creature_class_level_stats.agility
+        self.stamina = creature_class_level_stats.stamina
+        self.intellect = creature_class_level_stats.intellect
+        self.spirit = creature_class_level_stats.spirit
+        self.attack_power = creature_class_level_stats.attack_power
+        self.ranged_attack_power = creature_class_level_stats.ranged_attack_power
+        self.max_health = creature_class_level_stats.health * creature_template.health_multiplier
+        self.max_power_1 = creature_class_level_stats.mana * creature_template.mana_multiplier
+        self.health = int((self.health_percent / 100) * self.max_health)
+        self.power_1 = int((self.mana_percent / 100) * self.max_power_1)
 
         if 0 < self.creature_template.rank < 4:
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -117,7 +152,7 @@ class CreatureManager(UnitManager):
         else:
             self.react_state = CreatureReactStates.REACT_AGGRESSIVE
 
-        self.set_melee_damage(int(self.creature_template.dmg_min), int(self.creature_template.dmg_max))
+        self.set_melee_damage(self.dmg_min, self.dmg_max)
 
         self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False
@@ -131,11 +166,6 @@ class CreatureManager(UnitManager):
 
         self.native_display_id = CreatureUtils.generate_creature_display_id(self.creature_template)
         self.current_display_id = self.native_display_id
-        self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
-
-        self.max_health, self.max_power_1 = UnitFormulas.calculate_max_health_and_max_power(self, self.level)
-        self.health = int((self.health_percent / 100) * self.max_health)
-        self.power_1 = int((self.mana_percent / 100) * self.max_power_1)
 
         self.threat_manager = ThreatManager(self, self.creature_template.call_for_help_range)
 
@@ -779,8 +809,8 @@ class CreatureManager(UnitManager):
     # override
     def get_damages(self):
         return ByteUtils.shorts_to_int(
-            int(self.creature_template.dmg_max),
-            int(self.creature_template.dmg_min)
+            self.dmg_max,
+            self.dmg_min
         )
 
     def _on_relocation(self):
@@ -893,3 +923,12 @@ class CreatureManager(UnitManager):
     # override
     def get_type_id(self):
         return ObjectTypeIds.ID_UNIT
+
+    def get_creature_class_level_stats(self):
+        constraint_level = min(self.level, 63)
+        creature_class_level_stats = WorldDatabaseManager.creature_class_level_stats_get_by_class_id(
+            self.class_,
+            constraint_level,
+        )
+
+        return creature_class_level_stats

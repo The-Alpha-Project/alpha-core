@@ -3521,5 +3521,258 @@ begin not atomic
 
         insert into`applied_updates`values ('160820231');
     end if;
+
+    -- 19/08/2023 1
+    if (select count(*) from `applied_updates` where id='190820231') = 0 then
+
+
+        -- CREATURE_CLASSLEVELSTATS TABLE CREATION
+
+        DROP TABLE IF EXISTS `creature_classlevelstats`;
+
+        /*!40101 SET @saved_cs_client     = @@character_set_client */;
+        /*!40101 SET character_set_client = utf8 */;
+        CREATE TABLE `creature_classlevelstats` (
+        `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
+        `class` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `level` tinyint(3) unsigned NOT NULL DEFAULT 0,
+        `melee_damage` float NOT NULL DEFAULT 0,
+        `ranged_damage` float NOT NULL DEFAULT 0,
+        `attack_power` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `ranged_attack_power` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `health` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `base_health` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `mana` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `base_mana` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `strength` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `agility` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `stamina` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `intellect` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `spirit` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        `armor` mediumint(8) unsigned NOT NULL DEFAULT 0,
+        PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+        /*!40101 SET character_set_client = @saved_cs_client */;
+
+
+        -- CREATURE_TEMPLATE TABLE ALTERATION
+
+        ALTER TABLE `creature_template` DROP COLUMN `health_min`;
+        ALTER TABLE `creature_template` DROP COLUMN `health_max`;
+        ALTER TABLE `creature_template` DROP COLUMN `mana_min`;
+        ALTER TABLE `creature_template` DROP COLUMN `mana_max`;
+        ALTER TABLE `creature_template` DROP COLUMN `dmg_min`;
+        ALTER TABLE `creature_template` DROP COLUMN `dmg_max`;
+        ALTER TABLE `creature_template` DROP COLUMN `ranged_dmg_min`;
+        ALTER TABLE `creature_template` DROP COLUMN `ranged_dmg_max`;
+        ALTER TABLE `creature_template` DROP COLUMN `armor`;
+        ALTER TABLE `creature_template` DROP COLUMN `attack_power`;
+        ALTER TABLE `creature_template` DROP COLUMN `ranged_attack_power`;
+        ALTER TABLE `creature_template` RENAME COLUMN `dmg_multiplier` TO `damage_multiplier`;
+        ALTER TABLE `creature_template` RENAME COLUMN `dmg_school` TO `damage_school`;
+        ALTER TABLE `creature_template` ADD COLUMN `damage_variance` float NOT NULL DEFAULT 0.14 AFTER `damage_school`;
+        ALTER TABLE `creature_template` ADD COLUMN `armor_multiplier` float NOT NULL DEFAULT 1 AFTER `damage_multiplier`;
+        ALTER TABLE `creature_template` ADD COLUMN `mana_multiplier` float NOT NULL DEFAULT 1 AFTER `damage_multiplier`;
+        ALTER TABLE `creature_template` ADD COLUMN `health_multiplier` float NOT NULL DEFAULT 1 AFTER `damage_multiplier`;
+
+        -- PORT CREATURE_CLASSLEVELSTATS FROM VMANGOS
+
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,1,1.57945,1.37945,24,20,42,20,0,0,22,20,22,20,20,0);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,2,2.31493,2.08635,26,22,55,29,0,0,23,21,23,20,20,0);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,3,3.25816,2.87246,28,22,71,38,0,0,24,21,24,20,21,25);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,4,4.50155,4.07298,30,24,86,47,0,0,25,22,25,21,21,60);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,5,6.0127,5.54127,32,26,102,56,0,0,26,23,25,21,21,103);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,6,8.00805,7.49376,34,28,120,65,0,0,27,24,26,21,22,156);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,7,10.3671,9.62427,36,28,137,74,0,0,28,24,27,21,22,221);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,8,12.0481,11.2481,38,30,156,83,0,0,29,25,28,22,22,297);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,9,13.8113,12.9542,40,32,176,92,0,0,30,26,29,22,23,386);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,10,15.2392,14.0963,42,32,198,101,0,0,31,26,30,22,23,492);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,11,17.199,15.9848,44,34,222,100,0,0,32,27,34,22,24,518);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,12,19.6717,18.386,46,36,247,109,0,0,33,28,38,23,25,552);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,13,21.4254,20.3398,48,40,273,118,0,0,34,30,42,23,25,585);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,14,23.6166,22.4738,50,42,300,128,0,0,35,31,46,23,27,619);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,15,25.7096,24.281,54,44,328,139,0,0,37,32,51,24,28,653);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,16,27.1742,25.7457,56,46,356,151,0,0,38,33,55,25,29,688);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,17,29.1278,27.4135,60,48,386,154,0,0,40,34,59,25,30,722);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,18,30.5059,28.7916,64,52,417,168,0,0,42,36,63,25,30,755);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,19,32.3644,30.3644,68,54,449,183,0,0,44,37,67,26,32,789);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,20,34.2057,32.4914,70,58,484,199,0,0,45,39,72,27,33,822);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,21,35.4908,33.2051,74,58,521,206,0,0,47,39,76,27,34,858);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,22,37.1973,34.6259,78,60,562,224,0,0,49,40,80,27,35,892);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,23,38.4533,36.1675,80,64,605,243,0,0,50,42,84,28,36,925);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,24,40.1049,37.5335,84,66,651,253,0,0,52,43,88,28,37,959);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,25,41.657,39.3713,86,70,699,274,0,0,53,45,94,29,39,992);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,26,42.9703,40.3988,90,72,750,296,0,0,55,46,98,30,39,1026);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,27,44.696,42.1245,92,74,800,309,0,0,56,47,102,30,40,1061);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,28,45.9923,43.4209,96,78,853,333,0,0,58,49,106,30,41,1093);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,29,47.6437,44.7865,100,80,905,348,0,0,60,50,110,31,42,1127);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,30,49.3875,46.8161,102,84,955,374,0,0,61,52,115,32,44,1160);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,31,50.6313,47.7741,106,86,1006,401,0,0,63,53,120,32,44,1194);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,32,52.1686,49.3114,108,88,1057,419,0,0,64,54,124,33,46,1229);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,33,53.4785,50.6213,112,92,1110,448,0,0,66,56,128,33,46,1261);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,34,55.0217,52.1646,114,94,1163,468,0,0,67,57,132,33,48,1296);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,35,56.5113,53.6542,118,98,1220,499,0,0,69,59,138,35,49,1328);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,36,57.8888,55.0316,120,100,1277,521,0,0,70,60,142,35,50,1434);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,37,59.7047,56.5619,124,102,1336,545,0,0,72,61,146,35,52,1546);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,38,61.252,58.1092,128,106,1395,581,0,0,74,63,151,36,52,1661);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,39,63.1787,59.7501,132,108,1459,609,0,0,76,64,155,36,54,1785);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,40,65.1712,61.7426,136,112,1524,649,0,0,78,66,160,37,55,1914);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,41,68.2851,64.5708,142,116,1585,681,0,0,81,68,165,38,56,2049);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,42,72.5719,67.7148,152,118,1651,715,0,0,86,69,169,38,57,2193);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,43,77.4149,71.7007,162,122,1716,761,0,0,91,71,174,39,58,2343);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,44,83.8275,76.6846,174,124,1782,799,0,0,97,72,178,39,59,2502);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,45,87.9851,79.985,184,128,1848,839,0,0,102,74,184,40,61,2668);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,46,89.791,81.5052,188,130,1919,881,0,0,104,75,188,41,62,2723);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,47,92.043,83.757,192,134,1990,935,0,0,106,77,193,41,63,2776);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,48,93.8584,85.5726,196,138,2062,981,0,0,108,79,197,42,64,2828);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,49,96.0594,87.4882,200,140,2138,1029,0,0,110,80,202,42,66,2883);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,50,98.4032,89.5462,206,144,2215,1079,0,0,113,82,207,43,67,2936);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,51,100.32,91.4629,210,148,2292,1131,0,0,115,84,212,44,68,2988);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,52,102.77,93.6273,214,150,2371,1185,0,0,117,85,216,44,69,3043);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,53,104.738,95.5952,218,154,2453,1241,0,0,119,87,221,45,70,3096);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,54,107.125,97.6968,224,158,2533,1299,0,0,122,89,226,45,72,3148);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,55,109.366,99.9371,228,162,2614,1359,0,0,124,91,231,47,73,3201);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,56,111.526,101.526,234,164,2699,1421,0,0,127,92,236,47,74,3256);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,57,113.879,103.879,238,168,2784,1485,0,0,129,94,241,48,76,3308);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,58,116.063,106.063,242,172,2871,1551,0,0,131,96,245,48,77,3361);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,59,118.431,108.145,248,176,2961,1619,0,0,134,98,250,49,78,3414);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,60,120.906,110.62,252,180,3052,1689,0,0,136,100,256,50,80,3466);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,61,123.205,112.203,258,182,3144,1761,0,0,139,101,261,50,81,3521);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,62,125.504,114.647,262,186,3237,1835,0,0,141,103,266,51,82,3574);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,1,63,127.722,116.615,268,191,3331,1894,0,0,144,106,271,51,84,3625);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,1,1.46889,1.34788,22,20,41,18,60,44,21,20,22,20,22,0);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,2,2.15288,2.0386,24,22,54,26,69,64,22,21,23,20,22,0);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,3,3.03449,2.77734,26,22,69,34,79,84,23,21,23,20,22,16);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,4,4.18644,3.90073,28,24,83,42,104,90,24,22,24,21,23,45);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,5,5.59181,5.27752,28,24,98,50,115,112,24,22,25,21,23,83);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,6,7.44748,7.10463,30,26,115,58,126,120,25,23,26,21,24,127);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,7,9.64692,9.08977,32,26,131,66,138,129,26,23,26,21,24,182);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,8,11.2048,10.6047,34,28,148,84,165,154,27,24,27,22,25,244);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,9,12.8446,11.9874,36,28,166,92,178,165,28,24,28,22,26,318);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,10,14.1724,13.2581,38,30,186,100,191,192,29,25,29,22,26,401);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,11,15.9951,14.7808,40,30,208,108,205,205,30,25,32,22,28,425);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,12,18.2947,17.0089,42,32,230,116,249,219,31,26,36,24,31,453);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,13,19.9256,18.84,44,36,253,124,264,249,32,28,40,24,32,479);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,14,21.9634,20.5349,46,36,276,132,295,265,33,28,44,25,35,509);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,15,23.91,22.7671,48,40,301,131,326,282,34,30,48,26,37,536);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,16,25.4994,23.5577,52,40,325,141,357,315,36,30,52,27,39,566);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,17,27.0887,25.0887,56,42,350,152,390,334,38,31,55,28,42,594);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,18,28.3705,26.6562,58,46,377,164,408,354,39,33,59,28,44,620);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,19,30.0989,28.0989,60,46,404,177,456,390,40,33,63,30,46,651);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,20,31.8113,29.8113,64,50,433,191,490,412,42,35,67,31,49,677);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,21,33.0065,30.7207,68,52,464,206,510,435,44,36,71,31,51,705);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,22,34.5935,31.7364,72,52,498,222,545,459,46,36,75,32,53,735);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,23,35.7616,33.1901,74,56,533,239,581,499,47,38,79,33,55,762);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,24,37.2976,34.4404,78,58,571,247,618,525,49,39,83,34,58,790);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,25,38.741,35.8838,80,60,610,266,655,552,50,40,87,35,61,818);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,26,39.9624,36.8195,84,62,651,286,693,579,52,41,91,36,62,846);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,27,41.5673,38.4244,86,64,690,307,732,621,53,42,95,37,65,875);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,28,42.7729,39.3442,90,66,732,329,756,648,55,43,99,37,67,903);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,29,44.3086,40.5944,94,68,773,342,811,675,57,44,103,39,70,931);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,30,45.9304,42.7876,94,72,811,366,852,702,57,46,107,40,72,958);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,31,47.0871,43.6585,98,74,850,391,878,729,59,47,111,40,74,986);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,32,48.5168,44.8025,100,74,888,407,935,756,60,47,115,42,77,1016);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,33,49.7349,46.0207,104,78,928,434,963,798,62,49,119,42,79,1042);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,34,51.1782,47.464,106,80,967,462,1007,825,63,50,123,43,82,1071);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,35,52.5555,48.8412,110,84,1009,481,1067,852,65,52,127,45,85,1097);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,36,53.8365,50.1223,112,86,1050,511,1097,879,66,53,131,45,87,1181);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,37,55.5254,51.2397,116,86,1093,542,1142,906,68,53,135,46,89,1272);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,38,56.9644,52.6787,120,90,1135,564,1189,933,70,55,139,47,91,1363);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,39,58.7562,54.1847,124,92,1180,597,1236,960,72,56,143,48,94,1461);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,40,60.6092,56.0378,128,96,1226,621,1283,987,74,58,148,49,97,1561);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,41,63.5051,58.648,132,98,1268,656,1332,1014,76,59,152,50,99,1668);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,42,67.4918,61.2062,142,98,1321,682,1381,1041,81,59,156,51,102,1782);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,43,71.9959,64.8531,152,102,1373,719,1432,1068,86,61,160,52,104,1897);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,44,77.9595,69.1024,166,104,1426,747,1483,1110,93,62,164,53,107,2020);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,45,81.826,72.6832,172,108,1478,786,1534,1137,96,64,169,54,110,2147);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,46,83.5055,74.0769,176,110,1535,816,1587,1164,98,65,173,55,112,2190);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,47,85.5996,75.8854,180,112,1592,857,1640,1176,100,66,177,56,115,2234);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,48,87.2885,77.574,184,116,1650,889,1695,1203,102,68,181,57,117,2276);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,49,89.351,79.3508,188,118,1710,922,1750,1230,104,69,186,58,120,2320);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,50,91.515,81.2294,194,122,1772,966,1807,1257,107,71,190,59,123,2361);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,51,93.2976,82.7262,198,124,1834,1001,1864,1284,109,72,194,60,125,2405);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,52,95.5762,84.7193,202,126,1897,1037,1923,1311,111,73,199,61,128,2449);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,53,97.4064,86.5494,206,130,1962,1084,1982,1338,113,75,203,62,130,2491);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,54,99.6266,88.4836,210,132,2026,1122,2041,1365,115,76,207,63,133,2534);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,55,101.71,90.5672,214,136,2091,1161,2117,1392,117,78,212,65,136,2576);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,56,103.719,92.0047,220,138,2159,1201,2163,1419,120,79,216,65,138,2620);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,57,105.925,93.9251,224,140,2227,1252,2241,1446,122,80,221,67,142,2664);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,58,107.939,95.9387,228,144,2297,1294,2289,1458,124,82,225,67,144,2706);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,59,110.14,97.5688,234,146,2369,1337,2369,1485,127,83,230,69,147,2749);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,60,112.461,99.889,238,150,2442,1381,2434,1512,129,85,234,70,150,2791);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,61,114.455,101.312,244,152,2515,1426,2486,1539,132,86,239,70,152,2835);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,62,116.719,103.576,246,154,2590,1472,2568,1566,133,87,243,72,155,2879);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,2,63,118.782,105.354,252,158,2665,1519,2620,1578,136,89,248,72,158,2920);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,1,0.986337,1.22409,10,18,40,28,120,63,20,19,19,26,24,0);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,2,1.44563,1.85137,11,20,52,40,147,92,21,20,20,26,24,0);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,3,2.03466,2.54894,12,20,67,52,174,121,22,20,21,26,25,0);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,4,2.94276,3.58562,13,22,81,67,202,118,23,21,21,27,26,19);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,5,3.93063,4.70853,13,22,95,82,230,131,23,21,22,28,27,28);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,6,5.23503,6.36761,14,22,111,97,259,145,24,21,22,29,27,48);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,7,7.52795,8.17795,15,22,126,102,289,160,25,21,23,30,28,111);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,8,8.7614,9.36141,16,22,143,117,319,161,26,21,23,31,29,151);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,9,10.0563,10.592,17,22,160,132,350,178,27,21,23,32,30,198);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,10,11.1628,11.9628,17,24,178,137,382,196,27,22,24,33,31,248);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,11,12.6054,13.3341,18,24,199,152,459,215,28,22,24,37,35,264);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,12,14.4748,15.1177,19,24,219,167,537,220,29,22,26,41,39,283);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,13,15.7116,16.2544,20,24,241,172,601,241,30,22,26,44,43,303);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,14,17.3102,17.7388,21,24,263,187,710,263,31,22,28,50,47,322);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,15,18.9674,19.5388,22,26,285,202,790,271,32,23,29,54,52,340);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,16,19.9413,20.2269,24,26,307,207,856,295,34,23,30,57,56,360);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,17,21.3356,21.3356,26,26,330,222,938,305,36,23,31,61,60,379);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,18,22.3779,22.2351,27,26,354,237,1020,331,37,23,32,65,65,399);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,19,23.8334,23.5476,28,26,379,242,1118,343,38,23,33,70,69,419);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,20,25.1312,24.8455,30,28,405,257,1202,371,40,24,35,74,74,436);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,21,25.9506,25.3792,32,28,432,272,1272,385,42,24,35,77,78,456);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,22,27.1325,26.2754,34,28,463,277,1357,415,44,24,37,81,82,475);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,23,28.0699,27.0699,35,28,494,292,1443,431,45,24,37,85,86,495);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,24,29.3474,28.4902,36,30,528,298,1545,463,46,25,39,90,90,513);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,25,30.5393,29.5393,37,30,562,315,1633,481,47,25,40,94,95,532);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,26,31.383,30.0973,39,30,598,333,1707,515,49,25,41,97,100,552);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,27,32.7243,31.2957,40,30,633,342,1812,535,50,25,43,102,104,571);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,28,33.5534,31.8391,42,30,669,362,1977,556,52,25,43,111,108,591);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,29,34.6879,32.9735,44,32,704,373,2068,592,54,26,45,115,112,609);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,30,36.1875,34.4733,44,32,737,395,2175,613,54,26,46,120,118,628);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,31,36.9715,34.9715,46,32,770,418,2253,634,56,26,47,123,122,648);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,32,38.1507,36.0078,47,32,802,432,2362,670,57,26,49,128,126,668);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,33,38.9915,36.8486,49,34,835,457,2457,691,59,27,49,132,130,685);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,34,40.1833,37.8975,50,34,867,473,2553,712,60,27,51,136,135,705);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,35,41.1712,38.5997,52,34,902,500,2680,733,62,27,52,142,140,724);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,36,42.2129,39.7843,53,36,935,518,2763,754,63,28,53,145,145,775);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,37,43.6318,41.0603,54,36,970,547,2861,790,64,28,55,149,149,830);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,38,44.6768,41.8196,56,36,1004,577,2975,811,66,28,55,154,153,887);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,39,46.048,42.9051,58,36,1040,598,3075,832,68,28,57,158,158,946);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,40,47.4758,44.333,60,38,1077,630,3191,853,70,29,59,163,163,1006);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,41,49.868,46.4395,62,38,1110,653,3293,874,72,29,59,167,168,1069);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,42,52.8404,48.6975,67,38,1156,687,3471,895,77,29,61,176,172,1136);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,43,56.434,51.7197,71,38,1201,712,3575,916,81,29,62,180,177,1205);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,44,60.9488,55.5202,78,40,1247,748,3680,937,88,30,63,184,181,1274);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,45,64.0956,58.2385,81,40,1294,775,3801,958,91,30,65,189,187,1348);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,46,65.363,59.2202,83,40,1343,813,3923,979,93,30,66,194,191,1376);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,47,67.0139,60.871,85,42,1393,842,4031,1000,95,31,68,198,196,1403);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,48,68.2896,61.8611,87,42,1443,882,4140,1021,97,31,68,202,200,1431);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,49,69.9113,63.197,89,42,1497,913,4281,1042,99,31,70,208,205,1459);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,50,71.627,64.9127,91,44,1551,955,4393,1048,101,32,72,212,211,1486);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,51,72.9894,65.9894,93,44,1604,988,4506,1069,103,32,73,216,215,1514);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,52,74.811,67.5253,95,44,1660,1032,4650,1090,105,32,74,222,220,1542);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,53,76.2177,68.932,97,46,1717,1067,4765,1111,107,33,75,226,225,1569);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,54,77.9848,70.4134,99,46,1773,1103,4896,1117,109,33,77,231,229,1597);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,55,79.626,71.7688,101,46,1830,1150,5013,1138,111,33,79,235,235,1625);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,56,81.0549,73.0549,104,48,1889,1188,5206,1159,114,34,80,244,240,1652);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,57,82.8096,74.5239,106,48,1949,1237,5340,1165,116,34,81,249,245,1680);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,58,84.5286,76.1001,107,48,2010,1277,5461,1186,117,34,82,253,249,1708);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,59,86.1357,77.5644,110,50,2073,1328,5598,1192,120,35,84,258,254,1735);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,60,87.9958,79.1385,112,50,2136,1370,5751,1213,122,35,86,264,260,1763);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,61,89.412,80.1263,115,50,2201,1413,5875,1219,125,35,87,268,265,1791);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,62,91.3622,82.2193,116,52,2266,1467,6015,1240,126,36,89,273,270,1818);
+        INSERT INTO `creature_classlevelstats` VALUES (NULL,8,63,92.977,83.6307,119,53,2332,1514,6156,1250,129,37,91,273,275,1844);
+
+        -- CAPTAIN EO - For some reason, this guy is the only one that uses an invalid unit_class
+        UPDATE `creature_template` SET `unit_class`= 1 WHERE `entry`=3895;
+
+
+
+        insert into`applied_updates`values ('190820231');
+    end if;
 end $
 delimiter ;
