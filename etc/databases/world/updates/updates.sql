@@ -3767,6 +3767,11 @@ begin not atomic
         INSERT INTO `creature_classlevelstats` VALUES (NULL,8,62,91.3622,82.2193,116,52,2266,1467,6015,1240,126,36,89,273,270,1818);
         INSERT INTO `creature_classlevelstats` VALUES (NULL,8,63,92.977,83.6307,119,53,2332,1514,6156,1250,129,37,91,273,275,1844);
 
+        -- CAPTAIN EO - For some reason, this guy is the only one that uses an invalid unit_class
+        UPDATE `creature_template` SET `unit_class`= 4 WHERE `entry`=3895;
+
+
+
         insert into`applied_updates`values ('190820231');
     end if;
 end $
