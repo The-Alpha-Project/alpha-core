@@ -107,13 +107,13 @@ class CreatureManager(UnitManager):
         # Specific stats for class and level
         creature_class_level_stats = self.get_creature_class_level_stats()
 
-        melee_dmg_min, melee_dmg_max = CreatureFormulas.get_min_max_damage(
+        melee_dmg_min, melee_dmg_max = CreatureFormulas.calculate_min_max_damage(
             creature_class_level_stats.melee_damage,
             creature_template.damage_multiplier,
             creature_template.damage_variance
         )
 
-        ranged_dmg_min, ranged_dmg_max = CreatureFormulas.get_min_max_damage(
+        ranged_dmg_min, ranged_dmg_max = CreatureFormulas.calculate_min_max_damage(
             creature_class_level_stats.ranged_damage,
             creature_template.damage_multiplier,
             creature_template.damage_variance
