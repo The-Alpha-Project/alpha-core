@@ -206,15 +206,18 @@ class ScriptHandler:
         emotes = ScriptHelpers.get_filtered_datalong(command)
         if not emotes:
             return command.should_abort()
-        # Pause ooc if needed.
-        command.source.object_ai.player_interacted()
-        # Face target.
-        if not command.dataint or not command.target:
-            return command.should_abort()
+
         emote = random.choice(emotes)
-        targeted_emote_event = SplineTargetedEmoteEvent(command.source, command.target, start_seconds=2, emote=emote)
-        reset_orientation_event = SplineRestoreOrientationEvent(command.source, start_seconds=6)
-        command.source.movement_manager.add_spline_events([targeted_emote_event, reset_orientation_event])
+
+        # Targeted emote.
+        if command.dataint and command.target:
+            # Pause ooc if needed.
+            command.source.object_ai.player_interacted()
+            emote_event = SplineTargetedEmoteEvent(command.source, command.target, start_seconds=2, emote=emote)
+            reset_orientation_event = SplineRestoreOrientationEvent(command.source, start_seconds=6)
+            command.source.movement_manager.add_spline_events([emote_event, reset_orientation_event])
+        else:
+            command.source.play_emote(emote)
 
         return False
 
