@@ -191,7 +191,7 @@ class ScriptHandler:
 
         return False
 
-   @staticmethod
+    @staticmethod
     def handle_script_command_emote(command):
         # source = Unit
         # datalong1-4 = emote_id
