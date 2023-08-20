@@ -1170,7 +1170,6 @@ class StatManager(object):
         # The first 20 points of Stamina grant only 1 health point per unit.
         base_sta = stamina if stamina < 20 else 20
         more_sta = stamina - base_sta
-
         return base_sta + (more_sta * CLASS_STAMINA_GAIN[class_])
 
     @staticmethod
@@ -1228,7 +1227,7 @@ CLASS_BASE_REGEN_MANA = {
     Classes.CLASS_DRUID: 15.0
 }
 
-# VMaNGOS
+# From VMaNGOS.
 CLASS_BASE_DODGE = {
     Classes.CLASS_DRUID: 0.9,
     Classes.CLASS_MAGE: 3.2,
@@ -1238,7 +1237,7 @@ CLASS_BASE_DODGE = {
     Classes.CLASS_WARLOCK: 2.0
 }
 
-# See #1147 Health calculation
+# See https://github.com/The-Alpha-Project/alpha-core/issues/1147 for reasoning and proof.
 CLASS_STAMINA_GAIN = {
     Classes.CLASS_WARRIOR: 20.0,
     Classes.CLASS_PALADIN: 18.0,
@@ -1251,7 +1250,7 @@ CLASS_STAMINA_GAIN = {
     Classes.CLASS_DRUID: 16.0
 }
 
-# VMaNGOS (level 1, level 60)
+# VMaNGOS (level 1, level 60).
 CLASS_AGILITY_SCALING_DODGE = {
     Classes.CLASS_DRUID: (4.6, 20.0),
     Classes.CLASS_PALADIN: (4.6, 20.0),
