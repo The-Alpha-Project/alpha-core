@@ -12366,6 +12366,109 @@ begin not atomic
 
         insert into`applied_updates`values ('200820232');
     end if;
+    
+        -- 20/08/2023 1
+     if (select count(*) from `applied_updates` where id='200820231') = 0 then
+    
+        -- IF guards magni elevator
+        UPDATE `spawns_creatures` SET `position_x` = -4706.610, `position_y` = -1096.929,  `position_z` = 492.178, `orientation` = 3.030 WHERE `spawn_id` = 2086;
+        UPDATE `spawns_creatures` SET `position_x` = -4705.674, `position_y` = -1086.830,  `position_z` = 492.178, `orientation` = 3.030 WHERE `spawn_id` = 2028;
+
+        -- IF guards gnome elevator
+        UPDATE `spawns_creatures` SET `position_x` = -4832.977, `position_y` = -1191.544,  `position_z` = 492.18, `orientation` = 1.404 WHERE `spawn_id` = 2085;
+        UPDATE `spawns_creatures` SET `position_x` = -4823.015, `position_y` = -1193.073,  `position_z` = 492.18, `orientation` = 1.404 WHERE `spawn_id` = 2025;
+
+        -- correct a lost guards to look less random
+        UPDATE `spawns_creatures` SET  `orientation` = 6.009 WHERE `spawn_id` = 2009;
+
+        -- Scarlet monastery, creatures adjustements
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4290 WHERE `spawn_id` = 400286;
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4295 WHERE `spawn_id` = 400287;
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4295 WHERE `spawn_id` = 400288;
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4290 WHERE `spawn_id` = 400289;
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4295 WHERE `spawn_id` = 400290;
+        UPDATE `spawns_creatures` SET `spawn_entry1` = 4295 WHERE `spawn_id` = 400291;
+
+        -- Scarlet monastery, level range fix to be playable
+
+        -- Scarlet galant
+        UPDATE `creature_template` SET `level_min`= 32, `level_max`= 33 WHERE `entry`=4287;
+
+        -- Scarlet beastmaster
+        UPDATE `creature_template` SET `level_min`= 32, `level_max`= 33 WHERE `entry`=4288;
+
+        -- Scarlet trackinghound
+        UPDATE `creature_template` SET `level_min`= 32, `level_max`= 33 WHERE `entry`=4304;
+
+        -- Scarlet defender
+        UPDATE `creature_template` SET `level_min`= 33, `level_max`= 34 WHERE `entry`=4298;
+
+        -- Scarlet myrmidon
+        UPDATE `creature_template` SET `level_min`= 33, `level_max`= 34 WHERE `entry`=4295;
+
+        -- Scarlet guardsman
+        UPDATE `creature_template` SET `level_min`= 33, `level_max`= 34 WHERE `entry`=4290;
+
+        -- Herod
+        UPDATE `creature_template` SET `level_min`= 35, `level_max`= 35 WHERE `entry`=3975;
+
+        -- Scarlet Scryer
+        UPDATE `creature_template` SET `level_min`= 33, `level_max`= 34 WHERE `entry`=4293;
+
+        -- Scarlet Torturer
+        UPDATE `creature_template` SET `level_min`= 33, `level_max`= 34 WHERE `entry`=4306;
+
+        -- Scarlet Sentry
+        UPDATE `creature_template` SET `level_min`= 31, `level_max`= 32 WHERE `entry`=4283;
+
+        -- Scarlet Monk
+        UPDATE `creature_template` SET `level_min`= 34, `level_max`= 35 WHERE `entry`=4540;
+
+        -- Scarlet Chaplain
+        UPDATE `creature_template` SET `level_min`= 34, `level_max`= 35 WHERE `entry`=4299;
+
+        -- Scarlet Champion
+        UPDATE `creature_template` SET `level_min`= 35, `level_max`= 36 WHERE `entry`=4302;
+
+        -- Scarlet Abbot
+        UPDATE `creature_template` SET `level_min`= 35, `level_max`= 36 WHERE `entry`=4303;
+
+        -- Scarlet Centurion
+        UPDATE `creature_template` SET `level_min`= 35, `level_max`= 36 WHERE `entry`=4301;
+
+        -- Scarlet Wizard
+        UPDATE `creature_template` SET `level_min`= 35, `level_max`= 36 WHERE `entry`=4300;
+
+        -- Fairbank
+        UPDATE `creature_template` SET `level_min`= 36, `level_max`= 36 WHERE `entry`=4542;
+
+        -- Mograine
+        UPDATE `creature_template` SET `level_min`= 37, `level_max`= 37 WHERE `entry`=3976;
+
+        -- Whitemane
+        UPDATE `creature_template` SET `level_min`= 37, `level_max`= 37 WHERE `entry`=3977;
+
+        -- DEVWAR FIX #1275
+
+        -- Razzle Sprysprocket and Ozzie Togglevolt, IF faction.
+        UPDATE `creature_template` SET `faction` = '57' WHERE (`entry` = '1269');
+        UPDATE `creature_template` SET `faction` = '57' WHERE (`entry` = '1268');
+
+        -- DEVWAR FIX #1278
+
+        -- Kyln longlaw currently spawn a bear, but he is BOAR trainer .
+        UPDATE `creature_template` SET `spell_id1` = '7905' WHERE (`entry` = '3697');
+        -- Dylan Bissel, spawn a wolf.
+        UPDATE `creature_template` SET `spell_id1` = '4946' WHERE (`entry` = '2942');
+        --  Grunenstur Balindom, spawn a crocolisk.
+        UPDATE `creature_template` SET `spell_id1` = '7908' WHERE (`entry` = '2876');
+        -- Harruk, spawn a crocolisk.
+        UPDATE `creature_template` SET `spell_id1` = '7908' WHERE (`entry` = '3620');
+        -- Jadenvis Seewatcher, spawn a crab.
+        UPDATE `creature_template` SET `spell_id1` = '7907' WHERE (`entry` = '3700');
+
+        insert into`applied_updates`values ('200820231');
+    end if;
 
 end $
 delimiter ;
