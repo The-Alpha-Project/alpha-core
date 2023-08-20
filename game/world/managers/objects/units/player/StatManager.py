@@ -1241,7 +1241,7 @@ CLASS_BASE_DODGE = {
 CLASS_STAMINA_GAIN = {
     Classes.CLASS_WARRIOR: 20.0,
     Classes.CLASS_PALADIN: 18.0,
-    Classes.CLASS_HUNTER: 165,
+    Classes.CLASS_HUNTER: 16.0,
     Classes.CLASS_ROGUE: 16.0,
     Classes.CLASS_PRIEST: 14.0,
     Classes.CLASS_SHAMAN: 16.0,
