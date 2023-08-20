@@ -3860,6 +3860,19 @@ begin not atomic
         UPDATE `creature_template` SET `faction` = '57' WHERE (`entry` = '1269');
         UPDATE `creature_template` SET `faction` = '57' WHERE (`entry` = '1268');
 
+        -- DEVWAR FIX #1278
+
+        -- Kyln longlaw currently spawn a bear, but he is BOAR trainer .
+        UPDATE `creature_template` SET `spell_id1` = '7905' WHERE (`entry` = '3697');
+        -- Dylan Bissel, spawn a wolf.
+        UPDATE `creature_template` SET `spell_id1` = '4946' WHERE (`entry` = '2942');
+        --  Grunenstur Balindom, spawn a crocolisk.
+        UPDATE `creature_template` SET `spell_id1` = '7908' WHERE (`entry` = '2876');
+        -- Harruk, spawn a crocolisk.
+        UPDATE `creature_template` SET `spell_id1` = '7908' WHERE (`entry` = '3620');
+        -- Jadenvis Seewatcher, spawn a crab.
+        UPDATE `creature_template` SET `spell_id1` = '7907' WHERE (`entry` = '3700');
+
         insert into`applied_updates`values ('200820231');
     end if;
 end $
