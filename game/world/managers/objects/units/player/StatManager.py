@@ -1247,8 +1247,8 @@ CLASS_STAMINA_GAIN = {
     Classes.CLASS_PRIEST: 14.0,
     Classes.CLASS_SHAMAN: 16.0,
     Classes.CLASS_MAGE: 14.0,
-    Classes.CLASS_WARLOCK: 14.0,
-    Classes.CLASS_DRUID: 14.0
+    Classes.CLASS_WARLOCK: 16.0,
+    Classes.CLASS_DRUID: 16.0
 }
 
 # VMaNGOS (level 1, level 60)
