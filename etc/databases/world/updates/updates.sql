@@ -3854,6 +3854,12 @@ begin not atomic
         -- Whitemane
         UPDATE `creature_template` SET `level_min`= 37, `level_max`= 37 WHERE `entry`=3977;
 
+        -- DEVWAR FIX #1275
+
+        -- Razzle Sprysprocket and Ozzie Togglevolt, IF faction.
+        UPDATE `creature_template` SET `faction` = '57' WHERE (`entry` = '1269');
+        UPDATE `creature_template` SET `faction` = '57' WHERE (`entry` = '1268');
+
         insert into`applied_updates`values ('200820231');
     end if;
 end $
