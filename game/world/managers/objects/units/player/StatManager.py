@@ -1238,6 +1238,7 @@ CLASS_BASE_DODGE = {
     Classes.CLASS_WARLOCK: 2.0
 }
 
+# See #1147 Health calculation
 CLASS_STAMINA_GAIN = {
     Classes.CLASS_WARRIOR: 20.0,
     Classes.CLASS_PALADIN: 18.0,
