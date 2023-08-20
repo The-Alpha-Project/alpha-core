@@ -507,7 +507,7 @@ class StatManager(object):
 
         current_hp = self.unit_mgr.health
         current_total_hp = self.unit_mgr.max_health
-        new_hp = int(self.get_health_bonus_from_stamina(total_stamina) + total_health)
+        new_hp = int(self.get_health_bonus_from_stamina(self.unit_mgr.class_, total_stamina) + total_health)
 
         hp_diff = new_hp - current_total_hp
         if new_hp > 0:
@@ -1166,11 +1166,12 @@ class StatManager(object):
         return own_defense_rating - attacker_rating
 
     @staticmethod
-    def get_health_bonus_from_stamina(stamina):
+    def get_health_bonus_from_stamina(class_, stamina):
         # The first 20 points of Stamina grant only 1 health point per unit.
         base_sta = stamina if stamina < 20 else 20
         more_sta = stamina - base_sta
-        return base_sta + (more_sta * 10.0)
+
+        return base_sta + (more_sta * CLASS_STAMINA_GAIN[class_])
 
     @staticmethod
     def get_mana_bonus_from_intellect(intellect):
@@ -1235,6 +1236,19 @@ CLASS_BASE_DODGE = {
     Classes.CLASS_PRIEST: 3.0,
     Classes.CLASS_SHAMAN: 1.7,
     Classes.CLASS_WARLOCK: 2.0
+}
+
+# See #1147 Health calculation
+CLASS_STAMINA_GAIN = {
+    Classes.CLASS_WARRIOR: 20.0,
+    Classes.CLASS_PALADIN: 18.0,
+    Classes.CLASS_HUNTER: 16.0,
+    Classes.CLASS_ROGUE: 16.0,
+    Classes.CLASS_PRIEST: 14.0,
+    Classes.CLASS_SHAMAN: 16.0,
+    Classes.CLASS_MAGE: 14.0,
+    Classes.CLASS_WARLOCK: 16.0,
+    Classes.CLASS_DRUID: 16.0
 }
 
 # VMaNGOS (level 1, level 60)
