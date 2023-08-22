@@ -1,11 +1,12 @@
 from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.ai.CreatureAI import CreatureAI
 from utils.constants.CustomCodes import Permits
 from utils.constants.MiscCodes import ObjectTypeIds, MoveType
 from utils.constants.PetCodes import PetCommandState, PetReactState, PetMoveState
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask, SpellEffects
 from utils.constants.UnitCodes import UnitStates
 
 
@@ -13,7 +14,7 @@ class PetAI(CreatureAI):
     def __init__(self, creature):
         super().__init__(creature)
         self.move_state = PetMoveState.AT_HOME
-        self.pending_spell_cast: Optional[tuple[int, object]] = None
+        self.pending_spell_cast: Optional[tuple[int, ObjectManager]] = None
         if creature:
             self.update_allies_timer = 0
             self.allies = ()
@@ -24,6 +25,9 @@ class PetAI(CreatureAI):
         owner = self.creature.get_charmer_or_summoner()
         if not self.creature or not owner:
             return
+
+        if not self.pending_spell_cast:
+            self._perform_auto_cast()
 
         if self.move_state == PetMoveState.AT_RANGE and self.pending_spell_cast:
             spell_id, target = self.pending_spell_cast
@@ -165,13 +169,52 @@ class PetAI(CreatureAI):
 
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target, target_mask, validate=False)
-            range_max = casting_spell.range_entry.RangeMax
-            if self.creature.location.distance(target.location) > range_max:
-                pet_movement.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
-                self.pending_spell_cast = (spell_id, target)
-                return
+            if not casting_spell.casts_on_swing():
+                range_max = casting_spell.range_entry.RangeMax
+                if self.creature.location.distance(target.location) > range_max:
+                    pet_movement.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
+                    self.pending_spell_cast = (spell_id, target)
+                    return
 
         self.creature.spell_manager.handle_cast_attempt(spell_id, target, target_mask)
+
+    def _perform_auto_cast(self):
+        if self.creature.spell_manager.is_casting():
+            return
+
+        controlled_pet = self.creature.get_charmer_or_summoner().pet_manager.get_active_controlled_pet()
+        if not controlled_pet:
+            return
+
+        action_bar = controlled_pet.get_pet_data().action_bar
+        spell_set = [spell_button for spell_button in action_bar if spell_button >> 24 & 0x40]
+
+        for spell_data in spell_set:
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_data & 0xFFFF)
+            target = self.creature.combat_target if self.creature.combat_target else \
+                self.creature.get_charmer_or_summoner()
+            casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target,
+                                                                             SpellTargetMask.UNIT, validate=False)
+            if casting_spell.has_only_harmful_effects():
+                if not self.creature.combat_target:
+                    continue
+                self.do_spell_cast(spell.ID, self.creature.combat_target)
+                break
+
+            # Helpful/neutral spell. Always autocast on master if target is required.
+            # Implement some basic checks so existing spells work properly when set on autocast.
+            if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_APPLY_AURA,
+                                                SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA) and \
+                target.aura_manager.has_aura_by_spell_id(spell.ID):
+                continue  # Aura already applied - Flameblade, Blood Pact etc.
+
+            if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_INSTAKILL):
+                continue  # ignore Sacrificial Shield.
+
+            if not casting_spell.meets_casting_requisites():
+                continue
+
+            self.do_spell_cast(spell.ID, target)
 
     def command_state_update(self):
         self.creature.spell_manager.remove_casts()
