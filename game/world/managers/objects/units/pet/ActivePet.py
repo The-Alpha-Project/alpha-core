@@ -66,8 +66,8 @@ class ActivePet:
         # From VMaNGOS.
         delay_mod = pet_data.creature_template.base_attack_time / 2000
         damage_base = pet_data.get_level() * 1.05
-        damage_min = self.creature.creature_template.dmg_min if reset else damage_base * 1.15 * delay_mod
-        damage_max = self.creature.creature_template.dmg_max if reset else damage_base * 1.45 * delay_mod
+        damage_min = self.creature.dmg_min if reset else damage_base * 1.15 * delay_mod
+        damage_max = self.creature.dmg_max if reset else damage_base * 1.45 * delay_mod
 
         pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(pet_data.creature_template.entry,
                                                                                 pet_data.get_level())
