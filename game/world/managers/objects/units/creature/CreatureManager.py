@@ -136,7 +136,7 @@ class CreatureManager(UnitManager):
         self.spirit = creature_class_level_stats.spirit
         self.attack_power = creature_class_level_stats.attack_power
         self.ranged_attack_power = creature_class_level_stats.ranged_attack_power
-        self.max_health = int(creature_class_level_stats.health * creature_template.health_multiplier)
+        self.max_health = int(max(1, creature_class_level_stats.health * creature_template.health_multiplier))
         self.max_power_1 = int(creature_class_level_stats.mana * creature_template.mana_multiplier)
         self.health = int((self.health_percent / 100) * self.max_health)
         self.power_1 = int((self.mana_percent / 100) * self.max_power_1)
