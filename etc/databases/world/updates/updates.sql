@@ -778,7 +778,16 @@ begin not atomic
         update `spawns_creatures` set `spawn_entry1` = 2890 where `spawn_id` = 8187;
 
         -- Boar display_id #1149
-        UPDATE `creature_template` SET `display_id1`= 744 WHERE `entry`= 1689;     
+        UPDATE `creature_template` SET `display_id1`= 744 WHERE `entry`= 1689;
+
+        -- Lord Maldazzar, given its vanilla display_id he probably use default human caster PH
+        UPDATE `creature_template` SET `display_id1`= 263 WHERE `entry`= 1848;
+
+        -- Morbent Fell, most of named caster use default human caster PH as well
+        UPDATE `creature_template` SET `display_id1`= 263 WHERE `entry`= 1200; 
+
+        -- Skeletal sorcerer, now we know that caster skel mostly use 201, we set display_id 201
+        UPDATE `creature_template` SET `display_id1`= 201 WHERE `entry`= 1784; 
 
         insert into`applied_updates`values ('250820232');
       end if;
