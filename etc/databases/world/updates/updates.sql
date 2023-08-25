@@ -655,7 +655,7 @@ begin not atomic
 
         -- WAYPOINTS FOR ZUL FARRAK
 
-        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_id`IN (400182, 400157, 400126, 39666);
+        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_id`IN (400182, 400157, 400126, 39666, 400123);
         INSERT INTO alpha_world.creature_movement VALUES (400182, 1, -6629.31103515625, -2914.589111328125, 8.890827178955078, 2.792034387588501, 0, 0, 0);
         INSERT INTO alpha_world.creature_movement VALUES (400182, 2, -6644.35009765625, -2912.31640625, 8.964310646057129, 3.0237269401550293, 0, 0, 0);
         INSERT INTO alpha_world.creature_movement VALUES (400182, 3, -6664.6298828125, -2906.72998046875, 8.890830039978027, 2.979740619659424, 0, 0, 0);
