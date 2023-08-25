@@ -753,6 +753,9 @@ begin not atomic
         -- Despawn GO over the beach at 1.12 pirates location
         update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (17336, 17330, 17338, 17339, 17340, 17350, 17351, 17354, 17343, 17344, 17244, 17349, 17346, 17347, 17348, 17345, 17341);
 
+        -- Correct z, half inserted into floor
+        update `spawns_creatures` set `position_z` = 142.24 where `spawn_id` = 26631;
+
         insert into`applied_updates`values ('250820232');
       end if;
 
