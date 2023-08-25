@@ -137,7 +137,7 @@ class ConditionChecker:
         if not target:
             return False
         # TODO: Check this, we might need to validate parent zone id, also check area condition
-        return target.zone == condition.value1 # or target.area_id
+        return target.zone == condition.value1 # or target.area
 
     @staticmethod
     def check_condition_reputation_rank_min(_condition, _source, _target):
