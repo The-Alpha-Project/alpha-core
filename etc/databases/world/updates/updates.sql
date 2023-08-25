@@ -795,6 +795,27 @@ begin not atomic
         -- this guy has waypoints, we reuse Thargromm original spawn
         update `spawns_creatures` set `ignored` = 0, `spawn_entry1`=2477 where `spawn_id` = 9205;
 
+        -- QUESTS
+
+        -- 844
+        UPDATE `quest_template` SET `RewOrReqMoney`= 405, `RewXP` = 1200, `Details` = "So you want to help, %n? There are many things in the Barrens that need attention. However, before I turn your attention towards them, you should first learn a lesson.%B%BYes, I think that is exactly what you need. The greater plainstriders to the east have been harassing some of our food supplies and have become a general nuisance.%B%BPut down the greater plainstriders and return to me seven of their beaks. With their numbers reduced, perhaps they will not look to our foodstores for their daily meal.", `OfferRewardText` = "I feel the spirits of the Greater Plainstriders call out to me, can you not hear them? Ponder their deaths, %n, for I sense that you do not truly understand what it is you have done.%B%BThere will be a falling out because of your actions here today. You have no choice but to follow it through to the end now. Speak with me again, when you are ready." WHERE `entry`= 844; 
+
+        -- 845
+        UPDATE `quest_template` SET `RewOrReqMoney`= 467, `RewXP` = 1300, `Details` = "There is an interdependency between the zhevra and the plainstriders. The plainstrider's constant scratching and pecking of the land actually tills the soil, allowing the plants that the zhevra eat to propogate.%B%BWithout steady food, the zhevra have become agitated and encroach upon our field grains. Though your initial path was faulty, we must continue.%B%BSlay the zhevra runners to the north and bring me four zhevra hooves", `OfferRewardText` = "With a good number of Zhevra Runners slaughtered, the orcish graints are safe again. I worry though what effect the deaths of so many Zhevra will have upon the beasts surrounding the Crossroads. Worry not, young one. The mystery of my teachings will become clear in time." WHERE `entry`= 845; 
+
+        -- 903
+        UPDATE `quest_template` SET `RewOrReqMoney`= 607, `ReqItemCount1` = 10, `Objectives` = "Collect 10 Prowler Claws from Savannah Prowlers for Sergra Darkthorn in the Crossroads.", `Details` = "It would seem our previous actions return to haunt us. WIth the Zhevra and Plainstrider game diminished, the Savannah Prowlers have turned upon our people as they use the southern road.%B%BGo south and collect 10 Prowler Claws and we just might reach an equilibrium again.", `RequestItemsText`="Hurry, young one. The lives of those around the Crossroads are in your hands. Do you have the 10 Prowler Claws I requested?", `OfferRewardText` = "Well done, young one. Though the bloodshed here seems senseless, I can feel that the lessons of the Earthmother are close to your heart. There are few steps left to complete this circle, but soon you shall have the whole of the picture." WHERE `entry`= 903; 
+
+        -- 905
+        UPDATE `quest_template` SET `RewOrReqMoney`= 765, `RewXP` = 1300 WHERE `entry`=905;
+
+        -- 881
+        UPDATE `quest_template` SET `RewXP` = 2200 WHERE `entry`=881;
+        UPDATE `creature_template` SET `level_min`= 17, `level_max`=17 WHERE `entry`= 3475;
+
+        -- 882
+        UPDATE `quest_template` SET `RewXP` = 2300, `Details` = "Ishamuhale, Speartooth, is the fiercest sunscale raptor of the Barrens. He does not hunt for sport, nor for food. He hunts because hunting is his passion. He kills because it is his nature to kill.%B%BAnd you will learn of his nature, %n, for your path now follows the taloned tracks of Ishamuhale.%B%BBegin the hunt. He roams to the east of the Crossroads, where his lesser brothers and sisters stalk their prey." WHERE `entry`=882;
+        INSERT INTO `spawns_creatures` VALUES (NULL, 3257, 0, 0, 0, 1, -512, -3485.9, 95.24, 3, 300, 300, 50, 100, 0, 1, 0, 0, 0);
 
         insert into`applied_updates`values ('250820232');
       end if;
