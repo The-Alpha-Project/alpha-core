@@ -769,9 +769,14 @@ begin not atomic
 
 
         -- ARATHI
-        
+
         -- Despawn Hammerfall guard at Arathi Bassin entrance
         update `spawns_creatures` set `ignored` = 1 where `spawn_id` IN (11237, 11205, 11253, 11240, 11235, 11236, 11212);
+
+        -- ULDAMAN
+        
+        -- Forgot to change a dwarf to trogg at uldaman entrance
+        update `spawns_creatures` set `spawn_entry1` = 2890 where `spawn_id` = 8187;
 
 
         insert into`applied_updates`values ('250820232');
