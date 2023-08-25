@@ -762,6 +762,11 @@ begin not atomic
         -- Despawn GO at the WPL entrance
         update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (44778, 44795, 45059, 88087, 44771, 44767, 44780, 44802, 44769);
 
+        -- ALTERAC
+
+        -- Despawn Tarren Mill Deathguard at Alterac valley entrance
+        update `spawns_creatures` set `ignored` = 1 where `spawn_id` IN (16600, 16602, 16607, 16601);
+
 
         insert into`applied_updates`values ('250820232');
       end if;
