@@ -789,6 +789,15 @@ begin not atomic
         -- Skeletal sorcerer, now we know that caster skel mostly use 201, we set display_id 201
         UPDATE `creature_template` SET `display_id1`= 201 WHERE `entry`= 1784; 
 
+        -- Closes #1288
+        UPDATE `creature_template` SET `name`= "Tauren Horde Runner" WHERE `entry`= 2478;
+        UPDATE `creature_template` SET `name`= "Orc Horde Runner" WHERE `entry`= 2477; 
+        UPDATE `creature_template` SET `name`= "Orc Horde Runner", `display_id1`=3443  WHERE`entry`= 7170;
+        -- this guy has waypoints, even if he is too high entry, it's probably better to use it
+        update `spawns_creatures` set `ignored` = 0 where `spawn_id` = 9205;
+
+
+
         insert into`applied_updates`values ('250820232');
       end if;
 
