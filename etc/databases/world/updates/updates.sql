@@ -768,6 +768,12 @@ begin not atomic
         update `spawns_creatures` set `ignored` = 1 where `spawn_id` IN (16600, 16602, 16607, 16601);
 
 
+        -- ARATHI
+        
+        -- Despawn Hammerfall guard at Arathi Bassin entrance
+        update `spawns_creatures` set `ignored` = 1 where `spawn_id` IN (11237, 11205, 11253, 11240, 11235, 11236, 11212);
+
+
         insert into`applied_updates`values ('250820232');
       end if;
 
