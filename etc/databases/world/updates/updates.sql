@@ -602,7 +602,10 @@ begin not atomic
 
         -- Stormwind City Guard
         UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 68;
-        
+
+        -- Stormwind Royal Guard
+        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 1756;
+
         -- Stormwind City Patroller
         UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 1976;
 
