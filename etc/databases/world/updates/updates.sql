@@ -792,10 +792,8 @@ begin not atomic
         -- Closes #1288
         UPDATE `creature_template` SET `name`= "Tauren Horde Runner" WHERE `entry`= 2478;
         UPDATE `creature_template` SET `name`= "Orc Horde Runner" WHERE `entry`= 2477; 
-        UPDATE `creature_template` SET `name`= "Orc Horde Runner", `display_id1`=3443  WHERE`entry`= 7170;
-        -- this guy has waypoints, even if he is too high entry, it's probably better to use it
-        update `spawns_creatures` set `ignored` = 0 where `spawn_id` = 9205;
-
+        -- this guy has waypoints, we reuse Thargromm original spawn
+        update `spawns_creatures` set `ignored` = 0, `spawn_entry1`=2477 where `spawn_id` = 9205;
 
 
         insert into`applied_updates`values ('250820232');
