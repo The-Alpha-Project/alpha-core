@@ -639,6 +639,9 @@ begin not atomic
         -- Bluffwatcher
         UPDATE `creature_template` SET `level_min`= 75, `level_max`= 75 WHERE `entry`= 3084;     
         
+        -- Honor Guard
+        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 3083;     
+                
         -- Undercity Guardian
         UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 5624;     
         
