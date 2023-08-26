@@ -651,7 +651,7 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id`IN (19384, 19399, 19400, 19379, 19383, 19357, 19358, 19381, 19401, 19382);
 
         -- Remove torch in Greatwood Vale
-        update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (47502, 47504, 47486);
+        update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (47502, 47504, 47486, 30232, 30226);
 
         -- Correct campfire location in Greatwood Vale
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = 126.667, `spawn_positionY` = -362.093, `spawn_positionZ` = 3.616 WHERE `spawn_id` = 34176;
