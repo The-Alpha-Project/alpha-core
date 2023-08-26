@@ -941,6 +941,14 @@ begin not atomic
         UPDATE `creature_template` SET `subname`="Lockpicking Trainer" WHERE `entry`=3402 ;
         UPDATE `creature_template` SET `subname`="Superior Swordsmith" WHERE `entry`=2482 ;
         UPDATE `creature_template` SET `subname`="Axe Vendor" WHERE `entry`=3409 ;
+
+        -- closes #621
+        UPDATE `creature_template` SET `subname`="Herbalist" WHERE `entry`= 3185;
+        UPDATE `creature_template` SET `subname`="Herbalist" WHERE `entry`= 3965;
+        UPDATE `creature_template` SET `subname`="Alchemist" WHERE `entry`= 3956;
+        UPDATE `creature_template` SET `subname`="Expert Engineer" WHERE `entry`= 3412;
+        UPDATE `creature_template` SET `subname`="Expert Leatherworker" WHERE `entry`= 3365;
+
         
         insert into`applied_updates`values ('250820232');
       end if;
