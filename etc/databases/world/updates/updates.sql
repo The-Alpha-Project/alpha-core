@@ -949,6 +949,10 @@ begin not atomic
         UPDATE `creature_template` SET `subname`="Expert Engineer" WHERE `entry`= 3412;
         UPDATE `creature_template` SET `subname`="Expert Leatherworker" WHERE `entry`= 3365;
 
+        -- Darnassus banker guards fix, there are in a nonsence spot since bankers was moved
+        UPDATE `spawns_creatures` SET `position_x` = 10043.713, `position_y` = 2509.819, `position_z` = 1318.398, `orientation`= 4.594  WHERE `spawn_id` = 46883;
+        UPDATE `spawns_creatures` SET `position_x` = 10026.343, `position_y` = 2507.747, `position_z` = 1318.414, `orientation`= 5.014  WHERE `spawn_id` = 46841;    
+
         insert into`applied_updates`values ('250820232');
       end if;
 
