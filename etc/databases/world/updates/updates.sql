@@ -973,7 +973,7 @@ begin not atomic
         INSERT INTO creature_movement VALUES (400112, 7, -5349.8310546875, -2955.586669921875, 323.7593994140625, 6.00830602645874, 0, 0, 0);
         INSERT INTO creature_movement VALUES (400112, 8, -5333.73974609375, -2955.90869140625, 326.431884765625, 6.272199630737305, 0, 0, 0);
         UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_id` IN (400112, 400113);
-        UPDATE `creature_template` SET `flag_extra` = 33554432 WHERE `entry` IN (1881, 1880);
+        UPDATE `creature_template` SET `flags_extra` = 33554432 WHERE `entry` IN (1881, 1880);
 
 
 
