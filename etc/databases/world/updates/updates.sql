@@ -775,7 +775,7 @@ begin not atomic
         -- ULDAMAN
         
         -- Forgot to change a dwarf to trogg at uldaman entrance
-        update `spawns_creatures` set `spawn_entry1` = 2890 where `spawn_id` = 8187;
+        update `spawns_creatures` set `spawn_entry1` = 2890 where `spawn_id` IN(8187, 8190, 7714);
 
         -- Boar display_id #1149
         UPDATE `creature_template` SET `display_id1`= 744 WHERE `entry`= 1689;
@@ -949,7 +949,6 @@ begin not atomic
         UPDATE `creature_template` SET `subname`="Expert Engineer" WHERE `entry`= 3412;
         UPDATE `creature_template` SET `subname`="Expert Leatherworker" WHERE `entry`= 3365;
 
-        
         insert into`applied_updates`values ('250820232');
       end if;
 
