@@ -1654,9 +1654,6 @@ class SpellManager:
                 self.caster.inventory.remove_items(item_entry, 1)
 
     def send_cast_result(self, casting_spell, error, misc_data=-1):
-        # TODO CAST_SUCCESS_KEEP_TRACKING
-        #  cast_status = SpellCastStatus.CAST_SUCCESS if error == SpellCheckCastResult.SPELL_CAST_OK else SpellCastStatus.CAST_FAILED
-
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         spell_id = casting_spell.spell_entry.ID
 
