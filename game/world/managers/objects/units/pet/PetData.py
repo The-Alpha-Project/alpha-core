@@ -69,8 +69,8 @@ class PetData:
 
     def _get_character_pet(self, health=-1, mana=-1) -> CharacterPet:
         # TODO Stats shouldn't be directly from creature data.
-        health = health if health != -1 else self.creature_template.health_max
-        mana = mana if mana != -1 else self.creature_template.mana_max
+        health = health if health != -1 else self.creature_template.health
+        mana = mana if mana != -1 else self.creature_template.power_1
 
         character_pet = CharacterPet(
             pet_id=self.pet_id if self.pet_id != -1 else None,
