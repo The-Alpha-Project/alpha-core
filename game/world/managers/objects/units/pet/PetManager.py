@@ -17,7 +17,7 @@ from utils.constants import CustomCodes
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetSlot
-from utils.constants.SpellCodes import SpellCheckCastResult, TotemSlots
+from utils.constants.SpellCodes import SpellCheckCastResult, TotemSlots, SpellTargetMask
 from utils.constants.UnitCodes import MovementTypes
 from utils.constants.UpdateFields import UnitFields
 
@@ -235,9 +235,19 @@ class PetManager:
             return
 
         if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
-            # Should pet enter combat here? We need this for delayed spell casting.
-            active_pet_unit.combat_target = target_unit
-            active_pet_unit.object_ai.do_spell_cast(action_id, target_unit)
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(action_id)
+            casting_spell = active_pet_unit.spell_manager.try_initialize_spell(spell, target_unit,
+                                                                               SpellTargetMask.SELF, validate=False)
+            if casting_spell.has_only_harmful_effects():
+                if target_unit is self.owner:
+                    return
+                # Should pet enter combat here? We need this for delayed spell casting.
+                active_pet_unit.combat_target = target_unit
+            elif active_pet_unit.can_attack_target(target_unit):
+                target_unit = self.owner
+
+            active_pet_unit.object_ai.pending_spell_cast = None
+            active_pet_unit.object_ai.do_spell_cast(spell, target_unit)
 
         elif action & (0x01 << 24):
             # Command state action.
@@ -325,10 +335,8 @@ class PetManager:
         active_pet.set_level(self.owner.level, replenish=True)
 
     def handle_cast_result(self, spell_id, result):
-        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
-
-        if result == SpellCheckCastResult.SPELL_NO_ERROR:
+        if self.owner.get_type_id() != ObjectTypeIds.ID_PLAYER or \
+                result == SpellCheckCastResult.SPELL_NO_ERROR:
             return
 
         data = pack('<IB', spell_id, result)

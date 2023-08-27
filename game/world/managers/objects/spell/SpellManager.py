@@ -265,10 +265,11 @@ class SpellManager:
         self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
 
     def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
-                             triggered=False, triggered_by_spell=None,
+                             triggered=False, triggered_by_spell=None, hide_result=False,
                              validate=True, creature_spell=None) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item,
                              triggered=triggered, triggered_by_spell=triggered_by_spell,
+                             hide_result=hide_result,
                              creature_spell=creature_spell)
         if not validate:
             return spell
@@ -1658,6 +1659,9 @@ class SpellManager:
 
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         spell_id = casting_spell.spell_entry.ID
+
+        if casting_spell.hide_result:
+            error = SpellCheckCastResult.SPELL_FAILED_DONT_REPORT
 
         # Send spell failure only if this was an active spell.
         if error != SpellCheckCastResult.SPELL_NO_ERROR:
