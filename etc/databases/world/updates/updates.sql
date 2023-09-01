@@ -819,9 +819,6 @@ begin not atomic
         UPDATE `quest_template` SET `RewXP` = 2300, `Details` = "Ishamuhale, Speartooth, is the fiercest sunscale raptor of the Barrens. He does not hunt for sport, nor for food. He hunts because hunting is his passion. He kills because it is his nature to kill.%B%BAnd you will learn of his nature, %n, for your path now follows the taloned tracks of Ishamuhale.%B%BBegin the hunt. He roams to the east of the Crossroads, where his lesser brothers and sisters stalk their prey." WHERE `entry`=882;
         INSERT INTO `spawns_creatures` VALUES (NULL, 3257, 0, 0, 0, 1, -512, -3485.9, 95.24, 3, 300, 300, 50, 100, 0, 1, 0, 0, 0);
 
-        -- 1286
-        UPDATE `quest_template` SET `RewXP` = 1500, `RewOrReqMoney` = 350 WHERE `entry` = 224;
-
         -- Mull, partial #695
         UPDATE `spawns_creatures` SET `position_x` = -2298.616, `position_y` = -505.560, `position_z` = -8.228, `orientation`= 4.294  WHERE `spawn_id` = 24799;
 
@@ -982,6 +979,17 @@ begin not atomic
 
         insert into`applied_updates`values ('250820232');
       end if;
+
+      -- 01/09/2023 1
+      if (select count(*) from `applied_updates` where id='010920231') = 0 then
+
+	-- QUESTS
+	      
+        -- closes 1286
+        UPDATE `quest_template` SET `RewXP` = 1500, `RewOrReqMoney` = 350 WHERE `entry` = 224;
+
+        insert into `applied_updates` values ('010920231');
+       end if;
 
 end $
 delimiter ;
