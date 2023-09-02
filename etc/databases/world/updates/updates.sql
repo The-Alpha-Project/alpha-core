@@ -1036,6 +1036,10 @@ begin not atomic
         -- 0.5.3 date for WDB parsed entries
         UPDATE `quest_template` SET `parse_timestamp` = "2003-12-12" WHERE entry IN (364, 376, 380, 381, 363, 382, 383, 404, 426,  375, 367);
 
+        -- Change Susan Tilinghast mvmt type to be able to use their wp
+        UPDATE `spawns_creatures` SET `movement_type`= 2 WHERE `spawn_id`= 38101;
+
+
         insert into applied_updates values ('300820231');
     end if;
 
