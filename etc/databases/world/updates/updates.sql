@@ -1043,17 +1043,13 @@ begin not atomic
         insert into applied_updates values ('300820231');
     end if;
 
-
-      -- 01/09/2023 1
-      if (select count(*) from `applied_updates` where id='010920231') = 0 then
-
-	-- QUESTS
-	      
-        -- closes 1286
-        UPDATE `quest_template` SET `RewXP` = 1500, `RewOrReqMoney` = 350 WHERE `entry` = 224;
+    -- 01/09/2023 1
+    if (select count(*) from `applied_updates` where id='010920231') = 0 then
+        -- Closes #1286
+        UPDATE `quest_template` SET `RewXP` = 1500, `RewOrReqMoney` = 350, `parse_timestamp` = "2004-03-18" WHERE `entry` = 224;
 
         insert into `applied_updates` values ('010920231');
-       end if;
+    end if;
 
 end $
 delimiter ;
