@@ -71,7 +71,7 @@ class PetManager:
                 # If pet data exists, set_active_pet_level will assign the proper level.
                 pet_level = creature.level
 
-            pet_data = self._add_pet(creature.creature_template, summon_spell_id, pet_level, is_permanent)
+            pet_data = self._add_pet(creature, summon_spell_id, pet_level, is_permanent)
             if is_permanent:
                 pet_index = len(self.permanent_pets) - 1
         else:
@@ -104,12 +104,13 @@ class PetManager:
         return self.set_creature_as_pet(totem_creature, totem_spell.spell_entry.ID,
                                         PetSlot.PET_SLOT_TOTEM_START + totem_slot)
 
-    def _add_pet(self, creature_template: CreatureTemplate, summon_spell_id: int, level: int, permanent: bool) -> PetData:
-        pet_data = PetData(-1, creature_template.name, 0, creature_template, self.owner.guid, level,
+    def _add_pet(self, creature: CreatureManager, summon_spell_id: int, level: int, permanent: bool) -> PetData:
+        pet_data = PetData(-1, creature.creature_template.name, 0,
+                           creature.creature_template, self.owner.guid, level,
                            0, summon_spell_id, permanent=permanent)
 
         if pet_data.permanent:
-            pet_data.save()
+            pet_data.save(creature_instance=creature)
             self.permanent_pets.append(pet_data)
         return pet_data
 
