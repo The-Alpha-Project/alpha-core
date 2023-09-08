@@ -807,7 +807,9 @@ class CommandManager(object):
     @staticmethod
     def die(world_session, args):
         unit = CommandManager._target_or_self(world_session)
-        world_session.player_mgr.deal_damage(unit, DamageInfoHolder(total_damage=unit.health))
+        world_session.player_mgr.deal_damage(unit, DamageInfoHolder(attacker=world_session.player_mgr,
+                                                                    target=unit,
+                                                                    total_damage=unit.health))
 
         return 0, ''
 
