@@ -48,6 +48,7 @@ class PetData:
             return
 
         if not creature_instance:
+            # TODO How should pet health/mana be calculated?
             stats = WorldDatabaseManager.CreatureClassLevelStatsHolder.creature_class_level_stats_get_by_class_and_level(
                 self.creature_template.unit_class, min(self._level, 255)
             )
