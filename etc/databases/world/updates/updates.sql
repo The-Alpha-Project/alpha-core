@@ -1054,7 +1054,7 @@ begin not atomic
     -- 08/09/2023 1
     IF (SELECT COUNT(*) FROM `applied_updates` WHERE id='080920231') = 0 THEN
         UPDATE `creature_template` SET `trainer_id` = 280 WHERE `entry` IN (3620, 4901);
-
+        UPDATE `creature_template` SET `trainer_id` = 287 WHERE `entry` IN (3624);
         INSERT INTO `applied_updates` VALUES ('080920231');
     end if;
 
