@@ -168,7 +168,8 @@ class PetAI(CreatureAI):
                 return
 
             casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target, target_mask, validate=False)
-            if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA):
+            if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA) or \
+                casting_spell.is_self_targeted():
                 target = self.creature  # Override target if the spell can be cast on self.
 
             if not casting_spell.casts_on_swing():

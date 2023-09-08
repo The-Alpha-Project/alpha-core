@@ -380,6 +380,12 @@ class CastingSpell:
     def has_pet_target(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_PET
 
+    def is_self_targeted(self):
+        return {self.spell_entry.ImplicitTargetA_1, self.spell_entry.ImplicitTargetB_1,
+                self.spell_entry.ImplicitTargetA_2, self.spell_entry.ImplicitTargetB_2,
+                self.spell_entry.ImplicitTargetA_3, self.spell_entry.ImplicitTargetB_3} == \
+            {SpellImplicitTargets.TARGET_INITIAL, SpellImplicitTargets.TARGET_SELF}
+
     def get_totem_slot_type(self):
         totem_tool_id = self.get_required_tools()[0]
         totem_slot = TotemHelpers.get_totem_slot_type_by_tool(totem_tool_id)
