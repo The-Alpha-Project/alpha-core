@@ -159,7 +159,8 @@ class PetAI(CreatureAI):
         pass
 
     def do_spell_cast(self, spell, target, autocast=False, validate_range=True):
-        if self.creature.spell_manager.is_casting():
+        if self.creature.spell_manager.is_casting() or \
+                self.creature.spell_manager.is_on_cooldown(spell):
             return
 
         target_mask = SpellTargetMask.SELF if target.guid == self.creature.guid else SpellTargetMask.UNIT
@@ -174,18 +175,19 @@ class PetAI(CreatureAI):
                 casting_spell.is_self_targeted():
                 target = self.creature  # Override target if the spell can be cast on self.
 
-            if not casting_spell.casts_on_swing():
-                range_max = casting_spell.range_entry.RangeMax
-                if self.creature.location.distance(target.location) > range_max:
-                    pet_movement.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
-                    self.pending_spell_cast = (spell, target, autocast)
-                    return
+            range_max = casting_spell.range_entry.RangeMax
+            if self.creature.location.distance(target.location) > range_max:
+                pet_movement.move_in_range(target, range_max, casting_spell.get_cast_time_secs())
+                self.pending_spell_cast = (spell, target, autocast)
+                return
 
+        self.pending_spell_cast = None
         casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target, target_mask,
                                                                          hide_result=autocast)
         if casting_spell:
             self.creature.spell_manager.start_spell_cast(initialized_spell=casting_spell)
-        self.pending_spell_cast = None
+
+        return casting_spell is not None
 
     def _perform_auto_cast(self):
         if self.creature.spell_manager.is_casting():
@@ -217,16 +219,17 @@ class PetAI(CreatureAI):
             if casting_spell.has_only_harmful_effects():
                 if not self.creature.combat_target:
                     continue
-                self.do_spell_cast(spell, target, autocast=True)
-                break
+                if self.do_spell_cast(spell, target, autocast=True):
+                    break
+                continue
 
             # Helpful/neutral spell. Always autocast on master if target is required.
 
             if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_INSTAKILL):
                 continue  # ignore Sacrificial Shield.
 
-            self.do_spell_cast(spell, target, autocast=True)
-            break
+            if self.do_spell_cast(spell, target, autocast=True):
+                break
 
     def command_state_update(self):
         self.creature.spell_manager.remove_casts()
