@@ -444,6 +444,10 @@ class UnitManager(ObjectManager):
         if attacker.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
             return
 
+        owner = attacker.get_charmer_or_summoner()
+        if owner and owner.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+            return
+
         # Not attack from behind, ignore.
         if self.location.has_in_arc(attacker.location, math.pi):
             return

@@ -5,6 +5,7 @@ from typing import List
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.realm.RealmModels import CharacterPet, CharacterPetSpell
+from database.world.WorldDatabaseManager import WorldDatabaseManager
 from database.world.WorldModels import CreatureTemplate
 from utils import Formulas
 from utils.GuidUtils import GuidUtils
@@ -46,8 +47,16 @@ class PetData:
         if not self.permanent or not self._dirty or not self._is_player_owned():
             return
 
-        health = -1 if not creature_instance else creature_instance.health
-        mana = -1 if not creature_instance else creature_instance.power_1
+        if not creature_instance:
+            # TODO How should pet health/mana be calculated?
+            stats = WorldDatabaseManager.CreatureClassLevelStatsHolder.creature_class_level_stats_get_by_class_and_level(
+                self.creature_template.unit_class, min(self._level, 255)
+            )
+            health = stats.health
+            mana = stats.power_1
+        else:
+            health = creature_instance.health
+            mana = creature_instance.power_1
 
         character_pet = self._get_character_pet(health=health, mana=mana)
 
@@ -67,11 +76,7 @@ class PetData:
     def set_dirty(self):
         self._dirty = True
 
-    def _get_character_pet(self, health=-1, mana=-1) -> CharacterPet:
-        # TODO Stats shouldn't be directly from creature data.
-        health = health if health != -1 else self.creature_template.health_max
-        mana = mana if mana != -1 else self.creature_template.mana_max
-
+    def _get_character_pet(self, health, mana) -> CharacterPet:
         character_pet = CharacterPet(
             pet_id=self.pet_id if self.pet_id != -1 else None,
             owner_guid=self.owner_guid,

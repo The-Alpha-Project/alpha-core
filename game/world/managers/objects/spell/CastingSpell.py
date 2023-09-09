@@ -35,6 +35,7 @@ class CastingSpell:
     triggered = False
     triggered_by_spell = None
     creature_spell = None
+    hide_result: bool
 
     object_target_results: dict[int, TargetMissInfo] = {}  # Assigned on cast - contains guids and results on successful hits/misses/blocks etc.
     spell_target_mask: SpellTargetMask
@@ -60,7 +61,7 @@ class CastingSpell:
     dynamic_object: Optional[DynamicObjectManager]
 
     def __init__(self, spell, caster, initial_target, target_mask, source_item=None,
-                 triggered=False, triggered_by_spell=None, creature_spell=None):
+                 triggered=False, hide_result=False, triggered_by_spell=None, creature_spell=None):
         self.spell_entry = spell
         self.spell_caster = caster
         self.source_item = source_item
@@ -68,6 +69,7 @@ class CastingSpell:
         self.spell_target_mask = target_mask
         self.triggered = triggered or triggered_by_spell is not None
         self.triggered_by_spell = triggered_by_spell
+        self.hide_result = hide_result
         self.creature_spell = creature_spell
 
         self.dynamic_object = None
@@ -377,6 +379,12 @@ class CastingSpell:
 
     def has_pet_target(self):
         return self.spell_entry.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_PET
+
+    def is_self_targeted(self):
+        return {self.spell_entry.ImplicitTargetA_1, self.spell_entry.ImplicitTargetB_1,
+                self.spell_entry.ImplicitTargetA_2, self.spell_entry.ImplicitTargetB_2,
+                self.spell_entry.ImplicitTargetA_3, self.spell_entry.ImplicitTargetB_3} == \
+            {SpellImplicitTargets.TARGET_INITIAL, SpellImplicitTargets.TARGET_SELF}
 
     def get_totem_slot_type(self):
         totem_tool_id = self.get_required_tools()[0]
