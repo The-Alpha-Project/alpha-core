@@ -207,29 +207,27 @@ class PetAI(CreatureAI):
             casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target,
                                                                              SpellTargetMask.UNIT, validate=False)
 
-            # Implement some basic checks so existing spells work properly when set on autocast.
+            if casting_spell.has_only_harmful_effects() != bool(self.creature.combat_target):
+                continue  # Cast harmful spells when attacking, helpful when not.
+
+            # Implement some basic checks so pet spells work as expected when set on autocast.
             if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_APPLY_AURA,
                                                 SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA) and \
                 target.aura_manager.has_aura_by_spell_id(spell.ID):
-                continue  # Aura already applied - Flameblade, Blood Pact etc.
+                continue  # Aura already applied (Flameblade, Blood Pact etc.).
 
+            if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_INSTAKILL):
+                continue  # Never autocast Sacrificial Shield.
+
+            if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_HEAL) and \
+                target.health == target.max_health:
+                continue  # Only heal targets not at full health.
+
+            # Check resources before choosing to cast this spell.
             if not self.creature.spell_manager.meets_casting_requisites(casting_spell):
                 continue
 
-            if casting_spell.has_only_harmful_effects():
-                if not self.creature.combat_target:
-                    continue
-                if self.do_spell_cast(spell, target, autocast=True):
-                    break
-                continue
-
-            # Helpful/neutral spell. Always autocast on master if target is required.
-
-            if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_INSTAKILL):
-                continue  # ignore Sacrificial Shield.
-
-            if self.do_spell_cast(spell, target, autocast=True):
-                break
+            self.do_spell_cast(spell, target, autocast=True)
 
     def command_state_update(self):
         self.creature.spell_manager.remove_casts()
