@@ -236,6 +236,13 @@ class PetManager:
             return
 
         if action_id > PetCommandState.COMMAND_DISMISS:  # Highest action ID.
+            if active_pet_unit.spell_manager.is_spell_active(action_id):
+                # If using an area aura spell that's already active (and not on autocast),
+                # cancel it instead of recasting.
+                if not active_pet.get_pet_data().is_spell_autocast(action_id):
+                    active_pet_unit.spell_manager.remove_cast_by_id(action_id, interrupted=False)
+                return
+
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(action_id)
             casting_spell = active_pet_unit.spell_manager.try_initialize_spell(spell, target_unit,
                                                                                SpellTargetMask.SELF, validate=False)
