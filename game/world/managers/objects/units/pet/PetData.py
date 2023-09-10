@@ -53,7 +53,7 @@ class PetData:
                 self.creature_template.unit_class, min(self._level, 255)
             )
             health = stats.health
-            mana = stats.power_1
+            mana = stats.mana
         else:
             health = creature_instance.health
             mana = creature_instance.power_1
@@ -162,6 +162,14 @@ class PetData:
         button = CharacterPetSpell(guid=self.owner_guid, pet_id=self.pet_id, spell_id=spell_id)
         RealmDatabaseManager.character_add_pet_spell(button)
         return True
+
+    def is_spell_autocast(self, spell_id) -> bool:
+        return any([spell_button for spell_button in self.action_bar if
+                    spell_button & 0xFFFF == spell_id and spell_button >> 24 & 0x40])
+
+    def get_autocast_spells(self) -> List[int]:
+        return [spell_button & 0xFFFF for spell_button in self.action_bar if
+                spell_button >> 24 & 0x40]
 
     def get_experience(self):
         return self._experience
