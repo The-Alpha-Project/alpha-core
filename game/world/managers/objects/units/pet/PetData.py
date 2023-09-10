@@ -163,6 +163,14 @@ class PetData:
         RealmDatabaseManager.character_add_pet_spell(button)
         return True
 
+    def is_spell_autocast(self, spell_id) -> bool:
+        return any([spell_button for spell_button in self.action_bar if
+                    spell_button & 0xFFFF == spell_id and spell_button >> 24 & 0x40])
+
+    def get_autocast_spells(self) -> List[int]:
+        return [spell_button & 0xFFFF for spell_button in self.action_bar if
+                spell_button >> 24 & 0x40]
+
     def get_experience(self):
         return self._experience
 

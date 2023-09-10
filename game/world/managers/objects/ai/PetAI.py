@@ -197,9 +197,7 @@ class PetAI(CreatureAI):
         if not controlled_pet:
             return
 
-        action_bar = controlled_pet.get_pet_data().action_bar
-        spell_set = [spell_button for spell_button in action_bar if spell_button >> 24 & 0x40]
-
+        spell_set = controlled_pet.get_pet_data().get_autocast_spells()
         for spell_data in spell_set:
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_data & 0xFFFF)
             target = self.creature.combat_target if self.creature.combat_target else \
