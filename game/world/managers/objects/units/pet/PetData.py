@@ -53,7 +53,7 @@ class PetData:
                 self.creature_template.unit_class, min(self._level, 255)
             )
             health = stats.health
-            mana = stats.power_1
+            mana = stats.mana
         else:
             health = creature_instance.health
             mana = creature_instance.power_1
