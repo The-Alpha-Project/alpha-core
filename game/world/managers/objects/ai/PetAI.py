@@ -214,7 +214,7 @@ class PetAI(CreatureAI):
             if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_APPLY_AURA,
                                                 SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA) and \
                 target.aura_manager.has_aura_by_spell_id(spell.ID):
-                continue  # Aura already applied (Flameblade, Blood Pact etc.).
+                continue  # Aura already applied (Flameblade, Blood Pact etc.)
 
             if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_INSTAKILL):
                 continue  # Never autocast Sacrificial Shield.
