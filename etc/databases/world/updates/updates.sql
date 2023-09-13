@@ -1058,5 +1058,44 @@ begin not atomic
         INSERT INTO `applied_updates` VALUES ('080920231');
     end if;
 
+    -- 13/09/2023 1
+	if (select count(*) from applied_updates where id='130920231') = 0 then
+
+        -- Wendigo, go back to normal lvl
+        UPDATE `creature_template` SET `level_min`= 6, `level_max`= 7 WHERE `entry`= 1135;     
+
+        -- Zardeth
+        UPDATE `creature_template` SET `level_min`= 70, `level_max`= 70 WHERE `entry`= 1435;
+
+        -- Andrew brounel #1294
+        UPDATE `spawns_creatures` SET `position_x` = 1861.978, `position_y` = 1571.675, `position_z` = 99.053, `orientation`= 0.185  WHERE `spawn_id` = 32024;
+
+        -- Skeletal enrage
+        UPDATE `creature_template` SET `display_id1`= 200 WHERE `entry`= 2454;
+
+        -- Natheril #1161
+        UPDATE `creature_template` SET `npc_flags`= 0 WHERE `entry`= 2084;
+
+        -- Ravenholdt GO #1306
+        update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (121618, 17977, 17994, 17982, 17984, 17974, 17988, 17993, 17973, 17979, 17986, 17993, 17980, 17991, 17976, 17976);
+
+        -- tiyani #1305
+        UPDATE `creature_template` SET `display_id1`= 2575 WHERE `entry`= 4195;
+
+        -- Steed #1291 1
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5689, 0, 2248.764, 331.255, 35.189, 5.605, 300, 300, 0);
+
+        -- Steed #1291 2
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5689, 0, 2246.688, 329.018, 35.189, 5.582, 300, 300, 0);
+          
+        insert into applied_updates values ('130920231');
+    end if;
+
 end $
 delimiter ;
