@@ -1094,6 +1094,10 @@ begin not atomic
         VALUES 
         (5689, 0, 2246.688, 329.018, 35.189, 5.582, 300, 300, 0);
           
+        -- Darnassus npc, #1313
+        UPDATE `spawns_creatures` SET `position_x` = 9825.762, `position_y` = 2338.439, `position_z` = 1329.324, `orientation`= 5.118 WHERE `spawn_id` = 49519;
+        UPDATE `spawns_creatures` SET `position_x` = 9826.717, `position_y` = 2336.335, `position_z` = 1321.659, `orientation`= 5.131  WHERE `spawn_id` = 49540;
+
         insert into applied_updates values ('130920231');
     end if;
 
