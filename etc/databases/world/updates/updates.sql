@@ -1107,6 +1107,24 @@ begin not atomic
         -- Darna nighsaber inst, correct o to look less random spawned
         UPDATE `spawns_creatures` SET `orientation`= 3.743  WHERE `spawn_id` = 46722;
 
+        -- Lesser Elem 1
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (691, 0, -11855.547, 1260.772, 2.641, 4.0, 300, 300, 1);
+
+        -- Lesser Elem 2
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (691, 0, -11858.30, 1230.882, 1.349, 4.0, 300, 300, 1);
+
+        -- Lesser Elem 3
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (691, 0, -11899.0, 1252.23, 2.631, 1.0, 300, 300, 1);
+
         insert into applied_updates values ('130920231');
     end if;
 
