@@ -1098,6 +1098,15 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = 9825.762, `position_y` = 2338.439, `position_z` = 1329.324, `orientation`= 5.118 WHERE `spawn_id` = 49519;
         UPDATE `spawns_creatures` SET `position_x` = 9826.717, `position_y` = 2336.335, `position_z` = 1321.659, `orientation`= 5.131  WHERE `spawn_id` = 49540;
 
+        -- Darna Spider trainer, he can't be located at current pos since we have tons of ss of it
+        UPDATE `spawns_creatures` SET `position_x` = 9895.199, `position_y` = 2121.367, `position_z` = 1329.626 , `orientation`= 2.1142  WHERE `spawn_id` = 32651;
+
+        -- Darna Bag Mrchant, flip o as ss shows
+        UPDATE `spawns_creatures` SET `orientation`= 1.433  WHERE `spawn_id` = 46562;
+        
+        -- Darna nighsaber inst, correct o to look less random spawned
+        UPDATE `spawns_creatures` SET `orientation`= 3.743  WHERE `spawn_id` = 46722;
+
         insert into applied_updates values ('130920231');
     end if;
 
