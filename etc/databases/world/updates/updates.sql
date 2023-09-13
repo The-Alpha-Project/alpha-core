@@ -1125,6 +1125,10 @@ begin not atomic
         VALUES 
         (691, 0, -11899.0, 1252.23, 2.631, 1.0, 300, 300, 1);
 
+        -- Correct scale for big dragons
+        UPDATE `creature_template` SET `display_id1`= 2717 WHERE `entry` IN (5312, 5314, 5718);
+
+
         insert into applied_updates values ('130920231');
     end if;
 
