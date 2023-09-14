@@ -531,6 +531,41 @@ class CommandManager(object):
         return 0, f'Teleported to player {player_name.capitalize()} ({status_text}).'
 
     @staticmethod
+    def gocreature(world_session, args):
+        if not args:
+            return -1, 'please specify a creature name.'
+
+        creature_name = args.strip()
+        creature = WorldDatabaseManager.\
+            CreatureTemplateHolder.creature_get_by_name(creature_name, remove_space=True)
+
+        if not creature:
+            return -1, f'"{creature_name}" not found.'
+
+        spawns = WorldDatabaseManager.creature_spawn_get_by_entry(creature.entry)
+        spawns_ignored_values = [spawn.ignored for spawn in spawns]
+        are_ignored = 0 not in spawns_ignored_values # 0 means 'not ignored'
+
+        if not spawns or are_ignored: 
+            return -1, f'"{creature.name}" not spawned.'
+
+        effective_spawn = spawns[spawns_ignored_values.index(0)]
+        tel_location = Vector(
+            effective_spawn.position_x, 
+            effective_spawn.position_y, 
+            effective_spawn.position_z, 
+            effective_spawn.orientation)
+
+        success = world_session.player_mgr.teleport(
+            effective_spawn.map, tel_location,
+            is_instant=effective_spawn.map == world_session.player_mgr.map_id)
+
+        if not success:
+            return -1, f'Teleport error ({tel_location}, {effective_spawn.map}).'
+        
+        return 0, f'Teleported to "{creature.name}".'
+    
+    @staticmethod
     def summon(world_session, args):
         player_name = args
         online = True
@@ -972,6 +1007,7 @@ GM_COMMAND_DEFINITIONS = {
     'rticket': [CommandManager.rticket, 'search a ticket'],
     'dticket': [CommandManager.dticket, 'delete a ticket'],
     'goplayer': [CommandManager.goplayer, 'go to a player position'],
+    'gocreature': [CommandManager.gocreature, 'go to a creature position'],
     'summon': [CommandManager.summon, 'summon a player to your position'],
     'ann': [CommandManager.ann, 'write a server side announcement'],
     'mount': [CommandManager.mount, 'mount'],
