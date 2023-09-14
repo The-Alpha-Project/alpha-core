@@ -546,7 +546,7 @@ class CommandManager(object):
         spawns_ignored_values = [spawn.ignored for spawn in spawns]
         are_ignored = 0 not in spawns_ignored_values # 0 means 'not ignored'
 
-        if not spawns or are_ignored: 
+        if are_ignored: 
             return -1, f'"{creature.name}" not spawned.'
 
         effective_spawn = spawns[spawns_ignored_values.index(0)]
