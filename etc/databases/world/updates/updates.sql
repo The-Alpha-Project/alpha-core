@@ -1207,5 +1207,79 @@ begin not atomic
     end if;
 
 
+    -- 13/09/2023 1
+	if (select count(*) from applied_updates where id='130920231') = 0 then
+
+        -- Wendigo, go back to normal lvl
+        UPDATE `creature_template` SET `level_min`= 6, `level_max`= 7 WHERE `entry`= 1135;     
+
+        -- Zardeth
+        UPDATE `creature_template` SET `level_min`= 70, `level_max`= 70 WHERE `entry`= 1435;
+
+        -- Andrew brounel #1294
+        UPDATE `spawns_creatures` SET `position_x` = 1861.978, `position_y` = 1571.675, `position_z` = 99.053, `orientation`= 0.185  WHERE `spawn_id` = 32024;
+
+        -- Skeletal enrage
+        UPDATE `creature_template` SET `display_id1`= 200 WHERE `entry`= 2454;
+
+        -- Natheril #1161
+        UPDATE `creature_template` SET `npc_flags`= 0 WHERE `entry`= 2084;
+
+        -- Ravenholdt GO #1306
+        update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (121618, 17977, 17994, 17982, 17984, 17974, 17988, 17993, 17973, 17979, 17986, 17993, 17980, 17991, 17976, 17976);
+
+        -- tiyani #1305
+        UPDATE `creature_template` SET `display_id1`= 2575 WHERE `entry`= 4195;
+
+        -- Steed #1291 1
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5689, 0, 2248.764, 331.255, 35.189, 5.605, 300, 300, 0);
+
+        -- Steed #1291 2
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (5689, 0, 2246.688, 329.018, 35.189, 5.582, 300, 300, 0);
+          
+        -- Darnassus npc, #1313
+        UPDATE `spawns_creatures` SET `position_x` = 9825.762, `position_y` = 2338.439, `position_z` = 1329.324, `orientation`= 5.118 WHERE `spawn_id` = 49519;
+        UPDATE `spawns_creatures` SET `position_x` = 9826.717, `position_y` = 2336.335, `position_z` = 1321.659, `orientation`= 5.131  WHERE `spawn_id` = 49540;
+
+        -- Darna Spider trainer, he can't be located at current pos since we have tons of ss of it
+        UPDATE `spawns_creatures` SET `position_x` = 9895.199, `position_y` = 2121.367, `position_z` = 1329.626 , `orientation`= 2.1142  WHERE `spawn_id` = 32651;
+
+        -- Darna Bag Mrchant, flip o as ss shows
+        UPDATE `spawns_creatures` SET `orientation`= 1.433  WHERE `spawn_id` = 46562;
+        
+        -- Darna nighsaber inst, correct o to look less random spawned
+        UPDATE `spawns_creatures` SET `orientation`= 3.743  WHERE `spawn_id` = 46722;
+
+        -- Lesser Elem 1
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (691, 0, -11855.547, 1260.772, 2.641, 4.0, 300, 300, 1);
+
+        -- Lesser Elem 2
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (691, 0, -11858.30, 1230.882, 1.349, 4.0, 300, 300, 1);
+
+        -- Lesser Elem 3
+        INSERT INTO spawns_creatures 
+        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
+        VALUES 
+        (691, 0, -11899.0, 1252.23, 2.631, 1.0, 300, 300, 1);
+
+        -- Correct scale for big dragons
+        UPDATE `creature_template` SET `display_id1`= 2717 WHERE `entry` IN (5312, 5314, 5718);
+
+
+        insert into applied_updates values ('130920231');
+    end if;
+
 end $
 delimiter ;
