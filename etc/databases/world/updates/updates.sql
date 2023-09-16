@@ -1138,7 +1138,8 @@ begin not atomic
         UPDATE `quest_template` SET `ZoneOrSort` = '10' WHERE (`entry` = '172');
         -- Quest Four-Legged Meneces, correct required kills, xp and rew money. Add offer reward text.
         UPDATE `quest_template` SET `OfferRewardText` = 'Excellent. Your assistance to the people of Duskwood will not be forgotten. Here, a token of my appreciation.', `ReqCreatureOrGOCount1` = '12', `RewXP` = '1500', `RewOrReqMoney` = '8000' WHERE (`entry` = '171');
-
+       -- Rot Hide Graverobbers's Display ID.
+        UPDATE `creature_template` SET `display_id1` = '847' WHERE (`entry` = '1941');
 
         insert into applied_updates values ('160920231');
     end if;
