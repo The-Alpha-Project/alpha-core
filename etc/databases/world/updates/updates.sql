@@ -1136,7 +1136,7 @@ begin not atomic
 	if (select count(*) from applied_updates where id='160920231') = 0 then
         -- Quest Ambushed in the Forest - Duskwood zone.
         UPDATE `quest_template` SET `ZoneOrSort` = '10' WHERE (`entry` = '172');
-        -- Quest Four-Legged Meneces, correct required kills, xp and rew money.
+        -- Quest Four-Legged Meneces, correct required kills, xp and rew money. Add offer reward text.
         UPDATE `quest_template` SET `OfferRewardText` = 'Excellent. Your assistance to the people of Duskwood will not be forgotten. Here, a token of my appreciation.', `ReqCreatureOrGOCount1` = '12', `RewXP` = '1500', `RewOrReqMoney` = '8000' WHERE (`entry` = '171');
 
 
