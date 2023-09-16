@@ -1132,5 +1132,13 @@ begin not atomic
         insert into applied_updates values ('130920231');
     end if;
 
+    -- 16/09/2023 1
+	if (select count(*) from applied_updates where id='160920231') = 0 then
+        -- Quest Ambushed in the Forest - Duskwood zone.
+        UPDATE `quest_template` SET `ZoneOrSort` = '10' WHERE (`entry` = '172');
+
+        insert into applied_updates values ('160920231');
+    end if;
+
 end $
 delimiter ;
