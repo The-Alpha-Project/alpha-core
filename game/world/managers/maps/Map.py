@@ -109,6 +109,9 @@ class Map:
     def get_liquid_or_create(self, liquid_type, height, use_float_16):
         return self.map_manager.get_liquid_or_create(liquid_type, height, use_float_16)
 
+    def find_liquid_location_in_range(self, world_object, min_range, max_range):
+        return self.map_manager.find_liquid_location_in_range(world_object, min_range, max_range)
+
     def get_area_information(self, x, y):
         return self.map_manager.get_area_information(self.map_id, x, y)
 
