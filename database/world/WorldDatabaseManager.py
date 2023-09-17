@@ -528,7 +528,7 @@ class WorldDatabaseManager(object):
                 formatted_creature_name = creature.name.lower()
                 formatted_name = name.lower()
                 if remove_space: 
-                    # more permissive search like thomasmiller
+                    # More permissive searches like "thomasmiller".
                     formatted_creature_name = formatted_creature_name.replace(" ", "")
                     formatted_name = formatted_name.replace(" ", "")
 

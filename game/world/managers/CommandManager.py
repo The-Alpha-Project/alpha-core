@@ -544,7 +544,7 @@ class CommandManager(object):
 
         spawns = WorldDatabaseManager.creature_spawn_get_by_entry(creature.entry)
         spawns_ignored_values = [spawn.ignored for spawn in spawns]
-        are_ignored = 0 not in spawns_ignored_values # 0 means 'not ignored'
+        are_ignored = 0 not in spawns_ignored_values  # 0 means 'not ignored'.
 
         if are_ignored: 
             return -1, f'"{creature.name}" not spawned.'
@@ -561,7 +561,7 @@ class CommandManager(object):
             is_instant=effective_spawn.map == world_session.player_mgr.map_id)
 
         if not success:
-            return -1, f'Teleport error ({tel_location}, {effective_spawn.map}).'
+            return -1, f'unable to teleport to ({tel_location}, {effective_spawn.map}).'
         
         return 0, f'Teleported to "{creature.name}".'
     
