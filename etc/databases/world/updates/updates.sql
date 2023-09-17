@@ -1093,7 +1093,7 @@ begin not atomic
         (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
         VALUES 
         (5689, 0, 2246.688, 329.018, 35.189, 5.582, 300, 300, 0);
-          
+
         -- Darnassus npc, #1313
         UPDATE `spawns_creatures` SET `position_x` = 9825.762, `position_y` = 2338.439, `position_z` = 1329.324, `orientation`= 5.118 WHERE `spawn_id` = 49519;
         UPDATE `spawns_creatures` SET `position_x` = 9826.717, `position_y` = 2336.335, `position_z` = 1321.659, `orientation`= 5.131  WHERE `spawn_id` = 49540;
@@ -1103,7 +1103,7 @@ begin not atomic
 
         -- Darna Bag Mrchant, flip o as ss shows
         UPDATE `spawns_creatures` SET `orientation`= 1.433  WHERE `spawn_id` = 46562;
-        
+
         -- Darna nighsaber inst, correct o to look less random spawned
         UPDATE `spawns_creatures` SET `orientation`= 3.743  WHERE `spawn_id` = 46722;
 
@@ -1133,7 +1133,7 @@ begin not atomic
 
     -- 14/09/2023 1
     IF (SELECT COUNT(*) FROM `applied_updates` WHERE id='140920231') = 0 THEN
-    
+
         -- Quests Parsing from Warcraft Strategy
         UPDATE `quest_template` SET `Details` = 'As the mystical taint creeps through the forest the need for self-protection is undeniable, $n.  The winds whisper to me and they speak of a great danger which waits patiently for you in the near-future.$B$BIf you wish to protect yourself, noble $r, bring to me 10 ghoul fangs, 10 skeleton fingers and 5 vials of spider venom.  For you I shall enchant a Totem of Infliction which will harm those who attempt violent acts against you.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 101;
         UPDATE `quest_template` SET `Details` = 'The forest spirits tell me you are brave and willing to travel.$B$BTo the south, not far from Mystral Lake, there lies a tunnel named The Talondeep Path. Through this tunnel you will come to an area known as Windshear Crag in the Stonetalon Mountains. Once there, journey to the southwest past Cragpool Lake and then north, up the steep slope until you reach Stonetalon Peak.$B$BThere awaits Keeper Albagorm. Heed his bidding, $r.$B$BThe journey will be perilous.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 1056;
