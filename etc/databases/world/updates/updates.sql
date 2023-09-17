@@ -1143,7 +1143,8 @@ begin not atomic
         -- Closes #1288
         UPDATE `creature_template` SET `subname` = '' WHERE (`entry` = '2477');
         UPDATE `creature_template` SET `subname` = '' WHERE (`entry` = '2478');
-
+        -- Krang Stonehoof - Remove OOC script not valid for alpha.
+        DELETE FROM `creature_ai_events` WHERE (`id` = '306301');
 
         insert into applied_updates values ('160920231');
     end if;
