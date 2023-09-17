@@ -522,6 +522,32 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.get(entry)
 
         @staticmethod
+        def creature_get_by_name(name, return_all=False, remove_space=False) -> [list, Optional[CreatureTemplate]]:
+            creatures = []
+            for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
+                formatted_creature_name = creature.name.lower()
+                formatted_name = name.lower()
+                if remove_space: 
+                    # more permissive search like thomasmiller
+                    formatted_creature_name = formatted_creature_name.replace(" ", "")
+                    formatted_name = formatted_name.replace(" ", "")
+
+                if formatted_name in formatted_creature_name:
+                    creatures.append(creature)
+
+            if return_all:
+                return creatures
+
+            best_matching_creature = None
+            best_matching_ratio = 0
+            for creature in creatures:
+                ratio = SequenceMatcher(None, creature.name.lower(), name.lower()).ratio()
+                if ratio > best_matching_ratio:
+                    best_matching_ratio = ratio
+                    best_matching_creature = creature
+            return best_matching_creature
+
+        @staticmethod
         def creature_trainers_by_race_class(race, class_, type_):
             trainers = []
             for creature in WorldDatabaseManager.CreatureTemplateHolder.CREATURE_TEMPLATES.values():
@@ -561,6 +587,13 @@ class WorldDatabaseManager(object):
     def creature_get_all_spawns() -> [list[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(ignored=0).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_spawn_get_by_entry(entry) -> [list[SpawnsCreatures], scoped_session]:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(SpawnsCreatures).filter_by(spawn_entry1=entry).all()
         world_db_session.close()
         return res
 
