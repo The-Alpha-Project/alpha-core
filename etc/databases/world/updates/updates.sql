@@ -1317,5 +1317,24 @@ begin not atomic
         INSERT INTO `applied_updates` VALUES ('140920231');
     end if;
 
+    -- 16/09/2023 1
+	if (select count(*) from applied_updates where id='160920231') = 0 then
+        -- Quest Ambushed in the Forest - Duskwood zone.
+        UPDATE `quest_template` SET `ZoneOrSort` = '10' WHERE (`entry` = '172');
+        -- Quest Four-Legged Meneces, correct required kills, xp and rew money. Add offer reward text.
+        UPDATE `quest_template` SET `OfferRewardText` = 'Excellent. Your assistance to the people of Duskwood will not be forgotten. Here, a token of my appreciation.', `ReqCreatureOrGOCount1` = '12', `RewXP` = '1500', `RewOrReqMoney` = '800' WHERE (`entry` = '171');
+       -- Rot Hide Graverobbers's Display ID.
+        UPDATE `creature_template` SET `display_id1` = '847' WHERE (`entry` = '1941');
+        -- Closes #1288
+        UPDATE `creature_template` SET `subname` = '' WHERE (`entry` = '2477');
+        UPDATE `creature_template` SET `subname` = '' WHERE (`entry` = '2478');
+        -- Krang Stonehoof - Remove OOC script not valid for alpha.
+        DELETE FROM `creature_ai_events` WHERE (`id` = '306301');
+        -- Script between Grub (3443) and Duhng (8306 - Ignored spawn)
+        DELETE FROM `creature_ai_events` WHERE (`id` = '344301');
+
+        insert into applied_updates values ('160920231');
+    end if;
+
 end $
 delimiter ;

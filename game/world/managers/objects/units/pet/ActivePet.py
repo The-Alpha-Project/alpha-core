@@ -133,9 +133,7 @@ class ActivePet:
             spawn = map_.get_surrounding_creature_spawn_by_spawn_id(self.creature, self.creature.spawn_id)
             # This creature might be too far from its spawn upon detach, search in all map cells.
             if not spawn:
-                spawn = map_.get_creature_spawn_by_id(self.creature.map_id, self.creature.instance_id,
-                                                      self.creature.spawn_id)
-
+                spawn = map_.get_creature_spawn_by_id(self.creature.spawn_id)
             # Creature spawn should be found at this point.
             if spawn:
                 if not spawn.restore_creature_instance(self.creature):
