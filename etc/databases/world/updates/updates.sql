@@ -1336,5 +1336,148 @@ begin not atomic
         insert into applied_updates values ('160920231');
     end if;
 
+    -- 17/09/2023 1
+	if (select count(*) from applied_updates where id='170920231') = 0 then
+
+        -- WEAPON - same models as vanilla
+        
+        -- Riverpaw Mystic Staff
+        UPDATE `item_template` SET `display_id` = 5542 WHERE `entry`= 1391;
+
+        -- Sword Of Decay
+        UPDATE `item_template` SET `display_id` = 5166 WHERE `entry`= 1727;
+
+        -- Gouging Pick
+        UPDATE `item_template` SET `display_id` = 6259 WHERE `entry`= 1819;
+
+        -- Oaken War Staff
+        UPDATE `item_template` SET `display_id` = 1716 WHERE `entry`= 1831;
+
+        -- Cold Iron Pick
+        UPDATE `item_template` SET `display_id` = 1682 WHERE `entry`= 1959;
+
+        -- Morning Star
+        UPDATE `item_template` SET `display_id` = 5199 WHERE `entry`= 2532;
+
+        -- Spinner Fang
+        UPDATE `item_template` SET `display_id` = 6447 WHERE `entry`= 2664;
+
+        -- Hurricane
+        UPDATE `item_template` SET `display_id` = 6235 WHERE `entry`= 2824;
+
+        -- BKP 42
+        UPDATE `item_template` SET `display_id` = 6592 WHERE `entry`= 3025;
+
+        -- "Mage-Eye" Blunderbuss
+        UPDATE `item_template` SET `display_id` = 2409 WHERE `entry`= 3041;
+
+        -- Naga Heatpiercer
+        UPDATE `item_template` SET `display_id` = 8106 WHERE `entry`= 3078;
+
+        -- Deadman Cleaver
+        UPDATE `item_template` SET `display_id` = 8466 WHERE `entry`= 3293;
+
+        -- Vile Fin Battle Axe
+        UPDATE `item_template` SET `display_id` = 8899 WHERE `entry`= 3325;
+
+        -- Decapitating Sword
+        UPDATE `item_template` SET `display_id` = 859 WHERE `entry`= 3740;
+
+        -- Compound Bow
+        UPDATE `item_template` SET `display_id` = 8107 WHERE `entry`= 3778;
+
+        -- Sharp Shortsword
+        UPDATE `item_template` SET `display_id` = 5129 WHERE `entry`= 4017;
+
+        -- Sentinel Musket
+        UPDATE `item_template` SET `display_id` = 2409 WHERE `entry`= 4026;
+
+        -- Guerilla Cleaver
+        UPDATE `item_template` SET `display_id` = 5639 WHERE `entry`= 4126;
+
+        -- Silver Spade
+        UPDATE `item_template` SET `display_id` = 7495 WHERE `entry`= 4128;
+
+        -- Shadow Wand
+        UPDATE `item_template` SET `display_id` = 6093 WHERE `entry`= 5071;
+
+        -- Firebelcher
+        UPDATE `item_template` SET `display_id` = 9062 WHERE `entry`= 5243;
+
+        -- Elven Wand
+        UPDATE `item_template` SET `display_id` = 6093 WHERE `entry`= 5604;
+
+        -- Gemstone Dagger
+        UPDATE `item_template` SET `display_id` = 1835 WHERE `entry`= 5742;
+
+        -- Wyvern Tailspike
+        UPDATE `item_template` SET `display_id` = 6447 WHERE `entry`= 5752;
+
+        -- Darkwood Fishing Pole
+        UPDATE `item_template` SET `display_id` = 7453 WHERE `entry`= 6366;
+
+        -- Big Iron Fishing Pole
+        UPDATE `item_template` SET `display_id` = 7453 WHERE `entry`= 6367;
+
+        -- Antipodeon Rod
+        UPDATE `item_template` SET `display_id` = 9062 WHERE `entry`= 2874;
+
+        -- SHIELD - Same models as vanilla
+
+        -- Wall Of The Dead
+        UPDATE `item_template` SET `display_id` = 2456 WHERE `entry`= 1979;
+
+        -- Small Round Shield
+        UPDATE `item_template` SET `display_id` = 1680 WHERE `entry`= 2219;
+
+        -- Box Shield
+        UPDATE `item_template` SET `display_id` = 5422 WHERE `entry`= 2220;
+
+        -- Targe Shield
+        UPDATE `item_template` SET `display_id` = 1684 WHERE `entry`= 2221;
+
+        -- Deflecting Tower
+        UPDATE `item_template` SET `display_id` = 5422 WHERE `entry`= 3987;
+
+        -- Deflecting Tower
+        UPDATE `item_template` SET `display_id` = 4983 WHERE `entry`= 3989;
+
+        -- Plated Buckler
+        UPDATE `item_template` SET `display_id` = 4108 WHERE `entry`= 3991;
+
+        -- Standard Issue Shield
+        UPDATE `item_template` SET `display_id` = 4404 WHERE `entry`= 4263;
+
+        -- Reinforced Buckler
+        UPDATE `item_template` SET `display_id` = 2916 WHERE `entry`= 3817;
+
+        -- Blackforge Buckler
+        UPDATE `item_template` SET `display_id` = 6275 WHERE `entry`= 4069;
+
+        -- Charging Buckler
+        UPDATE `item_template` SET `display_id` = 2208 WHERE `entry`= 4937;
+
+        -- Vigilant Buckler
+        UPDATE `item_template` SET `display_id` = 6274 WHERE `entry`= 4975;
+
+        -- CLOAK - PH based on screenshot
+        
+        -- inv_robe_2 (cloth)
+        UPDATE `item_template` SET `display_id` = 936 WHERE `entry` IN (1190, 1782, 3331, 3475, 3749, 3803, 3955, 3964, 3972, 3980, 5969, 6417, 6424, 6432, 4735, 3261, 3939, 4944, 4011, 3795, 3995, 4327, 4732);
+
+        -- inv_misc_pelt_wolf (leather)
+        UPDATE `item_template` SET `display_id` = 7547 WHERE `entry` IN (4771, 5965, 4963, 1280, 1355, 2308, 3008, 1798);
+
+        -- inv_misc_cap_02 (mail)
+        UPDATE `item_template` SET `display_id` = 7952 WHERE `entry` IN (4933, 4958, 1774);
+
+        -- RING, the first ring icon ever avalaible
+
+        -- PH Inv_Jewelry_Ring_01
+        UPDATE `item_template` SET `display_id` = 7952 WHERE `entry` IN (1993, 862, 1447);
+
+        insert into applied_updates values ('170920231');
+    end if;
+
 end $
 delimiter ;
