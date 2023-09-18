@@ -1474,7 +1474,7 @@ begin not atomic
         -- RING, the first ring icon ever avalaible
 
         -- PH Inv_Jewelry_Ring_01
-        UPDATE `item_template` SET `display_id` = 7952 WHERE `entry` IN (1993, 862, 1447);
+        UPDATE `item_template` SET `display_id` = 224 WHERE `entry` IN (1993, 862, 1447);
 
         insert into applied_updates values ('170920231');
     end if;
