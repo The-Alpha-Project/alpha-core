@@ -1357,7 +1357,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 1682 WHERE `entry`= 1959;
 
         -- Morning Star
-        UPDATE `item_template` SET `display_id` = 5199 WHERE `entry`= 2532;
+        UPDATE `item_template` SET `display_id` = 7477 WHERE `entry`= 2532;
 
         -- Spinner Fang
         UPDATE `item_template` SET `display_id` = 6447 WHERE `entry`= 2664;
@@ -1408,7 +1408,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 6093 WHERE `entry`= 5604;
 
         -- Gemstone Dagger
-        UPDATE `item_template` SET `display_id` = 1835 WHERE `entry`= 5742;
+        UPDATE `item_template` SET `display_id` = 6454 WHERE `entry`= 5742;
 
         -- Wyvern Tailspike
         UPDATE `item_template` SET `display_id` = 6447 WHERE `entry`= 5752;
@@ -1420,7 +1420,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 7453 WHERE `entry`= 6367;
 
         -- Antipodeon Rod
-        UPDATE `item_template` SET `display_id` = 9062 WHERE `entry`= 2874;
+        UPDATE `item_template` SET `display_id` = 9062 WHERE `entry`= 2879;
 
         -- SHIELD - Same models as vanilla
 
@@ -1439,7 +1439,7 @@ begin not atomic
         -- Deflecting Tower
         UPDATE `item_template` SET `display_id` = 5422 WHERE `entry`= 3987;
 
-        -- Deflecting Tower
+        -- Blocking Targe
         UPDATE `item_template` SET `display_id` = 4983 WHERE `entry`= 3989;
 
         -- Plated Buckler
@@ -1466,7 +1466,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 936 WHERE `entry` IN (1190, 1782, 3331, 3475, 3749, 3803, 3955, 3964, 3972, 3980, 5969, 6417, 6424, 6432, 4735, 3261, 3939, 4944, 4011, 3795, 3995, 4327, 4732);
 
         -- inv_misc_pelt_wolf (leather)
-        UPDATE `item_template` SET `display_id` = 7547 WHERE `entry` IN (4771, 5965, 4963, 1280, 1355, 2308, 3008, 1798);
+        UPDATE `item_template` SET `display_id` = 6655 WHERE `entry` IN (4771, 5965, 4963, 1280, 1355, 2308, 3008, 1798);
 
         -- inv_misc_cap_02 (mail)
         UPDATE `item_template` SET `display_id` = 7952 WHERE `entry` IN (4933, 4958, 1774);
