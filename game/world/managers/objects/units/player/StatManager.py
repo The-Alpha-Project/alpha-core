@@ -1167,17 +1167,17 @@ class StatManager(object):
 
     @staticmethod
     def get_health_bonus_from_stamina(class_, stamina):
-        # The first 20 points of Stamina grant only 1 health point per unit.
+        # The first 20 points of Stamina grant 1 health point per unit.
         base_sta = stamina if stamina < 20 else 20
         more_sta = stamina - base_sta
         return base_sta + (more_sta * CLASS_STAMINA_GAIN[class_])
 
     @staticmethod
     def get_mana_bonus_from_intellect(class_, intellect):
-        # The first 20 points of Intellect grant only 1 mana point per unit.
+        # The first 20 points of Intellect grant 2 mana point per unit.
         base_int = intellect if intellect < 20 else 20
         more_int = intellect - base_int
-        return base_int + (more_int * CLASS_INTELLECT_GAIN[class_])
+        return (base_int * 2) + (more_int * CLASS_INTELLECT_GAIN[class_])
 
 
 BASE_BLOCK_PARRY_CHANCE = 5
