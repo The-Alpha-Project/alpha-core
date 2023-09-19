@@ -527,7 +527,7 @@ class StatManager(object):
 
         current_mana = self.unit_mgr.power_1
         current_total_mana = self.unit_mgr.max_power_1
-        new_mana = int(self.get_mana_bonus_from_intellect(total_intellect) + total_mana)
+        new_mana = int(self.get_mana_bonus_from_intellect(self.unit_mgr.class_, total_intellect) + total_mana)
 
         mana_diff = new_mana - current_total_mana
         if new_mana > 0:
@@ -1173,11 +1173,11 @@ class StatManager(object):
         return base_sta + (more_sta * CLASS_STAMINA_GAIN[class_])
 
     @staticmethod
-    def get_mana_bonus_from_intellect(intellect):
+    def get_mana_bonus_from_intellect(class_, intellect):
         # The first 20 points of Intellect grant only 1 mana point per unit.
         base_int = intellect if intellect < 20 else 20
         more_int = intellect - base_int
-        return base_int + (more_int * 15.0)
+        return base_int + (more_int * CLASS_INTELLECT_GAIN[class_])
 
 
 BASE_BLOCK_PARRY_CHANCE = 5
@@ -1248,6 +1248,19 @@ CLASS_STAMINA_GAIN = {
     Classes.CLASS_MAGE: 14.0,
     Classes.CLASS_WARLOCK: 16.0,
     Classes.CLASS_DRUID: 16.0
+}
+
+# See https://github.com/The-Alpha-Project/alpha-core/issues/1319 for reasoning and proof.
+CLASS_INTELLECT_GAIN = {
+    Classes.CLASS_WARRIOR: 0.0,
+    Classes.CLASS_PALADIN: 16.0,
+    Classes.CLASS_HUNTER: 0.0,
+    Classes.CLASS_ROGUE: 0.0,
+    Classes.CLASS_PRIEST: 20.0,
+    Classes.CLASS_SHAMAN: 18.0,
+    Classes.CLASS_MAGE: 20.0,
+    Classes.CLASS_WARLOCK: 20.0,
+    Classes.CLASS_DRUID: 18.0
 }
 
 # VMaNGOS (level 1, level 60).
