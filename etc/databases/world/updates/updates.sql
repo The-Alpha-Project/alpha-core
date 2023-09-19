@@ -1479,5 +1479,83 @@ begin not atomic
         insert into applied_updates values ('170920231');
     end if;
 
+    -- 19/09/2023 1
+    if (select count(*) from `applied_updates` where id='190920231') = 0 then
+
+        -- ROBES
+
+        -- Scarlet Initiate Robe
+        UPDATE `item_template` SET `display_id` = 8846 WHERE `entry` = 3260;
+
+        -- Spider Web Robe
+        UPDATE `item_template` SET `display_id` = 8856  WHERE `entry` = 3328;
+
+        -- Robe of the Keeper
+        UPDATE `item_template` SET `display_id` = 10896  WHERE `entry` = 3161;
+
+        -- Vicar's Robe
+        UPDATE `item_template` SET `display_id` = 3876  WHERE `entry` = 3569;
+
+        -- Beastwalker Robe
+        UPDATE `item_template` SET `display_id` =  4741 WHERE `entry` = 4476 ;
+
+        -- Mage Dragon Robe
+        UPDATE `item_template` SET `display_id` =  8865 WHERE `entry` = 4989;
+
+        -- Dalaran Robe, Lesser Wizard Robe
+        UPDATE `item_template` SET `display_id` =  8864 WHERE `entry` in (5110, 5766, 5767);
+
+        -- Robe of Arcana
+        UPDATE `item_template` SET `display_id` =  8865 WHERE `entry` = 5770;
+
+        -- Robe of Antiquity
+        UPDATE `item_template` SET `display_id` =  9053 WHERE `entry` = 5812;
+
+        -- Bloody Apron
+        UPDATE `item_template` SET `display_id` =  10810 WHERE `entry` = 6226;
+
+        -- Green Woolen Robe
+        UPDATE `item_template` SET `display_id` =  10894 WHERE `entry` = 6243;
+
+        -- Robe of Arugal
+        UPDATE `item_template` SET `display_id` =  11528 WHERE `entry` = 6324;
+
+        -- OFFHAND 
+
+        -- Fireproof Orb, Orb of Power
+        UPDATE `item_template` SET `display_id` =  8043 WHERE `entry` IN (4836, 4838) ;
+
+        -- Sakrasis Scepter
+        UPDATE `item_template` SET `display_id` =  7479 WHERE `entry` = 5028;
+
+        -- Strength of Will, SpellStone
+        UPDATE `item_template` SET `display_id` =  8044 WHERE `entry` IN (4837, 5522) ;
+
+        -- Skull of Impending Doom
+        UPDATE `item_template` SET `display_id` =  7469 WHERE `entry` = 4984 ;
+
+        -- Swampchill Fetish
+        UPDATE `item_template` SET `display_id` = 7469 WHERE `entry` = 1992;
+
+        -- MISC
+
+        -- Quiver have no models, we use PH icons (first quiver icon)
+        UPDATE `item_template` SET `display_id` =  5560 WHERE `entry` IN (3605, 2662, 3573);
+
+        -- Thunderbrew's Boot Flask, inv_wine_02, drink icons are not present
+        UPDATE `item_template` SET `display_id` = 7920 WHERE `entry` = 744;
+
+        -- Skullflame Shield, it is a buckler for 0.5.3
+        UPDATE `item_template` SET `display_id` = 2456 WHERE `entry` = 1168;
+
+        -- Eye of flames
+        UPDATE `item_template` SET `display_id` = 1170 WHERE `entry` = 3075;
+
+        -- Ironheart Chain, PH low lvl mail
+        UPDATE `item_template` SET `display_id` = 977 WHERE `entry` = 3166;
+
+        insert into `applied_updates` values ('190920231');
+    end if;
+
 end $
 delimiter ;
