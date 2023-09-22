@@ -1563,6 +1563,9 @@ begin not atomic
         -- mistake on the last PR, good color for Sakrasis Scepter
         UPDATE `item_template` SET `display_id` =  7203 WHERE `entry` = 5028;
 
+        -- mistake on last PR, good color for Fireproof Orb
+        UPDATE `item_template` SET `display_id` =  5566 WHERE `entry` = 4836 ;
+
         -- mistake on the last PR good color for Skull of Impending Doom, Swampchill Fetish
         UPDATE `item_template` SET `display_id` =  5565 WHERE `entry` IN (4984, 1992);
 
@@ -1577,9 +1580,6 @@ begin not atomic
 
         -- Red Linen Bag
         UPDATE `item_template` SET `display_id` =  981 WHERE `entry` = 5762;
-
-        -- Blood Razor
-        UPDATE `item_template` SET `display_id` =  5829 WHERE `entry` = 809;
 
         -- Axe of the Deep Woods
         UPDATE `item_template` SET `display_id` =  2805 WHERE `entry` = 811;
@@ -1603,10 +1603,13 @@ begin not atomic
         UPDATE `item_template` SET `display_id` =  6587 WHERE `entry` = 2705;
 
        -- Troll Dagger
-        UPDATE `item_template` SET `display_id` =  6587 WHERE `entry` = 2787;
+        UPDATE `item_template` SET `display_id` =  11282 WHERE `entry` = 2787;
 
         -- Monster - Dynamite, Lit
-        UPDATE `item_template` SET `display_id` =  7435 WHERE `entry` IN (2884, 3774);
+        UPDATE `item_template` SET `display_id` =  7435 WHERE `entry` =2884;
+
+        -- Monster - Dynamite, Unlit
+        UPDATE `item_template` SET `display_id` =  7436 WHERE `entry` = 3774;
 
         -- Monster - Wand, Basic
         UPDATE `item_template` SET `display_id` = 5806   WHERE `entry` = 6230;
