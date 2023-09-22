@@ -1629,6 +1629,9 @@ begin not atomic
         -- Skullsplitter Helm
         UPDATE `item_template` SET `display_id` =  1130 WHERE `entry` = 1684;
 
+        -- Naga Battle Gloves
+        UPDATE `item_template` SET `display_id` =  3524 WHERE `entry` = 888;
+
         insert into `applied_updates` values ('230920231');
     end if;
 
