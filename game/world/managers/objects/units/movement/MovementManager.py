@@ -123,7 +123,7 @@ class MovementManager:
             self.pause_ooc_timer = duration_seconds
             self.stop()
 
-    def move_distracted(self, duration_seconds, angle):
+    def move_distracted(self, duration_seconds, angle=0):
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
 
     def move_chase(self):

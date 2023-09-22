@@ -16,7 +16,7 @@ from game.world.managers.objects.units.movement.helpers.SplineEvent import Splin
 from game.world.opcode_handling.handlers.social.ChatHandler import ChatHandler
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import BroadcastMessageType, ChatMsgs, Languages, ScriptTypes, ObjectTypeFlags, \
-    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags
+    ObjectTypeIds, GameObjectTypes, GameObjectStates, NpcFlags, MoveFlags, MotionTypes
 from utils.constants.SpellCodes import SpellSchoolMask, SpellTargetMask, SpellCheckCastResult
 from utils.constants.UnitCodes import UnitFlags, Genders
 from utils.constants.ScriptCodes import ModifyFlagsOptions, MoveToCoordinateTypes, TurnToFacingOptions, \
@@ -662,8 +662,9 @@ class ScriptHandler:
         if not spell_entry:
             return command.should_abort()
 
+        self_cast = not command.target or command.target == command.source
         target = command.target if command.target else command.source
-        target_mask = SpellTargetMask.UNIT if command.target else SpellTargetMask.SELF
+        target_mask = SpellTargetMask.UNIT if not self_cast else SpellTargetMask.SELF
         targets_terrain = spell_entry.Targets & SpellTargetMask.CAN_TARGET_TERRAIN
         if targets_terrain:
             target = target.location
@@ -738,12 +739,55 @@ class ScriptHandler:
         # datalong4 = (bool) clear
         # x = distance (only for some motion types)
         # o = angle (only for some motion types)
-        if not command.source:
-            Logger.warning(f'ScriptHandler: No source found, aborting {command.get_info()}.')
-            return command.should_abort()
-        Logger.debug('ScriptHandler: handle_script_command_movement not implemented yet')
+        source = command.source if command.source else command.target
+        target = command.target if command.target else command.source
+        clear = command.datalong4 != 0
+        bool_param = command.datalong2 != 0
 
-        return command.should_abort()
+        if not target:
+            Logger.warning(f'ScriptHandler: No target found, aborting {command.get_info()}.')
+            return command.should_abort()
+
+        if not source.is_alive:
+            return command.should_abort()
+
+        motion_type = MotionTypes(command.datalong)
+        if motion_type == MotionTypes.IDLE_MOTION_TYPE:
+            # We don't have Idle, closest is not to have a behavior set.
+            source.movement_manager.flush()
+        elif motion_type == MotionTypes.RANDOM_MOTION_TYPE:
+            if clear:
+                source.movement_manager.flush()
+            Logger.debug('ScriptHandler: handle_script_command_movement, WANDERING motion type not implemented yet')
+        elif motion_type == MotionTypes.WAYPOINT_MOTION_TYPE:
+            if clear:
+                source.movement_manager.flush()
+            move_info = CommandMoveInfo(wp_source=WaypointPathOrigin.PATH_NO_PATH, start_point=command.datalong3,
+                                        initial_delay=0, repeat=bool_param, overwrite_entry=0, overwrite_guid=0)
+            command.source.movement_manager.move_automatic_waypoints_from_script(command_move_info=move_info)
+        elif motion_type == MotionTypes.CONFUSED_MOTION_TYPE:
+            Logger.debug('ScriptHandler: handle_script_command_movement, CONFUSED motion type not implemented yet')
+            return command.should_abort()
+        elif motion_type == MotionTypes.CHASE_MOTION_TYPE:
+            #  TODO: Check VMaNGOS, for now, just trigger combat through threat if source has no target.
+            if not source.combat_target and target and target != source:
+                source.threat_manager.add_threat(target)
+        elif motion_type == MotionTypes.HOME_MOTION_TYPE:
+            source.leave_combat()
+        elif motion_type == MotionTypes.FLEEING_MOTION_TYPE:
+            # TODO: Should be able to init fleeing given a target which can be combat target or other in order to
+            #  calculate proper angle.
+            source.movement_manager.move_fear(command.datalong3)
+        elif motion_type == MotionTypes.DISTRACT_MOTION_TYPE:
+            source.movement_manager.move_distracted(command.datalong3)
+        elif motion_type == MotionTypes.FOLLOW_MOTION_TYPE:
+            Logger.debug('ScriptHandler: handle_script_command_movement, FOLLOW motion type not implemented yet')
+            return command.should_abort()
+        elif motion_type == MotionTypes.CHARGE_MOTION_TYPE:
+            Logger.debug('ScriptHandler: handle_script_command_movement, CHARGE motion type not implemented yet')
+            return command.should_abort()
+        else:
+            return command.should_abort()
 
     @staticmethod
     def handle_script_command_set_activeobject(command):
