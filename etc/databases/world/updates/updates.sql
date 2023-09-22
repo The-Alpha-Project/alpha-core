@@ -1557,5 +1557,77 @@ begin not atomic
         insert into `applied_updates` values ('190920231');
     end if;
 
+    -- 23/09/2023 1
+    if (select count(*) from `applied_updates` where id='230920231') = 0 then
+       
+        -- mistake on the last PR, good color for Sakrasis Scepter
+        UPDATE `item_template` SET `display_id` =  7203 WHERE `entry` = 5028;
+
+        -- mistake on the last PR good color for Skull of Impending Doom, Swampchill Fetish
+        UPDATE `item_template` SET `display_id` =  5565 WHERE `entry` IN (4984, 1992);
+
+        -- mistake on the last PR, good color for Antipodeon Rod
+        UPDATE `item_template` SET `display_id` = 6168 WHERE `entry`= 2879;
+
+        -- mistake on the last PR, good icons for Quiver
+        UPDATE `item_template` SET `display_id` =  1302 WHERE `entry` IN (3605, 2662, 3573);
+
+        -- Brain Hacker
+        UPDATE `item_template` SET `display_id` =  8505 WHERE `entry` = 1263;
+
+        -- Red Linen Bag
+        UPDATE `item_template` SET `display_id` =  981 WHERE `entry` = 5762;
+
+        -- Blood Razor
+        UPDATE `item_template` SET `display_id` =  5829 WHERE `entry` = 809;
+
+        -- Axe of the Deep Woods
+        UPDATE `item_template` SET `display_id` =  2805 WHERE `entry` = 811;
+
+        -- Glowing Brightwood Staff
+        UPDATE `item_template` SET `display_id` =  1469 WHERE `entry` = 812;
+
+        -- Pysan's Old Greatsword
+        UPDATE `item_template` SET `display_id` =  1638 WHERE `entry` = 1975;
+
+        -- Staff of the Shade
+        UPDATE `item_template` SET `display_id` =  5546 WHERE `entry` = 2549;
+
+        -- Monster - Item, Tankard Wooden
+        UPDATE `item_template` SET `display_id` =  6588 WHERE `entry` = 2703;
+
+        -- Monster - Item, Tankard Dirty
+        UPDATE `item_template` SET `display_id` =  6586 WHERE `entry` = 2704;
+
+       -- Monster - Item, Tankard Metal
+        UPDATE `item_template` SET `display_id` =  6587 WHERE `entry` = 2705;
+
+       -- Troll Dagger
+        UPDATE `item_template` SET `display_id` =  6587 WHERE `entry` = 2787;
+
+        -- Monster - Dynamite, Lit
+        UPDATE `item_template` SET `display_id` =  7435 WHERE `entry` IN (2884, 3774);
+
+        -- Monster - Wand, Basic
+        UPDATE `item_template` SET `display_id` = 5806   WHERE `entry` = 6230;
+
+        -- Monster - Wand, Jeweled - Green
+        UPDATE `item_template` SET `display_id` = 10819   WHERE `entry` = 6231;
+
+        -- Baron's Sceptre
+        UPDATE `item_template` SET `display_id` = 1159   WHERE `entry` = 6323;
+
+        -- Spikelash Dagger
+        UPDATE `item_template` SET `display_id` = 11282  WHERE `entry` = 6333;
+
+        -- Spikelash Dagger
+        UPDATE `item_template` SET `display_id` = 1200 WHERE `entry` = 1282;
+
+        -- Skullsplitter Helm
+        UPDATE `item_template` SET `display_id` =  1130 WHERE `entry` = 1684;
+
+        insert into `applied_updates` values ('230920231');
+    end if;
+
 end $
 delimiter ;
