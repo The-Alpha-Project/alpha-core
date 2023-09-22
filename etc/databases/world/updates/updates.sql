@@ -1557,5 +1557,17 @@ begin not atomic
         insert into `applied_updates` values ('190920231');
     end if;
 
+    -- 22/09/2023 1
+    if (select count(*) from `applied_updates` where id='220920231') = 0 then
+        DELETE FROM `quest_end_scripts` WHERE (`id` = '407');
+        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,4,0,20,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Start Waypoint Movement');
+INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,3,0,15,3287,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Cast Ghoul Form');
+INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,0,0,0,0,0,0,0,0,0,0,0,425,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Say Text 1');
+INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,6,0,0,0,0,0,0,0,0,0,0,428,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Say Text 2');
+INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,22,0,15,7,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Cast Death Touch');
+
+        insert into `applied_updates` values ('220920231');
+    end if;
+
 end $
 delimiter ;
