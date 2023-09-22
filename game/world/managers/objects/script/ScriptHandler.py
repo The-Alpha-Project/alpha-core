@@ -776,9 +776,7 @@ class ScriptHandler:
         elif motion_type == MotionTypes.HOME_MOTION_TYPE:
             source.leave_combat()
         elif motion_type == MotionTypes.FLEEING_MOTION_TYPE:
-            # TODO: Should be able to init fleeing given a target which can be combat target or other in order to
-            #  calculate proper angle.
-            source.movement_manager.move_fear(command.datalong3)
+            source.movement_manager.move_fear(command.datalong3, target=target)
         elif motion_type == MotionTypes.DISTRACT_MOTION_TYPE:
             source.movement_manager.move_distracted(command.datalong3)
         elif motion_type == MotionTypes.FOLLOW_MOTION_TYPE:

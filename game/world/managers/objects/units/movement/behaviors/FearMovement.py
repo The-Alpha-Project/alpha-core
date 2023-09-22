@@ -19,11 +19,12 @@ FLEE_ASSISTANCE_RADIUS = 30.0
 # TODO: Namigator: FindRandomPointAroundCircle (Detour)
 #  We need a valid path for fear else unexpected collisions can mess things up.
 class FearMovement(BaseMovement):
-    def __init__(self, fear_duration_secs, spline_callback, seek_assist=False):
+    def __init__(self, fear_duration_secs, spline_callback, target=None, seek_assist=False):
         super().__init__(move_type=MoveType.FEAR, spline_callback=spline_callback)
         self.fear_duration = fear_duration_secs
         self.seek_assist = seek_assist
         self.assist_unit = None
+        self.target = target
         self.waypoints: list[Vector] = []
         self.can_move = True
         self.expected_fear_end_timestamp = time.time() + fear_duration_secs
@@ -112,7 +113,7 @@ class FearMovement(BaseMovement):
         if self.assist_unit:
             return self.assist_unit.location
 
-        attacker = self.unit.combat_target
+        attacker = self.target if self.target else self.unit.combat_target
         if attacker:
             distance_from_caster = self.unit.location.distance(attacker.location)
             if distance_from_caster > 0.2:
