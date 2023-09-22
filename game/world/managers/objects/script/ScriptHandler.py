@@ -758,7 +758,8 @@ class ScriptHandler:
         elif motion_type == MotionTypes.RANDOM_MOTION_TYPE:
             if clear:
                 source.movement_manager.flush()
-            Logger.debug('ScriptHandler: handle_script_command_movement, WANDERING motion type not implemented yet')
+            Logger.warning('ScriptHandler: handle_script_command_movement, WANDERING motion type not implemented yet')
+            return command.should_abort()
         elif motion_type == MotionTypes.WAYPOINT_MOTION_TYPE:
             if clear:
                 source.movement_manager.flush()
@@ -766,7 +767,7 @@ class ScriptHandler:
                                         initial_delay=0, repeat=bool_param, overwrite_entry=0, overwrite_guid=0)
             command.source.movement_manager.move_automatic_waypoints_from_script(command_move_info=move_info)
         elif motion_type == MotionTypes.CONFUSED_MOTION_TYPE:
-            Logger.debug('ScriptHandler: handle_script_command_movement, CONFUSED motion type not implemented yet')
+            Logger.warning('ScriptHandler: handle_script_command_movement, CONFUSED motion type not implemented yet')
             return command.should_abort()
         elif motion_type == MotionTypes.CHASE_MOTION_TYPE:
             #  TODO: Check VMaNGOS, for now, just trigger combat through threat if source has no target.
@@ -781,10 +782,10 @@ class ScriptHandler:
         elif motion_type == MotionTypes.DISTRACT_MOTION_TYPE:
             source.movement_manager.move_distracted(command.datalong3)
         elif motion_type == MotionTypes.FOLLOW_MOTION_TYPE:
-            Logger.debug('ScriptHandler: handle_script_command_movement, FOLLOW motion type not implemented yet')
+            Logger.warning('ScriptHandler: handle_script_command_movement, FOLLOW motion type not implemented yet')
             return command.should_abort()
         elif motion_type == MotionTypes.CHARGE_MOTION_TYPE:
-            Logger.debug('ScriptHandler: handle_script_command_movement, CHARGE motion type not implemented yet')
+            Logger.warning('ScriptHandler: handle_script_command_movement, CHARGE motion type not implemented yet')
             return command.should_abort()
         else:
             return command.should_abort()
