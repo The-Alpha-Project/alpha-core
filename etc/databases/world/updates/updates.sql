@@ -1556,20 +1556,134 @@ begin not atomic
 
         insert into `applied_updates` values ('190920231');
     end if;
-
-    -- 22/09/2023 1
+    
+        -- 22/09/2023 1
     if (select count(*) from `applied_updates` where id='220920231') = 0 then
         DELETE FROM `quest_end_scripts` WHERE (`id` = '407');
         INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,4,0,20,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Start Waypoint Movement');
-INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,3,0,15,3287,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Cast Ghoul Form');
-INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,0,0,0,0,0,0,0,0,0,0,0,425,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Say Text 1');
-INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,6,0,0,0,0,0,0,0,0,0,0,428,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Say Text 2');
-INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,22,0,15,7,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Cast Suicide');
+        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,3,0,15,3287,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Cast Ghoul Form');
+        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,0,0,0,0,0,0,0,0,0,0,0,425,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Say Text 1');
+        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,6,0,0,0,0,0,0,0,0,0,0,428,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Say Text 2');
+        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,22,0,15,7,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Cast Suicide');
 
         -- Fix quest Leaders of the Fang given information from June 2004.
         UPDATE `quest_template` SET `PrevQuestId` = '0', `Title` = '<NYI> Leaders of the Fang', `Details` = 'The druids in the Wailing Caverns, the Druids of the Fang, are an aberration.  They were part of an order of noble druids whose plan was to heal the Barrens, but now seek to remake that land to match their own, twisted dreams.$B$BI have seen them in my dreams, and even now their faces haunt me. You must defeat them if the Barrens is ever to know peace.$B$BGo, $N.  You will find them lurking deep within the Wailing Caverns', `Objectives` = 'Kill Cobrahn, Anacondra, Pythas and Serpentis, then return to Nara Wildmane in Thunder Bluff.', `RequestItemsText` = 'Memories of my nightmares haunt me, $N.  Have you defeated the leaders of the fang?', `ReqCreatureOrGOId1` = '3669', `ReqCreatureOrGOId2` = '3670', `ReqCreatureOrGOId3` = '3671', `ReqCreatureOrGOId4` = '3673', `ReqCreatureOrGOCount1` = '1', `ReqCreatureOrGOCount2` = '1', `ReqCreatureOrGOCount3` = '1', `ReqCreatureOrGOCount4` = '1', `RewItemId1` = '1217', `RewItemCount1` = '1' WHERE (`entry` = '914');
 
         insert into `applied_updates` values ('220920231');
+    end if;
+    
+    -- 23/09/2023 1
+    if (select count(*) from `applied_updates` where id='230920231') = 0 then
+       
+        -- mistake on the last PR, good color for Sakrasis Scepter
+        UPDATE `item_template` SET `display_id` =  7203 WHERE `entry` = 5028;
+
+        -- mistake on last PR, good color for Fireproof Orb
+        UPDATE `item_template` SET `display_id` =  5566 WHERE `entry` = 4836 ;
+
+        -- mistake on the last PR good color for Skull of Impending Doom, Swampchill Fetish
+        UPDATE `item_template` SET `display_id` =  5565 WHERE `entry` IN (4984, 1992);
+
+        -- mistake on the last PR, good color for Antipodeon Rod
+        UPDATE `item_template` SET `display_id` = 6168 WHERE `entry`= 2879;
+
+        -- mistake on the last PR, good icons for Quiver
+        UPDATE `item_template` SET `display_id` =  1302 WHERE `entry` IN (3605, 2662, 3573);
+
+        -- Brain Hacker
+        UPDATE `item_template` SET `display_id` =  8505 WHERE `entry` = 1263;
+
+        -- Red Linen Bag
+        UPDATE `item_template` SET `display_id` =  981 WHERE `entry` = 5762;
+
+        -- Axe of the Deep Woods
+        UPDATE `item_template` SET `display_id` =  2805 WHERE `entry` = 811;
+
+        -- Glowing Brightwood Staff
+        UPDATE `item_template` SET `display_id` =  1469 WHERE `entry` = 812;
+
+        -- Pysan's Old Greatsword
+        UPDATE `item_template` SET `display_id` =  1638 WHERE `entry` = 1975;
+
+        -- Staff of the Shade
+        UPDATE `item_template` SET `display_id` =  5546 WHERE `entry` = 2549;
+
+        -- Monster - Item, Tankard Wooden
+        UPDATE `item_template` SET `display_id` =  6588 WHERE `entry` = 2703;
+
+        -- Monster - Item, Tankard Dirty
+        UPDATE `item_template` SET `display_id` =  6586 WHERE `entry` = 2704;
+
+       -- Monster - Item, Tankard Metal
+        UPDATE `item_template` SET `display_id` =  6587 WHERE `entry` = 2705;
+
+       -- Troll Dagger
+        UPDATE `item_template` SET `display_id` =  11282 WHERE `entry` = 2787;
+
+        -- Monster - Dynamite, Lit
+        UPDATE `item_template` SET `display_id` =  7435 WHERE `entry` =2884;
+
+        -- Monster - Dynamite, Unlit
+        UPDATE `item_template` SET `display_id` =  7436 WHERE `entry` = 3774;
+
+        -- Monster - Wand, Basic
+        UPDATE `item_template` SET `display_id` = 5806   WHERE `entry` = 6230;
+
+        -- Monster - Wand, Jeweled - Green
+        UPDATE `item_template` SET `display_id` = 10819   WHERE `entry` = 6231;
+
+        -- Baron's Sceptre
+        UPDATE `item_template` SET `display_id` = 1159   WHERE `entry` = 6323;
+
+        -- Spikelash Dagger
+        UPDATE `item_template` SET `display_id` = 11282  WHERE `entry` = 6333;
+
+        -- Spikelash Dagger
+        UPDATE `item_template` SET `display_id` = 1200 WHERE `entry` = 1282;
+
+        -- Skullsplitter Helm
+        UPDATE `item_template` SET `display_id` =  1130 WHERE `entry` = 1684;
+
+        -- Naga Battle Gloves
+        UPDATE `item_template` SET `display_id` =  3524 WHERE `entry` = 888;
+
+        insert into `applied_updates` values ('230920231');
+    end if;
+
+    -- 24/09/2023 1
+    if (select count(*) from `applied_updates` where id='240920231') = 0 then
+    
+        -- PH leather cloak
+        UPDATE `item_template` SET `display_id` =  6655 WHERE `entry` IN (4920, 5313);
+
+        -- Cowl of Necromancy
+        UPDATE `item_template` SET `display_id` =  3551 WHERE `entry` = 2621;
+
+        -- Craftsman's Monocle
+        UPDATE `item_template` SET `display_id` = 6493 WHERE `entry` = 4393;
+
+        -- Enduring Cap
+        UPDATE `item_template` SET `display_id` = 3167 WHERE `entry` = 3020;
+
+        -- Augural Shroud
+        UPDATE `item_template` SET `display_id` = 7892 WHERE `entry` = 2620;
+
+        -- Crochet Belt
+        UPDATE `item_template` SET `display_id` = 10091 WHERE `entry` = 3936;
+
+        -- Black Velvet Robes
+        UPDATE `item_template` SET `display_id` = 9897 WHERE `entry` = 2800;
+
+        -- Blackforge Cowl
+        UPDATE `item_template` SET `display_id` = 3761 WHERE `entry` = 4080;
+
+        -- Brigandine Helm
+        UPDATE `item_template` SET `display_id` = 1126 WHERE `entry` = 3894;
+
+        -- Cloaked Hood
+        UPDATE `item_template` SET `display_id` = 4369 WHERE `entry` = 1280;
+
+        insert into `applied_updates` values ('240920231');
     end if;
 
 end $
