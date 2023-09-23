@@ -123,7 +123,7 @@ class MovementManager:
             self.pause_ooc_timer = duration_seconds
             self.stop()
 
-    def move_distracted(self, duration_seconds, angle):
+    def move_distracted(self, duration_seconds, angle=0):
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
 
     def move_chase(self):
@@ -139,12 +139,13 @@ class MovementManager:
     def move_flight(self, waypoints):
         self.set_behavior(FlightMovement(waypoints, self.spline_callback))
 
-    def move_fear(self, duration_seconds, seek_assist=False):
+    def move_fear(self, duration_seconds, target=None, seek_assist=False):
         current_fear_behavior = self.movement_behaviors.get(MoveType.FEAR, None)
         # Do not allow shorter fear to override a current fear.
         if current_fear_behavior and current_fear_behavior.fear_duration > duration_seconds:
             return
-        self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback, seek_assist=seek_assist))
+        self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback,
+                                       target=target, seek_assist=seek_assist))
 
     def move_automatic_waypoints_from_script(self, command_move_info=None):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, command_move_info=command_move_info))
