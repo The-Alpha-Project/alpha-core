@@ -1640,7 +1640,7 @@ begin not atomic
     
         -- PH leather cloak
         UPDATE `item_template` SET `display_id` =  6655 WHERE `entry` IN (4920, 5313);
-        
+
         -- Cowl of Necromancy
         UPDATE `item_template` SET `display_id` =  3551 WHERE `entry` = 2621;
 
@@ -1664,6 +1664,9 @@ begin not atomic
 
         -- Brigandine Helm
         UPDATE `item_template` SET `display_id` = 1126 WHERE `entry` = 3894;
+
+        -- Cloaked Hood
+        UPDATE `item_template` SET `display_id` = 4369 WHERE `entry` = 1280;
 
         insert into `applied_updates` values ('240920231');
     end if;
