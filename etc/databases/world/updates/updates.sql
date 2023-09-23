@@ -1635,5 +1635,41 @@ begin not atomic
         insert into `applied_updates` values ('230920231');
     end if;
 
+    -- 24/09/2023 1
+    if (select count(*) from `applied_updates` where id='240920231') = 0 then
+    
+        -- PH leather cloak
+        UPDATE `item_template` SET `display_id` =  6655 WHERE `entry` IN (4920, 5313);
+
+        -- Copper Chain Boots
+        UPDATE `item_template` SET `display_id` =  4846 WHERE `entry` = 3469;
+
+        -- Cowl of Necromancy
+        UPDATE `item_template` SET `display_id` =  3551 WHERE `entry` = 2621;
+
+        -- Craftsman's Monocle
+        UPDATE `item_template` SET `display_id` = 6493 WHERE `entry` = 4393;
+
+        -- Enduring Cap
+        UPDATE `item_template` SET `display_id` = 3167 WHERE `entry` = 3020;
+
+        -- Augural Shroud
+        UPDATE `item_template` SET `display_id` = 7892 WHERE `entry` = 2620;
+
+        -- Crochet Belt
+        UPDATE `item_template` SET `display_id` = 10091 WHERE `entry` = 3936;
+
+        -- Black Velvet Robes
+        UPDATE `item_template` SET `display_id` = 9897 WHERE `entry` = 2800;
+
+        -- Blackforge Cowl
+        UPDATE `item_template` SET `display_id` = 3761 WHERE `entry` = 4080;
+
+        -- Brigandine Helm
+        UPDATE `item_template` SET `display_id` = 1126 WHERE `entry` = 3894;
+
+        insert into `applied_updates` values ('240920231');
+    end if;
+
 end $
 delimiter ;
