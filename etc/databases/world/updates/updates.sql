@@ -1640,10 +1640,7 @@ begin not atomic
     
         -- PH leather cloak
         UPDATE `item_template` SET `display_id` =  6655 WHERE `entry` IN (4920, 5313);
-
-        -- Copper Chain Boots
-        UPDATE `item_template` SET `display_id` =  4846 WHERE `entry` = 3469;
-
+        
         -- Cowl of Necromancy
         UPDATE `item_template` SET `display_id` =  3551 WHERE `entry` = 2621;
 
