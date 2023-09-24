@@ -746,7 +746,7 @@ class UnitManager(ObjectManager):
 
         if spell_effect.is_periodic():
             # For periodic effects, add bonuses to the total damage, divide back into ticks and floor.
-            effect_ticks = int(spell.get_duration() / spell_effect.aura_period)
+            effect_ticks = max(1, int(spell.get_duration() / spell_effect.aura_period))
             total_base_damage = base_damage * effect_ticks
             total_damage = self.stat_manager.apply_bonuses_for_damage(total_base_damage, spell_school,
                                                                       target, subclass)
