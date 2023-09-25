@@ -1753,7 +1753,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 8852 WHERE `entry` = 2110;
 
         -- Tribal Headdress
-        UPDATE `item_template` SET `display_id` = 4256 WHERE `entry` = 2622;
+        UPDATE `item_template` SET `display_id` = 11275 WHERE `entry` = 2622;
 
         -- Snowy Robe
         UPDATE `item_template` SET `display_id` = 10468 WHERE `entry` = 2114;
