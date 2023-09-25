@@ -1765,7 +1765,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 4590 WHERE `entry` = 3985;
 
         -- Well-stitched Robe
-        UPDATE `item_template` SET `display_id` = 8846 WHERE `entry` = 1171;
+        UPDATE `item_template` SET `display_id` = 8849 WHERE `entry` = 1171;
 
         -- Hooded Cowl
         UPDATE `item_template` SET `display_id` = 4084 WHERE `entry` = 3732;
@@ -1777,7 +1777,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 5483 WHERE `entry` = 2231;
 
         -- Darkweave Cowl
-        UPDATE `item_template` SET `display_id` = 3688 WHERE `entry` = 4039;
+        UPDATE `item_template` SET `display_id` = 4369 WHERE `entry` = 4039;
 
         -- Brightweave Cowl
         UPDATE `item_template` SET `display_id` = 4372 WHERE `entry` = 4041;
@@ -1807,7 +1807,10 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 5164 WHERE `entry` = 4987;
 
         -- Tranquil Orb
-        UPDATE `item_template` SET `display_id` = 5164 WHERE `entry` = 4125;
+        UPDATE `item_template` SET `display_id` = 5566 WHERE `entry` = 4125;
+
+        -- Fireproof Orb
+        UPDATE `item_template` SET `display_id` = 5927  WHERE `entry` = 4836;
 
         insert into `applied_updates` values ('250920231');
     end if;
