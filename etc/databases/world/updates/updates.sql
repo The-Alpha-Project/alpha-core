@@ -1692,9 +1692,6 @@ begin not atomic
         -- PH cloak inv_robe_2 (cloth)
         UPDATE `item_template` SET `display_id` = 936 WHERE `entry` IN (4113, 3947, 3449, 4003, 3811, 2305);
 
-        -- Smoldering Robe
-        UPDATE `item_template` SET `display_id` = 10810 WHERE `entry` = 3072;
-
         -- Padded Belt
         UPDATE `item_template` SET `display_id` = 10103 WHERE `entry` = 3591;
 
