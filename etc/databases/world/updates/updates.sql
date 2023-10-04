@@ -1686,5 +1686,131 @@ begin not atomic
         insert into `applied_updates` values ('240920231');
     end if;
 
+    -- 25/09/2023 1
+    if (select count(*) from `applied_updates` where id='250920231') = 0 then
+
+        -- PH cloak inv_robe_2 (cloth)
+        UPDATE `item_template` SET `display_id` = 936 WHERE `entry` IN (4113, 3947, 3449, 4003, 3811, 2305);
+
+        -- Padded Belt
+        UPDATE `item_template` SET `display_id` = 10103 WHERE `entry` = 3591;
+
+        -- Flying Tiger Goggles
+        UPDATE `item_template` SET `display_id` = 4759 WHERE `entry` = 4368;
+
+        -- Silk Wizard Hat
+        UPDATE `item_template` SET `display_id` = 11641 WHERE `entry` = 3345;
+
+        -- Shadow Goggles
+        UPDATE `item_template` SET `display_id` = 11644 WHERE `entry` = 4373;
+
+        -- Green Woolen Vest
+        UPDATE `item_template` SET `display_id` = 10849 WHERE `entry` = 2582;
+
+        -- Harvester's Robe
+        UPDATE `item_template` SET `display_id` = 10895 WHERE `entry` = 1561;
+
+        -- Gray Woolen Robe
+        UPDATE `item_template` SET `display_id` = 10896 WHERE `entry` = 2585;
+
+        -- Gemmed Gloves
+        UPDATE `item_template` SET `display_id` = 3851 WHERE `entry` = 4121;
+
+        -- Mistscape Robe
+        UPDATE `item_template` SET `display_id` = 4453 WHERE `entry` = 6427;
+
+        -- Mistscape Wizard Hat
+        UPDATE `item_template` SET `display_id` = 11642 WHERE `entry` = 6429;
+
+        -- Green Tinted Goggles
+        UPDATE `item_template` SET `display_id` = 11663 WHERE `entry` = 4385;
+
+        -- Junglewalker Sandals
+        UPDATE `item_template` SET `display_id` = 6909 WHERE `entry` = 4139;
+
+        -- Russet Hat
+        UPDATE `item_template` SET `display_id` = 3960 WHERE `entry` = 3889;
+
+        -- Brocade Belt
+        UPDATE `item_template` SET `display_id` = 9931 WHERE `entry` = 3378;
+
+        -- Brocade Bracers
+        UPDATE `item_template` SET `display_id` = 9647 WHERE `entry` = 3379;
+
+        -- Chromatic Robe
+        UPDATE `item_template` SET `display_id` = 10462 WHERE `entry` = 2615;
+
+        -- Shimmering Silk Robes
+        UPDATE `item_template` SET `display_id` = 10463 WHERE `entry` = 2616;
+
+        -- Burning Robes
+        UPDATE `item_template` SET `display_id` = 10467 WHERE `entry` = 2617;
+
+        -- Light Magesmith Robe
+        UPDATE `item_template` SET `display_id` = 8852 WHERE `entry` = 2110;
+
+        -- Tribal Headdress
+        UPDATE `item_template` SET `display_id` = 11275 WHERE `entry` = 2622;
+
+        -- Snowy Robe
+        UPDATE `item_template` SET `display_id` = 10468 WHERE `entry` = 2114;
+
+        -- Red Linen Vest
+        UPDATE `item_template` SET `display_id` = 10860 WHERE `entry` = 6239;
+
+        -- Monogrammed Sash
+        UPDATE `item_template` SET `display_id` = 4590 WHERE `entry` = 3985;
+
+        -- Well-stitched Robe
+        UPDATE `item_template` SET `display_id` = 8849 WHERE `entry` = 1171;
+
+        -- Hooded Cowl
+        UPDATE `item_template` SET `display_id` = 4084 WHERE `entry` = 3732;
+
+        -- Holy Shroud
+        UPDATE `item_template` SET `display_id` = 4372 WHERE `entry` = 2721;
+
+        -- Inferno Robe
+        UPDATE `item_template` SET `display_id` = 5483 WHERE `entry` = 2231;
+
+        -- Darkweave Cowl
+        UPDATE `item_template` SET `display_id` = 4369 WHERE `entry` = 4039;
+
+        -- Brightweave Cowl
+        UPDATE `item_template` SET `display_id` = 4372 WHERE `entry` = 4041;
+
+        -- Noble's Robe
+        UPDATE `item_template` SET `display_id` = 9446 WHERE `entry` = 3019;
+
+        -- Pressed Felt Robe
+        UPDATE `item_template` SET `display_id` = 10469 WHERE `entry` = 1997;
+
+        -- Phoenix Pants
+        UPDATE `item_template` SET `display_id` = 4619 WHERE `entry` = 4317;
+
+        -- Azure Silk Gloves
+        UPDATE `item_template` SET `display_id` = 11546 WHERE `entry` = 4319;
+
+        -- Enchanter's Cowl
+        UPDATE `item_template` SET `display_id` = 8415 WHERE `entry` = 4322;
+
+        -- Shadow Hood
+        UPDATE `item_template` SET `display_id` = 3171 WHERE `entry` = 4323;
+
+        -- Centaur Longbow
+        UPDATE `item_template` SET `display_id` = 8107 WHERE `entry` = 5748;
+
+        -- Dwarf Captain's Sword
+        UPDATE `item_template` SET `display_id` = 5164 WHERE `entry` = 4987;
+
+        -- Tranquil Orb
+        UPDATE `item_template` SET `display_id` = 5566 WHERE `entry` = 4125;
+
+        -- Fireproof Orb
+        UPDATE `item_template` SET `display_id` = 5927  WHERE `entry` = 4836;
+
+        insert into `applied_updates` values ('250920231');
+    end if;
+
 end $
 delimiter ;
