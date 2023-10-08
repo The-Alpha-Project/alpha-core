@@ -1,7 +1,8 @@
-FROM python:3.11-alpine
+FROM python:3.12-alpine
 
 WORKDIR /var/wow
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 ENTRYPOINT ["python3", "main.py", "-l", "realm"]
+
