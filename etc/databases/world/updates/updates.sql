@@ -1812,5 +1812,34 @@ begin not atomic
         insert into `applied_updates` values ('250920231');
     end if;
 
+    -- 08/10/2023 1
+    if (select count(*) from `applied_updates` where id='081020231') = 0 then
+
+        UPDATE `item_template` SET `display_id` = 8124 WHERE (`entry` = 5856);
+        UPDATE `item_template` SET `display_id` = 1733 WHERE (`entry` = 5870);
+        UPDATE `item_template` SET `display_id` = 3082 WHERE (`entry` = 1717);
+        UPDATE `item_template` SET `display_id` = 4145 WHERE (`entry` = 1624);
+        UPDATE `item_template` SET `display_id` = 1817 WHERE (`entry` = 1770);
+        UPDATE `item_template` SET `display_id` = 4374 WHERE (`entry` = 1775);
+        UPDATE `item_template` SET `display_id` = 2299 WHERE (`entry` = 1776);
+        UPDATE `item_template` SET `display_id` = 2472 WHERE (`entry` = 1778);
+        UPDATE `item_template` SET `display_id` = 3052 WHERE (`entry` = 1783);
+        UPDATE `item_template` SET `display_id` = 2629 WHERE (`entry` = 1784);
+        UPDATE `item_template` SET `display_id` = 2564 WHERE (`entry` = 1794);
+        UPDATE `item_template` SET `display_id` = 1819 WHERE (`entry` = 2314);
+        UPDATE `item_template` SET `display_id` = 3946 WHERE (`entry` = 2034);
+        UPDATE `item_template` SET `display_id` = 2358 WHERE (`entry` = 2145);
+        UPDATE `item_template` SET `display_id` = 691 WHERE (`entry` = 2146);
+        UPDATE `item_template` SET `display_id` = 2645 WHERE (`entry` = 2160);
+        UPDATE `item_template` SET `display_id` = 2361 WHERE (`entry` = 2167);
+        UPDATE `item_template` SET `display_id` = 10861 WHERE (`entry` = 2579);
+        UPDATE `item_template` SET `display_id` = 10720 WHERE (`entry` = 2618);
+        UPDATE `item_template` SET `display_id` = 4331 WHERE (`entry` = 2867);
+        UPDATE `item_template` SET `display_id` = 7968 WHERE (`entry` = 2870);
+        UPDATE `item_template` SET `display_id` = 3039 WHERE (`entry` = 3000);
+        UPDATE `item_template` SET `display_id` = 3589 WHERE (`entry` = 3392);
+        
+        insert into `applied_updates` values ('081020231');
+    end if;
 end $
 delimiter ;
