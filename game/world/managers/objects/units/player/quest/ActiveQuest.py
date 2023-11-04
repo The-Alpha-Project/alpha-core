@@ -332,17 +332,18 @@ class ActiveQuest:
         req_creature_or_go_count = QuestHelpers.generate_req_creature_or_go_count_list(self.quest)
         offset = 0
         for index, creature_or_go in enumerate(req_creature_or_go):
-            if req_creature_or_go[index] != 0:
-                current_count = eval(f'self.db_state.mobcount{index + 1}')
-                required = req_creature_or_go_count[index]
-                # Consider how many bits the previous creature required.
-                offset += req_creature_or_go_count[index - 1] if index > 0 else 0
+            if req_creature_or_go[index] == 0:
+                continue
+            current_count = eval(f'self.db_state.mobcount{index + 1}')
+            required = req_creature_or_go_count[index]
+            # Consider how many bits the previous creature required.
+            offset += req_creature_or_go_count[index - 1] if index > 0 else 0
 
-                for i in range(required):
-                    if i < current_count:  # Turn on actual kills
-                        total_count += (1 & 1) << (1 * i) + offset
-                    else:  # Fill remaining 0s (Missing kills)
-                        total_count += 0 << (1 * i) + offset
+            for i in range(required):
+                if i < current_count:  # Turn on actual kills
+                    total_count += (1 & 1) << (1 * i) + offset
+                else:  # Fill remaining 0s (Missing kills)
+                    total_count += 0 << (1 * i) + offset
 
         # Handle exploration / event. (Read 'Extras')
         if QuestHelpers.is_exploration_or_event(self.quest) and self.db_state.explored:
