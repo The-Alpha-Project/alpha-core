@@ -265,7 +265,7 @@ class MapManager:
         return heights[0], False
 
     @staticmethod
-    def los_check(map_id, src_loc, dst_loc):
+    def los_check(map_id, src_loc, dst_loc, doodads=False):
         # No nav tiles or unable to load Namigator, can't check LoS.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
             return True
@@ -289,7 +289,7 @@ class MapManager:
         if MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y) != MapTileStates.READY:
             return True
 
-        return namigator.line_of_sight(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z)
+        return namigator.line_of_sight(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z, doodads)
 
     @staticmethod
     def can_reach_object(src_object, dst_object):

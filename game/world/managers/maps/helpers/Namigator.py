@@ -7,7 +7,7 @@ class Namigator:
     def query_z(self, x, y, z, stop_x, stop_y):
         pass
 
-    def line_of_sight(self, start_x, start_y, start_z, end_x, end_y, end_z):
+    def line_of_sight(self, start_x, start_y, start_z, end_x, end_y, end_z, doodads):
         pass
 
     def find_path(self, start_x, start_y, start_z, end_x, end_y, end_z):
