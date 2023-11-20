@@ -6,7 +6,6 @@
 
 # Project files
 etc/config/config.yml
-etc/navs
 etc/logs
 
 # virtualenv folder

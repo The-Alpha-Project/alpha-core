@@ -1,3 +1,5 @@
+from multiprocessing import RLock
+
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import *
 from database.world.WorldDatabaseManager import *
@@ -16,87 +18,91 @@ from utils.constants.UnitCodes import Classes
 
 
 class CharCreateHandler(object):
+    LOCK = RLock()
 
     @staticmethod
     def handle(world_session, reader):
-        name = PacketReader.read_string(reader.data, 0)
-        if not config.Server.Settings.blizzlike_names:
-            name = name.capitalize()
+        with CharCreateHandler.LOCK:
+            name = PacketReader.read_string(reader.data, 0)
+            if not config.Server.Settings.blizzlike_names:
+                name = name.capitalize()
 
-        race, class_, gender, skin, face, hairstyle, haircolor, facialhair, outfit_id = unpack(
-            '<9B', reader.data[len(name)+1:]
-        )
-        race_mask = 1 << (race - 1)
-        class_mask = 1 << (class_ - 1)
-
-        result = CharCreate.CHAR_CREATE_SUCCESS
-
-        # Disabled race & class checks (only if not a GM).
-        if world_session.account_mgr.is_player():
-            disabled_race_mask = config.Server.General.disabled_race_mask
-            disabled = disabled_race_mask & race_mask == race_mask
-
-            if not disabled:
-                disabled_class_mask = config.Server.General.disabled_class_mask
-                disabled = disabled_class_mask & class_mask == class_mask
-
-            if disabled:
-                result = CharCreate.CHAR_CREATE_DISABLED
-
-        if RealmDatabaseManager.character_does_name_exist(name):
-            result = CharCreate.CHAR_CREATE_NAME_IN_USE
-
-        if not TextUtils.TextChecker.valid_text(name, is_name=True):
-            result = CharCreate.CHAR_CREATE_ERROR
-
-        if result == CharCreate.CHAR_CREATE_SUCCESS:
-            map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(race, class_)
-            level = config.Unit.Player.Defaults.starting_level
-            base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(class_, level)
-            character = Character(account_id=world_session.account_mgr.account.id,
-                                  realm_id=config.Server.Connection.Realm.local_realm_id,
-                                  name=name,
-                                  race=race,
-                                  class_=class_,
-                                  gender=gender,
-                                  skin=skin,
-                                  face=face,
-                                  hairstyle=hairstyle,
-                                  haircolour=haircolor,
-                                  facialhair=facialhair,
-                                  map=map_,
-                                  zone=zone,
-                                  position_x=x,
-                                  position_y=y,
-                                  position_z=z,
-                                  orientation=o,
-                                  health=base_stats.basehp,
-                                  power1=base_stats.basemana,
-                                  power2=0,
-                                  power3=0,
-                                  power4=100 if class_ == Classes.CLASS_ROGUE else 0,
-                                  level=config.Unit.Player.Defaults.starting_level)
-            RealmDatabaseManager.character_create(character)
-            CharCreateHandler.generate_starting_reputations(character.guid)
-            CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
-            CharCreateHandler.generate_starting_spells_skills(character.guid, race, class_, character.level)
-            CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
-            CharCreateHandler.generate_starting_buttons(character.guid, race, class_)
-            CharCreateHandler.generate_starting_taxi_nodes(character, race)
-            CharCreateHandler.generate_initial_taxi_path(character)
-            default_deathbind = CharacterDeathbind(
-                player_guid=character.guid,
-                creature_binder_guid=0,
-                deathbind_map=map_,
-                deathbind_zone=zone,
-                deathbind_position_x=x,
-                deathbind_position_y=y,
-                deathbind_position_z=z
+            race, class_, gender, skin, face, hairstyle, haircolor, facialhair, outfit_id = unpack(
+                '<9B', reader.data[len(name)+1:]
             )
-            RealmDatabaseManager.character_add_deathbind(default_deathbind)
+            race_mask = 1 << (race - 1)
+            class_mask = 1 << (class_ - 1)
 
-        data = pack('<B', result)
-        world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE, data))
+            result = CharCreate.CHAR_CREATE_SUCCESS
+
+            # Disabled race & class checks (only if not a GM).
+            if world_session.account_mgr.is_player():
+                disabled_race_mask = config.Server.General.disabled_race_mask
+                disabled = disabled_race_mask & race_mask == race_mask
+
+                if not disabled:
+                    disabled_class_mask = config.Server.General.disabled_class_mask
+                    disabled = disabled_class_mask & class_mask == class_mask
+
+                if disabled:
+                    result = CharCreate.CHAR_CREATE_DISABLED
+
+            if RealmDatabaseManager.character_does_name_exist(name):
+                result = CharCreate.CHAR_CREATE_NAME_IN_USE
+            # Validate max allowed characters, client is unable to properly do it when flooded.
+            elif len(RealmDatabaseManager.account_get_characters(world_session.account_mgr.account.id)) >= 10:
+                result = CharCreate.CHAR_CREATE_FAILED
+            elif not TextUtils.TextChecker.valid_text(name, is_name=True):
+                result = CharCreate.CHAR_CREATE_ERROR
+
+            if result == CharCreate.CHAR_CREATE_SUCCESS:
+                map_, zone, x, y, z, o = CharCreateHandler.get_starting_location(race, class_)
+                level = config.Unit.Player.Defaults.starting_level
+                base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(class_, level)
+                character = Character(account_id=world_session.account_mgr.account.id,
+                                      realm_id=config.Server.Connection.Realm.local_realm_id,
+                                      name=name,
+                                      race=race,
+                                      class_=class_,
+                                      gender=gender,
+                                      skin=skin,
+                                      face=face,
+                                      hairstyle=hairstyle,
+                                      haircolour=haircolor,
+                                      facialhair=facialhair,
+                                      map=map_,
+                                      zone=zone,
+                                      position_x=x,
+                                      position_y=y,
+                                      position_z=z,
+                                      orientation=o,
+                                      health=base_stats.basehp,
+                                      power1=base_stats.basemana,
+                                      power2=0,
+                                      power3=0,
+                                      power4=100 if class_ == Classes.CLASS_ROGUE else 0,
+                                      level=config.Unit.Player.Defaults.starting_level)
+                RealmDatabaseManager.character_create(character)
+                CharCreateHandler.generate_starting_reputations(character.guid)
+                CharCreateHandler.generate_starting_spells(character.guid, race, class_, character.level)
+                CharCreateHandler.generate_starting_spells_skills(character.guid, race, class_, character.level)
+                CharCreateHandler.generate_starting_items(character.guid, race, class_, gender)
+                CharCreateHandler.generate_starting_buttons(character.guid, race, class_)
+                CharCreateHandler.generate_starting_taxi_nodes(character, race)
+                CharCreateHandler.generate_initial_taxi_path(character)
+                default_deathbind = CharacterDeathbind(
+                    player_guid=character.guid,
+                    creature_binder_guid=0,
+                    deathbind_map=map_,
+                    deathbind_zone=zone,
+                    deathbind_position_x=x,
+                    deathbind_position_y=y,
+                    deathbind_position_z=z
+                )
+                RealmDatabaseManager.character_add_deathbind(default_deathbind)
+
+            data = pack('<B', result)
+            world_session.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CHAR_CREATE, data))
 
         return 0
 
