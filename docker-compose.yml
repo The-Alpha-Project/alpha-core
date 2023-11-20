@@ -6,7 +6,7 @@ x-alpha-core-shared-conf: &alpha-core-shared-conf
     - MYSQL_HOST=sql
     - MYSQL_USERNAME=root
     - MYSQL_PASSWORD=pwd
-    - CONSOLE_MODE=False
+    - CONSOLE_MODE=True
     - FORWARD_ADDRESS_OVERRIDE=127.0.0.1
   volumes:
     - .:/var/wow/
@@ -22,6 +22,7 @@ services:
       context: .
       dockerfile: etc/docker/main/Dockerfile
     ports:
+      - "3443:5000"
       - "8100:8100"
       - "9090:9090"
       - "9100:9100"

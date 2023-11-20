@@ -21,7 +21,6 @@ from utils.constants.UpdateFields import PlayerFields
 
 import platform
 
-
 # noinspection SpellCheckingInspection,PyUnusedLocal
 class CommandManager(object):
 
@@ -69,6 +68,8 @@ class CommandManager(object):
                 return unit
 
         return world_session.player_mgr
+
+
 
     @staticmethod
     def help(world_session, args):

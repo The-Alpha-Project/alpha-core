@@ -70,7 +70,8 @@ class RealmManager:
         sck.sendall(packet)
 
     @staticmethod
-    def start_realm():
+    def start_realm(parent_conn):
+        Logger.set_parent_conn(parent_conn)
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
         server_socket = RealmManager.build_socket(local_realm.realm_address, local_realm.realm_port)
         server_socket.listen()
@@ -95,7 +96,8 @@ class RealmManager:
         Logger.info("Login server turned off.")
 
     @staticmethod
-    def start_proxy():
+    def start_proxy(parent_conn):
+        Logger.set_parent_conn(parent_conn)
         local_realm = REALMLIST[config.Server.Connection.Realm.local_realm_id]
         server_socket = RealmManager.build_socket(local_realm.proxy_address, local_realm.proxy_port)
         server_socket.listen()

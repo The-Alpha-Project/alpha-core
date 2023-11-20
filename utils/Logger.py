@@ -27,8 +27,22 @@ class DebugLevel(IntEnum):
 
 
 class Logger:
+    parent_conn = None
+
     # Initialize colorama.
     init()
+
+    @staticmethod
+    def set_parent_conn(parent_conn):
+        Logger.parent_conn = parent_conn
+
+    def send_to_telnet(func):
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            if Logger.parent_conn:
+                Logger.parent_conn.send(*args)
+            return result
+        return wrapper
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
@@ -39,31 +53,37 @@ class Logger:
         date = datetime.now().strftime('[%d/%m/%Y %H:%M:%S]')
         return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
 
+    @send_to_telnet
     @staticmethod
     def debug(msg):
         if Logger._should_log(DebugLevel.DEBUG):
             print(Logger._colorize_message('[DEBUG]', DebugColorLevel.DEBUG, msg))
 
+    @send_to_telnet
     @staticmethod
     def warning(msg):
         if Logger._should_log(DebugLevel.WARNING):
             print(Logger._colorize_message('[WARNING]', DebugColorLevel.WARNING, msg))
 
+    @send_to_telnet
     @staticmethod
     def error(msg):
         if Logger._should_log(DebugLevel.ERROR):
             print(Logger._colorize_message('[ERROR]', DebugColorLevel.ERROR, msg))
 
+    @send_to_telnet
     @staticmethod
     def info(msg, end='\n'):
         if Logger._should_log(DebugLevel.INFO):
             print(Logger._colorize_message('[INFO]', DebugColorLevel.INFO, msg), end=end)
 
+    @send_to_telnet
     @staticmethod
     def success(msg):
         if Logger._should_log(DebugLevel.SUCCESS):
             print(Logger._colorize_message('[SUCCESS]', DebugColorLevel.SUCCESS, msg))
-
+           
+    @send_to_telnet
     @staticmethod
     def anticheat(msg):
         if Logger._should_log(DebugLevel.ANTICHEAT):

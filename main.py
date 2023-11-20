@@ -12,9 +12,11 @@ from tools.map_extractor.MapExtractor import MapExtractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
+from utils.TelnetManager import TelnetManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
+from game.world.managers.CommandManager import CommandManager
 
 # Initialize argument parser.
 parser = argparse.ArgumentParser()
@@ -46,6 +48,11 @@ def release_process(process):
 
 
 if __name__ == '__main__':
+    parent_conn1, telnet_conn = multiprocessing.Pipe()
+    parent_conn2, world_conn = multiprocessing.Pipe()
+    parent_conn3, realm_conn = multiprocessing.Pipe()
+    parent_conn4, proxy_conn = multiprocessing.Pipe()
+
     # Initialize path.
     PathManager.set_root_path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -94,12 +101,16 @@ if __name__ == '__main__':
     login_process = None
     proxy_process = None
     world_process = None
+    telnet_process = None
 
+    telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
+    telnet_process.start()
+    
     if launch_realm:
-        login_process = context.Process(target=RealmManager.start_realm)
+        login_process = context.Process(target=RealmManager.start_realm, args=(realm_conn,))
         login_process.start()
 
-        proxy_process = context.Process(target=RealmManager.start_proxy)
+        proxy_process = context.Process(target=RealmManager.start_proxy, args=(proxy_conn,))
         proxy_process.start()
 
         if not launch_world:
@@ -107,42 +118,38 @@ if __name__ == '__main__':
                 login_process.join()
             except:
                 Logger.info('Terminating login processes...')
-
+    
     if launch_world:
-        world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
+        world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start,args=(world_conn,))
         world_process.start()
 
-        # noinspection PyBroadException
-        try:
-            if os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
-                         config.Server.Settings.console_mode) in [True, 'True', 'true']:
-                while input() != 'exit':
-                    Logger.error('Invalid command.')
-            else:
+        if not launch_realm:
+            try:
                 world_process.join()
-        except:
-            Logger.info('Shutting down the core...')
+            except:
+                Logger.info('Shutting down the core...')
 
         ChatLogManager.exit()
 
+    processes = [telnet_process, login_process, world_process]
+        
+    while any(process.is_alive() for process in processes):
+        if parent_conn2.poll():
+            message = parent_conn2.recv()
+            parent_conn1.send(message)
+            # print(f"Received message from child: {message}")
+
     # Send SIGTERM to processes.
-    # Add checks to send SIGTERM to only running process
-    if launch_world:
-        world_process.terminate()
-        Logger.info('World process terminated.')
-    if launch_realm:
-        login_process.terminate()
-        Logger.info('Login process terminated.')
-        proxy_process.terminate()
-        Logger.info('Proxy process terminated.')
+    for process in processes:
+        if process and process.is_alive():
+            process.terminate()
+            Logger.info(f'{process.name} process terminated.')
 
     # Release process resources.
     Logger.info('Waiting to release resources...')
 
-    if launch_world:
-        release_process(world_process)
-    if launch_realm:
-        release_process(proxy_process)
-        release_process(login_process)
+    for process in processes:
+        if process:
+            release_process(process)
 
     Logger.success('Core gracefully shut down.')

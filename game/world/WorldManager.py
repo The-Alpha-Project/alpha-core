@@ -285,7 +285,8 @@ class WorldServerSessionHandler:
             logging_thread.start()
 
     @staticmethod
-    def start():
+    def start(parent_conn):
+        Logger.set_parent_conn(parent_conn)
         WorldLoader.load_data()
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -301,7 +302,6 @@ class WorldServerSessionHandler:
 
         real_binding = server_socket.getsockname()
         Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
-
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
             # noinspection PyBroadException
             try:
