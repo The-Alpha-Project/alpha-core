@@ -17,6 +17,10 @@ Server:
         Realm:
             local_realm_id: 1  # id of the realm running on this machine (realmlist table)
 
+        Telnet:
+            host: 127.0.0.1
+            port: 3443
+
         WorldServer:
             # You can use the FORWARD_ADDRESS_OVERRIDE environment variable to define a different forward IP address
             # (the one that will be served to external players) than the bind one.
@@ -74,6 +78,13 @@ Server:
         enable_addons_chat_api: False  # CUSTOM: Allow addons to use the chat system for data requests.
         disabled_race_mask: 0  # Blizzlike 0.5.3: 239
         disabled_class_mask: 0  # Blizzlike 0.5.3: 1102
+
+
+Telnet:
+    Defaults:
+        username: admin
+        password: admin
+        enabled: True
 
 World:
     Gameplay:

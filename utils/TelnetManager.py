@@ -9,7 +9,7 @@ class TelnetManager:
     connections = []
 
     @staticmethod
-    def start_telnet(conn, host='0.0.0.0', port=5000):
+    def start_telnet(conn, host='0.0.0.0', port=3443):
         Logger.set_parent_conn(conn)
 
         # Telnet server setup

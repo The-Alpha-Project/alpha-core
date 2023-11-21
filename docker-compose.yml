@@ -22,7 +22,7 @@ services:
       context: .
       dockerfile: etc/docker/main/Dockerfile
     ports:
-      - "3443:5000"
+      - "3443:3443"
       - "8100:8100"
       - "9090:9090"
       - "9100:9100"
