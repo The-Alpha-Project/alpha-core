@@ -103,8 +103,9 @@ if __name__ == '__main__':
     world_process = None
     telnet_process = None
 
-    telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
-    telnet_process.start()
+    if config.Telnet.Defaults.enabled:
+        telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
+        telnet_process.start()
     
     if launch_realm:
         login_process = context.Process(target=RealmManager.start_realm, args=(realm_conn,))
@@ -133,11 +134,12 @@ if __name__ == '__main__':
 
     processes = [telnet_process, login_process, world_process]
         
-    while any(process.is_alive() for process in processes):
-        if parent_conn2.poll():
-            message = parent_conn2.recv()
-            parent_conn1.send(message)
-            # print(f"Received message from child: {message}")
+    if config.Telnet.Defaults.enabled:
+        while any(process.is_alive() for process in processes):
+            if parent_conn2.poll():
+                message = parent_conn2.recv()
+                parent_conn1.send(message)
+                # print(f"Received message from child: {message}")
 
     # Send SIGTERM to processes.
     for process in processes:

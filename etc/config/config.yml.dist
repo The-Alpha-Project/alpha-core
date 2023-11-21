@@ -82,9 +82,12 @@ Server:
 
 Telnet:
     Defaults:
+        welcome: Welcome to the Telnet server
         username: admin
         password: admin
-        enabled: True
+        enabled: False
+        timeout: 0.1
+        listen: 5
 
 World:
     Gameplay:
