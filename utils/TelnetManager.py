@@ -4,6 +4,7 @@ import multiprocessing
 import telnetlib
 from utils.ConfigManager import config
 from utils.Logger import Logger
+import time
 
 
 class TelnetManager:
@@ -15,9 +16,10 @@ class TelnetManager:
 
     @staticmethod
     def start_telnet(conn):
-        Logger.set_parent_conn(conn)
+        # Logger.set_parent_conn(conn)
 
         # Telnet server setup
+
         server = telnetlib.Telnet()
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind((config.Server.Connection.Telnet.host, config.Server.Connection.Telnet.port))
@@ -25,7 +27,7 @@ class TelnetManager:
         server.settimeout(config.Telnet.Defaults.timeout)
 
         Logger.success(f'Telnet server started, listening on {config.Server.Connection.Telnet.host}:{config.Server.Connection.Telnet.port}')
-
+        
         while True:
             readable, addr, exceptional = select.select([server] + TelnetManager.connections, [], [])
 
@@ -38,20 +40,22 @@ class TelnetManager:
                     connection.setblocking(False)
 
                     TelnetManager.send(connection, config.Telnet.Defaults.welcome + "\n\n") 
+                    
+                    # connection.send(b"User: ")
+                    # username = connection.recv(1024).strip().decode('utf-8')
 
-                    """connection.send(b"User: ")
-                    username = connection.recv(1024).strip().decode('utf-8')
+                    # connection.send(b"Password: ")
+                    # password = connection.recv(1024).strip().decode('utf-8')
 
-                    connection.send(b"Password: ")
-                    password = connection.recv(1024).strip().decode('utf-8')
-
-                    if username == config.Telnet.Defaults.user and password == config.Telnet.Defaults.password:
-                        TelnetManager.connections.append(connection)
-                        Logger.success(f'Telnet: connection from {addr} \n')
-                    else:
-                        Logger.success(f'Telnet: Authentication failed for user {username}')
+                    # if username == config.Telnet.Defaults.user and password == config.Telnet.Defaults.password:
+                    TelnetManager.connections.append(connection)
+                    Logger.success(f'Telnet: connection from {addr} \n')
+                    # else:
+                      #  Logger.success(f'Telnet: Authentication failed for user {username}')
                         # TelnetManager.connections.remove(connection)
-                        connection.close()"""
+                       # connection.close()
+
+        """
 
             # try:
             if TelnetManager.connections:
@@ -70,4 +74,4 @@ class TelnetManager:
                         log_message = conn.recv()
 
             # except multiprocessing.TimeoutError:
-                # print("TIMEOUT")
+                # print("TIMEOUT")"""

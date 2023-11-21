@@ -48,11 +48,6 @@ def release_process(process):
 
 
 if __name__ == '__main__':
-    parent_conn1, telnet_conn = multiprocessing.Pipe()
-    parent_conn2, world_conn = multiprocessing.Pipe()
-    parent_conn3, realm_conn = multiprocessing.Pipe()
-    parent_conn4, proxy_conn = multiprocessing.Pipe()
-
     # Initialize path.
     PathManager.set_root_path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -98,17 +93,22 @@ if __name__ == '__main__':
     launch_realm = not args.launch or args.launch == 'realm'
     launch_world = not args.launch or args.launch == 'world'
 
-    login_process = None
-    proxy_process = None
-    world_process = None
-    telnet_process = None
+    login_process, login_conn = None, None
+    proxy_process, proxy_conn = None, None
+    world_process, world_conn = None, None
+    telnet_process, telnet_conn= None, None
 
     if config.Telnet.Defaults.enabled:
+        parent_login_conn, login_conn = multiprocessing.Pipe()
+        parent_proxy_conn, proxy_conn = multiprocessing.Pipe()
+        parent_world_conn, world_conn = multiprocessing.Pipe()
+        parent_telnet_conn, telnet_conn = multiprocessing.Pipe()
+
         telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
         telnet_process.start()
     
     if launch_realm:
-        login_process = context.Process(target=RealmManager.start_realm, args=(realm_conn,))
+        login_process = context.Process(target=RealmManager.start_realm, args=(login_conn,))
         login_process.start()
 
         proxy_process = context.Process(target=RealmManager.start_proxy, args=(proxy_conn,))
@@ -124,34 +124,57 @@ if __name__ == '__main__':
         world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start,args=(world_conn,))
         world_process.start()
 
-        if not launch_realm:
-            try:
+        # noinspection PyBroadException
+        try:
+            if os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
+                         config.Server.Settings.console_mode) in [True, 'True', 'true']:
+                while input() != 'exit':
+                    Logger.error('Invalid command.')
+            else:
                 world_process.join()
-            except:
-                Logger.info('Shutting down the core...')
+        except:
+            Logger.info('Shutting down the core...')
 
         ChatLogManager.exit()
 
-    processes = [telnet_process, login_process, world_process]
-        
+    # Checking for pipe messages to telnet
     if config.Telnet.Defaults.enabled:
-        while any(process.is_alive() for process in processes):
-            if parent_conn2.poll():
-                message = parent_conn2.recv()
-                parent_conn1.send(message)
-                # print(f"Received message from child: {message}")
+        processes = [login_process, world_process, proxy_process]
 
+        while any(process.is_alive() for process in processes):
+            if parent_world_conn.poll():
+                message = parent_world_conn.recv()
+                parent_telnet_conn.send(message)
+            if parent_login_conn.poll():
+                message = parent_login_conn.recv()
+                parent_telnet_conn.send(message)
+            if parent_proxy_conn.poll():
+                message = parent_proxy_conn.recv()
+                parent_telnet_conn.send(message)
+    
     # Send SIGTERM to processes.
-    for process in processes:
-        if process and process.is_alive():
-            process.terminate()
-            Logger.info(f'{process.name} process terminated.')
+    # Add checks to send SIGTERM to only running process
+    if launch_world:
+        world_process.terminate()
+        Logger.info('World process terminated.')
+    if launch_realm:
+        login_process.terminate()
+        Logger.info('Login process terminated.')
+        proxy_process.terminate()
+        Logger.info('Proxy process terminated.')
+    if config.Telnet.Defaults.enabled:
+        telnet_process.terminate()
+        Logger.info('Telnet process terminated.') 
 
     # Release process resources.
     Logger.info('Waiting to release resources...')
 
-    for process in processes:
-        if process:
-            release_process(process)
+    if launch_world:
+        release_process(world_process)
+    if launch_realm:
+        release_process(proxy_process)
+        release_process(login_process)
+    if config.Telnet.Defaults.enabled:
+        release_process(telnet_process)
 
     Logger.success('Core gracefully shut down.')

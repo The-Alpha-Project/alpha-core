@@ -285,8 +285,11 @@ class WorldServerSessionHandler:
             logging_thread.start()
 
     @staticmethod
-    def start(parent_conn):
-        Logger.set_parent_conn(parent_conn)
+    def start(parent_conn=None):
+
+        if parent_conn:
+            Logger.set_parent_conn(parent_conn)
+
         WorldLoader.load_data()
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
