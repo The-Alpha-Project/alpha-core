@@ -107,7 +107,6 @@ if __name__ == '__main__':
         telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
         telnet_process.start()
 
-      
     if launch_realm:
         login_process = context.Process(target=RealmManager.start_realm, args=(login_conn,))
         login_process.start()
@@ -138,27 +137,24 @@ if __name__ == '__main__':
                     if config.Telnet.Defaults.enabled:
                         processes = [login_process, world_process, proxy_process, telnet_process]
 
+                        # Checking for pipe messages to telnet from all processes
                         while any(process.is_alive() for process in processes):
-                                if parent_world_conn.poll():
-                                    message = parent_world_conn.recv()
-                                    parent_telnet_conn.send(message)
-                                if parent_login_conn.poll():
-                                    message = parent_login_conn.recv()
-                                    parent_telnet_conn.send(message)
-                                if parent_proxy_conn.poll():
-                                    message = parent_proxy_conn.recv()
-                                    parent_telnet_conn.send(message)
-                                if parent_telnet_conn.poll():
-                                    message = parent_telnet_conn.recv()
-                                    parent_telnet_conn.send(message)
+                            if parent_world_conn.poll():
+                                message = parent_world_conn.recv()
+                                parent_telnet_conn.send(message)
+                            if parent_login_conn.poll():
+                                message = parent_login_conn.recv()
+                                parent_telnet_conn.send(message)
+                            if parent_proxy_conn.poll():
+                                message = parent_proxy_conn.recv()
+                                parent_telnet_conn.send(message)
+                            if parent_telnet_conn.poll():
+                                message = parent_telnet_conn.recv()
+                                parent_telnet_conn.send(message)
         except:
             Logger.info('Shutting down the core...')
 
         ChatLogManager.exit()
-
-    # Checking for pipe messages to telnet
-    
-    
 
     # Send SIGTERM to processes.
     # Add checks to send SIGTERM to only running process
@@ -174,8 +170,6 @@ if __name__ == '__main__':
         telnet_process.terminate()
         Logger.info('Telnet process terminated.') 
 
-    
-
     # Release process resources.
     Logger.info('Waiting to release resources...')
 
@@ -186,10 +180,5 @@ if __name__ == '__main__':
         release_process(login_process)
     if config.Telnet.Defaults.enabled:
         release_process(telnet_process)
-
-
-    
-
-   
 
     Logger.success('Core gracefully shut down.')

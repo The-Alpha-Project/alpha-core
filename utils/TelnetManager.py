@@ -12,26 +12,14 @@ class TelnetManager:
     @staticmethod
     def signal_handler(signum, frame):
         Logger.info(f'Telnet: Ctrl+C received. Cleaning up and exiting.')
-        # TelnetManager.cleanup()
+
         for connection in TelnetManager.connections:
             connection.close()
 
-        # if TelnetManager.server:
         TelnetManager.server.close()
 
         Logger.info(f'Telnet: Cleaning up completed.')
         sys.exit(0)
-
-    @staticmethod
-    def cleanup():
-        
-        for connection in TelnetManager.connections:
-            connection.close()
-
-        if TelnetManager.server:
-            TelnetManager.server.close()
-
-        Logger.info(f'Telnet: Cleaning up completed.')
 
     @staticmethod
     def send(conn, msg):
@@ -55,7 +43,7 @@ class TelnetManager:
         while True:
             try:
                 # Use a timeout of 0.1 seconds to prevent blocking indefinitely
-                readable, _, _ = select.select([TelnetManager.server] + TelnetManager.connections, [], [], 0.1)
+                readable, _, _ = select.select([TelnetManager.server] + TelnetManager.connections, [], [], config.Telnet.Defaults.timeout)
 
                 for sock in readable:
                     try:
@@ -84,12 +72,13 @@ class TelnetManager:
                         print(f"AttributeError: {ae}")
 
             except Exception as e:
-                # Handle exceptions, e.g., print an error message
                 print(f"Exception in the main loop: {e}")
 
             if conn.poll():
                 log_message = conn.recv()
-                # Logger.info(f"Received message from child: {log_message}")
+                # For testing
+                # Logger.debug(f"Received message from other processes: {log_message}")
 
+                # Send messages to all conected clients.
                 for connection in TelnetManager.connections:
                     TelnetManager.send(connection, log_message + "\n")
