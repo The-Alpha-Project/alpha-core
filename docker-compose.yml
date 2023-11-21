@@ -6,12 +6,12 @@ x-alpha-core-shared-conf: &alpha-core-shared-conf
     - MYSQL_HOST=sql
     - MYSQL_USERNAME=root
     - MYSQL_PASSWORD=pwd
-    - CONSOLE_MODE=True
+    - CONSOLE_MODE=False
     - FORWARD_ADDRESS_OVERRIDE=127.0.0.1
   volumes:
     - .:/var/wow/
   restart: on-failure
-  tty: true
+  # tty: true
   depends_on:
     - sql
 

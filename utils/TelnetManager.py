@@ -1,14 +1,37 @@
 import socket
 import select
-import multiprocessing
-import telnetlib
 from utils.ConfigManager import config
 from utils.Logger import Logger
-import time
-
+import sys
+import signal
 
 class TelnetManager:
     connections = []
+    server = None
+ 
+    @staticmethod
+    def signal_handler(signum, frame):
+        Logger.info(f'Telnet: Ctrl+C received. Cleaning up and exiting.')
+        # TelnetManager.cleanup()
+        for connection in TelnetManager.connections:
+            connection.close()
+
+        # if TelnetManager.server:
+        TelnetManager.server.close()
+
+        Logger.info(f'Telnet: Cleaning up completed.')
+        sys.exit(0)
+
+    @staticmethod
+    def cleanup():
+        
+        for connection in TelnetManager.connections:
+            connection.close()
+
+        if TelnetManager.server:
+            TelnetManager.server.close()
+
+        Logger.info(f'Telnet: Cleaning up completed.')
 
     @staticmethod
     def send(conn, msg):
@@ -16,57 +39,57 @@ class TelnetManager:
 
     @staticmethod
     def start_telnet(conn):
-        # Logger.set_parent_conn(conn)
+        Logger.set_parent_conn(conn)
 
-        # Telnet server setup
+        TelnetManager.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        TelnetManager.server.bind((config.Server.Connection.Telnet.host, config.Server.Connection.Telnet.port))
+        TelnetManager.server.listen(config.Telnet.Defaults.listen)
+        TelnetManager.server.settimeout(config.Telnet.Defaults.timeout)
+        TelnetManager.server.setblocking(False)
 
-        server = telnetlib.Telnet()
-        server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind((config.Server.Connection.Telnet.host, config.Server.Connection.Telnet.port))
-        server.listen(config.Telnet.Defaults.listen)
-        server.settimeout(config.Telnet.Defaults.timeout)
-
+        # Register the signal handler for Ctrl+C (SIGINT)
+        signal.signal(signal.SIGINT, TelnetManager.signal_handler)
+    
         Logger.success(f'Telnet server started, listening on {config.Server.Connection.Telnet.host}:{config.Server.Connection.Telnet.port}')
-        
+
         while True:
-            readable, addr, exceptional = select.select([server] + TelnetManager.connections, [], [])
+            try:
+                # Use a timeout of 0.1 seconds to prevent blocking indefinitely
+                readable, _, _ = select.select([TelnetManager.server] + TelnetManager.connections, [], [], 0.1)
 
-            for sock in readable:
-                if sock == server:
-                    # while conn.poll():
-                        # conn.recv()
+                for sock in readable:
+                    try:
+                        if sock == TelnetManager.server:
+                            connection, address = sock.accept()
+                            connection.setblocking(False)
+                            TelnetManager.connections.append(connection)
+                            TelnetManager.send(connection, config.Telnet.Defaults.welcome + "\n\n") 
+                            Logger.info(f'Telnet: New connection from {address}')
+                        else:
+                            data = sock.recv(1024)
 
-                    connection, addr = server.accept()
-                    connection.setblocking(False)
+                            if not data:
+                                Logger.info(f'Telnet: Client disconnected: {sock.getpeername()}')
+                                TelnetManager.connections.remove(sock)
+                                sock.close()
+                            else:
+                                data = data.decode().strip().replace('\n', '')
 
-                    TelnetManager.send(connection, config.Telnet.Defaults.welcome + "\n\n") 
-                    
-                    # connection.send(b"User: ")
-                    # username = connection.recv(1024).strip().decode('utf-8')
+                                if data == "help":
+                                    Logger.debug(f'Telnet: help command')
+                                else:
+                                    Logger.debug(f'Telnet: Received data from {sock.getpeername()}: {data}')
+                                
+                    except AttributeError as ae:
+                        print(f"AttributeError: {ae}")
 
-                    # connection.send(b"Password: ")
-                    # password = connection.recv(1024).strip().decode('utf-8')
+            except Exception as e:
+                # Handle exceptions, e.g., print an error message
+                print(f"Exception in the main loop: {e}")
 
-                    # if username == config.Telnet.Defaults.user and password == config.Telnet.Defaults.password:
-                    TelnetManager.connections.append(connection)
-                    Logger.success(f'Telnet: connection from {addr} \n')
-                    # else:
-                      #  Logger.success(f'Telnet: Authentication failed for user {username}')
-                        # TelnetManager.connections.remove(connection)
-                       # connection.close()
-
-            # try:
-              #  if TelnetManager.connections:
-                    # while TelnetManager.connections:
-            log_message = conn.recv()
-
-            while True:
-                TelnetManager.send(connection, log_message + "\n\n") 
+            if conn.poll():
                 log_message = conn.recv()
-                        
-                        # for connection in TelnetManager.connections:
-                            #  TelnetManager.send(connection, log_message + "\n\n") 
-                            # log_message = conn.recv()
+                # Logger.info(f"Received message from child: {log_message}")
 
-#            except multiprocessing.TimeoutError:
- #               pass
+                for connection in TelnetManager.connections:
+                    TelnetManager.send(connection, log_message + "\n")
