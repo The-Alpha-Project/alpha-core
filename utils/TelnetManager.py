@@ -33,8 +33,8 @@ class TelnetManager:
 
             for sock in readable:
                 if sock == server:
-                    while conn.poll():
-                        conn.recv()
+                    # while conn.poll():
+                        # conn.recv()
 
                     connection, addr = server.accept()
                     connection.setblocking(False)
@@ -55,23 +55,18 @@ class TelnetManager:
                         # TelnetManager.connections.remove(connection)
                        # connection.close()
 
-        """
-
             # try:
-            if TelnetManager.connections:
-                    log_message = conn.recv()
-                # while TelnetManager.connections:
-                    for connection in TelnetManager.connections:
-                        try:
-                            TelnetManager.send(connection, log_message + "\n\n") 
-                        except socket.error:
-                            # Handle socket error (client disconnected)
-                            TelnetManager.connections.remove(connection)
-                            connection.close()
-                            Logger.success("Telnet: Client disconnected")
-                            break
+              #  if TelnetManager.connections:
+                    # while TelnetManager.connections:
+            log_message = conn.recv()
 
-                        log_message = conn.recv()
+            while True:
+                TelnetManager.send(connection, log_message + "\n\n") 
+                log_message = conn.recv()
+                        
+                        # for connection in TelnetManager.connections:
+                            #  TelnetManager.send(connection, log_message + "\n\n") 
+                            # log_message = conn.recv()
 
-            # except multiprocessing.TimeoutError:
-                # print("TIMEOUT")"""
+#            except multiprocessing.TimeoutError:
+ #               pass

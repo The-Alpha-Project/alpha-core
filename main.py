@@ -137,21 +137,6 @@ if __name__ == '__main__':
 
         ChatLogManager.exit()
 
-    # Checking for pipe messages to telnet
-    if config.Telnet.Defaults.enabled:
-        processes = [login_process, world_process, proxy_process]
-
-        while any(process.is_alive() for process in processes):
-            if parent_world_conn.poll():
-                message = parent_world_conn.recv()
-                parent_telnet_conn.send(message)
-            if parent_login_conn.poll():
-                message = parent_login_conn.recv()
-                parent_telnet_conn.send(message)
-            if parent_proxy_conn.poll():
-                message = parent_proxy_conn.recv()
-                parent_telnet_conn.send(message)
-    
     # Send SIGTERM to processes.
     # Add checks to send SIGTERM to only running process
     if launch_world:
@@ -176,5 +161,20 @@ if __name__ == '__main__':
         release_process(login_process)
     if config.Telnet.Defaults.enabled:
         release_process(telnet_process)
+
+     # Checking for pipe messages to telnet
+    if config.Telnet.Defaults.enabled:
+        processes = [login_process, world_process, proxy_process]
+
+        while any(process.is_alive() for process in processes):
+            if parent_world_conn.poll():
+                message = parent_world_conn.recv()
+                parent_telnet_conn.send(message)
+            if parent_login_conn.poll():
+                message = parent_login_conn.recv()
+                parent_telnet_conn.send(message)
+            if parent_proxy_conn.poll():
+                message = parent_proxy_conn.recv()
+                parent_telnet_conn.send(message)
 
     Logger.success('Core gracefully shut down.')
