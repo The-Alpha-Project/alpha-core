@@ -132,26 +132,25 @@ if __name__ == '__main__':
                 while input() != 'exit':
                     Logger.error('Invalid command.')
             else:
-                """if not config.Telnet.Defaults.enabled:
+                if not config.Telnet.Defaults.enabled:
                     world_process.join()
                 else:
-                    pass """
-                if config.Telnet.Defaults.enabled:
-                    processes = [login_process, world_process, proxy_process, telnet_process]
+                    if config.Telnet.Defaults.enabled:
+                        processes = [login_process, world_process, proxy_process, telnet_process]
 
-                    while any(process.is_alive() for process in processes):
-                            if parent_world_conn.poll():
-                                message = parent_world_conn.recv()
-                                parent_telnet_conn.send(message)
-                            if parent_login_conn.poll():
-                                message = parent_login_conn.recv()
-                                parent_telnet_conn.send(message)
-                            if parent_proxy_conn.poll():
-                                message = parent_proxy_conn.recv()
-                                parent_telnet_conn.send(message)
-                            if parent_telnet_conn.poll():
-                                message = parent_telnet_conn.recv()
-                                parent_telnet_conn.send(message)
+                        while any(process.is_alive() for process in processes):
+                                if parent_world_conn.poll():
+                                    message = parent_world_conn.recv()
+                                    parent_telnet_conn.send(message)
+                                if parent_login_conn.poll():
+                                    message = parent_login_conn.recv()
+                                    parent_telnet_conn.send(message)
+                                if parent_proxy_conn.poll():
+                                    message = parent_proxy_conn.recv()
+                                    parent_telnet_conn.send(message)
+                                if parent_telnet_conn.poll():
+                                    message = parent_telnet_conn.recv()
+                                    parent_telnet_conn.send(message)
         except:
             Logger.info('Shutting down the core...')
 

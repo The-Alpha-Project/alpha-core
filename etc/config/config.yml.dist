@@ -18,7 +18,7 @@ Server:
             local_realm_id: 1  # id of the realm running on this machine (realmlist table)
 
         Telnet:
-            host: 127.0.0.1
+            host: 0.0.0.0
             port: 3443
 
         WorldServer:
@@ -37,7 +37,7 @@ Server:
         supported_client: 3368
         realm_saving_interval_seconds: 60
         cell_size: 64  # Shouldn't be much bigger than 200
-        console_mode: True  # Set it to False if you intend to run the server on background
+        console_mode: True  # Set it to False if you intend to run the server on background or using telnet
         # MapTiles:
         # Enables terrain Z calculations, improving npc units movement.
         # Enables water related features like fishing, underwater breathing and fatigue.
@@ -79,7 +79,7 @@ Server:
         disabled_race_mask: 0  # Blizzlike 0.5.3: 239
         disabled_class_mask: 0  # Blizzlike 0.5.3: 1102
 
-
+# console_mode must be False, don't forget console_mode env in docker-compose if you are using docker.
 Telnet:
     Defaults:
         welcome: Welcome to the Telnet server
