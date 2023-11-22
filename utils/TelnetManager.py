@@ -4,6 +4,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 import sys
 import signal
+import struct
 
 class TelnetManager:
     connections = []
@@ -14,7 +15,9 @@ class TelnetManager:
         Logger.info(f'Telnet: Ctrl+C received. Cleaning up and exiting.')
 
         for connection in TelnetManager.connections:
+            connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
             connection.close()
+            TelnetManager.connections.remove(connection)
 
         TelnetManager.server.close()
 
