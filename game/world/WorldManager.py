@@ -349,17 +349,20 @@ class WorldWrapper(WorldServerSessionHandler):
                     str = str.decode('utf-8')[1:].split()
 
                 Logger.success(f'World Sessions wrapper: {str}')
-
-                if str[0] == 'help':
-                    sessions = WorldSessionStateHandler.get_world_sessions()
-                    Logger.success(f'World Sessions wrapper: {len(sessions)}')
-                    # _, test = CommandManager.help(sessions, 'dev')
-                    # Logger.success(f'World Sessions wrapper: {test}')
-                if str[0] == 'level':
-                    try:
-                        sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
-                    
+                
+                sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                try:
+                    if str[0] == 'help':
+                        sessions = WorldSessionStateHandler.get_world_sessions()
+                        Logger.success(f'World Sessions wrapper: {len(sessions)}')
+                        # _, test = CommandManager.help(sessions, 'dev')
+                        # Logger.success(f'World Sessions wrapper: {test}')
+                    elif str[0] == 'level':
                         if len(sess) > 0:
                             CommandManager.level(sess, str[2])
-                    except:
-                        pass
+                    elif str[0] == 'money':
+                        if len(sess) > 0:
+                            CommandManager.money(sess, str[2])
+                            
+                except:
+                    pass
