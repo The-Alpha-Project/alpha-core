@@ -16,10 +16,6 @@ SESSION_BY_NAME = {}
 class WorldSessionStateHandler(object):
 
     @staticmethod
-    def get_world_sessions():
-        return WORLD_SESSIONS
-
-    @staticmethod
     def add(session):
         if session not in WORLD_SESSIONS:
             WORLD_SESSIONS.append(session)
