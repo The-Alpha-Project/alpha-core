@@ -343,26 +343,20 @@ class WorldWrapper(WorldServerSessionHandler):
 
         while True:
             if parent_conn.poll():
-                command = parent_conn.recv()
+                str = parent_conn.recv()
 
-                # Logger.success(f'World Sessions wrapper: {command}')
+                if isinstance(str, bytes):
+                    str = str.decode('utf-8')[1:].split()
 
-                if command == b'/help':
+                Logger.success(f'World Sessions wrapper: {str}')
+
+                if str[0] == 'help':
                     sessions = WorldSessionStateHandler.get_world_sessions()
                     Logger.success(f'World Sessions wrapper: {len(sessions)}')
                     # _, test = CommandManager.help(sessions, 'dev')
                     # Logger.success(f'World Sessions wrapper: {test}')
-                if command == b'/level':
-                    sess = WorldSessionStateHandler.get_session_by_character_name('Selene')
-                    CommandManager.level(sess, 10)
-
-
-
-
-
-
-            """sessions = WorldSessionStateHandler.get_world_sessions()
-            Logger.success(f'World Sessions wrapper: {len(sessions)}')
-
-            msg = CommandManager.serverinfo(sessions, "")
-            Logger.success(f'World Sessions wrapper: {msg}')"""
+                if str[0] == 'level':
+                    sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                    
+                    if len(sess) > 0:
+                        CommandManager.level(sess, str[2])
