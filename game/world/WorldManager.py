@@ -354,8 +354,8 @@ class WorldWrapper(WorldServerSessionHandler):
                     # Logger.success(f'World Sessions wrapper: {test}')
                 if command == b'/level':
                     sess = WorldSessionStateHandler.get_session_by_character_name('Selene')
-                    CommandManager.Level(sess, 10)
-            
+                    CommandManager.level(sess, 10)
+
 
 
 
