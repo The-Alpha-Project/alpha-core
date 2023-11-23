@@ -356,7 +356,10 @@ class WorldWrapper(WorldServerSessionHandler):
                     # _, test = CommandManager.help(sessions, 'dev')
                     # Logger.success(f'World Sessions wrapper: {test}')
                 if str[0] == 'level':
-                    sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                    try:
+                        sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
                     
-                    if len(sess) > 0:
-                        CommandManager.level(sess, str[2])
+                        if len(sess) > 0:
+                            CommandManager.level(sess, str[2])
+                    except:
+                        pass

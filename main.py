@@ -150,8 +150,12 @@ if __name__ == '__main__':
                                 parent_telnet_conn.send(message)
                             if parent_telnet_conn.poll():
                                 message = parent_telnet_conn.recv()
-                                # parent_telnet_conn.send(message)
-                                parent_world_conn.send(message)
+                                if isinstance(message, bytes):
+                                    if '/' in message.decode(): 
+                                        parent_world_conn.send(message)
+                                    else:   
+                                        parent_telnet_conn.send(message)
+
         except:
             Logger.info('Shutting down the core...')
 
