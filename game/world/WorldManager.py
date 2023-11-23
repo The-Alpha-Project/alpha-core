@@ -19,6 +19,7 @@ from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
 from utils.constants.MiscCodes import ObjectTypeIds
 
+from game.world.managers.CommandManager import CommandManager
 STARTUP_TIME = time()
 WORLD_ON = True
 
@@ -49,8 +50,11 @@ class WorldServerSessionHandler:
             self.player_mgr = None
             self.account_mgr = None
             self.keep_alive = True
+            
+            print("yes")
 
             if self.auth_challenge(self.client_socket):
+                print("no")
                 self.client_socket.settimeout(120)  # 2 minutes timeout should be more than enough.
 
                 incoming_thread = threading.Thread(target=self.process_incoming)
@@ -65,6 +69,13 @@ class WorldServerSessionHandler:
                     sessions = WorldSessionStateHandler.get_world_sessions()
                     Logger.success(f'World Sessions: {len(sessions)}')
                     continue
+            else:
+                sessions = WorldSessionStateHandler.get_world_sessions()
+                Logger.success(f'World Sessions: {len(sessions)}')
+
+                msg = CommandManager.serverinfo(sessions, "")
+                Logger.success(f'World Sessions: {msg}')
+
 
         finally:
             self.disconnect()
