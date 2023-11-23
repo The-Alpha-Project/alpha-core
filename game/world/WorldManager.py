@@ -346,23 +346,52 @@ class WorldWrapper(WorldServerSessionHandler):
                 str = parent_conn.recv()
 
                 if isinstance(str, bytes):
-                    str = str.decode('utf-8')[1:].split()
-
-                Logger.success(f'World Sessions wrapper: {str}')
+                        str = str.decode('utf-8')[1:].split()
+                        Logger.success(f'World Sessions wrapper: {str}')
                 
-                sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
-                try:
-                    if str[0] == 'help':
-                        sessions = WorldSessionStateHandler.get_world_sessions()
-                        Logger.success(f'World Sessions wrapper: {len(sessions)}')
-                        # _, test = CommandManager.help(sessions, 'dev')
-                        # Logger.success(f'World Sessions wrapper: {test}')
-                    elif str[0] == 'level':
-                        if len(sess) > 0:
+                        if str[0] == 'help':
+                            sessions = WorldSessionStateHandler.get_world_sessions()
+                            Logger.success(f'World Sessions wrapper: {len(sessions)}')
+                        if str[0] == 'level':
+                            sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                            # Logger.success(f'World Sessions wrapper: {len(sess)}')
+                            Logger.success(f'World Sessions wrapper: {str[1]} is level {str[2]}')
+                                
+                            # if len(sess) > 0:
                             CommandManager.level(sess, str[2])
-                    elif str[0] == 'money':
-                        if len(sess) > 0:
-                            CommandManager.money(sess, str[2])
+                        if str[0] == 'money':
+                            sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                            Logger.success(f'World Sessions wrapper: {str[1]} got {str[2]} copper')
+                            # Logger.success(f'World Sessions wrapper: {len(sess)}')
                             
-                except:
-                    pass
+                            # if len(sess) > 0:
+                            CommandManager.money(sess, str[2])
+
+                        if str[0] == 'tel':
+                            sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                            Logger.success(f'World Sessions wrapper: Teleported {str[1]} to {str[2]}')
+
+                            CommandManager.tel(sess, str[2])
+
+                        if str[0] == 'list':
+                            sessions = WorldSessionStateHandler.get_world_sessions()
+
+                            for session in sessions:
+                                 Logger.info(f'Name: {session.player_mgr.get_name()}')
+
+                        if str[0] == 'ann':
+                            sessions = WorldSessionStateHandler.get_world_sessions()
+
+                            CommandManager.ann(sessions, str[1])
+
+                        if str[0] == 'worldoff':
+                            sessions = WorldSessionStateHandler.get_world_sessions()
+                            
+                            CommandManager.worldoff(sessions, "confirm")
+
+                        if str[0] == 'additem':
+                            sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+
+                            CommandManager.additem(sess, str[2])
+
+
