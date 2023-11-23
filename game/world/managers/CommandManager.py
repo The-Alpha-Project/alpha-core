@@ -76,7 +76,7 @@ class CommandManager(object):
         total_number = 0
 
         # If player is Dev, send Dev commands first.
-        if world_session.account_mgr.is_dev():
+        if args == 'dev' or world_session.account_mgr.is_dev():
             total_number += len(DEV_COMMAND_DEFINITIONS)
             ChatManager.send_system_message(world_session, '|cFFFFFFFF[Dev Commands]|r')
             for command in DEV_COMMAND_DEFINITIONS:
@@ -85,7 +85,7 @@ class CommandManager(object):
             ChatManager.send_system_message(world_session, '\n')
 
         # If player is GM, send GM commands first.
-        if world_session.account_mgr.is_gm():
+        if args in ['dev', 'gm'] or world_session.account_mgr.is_gm():
             total_number += len(GM_COMMAND_DEFINITIONS)
             ChatManager.send_system_message(world_session, '|cFFFFFFFF[GM Commands]|r')
             for command in GM_COMMAND_DEFINITIONS:

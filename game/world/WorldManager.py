@@ -66,17 +66,15 @@ class WorldServerSessionHandler:
                 outgoing_thread.start()
 
                 while self.receive(self.client_socket) != -1 and self.keep_alive:
-                    sessions = WorldSessionStateHandler.get_world_sessions()
-                    Logger.success(f'World Sessions: {len(sessions)}')
+                 #   sessions = WorldSessionStateHandler.get_world_sessions()
+                  #  Logger.success(f'World Sessions: {len(sessions)}')
                     continue
-            else:
-                sessions = WorldSessionStateHandler.get_world_sessions()
-                Logger.success(f'World Sessions: {len(sessions)}')
+           # else:
+              #  sessions = WorldSessionStateHandler.get_world_sessions()
+               # Logger.success(f'World Sessions: {len(sessions)}')
 
-                msg = CommandManager.serverinfo(sessions, "")
-                Logger.success(f'World Sessions: {msg}')
-
-
+#                msg = CommandManager.serverinfo(sessions, "")
+ #               Logger.success(f'World Sessions: {msg}')
         finally:
             self.disconnect()
 
@@ -303,6 +301,7 @@ class WorldServerSessionHandler:
         if parent_conn:
             Logger.set_parent_conn(parent_conn)
 
+        # WorldWrapper.starts(parent_conn)
         WorldLoader.load_data()
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -318,6 +317,11 @@ class WorldServerSessionHandler:
 
         real_binding = server_socket.getsockname()
         Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
+        
+        wrapper_thread = threading.Thread(target=WorldWrapper.starts,args=(parent_conn,))
+        wrapper_thread.daemon = True
+        wrapper_thread.start()
+
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
 
             # noinspection PyBroadException
@@ -329,3 +333,32 @@ class WorldServerSessionHandler:
                 world_session_thread.start()
             except:
                 break
+
+
+class WorldWrapper(WorldServerSessionHandler):
+
+    def starts(parent_conn=None):
+        if parent_conn:
+            Logger.set_parent_conn(parent_conn)
+
+        while True:
+            if parent_conn.poll():
+                command = parent_conn.recv()
+
+                Logger.success(f'World Sessions wrapper: {command}')
+
+                if command == b'/help':
+
+                    sessions = WorldSessionStateHandler.get_world_sessions()
+                    Logger.success(f'World Sessions wrapper: {len(sessions)}')
+                    # _, test = CommandManager.help(sessions, 'dev')
+                    # Logger.success(f'World Sessions wrapper: {test}')
+
+
+
+
+            """sessions = WorldSessionStateHandler.get_world_sessions()
+            Logger.success(f'World Sessions wrapper: {len(sessions)}')
+
+            msg = CommandManager.serverinfo(sessions, "")
+            Logger.success(f'World Sessions wrapper: {msg}')"""

@@ -66,7 +66,8 @@ class TelnetManager:
                             else:
                                 data = data.decode().strip().replace('\n', '')
 
-                                if data == "help":
+                                if data == "/help":
+                                    TelnetManager.send(conn, "/help")
                                     Logger.debug(f'Telnet: help command')
                                 else:
                                     Logger.debug(f'Telnet: Received data from {sock.getpeername()}: {data}')
