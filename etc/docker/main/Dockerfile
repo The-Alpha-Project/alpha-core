@@ -6,5 +6,4 @@ WORKDIR /var/wow
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
-ENTRYPOINT ["/bin/sh"]
-# ENTRYPOINT ["python3", "main.py"]
+ENTRYPOINT ["python3", "main.py"]

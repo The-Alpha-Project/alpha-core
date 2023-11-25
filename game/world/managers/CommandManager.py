@@ -60,6 +60,10 @@ class CommandManager(object):
             
     @staticmethod
     def handle_system_command(world_session, command_msg):
+        """
+        Handles commands sent by telnet. It uses players session (which we get from player name)
+        but buypass all dev or gm tests. Also send all output to Logger instead of chat.
+        """
         terminator_index = command_msg.find(' ') if ' ' in command_msg else len(command_msg)
 
         command = command_msg[1:terminator_index].strip()
@@ -72,18 +76,15 @@ class CommandManager(object):
         elif command in DEV_COMMAND_DEFINITIONS:
             command_func = DEV_COMMAND_DEFINITIONS[command][0]
         else:
-            # ChatManager.send_system_message(world_session, 'Command not found, type .help for help.')
             Logger.error(f'Command not found, type .help for help.')
             return
 
         if command_func:
             code, res = command_func(world_session, args)
             if code != 0:
-                # ChatManager.send_system_message(world_session, f'Error with <{command}> command: {res}')
                 Logger.error(f'Error with <{command}> command: {res}')
             elif res:
-                # Split message lines to overcome buffer limits.
-                 Logger.sucess(f'{res}')
+                 Logger.success(f'{res}')
 
     @staticmethod
     def _target_or_self(world_session, only_players=False):

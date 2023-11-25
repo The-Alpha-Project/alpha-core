@@ -11,7 +11,6 @@ x-alpha-core-shared-conf: &alpha-core-shared-conf
   volumes:
     - .:/var/wow/
   restart: on-failure
-  tty: true
   depends_on:
     - sql
 
