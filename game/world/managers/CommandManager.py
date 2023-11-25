@@ -21,6 +21,8 @@ from utils.constants.UpdateFields import PlayerFields
 
 import platform
 
+from utils.Logger import Logger
+
 # noinspection SpellCheckingInspection,PyUnusedLocal
 class CommandManager(object):
 
@@ -55,6 +57,33 @@ class CommandManager(object):
                 lines = res.rsplit('\n')
                 for line in lines:
                     ChatManager.send_system_message(world_session, line)
+            
+    @staticmethod
+    def handle_system_command(world_session, command_msg):
+        terminator_index = command_msg.find(' ') if ' ' in command_msg else len(command_msg)
+
+        command = command_msg[1:terminator_index].strip()
+        args = command_msg[terminator_index:].strip()
+
+        if command in PLAYER_COMMAND_DEFINITIONS:
+            command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
+        elif command in GM_COMMAND_DEFINITIONS:
+            command_func = GM_COMMAND_DEFINITIONS[command][0]
+        elif command in DEV_COMMAND_DEFINITIONS:
+            command_func = DEV_COMMAND_DEFINITIONS[command][0]
+        else:
+            # ChatManager.send_system_message(world_session, 'Command not found, type .help for help.')
+            Logger.error(f'Command not found, type .help for help.')
+            return
+
+        if command_func:
+            code, res = command_func(world_session, args)
+            if code != 0:
+                # ChatManager.send_system_message(world_session, f'Error with <{command}> command: {res}')
+                Logger.error(f'Error with <{command}> command: {res}')
+            elif res:
+                # Split message lines to overcome buffer limits.
+                 Logger.sucess(f'{res}')
 
     @staticmethod
     def _target_or_self(world_session, only_players=False):
@@ -68,7 +97,6 @@ class CommandManager(object):
                 return unit
 
         return world_session.player_mgr
-
 
 
     @staticmethod
@@ -779,6 +807,8 @@ class CommandManager(object):
             return 0, ''
         except ValueError:
             return -1, 'please specify a valid level.'
+        except NameError as e:
+            return -1, 'please just use numbers.'
 
     @staticmethod
     def money(world_session, args):

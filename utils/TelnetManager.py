@@ -12,7 +12,7 @@ class TelnetManager:
  
     @staticmethod
     def signal_handler(signum, frame):
-        Logger.info(f'Telnet: Ctrl+C received. Cleaning up and exiting.')
+        Logger.sucess(f'Telnet: Ctrl+C received. Cleaning up and exiting.')
 
         for connection in TelnetManager.connections:
             connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
@@ -21,7 +21,7 @@ class TelnetManager:
 
         TelnetManager.server.close()
 
-        Logger.info(f'Telnet: Cleaning up completed.')
+        Logger.success(f'Telnet: Cleaning up completed.')
         sys.exit(0)
 
     @staticmethod
@@ -55,12 +55,12 @@ class TelnetManager:
                             connection.setblocking(False)
                             TelnetManager.connections.append(connection)
                             TelnetManager.send(connection, config.Telnet.Defaults.welcome + "\n\n") 
-                            Logger.info(f'Telnet: New connection from {address}')
+                            Logger.success(f'Telnet: New connection from {address}')
                         else:
                             data = sock.recv(1024)
 
                             if not data:
-                                Logger.info(f'Telnet: Client disconnected: {sock.getpeername()}')
+                                Logger.success(f'Telnet: Client disconnected: {sock.getpeername()}')
                                 TelnetManager.connections.remove(sock)
                                 sock.close()
                             else:
@@ -68,9 +68,9 @@ class TelnetManager:
 
                                 if '/' in data:
                                     TelnetManager.send(conn, data)
-                                    Logger.debug(f'Telnet: {data}')
+                                    Logger.success(f'Telnet: {data}')
                                 else:
-                                    Logger.debug(f'Telnet: Received data from {sock.getpeername()}: {data}')
+                                    Logger.success(f'Telnet: Received data from {sock.getpeername()}: {data}')
                                 
                     except AttributeError as ae:
                         print(f"AttributeError: {ae}")

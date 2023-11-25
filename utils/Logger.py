@@ -86,6 +86,8 @@ class Logger:
         if Logger._should_log(DebugLevel.INFO):
             formatted_msg = Logger._colorize_message('[INFO]', DebugColorLevel.INFO, msg)
             print(formatted_msg, end=end)
+            
+           
 
     @staticmethod
     def success(msg):
@@ -95,7 +97,7 @@ class Logger:
 
             if Logger.parent_conn:
                 Logger.parent_conn.send(formatted_msg)
-           
+
     @staticmethod
     def anticheat(msg):
         if Logger._should_log(DebugLevel.ANTICHEAT):
@@ -116,5 +118,6 @@ class Logger:
                     Logger.info(msg, end='\r')
             else:
                 Logger.success(msg)
+        
         except:
             pass

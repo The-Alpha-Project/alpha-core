@@ -150,13 +150,15 @@ if __name__ == '__main__':
                                 parent_telnet_conn.send(message)
                             if parent_telnet_conn.poll():
                                 message = parent_telnet_conn.recv()
-                                # if isinstance(message, bytes):
-                                  #  if '/' in message.decode(): 
-                                parent_world_conn.send(message)
-                                   # else:   
-                                    #    parent_telnet_conn.send(message)
-
-        except:
+                                
+                                if isinstance(message, bytes):
+                                    if b'/' in message: 
+                                        parent_world_conn.send(message)
+                                
+                                    parent_telnet_conn.send(message.decode())
+                                       
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
             Logger.info('Shutting down the core...')
 
         ChatLogManager.exit()

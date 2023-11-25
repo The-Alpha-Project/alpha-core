@@ -346,52 +346,76 @@ class WorldWrapper(WorldServerSessionHandler):
                 str = parent_conn.recv()
 
                 if isinstance(str, bytes):
-                        str = str.decode('utf-8')[1:].split()
-                        Logger.success(f'World Sessions wrapper: {str}')
-                
-                        if str[0] == 'help':
-                            sessions = WorldSessionStateHandler.get_world_sessions()
-                            Logger.success(f'World Sessions wrapper: {len(sessions)}')
-                        if str[0] == 'level':
-                            sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
-                            # Logger.success(f'World Sessions wrapper: {len(sess)}')
-                            Logger.success(f'World Sessions wrapper: {str[1]} is level {str[2]}')
+                    try:
+                        msg_list = str.decode('utf-8')[1:].split()
+                    except Exception as e:
+                        Logger.error(f'Error: {e}')
+                        
+                    Logger.success(f'msg: {msg_list}')
+                    msg = f".{msg_list[0]} {' '.join(msg_list[2:])}" 
+                    Logger.success(f'msg: {msg}')
+
+                    try:
+                        player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+                        CommandManager.handle_system_command(player_session, msg)
+                    except Exception as e:
+                        Logger.error(f'Error: {e}')
+
+
+                    """
+                        try: 
+                            # if str[0] == 'help':
+                            #    sessions = WorldSessionStateHandler.get_world_sessions()
+                            #    Logger.success(f'World Sessions wrapper: {len(sessions)}')
+                            if str[0] == 'level':
+                                sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                                # Logger.success(f'World Sessions wrapper: {len(sess)}')
+                                Logger.success(f'{str[1]} is level {str[2]}')
+                                    
+                                # if len(sess) > 0:
+                                CommandManager.level(sess, str[2])
+                            elif str[0] == 'money':
+                                sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                                Logger.success(f'{str[1]} got {str[2]} copper')
+                                # Logger.success(f'World Sessions wrapper: {len(sess)}')
                                 
-                            # if len(sess) > 0:
-                            CommandManager.level(sess, str[2])
-                        if str[0] == 'money':
-                            sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
-                            Logger.success(f'World Sessions wrapper: {str[1]} got {str[2]} copper')
-                            # Logger.success(f'World Sessions wrapper: {len(sess)}')
-                            
-                            # if len(sess) > 0:
-                            CommandManager.money(sess, str[2])
+                                # if len(sess) > 0:
+                                CommandManager.money(sess, str[2])
 
-                        if str[0] == 'tel':
-                            sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
-                            Logger.success(f'World Sessions wrapper: Teleported {str[1]} to {str[2]}')
+                            elif str[0] == 'tel':
+                                sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                                Logger.success(f'Teleported {str[1]} to {str[2]}')
 
-                            CommandManager.tel(sess, str[2])
+                                CommandManager.tel(sess, str[2])
 
-                        if str[0] == 'list':
-                            sessions = WorldSessionStateHandler.get_world_sessions()
+                            elif str[0] == 'list':
+                                sessions = WorldSessionStateHandler.get_world_sessions()
+                                    
+                                Logger.success(f'Player online: {len(sessions)}')
 
-                            for session in sessions:
-                                 Logger.info(f'Name: {session.player_mgr.get_name()}')
+                                for session in sessions:
+                                    Logger.sucess(f'Name: {session.player_mgr.get_name()}')
 
-                        if str[0] == 'ann':
-                            sessions = WorldSessionStateHandler.get_world_sessions()
+                            elif str[0] == 'ann':
+                                sessions = WorldSessionStateHandler.get_world_sessions()
 
-                            CommandManager.ann(sessions, str[1])
+                                CommandManager.ann(sessions, str[1])
 
-                        if str[0] == 'worldoff':
-                            sessions = WorldSessionStateHandler.get_world_sessions()
-                            
-                            CommandManager.worldoff(sessions, "confirm")
+                            elif str[0] == 'worldoff':
+                                sessions = WorldSessionStateHandler.get_world_sessions()
+                                
+                                CommandManager.worldoff(sessions, "confirm")
 
-                        if str[0] == 'additem':
-                            sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                            elif str[0] == 'additem':
+                                sess = WorldSessionStateHandler.get_session_by_character_name(str[1])
+                                CommandManager.additem(sess, str[2])
+                        except IndexError as e:
+                            Logger.error(f'IndexError: {e}. Did you forgot arguments?')
+                        except AttributeError as e:
+                            Logger.error(f'AttributeError: {e}. Are you sure player is online?')
+                        except Exception as e:
+                            Logger.error(f'An unexpected error occurred: {e}')
+                    """
 
-                            CommandManager.additem(sess, str[2])
 
 
