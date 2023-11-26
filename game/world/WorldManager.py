@@ -346,16 +346,24 @@ class WorldWrapper(WorldServerSessionHandler):
                 str = parent_conn.recv()
 
                 if isinstance(str, bytes):
-                    try:
-                        msg_list = str.decode('utf-8')[1:].split()
-                    except Exception as e:
-                        Logger.error(f'Error: {e}')
-                        
-                    msg = f".{msg_list[0]} {' '.join(msg_list[2:])}" 
-                    Logger.success(f'msg: {msg}')
+                    sessions = WorldSessionStateHandler.get_world_sessions
 
                     try:
-                        player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
-                        CommandManager.handle_system_command(player_session, msg)
+                        if len(sessions) <= 0:
+                            Logger.error(f'Error: No sessions')
+                        else:
+                            try:
+                                msg_list = str.decode('utf-8')[1:].split()
+                            except Exception as e:
+                                Logger.error(f'Error: {e}')
+                                
+                            msg = f".{msg_list[0]} {' '.join(msg_list[2:])}" 
+                            Logger.success(f'msg: {msg}')
+
+                            try:
+                                player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+                                CommandManager.handle_system_command(player_session, msg)
+                            except Exception as e:
+                                Logger.error(f'Error: {e}')
                     except Exception as e:
                         Logger.error(f'Error: {e}')

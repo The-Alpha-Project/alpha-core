@@ -12,21 +12,17 @@ class TelnetManager:
  
     @staticmethod
     def signal_handler(signum, frame):
-        Logger.sucess(f'Telnet: Ctrl+C received. Cleaning up and exiting.')
+        Logger.success(f'Ctrl+C received. Telnet cleaning up and exiting.')
 
-        for connection in TelnetManager.connections:
+        for connection in TelnetManager2.connections:
             connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
             connection.close()
             TelnetManager.connections.remove(connection)
 
         TelnetManager.server.close()
 
-        Logger.success(f'Telnet: Cleaning up completed.')
+        Logger.success(f'Cleaning up completed.')
         sys.exit(0)
-
-    @staticmethod
-    def send(conn, msg):
-        conn.send(msg.encode())
 
     @staticmethod
     def start_telnet(conn):
@@ -53,8 +49,9 @@ class TelnetManager:
                         if sock == TelnetManager.server:
                             connection, address = sock.accept()
                             connection.setblocking(False)
+
                             TelnetManager.connections.append(connection)
-                            TelnetManager.send(connection, config.Telnet.Defaults.welcome + "\n\n") 
+                            connection.send(connection, config.Telnet.Defaults.welcome + "\n\n") 
                             Logger.success(f'Telnet: New connection from {address}')
                         else:
                             data = sock.recv(1024)
@@ -80,9 +77,96 @@ class TelnetManager:
 
             if conn.poll():
                 log_message = conn.recv()
-                # For testing
-                # Logger.debug(f"Received message from other processes: {log_message}")
-
+                
                 # Send messages to all conected clients.
                 for connection in TelnetManager.connections:
-                    TelnetManager.send(connection, log_message + "\n")
+                    log_message = log_message + "\n"
+                    connection.send(log_message.endcode())
+
+
+class TelnetManager2:
+    connections = []
+    server = None
+
+    @staticmethod
+    def signal_handler(signum, frame):
+        Logger.success(f'Ctrl+C received. Telnet cleaning up and exiting.')
+
+        for connection in TelnetManager2.connections:
+            connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
+            connection.close()
+            TelnetManager2.connections.remove(connection)
+
+        TelnetManager2.server.close()
+
+        Logger.success(f'Cleaning up completed.')
+        sys.exit(0)
+
+    @staticmethod
+    def send_to_all_clients(msg):
+        for connection in TelnetManager2.connections:
+            msg = msg + "\n"
+            connection.send(msg.encode())
+   
+    @staticmethod
+    def start_telnet(parent_conn):
+        TelnetManager2.parent_conn = parent_conn
+
+        # Register the signal handler for Ctrl+C (SIGINT)
+        signal.signal(signal.SIGINT, TelnetManager2.signal_handler)
+        Logger.set_parent_conn(TelnetManager2.parent_conn)
+
+        # starting telnet server
+        TelnetManager2.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        TelnetManager2.server.bind((config.Server.Connection.Telnet.host, config.Server.Connection.Telnet.port))
+        TelnetManager2.server.listen(config.Telnet.Defaults.listen)
+        TelnetManager2.server.settimeout(config.Telnet.Defaults.timeout)
+        TelnetManager2.server.setblocking(False)
+    
+        Logger.success(f'Telnet server started, listening on {config.Server.Connection.Telnet.host}:{config.Server.Connection.Telnet.port}')
+        TelnetManager2.connections_handler()
+
+    @staticmethod
+    def connections_handler():
+        while True:
+            try:
+                readable, _, _ = select.select([TelnetManager2.server] + TelnetManager2.connections, [], [], config.Telnet.Defaults.timeout)
+
+                for sock in readable:             
+                    try:
+                        if sock == TelnetManager2.server:
+                            TelnetManager2.connect(sock)
+                        else:
+                            data = sock.recv(1024)
+
+                            if not data:
+                                TelnetManager2.disconnect(sock)
+                            else:
+                                data = data.decode().strip().replace('\n', '')
+
+                                if '/' in data[0]:
+                                   TelnetManager2.parent_conn.send(data.encode())
+
+                    except AttributeError as ae:
+                        Logger.error(f"Error {ae}")
+
+            except Exception as e:
+                    Logger.error(f"Error in the main loop: {e}")
+
+            if TelnetManager2.parent_conn.poll():
+                TelnetManager2.send_to_all_clients(TelnetManager2.parent_conn.recv())
+
+    def connect(sock):
+        connection, address = sock.accept()
+        connection.setblocking(False)
+        TelnetManager2.connections.append(connection)
+        
+        Logger.success(f'New connection from {address}')
+        msg = config.Telnet.Defaults.welcome + "\n\n"
+        connection.send(msg.encode()) 
+
+    def disconnect(sock):
+        TelnetManager2.connections.remove(sock)
+        sock.close()
+        
+        Logger.success(f'Telnet: Client disconnected: {sock.getpeername()}')
