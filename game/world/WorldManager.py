@@ -340,6 +340,8 @@ class WorldWrapper(WorldServerSessionHandler):
     def starts(parent_conn=None):
         if parent_conn:
             Logger.set_parent_conn(parent_conn)
+        
+        player_session = None
 
         while True:
             if parent_conn.poll():
@@ -347,37 +349,28 @@ class WorldWrapper(WorldServerSessionHandler):
 
                 if isinstance(str, bytes):
                     try:
-                            player_session = ""
-
-                            try:
-                                msg_list = str.decode('utf-8')[1:].split()
-                            except Exception as e:
-                                Logger.error(f'Error: {e}')
-                                
-                            # Logger.error(f"LEN: {len(msg_list)}")
-                            
-                            if len(msg_list) >= 3: 
-                                player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
-                                msg = f".{msg_list[0]} {' '.join(msg_list[2:])}".strip()
-                            if len(msg_list) < 3:
-                                msg = f".{msg_list[0]} {' '.join(msg_list[1:])}".strip()
-                                player_session = None
-
-                            if msg_list[0] == 'help':
-                                msg_list[0] = 'server_help'
-                                CommandManager.help_server()
-                            else:
-                                # Logger.success(f'msg: {msg}.')
-                                Logger.success(f'msg: {player_session}.')
-
-                                try:
-                                    CommandManager.handle_system_command(player_session, msg)
-                                # except Exception as e:
-                                except (AttributeError, TypeError) as e:
-                                    # Logger.error(f'Error: {e}')
-                                    Logger.error(f"Did not find the player")
-                                except IndexError as e:
-                                    Logger.error(f"Command error. ex. /money <player> <amount>")
-                    
+                        msg_list = str.decode('utf-8')[1:].split()
+                        if len(msg_list) == 0:
+                            msg_list = ['help']
                     except Exception as e:
                         Logger.error(f'Error: {e}')
+                        
+                    if msg_list[0] == 'help':
+                        msg_list[0] = 'server_help'
+                        CommandManager.help_server()
+                    else:
+                        if len(msg_list) >= 3 and not msg_list[0] == "ann": 
+                            player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+                            msg = f".{msg_list[0]} {' '.join(msg_list[2:])}".strip()
+                        else:
+                            msg = f".{msg_list[0]} {' '.join(msg_list[1:])}"
+                            player_session = None
+
+                        try:
+                            Logger.success(f'{msg} to {msg_list[1]}')
+                            CommandManager.handle_system_command(player_session, msg)
+                        except (AttributeError, TypeError) as e:
+                            Logger.telnet_info(f'You probebly forgot to add player in command. ex. /<command> <player_name> <args>')
+                            Logger.telnet_info(f'or player is not online')
+                        except Exception as e:
+                            Logger.error(f"{e}")

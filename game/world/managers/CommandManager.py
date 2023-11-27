@@ -71,9 +71,9 @@ class CommandManager(object):
 
         if command in PLAYER_COMMAND_DEFINITIONS:
             command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
-        elif command in GM_COMMAND_DEFINITIONS and world_session.account_mgr.is_gm():
+        elif command in GM_COMMAND_DEFINITIONS:
             command_func = GM_COMMAND_DEFINITIONS[command][0]
-        elif command in DEV_COMMAND_DEFINITIONS and world_session.account_mgr.is_dev():
+        elif command in DEV_COMMAND_DEFINITIONS:
             command_func = DEV_COMMAND_DEFINITIONS[command][0]
         else:
             Logger.error(f'Command not found, type .help for help.')
@@ -133,6 +133,8 @@ class CommandManager(object):
     @staticmethod
     def help_server():
         Logger.telnet_info(f'Listening server commands') 
+        Logger.telnet_info(f'Please notice, in most commands you need') 
+        Logger.telnet_info(f'to add player ex. /<command> <player> <args>') 
 
         for command in DEV_COMMAND_DEFINITIONS:
             Logger.plain(f'{command}') 

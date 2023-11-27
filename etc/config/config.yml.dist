@@ -86,7 +86,7 @@ Telnet:
         username: admin
         password: admin
         enabled: False
-        timeout: 0.1
+        timeout: 0
         listen: 5
 
 World:

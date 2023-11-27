@@ -12,7 +12,7 @@ from tools.map_extractor.MapExtractor import MapExtractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
-from utils.TelnetManager import TelnetManager, TelnetManager2
+from utils.TelnetManager import TelnetManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         parent_world_conn, world_conn = multiprocessing.Pipe()
         parent_telnet_conn, telnet_conn = multiprocessing.Pipe()
 
-        telnet_process = context.Process(target=TelnetManager2.start_telnet, args=(telnet_conn,))
+        telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
         telnet_process.start()
 
     if launch_realm:
@@ -138,28 +138,31 @@ if __name__ == '__main__':
                         processes = [login_process, world_process, proxy_process, telnet_process]
 
                         # Checking for pipe messages to telnet from all processes
-                        while any(process.is_alive() for process in processes):
-                            try:
-                                if parent_world_conn.poll():
-                                    message = parent_world_conn.recv()
-                                    parent_telnet_conn.send(message)
-                                if parent_login_conn.poll():
-                                    message = parent_login_conn.recv()
-                                    parent_telnet_conn.send(message)
-                                if parent_proxy_conn.poll():
-                                    message = parent_proxy_conn.recv()
-                                    parent_telnet_conn.send(message)
-                                if parent_telnet_conn.poll():
-                                    message = parent_telnet_conn.recv()
-                                    
-                                    if isinstance(message, bytes):
-                                        if b'/' in message: 
-                                            parent_world_conn.send(message)
-                                    
-                                        parent_telnet_conn.send(message.decode())
-                            except:
-                                Logger.error('Got error closing Telnet')
-                                continue
+                        try:
+                            while any(process.is_alive() for process in processes):
+                                
+                                try:
+                                    if parent_world_conn.poll():
+                                        message = parent_world_conn.recv()
+                                        parent_telnet_conn.send(message)
+                                    if parent_login_conn.poll():
+                                        message = parent_login_conn.recv()
+                                        parent_telnet_conn.send(message)
+                                    if parent_proxy_conn.poll():
+                                        message = parent_proxy_conn.recv()
+                                        parent_telnet_conn.send(message)
+                                    if parent_telnet_conn.poll():
+                                        message = parent_telnet_conn.recv()
+                                        
+                                        if isinstance(message, bytes):
+                                            if b'/' in message: 
+                                                parent_world_conn.send(message)
+                                        
+                                except:
+                                    continue
+                        except:
+                            pass
+                            # Logger.error(f'Got error closing Telnet {e}')
 
                                        
         except Exception as e:
