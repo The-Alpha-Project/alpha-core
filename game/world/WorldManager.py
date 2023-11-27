@@ -349,7 +349,6 @@ class WorldWrapper(WorldServerSessionHandler):
                         msg_list[0] = 'server_help'
                         CommandManager.help_server()
                     else:
-                        
                         try:
                             player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
                         except:
@@ -370,6 +369,6 @@ class WorldWrapper(WorldServerSessionHandler):
                             Logger.telnet_info(f'Player is not online, or you forgot to add player in your command')
                             Logger.telnet_info(f'ex. /{msg_list[0]} <player_name> <args>')
                         except IndexError as e:
-                            Logger.telnet_info(f'You forgot the command arguments /{msg_list[0]} <player_name> <args>') 
+                            Logger.telnet_info(f'You forgot the command arguments .{msg_list[0]} <player_name> <args>') 
                         except Exception as e:
                             Logger.error(f"{e}")

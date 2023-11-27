@@ -18,7 +18,6 @@ class TelnetManager:
             connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
             TelnetManager.disconnect(connection)
 
-
         TelnetManager.server.close()
 
         Logger.telnet_info(f'Cleaning up completed.')
@@ -115,7 +114,6 @@ class TelnetManager:
 
         except Exception as e:
             Logger.error(f"Error in connect: {e}")
-
 
     def disconnect(sock):
         TelnetManager.connections.remove(sock)
