@@ -367,10 +367,12 @@ class WorldWrapper(WorldServerSessionHandler):
                             player_session = None
 
                         try:
-                            Logger.success(f'{msg} to {msg_list[1]}')
+                            Logger.success(f'Sent {msg} to {msg_list[1]}')
                             CommandManager.handle_system_command(player_session, msg)
                         except (AttributeError, TypeError) as e:
-                            Logger.telnet_info(f'You probebly forgot to add player in command. ex. /<command> <player_name> <args>')
-                            Logger.telnet_info(f'or player is not online')
+                            Logger.telnet_info(f'Player is not online, or you forgot to add player in your command')
+                            Logger.telnet_info(f'ex. /{msg_list[0]} <player_name> <args>')
+                        except IndexError as e:
+                            Logger.telnet_info(f'You forgot the command arguments /{msg_list[0]} <player_name> <args>') 
                         except Exception as e:
                             Logger.error(f"{e}")
