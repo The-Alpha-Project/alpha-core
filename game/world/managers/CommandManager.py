@@ -1012,11 +1012,14 @@ class TelnetCommandManager(CommandManager):
             return
 
         if command_func:
-            code, res = command_func(world_session, args)
-            if code != 0:
-                Logger.error(f'Error with <{command}> command: {res}')
-            elif res:
-                 Logger.success(f'{res}')
+            try:
+                code, res = command_func(world_session, args)
+                if code != 0:
+                    Logger.error(f'Error with <{command}> command: {res}')
+                elif res:
+                    Logger.success(f'{res}')
+            except:
+                pass
 
     @staticmethod
     def help(world_session, args):
