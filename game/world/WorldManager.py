@@ -51,10 +51,7 @@ class WorldServerSessionHandler:
             self.account_mgr = None
             self.keep_alive = True
             
-            print("yes")
-
             if self.auth_challenge(self.client_socket):
-                print("no")
                 self.client_socket.settimeout(120)  # 2 minutes timeout should be more than enough.
 
                 incoming_thread = threading.Thread(target=self.process_incoming)
@@ -66,15 +63,8 @@ class WorldServerSessionHandler:
                 outgoing_thread.start()
 
                 while self.receive(self.client_socket) != -1 and self.keep_alive:
-                 #   sessions = WorldSessionStateHandler.get_world_sessions()
-                  #  Logger.success(f'World Sessions: {len(sessions)}')
                     continue
-           # else:
-              #  sessions = WorldSessionStateHandler.get_world_sessions()
-               # Logger.success(f'World Sessions: {len(sessions)}')
-
-#                msg = CommandManager.serverinfo(sessions, "")
- #               Logger.success(f'World Sessions: {msg}')
+        
         finally:
             self.disconnect()
 
@@ -359,15 +349,18 @@ class WorldWrapper(WorldServerSessionHandler):
                         msg_list[0] = 'server_help'
                         CommandManager.help_server()
                     else:
-                        player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+                        
+                        try:
+                            player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+                        except:
+                            player_session = None
 
-                        if player_session: 
+                        if player_session and len(msg_list) > 2: 
                         # if len(msg_list) >= 3 and not msg_list[0] == "ann": 
                             msg = f".{msg_list[0]} {' '.join(msg_list[2:])}".strip()
                             user = msg_list[0]
                         else:
                             msg = f".{msg_list[0]} {' '.join(msg_list[1:])}"
-                            player_session = None
                             user = "server"
 
                         try:

@@ -66,7 +66,7 @@ class TelnetManager:
                             else:
                                 data = data.decode().strip().replace('\n', '')
 
-                                if '/' in data[0]:
+                                if '.' in data[0]:
                                    TelnetManager.parent_conn.send(data.encode())
 
                     except AttributeError as ae:
