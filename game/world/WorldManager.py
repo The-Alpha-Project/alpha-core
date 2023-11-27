@@ -4,7 +4,7 @@ import threading
 import traceback
 from time import time
 
-from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.schedulers.background import BackgroundScheduler # type: ignore
 
 from database.world.WorldDatabaseManager import *
 from game.world.WorldLoader import WorldLoader
