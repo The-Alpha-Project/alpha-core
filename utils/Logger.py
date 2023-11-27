@@ -86,8 +86,15 @@ class Logger:
         if Logger._should_log(DebugLevel.INFO):
             formatted_msg = Logger._colorize_message('[INFO]', DebugColorLevel.INFO, msg)
             print(formatted_msg, end=end)
-            
-           
+
+    @staticmethod
+    def telnet_info(msg):
+        if Logger._should_log(DebugLevel.INFO):
+            formatted_msg = Logger._colorize_message('[INfO]', DebugColorLevel.INFO, msg)
+            print(formatted_msg)
+
+            if Logger.parent_conn:
+                Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
     def success(msg):
@@ -106,6 +113,13 @@ class Logger:
 
             if Logger.parent_conn:
                 Logger.parent_conn.send(formatted_msg)
+                
+    @staticmethod
+    def plain(msg):
+        if Logger._should_log(DebugLevel.SUCCESS):
+            if Logger.parent_conn:
+                Logger.parent_conn.send(msg)
+
 
     # Additional methods
 

@@ -346,24 +346,38 @@ class WorldWrapper(WorldServerSessionHandler):
                 str = parent_conn.recv()
 
                 if isinstance(str, bytes):
-                    sessions = WorldSessionStateHandler.get_world_sessions
-
                     try:
-                        if len(sessions) <= 0:
-                            Logger.error(f'Error: No sessions')
-                        else:
+                            player_session = ""
+
                             try:
                                 msg_list = str.decode('utf-8')[1:].split()
                             except Exception as e:
                                 Logger.error(f'Error: {e}')
                                 
-                            msg = f".{msg_list[0]} {' '.join(msg_list[2:])}" 
-                            Logger.success(f'msg: {msg}')
-
-                            try:
+                            # Logger.error(f"LEN: {len(msg_list)}")
+                            
+                            if len(msg_list) >= 3: 
                                 player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
-                                CommandManager.handle_system_command(player_session, msg)
-                            except Exception as e:
-                                Logger.error(f'Error: {e}')
+                                msg = f".{msg_list[0]} {' '.join(msg_list[2:])}".strip()
+                            if len(msg_list) < 3:
+                                msg = f".{msg_list[0]} {' '.join(msg_list[1:])}".strip()
+                                player_session = None
+
+                            if msg_list[0] == 'help':
+                                msg_list[0] = 'server_help'
+                                CommandManager.help_server()
+                            else:
+                                # Logger.success(f'msg: {msg}.')
+                                Logger.success(f'msg: {player_session}.')
+
+                                try:
+                                    CommandManager.handle_system_command(player_session, msg)
+                                # except Exception as e:
+                                except (AttributeError, TypeError) as e:
+                                    # Logger.error(f'Error: {e}')
+                                    Logger.error(f"Did not find the player")
+                                except IndexError as e:
+                                    Logger.error(f"Command error. ex. /money <player> <amount>")
+                    
                     except Exception as e:
                         Logger.error(f'Error: {e}')

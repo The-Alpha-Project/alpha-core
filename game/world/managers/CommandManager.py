@@ -71,9 +71,9 @@ class CommandManager(object):
 
         if command in PLAYER_COMMAND_DEFINITIONS:
             command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
-        elif command in GM_COMMAND_DEFINITIONS:
+        elif command in GM_COMMAND_DEFINITIONS and world_session.account_mgr.is_gm():
             command_func = GM_COMMAND_DEFINITIONS[command][0]
-        elif command in DEV_COMMAND_DEFINITIONS:
+        elif command in DEV_COMMAND_DEFINITIONS and world_session.account_mgr.is_dev():
             command_func = DEV_COMMAND_DEFINITIONS[command][0]
         else:
             Logger.error(f'Command not found, type .help for help.')
@@ -129,6 +129,17 @@ class CommandManager(object):
                                                            f'{PLAYER_COMMAND_DEFINITIONS[command][1]}')
 
         return 0, f'{total_number} commands found.'
+    
+    @staticmethod
+    def help_server():
+        Logger.telnet_info(f'Listening server commands') 
+
+        for command in DEV_COMMAND_DEFINITIONS:
+            Logger.plain(f'{command}') 
+        for command in GM_COMMAND_DEFINITIONS:
+            Logger.plain(f'{command}') 
+        for command in PLAYER_COMMAND_DEFINITIONS:
+            Logger.plain(f'{command}') 
 
     @staticmethod
     def speed(world_session, args):

@@ -90,7 +90,7 @@ class TelnetManager2:
 
     @staticmethod
     def signal_handler(signum, frame):
-        Logger.success(f'Ctrl+C received. Telnet cleaning up and exiting.')
+        Logger.telnet_info(f'Ctrl+C received. Telnet cleaning up and exiting.')
 
         for connection in TelnetManager2.connections:
             connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
@@ -99,7 +99,7 @@ class TelnetManager2:
 
         TelnetManager2.server.close()
 
-        Logger.success(f'Cleaning up completed.')
+        Logger.telnet_info(f'Cleaning up completed.')
         sys.exit(0)
 
     @staticmethod
@@ -169,4 +169,4 @@ class TelnetManager2:
         TelnetManager2.connections.remove(sock)
         sock.close()
         
-        Logger.success(f'Telnet: Client disconnected: {sock.getpeername()}')
+        Logger.telnet_info(f'Telnet: Client disconnected: {sock.getpeername()}')

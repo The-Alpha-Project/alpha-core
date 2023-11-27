@@ -139,23 +139,28 @@ if __name__ == '__main__':
 
                         # Checking for pipe messages to telnet from all processes
                         while any(process.is_alive() for process in processes):
-                            if parent_world_conn.poll():
-                                message = parent_world_conn.recv()
-                                parent_telnet_conn.send(message)
-                            if parent_login_conn.poll():
-                                message = parent_login_conn.recv()
-                                parent_telnet_conn.send(message)
-                            if parent_proxy_conn.poll():
-                                message = parent_proxy_conn.recv()
-                                parent_telnet_conn.send(message)
-                            if parent_telnet_conn.poll():
-                                message = parent_telnet_conn.recv()
-                                
-                                if isinstance(message, bytes):
-                                    if b'/' in message: 
-                                        parent_world_conn.send(message)
-                                
-                                    parent_telnet_conn.send(message.decode())
+                            try:
+                                if parent_world_conn.poll():
+                                    message = parent_world_conn.recv()
+                                    parent_telnet_conn.send(message)
+                                if parent_login_conn.poll():
+                                    message = parent_login_conn.recv()
+                                    parent_telnet_conn.send(message)
+                                if parent_proxy_conn.poll():
+                                    message = parent_proxy_conn.recv()
+                                    parent_telnet_conn.send(message)
+                                if parent_telnet_conn.poll():
+                                    message = parent_telnet_conn.recv()
+                                    
+                                    if isinstance(message, bytes):
+                                        if b'/' in message: 
+                                            parent_world_conn.send(message)
+                                    
+                                        parent_telnet_conn.send(message.decode())
+                            except:
+                                Logger.error('Got error closing Telnet')
+                                continue
+
                                        
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
