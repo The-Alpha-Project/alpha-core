@@ -359,15 +359,19 @@ class WorldWrapper(WorldServerSessionHandler):
                         msg_list[0] = 'server_help'
                         CommandManager.help_server()
                     else:
-                        if len(msg_list) >= 3 and not msg_list[0] == "ann": 
-                            player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+                        player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+
+                        if player_session: 
+                        # if len(msg_list) >= 3 and not msg_list[0] == "ann": 
                             msg = f".{msg_list[0]} {' '.join(msg_list[2:])}".strip()
+                            user = msg_list[0]
                         else:
                             msg = f".{msg_list[0]} {' '.join(msg_list[1:])}"
                             player_session = None
+                            user = "server"
 
                         try:
-                            Logger.success(f'Sent {msg} to {msg_list[1]}')
+                            Logger.success(f'Sent {msg} to {user}')
                             CommandManager.handle_system_command(player_session, msg)
                         except (AttributeError, TypeError) as e:
                             Logger.telnet_info(f'Player is not online, or you forgot to add player in your command')
