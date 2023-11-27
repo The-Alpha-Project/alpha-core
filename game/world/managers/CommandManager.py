@@ -134,7 +134,7 @@ class CommandManager(object):
     def help_server():
         Logger.telnet_info(f'Listening server commands') 
         Logger.telnet_info(f'Please notice, in most commands you need') 
-        Logger.telnet_info(f'to add player ex. /<command> <player> <args>') 
+        Logger.telnet_info(f'to add player ex. .<command> <player> <args>') 
 
         for command in DEV_COMMAND_DEFINITIONS:
             Logger.plain(f'{command}') 

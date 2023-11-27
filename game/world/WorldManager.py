@@ -346,8 +346,14 @@ class WorldWrapper(WorldServerSessionHandler):
                         Logger.error(f'Error: {e}')
                         
                     if msg_list[0] == 'help':
-                        msg_list[0] = 'server_help'
                         CommandManager.help_server()
+                    elif msg_list[0] == 'online':
+                        world_sessions = WorldSessionStateHandler.get_world_sessions()
+                        
+                        Logger.telnet_info(f'Online players')
+                        for session in world_sessions:
+                            Logger.telnet_info(f'{session.player_mgr.get_name()}')
+
                     else:
                         try:
                             player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
@@ -355,7 +361,6 @@ class WorldWrapper(WorldServerSessionHandler):
                             player_session = None
 
                         if player_session and len(msg_list) > 2: 
-                        # if len(msg_list) >= 3 and not msg_list[0] == "ann": 
                             msg = f".{msg_list[0]} {' '.join(msg_list[2:])}".strip()
                             user = msg_list[0]
                         else:

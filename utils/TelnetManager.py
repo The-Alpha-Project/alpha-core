@@ -65,7 +65,7 @@ class TelnetManager:
                             else:
                                 data = data.decode().strip().replace('\n', '')
 
-                                if '.' in data[0]:
+                                if '/' in data[0]:
                                    TelnetManager.parent_conn.send(data.encode())
 
                     except AttributeError as ae:
@@ -87,10 +87,10 @@ class TelnetManager:
 
         # Check if username and password are valid
         if username == config.Telnet.Defaults.username and password == config.Telnet.Defaults.password:
-            connection.send("Authentication successful!\n".encode())
+            connection.send("\nAuthentication successful!\n\n".encode())
             return True
         else:
-            connection.send("Authentication failed. Closing connection.\n".encode())
+            connection.send("\nAuthentication failed. Closing connection.\n\n".encode())
             return False
 
     def connect(sock):
