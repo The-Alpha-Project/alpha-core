@@ -19,7 +19,7 @@ from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
 from utils.constants.MiscCodes import ObjectTypeIds
 
-from game.world.managers.CommandManager import CommandManager
+from game.world.managers.CommandManager import CommandManager, TelnetCommandManager
 STARTUP_TIME = time()
 WORLD_ON = True
 
@@ -339,41 +339,20 @@ class WorldWrapper(WorldServerSessionHandler):
 
                 if isinstance(str, bytes):
                     try:
-                        msg_list = str.decode('utf-8')[1:].split()
-                        if len(msg_list) == 0:
-                            msg_list = ['help']
+                        msg_list = str.decode('utf-8').split()
                     except Exception as e:
                         Logger.error(f'Error: {e}')
                         
-                    if msg_list[0] == 'help':
-                        CommandManager.help_server()
-                    elif msg_list[0] == 'online':
-                        world_sessions = WorldSessionStateHandler.get_world_sessions()
-                        
-                        Logger.telnet_info(f'Online players')
-                        for session in world_sessions:
-                            Logger.telnet_info(f'{session.player_mgr.get_name()}')
+                    try:
+                        player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+                        msg = f"{msg_list[0]} {' '.join(msg_list[2:])}".strip()
+                        user = msg_list[1]
+                    except:
+                        player_session = "None"
+                        msg = f"{msg_list[0]} {' '.join(msg_list[1:])}"
+                        user = "server"
 
-                    else:
-                        try:
-                            player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
-                        except:
-                            player_session = None
+                    msg = msg.replace('/', '.', 1)
 
-                        if player_session and len(msg_list) > 2: 
-                            msg = f".{msg_list[0]} {' '.join(msg_list[2:])}".strip()
-                            user = msg_list[0]
-                        else:
-                            msg = f".{msg_list[0]} {' '.join(msg_list[1:])}"
-                            user = "server"
-
-                        try:
-                            Logger.success(f'Sent {msg} to {user}')
-                            CommandManager.handle_system_command(player_session, msg)
-                        except (AttributeError, TypeError) as e:
-                            Logger.telnet_info(f'Player is not online, or you forgot to add player in your command')
-                            Logger.telnet_info(f'ex. /{msg_list[0]} <player_name> <args>')
-                        except IndexError as e:
-                            Logger.telnet_info(f'You forgot the command arguments /{msg_list[0]} <player_name> <args>') 
-                        except Exception as e:
-                            Logger.error(f"{e}")
+                    Logger.success(f'Sent {msg} to {user}')
+                    TelnetCommandManager.handle_command(player_session, msg.rstrip())

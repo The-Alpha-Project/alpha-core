@@ -10,6 +10,7 @@ import sys
 
 class TelnetManager:
     connections = []
+    command_history = []
     server = None
 
     @staticmethod
@@ -68,8 +69,14 @@ class TelnetManager:
                             else:
                                 data = data.decode().strip().replace('\n', '')
 
+                                if data == 'history':
+                                    for command in TelnetManager.command_history:
+                                        sock.send(command.encode())
+                                else:
+                                    TelnetManager.command_history.append(data + "\n")
+
                                 if '/' in data[0]:
-                                   TelnetManager.parent_conn.send(data.encode())
+                                    TelnetManager.parent_conn.send(data.encode())
 
                     except AttributeError as ae:
                         Logger.error(f"Error {ae}")
@@ -79,7 +86,6 @@ class TelnetManager:
 
             if TelnetManager.parent_conn.poll():
                 TelnetManager.send_to_all_clients(TelnetManager.parent_conn.recv())
-
 
     def disconnect(sock):
         TelnetManager.connections.remove(sock)
@@ -104,7 +110,7 @@ class TelnetManager:
 
         Logger.telnet_info(f'Cleaning up completed.')
         sys.exit(0)
-   
+
     @staticmethod
     def start_telnet(parent_conn):
         TelnetManager.parent_conn = parent_conn

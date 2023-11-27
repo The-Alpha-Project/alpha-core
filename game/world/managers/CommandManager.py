@@ -58,33 +58,7 @@ class CommandManager(object):
                 for line in lines:
                     ChatManager.send_system_message(world_session, line)
             
-    @staticmethod
-    def handle_system_command(world_session, command_msg):
-        """
-        Handles commands sent by telnet. It uses players session (which we get from player name)
-        but buypass all dev or gm tests. Also send all output to Logger instead of chat.
-        """
-        terminator_index = command_msg.find(' ') if ' ' in command_msg else len(command_msg)
-
-        command = command_msg[1:terminator_index].strip()
-        args = command_msg[terminator_index:].strip()
-
-        if command in PLAYER_COMMAND_DEFINITIONS:
-            command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
-        elif command in GM_COMMAND_DEFINITIONS:
-            command_func = GM_COMMAND_DEFINITIONS[command][0]
-        elif command in DEV_COMMAND_DEFINITIONS:
-            command_func = DEV_COMMAND_DEFINITIONS[command][0]
-        else:
-            Logger.error(f'Command not found, type .help for help.')
-            return
-
-        if command_func:
-            code, res = command_func(world_session, args)
-            if code != 0:
-                Logger.error(f'Error with <{command}> command: {res}')
-            elif res:
-                 Logger.success(f'{res}')
+   
 
     @staticmethod
     def _target_or_self(world_session, only_players=False):
@@ -130,18 +104,7 @@ class CommandManager(object):
 
         return 0, f'{total_number} commands found.'
     
-    @staticmethod
-    def help_server():
-        Logger.telnet_info(f'Listening server commands') 
-        Logger.telnet_info(f'Please notice, in most commands you need') 
-        Logger.telnet_info(f'to add player ex. /<command> <player> <args>') 
-
-        for command in DEV_COMMAND_DEFINITIONS:
-            Logger.plain(f'{command}') 
-        for command in GM_COMMAND_DEFINITIONS:
-            Logger.plain(f'{command}') 
-        for command in PLAYER_COMMAND_DEFINITIONS:
-            Logger.plain(f'{command}') 
+   
 
     @staticmethod
     def speed(world_session, args):
@@ -513,13 +476,17 @@ class CommandManager(object):
             return -1, 'please use the "x y z map" format.'
 
     @staticmethod
-    def tickets(world_session, args):
+    def tickets(world_session, args=False):
         tickets = RealmDatabaseManager.ticket_get_all()
         for ticket in tickets:
             ticket_color = '|cFFFF0000' if ticket.is_bug else '|cFF00FFFF'
             ticket_title = 'Bug report' if ticket.is_bug else 'Suggestion'
             ticket_text = f'{ticket_color}[{ticket.id}]|r {ticket.submit_time}: {ticket_title} from {ticket.character_name}.'
-            ChatManager.send_system_message(world_session, ticket_text)
+            
+            if args == True:
+                Logger.telnet_info(f'{ticket_text}')
+            else:
+                ChatManager.send_system_message(world_session, ticket_text)
         return 0, f'{len(tickets)} tickets shown.'
 
     @staticmethod
@@ -1018,6 +985,79 @@ class CommandManager(object):
             return -1, 'please use it like: .sloc comment'
 
 
+class TelnetCommandManager(CommandManager):
+     # Telnet commands
+    
+    @staticmethod
+    def handle_command(world_session, command_msg):
+        """
+        Handles commands sent by telnet. It uses players session (which we get from player name)
+        but buypass all dev or gm tests. Also send all output to Logger instead of chat.
+        """
+        terminator_index = command_msg.find(' ') if ' ' in command_msg else len(command_msg)
+
+        command = command_msg[1:terminator_index].strip()
+        args = command_msg[terminator_index:].strip()
+
+        if command in TELNET_COMMAND_DEFINITIONS:
+            command_func = TELNET_COMMAND_DEFINITIONS[command][0]
+        elif command in PLAYER_COMMAND_DEFINITIONS:
+            command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
+        elif command in GM_COMMAND_DEFINITIONS:
+            command_func = GM_COMMAND_DEFINITIONS[command][0]
+        elif command in DEV_COMMAND_DEFINITIONS:
+            command_func = DEV_COMMAND_DEFINITIONS[command][0]
+        else:
+            Logger.error(f'Command not found, type .help for help.')
+            return
+
+        if command_func:
+            code, res = command_func(world_session, args)
+            if code != 0:
+                Logger.error(f'Error with <{command}> command: {res}')
+            elif res:
+                 Logger.success(f'{res}')
+
+    @staticmethod
+    def help(world_session, args):
+        Logger.telnet_info(f'Listening server commands') 
+        Logger.telnet_info(f'Please notice, in most commands you need') 
+        Logger.telnet_info(f'to add player ex. /<command> <player> <args>') 
+
+        for command in TELNET_COMMAND_DEFINITIONS:
+            Logger.plain(f'{command}')
+        for command in DEV_COMMAND_DEFINITIONS:
+            Logger.plain(f'{command}') 
+        for command in GM_COMMAND_DEFINITIONS:
+            Logger.plain(f'{command}') 
+        for command in PLAYER_COMMAND_DEFINITIONS:
+            Logger.plain(f'{command}')  
+        
+        return 0, f''
+
+    @staticmethod
+    def online(world_session, args): 
+        world_sessions = WorldSessionStateHandler.get_world_sessions()
+                        
+        Logger.telnet_info(f'Online players')
+        for session in world_sessions:
+            Logger.telnet_info(f'{session.player_mgr.get_name()}')
+        
+        return 0, f''
+
+    @staticmethod
+    def tickets(world_session, args=False):
+        tickets = RealmDatabaseManager.ticket_get_all()
+        for ticket in tickets:
+            ticket_color = '|cFFFF0000' if ticket.is_bug else '|cFF00FFFF'
+            ticket_title = 'Bug report' if ticket.is_bug else 'Suggestion'
+            ticket_text = f'{ticket_color}[{ticket.id}]|r {ticket.submit_time}: {ticket_title} from {ticket.character_name}.'
+            
+            Logger.telnet_info(f'{ticket_text}')
+
+        return 0, ''
+
+
 PLAYER_COMMAND_DEFINITIONS = {
     'help': [CommandManager.help, 'print this message'],
     'serverinfo': [CommandManager.serverinfo, 'print server information'],
@@ -1083,4 +1123,9 @@ DEV_COMMAND_DEFINITIONS = {
     'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
     'sloc': [CommandManager.save_location, 'save your location to locations.log along with a comment'],
     'worldoff': [CommandManager.worldoff, 'stop the world server']
+}
+
+TELNET_COMMAND_DEFINITIONS = {
+    'online': [TelnetCommandManager.online, 'shows a list on all people online'],
+    'help': [TelnetCommandManager.help, 'prints this message']
 }
