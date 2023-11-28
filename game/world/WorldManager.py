@@ -331,28 +331,31 @@ class WorldWrapper(WorldServerSessionHandler):
         if parent_conn:
             Logger.set_parent_conn(parent_conn)
         
-        player_session = None
+        exeptions = ['/ann', '/msg']
 
         while True:
             if parent_conn.poll():
                 str = parent_conn.recv()
 
                 if isinstance(str, bytes):
-                    try:
-                        msg_list = str.decode('utf-8').split()
-                    except Exception as e:
-                        Logger.error(f'Error: {e}')
+                    msg_list = str.decode('utf-8').split()
+                    player_session = None
+                    user = "server"
                         
                     try:
                         player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
-                        msg = f"{msg_list[0]} {' '.join(msg_list[2:])}".strip()
-                        user = msg_list[1]
+                        # player_session =  None if len(msg_list) <= 1 else WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
+
+                        if not msg_list[0] in exeptions:
+                        # if player_session:
+                            msg = f"{msg_list[0]} {' '.join(msg_list[2:])}".strip()
+                            user = msg_list[1]
+                        else:
+                            msg = f"{msg_list[0]} {' '.join(msg_list[1:])}"
                     except:
-                        player_session = "None"
                         msg = f"{msg_list[0]} {' '.join(msg_list[1:])}"
-                        user = "server"
 
                     msg = msg.replace('/', '.', 1)
 
                     Logger.success(f'Sent {msg} to {user}')
-                    TelnetCommandManager.handle_command(player_session, msg.rstrip())
+                    TelnetCommandManager.handle_command(player_session, msg)
