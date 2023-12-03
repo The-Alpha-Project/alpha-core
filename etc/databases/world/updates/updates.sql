@@ -1861,7 +1861,7 @@ begin not atomic
                                               (7035, 1, 4251), (7036, 1, 4252), (7078, 1, 4965),
                                               (7078, 1, 4967), (7078, 1, 4968), (7728, 0, 92015);
 
-        INSERT INTO `applied_updates` VALUES (231020231);
+        INSERT INTO `applied_updates` VALUES (031220231);
     end if;
 end $
 delimiter ;
