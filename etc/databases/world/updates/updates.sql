@@ -1842,7 +1842,7 @@ begin not atomic
         insert into `applied_updates` values ('081020231');
     end if;
 
-    -- 23/10/2023 1
+    -- 3/12/2023 1
     if (SELECT COUNT(*) FROM `applied_updates` WHERE id='231020231') = 0 then
         CREATE TABLE `spell_script_target` (
           `entry` mediumint(8) unsigned NOT NULL DEFAULT 0,
