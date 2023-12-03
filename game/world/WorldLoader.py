@@ -35,6 +35,7 @@ class WorldLoader:
 
         # Spells.
         WorldLoader.load_spells()
+        WorldLoader.load_spell_script_targets()
         WorldLoader.load_creature_spells()
 
         #  Scripts.
@@ -547,6 +548,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading spells...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_spell_script_targets():
+        script_targets = WorldDatabaseManager.spell_script_target_get_all()
+        length = len(script_targets)
+        count = 0
+
+        for script_target in script_targets:
+            WorldDatabaseManager.SpellScriptTargetHolder.load_spell_script_target(script_target)
+
+            count += 1
+            Logger.progress('Loading spell script targets...', count, length)
 
         return length
 
