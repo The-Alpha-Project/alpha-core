@@ -25,7 +25,8 @@ from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools, \
+    SpellScriptTarget
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
@@ -1131,6 +1132,21 @@ class SpellManager:
                 else SpellCheckCastResult.SPELL_FAILED_BAD_IMPLICIT_TARGETS
             self.send_cast_result(casting_spell, result)
             return False
+
+        # Scripted target restriction check for initial target.
+        # Script (unit) targets for AoE effects are filtered by EffectTargets.
+        script_target_entries = WorldDatabaseManager.SpellScriptTargetHolder.\
+            spell_script_targets_get_by_spell(casting_spell.spell_entry.ID)
+
+        if script_target_entries and validation_target != self.caster:
+            for entry in script_target_entries:
+                req_type = ObjectTypeIds.ID_UNIT if entry.target_type == SpellScriptTarget.TARGET_UNIT \
+                    else ObjectTypeIds.ID_GAMEOBJECT
+
+                if validation_target.get_type_id() != req_type or \
+                        entry.target_entry != validation_target.entry:
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    return False
 
         # Unit target checks.
         if casting_spell.initial_target_is_unit_or_player():
