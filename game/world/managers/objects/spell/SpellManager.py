@@ -242,7 +242,7 @@ class SpellManager:
                                f'({item.get_name()}) could not be found in the spell database.')
                 continue
 
-            casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)
+            casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item=item)
             if not casting_spell:
                 continue
 
@@ -256,18 +256,17 @@ class SpellManager:
         if not spell or not spell_target:
             return
 
-        if not validate:
-            initialized_spell = self.try_initialize_spell(spell, spell_target, target_mask,
-                                                          triggered=triggered, validate=validate)
-            self.start_spell_cast(initialized_spell=initialized_spell)
+        initialized_spell = self.try_initialize_spell(spell, spell_target, target_mask,
+                                                      triggered=triggered, validate=validate)
+        if not initialized_spell:
             return
 
-        self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
+        self.start_spell_cast(initialized_spell=initialized_spell)
 
     def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
                              triggered=False, triggered_by_spell=None, hide_result=False,
                              validate=True, creature_spell=None) -> Optional[CastingSpell]:
-        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item,
+        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item=source_item,
                              triggered=triggered, triggered_by_spell=triggered_by_spell,
                              hide_result=hide_result,
                              creature_spell=creature_spell)
@@ -276,8 +275,8 @@ class SpellManager:
         return spell if self.validate_cast(spell) else None
 
     def start_spell_cast(self, spell: Optional[Spell] = None, spell_target=None, target_mask=SpellTargetMask.SELF,
-                         source_item=None, triggered=False, initialized_spell: Optional[CastingSpell] = None):
-        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item, triggered=triggered) \
+                         initialized_spell: Optional[CastingSpell] = None):
+        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask) \
             if not initialized_spell else initialized_spell
 
         if not casting_spell:

@@ -460,8 +460,9 @@ class UnitManager(ObjectManager):
             return
 
         spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(1604)
-        spell = attacker.spell_manager.try_initialize_spell(spell_entry, self, SpellTargetMask.UNIT, validate=False)
-        attacker.spell_manager.start_spell_cast(initialized_spell=spell, triggered=True)
+        spell = attacker.spell_manager.try_initialize_spell(spell_entry, self, SpellTargetMask.UNIT,
+                                                            triggered=True, validate=False)
+        attacker.spell_manager.start_spell_cast(initialized_spell=spell)
 
     def handle_melee_attack_procs(self, damage_info):
         damage_info.target.aura_manager.check_aura_procs(damage_info=damage_info, is_melee_swing=True)
