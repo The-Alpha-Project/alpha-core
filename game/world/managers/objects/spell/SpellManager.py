@@ -173,7 +173,13 @@ class SpellManager:
                 continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
-                self.start_spell_cast(spell_template, self.caster, SpellTargetMask.SELF)
+                # Hide result since this cast can fail (Battle Stance already applied).
+                spell_cast = self.try_initialize_spell(spell_template, self.caster,
+                                                                SpellTargetMask.SELF,
+                                                                triggered=True, hide_result=True)
+                if not spell_cast:
+                    continue
+                self.start_spell_cast(initialized_spell=spell_cast)
 
     def apply_passive_spell_effects(self, spell_template):
         if not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
