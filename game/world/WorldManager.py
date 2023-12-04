@@ -19,7 +19,8 @@ from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
 from utils.constants.MiscCodes import ObjectTypeIds
 
-from game.world.managers.CommandManager import CommandManager, TelnetCommandManager
+
+
 STARTUP_TIME = time()
 WORLD_ON = True
 
@@ -307,10 +308,7 @@ class WorldServerSessionHandler:
 
         real_binding = server_socket.getsockname()
         Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
-        
-        wrapper_thread = threading.Thread(target=WorldWrapper.starts,args=(parent_conn,))
-        wrapper_thread.daemon = True
-        wrapper_thread.start()
+    
 
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
 
@@ -325,37 +323,3 @@ class WorldServerSessionHandler:
                 break
 
 
-class WorldWrapper(WorldServerSessionHandler):
-
-    def starts(parent_conn=None):
-        if parent_conn:
-            Logger.set_parent_conn(parent_conn)
-        
-        exeptions = ['/ann', '/msg']
-
-        while True:
-            if parent_conn.poll():
-                str = parent_conn.recv()
-
-                if isinstance(str, bytes):
-                    msg_list = str.decode('utf-8').split()
-                    player_session = None
-                    user = "server"
-                        
-                    try:
-                        player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
-                        # player_session =  None if len(msg_list) <= 1 else WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
-
-                        if not msg_list[0] in exeptions:
-                        # if player_session:
-                            msg = f"{msg_list[0]} {' '.join(msg_list[2:])}".strip()
-                            user = msg_list[1]
-                        else:
-                            msg = f"{msg_list[0]} {' '.join(msg_list[1:])}"
-                    except:
-                        msg = f"{msg_list[0]} {' '.join(msg_list[1:])}"
-
-                    msg = msg.replace('/', '.', 1)
-
-                    Logger.success(f'Sent {msg} to {user}')
-                    TelnetCommandManager.handle_command(player_session, msg)

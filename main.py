@@ -15,8 +15,8 @@ from utils.ChatLogManager import ChatLogManager
 from utils.TelnetManager import TelnetManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
-
-from game.world.managers.CommandManager import CommandManager
+from game.world.WorldManagerExtended import WorldServerSessionHandlerExtended
+import threading
 
 # Initialize argument parser.
 parser = argparse.ArgumentParser()
@@ -98,12 +98,12 @@ if __name__ == '__main__':
     world_process, world_conn = None, None
     telnet_process, telnet_conn= None, None
 
-    if config.Telnet.Defaults.enabled and not config.Server.Settings.console_mode:
-        parent_login_conn, login_conn = multiprocessing.Pipe()
-        parent_proxy_conn, proxy_conn = multiprocessing.Pipe()
-        parent_world_conn, world_conn = multiprocessing.Pipe()
-        parent_telnet_conn, telnet_conn = multiprocessing.Pipe()
+    parent_login_conn, login_conn = multiprocessing.Pipe()
+    parent_proxy_conn, proxy_conn = multiprocessing.Pipe()
+    parent_world_conn, world_conn = multiprocessing.Pipe()
+    parent_telnet_conn, telnet_conn = multiprocessing.Pipe()
 
+    if config.Telnet.Defaults.enabled and not config.Server.Settings.console_mode:
         telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
         telnet_process.start()
 
@@ -123,6 +123,11 @@ if __name__ == '__main__':
     if launch_world:
         world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start,args=(world_conn,))
         world_process.start()
+
+        # It's the command manager used by Telnet
+        WorldManagerExtended_thread = threading.Thread(target=WorldServerSessionHandlerExtended.starts,args=(world_conn,))
+        WorldManagerExtended_thread.daemon = True
+        WorldManagerExtended_thread.start()
 
         # noinspection PyBroadException
         try:
@@ -153,17 +158,17 @@ if __name__ == '__main__':
                                         parent_telnet_conn.send(message)
                                     if parent_telnet_conn.poll():
                                         message = parent_telnet_conn.recv()
-                                        
+
                                         if isinstance(message, bytes):
                                             if b'/' in message: 
                                                 parent_world_conn.send(message)
-                                        
+
                                 except:
                                     continue
-                        except:
-                            pass
-                            # Logger.error(f'Got error closing Telnet {e}')
 
+                        except:
+                            # Logger.error(f'Got error closing Telnet {e}')
+                            pass
                                        
         except Exception as e:
             print(f"An unexpected error occurred: {e}")

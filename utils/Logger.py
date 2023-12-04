@@ -32,18 +32,9 @@ class Logger:
     # Initialize colorama.
     init()
 
-    @staticmethod
     def set_parent_conn(parent_conn):
         if not Logger.parent_conn:
             Logger.parent_conn = parent_conn
-
-    def send_to_telnet(func):
-        def wrapper(*args, **kwargs):
-            result = func(*args, **kwargs)
-            if Logger.parent_conn:
-                Logger.parent_conn.send(*args)
-            return result
-        return wrapper
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
@@ -52,75 +43,58 @@ class Logger:
     @staticmethod
     def _colorize_message(label, color, msg):
         date = datetime.now().strftime('[%d/%m/%Y %H:%M:%S]')
-        return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
+
+        formatted_msg = f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
+
+        if Logger.parent_conn:
+            line_ending = "\r" if 'INFO' in label and '%' in msg else "\n"
+            Logger.parent_conn.send(formatted_msg + line_ending)
+
+        return formatted_msg 
 
     @staticmethod
-    def debug(msg):
+    def debug(msg, LogMarkers='[DEBUG]'):
         if Logger._should_log(DebugLevel.DEBUG):
-            formatted_msg = Logger._colorize_message('[DEBUG]', DebugColorLevel.DEBUG, msg)
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.DEBUG, msg)
             print(formatted_msg)
 
-            if Logger.parent_conn:
-                Logger.parent_conn.send(formatted_msg)
-
     @staticmethod
-    def warning(msg):
+    def warning(msg, LogMarkers='[WARNING]'):
         if Logger._should_log(DebugLevel.WARNING):
-            formatted_msg = Logger._colorize_message('[WARNING]', DebugColorLevel.WARNING, msg)
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.WARNING, msg)
             print(formatted_msg)
 
-            if Logger.parent_conn:
-                Logger.parent_conn.send(formatted_msg)
-
     @staticmethod
-    def error(msg):
+    def error(msg, LogMarkers='[ERROR]'):
         if Logger._should_log(DebugLevel.ERROR):
-            formatted_msg = Logger._colorize_message('[ERROR]', DebugColorLevel.ERROR, msg)
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.ERROR, msg)
             print(formatted_msg)
 
-            if Logger.parent_conn:
-                Logger.parent_conn.send(formatted_msg)
-
     @staticmethod
-    def info(msg, end='\n'):
+    def info(msg, LogMarkers='[INFO]', end='\n'):
         if Logger._should_log(DebugLevel.INFO):
-            formatted_msg = Logger._colorize_message('[INFO]', DebugColorLevel.INFO, msg)
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.INFO, msg)
             print(formatted_msg, end=end)
-
+        
     @staticmethod
-    def telnet_info(msg):
-        if Logger._should_log(DebugLevel.INFO):
-            formatted_msg = Logger._colorize_message('[INfO]', DebugColorLevel.INFO, msg)
-            print(formatted_msg)
+    def plain(msg, LogMarkers=''):
+        # if we just want to send unformated text Telnet (output of help)
 
-            if Logger.parent_conn:
-                Logger.parent_conn.send(formatted_msg)
-
+        if Logger.parent_conn:
+            Logger.parent_conn.send(msg)
+        
     @staticmethod
-    def success(msg):
+    def success(msg, LogMarkers='[SUCCESS]'):
         if Logger._should_log(DebugLevel.SUCCESS):
-            formatted_msg = Logger._colorize_message('[SUCCESS]', DebugColorLevel.SUCCESS, msg)
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.SUCCESS, msg)
             print(formatted_msg)
 
-            if Logger.parent_conn:
-                Logger.parent_conn.send(formatted_msg)
-
     @staticmethod
-    def anticheat(msg):
+    def anticheat(msg, LogMarkers='[ANTICHEAT]'):
         if Logger._should_log(DebugLevel.ANTICHEAT):
-            formatted_msg = Logger._colorize_message('[ANTICHEAT]', DebugColorLevel.ANTICHEAT, msg)
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.ANTICHEAT, msg)
             print(formatted_msg)
-
-            if Logger.parent_conn:
-                Logger.parent_conn.send(formatted_msg)
-                
-    @staticmethod
-    def plain(msg):
-        if Logger._should_log(DebugLevel.SUCCESS):
-            if Logger.parent_conn:
-                Logger.parent_conn.send(msg)
-
-
+        
     # Additional methods
 
     @staticmethod
@@ -132,6 +106,6 @@ class Logger:
                     Logger.info(msg, end='\r')
             else:
                 Logger.success(msg)
-        
+
         except:
             pass

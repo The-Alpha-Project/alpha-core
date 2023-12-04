@@ -23,6 +23,7 @@ services:
       dockerfile: etc/docker/main/Dockerfile
     ports:
       - "3443:3443"
+      - "7878:7878"
       - "8100:8100"
       - "9090:9090"
       - "9100:9100"
@@ -35,6 +36,8 @@ services:
       context: .
       dockerfile: etc/docker/world/Dockerfile
     ports:
+      - "3443:3443"
+      - "7878:7878"
       - "8100:8100"
     <<: *alpha-core-shared-conf
     profiles:
@@ -58,8 +61,8 @@ services:
     build: etc/docker/sql
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
-    ports:
-      - "3306:3306"
+      # ports:
+        # - "3306:3306"
     volumes:
       - ./etc/databases/:/etc/databases/
     restart: on-failure

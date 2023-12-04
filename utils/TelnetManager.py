@@ -89,18 +89,17 @@ class TelnetManager:
 
     def disconnect(sock):
         TelnetManager.connections.remove(sock)
-        Logger.telnet_info(f'Client disconnected: {sock.getpeername()}')
+        Logger.info(f'Client disconnected: {sock.getpeername()}')
         sock.close()
 
     @staticmethod
     def send_to_all_clients(msg):
         for connection in TelnetManager.connections:
-            msg = msg + "\n"
             connection.send(msg.encode())
 
     @staticmethod
     def signal_handler(signum, frame):
-        Logger.telnet_info(f'Ctrl+C received. Telnet cleaning up and exiting.')
+        Logger.info(f'Ctrl+C received. Telnet cleaning up and exiting.')
 
         for connection in TelnetManager.connections:
             connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
@@ -108,7 +107,7 @@ class TelnetManager:
 
         TelnetManager.server.close()
 
-        Logger.telnet_info(f'Cleaning up completed.')
+        Logger.info(f'Cleaning up completed.')
         sys.exit(0)
 
     @staticmethod
