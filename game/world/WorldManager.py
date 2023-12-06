@@ -19,6 +19,8 @@ from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
 from utils.constants.MiscCodes import ObjectTypeIds
 
+from game.world.TelnetCommandHandler import TelnetCommandHandler
+
 
 
 STARTUP_TIME = time()
@@ -306,9 +308,14 @@ class WorldServerSessionHandler:
 
         WorldServerSessionHandler.schedule_background_tasks()
 
+        # CommandManager used by Telnet, need to be like this otherwise does this loop take over
+        if config.Telnet.Defaults.enabled and not config.Server.Settings.console_mode:
+            WorldManagerExtended_thread = threading.Thread(target=TelnetCommandHandler.starts,args=(parent_conn,))
+            WorldManagerExtended_thread.daemon = True
+            WorldManagerExtended_thread.start()
+
         real_binding = server_socket.getsockname()
         Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
-    
 
         while WORLD_ON:  # sck.accept() is a blocking call, we can't exit this loop gracefully.
 
@@ -321,5 +328,3 @@ class WorldServerSessionHandler:
                 world_session_thread.start()
             except:
                 break
-
-

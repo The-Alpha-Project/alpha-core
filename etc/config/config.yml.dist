@@ -3,7 +3,7 @@ Version:
 
 Database:
     Connection:
-        host: 127.0.0.1
+        host: alpha-core-sql
         username: root
         password: pwd
 

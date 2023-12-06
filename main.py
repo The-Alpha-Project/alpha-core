@@ -15,8 +15,7 @@ from utils.ChatLogManager import ChatLogManager
 from utils.TelnetManager import TelnetManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
-from game.world.WorldManagerExtended import WorldServerSessionHandlerExtended
-import threading
+
 
 # Initialize argument parser.
 parser = argparse.ArgumentParser()
@@ -98,12 +97,12 @@ if __name__ == '__main__':
     world_process, world_conn = None, None
     telnet_process, telnet_conn= None, None
 
-    parent_login_conn, login_conn = multiprocessing.Pipe()
-    parent_proxy_conn, proxy_conn = multiprocessing.Pipe()
-    parent_world_conn, world_conn = multiprocessing.Pipe()
-    parent_telnet_conn, telnet_conn = multiprocessing.Pipe()
-
     if config.Telnet.Defaults.enabled and not config.Server.Settings.console_mode:
+        parent_login_conn, login_conn = multiprocessing.Pipe()
+        parent_proxy_conn, proxy_conn = multiprocessing.Pipe()
+        parent_world_conn, world_conn = multiprocessing.Pipe()
+        parent_telnet_conn, telnet_conn = multiprocessing.Pipe()
+
         telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
         telnet_process.start()
 
@@ -124,11 +123,6 @@ if __name__ == '__main__':
         world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start,args=(world_conn,))
         world_process.start()
 
-        # It's the command manager used by Telnet
-        WorldManagerExtended_thread = threading.Thread(target=WorldServerSessionHandlerExtended.starts,args=(world_conn,))
-        WorldManagerExtended_thread.daemon = True
-        WorldManagerExtended_thread.start()
-
         # noinspection PyBroadException
         try:
             if os.getenv(EnvVars.EnvironmentalVariables.CONSOLE_MODE,
@@ -139,39 +133,27 @@ if __name__ == '__main__':
                 if not config.Telnet.Defaults.enabled:
                     world_process.join()
                 else:
-                    if config.Telnet.Defaults.enabled:
-                        processes = [login_process, world_process, proxy_process, telnet_process]
+                    processes = [login_process, world_process, proxy_process, telnet_process]
 
-                        # Checking for pipe messages to telnet from all processes
-                        try:
-                            while any(process.is_alive() for process in processes):
-                                
-                                try:
-                                    if parent_world_conn.poll():
-                                        message = parent_world_conn.recv()
-                                        parent_telnet_conn.send(message)
-                                    if parent_login_conn.poll():
-                                        message = parent_login_conn.recv()
-                                        parent_telnet_conn.send(message)
-                                    if parent_proxy_conn.poll():
-                                        message = parent_proxy_conn.recv()
-                                        parent_telnet_conn.send(message)
-                                    if parent_telnet_conn.poll():
-                                        message = parent_telnet_conn.recv()
+                    # Checking for pipe messages to telnet from all processes
+                    while any(process.is_alive() for process in processes):
+                        if parent_world_conn.poll():
+                            message = parent_world_conn.recv()
+                            parent_telnet_conn.send(message)
+                        if parent_login_conn.poll():
+                            message = parent_login_conn.recv()
+                            parent_telnet_conn.send(message)
+                        if parent_proxy_conn.poll():
+                            message = parent_proxy_conn.recv()
+                            parent_telnet_conn.send(message)
+                        if parent_telnet_conn.poll():
+                            message = parent_telnet_conn.recv()
 
-                                        if isinstance(message, bytes):
-                                            if b'/' in message: 
-                                                parent_world_conn.send(message)
-
-                                except:
-                                    continue
-
-                        except:
-                            # Logger.error(f'Got error closing Telnet {e}')
-                            pass
+                            if isinstance(message, bytes):
+                                if b'/' in message: 
+                                    parent_world_conn.send(message)
                                        
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+        except:
             Logger.info('Shutting down the core...')
 
         ChatLogManager.exit()

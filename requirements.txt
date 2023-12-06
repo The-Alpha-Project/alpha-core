@@ -4,4 +4,3 @@ colorama
 SQLAlchemy
 pymysql
 apscheduler
-flask

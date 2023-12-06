@@ -79,11 +79,13 @@ class TelnetManager:
                                     TelnetManager.parent_conn.send(data.encode())
 
                     except AttributeError as ae:
-                        Logger.error(f"Error {ae}")
+                        # Logger.error(f"Error {ae}")
+                        pass
 
             except Exception as e:
-                    Logger.error(f"Error in the main loop: {e}")
-
+                    # Logger.error(f"Error in the main loop: {e}")
+                    pass 
+                    
             if TelnetManager.parent_conn.poll():
                 TelnetManager.send_to_all_clients(TelnetManager.parent_conn.recv())
 
