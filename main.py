@@ -12,6 +12,7 @@ from tools.map_extractor.MapExtractor import MapExtractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
+from utils.TelnetManager import TelnetManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
@@ -91,15 +92,25 @@ if __name__ == '__main__':
     launch_realm = not args.launch or args.launch == 'realm'
     launch_world = not args.launch or args.launch == 'world'
 
-    login_process = None
-    proxy_process = None
-    world_process = None
+    login_process, login_conn = None, None
+    proxy_process, proxy_conn = None, None
+    world_process, world_conn = None, None
+    telnet_process, telnet_conn= None, None
+
+    if config.Telnet.Defaults.enabled and not config.Server.Settings.console_mode:
+        parent_login_conn, login_conn = multiprocessing.Pipe()
+        parent_proxy_conn, proxy_conn = multiprocessing.Pipe()
+        parent_world_conn, world_conn = multiprocessing.Pipe()
+        parent_telnet_conn, telnet_conn = multiprocessing.Pipe()
+
+        telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
+        telnet_process.start()
 
     if launch_realm:
-        login_process = context.Process(target=RealmManager.start_realm)
+        login_process = context.Process(target=RealmManager.start_realm, args=(login_conn,))
         login_process.start()
 
-        proxy_process = context.Process(target=RealmManager.start_proxy)
+        proxy_process = context.Process(target=RealmManager.start_proxy, args=(proxy_conn,))
         proxy_process.start()
 
         if not launch_world:
@@ -107,9 +118,9 @@ if __name__ == '__main__':
                 login_process.join()
             except:
                 Logger.info('Terminating login processes...')
-
+    
     if launch_world:
-        world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start)
+        world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start,args=(world_conn,))
         world_process.start()
 
         # noinspection PyBroadException
@@ -119,7 +130,34 @@ if __name__ == '__main__':
                 while input() != 'exit':
                     Logger.error('Invalid command.')
             else:
-                world_process.join()
+                if not config.Telnet.Defaults.enabled:
+                    world_process.join()
+                else:
+                    processes = [login_process, world_process, proxy_process, telnet_process]
+
+                    # Checking for pipe messages to telnet from all processes
+                    try:
+                        while any(process.is_alive() for process in processes):
+                        
+                            if parent_world_conn.poll():
+                                message = parent_world_conn.recv()
+                                parent_telnet_conn.send(message)
+                            if parent_login_conn.poll():
+                                message = parent_login_conn.recv()
+                                parent_telnet_conn.send(message)
+                            if parent_proxy_conn.poll():
+                                message = parent_proxy_conn.recv()
+                                parent_telnet_conn.send(message)
+                            if parent_telnet_conn.poll():
+                                message = parent_telnet_conn.recv()
+
+                                if isinstance(message, bytes):
+                                    if b'/' in message: 
+                                        parent_world_conn.send(message)
+                    except:
+                        Logger.error('Pipe error')
+                            
+                                       
         except:
             Logger.info('Shutting down the core...')
 
@@ -135,6 +173,9 @@ if __name__ == '__main__':
         Logger.info('Login process terminated.')
         proxy_process.terminate()
         Logger.info('Proxy process terminated.')
+    # if config.Telnet.Defaults.enabled:
+        # telnet_process.terminate()
+        # Logger.info('Telnet process terminated.') 
 
     # Release process resources.
     Logger.info('Waiting to release resources...')
@@ -144,5 +185,7 @@ if __name__ == '__main__':
     if launch_realm:
         release_process(proxy_process)
         release_process(login_process)
+    # if config.Telnet.Defaults.enabled:
+        # release_process(telnet_process)
 
     Logger.success('Core gracefully shut down.')
