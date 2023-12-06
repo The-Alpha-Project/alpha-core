@@ -155,7 +155,8 @@ if __name__ == '__main__':
                                     if b'/' in message: 
                                         parent_world_conn.send(message)
                     except:
-                        Logger.error('Pipe error')
+                        # Logger.error('Pipe error')
+                        pass
                             
                                        
         except:
