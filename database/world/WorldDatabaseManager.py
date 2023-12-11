@@ -1273,6 +1273,30 @@ class WorldDatabaseManager(object):
         world_db_session.close()
         return res
 
+    # Scripted spell targets.
+
+    class SpellScriptTargetHolder:
+        SPELL_SCRIPT_TARGETS: dict[int, list[SpellScriptTarget]] = {}
+
+        @staticmethod
+        def load_spell_script_target(spell_script_target: SpellScriptTarget):
+            if spell_script_target.entry not in WorldDatabaseManager.SpellScriptTargetHolder.SPELL_SCRIPT_TARGETS:
+                WorldDatabaseManager.SpellScriptTargetHolder.SPELL_SCRIPT_TARGETS[spell_script_target.entry] = []
+            WorldDatabaseManager.SpellScriptTargetHolder.SPELL_SCRIPT_TARGETS[spell_script_target.entry].append(spell_script_target)
+
+        @staticmethod
+        def spell_script_targets_get_by_spell(spell_id: int) -> list[SpellScriptTarget]:
+            if spell_id in WorldDatabaseManager.SpellScriptTargetHolder.SPELL_SCRIPT_TARGETS:
+                return WorldDatabaseManager.SpellScriptTargetHolder.SPELL_SCRIPT_TARGETS[spell_id]
+            return []
+
+    @staticmethod
+    def spell_script_target_get_all() -> list[SpellScriptTarget]:
+        world_db_session: scoped_session = SessionHolder()
+        res = world_db_session.query(SpellScriptTarget).all()
+        world_db_session.close()
+        return res
+
     # Quest Gossip.
 
     class QuestGossipHolder:

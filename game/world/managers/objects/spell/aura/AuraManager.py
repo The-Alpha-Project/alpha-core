@@ -351,6 +351,9 @@ class AuraManager:
                 self.remove_aura(aura)
 
     def remove_aura(self, aura, canceled=False):
+        if aura.index not in self.active_auras:
+            return
+
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target, remove=True)
         if not self.active_auras.pop(aura.index, None):
             return

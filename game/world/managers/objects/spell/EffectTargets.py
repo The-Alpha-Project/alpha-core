@@ -194,17 +194,21 @@ class EffectTargets:
             units = source.get_map().get_surrounding_units(source, include_players=True)
             units = list(units[0].values()) + list(units[1].values())
 
+        scripted_targets = WorldDatabaseManager.SpellScriptTargetHolder.\
+            spell_script_targets_get_by_spell(target_effect.casting_spell.spell_entry.ID)
+
         if not enemies_only and not friends_only and not distance_loc and not \
-                casting_spell.spell_entry.TargetCreatureType:
+                casting_spell.spell_entry.TargetCreatureType and not scripted_targets:
             return units  # No filters provided.
 
         return EffectTargets._filter_unit_targets(units, casting_spell,
                                                   enemies_only=enemies_only, friends_only=friends_only,
-                                                  distance_loc=distance_loc, radius=radius)
+                                                  distance_loc=distance_loc, radius=radius,
+                                                  target_entries=[t.target_entry for t in scripted_targets])
 
     @staticmethod
     def _filter_unit_targets(units, casting_spell, enemies_only=False, friends_only=False,
-                             distance_loc=None, radius=-1):
+                             distance_loc=None, radius=-1, target_entries=None):
         filtered_units = []
         unit_type_restriction = casting_spell.spell_entry.TargetCreatureType
 
@@ -212,6 +216,9 @@ class EffectTargets:
         for unit in units:
             # Unit type.
             if unit_type_restriction and not unit_type_restriction & (1 << unit.creature_type - 1):
+                continue
+
+            if target_entries and unit.get_type_id() != ObjectTypeIds.ID_UNIT or unit.entry not in target_entries:
                 continue
 
             # Friendliness.
@@ -250,11 +257,10 @@ class EffectTargets:
     def resolve_random_enemy_chain_in_area(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
-    # TODO missing spell_script_target table for filtering A targets.
-    #  Related to issue https://github.com/The-Alpha-Project/alpha-core/issues/1258
     @staticmethod
     def resolve_area_effect_custom(casting_spell, target_effect):
-        Logger.warning(f'Unimplemented scripted targets called for spell {casting_spell.spell_entry.ID}')
+        # Always paired with TARGET_ALL_AROUND_CASTER,
+        # which applied the scripted restriction due to filtering in get_surrounding_unit_targets.
         return target_effect.targets.resolved_targets_a
 
     @staticmethod
@@ -537,9 +543,14 @@ class EffectTargets:
     def resolve_script(casting_spell, target_effect):
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
 
+    # Only used by warlock class quest summoning spells (7728, 7729).
     @staticmethod
     def resolve_gameobject_script_near_caster(casting_spell, target_effect):
-        Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
+        caster = casting_spell.spell_caster
+        surrounding_gos = [go for go in caster.get_map().get_surrounding_gameobjects(caster).values()]
+        script_targets = WorldDatabaseManager.SpellScriptTargetHolder.\
+            spell_script_targets_get_by_spell(target_effect.casting_spell.spell_entry.ID)
+        return [go for go in surrounding_gos if go.entry in script_targets]
 
     # Used by is_area_of_effect_spell.
     AREA_TARGETS = {

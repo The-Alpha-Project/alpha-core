@@ -361,7 +361,7 @@ class StatManager(object):
     def calculate_item_stats(self):
         # Creature-only calculations.
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
-            min_damage, max_damage = unpack('<2H', pack('<I', self.unit_mgr.damage))
+            min_damage, max_damage = self.unit_mgr.dmg_min, self.unit_mgr.dmg_max
             main_min_dmg = min_damage
             main_max_dmg = max_damage
             weapon_reach = 0
