@@ -1841,5 +1841,27 @@ begin not atomic
         
         insert into `applied_updates` values ('081020231');
     end if;
+
+    -- 3/12/2023 1
+    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='231020231') = 0 then
+        CREATE TABLE `spell_script_target` (
+          `entry` mediumint(8) unsigned NOT NULL DEFAULT 0,
+          `target_type` tinyint(1) unsigned NOT NULL DEFAULT 0,
+          `target_entry` mediumint(8) NOT NULL DEFAULT 0,
+          PRIMARY KEY (`entry`,`target_entry`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+        INSERT INTO `spell_script_target` (`entry`, `target_type`, `target_entry`) VALUES
+                                              (4130, 1, 2760), (4131, 1, 2761), (4132, 1, 2762),
+                                              (4170, 1, 2595), (4170, 1, 2596), (4170, 1, 11054),
+                                              (5628, 1, 2006), (5628, 1, 2007), (5628, 1, 2008),
+                                              (5628, 1, 2009), (5628, 1, 2010), (5628, 1, 2011),
+                                              (5628, 1, 2012), (5628, 1, 2013), (5628, 1, 2014),
+                                              (5628, 1, 2039), (6955, 1, 4946), (7022, 1, 4945),
+                                              (7035, 1, 4251), (7036, 1, 4252), (7078, 1, 4965),
+                                              (7078, 1, 4967), (7078, 1, 4968), (7728, 0, 92015);
+
+        INSERT INTO `applied_updates` VALUES (031220231);
+    end if;
 end $
 delimiter ;

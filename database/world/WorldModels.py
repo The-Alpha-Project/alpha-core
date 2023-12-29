@@ -1017,6 +1017,14 @@ class SpellTargetPosition(Base):
     target_orientation = Column(Float, nullable=False, server_default=text("0"))
 
 
+class SpellScriptTarget(Base):
+    __tablename__ = 'spell_script_target'
+
+    entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("0"))
+    target_type = Column(TINYINT(1), nullable=False, server_default=text("0"))
+    target_entry = Column(MEDIUMINT(8), primary_key=True, nullable=False, server_default=text("0"))
+
+
 class NpcVendorTemplateBase:
     pass
 
