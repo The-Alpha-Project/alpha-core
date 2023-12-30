@@ -756,6 +756,8 @@ begin not atomic
         update creature_template set display_id1 = 155 where entry = 2417;
         -- Update Crushridge Ogre display_id, closes #1299.
         update creature_template set display_id1 = 1121 where entry = 2252;
+        -- Update Mug'thol display_id, closes #1300.
+        update creature_template set display_id1 = 597 where entry = 2257;
 
         insert into applied_updates values('301220231');
     end if;
