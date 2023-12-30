@@ -740,6 +740,11 @@ begin not atomic
         update item_template set name = 'Crownroyal' where entry = 3356;
         -- Despawn floating Blazing Fire near Orgrimmar, closes #1332.
         update spawns_gameobjects set ignored = 1 where spawn_id = 11958;
+        -- Fix cost and skill requirements for Handstitched Leather Belt.
+        update trainer_template set spellcost = 75, reqskillvalue = 25 where template_entry = 509;
+        -- Add Handstitched Leather Pants to Leatherworking trainers. Cost and required skill level is from vanilla since we don't know it (but it aligns well with the other Handstitched recipes).
+        insert into trainer_template (template_entry, spell, playerspell, spellcost, reqskill, reqskillvalue, reqlevel) values (509, 2338, 2153, 50, 165, 15, 1);
+
 
         insert into applied_updates values('301220231');
     end if;
