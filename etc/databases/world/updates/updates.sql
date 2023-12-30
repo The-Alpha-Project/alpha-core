@@ -733,5 +733,13 @@ begin not atomic
 
         insert into`applied_updates`values ('140420231');
     end if;
+
+    -- 30/12/2023 1
+    if(select count(*) from `applied_updates` where id='301220231') = 0 then
+        -- Rename Kingsblood to Crownroyal
+        update item_template set name = 'Crownroyal' where entry = 3356;
+
+        insert into applied_updates values('301220231');
+    end if;
 end $
 delimiter ;
