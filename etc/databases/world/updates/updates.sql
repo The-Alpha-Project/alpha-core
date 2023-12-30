@@ -758,6 +758,8 @@ begin not atomic
         update creature_template set display_id1 = 1121 where entry = 2252;
         -- Update Mug'thol display_id, closes #1300.
         update creature_template set display_id1 = 597 where entry = 2257;
+        -- Update Bloodmage Thalnos display_id, closes #1302.
+        update creature_template set display_id1 = 2606 where entry = 4543;
 
         insert into applied_updates values('301220231');
     end if;
