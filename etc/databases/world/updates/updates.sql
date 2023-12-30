@@ -750,6 +750,8 @@ begin not atomic
         update creature_template set display_id1 = 667 where entry = 1007;
         -- Update Samuel Flipps display_id, closes #1295.
         update creature_template set display_id1 = 1200 where entry = 1919;
+        -- Update Stephen Bartec display_id, closes #1296.
+        update creature_template set display_id1 = 200 where entry = 1916;
 
         insert into applied_updates values('301220231');
     end if;
