@@ -736,8 +736,10 @@ begin not atomic
 
     -- 30/12/2023 1
     if(select count(*) from `applied_updates` where id='301220231') = 0 then
-        -- Rename Kingsblood to Crownroyal
+        -- Rename Kingsblood to Crownroyal, closes #1338.
         update item_template set name = 'Crownroyal' where entry = 3356;
+        -- Despawn floating Blazing Fire near Orgrimmar, closes #1332.
+        update spawns_gameobjects set ignored = 1 where spawn_id = 11958;
 
         insert into applied_updates values('301220231');
     end if;
