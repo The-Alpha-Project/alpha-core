@@ -744,7 +744,8 @@ begin not atomic
         update trainer_template set spellcost = 75, reqskillvalue = 25 where template_entry = 509;
         -- Add Handstitched Leather Pants to Leatherworking trainers. Cost and required skill level is from vanilla since we don't know it (but it aligns well with the other Handstitched recipes).
         insert into trainer_template (template_entry, spell, playerspell, spellcost, reqskill, reqskillvalue, reqlevel) values (509, 2338, 2153, 50, 165, 15, 1);
-
+        -- Update quest XP, required item count and text for "The Trogg Threat" (267), closes #1285.
+        update quest_template set RewXP = 1500, ReqItemCount1 = 20, Objectives = "Bring 20 Trogg Stone Teeth to Captain Rugelfuss in the southern guard tower.", RequestItemsText = "Do you have 20 Trogg Stone Teeth to show me? If not, there is still work to be done, $N.", Details = "$C, you may or may not be aware of the Trogg threat looming over Dwarven lands.  With the Ironforge Reserve called up to the Alliance Front, we are left with a fraction of the defense forces needed to keep these lands safe.  My regiment is assigned to watch over the Gate here and we cannot leave our post for fear of invasion.$b$bBut we need some pressure put on those damned Troggs lurking in the hills.  If you're up to the task, wage an assault on the Troggs.  Bring me back 20 Trogg Stone Teeth as proof." where entry = 267;
 
         insert into applied_updates values('301220231');
     end if;
