@@ -748,6 +748,8 @@ begin not atomic
         update quest_template set RewXP = 1500, ReqItemCount1 = 20, Objectives = "Bring 20 Trogg Stone Teeth to Captain Rugelfuss in the southern guard tower.", RequestItemsText = "Do you have 20 Trogg Stone Teeth to show me? If not, there is still work to be done, $N.", Details = "$C, you may or may not be aware of the Trogg threat looming over Dwarven lands.  With the Ironforge Reserve called up to the Alliance Front, we are left with a fraction of the defense forces needed to keep these lands safe.  My regiment is assigned to watch over the Gate here and we cannot leave our post for fear of invasion.$b$bBut we need some pressure put on those damned Troggs lurking in the hills.  If you're up to the task, wage an assault on the Troggs.  Bring me back 20 Trogg Stone Teeth as proof." where entry = 267;
         -- Update Mosshide Gnoll display_id, closes #1280.
         update creature_template set display_id1 = 667 where entry = 1007;
+        -- Update Samuel Flipps display_id, closes #1295.
+        update creature_template set display_id1 = 1200 where entry = 1919;
 
         insert into applied_updates values('301220231');
     end if;
