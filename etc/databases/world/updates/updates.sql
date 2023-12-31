@@ -1870,13 +1870,15 @@ begin not atomic
         update item_template set bonding = 0 where class in (2, 4);
         -- Then, set all rings to unique.
         update item_template set max_count = 1 where inventory_type = 11;
-        -- Last, set individual items to Bind on Equip where applicable.
+        -- Set individual items to Bind on Equip where applicable.
         -- Boss drops.
         update item_template set bonding = 2 where entry in(6392, 5423, 1292, 5193, 6320, 5198, 5202, 5191, 2816, 5201, 3748, 1156, 6220, 888, 6318, 6324, 1155, 5426, 6321, 5194, 5192);
         -- Drops from instanced rare spawns. Separated for easier removal because I'm not sure the boss rule applies to them.
         update item_template set bonding = 2 where entry in(5443, 2942, 3228, 2941);
         -- Rare Crafting items.
         update item_template set bonding = 2 where entry in(4262, 3844, 4327, 2870, 4320, 4253);
+        -- Lastly, set all rewards from dungeon quests to Bind on Pickup.
+        update item_template set bonding = 1 where entry in(4197, 4980, 6414, 2037, 2036, 2033, 2906, 3324, 1893, 2074, 2089, 6094, 4746, 6335, 4534, 3041, 4197, 6087, 2041, 2042, 3562, 1264, 3400, 1317);
 
         INSERT INTO `applied_updates` VALUES ('311220231');
     end if;
