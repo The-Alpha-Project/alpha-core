@@ -1872,7 +1872,7 @@ begin not atomic
         update item_template set max_count = 1 where inventory_type = 11;
         -- Set individual items to Bind on Equip where applicable.
         -- Boss drops.
-        update item_template set bonding = 2 where entry in(6392, 5423, 1292, 5193, 6320, 5198, 5202, 5191, 2816, 5201, 3748, 1156, 6220, 888, 6318, 6324, 1155, 5426, 6321, 5194, 5192);
+        update item_template set bonding = 2 where entry in(6392, 5423, 1292, 5193, 6320, 5198, 5202, 5191, 2816, 5201, 3748, 1156, 6220, 888, 6318, 6324, 1155, 5426, 6321, 5194, 5192, 5196, 5197, 5199, 5195, 872, 6226, 6323, 3191, 6319, 3230, 6340, 6314, 3078);
         -- Drops from instanced rare spawns. Separated for easier removal because I'm not sure the boss rule applies to them.
         update item_template set bonding = 2 where entry in(5443, 2942, 3228, 2941);
         -- Rare Crafting items.
