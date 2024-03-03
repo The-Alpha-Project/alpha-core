@@ -323,12 +323,6 @@ class StatManager(object):
         if not accept_float:
             total = int(total)
 
-        if (UnitStats.STRENGTH <= stat_type <= UnitStats.SPIRIT) and \
-                self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            # Creatures have base attributes, but they should not give bonuses when calculating scaling off them.
-            #   (see logic using GetCreateStat in vMaNGOS).
-            total -= base_stats
-
         if accept_negative:
             return total
 
@@ -610,6 +604,10 @@ class StatManager(object):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
         total_health = self.get_total_stat(UnitStats.HEALTH)
 
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            # Creature health already includes bonus from base stamina.
+            total_stamina -= self.get_base_stat(UnitStats.STAMINA)
+
         current_hp = self.unit_mgr.health
         current_total_hp = self.unit_mgr.max_health
         new_hp = int(self.get_health_bonus_from_stamina(self.unit_mgr.class_, total_stamina) + total_health)
@@ -629,6 +627,10 @@ class StatManager(object):
 
         total_intellect = self.get_total_stat(UnitStats.INTELLECT)
         total_mana = self.get_total_stat(UnitStats.MANA)
+
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            # Creature mana already includes bonus from base intellect.
+            total_intellect -= self.get_base_stat(UnitStats.INTELLECT)
 
         current_mana = self.unit_mgr.power_1
         current_total_mana = self.unit_mgr.max_power_1
@@ -1086,12 +1088,6 @@ class StatManager(object):
         level = self.unit_mgr.level
         class_ = self.unit_mgr.class_
 
-        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
-            # Creatures have base attack power which includes gain from base stats.
-            # Calculate attack power first with these base stats and subtract base AP after.
-            strength += self.get_base_stat(UnitStats.STRENGTH)
-            agility += self.get_base_stat(UnitStats.AGILITY)
-
         if class_ == Classes.CLASS_WARRIOR or \
                 class_ == Classes.CLASS_PALADIN:
             attack_power = (strength * 2) + (level * 3) - 20
@@ -1108,6 +1104,7 @@ class StatManager(object):
         elif class_ == Classes.CLASS_SHAMAN:
             attack_power = strength - 10 + ((agility * 2) - 20) + (level * 2)
 
+        # Creatures have base attack power which includes gain from base stats.
         base_attack_power = self.get_base_stat(UnitStats.ATTACK_POWER)
         return max(attack_power - base_attack_power, 0)
 
