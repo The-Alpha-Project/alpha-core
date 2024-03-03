@@ -402,7 +402,9 @@ class CommandManager(object):
             for effect in spell_cast.get_effects():
                 if effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AURA,
                                           SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA}:
+                    effect.start_aura_duration()
                     unit.aura_manager.apply_spell_effect_aura(world_session.player_mgr, spell_cast, effect)
+
             return 0, ''
         except ValueError:
             return -1, 'invalid ID.'
