@@ -1049,7 +1049,7 @@ class StatManager(object):
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_school != SpellSchools.SPELL_SCHOOL_NORMAL:
             # Use resistance for players.
             # Our values for creatures are most likely wrong for alpha and are not applied.
-            resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START + spell_school)
+            resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START << spell_school)
         else:
             # Calculate resistance for creatures.
             # This is the formula for innate resistance used for partial resists in VMaNGOS,
