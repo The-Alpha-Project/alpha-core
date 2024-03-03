@@ -698,7 +698,7 @@ class CreatureManager(UnitManager):
 
     # override
     def set_max_mana(self, mana):
-        if self.max_power_1 > 0:
+        if mana > 0:
             self.max_power_1 = mana
             self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
 
