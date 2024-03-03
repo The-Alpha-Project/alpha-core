@@ -1123,7 +1123,8 @@ class StatManager(object):
             # Weapon enchant bonuses are included in the weapon's damage internally,
             # but should be displayed as a bonus.
             enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
-                self.unit_mgr.inventory.get_main_hand(), ItemEnchantmentType.DAMAGE)
+                self.unit_mgr.inventory.get_main_hand(), ItemEnchantmentType.DAMAGE
+            )
 
         self.unit_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN) - enchant_bonus,
                                        self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX) - enchant_bonus)
