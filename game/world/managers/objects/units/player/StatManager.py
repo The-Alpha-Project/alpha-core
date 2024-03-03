@@ -226,7 +226,7 @@ class StatManager(object):
         self.update_max_health()
         self.update_max_mana()
 
-        if not creature.is_pet():
+        if not creature.get_charmer_or_summoner():
             creature.health = int((creature.health_percent / 100) * creature.max_health)
             creature.power_1 = int((creature.mana_percent / 100) * creature.max_power_1)
 
