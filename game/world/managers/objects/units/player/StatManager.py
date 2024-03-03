@@ -340,12 +340,12 @@ class StatManager(object):
         self.calculate_item_stats()
 
         # Always update base attack since unarmed damage should update.
-        self.update_base_weapon_attributes(attack_type=AttackTypes.BASE_ATTACK)
+        self.update_attack_base_damage(attack_type=AttackTypes.BASE_ATTACK)
 
         if self.unit_mgr.has_offhand_weapon():
-            self.update_base_weapon_attributes(attack_type=AttackTypes.OFFHAND_ATTACK)
+            self.update_attack_base_damage(attack_type=AttackTypes.OFFHAND_ATTACK)
         if self.unit_mgr.has_ranged_weapon():  # TODO Are ranged formulas different?
-            self.update_base_weapon_attributes(attack_type=AttackTypes.RANGED_ATTACK)
+            self.update_attack_base_damage(attack_type=AttackTypes.RANGED_ATTACK)
 
         # Only send base speed - change_speed will apply total value.
         self.unit_mgr.change_speed(self.get_base_stat(UnitStats.SPEED_RUNNING))
@@ -1066,8 +1066,11 @@ class StatManager(object):
 
         return miss_chance
 
-    def update_base_weapon_attributes(self, attack_type=0):
+    def update_attack_base_damage(self, attack_type=0):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            base_stats, base_dmg, base_ranged_dmg = self._get_creature_base_stats()
+            self._set_creature_base_damage(base_dmg[0], base_dmg[1], AttackTypes.BASE_ATTACK)
+            self._set_creature_base_damage(base_ranged_dmg[0], base_ranged_dmg[1], AttackTypes.RANGED_ATTACK)
             return
 
         base_damage = self.get_attack_power_from_attributes() / 14
