@@ -604,13 +604,14 @@ class StatManager(object):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
         total_health = self.get_total_stat(UnitStats.HEALTH)
 
-        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
-            # Creature health already includes bonus from base stamina.
-            total_stamina -= self.get_base_stat(UnitStats.STAMINA)
-
         current_hp = self.unit_mgr.health
         current_total_hp = self.unit_mgr.max_health
         new_hp = int(self.get_health_bonus_from_stamina(self.unit_mgr.class_, total_stamina) + total_health)
+
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            # Creature health already includes bonus from base stamina.
+            new_hp -= int(self.get_health_bonus_from_stamina(self.unit_mgr.class_,
+                                                             self.get_base_stat(UnitStats.STAMINA)))
 
         hp_diff = new_hp - current_total_hp
         if new_hp > 0:
@@ -628,13 +629,14 @@ class StatManager(object):
         total_intellect = self.get_total_stat(UnitStats.INTELLECT)
         total_mana = self.get_total_stat(UnitStats.MANA)
 
-        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
-            # Creature mana already includes bonus from base intellect.
-            total_intellect -= self.get_base_stat(UnitStats.INTELLECT)
-
         current_mana = self.unit_mgr.power_1
         current_total_mana = self.unit_mgr.max_power_1
         new_mana = int(self.get_mana_bonus_from_intellect(self.unit_mgr.class_, total_intellect) + total_mana)
+
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            # Creature mana already includes bonus from base intellect.
+            new_mana -= int(self.get_mana_bonus_from_intellect(self.unit_mgr.class_,
+                                                               self.get_base_stat(UnitStats.INTELLECT)))
 
         mana_diff = new_mana - current_total_mana
         if new_mana > 0:
