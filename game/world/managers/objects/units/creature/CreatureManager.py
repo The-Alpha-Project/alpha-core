@@ -264,12 +264,12 @@ class CreatureManager(UnitManager):
             if self.addon.mount_display_id > 0:
                 self.mount(self.addon.mount_display_id)
 
-        # Cast default auras for this unit.
-        self.apply_default_auras()
-
         # Stats.
         self.stat_manager.init_stats()
         self.stat_manager.apply_bonuses(replenish=True)
+
+        # Cast default auras for this unit.
+        self.apply_default_auras()
 
         # Movement.
         self.movement_manager.initialize()
