@@ -454,9 +454,6 @@ class EffectTargets:
         units = EffectTargets.get_surrounding_unit_targets(target_effect, source_unit=caster,
                                                            distance_loc=caster.location,
                                                            radius=target_effect.get_radius())
-
-        if caster in units:
-            units.remove(caster)
         return units
 
     @staticmethod
