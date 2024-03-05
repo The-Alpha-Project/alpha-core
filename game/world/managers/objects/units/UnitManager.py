@@ -1474,7 +1474,7 @@ class UnitManager(ObjectManager):
         if not is_immune:
             return False
 
-        if not is_friendly and (not source or self.can_attack_target(source)):
+        if not is_friendly and (not source or source.can_attack_target(self)):
             return True  # Immune, hostile source.
 
         # Immune, friendly source. Check for friendly immunity.
