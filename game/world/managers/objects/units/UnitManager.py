@@ -847,13 +847,13 @@ class UnitManager(ObjectManager):
 
         damage_info = self.calculate_spell_damage(damage, miss_reason, hit_flags, spell_effect, target)
 
-        is_cast_on_swing = spell.casts_on_swing()
+        cast_on_swing = spell.casts_on_swing() and not spell_effect.aura_type
 
-        if is_cast_on_swing:
+        if cast_on_swing:
             self.handle_melee_attack_procs(damage_info)
 
         # TODO Should other spells give skill too?
-        if is_cast_on_swing or spell.is_ranged_weapon_attack():
+        if cast_on_swing or spell.is_ranged_weapon_attack():
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
