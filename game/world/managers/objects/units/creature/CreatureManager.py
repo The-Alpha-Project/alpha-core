@@ -58,15 +58,6 @@ class CreatureManager(UnitManager):
         self.ranged_attack_time = 0
         self.dmg_min = 0
         self.dmg_max = 0
-        self.ranged_dmg_min = 0
-        self.ranged_dmg_max = 0
-        self.strength = 0
-        self.agility = 0
-        self.stamina = 0
-        self.intellect = 0
-        self.spirit = 0
-        self.attack_power = 0
-        self.ranged_attack_power = 0
         self.destroy_time = 0
         self.destroy_timer = 420  # Standalone instances, destroyed after 7 minutes.
         self.virtual_item_info = {}
@@ -108,38 +99,6 @@ class CreatureManager(UnitManager):
         self.sheath_state = WeaponMode.NORMALMODE
         self.subtype = subtype
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
-        
-        # Get specific stats for class and level.
-        creature_class_level_stats = self.get_creature_class_level_stats()
-
-        # Calculate stats.
-        self.dmg_min, self.dmg_max = CreatureFormulas.calculate_min_max_damage(
-            creature_class_level_stats.melee_damage,
-            creature_template.damage_multiplier,
-            creature_template.damage_variance
-        )
-        self.ranged_dmg_min, self.ranged_dmg_max = CreatureFormulas.calculate_min_max_damage(
-            creature_class_level_stats.ranged_damage,
-            creature_template.damage_multiplier,
-            creature_template.damage_variance
-        )
-        self.resistance_0 = int(creature_class_level_stats.armor * creature_template.armor_multiplier)
-        self.resistance_1 = self.creature_template.holy_res
-        self.resistance_2 = self.creature_template.fire_res
-        self.resistance_3 = self.creature_template.nature_res
-        self.resistance_4 = self.creature_template.frost_res
-        self.resistance_5 = self.creature_template.shadow_res
-        self.strength = creature_class_level_stats.strength
-        self.agility = creature_class_level_stats.agility
-        self.stamina = creature_class_level_stats.stamina
-        self.intellect = creature_class_level_stats.intellect
-        self.spirit = creature_class_level_stats.spirit
-        self.attack_power = creature_class_level_stats.attack_power
-        self.ranged_attack_power = creature_class_level_stats.ranged_attack_power
-        self.max_health = int(max(1, creature_class_level_stats.health * creature_template.health_multiplier))
-        self.max_power_1 = int(creature_class_level_stats.mana * creature_template.mana_multiplier)
-        self.health = int((self.health_percent / 100) * self.max_health)
-        self.power_1 = int((self.mana_percent / 100) * self.max_power_1)
 
         if 0 < self.creature_template.rank < 4:
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
@@ -150,8 +109,6 @@ class CreatureManager(UnitManager):
             self.react_state = CreatureReactStates.REACT_DEFENSIVE
         else:
             self.react_state = CreatureReactStates.REACT_AGGRESSIVE
-
-        self.set_melee_damage(self.dmg_min, self.dmg_max)
 
         self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False
@@ -211,12 +168,12 @@ class CreatureManager(UnitManager):
         self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
         self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
         self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.base_attack_time)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistances[0])
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistances[1])
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistances[2])
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistances[3])
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistances[4])
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistances[5])
         self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
         self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
@@ -734,8 +691,14 @@ class CreatureManager(UnitManager):
             player.give_xp([Formulas.CreatureFormulas.xp_reward(self.level, player.level, is_elite)], self)
 
     # override
+    def set_melee_damage(self, min_dmg, max_dmg):
+        super().set_melee_damage(min_dmg, max_dmg)
+        self.dmg_min = min_dmg
+        self.dmg_max = max_dmg
+
+    # override
     def set_max_mana(self, mana):
-        if self.max_power_1 > 0:
+        if mana > 0:
             self.max_power_1 = mana
             self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
 

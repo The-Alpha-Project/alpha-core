@@ -137,26 +137,16 @@ class UnitManager(ObjectManager):
         self.combat_reach = combat_reach
         self.weapon_reach = weapon_reach
         self.mount_display_id = mount_display_id
-        self.resistance_buff_mods_positive_0 = resistance_buff_mods_positive_0
-        self.resistance_buff_mods_positive_1 = resistance_buff_mods_positive_1
-        self.resistance_buff_mods_positive_2 = resistance_buff_mods_positive_2
-        self.resistance_buff_mods_positive_3 = resistance_buff_mods_positive_3
-        self.resistance_buff_mods_positive_4 = resistance_buff_mods_positive_4
-        self.resistance_buff_mods_positive_5 = resistance_buff_mods_positive_5
-        self.resistance_buff_mods_negative_0 = resistance_buff_mods_negative_0
-        self.resistance_buff_mods_negative_1 = resistance_buff_mods_negative_1
-        self.resistance_buff_mods_negative_2 = resistance_buff_mods_negative_2
-        self.resistance_buff_mods_negative_3 = resistance_buff_mods_negative_3
-        self.resistance_buff_mods_negative_4 = resistance_buff_mods_negative_4
-        self.resistance_buff_mods_negative_5 = resistance_buff_mods_negative_5
+        self.resistance_buff_mods_positive = [resistance_buff_mods_positive_0, resistance_buff_mods_positive_1, 
+                                              resistance_buff_mods_positive_2, resistance_buff_mods_positive_3, 
+                                              resistance_buff_mods_positive_4, resistance_buff_mods_positive_5]
+        self.resistance_buff_mods_negative = [resistance_buff_mods_negative_0, resistance_buff_mods_negative_1, 
+                                              resistance_buff_mods_negative_2, resistance_buff_mods_negative_3, 
+                                              resistance_buff_mods_negative_4, resistance_buff_mods_negative_5]
         self.base_attack_time = base_attack_time
         self.offhand_attack_time = offhand_attack_time
-        self.resistance_0 = resistance_0  # Armor
-        self.resistance_1 = resistance_1
-        self.resistance_2 = resistance_2
-        self.resistance_3 = resistance_3
-        self.resistance_4 = resistance_4
-        self.resistance_5 = resistance_5
+        # # Armor, holy, fire, nature, frost, shadow.
+        self.resistances = [resistance_0, resistance_1, resistance_2, resistance_3, resistance_4, resistance_5]
         self.stand_state = stand_state
         self.sheath_state = sheath_state
         self.shapeshift_form = shapeshift_form
@@ -1520,59 +1510,57 @@ class UnitManager(ObjectManager):
         self.max_power_1 = mana
         self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
 
-    def set_armor(self, total_armor, item_armor):
-        self.resistance_0 = total_armor
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS, item_armor)
+    def set_base_str(self, str_):
+        self.base_str = str_
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, str_)
 
-    def set_holy_res(self, total_holy_res, item_holy_res):
-        self.resistance_1 = total_holy_res
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 1, item_holy_res)
+    def set_base_agi(self, agi):
+        self.base_agi = agi
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT1, agi)
 
-    def set_fire_res(self, total_fire_res, item_fire_res):
-        self.resistance_2 = total_fire_res
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 2, item_fire_res)
+    def set_base_sta(self, sta):
+        self.base_sta = sta
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT2, sta)
 
-    def set_nature_res(self, total_nature_res, item_nature_res):
-        self.resistance_3 = total_nature_res
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 3, item_nature_res)
+    def set_base_int(self, int_):
+        self.base_int = int_
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT3, int_)
 
-    def set_frost_res(self, total_frost_res, item_frost_res):
-        self.resistance_4 = total_frost_res
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 4, item_frost_res)
+    def set_base_spi(self, spi):
+        self.base_spi = spi
+        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT4, spi)
 
-    def set_shadow_res(self, total_shadow_res, item_shadow_res):
-        self.resistance_5 = total_shadow_res
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + 5, item_shadow_res)
+    def set_str(self, str_):
+        self.str = str_
+        self.set_int32(UnitFields.UNIT_FIELD_STAT0, str_)
 
-    def set_bonus_armor(self, negative_mods, positive_mods):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, positive_mods)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, negative_mods)
+    def set_agi(self, agi):
+        self.agi = agi
+        self.set_int32(UnitFields.UNIT_FIELD_STAT1, agi)
 
-    def set_bonus_holy_res(self, negative_mods, positive_mods):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, positive_mods)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, negative_mods)
+    def set_sta(self, sta):
+        self.sta = sta
+        self.set_int32(UnitFields.UNIT_FIELD_STAT2, sta)
 
-    def set_bonus_fire_res(self, negative_mods, positive_mods):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, positive_mods)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, negative_mods)
+    def set_int(self, int_):
+        self.int = int_
+        self.set_int32(UnitFields.UNIT_FIELD_STAT3, int_)
 
-    def set_bonus_nature_res(self, negative_mods, positive_mods):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, positive_mods)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, negative_mods)
+    def set_spi(self, spi):
+        self.spi = spi
+        self.set_int32(UnitFields.UNIT_FIELD_STAT4, spi)
 
-    def set_bonus_frost_res(self, negative_mods, positive_mods):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, positive_mods)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, negative_mods)
+    def set_resistance(self, resistance_type, total_resistance, item_bonus):
+        # Armor, holy, fire, nature, frost, shadow.
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + resistance_type, total_resistance)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEITEMMODS + resistance_type, item_bonus)
+        self.resistances[resistance_type] = total_resistance
 
-    def set_bonus_shadow_res(self, negative_mods, positive_mods):
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, positive_mods)
-        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, negative_mods)
+    def set_resistance_mods(self, resistance_type, negative_mods, positive_mods):
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + resistance_type, negative_mods)
+        self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + resistance_type, positive_mods)
+        self.resistance_buff_mods_negative[resistance_type] = negative_mods
+        self.resistance_buff_mods_positive[resistance_type] = positive_mods
 
     def set_bonus_damage_done_for_school(self, value, school):  # TODO Fields
         self.set_int32(UnitFields.UNIT_FIELD_MOD_DAMAGE_DONE + school, value)

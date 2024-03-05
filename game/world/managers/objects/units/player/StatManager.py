@@ -1,11 +1,10 @@
 import math
 import random
 from enum import auto, IntFlag
-from struct import pack, unpack
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager, config
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
-from utils.Formulas import UnitFormulas
+from utils.Formulas import UnitFormulas, CreatureFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
 from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
@@ -32,6 +31,9 @@ class UnitStats(IntFlag):
     RESISTANCE_NATURE = auto()
     RESISTANCE_FROST = auto()
     RESISTANCE_SHADOW = auto()
+
+    ATTACK_POWER = auto()
+    RANGED_ATTACK_POWER = auto()
 
     MAIN_HAND_DAMAGE_MIN = auto()
     MAIN_HAND_DAMAGE_MAX = auto()
@@ -168,8 +170,6 @@ class StatManager(object):
             self.base_stats[UnitStats.INTELLECT] = base_attrs.inte
             self.base_stats[UnitStats.SPIRIT] = base_attrs.spi
             self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_SPELL_CRITICAL_CHANCE / 100
-            self.unit_mgr.base_hp = base_stats.basehp
-            self.unit_mgr.base_mana = base_stats.basemana
 
             # Focus/energy values are guessed.
             self.base_stats[UnitStats.FOCUS_REGENERATION_PER_5] = 5  # 1 focus/sec
@@ -179,20 +179,7 @@ class StatManager(object):
             self.base_stats[UnitStats.RAGE_REGENERATION_PER_5] = -50  # Rage decay out of combat.
         # Creatures.
         else:
-            # Bosses invisibility detection.
-            if self.unit_mgr.creature_template.rank == 3:
-                self.base_stats[UnitStats.INVISIBILITY_DETECTION] = 1000
-            self.base_stats[UnitStats.HEALTH] = self.unit_mgr.max_health
-            self.base_stats[UnitStats.MANA] = self.unit_mgr.max_power_1
-            self.base_stats[UnitStats.SPIRIT] = 1
-            # Players don't have a flat dodge/block chance.
-            self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100
-            # Players have block scaling, assign flat 5% to creatures.
-            self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
-            self.base_stats[UnitStats.MELEE_CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
-            self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_SPELL_CRITICAL_CHANCE / 100
-            self.unit_mgr.base_hp = self.unit_mgr.max_health
-            self.unit_mgr.base_mana = self.unit_mgr.max_power_1
+            self.set_creature_stats()
 
         # Don't overwrite base speed if it has been modified.
         self.base_stats[UnitStats.SPEED_RUNNING] = self.base_stats.get(UnitStats.SPEED_RUNNING, config.Unit.Defaults.run_speed)
@@ -210,6 +197,104 @@ class StatManager(object):
         self.update_base_melee_critical_chance()
         self.update_defense_bonuses()
 
+    def set_creature_stats(self):
+        creature = self.unit_mgr
+        creature_template = creature.creature_template
+
+        # Set stats common between all creatures.
+        # Bosses invisibility detection.
+        if creature_template.rank == 3:
+            self.base_stats[UnitStats.INVISIBILITY_DETECTION] = 1000
+        self.base_stats[UnitStats.DODGE_CHANCE] = BASE_DODGE_CHANCE_CREATURE / 100
+        self.base_stats[UnitStats.BLOCK_CHANCE] = BASE_BLOCK_PARRY_CHANCE / 100
+        self.base_stats[UnitStats.MELEE_CRITICAL] = BASE_MELEE_CRITICAL_CHANCE / 100
+        self.base_stats[UnitStats.SPELL_CRITICAL] = BASE_SPELL_CRITICAL_CHANCE / 100
+
+        self.base_stats[UnitStats.RESISTANCE_HOLY] = creature_template.holy_res
+        self.base_stats[UnitStats.RESISTANCE_FIRE] = creature_template.fire_res
+        self.base_stats[UnitStats.RESISTANCE_NATURE] = creature_template.nature_res
+        self.base_stats[UnitStats.RESISTANCE_FROST] = creature_template.frost_res
+        self.base_stats[UnitStats.RESISTANCE_SHADOW] = creature_template.shadow_res
+
+        # Get specific base stats for this creature: a distinction must be made for pets.
+        base_stats, base_dmg, base_ranged_dmg = self._get_creature_base_stats()
+        for base_stat, value in base_stats.items():
+            self.base_stats[base_stat] = value
+
+        self.send_resistances()
+        self.send_attributes()
+        self.update_max_health()
+        self.update_max_mana()
+
+        if not creature.get_charmer_or_summoner():
+            creature.health = int((creature.health_percent / 100) * creature.max_health)
+            creature.power_1 = int((creature.mana_percent / 100) * creature.max_power_1)
+
+        self._set_creature_base_damage(base_dmg[0], base_dmg[1], AttackTypes.BASE_ATTACK)
+        self._set_creature_base_damage(base_ranged_dmg[0], base_ranged_dmg[1], AttackTypes.RANGED_ATTACK)
+        self.send_melee_attributes()
+
+    def _get_creature_base_stats(self) -> tuple[dict[UnitStats, float], tuple[int, int], tuple[int, int]]:
+        creature_template = self.unit_mgr.creature_template
+        cls = self.unit_mgr.get_creature_class_level_stats()
+        if not self.unit_mgr.is_pet():
+            base_dmg_min, base_dmg_max = CreatureFormulas.calculate_min_max_damage(
+            cls.melee_damage,
+            creature_template.damage_multiplier,
+            creature_template.damage_variance
+            )
+
+            ranged_dmg_min, ranged_dmg_max = CreatureFormulas.calculate_min_max_damage(
+                cls.ranged_damage,
+                creature_template.damage_multiplier,
+                creature_template.damage_variance
+            )
+
+            stat_map = {
+                UnitStats.HEALTH: int(max(1, cls.health * creature_template.health_multiplier)),
+                UnitStats.MANA: int(cls.mana * creature_template.mana_multiplier),
+                UnitStats.STRENGTH: cls.agility,
+                UnitStats.AGILITY: cls.strength,
+                UnitStats.STAMINA: cls.stamina,
+                UnitStats.INTELLECT: cls.intellect,
+                UnitStats.SPIRIT: cls.spirit,
+                UnitStats.RESISTANCE_PHYSICAL: int(cls.armor * creature_template.armor_multiplier)
+            }
+        else:
+            pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(
+                creature_template.entry,
+                self.unit_mgr.level)
+            if not pet_stats:
+                Logger.warning(f'Unable to locate pet level stats for creature entry '
+                               f'{creature_template.entry} level {self.unit_mgr.level}')
+                # Use default stats.
+                pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(1, self.unit_mgr.level)
+
+            # From VMaNGOS.
+            delay_mod = creature_template.base_attack_time / 2000
+            damage_base = self.unit_mgr.level * 1.05
+
+            base_dmg_min = int(damage_base * 1.15 * delay_mod)
+            base_dmg_max = int(damage_base * 1.45 * delay_mod)
+            # Just set ranged damage to base damage for pets. This probably does not matter.
+            ranged_dmg_min, ranged_dmg_max = base_dmg_min, base_dmg_max
+            stat_map = {
+                UnitStats.HEALTH: pet_stats.hp,
+                UnitStats.MANA: pet_stats.mana,
+                UnitStats.STRENGTH: pet_stats.str,
+                UnitStats.AGILITY: pet_stats.agi,
+                UnitStats.STAMINA: pet_stats.sta,
+                UnitStats.INTELLECT: pet_stats.inte,
+                UnitStats.SPIRIT: pet_stats.spi,
+                UnitStats.RESISTANCE_PHYSICAL: pet_stats.armor
+            }
+
+        # Use same AP values for pets. TODO Unsure if this is correct.
+        stat_map[UnitStats.ATTACK_POWER] = cls.attack_power
+        stat_map[UnitStats.RANGED_ATTACK_POWER] = cls.ranged_attack_power
+
+        return stat_map, (base_dmg_min, base_dmg_max), (ranged_dmg_min, ranged_dmg_max)
+
     def get_base_stat(self, stat_type: UnitStats) -> int:
         return self.base_stats.get(stat_type, 0)
 
@@ -226,7 +311,8 @@ class StatManager(object):
 
         return total - base_stats - item_stats
 
-    def get_total_stat(self, stat_type: UnitStats, misc_value=-1, accept_negative=False, accept_float=False, misc_value_is_mask=False) -> int:
+    def get_total_stat(self, stat_type: UnitStats, misc_value=-1, accept_negative=False,
+                       accept_float=False, misc_value_is_mask=False) -> int:
         base_stats = self.get_base_stat(stat_type)
         bonus_stats = self.item_stats.get(stat_type, 0) + \
             self.get_aura_stat_bonus(stat_type, misc_value=misc_value, misc_value_is_mask=misc_value_is_mask)
@@ -254,12 +340,12 @@ class StatManager(object):
         self.calculate_item_stats()
 
         # Always update base attack since unarmed damage should update.
-        self.update_base_weapon_attributes(attack_type=AttackTypes.BASE_ATTACK)
+        self.update_attack_base_damage(attack_type=AttackTypes.BASE_ATTACK)
 
         if self.unit_mgr.has_offhand_weapon():
-            self.update_base_weapon_attributes(attack_type=AttackTypes.OFFHAND_ATTACK)
+            self.update_attack_base_damage(attack_type=AttackTypes.OFFHAND_ATTACK)
         if self.unit_mgr.has_ranged_weapon():  # TODO Are ranged formulas different?
-            self.update_base_weapon_attributes(attack_type=AttackTypes.RANGED_ATTACK)
+            self.update_attack_base_damage(attack_type=AttackTypes.RANGED_ATTACK)
 
         # Only send base speed - change_speed will apply total value.
         self.unit_mgr.change_speed(self.get_base_stat(UnitStats.SPEED_RUNNING))
@@ -358,148 +444,161 @@ class StatManager(object):
             bonuses.append(stat_bonus[1])
         return bonuses
 
-    def calculate_item_stats(self):
-        # Creature-only calculations.
-        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
-            min_damage, max_damage = self.unit_mgr.dmg_min, self.unit_mgr.dmg_max
-            main_min_dmg = min_damage
-            main_max_dmg = max_damage
-            weapon_reach = 0
+    def _set_creature_base_damage(self, base_min, base_max, attack_type):
+        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_UNIT:
+            return
 
-            if self.unit_mgr.has_mainhand_weapon():
-                # Disarm effects. Only applies to mobs with a weapon equipped. Sources suggest a
-                # ~60% damage reduction on mobs which can be disarmed and have a weapon
-                # http://wowwiki.wikia.com/wiki/Attumen_the_Huntsman?oldid=1377353
-                # http://wowwiki.wikia.com/wiki/Disarm?direction=prev&oldid=200198
-                if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
-                    main_min_dmg = math.ceil(main_min_dmg * 0.4)
-                    main_max_dmg = math.ceil(main_max_dmg * 0.4)
-                else:
-                    creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
-                        self.unit_mgr.creature_template.equipment_id)
-                    if creature_equip_template:
-                        item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(
-                            creature_equip_template.equipentry1)
-                        if item_template:
-                            weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
-            self.weapon_reach = weapon_reach
+        # In vanilla, creatures get a damage bonus of 30% of their bonus attack power.
+        #   (vMaNGOS Creature::UpdateDamagePhysical)
+        base_ap = self.base_stats[UnitStats.ATTACK_POWER] if attack_type != AttackTypes.RANGED_ATTACK \
+            else self.base_stats[UnitStats.RANGED_ATTACK_POWER]
+        ap_bonus = self.get_attack_power_from_attributes()
+        ap_dmg_multiplier = 0.7 + 0.3 * ((base_ap + ap_bonus) / base_ap) if base_ap else 1
 
+        min_dmg = base_min * ap_dmg_multiplier
+        max_dmg = base_max * ap_dmg_multiplier
+
+        weapon_reach = 0
+
+        if self.unit_mgr.has_mainhand_weapon() and attack_type != AttackTypes.RANGED_ATTACK:
+            # Disarm effects. Only applies to mobs with a weapon equipped. Sources suggest a
+            # ~60% damage reduction on mobs which can be disarmed and have a weapon. (from vMaNGOS)
+            # http://wowwiki.wikia.com/wiki/Attumen_the_Huntsman?oldid=1377353
+            # http://wowwiki.wikia.com/wiki/Disarm?direction=prev&oldid=200198
+            if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                min_dmg = math.ceil(min_dmg * 0.4)
+                max_dmg = math.ceil(max_dmg * 0.4)
+            else:
+                creature_equip_template = WorldDatabaseManager.CreatureEquipmentHolder.creature_get_equipment_by_id(
+                    self.unit_mgr.creature_template.equipment_id)
+                if creature_equip_template:
+                    item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(
+                        creature_equip_template.equipentry1)
+                    if item_template:
+                        weapon_reach = UnitFormulas.get_reach_for_weapon(item_template)
+        self.weapon_reach = weapon_reach
+
+        if attack_type != AttackTypes.RANGED_ATTACK:
             # Main hand.
-            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = main_min_dmg
-            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = main_max_dmg
-            self.item_stats[UnitStats.MAIN_HAND_DELAY] = self.unit_mgr.base_attack_time
+            self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = min_dmg
+            self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = max_dmg
+            self.base_stats[UnitStats.MAIN_HAND_DELAY] = self.unit_mgr.creature_template.base_attack_time
 
-            # Off hand.
+            # Off-hand.
             if self.unit_mgr.has_offhand_weapon():
                 dual_wield_penalty = 0.5
-                self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = math.ceil(min_damage * dual_wield_penalty)
-                self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = math.ceil(max_damage * dual_wield_penalty)
-                self.item_stats[UnitStats.OFF_HAND_DELAY] = self.unit_mgr.base_attack_time
+                self.base_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = math.ceil(min_dmg * dual_wield_penalty)
+                self.base_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = math.ceil(max_dmg * dual_wield_penalty)
+                self.base_stats[UnitStats.OFF_HAND_DELAY] = self.unit_mgr.creature_template.base_attack_time
+            return
 
-            # Ranged.
-            if self.unit_mgr.has_ranged_weapon():
-                self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = self.unit_mgr.ranged_dmg_min
-                self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = self.unit_mgr.ranged_dmg_max
-                self.item_stats[UnitStats.RANGED_DELAY] = self.unit_mgr.ranged_attack_time
+        # Ranged.
+        if self.unit_mgr.has_ranged_weapon():
+            self.base_stats[UnitStats.RANGED_DAMAGE_MIN] = min_dmg
+            self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = max_dmg
+            self.base_stats[UnitStats.RANGED_DELAY] = self.unit_mgr.ranged_attack_time
 
-        # Player-only calculations.
-        else:
-            self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
-                               UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
+    def calculate_item_stats(self):
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            return
 
-            if self.unit_mgr.is_in_feral_form():
-                # Druids in feral form don't use their weapon to attack.
-                # Use weapon damage values for paw damage instead.
-                # VMaNGOS values.
+        self.item_stats = {UnitStats.MAIN_HAND_DELAY: config.Unit.Defaults.base_attack_time,
+                           UnitStats.OFF_HAND_DELAY: config.Unit.Defaults.offhand_attack_time}  # Clear item stats
 
-                # Base attack delay for both forms.
-                # Cat form provides a haste bonus in alpha - using the same attack delay for both.
-                attack_delay = 2500
+        if self.unit_mgr.is_in_feral_form():
+            # Druids in feral form don't use their weapon to attack.
+            # Use weapon damage values for paw damage instead.
+            # VMaNGOS values.
 
-                self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = self.unit_mgr.level * 0.85 * (attack_delay / 1000)
-                self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
-                self.item_stats[UnitStats.MAIN_HAND_DELAY] = attack_delay
+            # Base attack delay for both forms.
+            # Cat form provides a haste bonus in alpha - using the same attack delay for both.
+            attack_delay = 2500
 
-            # Reset weapon reach.
-            self.weapon_reach = 0
+            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = self.unit_mgr.level * 0.85 * (attack_delay / 1000)
+            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = self.unit_mgr.level * 1.25 * (attack_delay / 1000)
+            self.item_stats[UnitStats.MAIN_HAND_DELAY] = attack_delay
 
-            # Regenerate item stats.
-            for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
-                # Check equipped items.
-                if item.current_slot <= InventorySlots.SLOT_TABARD:
-                    # Handle normal item stats.
-                    for stat in item.stats:
-                        stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
-                        if stat.value != 0:
-                            current = self.item_stats.get(stat_type, 0)
-                            self.item_stats[stat_type] = current + stat.value
+        # Reset weapon reach.
+        self.weapon_reach = 0
 
-                    # Add resistances.
-                    separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
-                                      UnitStats.RESISTANCE_HOLY: item.item_template.holy_res,
-                                      UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
-                                      UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
-                                      UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
-                                      UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res}
+        # Regenerate item stats.
+        for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
+            if item.current_slot > InventorySlots.SLOT_TABARD:
+                continue
 
-                    # Add resistance enchant bonuses (only armor in 0.5.3).
-                    resistance_enchants = EnchantmentManager.get_enchantments_by_type(item,
-                                                                                      ItemEnchantmentType.RESISTANCE)
+            # Check equipped items.
+            for stat in item.stats:
+                stat_type = INVENTORY_STAT_TO_UNIT_STAT[stat.stat_type]
+                if stat.value != 0:
+                    current = self.item_stats.get(stat_type, 0)
+                    self.item_stats[stat_type] = current + stat.value
 
-                    for res_enchant in resistance_enchants:
-                        res_stat = UnitStats.RESISTANCE_START << res_enchant.effect_spell
-                        separate_stats[res_stat] += res_enchant.effect_points
+            # Add resistances.
+            separate_stats = {UnitStats.RESISTANCE_PHYSICAL: item.item_template.armor,
+                              UnitStats.RESISTANCE_HOLY: item.item_template.holy_res,
+                              UnitStats.RESISTANCE_FIRE: item.item_template.fire_res,
+                              UnitStats.RESISTANCE_NATURE: item.item_template.nature_res,
+                              UnitStats.RESISTANCE_FROST: item.item_template.frost_res,
+                              UnitStats.RESISTANCE_SHADOW: item.item_template.shadow_res}
 
-                    for stat, value in separate_stats.items():
-                        self.item_stats[stat] = self.item_stats.get(stat, 0) + value
+            # Add resistance enchant bonuses (only armor in 0.5.3).
+            resistance_enchants = EnchantmentManager.get_enchantments_by_type(item,
+                                                                              ItemEnchantmentType.RESISTANCE)
 
-                    # Ignore weapon damage stats for feral druids.
-                    if InventorySlots.SLOT_MAINHAND <= item.current_slot <= InventorySlots.SLOT_RANGED and \
-                            self.unit_mgr.is_in_feral_form():
-                        continue
+            for res_enchant in resistance_enchants:
+                res_stat = UnitStats.RESISTANCE_START << res_enchant.effect_spell
+                separate_stats[res_stat] += res_enchant.effect_points
 
-                    if item.current_slot != InventorySlots.SLOT_MAINHAND and \
-                        item.current_slot != InventorySlots.SLOT_OFFHAND and \
-                            item.current_slot != InventorySlots.SLOT_RANGED:
-                        continue  # Not a weapon.
+            for stat, value in separate_stats.items():
+                self.item_stats[stat] = self.item_stats.get(stat, 0) + value
 
-                    # Handle weapon damage stats.
-                    weapon_min_damage = int(item.item_template.dmg_min1)
-                    weapon_max_damage = int(item.item_template.dmg_max1)
-                    weapon_delay = item.item_template.delay if item.item_template.delay != 0 and \
-                        not self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED \
-                        else config.Unit.Defaults.base_attack_time
+            # Ignore weapon damage stats for feral druids.
+            if InventorySlots.SLOT_MAINHAND <= item.current_slot <= InventorySlots.SLOT_RANGED and \
+                    self.unit_mgr.is_in_feral_form():
+                continue
 
-                    # Damage increase weapon enchants.
-                    weapon_enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
-                        item, ItemEnchantmentType.DAMAGE)
+            if item.current_slot != InventorySlots.SLOT_MAINHAND and \
+                item.current_slot != InventorySlots.SLOT_OFFHAND and \
+                    item.current_slot != InventorySlots.SLOT_RANGED:
+                continue  # Not a weapon.
 
-                    weapon_min_damage += weapon_enchant_bonus
-                    weapon_max_damage += weapon_enchant_bonus
+            # Handle weapon damage stats.
+            weapon_min_damage = int(item.item_template.dmg_min1)
+            weapon_max_damage = int(item.item_template.dmg_max1)
+            weapon_delay = item.item_template.delay if item.item_template.delay != 0 and \
+                not self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED \
+                else config.Unit.Defaults.base_attack_time
 
-                    if item.current_slot == InventorySlots.SLOT_MAINHAND:
-                        if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
-                            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = 0
-                            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = 0
-                            self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
-                            self.weapon_reach = 0
-                        else:
-                            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
-                            self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
-                            self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
-                            self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
-                    elif item.current_slot == InventorySlots.SLOT_OFFHAND:
-                        dual_wield_penalty = 0.5
-                        self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = math.ceil(weapon_min_damage *
-                                                                                   dual_wield_penalty)
-                        self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = math.ceil(weapon_max_damage *
-                                                                                   dual_wield_penalty)
-                        self.item_stats[UnitStats.OFF_HAND_DELAY] = weapon_delay
-                    elif item.current_slot == InventorySlots.SLOT_RANGED:
-                        self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
-                        self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
-                        self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
-        self.unit_mgr.set_weapon_reach(self.weapon_reach)
+            # Damage increase weapon enchants.
+            weapon_enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
+                item, ItemEnchantmentType.DAMAGE)
+
+            weapon_min_damage += weapon_enchant_bonus
+            weapon_max_damage += weapon_enchant_bonus
+
+            if item.current_slot == InventorySlots.SLOT_MAINHAND:
+                if self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
+                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = 0
+                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = 0
+                    self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
+                    self.weapon_reach = 0
+                else:
+                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = weapon_min_damage
+                    self.item_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = weapon_max_damage
+                    self.item_stats[UnitStats.MAIN_HAND_DELAY] = weapon_delay
+                    self.weapon_reach = UnitFormulas.get_reach_for_weapon(item.item_template)
+                self.unit_mgr.set_weapon_reach(self.weapon_reach)
+            elif item.current_slot == InventorySlots.SLOT_OFFHAND:
+                dual_wield_penalty = 0.5
+                self.item_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = math.ceil(weapon_min_damage *
+                                                                           dual_wield_penalty)
+                self.item_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = math.ceil(weapon_max_damage *
+                                                                           dual_wield_penalty)
+                self.item_stats[UnitStats.OFF_HAND_DELAY] = weapon_delay
+            elif item.current_slot == InventorySlots.SLOT_RANGED:
+                self.item_stats[UnitStats.RANGED_DAMAGE_MIN] = weapon_min_damage
+                self.item_stats[UnitStats.RANGED_DAMAGE_MAX] = weapon_max_damage
+                self.item_stats[UnitStats.RANGED_DELAY] = weapon_delay
 
     def update_max_health(self):
         total_stamina = self.get_total_stat(UnitStats.STAMINA)
@@ -508,6 +607,11 @@ class StatManager(object):
         current_hp = self.unit_mgr.health
         current_total_hp = self.unit_mgr.max_health
         new_hp = int(self.get_health_bonus_from_stamina(self.unit_mgr.class_, total_stamina) + total_health)
+
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            # Creature health already includes bonus from base stamina.
+            new_hp -= int(self.get_health_bonus_from_stamina(self.unit_mgr.class_,
+                                                             self.get_base_stat(UnitStats.STAMINA)))
 
         hp_diff = new_hp - current_total_hp
         if new_hp > 0:
@@ -528,6 +632,11 @@ class StatManager(object):
         current_mana = self.unit_mgr.power_1
         current_total_mana = self.unit_mgr.max_power_1
         new_mana = int(self.get_mana_bonus_from_intellect(self.unit_mgr.class_, total_intellect) + total_mana)
+
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_UNIT:
+            # Creature mana already includes bonus from base intellect.
+            new_mana -= int(self.get_mana_bonus_from_intellect(self.unit_mgr.class_,
+                                                               self.get_base_stat(UnitStats.INTELLECT)))
 
         mana_diff = new_mana - current_total_mana
         if new_mana > 0:
@@ -940,7 +1049,7 @@ class StatManager(object):
         if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER and spell_school != SpellSchools.SPELL_SCHOOL_NORMAL:
             # Use resistance for players.
             # Our values for creatures are most likely wrong for alpha and are not applied.
-            resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START + spell_school)
+            resist_mod = self.get_total_stat(UnitStats.RESISTANCE_START << spell_school)
         else:
             # Calculate resistance for creatures.
             # This is the formula for innate resistance used for partial resists in VMaNGOS,
@@ -957,12 +1066,26 @@ class StatManager(object):
 
         return miss_chance
 
-    def update_base_weapon_attributes(self, attack_type=0):
+    def update_attack_base_damage(self, attack_type=0):
         if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            base_stats, base_dmg, base_ranged_dmg = self._get_creature_base_stats()
+            self._set_creature_base_damage(base_dmg[0], base_dmg[1], AttackTypes.BASE_ATTACK)
+            self._set_creature_base_damage(base_ranged_dmg[0], base_ranged_dmg[1], AttackTypes.RANGED_ATTACK)
             return
-        # TODO: Using Vanilla formula, AP was not present in Alpha
 
-        dual_wield_penalty = 1 if attack_type != AttackTypes.OFFHAND_ATTACK else 0.5
+        base_damage = self.get_attack_power_from_attributes() / 14
+        if attack_type == AttackTypes.BASE_ATTACK:
+            self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = base_damage
+            self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = base_damage
+        elif attack_type == AttackTypes.OFFHAND_ATTACK:
+            self.base_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = base_damage * 0.5  # Dual wield penalty.
+            self.base_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = base_damage * 0.5
+        else:
+            self.base_stats[UnitStats.RANGED_DAMAGE_MIN] = base_damage
+            self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = base_damage
+
+    def get_attack_power_from_attributes(self):
+        # TODO: Using Vanilla formulas.
 
         attack_power = 0
         strength = self.get_total_stat(UnitStats.STRENGTH)
@@ -986,32 +1109,23 @@ class StatManager(object):
         elif class_ == Classes.CLASS_SHAMAN:
             attack_power = strength - 10 + ((agility * 2) - 20) + (level * 2)
 
-        final_min_damage = attack_power / 14 * dual_wield_penalty
-        final_max_damage = attack_power / 14 * dual_wield_penalty
-
-        if attack_type == AttackTypes.BASE_ATTACK:
-            self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MIN] = final_min_damage
-            self.base_stats[UnitStats.MAIN_HAND_DAMAGE_MAX] = final_max_damage
-        elif attack_type == AttackTypes.OFFHAND_ATTACK:
-            self.base_stats[UnitStats.OFF_HAND_DAMAGE_MIN] = final_min_damage
-            self.base_stats[UnitStats.OFF_HAND_DAMAGE_MAX] = final_max_damage
-        else:
-            self.base_stats[UnitStats.RANGED_DAMAGE_MIN] = final_min_damage
-            self.base_stats[UnitStats.RANGED_DAMAGE_MAX] = final_max_damage
+        # Creatures have base attack power which includes gain from base stats.
+        base_attack_power = self.get_base_stat(UnitStats.ATTACK_POWER)
+        return max(attack_power - base_attack_power, 0)
 
     def update_defense_bonuses(self):
         self.update_base_dodge_chance()
         self.update_base_block_chance()
 
     def send_melee_attributes(self):
-        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
+        enchant_bonus = 0
+        if self.unit_mgr.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            # Weapon enchant bonuses are included in the weapon's damage internally,
+            # but should be displayed as a bonus.
+            enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
+                self.unit_mgr.inventory.get_main_hand(), ItemEnchantmentType.DAMAGE
+            )
 
-        # Weapon enchant bonuses are included in the weapon's damage internally,
-        # but should be displayed as a bonus.
-        enchant_bonus = EnchantmentManager.get_effect_value_for_enchantment_type(
-            self.unit_mgr.inventory.get_main_hand(), ItemEnchantmentType.DAMAGE
-        )
         self.unit_mgr.set_melee_damage(self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MIN) - enchant_bonus,
                                        self.get_total_stat(UnitStats.MAIN_HAND_DAMAGE_MAX) - enchant_bonus)
 
@@ -1019,22 +1133,9 @@ class StatManager(object):
         self.unit_mgr.set_offhand_attack_time(self.get_total_stat(UnitStats.OFF_HAND_DELAY))
 
     def send_resistances(self):
-        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
-
-        self.unit_mgr.set_armor(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_PHYSICAL))
-        self.unit_mgr.set_holy_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_HOLY))
-        self.unit_mgr.set_fire_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_FIRE))
-        self.unit_mgr.set_nature_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_NATURE))
-        self.unit_mgr.set_frost_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_FROST))
-        self.unit_mgr.set_shadow_res(*self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_SHADOW))
-
-        self.unit_mgr.set_bonus_armor(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_PHYSICAL))
-        self.unit_mgr.set_bonus_holy_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_HOLY))
-        self.unit_mgr.set_bonus_fire_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FIRE))
-        self.unit_mgr.set_bonus_nature_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_NATURE))
-        self.unit_mgr.set_bonus_frost_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_FROST))
-        self.unit_mgr.set_bonus_shadow_res(*self._get_positive_negative_bonus(UnitStats.RESISTANCE_SHADOW))
+        for i in range(0, 6):
+            self.unit_mgr.set_resistance(i, *self._get_total_and_item_stat_bonus(UnitStats.RESISTANCE_START << i))
+            self.unit_mgr.set_resistance_mods(i, *self._get_positive_negative_bonus(UnitStats.RESISTANCE_START << i))
 
     def _get_positive_negative_bonus(self, stat_type: UnitStats):
         aura_bonuses = self.get_aura_stat_bonuses(stat_type)
@@ -1056,8 +1157,6 @@ class StatManager(object):
         return self.get_total_stat(stat_type, accept_negative=True), self.get_item_stat(stat_type)
 
     def send_attributes(self):
-        if self.unit_mgr.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
         self.unit_mgr.set_base_str(self.get_base_stat(UnitStats.STRENGTH))
         self.unit_mgr.set_base_agi(self.get_base_stat(UnitStats.AGILITY))
         self.unit_mgr.set_base_sta(self.get_base_stat(UnitStats.STAMINA))
