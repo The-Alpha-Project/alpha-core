@@ -218,7 +218,7 @@ class EffectTargets:
             if unit_type_restriction and not unit_type_restriction & (1 << unit.creature_type - 1):
                 continue
 
-            if target_entries and unit.get_type_id() != ObjectTypeIds.ID_UNIT or unit.entry not in target_entries:
+            if target_entries and (unit.get_type_id() != ObjectTypeIds.ID_UNIT or unit.entry not in target_entries):
                 continue
 
             # Friendliness.
