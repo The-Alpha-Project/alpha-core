@@ -1670,7 +1670,7 @@ class SpellManager:
                 casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
                 instance_charges = new_charges
 
-            # No charges left or should charge usage should remove item.
+            # No charges left or usage should remove item.
             if (not instance_charges or charges_removes_item) and item_entry not in removed_items:
                 self.caster.inventory.remove_items(item_entry, 1)
 
