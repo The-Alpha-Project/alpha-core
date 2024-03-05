@@ -1864,6 +1864,38 @@ begin not atomic
         INSERT INTO `applied_updates` VALUES (031220231);
     end if;
 
+    -- 30/12/2023 1
+    if(select count(*) from `applied_updates` where id='301220231') = 0 then
+        -- Rename Kingsblood to Crownroyal, closes #1338.
+        update item_template set name = 'Crownroyal' where entry = 3356;
+        -- Despawn floating Blazing Fire near Orgrimmar, closes #1332.
+        update spawns_gameobjects set ignored = 1 where spawn_id = 11958;
+        -- Fix cost and skill requirements for Handstitched Leather Belt.
+        update trainer_template set spellcost = 75, reqskillvalue = 25 where template_entry = 509;
+        -- Add Handstitched Leather Pants to Leatherworking trainers. Cost and required skill level is from vanilla since we don't know it (but it aligns well with the other Handstitched recipes).
+        insert into trainer_template (template_entry, spell, playerspell, spellcost, reqskill, reqskillvalue, reqlevel) values (509, 2338, 2153, 50, 165, 15, 1);
+        -- Update quest XP, required item count and text for "The Trogg Threat" (267), closes #1285.
+        update quest_template set RewXP = 1500, ReqItemCount1 = 20, Objectives = "Bring 20 Trogg Stone Teeth to Captain Rugelfuss in the southern guard tower.", RequestItemsText = "Do you have 20 Trogg Stone Teeth to show me? If not, there is still work to be done, $N.", Details = "$C, you may or may not be aware of the Trogg threat looming over Dwarven lands.  With the Ironforge Reserve called up to the Alliance Front, we are left with a fraction of the defense forces needed to keep these lands safe.  My regiment is assigned to watch over the Gate here and we cannot leave our post for fear of invasion.$b$bBut we need some pressure put on those damned Troggs lurking in the hills.  If you're up to the task, wage an assault on the Troggs.  Bring me back 20 Trogg Stone Teeth as proof." where entry = 267;
+        -- Update Mosshide Gnoll display_id, closes #1280.
+        update creature_template set display_id1 = 667 where entry = 1007;
+        -- Update Samuel Flipps display_id, closes #1295.
+        update creature_template set display_id1 = 1200 where entry = 1919;
+        -- Update Stephen Bartec display_id, closes #1296.
+        update creature_template set display_id1 = 200 where entry = 1916;
+        -- Update Grel'Borg the Miser display_id, closes #1298.
+        update creature_template set display_id1 = 155 where entry = 2417;
+        -- Update Crushridge Ogre display_id, closes #1299.
+        update creature_template set display_id1 = 1121 where entry = 2252;
+        -- Update Mug'thol display_id, closes #1300.
+        update creature_template set display_id1 = 597 where entry = 2257;
+        -- Update Bloodmage Thalnos display_id, closes #1302.
+        update creature_template set display_id1 = 2606 where entry = 4543;
+        -- Update Morbent Fel quest to always award the original Torch of Holy Flame, closes #1327.
+        update quest_template set RewChoiceItemId4 = 2808, RewChoiceItemCount4 = 1 where entry = 55;
+
+        insert into applied_updates values('301220231');
+    end if;
+
     -- 30/12/2023 2
     if (SELECT COUNT(*) FROM `applied_updates` WHERE id='301220232') = 0 then
         -- Rename all "Crocolisks" to "Crocilisks".
