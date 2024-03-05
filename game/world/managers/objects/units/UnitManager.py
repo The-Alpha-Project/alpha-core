@@ -798,7 +798,12 @@ class UnitManager(ObjectManager):
         elif is_periodic and not self.threat_manager.has_aggro_from(source):
             return True
 
-        self.threat_manager.add_threat(source, damage_info.total_damage)
+        # Add thread according to damage.
+        if damage_info.total_damage:
+            self.threat_manager.add_threat(source, damage_info.total_damage)
+        else:
+            # No damage dealt - add minimal threat.
+            self.threat_manager.add_threat(source)
         return True
 
     def receive_healing(self, amount, source=None):
