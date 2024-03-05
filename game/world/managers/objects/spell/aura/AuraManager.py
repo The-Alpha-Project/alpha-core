@@ -380,6 +380,11 @@ class AuraManager:
         for aura in list(self.active_auras.values()):
             self.remove_aura(aura)
 
+    def remove_hostile_auras(self):
+        for aura in list(self.active_auras.values()):
+            if aura.caster.can_attack_target(self.unit_mgr):
+                self.remove_aura(aura)
+
     def cancel_auras_by_spell_id(self, spell_id, source_restriction=None):
         auras = self.get_auras_by_spell_id(spell_id)
 

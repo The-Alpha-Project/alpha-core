@@ -422,8 +422,8 @@ class CreatureManager(UnitManager):
         # Flag creature as currently evading.
         self.is_evading = True
 
-        # Remove all auras on evade.
-        self.aura_manager.remove_all_auras()
+        # Remove hostile auras.
+        self.aura_manager.remove_hostile_auras()
 
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.replenish_powers()
