@@ -325,6 +325,14 @@ class CreatureManager(UnitManager):
                and (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
                     or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
 
+    def is_controlled(self):
+        owner = self.get_charmer_or_summoner()
+        if not owner:
+            return False
+
+        owner_controlled_pet = owner.pet_manager.get_active_controlled_pet()
+        return owner_controlled_pet and owner_controlled_pet.creature is self
+
     def is_temp_summon(self):
         return self.summoner and self.subtype in \
                {CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON, CustomCodes.CreatureSubtype.SUBTYPE_TOTEM}
@@ -428,9 +436,8 @@ class CreatureManager(UnitManager):
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.replenish_powers()
 
-        # Pets should return to owner on evading, not to spawn position. This case at this moment only affects
-        # creature summoned pets since player summoned pets will never enter this method.
-        if self.is_pet() or self.is_at_home():
+        # Pets should return to owner on evading, not to spawn position.
+        if self.is_controlled() or self.is_at_home():
             # Should turn off flag since we are not sending move packets.
             self.is_evading = False
             self.on_at_home()
