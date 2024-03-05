@@ -243,7 +243,7 @@ class AuraManager:
             is_unique = applied_spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
             is_stacking = applied_aura.can_stack
 
-            if is_unique or is_same_source or not aura.harmful and not (is_similar and is_stacking):
+            if (is_unique or is_same_source or not aura.harmful) and not (is_similar and is_stacking):
                 # Remove similar applied aura if it's unique, a buff or from the same caster.
                 # Ignore if this is a stacking buff; add_aura will just add a dose in that case.
                 # We can also ignore ranks here, as attempting to cast a lower rank buff will fail in validation.
