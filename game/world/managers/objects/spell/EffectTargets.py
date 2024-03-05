@@ -108,7 +108,7 @@ class EffectTargets:
         has_hostile = HOSTILE_IMPLICIT_TARGETS.intersection(implicit_targets)
 
         if has_friendly != has_hostile:
-            return has_friendly, has_hostile
+            return bool(has_friendly), bool(has_hostile)
 
         # Spells with implicit target set to 0 can have both friendly and hostile targets.
         # These spells include passives, testing spells and npc spells.
