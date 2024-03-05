@@ -1891,7 +1891,7 @@ begin not atomic
         -- Update Bloodmage Thalnos display_id, closes #1302.
         update creature_template set display_id1 = 2606 where entry = 4543;
         -- Update Morbent Fel quest to always award the original Torch of Holy Flame, closes #1327.
-        update quest_template set RewChoiceItemId4 = 2808, RewChoiceItemCount4 = 1 where entry = 55;
+        update quest_template set RewItemId1 = 2808, RewItemCount1 = 1 where entry = 55;
 
         insert into applied_updates values('301220231');
     end if;
