@@ -61,8 +61,10 @@ class PetManager:
         self._handle_creature_spawn_detach(creature, is_permanent)
         if PetSlot.PET_SLOT_TOTEM_START <= pet_slot < PetSlot.PET_SLOT_END:
             creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
-        else:
+        elif is_permanent:
             creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_PET
+        else:
+            creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
 
         if pet_index == -1:
             # Pet not in database.

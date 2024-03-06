@@ -798,7 +798,12 @@ class UnitManager(ObjectManager):
         elif is_periodic and not self.threat_manager.has_aggro_from(source):
             return True
 
-        self.threat_manager.add_threat(source, damage_info.total_damage)
+        # Add threat according to damage.
+        if damage_info.total_damage:
+            self.threat_manager.add_threat(source, damage_info.total_damage)
+        else:
+            # No damage dealt - add minimal threat.
+            self.threat_manager.add_threat(source)
         return True
 
     def receive_healing(self, amount, source=None):
@@ -842,13 +847,13 @@ class UnitManager(ObjectManager):
 
         damage_info = self.calculate_spell_damage(damage, miss_reason, hit_flags, spell_effect, target)
 
-        is_cast_on_swing = spell.casts_on_swing()
+        cast_on_swing = spell.casts_on_swing() and not spell_effect.aura_type
 
-        if is_cast_on_swing:
+        if cast_on_swing:
             self.handle_melee_attack_procs(damage_info)
 
         # TODO Should other spells give skill too?
-        if is_cast_on_swing or spell.is_ranged_weapon_attack():
+        if cast_on_swing or spell.is_ranged_weapon_attack():
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
@@ -1469,7 +1474,7 @@ class UnitManager(ObjectManager):
         if not is_immune:
             return False
 
-        if not is_friendly and (not source or self.can_attack_target(source)):
+        if not is_friendly and (not source or source.can_attack_target(self)):
             return True  # Immune, hostile source.
 
         # Immune, friendly source. Check for friendly immunity.

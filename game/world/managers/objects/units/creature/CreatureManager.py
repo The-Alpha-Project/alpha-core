@@ -264,12 +264,12 @@ class CreatureManager(UnitManager):
             if self.addon.mount_display_id > 0:
                 self.mount(self.addon.mount_display_id)
 
-        # Cast default auras for this unit.
-        self.apply_default_auras()
-
         # Stats.
         self.stat_manager.init_stats()
         self.stat_manager.apply_bonuses(replenish=True)
+
+        # Cast default auras for this unit.
+        self.apply_default_auras()
 
         # Movement.
         self.movement_manager.initialize()
@@ -324,6 +324,14 @@ class CreatureManager(UnitManager):
         return (self.summoner or self.charmer) \
                and (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
                     or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
+
+    def is_controlled(self):
+        owner = self.get_charmer_or_summoner()
+        if not owner:
+            return False
+
+        owner_controlled_pet = owner.pet_manager.get_active_controlled_pet()
+        return owner_controlled_pet and owner_controlled_pet.creature is self
 
     def is_temp_summon(self):
         return self.summoner and self.subtype in \
@@ -422,15 +430,14 @@ class CreatureManager(UnitManager):
         # Flag creature as currently evading.
         self.is_evading = True
 
-        # Remove all auras on evade.
-        self.aura_manager.remove_all_auras()
+        # Remove hostile auras.
+        self.aura_manager.remove_hostile_auras()
 
         if not self.static_flags & CreatureStaticFlags.NO_AUTO_REGEN:
             self.replenish_powers()
 
-        # Pets should return to owner on evading, not to spawn position. This case at this moment only affects
-        # creature summoned pets since player summoned pets will never enter this method.
-        if self.is_pet() or self.is_at_home():
+        # Pets should return to owner on evading, not to spawn position.
+        if self.is_controlled() or self.is_at_home():
             # Should turn off flag since we are not sending move packets.
             self.is_evading = False
             self.on_at_home()

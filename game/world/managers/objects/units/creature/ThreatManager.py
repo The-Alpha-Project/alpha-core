@@ -122,7 +122,7 @@ class ThreatManager:
         charmer_or_summoner = source.get_charmer_or_summoner()
         if charmer_or_summoner and not self.has_aggro_from(charmer_or_summoner):
             # Set pet owner in combat as well.
-            self.add_threat(charmer_or_summoner)
+            self.add_threat(charmer_or_summoner, 0)
 
     def get_hostile_target(self) -> Optional[UnitManager]:
         max_threat_holder = self._get_max_threat_holder()
