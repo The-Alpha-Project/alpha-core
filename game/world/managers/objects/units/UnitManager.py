@@ -798,7 +798,7 @@ class UnitManager(ObjectManager):
         elif is_periodic and not self.threat_manager.has_aggro_from(source):
             return True
 
-        # Add thread according to damage.
+        # Add threat according to damage.
         if damage_info.total_damage:
             self.threat_manager.add_threat(source, damage_info.total_damage)
         else:
