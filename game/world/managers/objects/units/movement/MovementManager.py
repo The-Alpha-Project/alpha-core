@@ -46,8 +46,8 @@ class MovementManager:
         # Make sure to flush any existent behaviors if this was re-initialized.
         self.flush()
 
-        if self.unit.is_pet():
-            is_default = False if self.unit.charmer else True
+        if self.unit.is_controlled():
+            is_default = self.unit.is_pet()
             self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=is_default))
         elif self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))

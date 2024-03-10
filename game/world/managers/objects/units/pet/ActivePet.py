@@ -58,38 +58,6 @@ class ActivePet:
             self._pet_manager.send_pet_spell_info()
             pet_data.set_dirty()
 
-    def update_stats(self, reset=False):
-        if not self.is_permanent():
-            return
-
-        pet_data = self.get_pet_data()
-        # From VMaNGOS.
-        delay_mod = pet_data.creature_template.base_attack_time / 2000
-        damage_base = pet_data.get_level() * 1.05
-        damage_min = self.creature.dmg_min if reset else damage_base * 1.15 * delay_mod
-        damage_max = self.creature.dmg_max if reset else damage_base * 1.45 * delay_mod
-
-        pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(pet_data.creature_template.entry,
-                                                                                pet_data.get_level())
-        if not pet_stats:
-            Logger.warning(f'Unable to locate pet level stats for creature entry '
-                           f'{pet_data.creature_template.entry} level {pet_data.get_level()}')
-            # Use default stats.
-            pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(1, pet_data.get_level())
-
-        if pet_stats or reset:
-            self.creature.stat_manager.base_stats[UnitStats.HEALTH] = self.creature.max_health if reset else pet_stats.hp
-            self.creature.stat_manager.base_stats[UnitStats.MANA] = self.creature.max_power_1 if reset else pet_stats.mana
-            self.creature.stat_manager.base_stats[UnitStats.SPIRIT] = 1 if reset else pet_stats.spi
-            self.creature.stat_manager.base_stats[UnitStats.RESISTANCE_PHYSICAL] = 0 if reset else pet_stats.armor
-            self.creature.stat_manager.base_stats[UnitStats.STRENGTH] = 0 if reset else pet_stats.str
-            self.creature.stat_manager.base_stats[UnitStats.AGILITY] = 0 if reset else pet_stats.agi
-            self.creature.stat_manager.base_stats[UnitStats.STAMINA] = 0 if reset else pet_stats.sta
-            self.creature.stat_manager.base_stats[UnitStats.INTELLECT] = 0 if reset else pet_stats.inte
-
-        self.creature.set_melee_damage(int(damage_min), int(damage_max))
-        self.creature.stat_manager.apply_bonuses()
-
     def set_level(self, level=-1, replenish=False):
         pet_data = self.get_pet_data()
 
@@ -105,9 +73,8 @@ class ActivePet:
         self.creature.set_uint32(UnitFields.UNIT_FIELD_LEVEL, self.creature.level)
         self.creature.set_uint32(UnitFields.UNIT_FIELD_PETNEXTLEVELEXP, pet_data.next_level_xp)
 
-        self.update_stats()
-        if replenish:
-            self.creature.replenish_powers()
+        self.creature.stat_manager.set_creature_stats()
+        self.creature.stat_manager.apply_bonuses(replenish=replenish)
 
     def attach(self):
         self.get_pet_data().set_active(True)
@@ -124,7 +91,6 @@ class ActivePet:
 
     def detach(self):
         pet_data = self.get_pet_data()
-        self.update_stats(reset=True)
 
         movement_type = MovementTypes.IDLE
         map_ = self.creature.get_map()
@@ -166,6 +132,10 @@ class ActivePet:
 
         if not self.creature.is_spawned:
             return  # Destroyed and detached.
+
+        # Update stats to clear pet-specific values.
+        self.creature.stat_manager.set_creature_stats()
+        self.creature.stat_manager.apply_bonuses()
 
         # Generate threat against owner.
         self.creature.threat_manager.add_threat(self._pet_manager.owner)

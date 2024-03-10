@@ -108,7 +108,7 @@ class EffectTargets:
         has_hostile = HOSTILE_IMPLICIT_TARGETS.intersection(implicit_targets)
 
         if has_friendly != has_hostile:
-            return has_friendly, has_hostile
+            return bool(has_friendly), bool(has_hostile)
 
         # Spells with implicit target set to 0 can have both friendly and hostile targets.
         # These spells include passives, testing spells and npc spells.
@@ -218,7 +218,7 @@ class EffectTargets:
             if unit_type_restriction and not unit_type_restriction & (1 << unit.creature_type - 1):
                 continue
 
-            if target_entries and unit.get_type_id() != ObjectTypeIds.ID_UNIT or unit.entry not in target_entries:
+            if target_entries and (unit.get_type_id() != ObjectTypeIds.ID_UNIT or unit.entry not in target_entries):
                 continue
 
             # Friendliness.
@@ -454,9 +454,6 @@ class EffectTargets:
         units = EffectTargets.get_surrounding_unit_targets(target_effect, source_unit=caster,
                                                            distance_loc=caster.location,
                                                            radius=target_effect.get_radius())
-
-        if caster in units:
-            units.remove(caster)
         return units
 
     @staticmethod

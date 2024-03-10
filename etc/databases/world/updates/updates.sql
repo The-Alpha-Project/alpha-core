@@ -1842,8 +1842,8 @@ begin not atomic
         insert into `applied_updates` values ('081020231');
     end if;
 
-    -- 3/12/2023 1
-    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='231020231') = 0 then
+    -- 03/12/2023 1
+    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='031220231') = 0 then
         CREATE TABLE `spell_script_target` (
           `entry` mediumint(8) unsigned NOT NULL DEFAULT 0,
           `target_type` tinyint(1) unsigned NOT NULL DEFAULT 0,
@@ -1861,7 +1861,95 @@ begin not atomic
                                               (7035, 1, 4251), (7036, 1, 4252), (7078, 1, 4965),
                                               (7078, 1, 4967), (7078, 1, 4968), (7728, 0, 92015);
 
-        INSERT INTO `applied_updates` VALUES (031220231);
+        INSERT INTO `applied_updates` VALUES ('031220231');
+    end if;
+
+    -- 30/12/2023 1
+    if(select count(*) from `applied_updates` where id='301220231') = 0 then
+        -- Rename Kingsblood to Crownroyal, closes #1338.
+        update item_template set name = 'Crownroyal' where entry = 3356;
+        -- Despawn floating Blazing Fire near Orgrimmar, closes #1332.
+        update spawns_gameobjects set ignored = 1 where spawn_id = 11958;
+        -- Fix cost and skill requirements for Handstitched Leather Belt.
+        update trainer_template set spellcost = 75, reqskillvalue = 25 where template_entry = 509;
+        -- Add Handstitched Leather Pants to Leatherworking trainers. Cost and required skill level is from vanilla since we don't know it (but it aligns well with the other Handstitched recipes).
+        insert into trainer_template (template_entry, spell, playerspell, spellcost, reqskill, reqskillvalue, reqlevel) values (509, 2338, 2153, 50, 165, 15, 1);
+        -- Update quest XP, required item count and text for "The Trogg Threat" (267), closes #1285.
+        update quest_template set RewXP = 1500, ReqItemCount1 = 20, Objectives = "Bring 20 Trogg Stone Teeth to Captain Rugelfuss in the southern guard tower.", RequestItemsText = "Do you have 20 Trogg Stone Teeth to show me? If not, there is still work to be done, $N.", Details = "$C, you may or may not be aware of the Trogg threat looming over Dwarven lands.  With the Ironforge Reserve called up to the Alliance Front, we are left with a fraction of the defense forces needed to keep these lands safe.  My regiment is assigned to watch over the Gate here and we cannot leave our post for fear of invasion.$b$bBut we need some pressure put on those damned Troggs lurking in the hills.  If you're up to the task, wage an assault on the Troggs.  Bring me back 20 Trogg Stone Teeth as proof." where entry = 267;
+        -- Update Mosshide Gnoll display_id, closes #1280.
+        update creature_template set display_id1 = 667 where entry = 1007;
+        -- Update Samuel Flipps display_id, closes #1295.
+        update creature_template set display_id1 = 1200 where entry = 1919;
+        -- Update Stephen Bartec display_id, closes #1296.
+        update creature_template set display_id1 = 200 where entry = 1916;
+        -- Update Grel'Borg the Miser display_id, closes #1298.
+        update creature_template set display_id1 = 155 where entry = 2417;
+        -- Update Crushridge Ogre display_id, closes #1299.
+        update creature_template set display_id1 = 1121 where entry = 2252;
+        -- Update Mug'thol display_id, closes #1300.
+        update creature_template set display_id1 = 597 where entry = 2257;
+        -- Update Bloodmage Thalnos display_id, closes #1302.
+        update creature_template set display_id1 = 2606 where entry = 4543;
+        -- Update Morbent Fel quest to always award the original Torch of Holy Flame, closes #1327.
+        update quest_template set RewItemId1 = 2808, RewItemCount1 = 1 where entry = 55;
+
+        insert into applied_updates values('301220231');
+    end if;
+
+    -- 30/12/2023 2
+    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='301220232') = 0 then
+        -- Rename all "Crocolisks" to "Crocilisks".
+        UPDATE creature_template SET name = "Sawtooth Crocilisk" WHERE entry = 1082;
+        UPDATE creature_template SET name = "Young Sawtooth Crocilisk" WHERE entry = 1084;
+        UPDATE creature_template SET name = "River Crocilisk" WHERE entry = 1150;
+        UPDATE creature_template SET name = "Saltwater Crocilisk" WHERE entry = 1151;
+        UPDATE creature_template SET name = "Snapjaw Crocilisk" WHERE entry = 1152;
+        UPDATE creature_template SET name = "Wetlands Crocilisk" WHERE entry = 1400;
+        UPDATE creature_template SET name = "Young Wetlands Crocilisk" WHERE entry = 1417;
+        UPDATE creature_template SET name = "Loch Crocilisk" WHERE entry = 1693;
+        UPDATE creature_template SET name = "Giant Wetlands Crocilisk" WHERE entry = 2089;
+        UPDATE creature_template SET name = "Large Loch Crocilisk" WHERE entry = 2476;
+        UPDATE creature_template SET name = "Elder Saltwater Crocilisk" WHERE entry = 2635;
+        UPDATE creature_template SET name = "Dreadmaw Crocilisk" WHERE entry = 3110;
+        UPDATE creature_template SET name = "Corrupted Dreadmaw Crocilisk" WHERE entry = 3231;
+        UPDATE creature_template SET name = "Drywallow Crocilisk" WHERE entry = 4341;
+        UPDATE creature_template SET name = "Mottled Drywallow Crocilisk" WHERE entry = 4344;
+        UPDATE creature_template SET name = "Deviate Crocilisk" WHERE entry = 5053;
+        UPDATE creature_template SET name = "Tamed Crocilisk" WHERE entry = 5440;
+        -- Rename all "Crocolisk" items accordingly.
+        UPDATE item_template SET name = "Pointy Crocilisk Tooth" WHERE entry = 770;
+        UPDATE item_template SET name = "Crocilisk Tear" WHERE entry = 2939;
+        UPDATE item_template SET name = "Bundle of Crocilisk Skins" WHERE entry = 3347;
+        UPDATE item_template SET name = "Giant Crocilisk Skin" WHERE entry = 3348;
+        UPDATE item_template SET name = "Young Crocilisk Skin" WHERE entry = 3397;
+        UPDATE item_template SET name = "Crocilisk Steak" WHERE entry = 3362;
+        UPDATE item_template SET name = "Crocilisk Gumbo" WHERE entry = 3364;
+        UPDATE item_template SET name = "Tender Crocilisk Meat" WHERE entry = 3667;
+        UPDATE item_template SET name = "Large River Crocilisk Skin" WHERE entry = 4053;
+        UPDATE item_template SET name = "Snapjaw Crocilisk Skin" WHERE entry = 4104;
+        UPDATE item_template SET name = "Elder Crocilisk Skin" WHERE entry = 4105;
+        -- Fix quest titles and text accordingly.
+        UPDATE quest_template set Title = "Crocilisk Hunting", Details = "Many a hunter is attracted to Loch Modan to hunt our famous crocs. There are always merchants who seek out crocilisk skins for clothing items or armor, and there are also some who enjoy the taste of their meat.$b$bWe do some trade in this, but not a huge amount, as the crocilisks are ferocious and have entrenched themselves on the islands in the Loch. But don't let me dissuade you, it's quite an experience, wrestling with the jaws of the beasts.$b$bWhy, this one time...", Objectives = "Get 5 pieces of Crocilisk Meat and 6 Crocilisk Skins for Marek Ironheart at the Farstrider Lodge." WHERE entry = 385;
+        UPDATE quest_template set Title = "Young Crocilisk Skins", Details = "I'm James Halloran, the tanner. My cured crocilisk skins are sought after all over, shipments leaving by boat to ports around the world.$b$bMet Einar? He's one of the hunters that brings crocilisk skins in for me.$b$bI'm a bit short on the softer skins that come off crocilisk young.$b$bBeing that I'm running low, I'll pay you top coin for a stack of the skins. You can find the young crocs in the marshes right outside of town.", Objectives = "Obtain 4 Young Crocilisk Skins for James Halloran in Menethil Harbor." WHERE entry = 484;
+        UPDATE quest_template SET Details = "This ain't no ordinary blast powder.  Look at the tiny silver crystals.  And the distinct smell!  Why it's clear as daylight that this is Seaforium Powder.  Seaforium is harmless enough.  But once it's wet it could blow Ironforge out of the mountain.$b$bThe chemical reaction can be defused by mixing four components:  lurker venom, crushed Mo'Grosh crystal, a crocoilisk tear and this disarming colloid.  Now tell Hinderweir before it's too late!" WHERE entry = 274;
+        UPDATE quest_template SET Details = "Begin collecting the disarming materials immediately, $N.  Lurker Venom can be found on the indigenous spiders in Loch Modan.  Crocilisk tears are found here in the Loch as well.  But a Mo'Grosh crystal will be very difficult to procure.  The ogres to the northeast mine them but the crystals are a very rare commodity.$b$bWe need to be prepared to defuse a Dark Iron attack!  Return to me once you've collected the needed items and I will prepare the mixture.", Objectives = "Chief Engineer Hinderweir wants you to gather Lurker Venom, a Mo'grosh Crystal, and a Crocilisk Tear." WHERE entry = 278;
+        UPDATE quest_template SET Details = "With the inside finished, all that's left is to add the outer layer. For this, I use only the best elder croc skins. They are more durable and a better canvas--if you will--for adding the designs and accents that make Drizzlik's Excelsior line.$b$bIt's hard to find that perfect skin though, the only one that fits my plan is the skin of an elder saltwater crocilisk. The elders only come out to defend the other saltwater crocs, so you might need to kill a few to draw one out.", Objectives = "Bring an Elder Crocilisk Skin to Drizzlik in Booty Bay.", RequestItemsText = "I read somewhere that the saltwater crocilisks are slowly dying out... bad news for my business, isn't it?$b$bAnyways, I hope you have that elder saltwater crocilisk skin for me!" WHERE entry = 628;
+        UPDATE quest_template SET Details = "\"The finest leathercrafter of the South Seas and the worlds old and new.\" That's what they call me. Me! Drizzlik! The finest lea... Ahem. Well.$b$bMy leather goods are known far and wide as the most exquisite, a connoisseur's choice!$b$bI've just received an order from Director Riddlevox of the Tinkers' Union for a dozen of his favorite Excelsior-line boots. Our best sellers, actually.$b$bTo start on the basic shape, I'll need crocilisk skins from the crocs along the river in northern Stranglethorn.", Objectives = "Bring 2 Large River Crocilisk Skins to Drizzlik in Booty Bay." WHERE entry = 575;
+        UPDATE quest_template SET Objectives = "Bring 5 Snapjaw Crocilisks Skins to Drizzlik in Booty Bay.", RequestItemsText = "Drizzlik's Excelsior leather boots, finest workmanship, one-hundred percent high quality saltwater crocilisk skin boots. None finer!$b$bCan't beat a glowing description like that, can you?$b$bExcept, maybe, if you have those skins for me?" WHERE entry = 577;
+        INSERT INTO `applied_updates` VALUES ('301220232');
+    end if;
+
+    -- 10/03/2024 1
+	if (select count(*) from applied_updates where id='100320241') = 0 then
+        UPDATE item_template SET name = "Monster - Item, Broom" WHERE entry = 3362;
+        UPDATE item_template SET name = "Monster - Sword, Rapier" WHERE entry = 3364;
+
+        UPDATE item_template SET name = "Crocilisk Steak" WHERE entry = 3662;
+        UPDATE item_template SET name = "Crocilisk Gumbo" WHERE entry = 3664;
+
+        UPDATE creature_template SET subname = "Crocilisk Trainer" WHERE entry = 2876;
+
+        insert into applied_updates values ('100320241');
     end if;
 end $
 delimiter ;

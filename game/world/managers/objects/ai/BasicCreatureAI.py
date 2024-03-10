@@ -23,6 +23,9 @@ class BasicCreatureAI(CreatureAI):
 
         self.do_melee_attack_if_ready()
 
+        #  Update events bound to AI update calls timing.
+        self.ai_event_handler.ai_update(elapsed)
+
     # override
     def permissible(self, creature):
         return Permits.PERMIT_BASE_NORMAL

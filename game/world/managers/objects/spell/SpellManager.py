@@ -452,7 +452,8 @@ class SpellManager:
                         SpellMissReason.MISS_REASON_BLOCKED: ProcFlags.BLOCK
                     }
                     damage_info = DamageInfoHolder(attacker=casting_spell.spell_caster, target=target,
-                                                   proc_victim=proc_flags.get(target_info.result, 0))
+                                                   proc_victim=proc_flags.get(target_info.result, 0),
+                                                   spell_id=casting_spell.spell_entry.ID)
 
                     # Effects are not applied for misses. Handle procs from them on cast.
                     self.handle_damage_event_procs(damage_info)
@@ -463,7 +464,8 @@ class SpellManager:
                 applied_targets.append(target.guid)
 
     def handle_damage_event_procs(self, damage_info: DamageInfoHolder):
-        if damage_info.total_damage + damage_info.absorb > 0:  # Dazed applied through absorb until 0.5.5.
+        if not damage_info.spell_id and \
+                damage_info.total_damage + damage_info.absorb > 0:  # Dazed applied through absorb until 0.5.5.
             damage_info.target.handle_melee_daze_chance(damage_info.attacker)
 
         # Overpower proc.
@@ -1670,7 +1672,7 @@ class SpellManager:
                 casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
                 instance_charges = new_charges
 
-            # No charges left or should charge usage should remove item.
+            # No charges left or usage should remove item.
             if (not instance_charges or charges_removes_item) and item_entry not in removed_items:
                 self.caster.inventory.remove_items(item_entry, 1)
 
