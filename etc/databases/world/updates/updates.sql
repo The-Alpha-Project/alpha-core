@@ -1938,5 +1938,18 @@ begin not atomic
         UPDATE quest_template SET Objectives = "Bring 5 Snapjaw Crocilisks Skins to Drizzlik in Booty Bay.", RequestItemsText = "Drizzlik's Excelsior leather boots, finest workmanship, one-hundred percent high quality saltwater crocilisk skin boots. None finer!$b$bCan't beat a glowing description like that, can you?$b$bExcept, maybe, if you have those skins for me?" WHERE entry = 577;
         INSERT INTO `applied_updates` VALUES ('301220232');
     end if;
+
+    -- 10/03/2024 1
+	if (select count(*) from applied_updates where id='100320241') = 0 then
+        UPDATE item_template SET name = "Monster - Item, Broom" WHERE entry = 3362;
+        UPDATE item_template SET name = "Monster - Sword, Rapier" WHERE entry = 3364;
+
+        UPDATE item_template SET name = "Crocilisk Steak" WHERE entry = 3662;
+        UPDATE item_template SET name = "Crocilisk Gumbo" WHERE entry = 3664;
+
+        UPDATE creature_template SET subname = "Crocilisk Trainer" WHERE entry = 2876;
+
+        insert into applied_updates values ('100320241');
+    end if;
 end $
 delimiter ;
