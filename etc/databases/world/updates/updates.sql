@@ -1842,8 +1842,8 @@ begin not atomic
         insert into `applied_updates` values ('081020231');
     end if;
 
-    -- 3/12/2023 1
-    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='231020231') = 0 then
+    -- 03/12/2023 1
+    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='031220231') = 0 then
         CREATE TABLE `spell_script_target` (
           `entry` mediumint(8) unsigned NOT NULL DEFAULT 0,
           `target_type` tinyint(1) unsigned NOT NULL DEFAULT 0,
@@ -1861,7 +1861,7 @@ begin not atomic
                                               (7035, 1, 4251), (7036, 1, 4252), (7078, 1, 4965),
                                               (7078, 1, 4967), (7078, 1, 4968), (7728, 0, 92015);
 
-        INSERT INTO `applied_updates` VALUES (031220231);
+        INSERT INTO `applied_updates` VALUES ('031220231');
     end if;
 
     -- 30/12/2023 1
