@@ -27,8 +27,14 @@ class DebugLevel(IntEnum):
 
 
 class Logger:
+    parent_conn = None
+
     # Initialize colorama.
     init()
+
+    def set_parent_conn(parent_conn):
+        if not Logger.parent_conn:
+            Logger.parent_conn = parent_conn
 
     @staticmethod
     def _should_log(log_type: DebugLevel):
@@ -37,45 +43,69 @@ class Logger:
     @staticmethod
     def _colorize_message(label, color, msg):
         date = datetime.now().strftime('[%d/%m/%Y %H:%M:%S]')
-        return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
+
+        formatted_msg = f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
+
+        if Logger.parent_conn:
+            line_ending = "\r" if 'INFO' in label and '%' in msg else "\n"
+            Logger.parent_conn.send(formatted_msg + line_ending)
+
+        return formatted_msg 
 
     @staticmethod
-    def debug(msg):
+    def debug(msg, LogMarkers='[DEBUG]'):
         if Logger._should_log(DebugLevel.DEBUG):
-            print(Logger._colorize_message('[DEBUG]', DebugColorLevel.DEBUG, msg))
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.DEBUG, msg)
+            print(formatted_msg)
 
     @staticmethod
-    def warning(msg):
+    def warning(msg, LogMarkers='[WARNING]'):
         if Logger._should_log(DebugLevel.WARNING):
-            print(Logger._colorize_message('[WARNING]', DebugColorLevel.WARNING, msg))
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.WARNING, msg)
+            print(formatted_msg)
 
     @staticmethod
-    def error(msg):
+    def error(msg, LogMarkers='[ERROR]'):
         if Logger._should_log(DebugLevel.ERROR):
-            print(Logger._colorize_message('[ERROR]', DebugColorLevel.ERROR, msg))
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.ERROR, msg)
+            print(formatted_msg)
 
     @staticmethod
-    def info(msg, end='\n'):
+    def info(msg, LogMarkers='[INFO]', end='\n'):
         if Logger._should_log(DebugLevel.INFO):
-            print(Logger._colorize_message('[INFO]', DebugColorLevel.INFO, msg), end=end)
-
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.INFO, msg)
+            print(formatted_msg, end=end)
+        
     @staticmethod
-    def success(msg):
+    def plain(msg, LogMarkers=''):
+        # if we just want to send unformated text Telnet (output of help)
+
+        if Logger.parent_conn:
+            Logger.parent_conn.send(msg)
+        
+    @staticmethod
+    def success(msg, LogMarkers='[SUCCESS]'):
         if Logger._should_log(DebugLevel.SUCCESS):
-            print(Logger._colorize_message('[SUCCESS]', DebugColorLevel.SUCCESS, msg))
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.SUCCESS, msg)
+            print(formatted_msg)
 
     @staticmethod
-    def anticheat(msg):
+    def anticheat(msg, LogMarkers='[ANTICHEAT]'):
         if Logger._should_log(DebugLevel.ANTICHEAT):
-            print(Logger._colorize_message('[ANTICHEAT]', DebugColorLevel.ANTICHEAT, msg))
-
+            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.ANTICHEAT, msg)
+            print(formatted_msg)
+        
     # Additional methods
 
     @staticmethod
     def progress(msg, current, total, divisions=20):
         msg = f'{msg} [{current}/{total}] ({int(current * 100 / total)}%)'
-        if current != total and divisions > 0:
-            if int(current % (total / divisions)) == 0:
-                Logger.info(msg, end='\r')
-        else:
-            Logger.success(msg)
+        try:
+            if current != total and divisions > 0:
+                if int(current % (total / divisions)) == 0:
+                    Logger.info(msg, end='\r')
+            else:
+                Logger.success(msg)
+
+        except:
+            pass

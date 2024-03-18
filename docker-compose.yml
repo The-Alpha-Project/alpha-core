@@ -22,6 +22,8 @@ services:
       context: .
       dockerfile: etc/docker/main/Dockerfile
     ports:
+      - "3443:3443"
+      - "7878:7878"
       - "8100:8100"
       - "9090:9090"
       - "9100:9100"
@@ -34,6 +36,8 @@ services:
       context: .
       dockerfile: etc/docker/world/Dockerfile
     ports:
+      - "3443:3443"
+      - "7878:7878"
       - "8100:8100"
     <<: *alpha-core-shared-conf
     profiles:
@@ -55,12 +59,14 @@ services:
   sql:
     image: alpha-mariadb:latest
     build: etc/docker/sql
+    container_name: alpha-core-sql
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
     ports:
       - "3336:3306"
     volumes:
       - ./etc/databases/:/etc/databases/
+        # - ./var/mysql:/var/lib/mysql:rw
     restart: on-failure
 
   phpmyadmin:
