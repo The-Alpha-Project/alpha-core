@@ -40,7 +40,7 @@ list: ## List all runnning containers
 log: ## show one contaienr log. usage: make log <container>
 	docker logs $(filter-out $@,$(MAKECMDGOALS)) -f
 
-all_logs: ## Show all containers logs
+all-logs: ## Show all containers logs
 	docker-compose logs -f
  
 ##@ [Profiles: dev]

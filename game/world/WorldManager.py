@@ -20,6 +20,7 @@ from utils.constants.AuthCodes import AuthCode
 from utils.constants.MiscCodes import ObjectTypeIds
 
 from modules import TelnetCommandHandler
+from modules import WorldManagerModules
 
 STARTUP_TIME = time()
 WORLD_ON = True
@@ -306,10 +307,13 @@ class WorldServerSessionHandler:
         WorldServerSessionHandler.schedule_background_tasks()
 
         # CommandManager used by Telnet, need to be like this otherwise does this loop take over
-        if config.Telnet.Defaults.enabled and not config.Server.Settings.console_mode:
-            WorldManagerExtended_thread = threading.Thread(target=TelnetCommandHandler.starts,args=(parent_conn,))
-            WorldManagerExtended_thread.daemon = True
-            WorldManagerExtended_thread.start()
+        # if config.Telnet.Defaults.enabled and not config.Server.Settings.console_mode:
+        #    WorldManagerExtended_thread = threading.Thread(target=TelnetCommandHandler.starts,args=(parent_conn,))
+        #    WorldManagerExtended_thread.daemon = True
+        #    WorldManagerExtended_thread.start()
+
+        world_manager_modules = WorldManagerModules()
+        world_manager_modules.start(parent_conn)
 
         real_binding = server_socket.getsockname()
         Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')
