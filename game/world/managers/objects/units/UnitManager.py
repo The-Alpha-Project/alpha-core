@@ -307,13 +307,6 @@ class UnitManager(ObjectManager):
         self.get_map().send_surrounding(PacketWriter.get_packet(OpCode.SMSG_ATTACKSTOP, data), self)
 
     def attack_update(self, elapsed):
-        # Don't update melee swing timers while casting, stunned, pacified or fleeing..
-        if not self.can_perform_melee_attack():
-            # Timers must be updated when out of combat.
-            if not self.in_combat:
-                self.update_attack_timers(elapsed)
-            return False
-
         self.update_attack_timers(elapsed)
         return self.update_melee_attacking_state()
 
@@ -323,17 +316,17 @@ class UnitManager(ObjectManager):
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
     def update_melee_attacking_state(self):
-        # Don't update melee swing timers while casting, stunned, pacified or fleeing..
+        # Don't update melee attacking state while casting, stunned, pacified or fleeing.
         if not self.can_perform_melee_attack():
             return False
-
-        swing_error = AttackSwingError.NONE
-        combat_angle = math.pi
 
         # If neither main hand attack and offhand attack are ready, return.
         if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
                 (self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK)):
             return False
+
+        swing_error = AttackSwingError.NONE
+        combat_angle = math.pi
 
         main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
         off_attack_delay = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
@@ -377,10 +370,6 @@ class UnitManager(ObjectManager):
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
         if swing_error != AttackSwingError.NONE:
-            self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
-            if self.has_offhand_weapon():
-                self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
-
             if self.get_type_id() == ObjectTypeIds.ID_PLAYER:
                 if swing_error == AttackSwingError.NOTINRANGE:
                     self.send_attack_swing_not_in_range(self.combat_target)
