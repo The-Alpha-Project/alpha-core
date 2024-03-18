@@ -16,4 +16,8 @@ for database in "${databases[@]}"; do
 done 
 
 echo "Done"
+<<<<<<< HEAD
 echo "Please restart server"
+=======
+echo "Please restart server"
+>>>>>>> 375c94a63045637aa413b056f70bea891d985a35
