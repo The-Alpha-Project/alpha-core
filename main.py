@@ -12,10 +12,11 @@ from tools.map_extractor.MapExtractor import MapExtractor
 from utils.ConfigManager import config, ConfigManager
 from utils.Logger import Logger
 from utils.ChatLogManager import ChatLogManager
-from utils.TelnetManager import TelnetManager
 from utils.PathManager import PathManager
 from utils.constants import EnvVars
 
+# from modules.telnet.TelnetServer import TelnetServer
+from modules import TelnetServer
 
 # Initialize argument parser.
 parser = argparse.ArgumentParser()
@@ -103,7 +104,7 @@ if __name__ == '__main__':
         parent_world_conn, world_conn = multiprocessing.Pipe()
         parent_telnet_conn, telnet_conn = multiprocessing.Pipe()
 
-        telnet_process = context.Process(target=TelnetManager.start_telnet, args=(telnet_conn,))
+        telnet_process = context.Process(target=TelnetServer.start_telnet, args=(telnet_conn,))
         telnet_process.start()
 
     if launch_realm:

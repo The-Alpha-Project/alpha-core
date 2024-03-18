@@ -19,7 +19,7 @@ from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
 from utils.constants.MiscCodes import ObjectTypeIds
 
-from game.world.TelnetCommandHandler import TelnetCommandHandler
+from modules import TelnetCommandHandler
 
 STARTUP_TIME = time()
 WORLD_ON = True

@@ -8,7 +8,7 @@ import struct
 import sys
 
 
-class TelnetManager:
+class TelnetServer:
     connections = []
     command_history = []
     server = None
@@ -39,14 +39,14 @@ class TelnetManager:
             connection.send(msg.encode())
 
             # Authenticate the user
-            if not TelnetManager.authenticate_user(connection):
+            if not TelnetServer.authenticate_user(connection):
                 connection.close()
                 Logger.error(f'Failed authentication from {address}')
                 return
 
             # Add the authenticated connection to the list
             connection.setblocking(False)
-            TelnetManager.connections.append(connection)
+            TelnetServer.connections.append(connection)
 
         except Exception as e:
             Logger.error(f"Error in connect: {e}")
@@ -55,28 +55,28 @@ class TelnetManager:
     def connections_handler():
         while True:
             try:
-                readable, _, _ = select.select([TelnetManager.server] + TelnetManager.connections, [], [], config.Telnet.Defaults.timeout)
+                readable, _, _ = select.select([TelnetServer.server] + TelnetServer.connections, [], [], config.Telnet.Defaults.timeout)
 
                 for sock in readable:             
                     try:
-                        if sock == TelnetManager.server:
-                            TelnetManager.connect(sock)
+                        if sock == TelnetServer.server:
+                            TelnetServer.connect(sock)
                         else:
                             data = sock.recv(1024)
 
                             if not data:
-                                TelnetManager.disconnect(sock)
+                                TelnetServer.disconnect(sock)
                             else:
                                 data = data.decode().strip().replace('\n', '')
 
                                 if data == 'history':
-                                    for command in TelnetManager.command_history:
+                                    for command in TelnetServer.command_history:
                                         sock.send(command.encode())
                                 else:
-                                    TelnetManager.command_history.append(data + "\n")
+                                    TelnetServer.command_history.append(data + "\n")
 
                                 if '/' in data[0]:
-                                    TelnetManager.parent_conn.send(data.encode())
+                                    TelnetServer.parent_conn.send(data.encode())
 
                     except AttributeError as ae:
                         # Logger.error(f"Error {ae}")
@@ -86,17 +86,17 @@ class TelnetManager:
                     # Logger.error(f"Error in the main loop: {e}")
                     pass 
                     
-            if TelnetManager.parent_conn.poll():
-                TelnetManager.send_to_all_clients(TelnetManager.parent_conn.recv())
+            if TelnetServer.parent_conn.poll():
+                TelnetServer.send_to_all_clients(TelnetServer.parent_conn.recv())
 
     def disconnect(sock):
-        TelnetManager.connections.remove(sock)
+        TelnetServer.connections.remove(sock)
         Logger.info(f'Client disconnected: {sock.getpeername()}')
         sock.close()
 
     @staticmethod
     def send_to_all_clients(msg):
-        for connection in TelnetManager.connections:
+        for connection in TelnetServer.connections:
             connection.send(msg.encode())
 
     @staticmethod
@@ -106,29 +106,29 @@ class TelnetManager:
 
         Logger.info(f'Telnet cleaning up and exiting.')
 
-        for connection in TelnetManager.connections:
+        for connection in TelnetServer.connections:
             connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
-            TelnetManager.disconnect(connection)
+            TelnetServer.disconnect(connection)
 
-        TelnetManager.server.close()
+        TelnetServer.server.close()
 
         Logger.info(f'Telnet process terminated.')
         sys.exit(0)
 
     @staticmethod
     def start_telnet(parent_conn):
-        TelnetManager.parent_conn = parent_conn
+        TelnetServer.parent_conn = parent_conn
 
         # Register the signal handler for Ctrl+C (SIGINT)
-        signal.signal(signal.SIGINT, TelnetManager.signal_handler)
-        Logger.set_parent_conn(TelnetManager.parent_conn)
+        signal.signal(signal.SIGINT, TelnetServer.signal_handler)
+        Logger.set_parent_conn(TelnetServer.parent_conn)
 
         # starting telnet server
-        TelnetManager.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        TelnetManager.server.bind((config.Server.Connection.Telnet.host, config.Server.Connection.Telnet.port))
-        TelnetManager.server.listen(config.Telnet.Defaults.listen)
-        TelnetManager.server.settimeout(config.Telnet.Defaults.timeout)
-        TelnetManager.server.setblocking(False)
+        TelnetServer.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        TelnetServer.server.bind((config.Server.Connection.Telnet.host, config.Server.Connection.Telnet.port))
+        TelnetServer.server.listen(config.Telnet.Defaults.listen)
+        TelnetServer.server.settimeout(config.Telnet.Defaults.timeout)
+        TelnetServer.server.setblocking(False)
     
         Logger.success(f'Telnet server started, listening on {config.Server.Connection.Telnet.host}:{config.Server.Connection.Telnet.port}')
-        TelnetManager.connections_handler()
+        TelnetServer.connections_handler()

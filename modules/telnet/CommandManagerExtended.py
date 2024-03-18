@@ -24,16 +24,17 @@ class CommandManagerExtended(CommandManager):
         command = command_msg[1:terminator_index].strip()
         args = command_msg[terminator_index:].strip()
 
+
         if command in TELNET_COMMAND_DEFINITIONS:
             command_func = TELNET_COMMAND_DEFINITIONS[command][0]
-        elif command in PLAYER_COMMAND_DEFINITIONS:
-            command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
-        elif command in GM_COMMAND_DEFINITIONS:
-            command_func = GM_COMMAND_DEFINITIONS[command][0]
-        elif command in DEV_COMMAND_DEFINITIONS:
-            command_func = DEV_COMMAND_DEFINITIONS[command][0]
+     #   elif command in PLAYER_COMMAND_DEFINITIONS:
+     #       command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
+     #   elif command in GM_COMMAND_DEFINITIONS:
+     #       command_func = GM_COMMAND_DEFINITIONS[command][0]
+     #   elif command in DEV_COMMAND_DEFINITIONS:
+     #       command_func = DEV_COMMAND_DEFINITIONS[command][0]
         else:
-            Logger.error(f'Command not found, type .help for help.')
+            Logger.error(f'Command not found, type /help for help.')
             return
 
         if command_func:
@@ -53,14 +54,16 @@ class CommandManagerExtended(CommandManager):
         Logger.info(f'Please notice, in most commands you need') 
         Logger.info(f'to add player ex. /<command> <player> <args>') 
 
+        Logger.plain(f'All server commands: \n\n')
+
         for command in TELNET_COMMAND_DEFINITIONS:
             Logger.plain(f'{command}\n')
-        for command in DEV_COMMAND_DEFINITIONS:
-            Logger.plain(f'{command}\n') 
-        for command in GM_COMMAND_DEFINITIONS:
-            Logger.plain(f'{command}\n') 
-        for command in PLAYER_COMMAND_DEFINITIONS:
-            Logger.plain(f'{command}\n')  
+      #  for command in DEV_COMMAND_DEFINITIONS:
+      #      Logger.plain(f'{command}\n') 
+      #  for command in GM_COMMAND_DEFINITIONS:
+      #      Logger.plain(f'{command}\n') 
+      #  for command in PLAYER_COMMAND_DEFINITIONS:
+      #      Logger.plain(f'{command}\n')  
         
         return 0, f''
 
@@ -68,7 +71,13 @@ class CommandManagerExtended(CommandManager):
     def online(world_session, args): 
         world_sessions = WorldSessionStateHandler.get_world_sessions()
                         
+
+        if len(world_sessions) <= 0:
+            Logger.info(f'No players are online') 
+            return 0, f''
+
         Logger.info(f'Online players')
+
         for session in world_sessions:
             Logger.info(f'{session.player_mgr.get_name()}')
         

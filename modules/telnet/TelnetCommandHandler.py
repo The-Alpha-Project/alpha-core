@@ -2,7 +2,7 @@
 
 from utils.Logger import Logger
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
-from game.world.managers.CommandManagerExtended import CommandManagerExtended
+from modules.telnet.CommandManagerExtended import CommandManagerExtended
 
 class TelnetCommandHandler:
     

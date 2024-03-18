@@ -21,6 +21,9 @@ start: ## Start all containers
 stop: ## Stop all containers (not dev)
 	docker compose -f $(DOCKER_COMPOSE_FILE) stop
 
+restart: ## Restart all containers (not dev)
+	docker compose -f $(DOCKER_COMPOSE_FILE) restart
+
 down: ## Stop and remove containers (not dev)
 	docker compose -f $(DOCKER_COMPOSE_FILE) down
 
