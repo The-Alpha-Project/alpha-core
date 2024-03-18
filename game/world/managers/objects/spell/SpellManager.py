@@ -25,7 +25,8 @@ from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
-    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools
+    SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools, \
+    SpellScriptTarget
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
@@ -173,7 +174,13 @@ class SpellManager:
                 continue
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
-                self.start_spell_cast(spell_template, self.caster, SpellTargetMask.SELF)
+                # Hide result since this cast can fail (Battle Stance already applied).
+                spell_cast = self.try_initialize_spell(spell_template, self.caster,
+                                                                SpellTargetMask.SELF,
+                                                                triggered=True, hide_result=True)
+                if not spell_cast:
+                    continue
+                self.start_spell_cast(initialized_spell=spell_cast)
 
     def apply_passive_spell_effects(self, spell_template):
         if not spell_template.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE:
@@ -242,7 +249,7 @@ class SpellManager:
                                f'({item.get_name()}) could not be found in the spell database.')
                 continue
 
-            casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, item)
+            casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item=item)
             if not casting_spell:
                 continue
 
@@ -256,18 +263,17 @@ class SpellManager:
         if not spell or not spell_target:
             return
 
-        if not validate:
-            initialized_spell = self.try_initialize_spell(spell, spell_target, target_mask,
-                                                          triggered=triggered, validate=validate)
-            self.start_spell_cast(initialized_spell=initialized_spell)
+        initialized_spell = self.try_initialize_spell(spell, spell_target, target_mask,
+                                                      triggered=triggered, validate=validate)
+        if not initialized_spell:
             return
 
-        self.start_spell_cast(spell, spell_target, target_mask, triggered=triggered)
+        self.start_spell_cast(initialized_spell=initialized_spell)
 
     def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
                              triggered=False, triggered_by_spell=None, hide_result=False,
                              validate=True, creature_spell=None) -> Optional[CastingSpell]:
-        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item,
+        spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item=source_item,
                              triggered=triggered, triggered_by_spell=triggered_by_spell,
                              hide_result=hide_result,
                              creature_spell=creature_spell)
@@ -276,8 +282,8 @@ class SpellManager:
         return spell if self.validate_cast(spell) else None
 
     def start_spell_cast(self, spell: Optional[Spell] = None, spell_target=None, target_mask=SpellTargetMask.SELF,
-                         source_item=None, triggered=False, initialized_spell: Optional[CastingSpell] = None):
-        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask, source_item, triggered=triggered) \
+                         initialized_spell: Optional[CastingSpell] = None):
+        casting_spell = self.try_initialize_spell(spell, spell_target, target_mask) \
             if not initialized_spell else initialized_spell
 
         if not casting_spell:
@@ -446,7 +452,8 @@ class SpellManager:
                         SpellMissReason.MISS_REASON_BLOCKED: ProcFlags.BLOCK
                     }
                     damage_info = DamageInfoHolder(attacker=casting_spell.spell_caster, target=target,
-                                                   proc_victim=proc_flags.get(target_info.result, 0))
+                                                   proc_victim=proc_flags.get(target_info.result, 0),
+                                                   spell_id=casting_spell.spell_entry.ID)
 
                     # Effects are not applied for misses. Handle procs from them on cast.
                     self.handle_damage_event_procs(damage_info)
@@ -457,7 +464,8 @@ class SpellManager:
                 applied_targets.append(target.guid)
 
     def handle_damage_event_procs(self, damage_info: DamageInfoHolder):
-        if damage_info.total_damage + damage_info.absorb > 0:  # Dazed applied through absorb until 0.5.5.
+        if not damage_info.spell_id and \
+                damage_info.total_damage + damage_info.absorb > 0:  # Dazed applied through absorb until 0.5.5.
             damage_info.target.handle_melee_daze_chance(damage_info.attacker)
 
         # Overpower proc.
@@ -1127,6 +1135,21 @@ class SpellManager:
             self.send_cast_result(casting_spell, result)
             return False
 
+        # Scripted target restriction check for initial target.
+        # Script (unit) targets for AoE effects are filtered by EffectTargets.
+        script_target_entries = WorldDatabaseManager.SpellScriptTargetHolder.\
+            spell_script_targets_get_by_spell(casting_spell.spell_entry.ID)
+
+        if script_target_entries and validation_target != self.caster:
+            for entry in script_target_entries:
+                req_type = ObjectTypeIds.ID_UNIT if entry.target_type == SpellScriptTarget.TARGET_UNIT \
+                    else ObjectTypeIds.ID_GAMEOBJECT
+
+                if validation_target.get_type_id() != req_type or \
+                        entry.target_entry != validation_target.entry:
+                    self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_BAD_TARGETS)
+                    return False
+
         # Unit target checks.
         if casting_spell.initial_target_is_unit_or_player():
             # Basic effect harmfulness/attackability check.
@@ -1649,7 +1672,7 @@ class SpellManager:
                 casting_spell.source_item.set_charges(casting_spell.spell_entry.ID, new_charges)
                 instance_charges = new_charges
 
-            # No charges left or should charge usage should remove item.
+            # No charges left or usage should remove item.
             if (not instance_charges or charges_removes_item) and item_entry not in removed_items:
                 self.caster.inventory.remove_items(item_entry, 1)
 

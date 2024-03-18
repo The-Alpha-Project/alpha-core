@@ -1357,29 +1357,29 @@ class PlayerManager(UnitManager):
             self.set_uint32(UnitFields.UNIT_FIELD_COINAGE, self.coinage)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME, self.base_attack_time)
             self.set_uint32(UnitFields.UNIT_FIELD_BASEATTACKTIME + 1, self.offhand_attack_time)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistance_0)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistance_1)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistance_2)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistance_3)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistance_4)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistance_5)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES, self.resistances[0])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 1, self.resistances[1])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 2, self.resistances[2])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 3, self.resistances[3])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 4, self.resistances[4])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCES + 5, self.resistances[5])
             self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
             self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, self.combat_reach)
             self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
             self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
             self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive_0)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, self.resistance_buff_mods_positive_1)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, self.resistance_buff_mods_positive_2)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, self.resistance_buff_mods_positive_3)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, self.resistance_buff_mods_positive_4)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, self.resistance_buff_mods_positive_5)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, self.resistance_buff_mods_negative_0)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, self.resistance_buff_mods_negative_1)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, self.resistance_buff_mods_negative_2)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, self.resistance_buff_mods_negative_3)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative_4)
-            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative_5)
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE, self.resistance_buff_mods_positive[0])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 1, self.resistance_buff_mods_positive[1])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 2, self.resistance_buff_mods_positive[2])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 3, self.resistance_buff_mods_positive[3])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 4, self.resistance_buff_mods_positive[4])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE + 5, self.resistance_buff_mods_positive[5])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE, self.resistance_buff_mods_negative[0])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 1, self.resistance_buff_mods_negative[1])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 2, self.resistance_buff_mods_negative[2])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 3, self.resistance_buff_mods_negative[3])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 4, self.resistance_buff_mods_negative[4])
+            self.set_int32(UnitFields.UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE + 5, self.resistance_buff_mods_negative[5])
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
             self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
@@ -1425,46 +1425,6 @@ class PlayerManager(UnitManager):
     def set_current_selection(self, guid):
         self.current_selection = guid
         self.set_uint64(PlayerFields.PLAYER_SELECTION, guid)
-
-    def set_base_str(self, str_):
-        self.base_str = str_
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT0, str_)
-
-    def set_base_agi(self, agi):
-        self.base_agi = agi
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT1, agi)
-
-    def set_base_sta(self, sta):
-        self.base_sta = sta
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT2, sta)
-
-    def set_base_int(self, int_):
-        self.base_int = int_
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT3, int_)
-
-    def set_base_spi(self, spi):
-        self.base_spi = spi
-        self.set_uint32(UnitFields.UNIT_FIELD_BASESTAT4, spi)
-
-    def set_str(self, str_):
-        self.str = str_
-        self.set_int32(UnitFields.UNIT_FIELD_STAT0, str_)
-
-    def set_agi(self, agi):
-        self.agi = agi
-        self.set_int32(UnitFields.UNIT_FIELD_STAT1, agi)
-
-    def set_sta(self, sta):
-        self.sta = sta
-        self.set_int32(UnitFields.UNIT_FIELD_STAT2, sta)
-
-    def set_int(self, int_):
-        self.int = int_
-        self.set_int32(UnitFields.UNIT_FIELD_STAT3, int_)
-
-    def set_spi(self, spi):
-        self.spi = spi
-        self.set_int32(UnitFields.UNIT_FIELD_STAT4, spi)
 
     def set_block_chance(self, block):
         self.block_percentage = block

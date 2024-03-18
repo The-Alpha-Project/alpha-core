@@ -386,6 +386,36 @@ class CommandManager(object):
             return -1, 'invalid ID.'
 
     @staticmethod
+    def addaura(world_session, args):
+        try:
+            spell_id = int(args)
+            if not spell_id:
+                return -1, 'please specify a spell ID.'
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
+            if not spell:
+                return -1, 'the spell was not found.'
+
+            unit = CommandManager._target_or_self(world_session)
+            spell_cast = world_session.player_mgr.spell_manager.try_initialize_spell(spell, unit,
+                                                                                SpellTargetMask.UNIT, validate=False)
+
+            for effect in spell_cast.get_effects():
+                if effect.effect_type in {SpellEffects.SPELL_EFFECT_APPLY_AURA,
+                                          SpellEffects.SPELL_EFFECT_APPLY_AREA_AURA}:
+                    effect.start_aura_duration()
+                    unit.aura_manager.apply_spell_effect_aura(world_session.player_mgr, spell_cast, effect)
+
+            return 0, ''
+        except ValueError:
+            return -1, 'invalid ID.'
+
+    @staticmethod
+    def clearauras(world_session, args):
+        unit = CommandManager._target_or_self(world_session)
+        unit.aura_manager.remove_all_auras()
+        return 0, ''
+
+    @staticmethod
     def sskill(world_session, args):
         skill_name = args.strip()
         if not skill_name:
@@ -998,6 +1028,8 @@ GM_COMMAND_DEFINITIONS = {
     'unlspell': [CommandManager.unlspell, 'unlearn a spell'],
     'unltalent': [CommandManager.unltalent, 'unlearn a talent'],
     'cast': [CommandManager.cast, 'cast a spell'],
+    'addaura': [CommandManager.addaura, 'add an aura by spell id'],
+    'clearauras': [CommandManager.clearauras, 'clear all auras'],
     'sskill': [CommandManager.sskill, 'search skills'],
     'lskill': [CommandManager.lskill, 'learn a skill'],
     'lskills': [CommandManager.lskills, 'learn skills'],

@@ -540,6 +540,11 @@ class SpellImplicitTargets(IntEnum):
     TARGET_GAMEOBJECT_SCRIPT_NEAR_CASTER = 40  # 7728, 7729
 
 
+class SpellScriptTarget(IntEnum):
+    TARGET_GAMEOBJECT = 0
+    TARGET_UNIT = 1
+
+
 class SpellMissInfo(IntEnum):
     MISS_NONE = 0x0
     MISS_PHYSICAL = 0x1

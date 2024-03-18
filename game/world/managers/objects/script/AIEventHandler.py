@@ -22,9 +22,23 @@ class AIEventHandler:
         self.initialized = False
         self._events = {}
         self.event_locks: dict[int: EventLock] = {}
+        self.update_interval_secs = 0.5
+        self.update_diff_secs = 0
 
     def reset(self):
+        self.update_diff_secs = 0
         self.event_locks.clear()
+
+    def ai_update(self, elapsed_secs: float):
+        self.update_diff_secs += elapsed_secs
+        if self.update_diff_secs < self.update_interval_secs:
+            return
+        self.update_diff_secs = 0
+
+        # TODO: Update all type of events that are bound to AI update calls time diff (No on-action triggering).
+        now = time.time()
+        self.update_hp_events(now)
+        self.update_range_events(now)
 
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
@@ -51,28 +65,6 @@ class AIEventHandler:
             if not script:
                 continue
             map_.enqueue_script(self.creature, target=source, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
-
-    def on_damage_taken(self, target=None):
-        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
-        map_ = self.creature.get_map()
-        for event in events:
-            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
-                continue
-
-            now = time.time()
-            if self._is_event_locked(event, now):
-                continue
-
-            current_hp_percent = (self.creature.health / self.creature.max_health) * 100
-            # param1 %MaxHP, param2 %MinHp.
-            if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
-                continue
-
-            script = event.action1_script
-            if not script:
-                continue
-            self._lock_event(event, now)
-            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
     def on_idle(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
@@ -108,6 +100,56 @@ class AIEventHandler:
             if not script:
                 continue
             map_.enqueue_script(self.creature, target=player, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+
+    def update_hp_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
+        map_ = self.creature.get_map()
+        for event in events:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+                continue
+
+            if self._is_event_locked(event, now):
+                continue
+
+            current_hp_percent = (self.creature.health / self.creature.max_health) * 100
+            # param1 %MaxHP, param2 %MinHp.
+            if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
+                continue
+
+            script = event.action1_script
+            if not script:
+                continue
+            self._lock_event(event, now)
+            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+
+    def update_range_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RANGE)
+        map_ = self.creature.get_map()
+        for event in events:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+                continue
+
+            if self._is_event_locked(event, now):
+                continue
+
+            distance = self.creature.location.distance(target.location)
+            # param1 %MinDist, param2 %MaxDist.
+            if distance < event.event_param1 or distance > event.event_param2:
+                continue
+
+            script = event.action1_script
+            if not script:
+                continue
+            self._lock_event(event, now)
+            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
     def _event_get_by_type(self, event_type):
         # Skip for charmed units.

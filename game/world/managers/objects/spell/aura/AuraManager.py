@@ -243,7 +243,7 @@ class AuraManager:
             is_unique = applied_spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
             is_stacking = applied_aura.can_stack
 
-            if is_unique or is_same_source or not aura.harmful and not (is_similar and is_stacking):
+            if (is_unique or is_same_source or not aura.harmful) and not (is_similar and is_stacking):
                 # Remove similar applied aura if it's unique, a buff or from the same caster.
                 # Ignore if this is a stacking buff; add_aura will just add a dose in that case.
                 # We can also ignore ranks here, as attempting to cast a lower rank buff will fail in validation.
@@ -351,6 +351,9 @@ class AuraManager:
                 self.remove_aura(aura)
 
     def remove_aura(self, aura, canceled=False):
+        if aura.index not in self.active_auras:
+            return
+
         AuraEffectHandler.handle_aura_effect_change(aura, aura.target, remove=True)
         if not self.active_auras.pop(aura.index, None):
             return
@@ -376,6 +379,11 @@ class AuraManager:
     def remove_all_auras(self):
         for aura in list(self.active_auras.values()):
             self.remove_aura(aura)
+
+    def remove_hostile_auras(self):
+        for aura in list(self.active_auras.values()):
+            if aura.caster.can_attack_target(self.unit_mgr):
+                self.remove_aura(aura)
 
     def cancel_auras_by_spell_id(self, spell_id, source_restriction=None):
         auras = self.get_auras_by_spell_id(spell_id)
