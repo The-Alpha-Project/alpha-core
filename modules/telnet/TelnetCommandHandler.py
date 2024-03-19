@@ -24,11 +24,11 @@ class TelnetCommandHandler:
                     try:
                         player_session = WorldSessionStateHandler.get_session_by_character_name(msg_list[1])
 
-                        if not msg_list[0] in exeptions:
-                            msg = f"{msg_list[0]} {' '.join(msg_list[2:])}".strip()
-                            user = msg_list[1]
-                        else:
-                            msg = f"{msg_list[0]} {' '.join(msg_list[1:])}".strip()
+                      #  if not msg_list[0] in exeptions:
+                        msg = f"{msg_list[0]} {' '.join(msg_list[2:])}".strip()
+                        user = msg_list[1]
+                       # else:
+                        #    msg = f"{msg_list[0]} {' '.join(msg_list[1:])}".strip()
                     except:
                         msg = f"{msg_list[0]} {' '.join(msg_list[1:])}".strip()
 
