@@ -2,7 +2,7 @@ import os
 from typing import Optional
 from difflib import SequenceMatcher
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *
@@ -23,8 +23,36 @@ world_db_engine = create_engine(f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HO
 SessionHolder = scoped_session(sessionmaker(bind=world_db_engine, autoflush=True))
 
 
+class WorldDatabaseUpdater():
+
+    @staticmethod
+    def update():
+        world_db_session = SessionHolder()
+
+        sql_file_path = 'etc/databases/world/updates/updates.sql'
+        raw_connection = world_db_session.get_bind().raw_connection()
+        raw_cursor = raw_connection.cursor()
+
+        with open(sql_file_path, 'r') as file:
+            sql_content = text(file.read())
+
+            raw_cursor.execute(open(sql_file_path).read())
+            # world_db_session.execute(sql_content)
+            # world_db_session.commit()
+        world_db_session.close()
+
+
 # noinspection PyUnresolvedReferences
 class WorldDatabaseManager(object):
+    # database
+
+    @staticmethod
+    def applied_updates():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(AppliedUpdates).count()
+        world_db_session.close()
+        return res
+
     # Player.
 
     @staticmethod

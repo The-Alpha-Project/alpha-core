@@ -20,7 +20,7 @@ from utils.constants.AuthCodes import AuthCode
 from utils.constants.MiscCodes import ObjectTypeIds
 
 # from modules import TelnetCommandHandler
-from modules.WorldManager import WorldManagerModules
+from modules import WorldManagerModules
 
 STARTUP_TIME = time()
 WORLD_ON = True

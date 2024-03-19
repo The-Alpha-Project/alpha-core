@@ -32,8 +32,9 @@ class TelnetCommandHandler:
                     except:
                         msg = f"{msg_list[0]} {' '.join(msg_list[1:])}".strip()
 
+                    Logger.success(f'Sent {msg} to {user}')
+
                     msg = msg.replace('/', '.', 1)
                     msg = msg.replace('/', ' ')
-
-                    Logger.success(f'Sent {msg} to {user}')
+                    
                     CommandManagerExtended.handle_command(player_session, msg)

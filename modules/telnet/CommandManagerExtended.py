@@ -27,12 +27,7 @@ class CommandManagerExtended(CommandManager):
 
         if command in TELNET_COMMAND_DEFINITIONS:
             command_func = TELNET_COMMAND_DEFINITIONS[command][0]
-     #   elif command in PLAYER_COMMAND_DEFINITIONS:
-     #       command_func = PLAYER_COMMAND_DEFINITIONS[command][0]
-     #   elif command in GM_COMMAND_DEFINITIONS:
-     #       command_func = GM_COMMAND_DEFINITIONS[command][0]
-     #   elif command in DEV_COMMAND_DEFINITIONS:
-     #       command_func = DEV_COMMAND_DEFINITIONS[command][0]
+     #   elif commandmoneyfunc = DEV_COMMAND_DEFINITIONS[command][0]
         else:
             Logger.error(f'Command not found, type /help for help.')
             return
@@ -66,6 +61,18 @@ class CommandManagerExtended(CommandManager):
       #      Logger.plain(f'{command}\n')  
         
         return 0, f''
+    
+    @staticmethod
+    def check_if_player_online(world_session, args):
+        world_sessions = WorldSessionStateHandler.get_world_sessions()
+        
+        for session in world_sessions:
+            # Logger.info(f'{session.player_mgr.get_name()}')
+
+            if args.lower() == session.player_mgr.get_name().lower():
+                return 1
+            
+        return 0
 
     @staticmethod
     def online(world_session, args): 
@@ -97,10 +104,15 @@ class CommandManagerExtended(CommandManager):
 
     @staticmethod
     def msg(world_session, args):
-        
-        ChatManager.send_system_message(world_session, args)
+        player, msg = args.split(' ', 1)
+        msg = "Server: " + msg
 
-        return 0, ''
+        if CommandManagerExtended.check_if_player_online(world_session, player):
+            ChatManager.send_system_message(world_session, msg)
+            return 0, ''
+
+        Logger.error(f'Cannot find player: {player}') 
+        return 1, ''
 
     @staticmethod
     def stel(world_session, args):
@@ -210,5 +222,6 @@ class CommandManagerExtended(CommandManager):
 TELNET_COMMAND_DEFINITIONS = {
     'help': [CommandManagerExtended.help, 'prints this message'],
     'msg': [CommandManagerExtended.msg, 'Send message to player'],
-    'online': [CommandManagerExtended.online, 'shows a list on all people online']
+    'online': [CommandManagerExtended.online, 'shows a list on all people online'],
+    'money': [CommandManager.money, 'shows a list on all people online']
 }
