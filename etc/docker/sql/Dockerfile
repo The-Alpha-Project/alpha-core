@@ -1,4 +1,4 @@
-FROM mariadb:11.1.2
+FROM mariadb:11.3.2
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 COPY build_sql_patches.sh /docker-entrypoint-initdb.d/
