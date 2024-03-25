@@ -40,11 +40,12 @@ class CommandManagerExtended(CommandManager):
 
     @staticmethod
     def help(world_session=None, args=None, cmd=None):
-        Logger.info(f'Listening server commands') 
-        Logger.info(f'Please use this format: /<command> <player> <args>') 
-        Logger.info(f'You can shwo help text on one command: /help <command>\n') 
 
         if not cmd:
+            Logger.info(f'Listening server commands') 
+            Logger.info(f'Please use this format: /<command> <player> <args>') 
+            Logger.info(f'You can shwo help text on one command: /help <command>\n') 
+
             for command in TELNET_COMMAND_DEFINITIONS:
                 Logger.info(f'{command}')
         else:
