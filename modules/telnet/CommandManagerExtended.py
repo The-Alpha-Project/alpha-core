@@ -17,14 +17,13 @@ class CommandManagerExtended(CommandManager):
         args = command_dict['args']
         player = command_dict['player']
 
+        Logger.info(f'PLAYER: {player}') 
+
         if player and args:
              world_session = WorldSessionStateHandler.get_session_by_character_name(player) 
         else:
             world_session = None
         
-        Logger.info(f"TEST: {command}")
-        Logger.info(f"TEST: {world_session}")
-
         if command in TELNET_COMMAND_DEFINITIONS:
             command_func = TELNET_COMMAND_DEFINITIONS[command][0]
         else:
@@ -63,7 +62,7 @@ class CommandManagerExtended(CommandManager):
         if not world_session or not player:
             return 1, f'Missing session or player'
 
-        return CommandManager.handle_command(world_session, args)
+        return CommandManager.kick(world_session, args)
         # return 0, f'Kicked {player} from session: {world_session}'
 
     @staticmethod
@@ -76,7 +75,7 @@ class CommandManagerExtended(CommandManager):
         Logger.info(f'Online players')
 
         for session in world_sessions:
-            if session.player_mgr.get_name():
+            if session.player_mgr.get_name() is not "NoneType":
                 Logger.info(f'{session.player_mgr.get_name()}') 
             else:
                 Logger.info(f'No player online yet, in character creation')
