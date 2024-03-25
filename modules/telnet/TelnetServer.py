@@ -23,7 +23,9 @@ class TelnetServer:
 
         # Check if username and password are valid
         if username == config.Telnet.Defaults.username and password == config.Telnet.Defaults.password:
-            connection.send("\nAuthentication successful!\n\n".encode())
+            connection.send("\nAuthentication successful!\n".encode())
+            connection.send("\nType history to list all used commands".encode())
+            connection.send("\nExit with Ctrl+5 quit\n\n".encode())
             return True
         else:
             connection.send("\nAuthentication failed. Closing connection.\n\n".encode())

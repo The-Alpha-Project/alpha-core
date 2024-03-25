@@ -82,7 +82,7 @@ Server:
 # console_mode must be False, don't forget console_mode env in docker-compose if you are using docker.
 Telnet:
     Defaults:
-        welcome: Welcome to the Telnet server
+        welcome: Welcome to the Alpha Core telnet server
         username: admin
         password: admin
         enabled: False

@@ -62,8 +62,8 @@ services:
     container_name: alpha-core-sql
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
-        #    ports:
-        # - "3336:3306"
+    ports:
+      - "3306:3306"
     volumes:
       - ./etc/databases/:/etc/databases/
         # - ./var/mysql:/var/lib/mysql:rw

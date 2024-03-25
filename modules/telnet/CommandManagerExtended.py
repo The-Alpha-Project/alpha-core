@@ -1,11 +1,11 @@
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-from database.realm.RealmDatabaseManager import RealmDatabaseManager
-from database.world.WorldDatabaseManager import WorldDatabaseManager
+# from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+# from database.realm.RealmDatabaseManager import RealmDatabaseManager
+# from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.units.ChatManager import ChatManager
-from utils.TextUtils import GameTextFormatter
-from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
-from game.world.managers.CommandManager import CommandManager, PLAYER_COMMAND_DEFINITIONS, GM_COMMAND_DEFINITIONS, DEV_COMMAND_DEFINITIONS
+# from utils.TextUtils import GameTextFormatter
+# from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
+from game.world.managers.CommandManager import CommandManager
 
 from utils.Logger import Logger
 
@@ -50,15 +50,15 @@ class CommandManagerExtended(CommandManager):
                 Logger.info(f'{command}')
         else:
             command = TELNET_COMMAND_DEFINITIONS[cmd]
-            Logger.info(f'{cmd}:')
-            Logger.info(f'{command[1]}')
+            Logger.info(f'Help text for {cmd}: {command[1]}')
+            # Logger.info(f'{command[1]}')
 
         return 0, f''
     
     @staticmethod
     def kick(world_session, args, player):
         if not world_session or not player:
-            return 1, f'Missing session or player'
+            return -1, f'Missing session or player'
 
         code, res = CommandManager.kick(world_session, args)
  
@@ -70,7 +70,10 @@ class CommandManagerExtended(CommandManager):
     @staticmethod
     def level(world_session, args, player):
         if not world_session or not args:
-            return 1, f'Missing session or player'
+            return -1, f'Missing session or player'
+
+        if not 1 <= int(args) <= 25:
+            return -1, f'Level need to be between 1 and 25'
 
         code, res = CommandManager.level(world_session, args) 
 
@@ -82,7 +85,7 @@ class CommandManagerExtended(CommandManager):
     @staticmethod
     def money(world_session, args, player):
         if not world_session or not args:
-            return 1, f'Missing session or player'
+            return -1, f'Missing session or player'
 
         code, res = CommandManager.money(world_session, args)
 
@@ -94,7 +97,7 @@ class CommandManagerExtended(CommandManager):
     @staticmethod
     def msg(world_session, args, player):
         if not world_session or not args:
-            return 1, f'Missing session or player'
+            return -1, f'Missing session or player'
       
         ChatManager.send_system_message(world_session, args)
 
@@ -105,7 +108,7 @@ class CommandManagerExtended(CommandManager):
         world_sessions = WorldSessionStateHandler.get_world_sessions()
 
         if len(world_sessions) <= 0:
-            return 1, f'No players online'
+            return -1, f'No players online'
 
         Logger.info(f'Online players')
 
