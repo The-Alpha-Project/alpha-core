@@ -17,9 +17,7 @@ class CommandManagerExtended(CommandManager):
         args = command_dict['args']
         player = command_dict['player']
 
-        Logger.info(f'PLAYER: {player}') 
-
-        if player and args:
+        if player:
              world_session = WorldSessionStateHandler.get_session_by_character_name(player) 
         else:
             world_session = None
@@ -63,7 +61,13 @@ class CommandManagerExtended(CommandManager):
             return 1, f'Missing session or player'
 
         return CommandManager.kick(world_session, args)
-        # return 0, f'Kicked {player} from session: {world_session}'
+
+    @staticmethod
+    def level(world_session, args, player):
+        if not world_session or not args:
+            return 1, f'Missing session or player'
+      
+        return CommandManager.money(world_session, args)
 
     @staticmethod
     def online(world_session,args, player):
