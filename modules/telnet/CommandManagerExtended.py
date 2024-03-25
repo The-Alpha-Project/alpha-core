@@ -68,15 +68,17 @@ class CommandManagerExtended(CommandManager):
 
     @staticmethod
     def online(world_session,args, player):
-        world_session = WorldSessionStateHandler.get_world_sessions()
-        
-        Logger.info(f'{world_session}:')
+        world_sessions = WorldSessionStateHandler.get_world_sessions()
 
+        if len(world_sessions) <= 0:
+            return 0, f'No players are onoine'
 
-        if not world_session:
-            return 1, f'Missing session'
+        Logger.info(f'Online players')
 
-        return 0, f'2 people online in {world_session}'
+        for session in world_sessions:
+            Logger.info(f'{session.player_mgr.get_name()}') 
+
+        return 0, f''
         
 
 class CommandManagerExtended_bk(CommandManager):
