@@ -71,12 +71,15 @@ class CommandManagerExtended(CommandManager):
         world_sessions = WorldSessionStateHandler.get_world_sessions()
 
         if len(world_sessions) <= 0:
-            return 0, f'No players are onoine'
+            return 1, f'No players online'
 
         Logger.info(f'Online players')
 
         for session in world_sessions:
-            Logger.info(f'{session.player_mgr.get_name()}') 
+            if session.player_mgr.get_name():
+                Logger.info(f'{session.player_mgr.get_name()}') 
+            else:
+                Logger.info(f'No player online yet, in character creation')
 
         return 0, f''
         
