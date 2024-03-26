@@ -1,4 +1,3 @@
-# from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from modules.telnet.CommandManagerExtended import CommandManagerExtended
 from utils.Logger import Logger
 
@@ -29,4 +28,4 @@ class TelnetCommandHandler:
                         "args": parts[2] if len(parts) > 2 else None
                     }   
 
-                    CommandManagerExtended._handle_command(command_dict)   
+                    CommandManagerExtended._handle_command(command_dict)
