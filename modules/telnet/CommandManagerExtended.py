@@ -59,7 +59,7 @@ class CommandManagerExtended(CommandManager):
         return 0, f"{player} got all taxis enabled"
 
     @staticmethod
-    def ann(world_session=None, args=None, player=None):
+    def ann(world_session=None, player=None, args=None):
         code, res = CommandManager.ann(world_session, args)
 
         if code != 0:
@@ -156,7 +156,7 @@ class CommandManagerExtended(CommandManager):
         return 0, f''
     
     @staticmethod
-    def pinfo(world_session=None, args=None, player=None):
+    def player_info(world_session=None, args=None, player=None):
         if not world_session or not player:
             return -1, f'Missing session or player'
       
@@ -189,7 +189,7 @@ class CommandManagerExtended(CommandManager):
         return 0, f"{res}"
     
     @staticmethod
-    def sitem(world_session=None, args=None, player=None):
+    def sitem(world_session=None, player=None, args=None):
         item_name = args
         
         if not item_name:
@@ -293,7 +293,7 @@ class CommandManagerExtended(CommandManager):
         if not 1 <= int(args) <= 10:
             return -1, f'Speed arg need to be between 1 and 10'
 
-        code, res = CommandManager.swimspeed(world_session, args) 
+        code, res = CommandManager.swim_speed(world_session, args) 
 
         if code != 0:
             return code, res
