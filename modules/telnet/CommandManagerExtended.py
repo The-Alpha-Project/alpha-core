@@ -48,10 +48,10 @@ class CommandManagerExtended(CommandManager):
 
     @staticmethod
     def alltaxis(world_session=None, args=None, player=None):
-        if not world_session or not args:
+        if not world_session:
             return -1, f'Missing session or player'
 
-        code, res = CommandManager.alltaxis(world_session, args) 
+        code, res = CommandManager.alltaxis(world_session, args)
 
         if code != 0:
             return code, res
@@ -60,7 +60,7 @@ class CommandManagerExtended(CommandManager):
 
     @staticmethod
     def ann(world_session=None, args=None, player=None):
-        code, res = CommandManager.kick(world_session, args)
+        code, res = CommandManager.ann(world_session, args)
 
         if code != 0:
             return code, res
@@ -72,7 +72,7 @@ class CommandManagerExtended(CommandManager):
         if not world_session or not player:
             return -1, f'Missing session or player'
           
-        return CommandManager.kick(world_session, args)
+        return CommandManager.gps(world_session, args)
 
     @staticmethod
     def help(world_session=None, args=None, cmd=None):
@@ -157,10 +157,10 @@ class CommandManagerExtended(CommandManager):
     
     @staticmethod
     def pinfo(world_session=None, args=None, player=None):
-        if not world_session or not args:
+        if not world_session or not player:
             return -1, f'Missing session or player'
       
-        code, res = CommandManager.pinfo(world_session, args) 
+        code, res = CommandManager.pinfo(world_session, player) 
 
         if code != 0:
             return code, res
@@ -189,7 +189,7 @@ class CommandManagerExtended(CommandManager):
         return 0, f"{res}"
     
     @staticmethod
-    def sitem(world_session=None, player=None, args=None):
+    def sitem(world_session=None, args=None, player=None):
         item_name = args
         
         if not item_name:
