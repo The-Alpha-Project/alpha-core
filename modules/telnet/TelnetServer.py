@@ -15,20 +15,20 @@ class TelnetServer:
 
     @staticmethod
     def authenticate_user(connection):
-        connection.send("Enter username: ".encode())
+        connection.send('Enter username: '.encode())
         username = connection.recv(1024).decode().strip()
 
-        connection.send("Enter password: ".encode())
+        connection.send('Enter password: '.encode())
         password = connection.recv(1024).decode().strip()
 
         # Check if username and password are valid
         if username == config.Telnet.Defaults.username and password == config.Telnet.Defaults.password:
-            connection.send("\nAuthentication successful!\n".encode())
-            connection.send("\nType history to list all used commands".encode())
-            connection.send("\nExit with Ctrl+5 quit\n\n".encode())
+            connection.send('\nAuthentication successful!\n'.encode())
+            connection.send('\nType history to list all used commands'.encode())
+            connection.send('\nExit with Ctrl+5 quit\n\n'.encode())
             return True
         else:
-            connection.send("\nAuthentication failed. Closing connection.\n\n".encode())
+            connection.send('\nAuthentication failed. Closing connection.\n\n'.encode())
             return False
 
     def connect(sock):
@@ -36,7 +36,7 @@ class TelnetServer:
             connection, address = sock.accept()
             connection.setblocking(True)
             
-            msg = config.Telnet.Defaults.welcome + "\n\n"
+            msg = config.Telnet.Defaults.welcome + '\n\n'
             Logger.success(f'New connection from {address}')
             connection.send(msg.encode())
 
@@ -51,7 +51,7 @@ class TelnetServer:
             TelnetServer.connections.append(connection)
 
         except Exception as e:
-            Logger.error(f"Error in connect: {e}")
+            Logger.error(f'Error in connect: {e}')
 
     @staticmethod
     def connections_handler():
@@ -75,17 +75,17 @@ class TelnetServer:
                                     for command in TelnetServer.command_history:
                                         sock.send(command.encode())
                                 else:
-                                    TelnetServer.command_history.append(data + "\n")
+                                    TelnetServer.command_history.append(data + '\n')
 
                                 if '/' in data[0]:
                                     TelnetServer.parent_conn.send(data.encode())
 
                     except AttributeError as ae:
-                        # Logger.error(f"Error {ae}")
+                        # Logger.error(f'Error {ae}')
                         pass
 
             except Exception as e:
-                    # Logger.error(f"Error in the main loop: {e}")
+                    # Logger.error(f'Error in the main loop: {e}')
                     pass 
                     
             if TelnetServer.parent_conn.poll():

@@ -47,7 +47,7 @@ class Logger:
         formatted_msg = f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
 
         if Logger.parent_conn:
-            line_ending = "\r" if 'INFO' in label and '%' in msg else "\n"
+            line_ending = '\r' if 'INFO' in label and '%' in msg else '\n'
             Logger.parent_conn.send(formatted_msg + line_ending)
 
         return formatted_msg 

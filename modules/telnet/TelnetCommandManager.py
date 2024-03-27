@@ -10,7 +10,7 @@ from game.world.managers.CommandManager import CommandManager
 from utils.Logger import Logger
 
 
-class CommandManagerExtended(CommandManager):
+class TelnetCommandManager(CommandManager):
     @staticmethod
     def _handle_command(command_dict):
         command = command_dict['command']
@@ -39,14 +39,6 @@ class CommandManagerExtended(CommandManager):
                 Logger.error(f'{e}')
 
     @staticmethod
-    def _check_session(world_session):
-        pass
-
-    @staticmethod
-    def _check_values():
-        pass
-
-    @staticmethod
     def alltaxis(world_session=None, args=None, player=None):
         if not world_session:
             return -1, f'Missing session or player'
@@ -56,7 +48,7 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"{player} got all taxis enabled"
+        return 0, f'{player} got all taxis enabled'
 
     @staticmethod
     def ann(world_session=None, player=None, args=None):
@@ -65,7 +57,7 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"Sent '{args}' message to server"
+        return 0, f'Sent \'{args}\' message to server'
 
     @staticmethod
     def gps(world_session=None, args=None, player=None):
@@ -100,7 +92,7 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"{player} has been kicked"
+        return 0, f'{player} has been kicked'
 
     @staticmethod
     def level(world_session=None, args=None, player=None):
@@ -115,7 +107,7 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"{player} level is now {args}"
+        return 0, f'{player} level is now {args}'
    
     @staticmethod
     def money(world_session=None, args=None, player=None):
@@ -127,7 +119,8 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"{player} got {args} coppar"
+        ChatManager.send_system_message(world_session, f'You got {args} copper')
+        return 0, f'{player} got {args} copper'
     
     @staticmethod
     def msg(world_session=None, args=None, player=None):
@@ -165,7 +158,7 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f""
+        return 0, f''
 
     @staticmethod
     def petlevel(world_session=None, args=None, player=None):
@@ -177,7 +170,7 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"pet {player} level is now {args}"
+        return 0, f'pet {player} level is now {args}'
     
     @staticmethod
     def serverinfo(world_session=None, args=None, player=None):
@@ -186,7 +179,7 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"{res}"
+        return 0, f'{res}'
     
     @staticmethod
     def sitem(world_session=None, player=None, args=None):
@@ -197,7 +190,7 @@ class CommandManagerExtended(CommandManager):
         items = WorldDatabaseManager.item_template_get_by_name(item_name, return_all=True)
 
         for item in items:
-            item_text = f'Entry: {item.entry} - {item.name}\n'
+            item_text = f'id: {item.entry} - {item.name}\n'
             Logger.plain(f'{item_text}')
         return 0, f''
 
@@ -214,7 +207,8 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"{player} speed is now {args}"
+        ChatManager.send_system_message(world_session, f'Your speed is set to {args}')
+        return 0, f'{player} speed is now {args}'
     
     @staticmethod
     def squest(world_session=None, player=None, args=None):
@@ -226,7 +220,7 @@ class CommandManagerExtended(CommandManager):
         
         for quest in quests:
             quest_title = quest.Title
-            quest_text = f'Id: {quest.entry} - {quest_title}'
+            quest_text = f'id: {quest.entry} - {quest_title}'
             Logger.plain(f'{quest_text}\n')
         return 0, f'{len(quests)} quests found.'
 
@@ -268,10 +262,10 @@ class CommandManagerExtended(CommandManager):
         locations = WorldDatabaseManager.worldport_get_by_name(tel_name, return_all=True)
 
         for location in locations:
-            port_text = f'Map: {location.map} - {location.name}'
+            port_text = f'map: {location.map} - {location.name}'
             Logger.plain(f'{port_text}\n')
 
-        return 0, f""
+        return 0, f''
     
     @staticmethod
     def summon(world_session=None, args=None, player=None):
@@ -283,7 +277,7 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"Summoned {args} to {player}"
+        return 0, f'Summoned {args} to {player}'
 
     @staticmethod
     def swimspeed(world_session=None, args=None, player=None):
@@ -298,7 +292,8 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"{player} swimspeed is now {args}"
+        ChatManager.send_system_message(world_session, f'Your swimspeed is set to {args}')
+        return 0, f'{player} swimspeed is now {args}'
     
     @staticmethod
     def tel(world_session=None, args=None, player=None):
@@ -310,30 +305,30 @@ class CommandManagerExtended(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f"Teleported {player} to {args}"
+        return 0, f'Teleported {player} to {args}'
     
 
 TELNET_COMMAND_DEFINITIONS = {
-    'alltaxis': [CommandManagerExtended.alltaxis, 'discover all flight paths. Usage: /alltaxis <player name>'],
-    'ann': [CommandManagerExtended.ann, 'write a server side announcement'],
-    'gps': [CommandManagerExtended.gps, 'display information about your location'],
-    'help': [CommandManagerExtended.help, 'Prints this message'],
-    'kick': [CommandManagerExtended.kick, 'Kick player from the server. Usage: /kick <player name>.'],
-    'level': [CommandManagerExtended.level, 'Set player level. Value must be between 1-25. Usage: /level <player name> <1-25>.'],
-    'msg': [CommandManagerExtended.msg, 'Send message to player. Usage: /msg <player name> <msg>'],
-    'money': [CommandManagerExtended.money, 'Give money to player. Usage /money <player name> <copper, max 100000>'],
-    'online': [CommandManagerExtended.online, 'List all online players. Usage: /online'],
-    'pinfo': [CommandManagerExtended.player_info, 'get targeted player info'],
-    'petlevel': [CommandManagerExtended.petlevel, 'Set player active pet level. Usage: /petlevel <player name> <1-100>'],
-    'serverinfo': [CommandManagerExtended.serverinfo, 'Print server information. Usage: /serverinfo.'],
-    'sitem': [CommandManagerExtended.sitem, 'Search items. Usage: /sitem <query>'],
-    'sspell': [CommandManagerExtended.sspell, 'search spells'],
-    'speed': [CommandManagerExtended.speed, 'Change run speed. Usage: /speed <player name> <value, max 10>'],
-    'squest': [CommandManagerExtended.squest, 'Search quests. Usage: /squest <query>'],
-    'stel': [CommandManagerExtended.stel, 'Search for teleport location. Usage: /stel <query>'],
-    'summon': [CommandManagerExtended.summon, 'summon a player to your position. Usage: /summon <player name> <other player name>. Can summon offline players.'],
-    'swimspeed': [CommandManagerExtended.swimspeed, 'change player swim speed. Usage: /swimspeed <player name> <value, max 10'],
-    'tel': [CommandManagerExtended.tel, 'teleport player to a location. Usage: /tel <player name> <location>'],
+    'alltaxis': [TelnetCommandManager.alltaxis, 'discover all flight paths. Usage: /alltaxis <player name>'],
+    'ann': [TelnetCommandManager.ann, 'write a server side announcement'],
+    'gps': [TelnetCommandManager.gps, 'display information about your location'],
+    'help': [TelnetCommandManager.help, 'Prints this message'],
+    'kick': [TelnetCommandManager.kick, 'Kick player from the server. Usage: /kick <player name>.'],
+    'level': [TelnetCommandManager.level, 'Set player level. Value must be between 1-25. Usage: /level <player name> <1-25>.'],
+    'msg': [TelnetCommandManager.msg, 'Send message to player. Usage: /msg <player name> <msg>'],
+    'money': [TelnetCommandManager.money, 'Give money to player. Usage /money <player name> <copper, max 100000>'],
+    'online': [TelnetCommandManager.online, 'List all online players. Usage: /online'],
+    'pinfo': [TelnetCommandManager.player_info, 'get targeted player info'],
+    'petlevel': [TelnetCommandManager.petlevel, 'Set player active pet level. Usage: /petlevel <player name> <1-100>'],
+    'serverinfo': [TelnetCommandManager.serverinfo, 'Print server information. Usage: /serverinfo.'],
+    'sitem': [TelnetCommandManager.sitem, 'Search items. Usage: /sitem <query>'],
+    'sspell': [TelnetCommandManager.sspell, 'search spells'],
+    'speed': [TelnetCommandManager.speed, 'Change run speed. Usage: /speed <player name> <value, max 10>'],
+    'squest': [TelnetCommandManager.squest, 'Search quests. Usage: /squest <query>'],
+    'stel': [TelnetCommandManager.stel, 'Search for teleport location. Usage: /stel <query>'],
+    'summon': [TelnetCommandManager.summon, 'summon a player to your position. Usage: /summon <player name> <other player name>. Can summon offline players.'],
+    'swimspeed': [TelnetCommandManager.swimspeed, 'change player swim speed. Usage: /swimspeed <player name> <value, max 10'],
+    'tel': [TelnetCommandManager.tel, 'teleport player to a location. Usage: /tel <player name> <location>'],
  
     # 'pwdchange': [CommandManager.pwdchange, 'change your password']
     # 'telunit': [CommandManager.tel_unit, 'teleport a unit to a given location in the same map'],

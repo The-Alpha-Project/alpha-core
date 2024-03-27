@@ -1,4 +1,4 @@
 from modules.telnet.TelnetServer import TelnetServer
 from modules.telnet.TelnetCommandHandler import TelnetCommandHandler
-from modules.telnet.CommandManagerExtended import CommandManagerExtended
+from modules.telnet.TelnetCommandManager import TelnetCommandManager
 from modules.WorldManager.WorldManagerModules import WorldManagerModules
