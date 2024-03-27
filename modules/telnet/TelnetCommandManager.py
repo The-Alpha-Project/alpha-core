@@ -12,7 +12,10 @@ from utils.Logger import Logger
 
 class TelnetCommandManager(CommandManager):
     @staticmethod
-    def _handle_command(command_dict):
+    def _handle_command(command_dict, parent_conn):
+        if parent_conn:
+            Logger.set_parent_conn(parent_conn)
+
         command = command_dict['command']
         args = command_dict['args']
         player = command_dict['player']
@@ -53,7 +56,7 @@ class TelnetCommandManager(CommandManager):
 
     @staticmethod
     def ann(world_session=None, player=None, args=None):
-        msg = player + " " + args
+        msg = args + " " + player
         code, res = CommandManager.ann(world_session, msg)
 
         if code != 0:
@@ -116,7 +119,7 @@ class TelnetCommandManager(CommandManager):
         if not world_session or not args:
             return -1, f'Missing session or player'
 
-        if 0 < args < 1000000000:
+        if 0 < int(args) < 1000000000:
             return -1, f'Copper not within interval (max 1000000000)'
 
 

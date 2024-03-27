@@ -39,7 +39,7 @@ class Logger:
     @staticmethod
     def _should_log(log_type: DebugLevel):
         return config.Server.Logging.logging_mask & log_type
-
+    
     @staticmethod
     def _should_log_telnet(log_type: DebugLevel):
         return config.Server.Logging.logging_mask_telnet & log_type
@@ -47,78 +47,78 @@ class Logger:
     @staticmethod
     def _colorize_message(label, color, msg):
         date = datetime.now().strftime('[%d/%m/%Y %H:%M:%S]')
-
-        formatted_msg = f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
-        line_ending = '\r' if 'INFO' in label and '%' in msg else '\n'
-
-        return formatted_msg, line_ending
+        return f'{color.value}{label}{Style.RESET_ALL} {date} {msg}'
 
     @staticmethod
     def debug(msg, LogMarkers='[DEBUG]'):
+        formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.DEBUG, msg)
+
         if Logger._should_log(DebugLevel.DEBUG):
-            formatted_msg, _ = Logger._colorize_message(LogMarkers, DebugColorLevel.DEBUG, msg)
             print(formatted_msg)
         
         if Logger._should_log_telnet(DebugLevel.DEBUG) and Logger.parent_conn:
-            formatted_msg, line_ending = Logger._colorize_message(LogMarkers, DebugColorLevel.DEBUG, msg)
-            Logger.parent_conn.send(formatted_msg + line_ending)
+            formatted_msg += "\r" if 'DEBUG' in LogMarkers and '%' in msg else "\n"
+            Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
     def warning(msg, LogMarkers='[WARNING]'):
-        if Logger._should_log(DebugLevel.WARNING):
-            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.WARNING, msg)
-            print(formatted_msg)
+        formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.WARNING, msg)
 
+        if Logger._should_log(DebugLevel.WARNING):
+            print(formatted_msg)
+        
         if Logger._should_log_telnet(DebugLevel.WARNING) and Logger.parent_conn:
-            formatted_msg, line_ending = Logger._colorize_message(LogMarkers, DebugColorLevel.WARNING, msg)
-            Logger.parent_conn.send(formatted_msg + line_ending)
+            formatted_msg += "\r" if 'WARNING' in LogMarkers and '%' in msg else "\n"
+            Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
     def error(msg, LogMarkers='[ERROR]'):
-        if Logger._should_log(DebugLevel.ERROR):
-            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.ERROR, msg)
-            print(formatted_msg)
+        formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.ERROR, msg)
 
+        if Logger._should_log(DebugLevel.ERROR):
+            print(formatted_msg)
+        
         if Logger._should_log_telnet(DebugLevel.ERROR) and Logger.parent_conn:
-            formatted_msg, line_ending = Logger._colorize_message(LogMarkers, DebugColorLevel.ERROR, msg)
-            Logger.parent_conn.send(formatted_msg + line_ending)
+            formatted_msg += "\r" if 'ERROR' in LogMarkers and '%' in msg else "\n"
+            Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
     def info(msg, LogMarkers='[INFO]', end='\n'):
+        formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.INFO, msg)
+        
         if Logger._should_log(DebugLevel.INFO):
-            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.INFO, msg)
             print(formatted_msg, end=end)
 
-        if Logger._should_log_telnet(DebugLevel.INFO) and Logger.parent_conn:
-            formatted_msg, line_ending = Logger._colorize_message(LogMarkers, DebugColorLevel.INFO, msg)
-            Logger.parent_conn.send(formatted_msg + line_ending)
+        if Logger._should_log_telnet(DebugLevel.ERROR) and Logger.parent_conn:
+            formatted_msg += "\r" if 'INFO' in LogMarkers and '%' in msg else "\n"
+            Logger.parent_conn.send(formatted_msg)
         
     @staticmethod
     def plain(msg, LogMarkers=''):
-        # if we just want to send unformated text Telnet (output of help)
-
         if Logger.parent_conn:
             Logger.parent_conn.send(msg)
         
     @staticmethod
     def success(msg, LogMarkers='[SUCCESS]'):
-        if Logger._should_log(DebugLevel.SUCCESS):
-            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.SUCCESS, msg)
-            print(formatted_msg)
+        formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.SUCCESS, msg)
 
+        if Logger._should_log(DebugLevel.SUCCESS):
+            print(formatted_msg)
+        
         if Logger._should_log_telnet(DebugLevel.SUCCESS) and Logger.parent_conn:
-            formatted_msg, line_ending = Logger._colorize_message(LogMarkers, DebugColorLevel.SUCCESS, msg)
-            Logger.parent_conn.send(formatted_msg + line_ending)
+            formatted_msg += "\r" if 'SUCCESS' in LogMarkers and '%' in msg else "\n"
+            Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
     def anticheat(msg, LogMarkers='[ANTICHEAT]'):
-        if Logger._should_log(DebugLevel.ANTICHEAT):
-            formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.ANTICHEAT, msg)
-            print(formatted_msg)
+        formatted_msg = Logger._colorize_message(LogMarkers, DebugColorLevel.ANTICHEAT, msg)
 
+        if Logger._should_log(DebugLevel.ANTICHEAT):
+            print(formatted_msg)
+        
         if Logger._should_log_telnet(DebugLevel.ANTICHEAT) and Logger.parent_conn:
-            formatted_msg, line_ending = Logger._colorize_message(LogMarkers, DebugColorLevel.ANTICHEAT, msg)
-            Logger.parent_conn.send(formatted_msg + line_ending)
+            formatted_msg += "\r" if 'ANTICHEAT' in LogMarkers and '%' in msg else "\n"
+            Logger.parent_conn.send(formatted_msg)
         
     # Additional methods
 

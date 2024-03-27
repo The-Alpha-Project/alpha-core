@@ -28,4 +28,4 @@ class TelnetCommandHandler:
                         'args': parts[2] if len(parts) > 2 else None
                     }   
 
-                    TelnetCommandManager._handle_command(command_dict)
+                    TelnetCommandManager._handle_command(command_dict, parent_conn)
