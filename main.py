@@ -158,8 +158,7 @@ if __name__ == '__main__':
                     except:
                         # Logger.error('Pipe error')
                         pass
-                            
-                                       
+        
         except:
             Logger.info('Shutting down the core...')
 
@@ -175,9 +174,6 @@ if __name__ == '__main__':
         Logger.info('Login process terminated.')
         proxy_process.terminate()
         Logger.info('Proxy process terminated.')
-    # if config.Telnet.Defaults.enabled:
-        # telnet_process.terminate()
-        # Logger.info('Telnet process terminated.') 
 
     # Release process resources.
     Logger.info('Waiting to release resources...')
@@ -187,7 +183,5 @@ if __name__ == '__main__':
     if launch_realm:
         release_process(proxy_process)
         release_process(login_process)
-    # if config.Telnet.Defaults.enabled:
-        # release_process(telnet_process)
 
     Logger.success('Core gracefully shut down.')

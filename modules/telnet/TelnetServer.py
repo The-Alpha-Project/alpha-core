@@ -2,10 +2,7 @@ from utils.ConfigManager import config
 from utils.Logger import Logger
 
 import select
-import signal
 import socket
-import struct
-import sys
 
 
 class TelnetServer:
@@ -60,32 +57,30 @@ class TelnetServer:
                 readable, _, _ = select.select([TelnetServer.server] + TelnetServer.connections, [], [], config.Telnet.Defaults.timeout)
 
                 for sock in readable:             
-                    try:
-                        if sock == TelnetServer.server:
-                            TelnetServer.connect(sock)
+                    if sock == TelnetServer.server:
+                        TelnetServer.connect(sock)
+                    else:
+                        data = sock.recv(1024)
+
+                        if not data:
+                            TelnetServer.disconnect(sock)
                         else:
-                            data = sock.recv(1024)
+                            data = data.decode().strip().replace('\n', '')
 
-                            if not data:
-                                TelnetServer.disconnect(sock)
+                            if data == 'history' or data == 'h':
+                                for command in TelnetServer.command_history:
+                                    sock.send(command.encode())
+                            elif data == 'help' or data == 'h':
+                                    sock.send('All telnet commands need to start with a slash "/"\n'.encode())
+                                    sock.send('You can also use "history" or "h"'.encode())
                             else:
-                                data = data.decode().strip().replace('\n', '')
+                                TelnetServer.command_history.append(data + '\n')
 
-                                if data == 'history':
-                                    for command in TelnetServer.command_history:
-                                        sock.send(command.encode())
-                                else:
-                                    TelnetServer.command_history.append(data + '\n')
-
-                                if '/' in data[0]:
-                                    TelnetServer.parent_conn.send(data.encode())
-
-                    except AttributeError as ae:
-                        # Logger.error(f'Error {ae}')
-                        pass
+                            if '/' in data[0] and len(data) > 1:
+                                TelnetServer.parent_conn.send(data.encode())
 
             except Exception as e:
-                    # Logger.error(f'Error in the main loop: {e}')
+                    Logger.error(f'Error in the main loop: {e}')
                     pass 
                     
             if TelnetServer.parent_conn.poll():
@@ -102,27 +97,9 @@ class TelnetServer:
             connection.send(msg.encode())
 
     @staticmethod
-    def signal_handler(signum, frame):
-        # We are making our own termination, instead of using main termination. 
-        # If we are using just main, ports will still be bound afterwards.
-
-        Logger.info(f'Telnet cleaning up and exiting.')
-
-        for connection in TelnetServer.connections:
-            connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack('ii', 1, 0))
-            TelnetServer.disconnect(connection)
-
-        TelnetServer.server.close()
-
-        Logger.info(f'Telnet process terminated.')
-        sys.exit(0)
-
-    @staticmethod
     def start_telnet(parent_conn):
         TelnetServer.parent_conn = parent_conn
 
-        # Register the signal handler for Ctrl+C (SIGINT)
-        signal.signal(signal.SIGINT, TelnetServer.signal_handler)
         Logger.set_parent_conn(TelnetServer.parent_conn)
 
         # starting telnet server
@@ -134,3 +111,4 @@ class TelnetServer:
     
         Logger.success(f'Telnet server started, listening on {config.Server.Connection.Telnet.host}:{config.Server.Connection.Telnet.port}')
         TelnetServer.connections_handler()
+        

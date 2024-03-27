@@ -17,7 +17,7 @@ class TelnetCommandHandler:
                     if '/' in msg[0]: 
                         msg = msg[1:]        
                     else:
-                        # Logger.error(f'Error with <{msg}>. command is missing')
+                        Logger.error(f'Commands need to start with "/"')
                         return 0
 
                     parts = msg.split(maxsplit=2)
