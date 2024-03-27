@@ -48,23 +48,25 @@ class TelnetCommandManager(CommandManager):
         if code != 0:
             return code, res
 
+        ChatManager.send_system_message(world_session, f'You got all taxis enabled until logout')
         return 0, f'{player} got all taxis enabled'
 
     @staticmethod
     def ann(world_session=None, player=None, args=None):
-        code, res = CommandManager.ann(world_session, args)
+        msg = player + " " + args
+        code, res = CommandManager.ann(world_session, msg)
 
         if code != 0:
             return code, res
 
-        return 0, f'Sent \'{args}\' message to server'
+        return 0, f'Sent "{args}" message to server'
 
     @staticmethod
     def gps(world_session=None, args=None, player=None):
         if not world_session or not player:
             return -1, f'Missing session or player'
           
-        return CommandManager.gps(world_session, args)
+        return CommandManager.gps(world_session, player)
 
     @staticmethod
     def help(world_session=None, args=None, cmd=None):
@@ -114,6 +116,10 @@ class TelnetCommandManager(CommandManager):
         if not world_session or not args:
             return -1, f'Missing session or player'
 
+        if 0 < args < 1000000000:
+            return -1, f'Copper not within interval (max 1000000000)'
+
+
         code, res = CommandManager.money(world_session, args)
 
         if code != 0:
@@ -153,7 +159,7 @@ class TelnetCommandManager(CommandManager):
         if not world_session or not player:
             return -1, f'Missing session or player'
       
-        code, res = CommandManager.pinfo(world_session, player) 
+        code, res = CommandManager.player_info(world_session, player) 
 
         if code != 0:
             return code, res
@@ -316,7 +322,7 @@ TELNET_COMMAND_DEFINITIONS = {
     'kick': [TelnetCommandManager.kick, 'Kick player from the server. Usage: /kick <player name>.'],
     'level': [TelnetCommandManager.level, 'Set player level. Value must be between 1-25. Usage: /level <player name> <1-25>.'],
     'msg': [TelnetCommandManager.msg, 'Send message to player. Usage: /msg <player name> <msg>'],
-    'money': [TelnetCommandManager.money, 'Give money to player. Usage /money <player name> <copper, max 100000>'],
+    'money': [TelnetCommandManager.money, 'Give money to player. Usage /money <player name> <copper, max 1000000000>'],
     'online': [TelnetCommandManager.online, 'List all online players. Usage: /online'],
     'pinfo': [TelnetCommandManager.player_info, 'get targeted player info'],
     'petlevel': [TelnetCommandManager.petlevel, 'Set player active pet level. Usage: /petlevel <player name> <1-100>'],
