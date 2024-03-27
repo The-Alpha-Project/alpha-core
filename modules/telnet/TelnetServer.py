@@ -18,10 +18,9 @@ class TelnetServer:
         connection.send('Enter password: '.encode())
         password = connection.recv(1024).decode().strip()
 
-        # Check if username and password are valid
         if username == config.Telnet.Defaults.username and password == config.Telnet.Defaults.password:
             connection.send('\nAuthentication successful!\n'.encode())
-            connection.send('\nType history to list all used commands'.encode())
+            connection.send('\nType history or h to list all used commands'.encode())
             connection.send('\nExit with Ctrl+5 quit\n\n'.encode())
             return True
         else:
@@ -37,13 +36,11 @@ class TelnetServer:
             Logger.success(f'New connection from {address}')
             connection.send(msg.encode())
 
-            # Authenticate the user
             if not TelnetServer.authenticate_user(connection):
                 connection.close()
                 Logger.error(f'Failed authentication from {address}')
                 return
 
-            # Add the authenticated connection to the list
             connection.setblocking(False)
             TelnetServer.connections.append(connection)
 
@@ -102,7 +99,6 @@ class TelnetServer:
 
         Logger.set_parent_conn(TelnetServer.parent_conn)
 
-        # starting telnet server
         TelnetServer.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         TelnetServer.server.bind((config.Server.Connection.Telnet.host, config.Server.Connection.Telnet.port))
         TelnetServer.server.listen(config.Telnet.Defaults.listen)
@@ -111,4 +107,3 @@ class TelnetServer:
     
         Logger.success(f'Telnet server started, listening on {config.Server.Connection.Telnet.host}:{config.Server.Connection.Telnet.port}')
         TelnetServer.connections_handler()
-        

@@ -149,13 +149,13 @@ class TelnetCommandManager(CommandManager):
         if len(world_sessions) <= 0:
             return -1, f'No players online'
 
-        Logger.plain(f'Online players')
+        Logger.info(f'Online players')
 
         for session in world_sessions:
             if hasattr(session.player_mgr, 'get_name'):
-                Logger.plain(f'{session.player_mgr.get_name()}') 
+                Logger.plain(f'{session.player_mgr.get_name()}\n') 
             else:
-                Logger.plain(f'No player online yet. Some are in character creation.')
+                Logger.plain(f'In character creation.\n')
 
         return 0, f''
     
