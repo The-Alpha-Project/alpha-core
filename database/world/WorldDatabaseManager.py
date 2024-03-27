@@ -823,7 +823,15 @@ class WorldDatabaseManager(object):
                                                            QuestTemplate.ignored == 0).all()
         world_db_session.close()
         return res
-        
+    
+    @staticmethod
+    def quest_get_by_entry(entry):
+        world_db_session = SessionHolder()
+        res = world_db_session.query(QuestTemplate).filter(QuestTemplate.entry.like(f'%{entry}%'),
+                                                           QuestTemplate.ignored == 0).all()
+        world_db_session.close()
+        return res
+     
     class QuestRelationHolder:
         QUEST_UNIT_STARTERS: [int, list[t_creature_quest_starter]] = {}
         QUEST_UNIT_FINISHERS = {}
