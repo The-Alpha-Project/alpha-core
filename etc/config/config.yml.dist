@@ -17,6 +17,10 @@ Server:
         Realm:
             local_realm_id: 1  # id of the realm running on this machine (realmlist table)
 
+        Telnet:
+            host: 0.0.0.0
+            port: 3443
+
         WorldServer:
             # You can use the FORWARD_ADDRESS_OVERRIDE environment variable to define a different forward IP address
             # (the one that will be served to external players) than the bind one.
@@ -33,7 +37,7 @@ Server:
         supported_client: 3368
         realm_saving_interval_seconds: 60
         cell_size: 64  # Shouldn't be much bigger than 200
-        console_mode: True  # Set it to False if you intend to run the server on background
+        console_mode: True  # Set it to False if you intend to run the server on background or using telnet
         # MapTiles:
         # Enables terrain Z calculations, improving npc units movement.
         # Enables water related features like fishing, underwater breathing and fatigue.
@@ -64,6 +68,7 @@ Server:
         #
         #   All = 0x3f (63, the sum of all)
         logging_mask: 0x3f
+        logging_mask_telnet: 0x1f
         log_player_chat: False
         log_chat_path: /var/log/alpha-core/chat
         log_dev_path: /var/log/alpha-core/dev
@@ -74,6 +79,16 @@ Server:
         enable_addons_chat_api: False  # CUSTOM: Allow addons to use the chat system for data requests.
         disabled_race_mask: 0  # Blizzlike 0.5.3: 239
         disabled_class_mask: 0  # Blizzlike 0.5.3: 1102
+
+# console_mode must be False, don't forget console_mode env in docker-compose if you are using docker.
+Telnet:
+    Defaults:
+        welcome: Welcome to the Alpha Core telnet server
+        username: admin
+        password: admin
+        enabled: False
+        timeout: 0
+        listen: 5
 
 World:
     Gameplay:

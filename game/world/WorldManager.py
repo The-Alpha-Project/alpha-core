@@ -19,6 +19,9 @@ from utils.ChatLogManager import ChatLogManager
 from utils.constants.AuthCodes import AuthCode
 from utils.constants.MiscCodes import ObjectTypeIds
 
+# from modules import TelnetCommandHandler
+from modules import WorldManagerModules
+
 STARTUP_TIME = time()
 WORLD_ON = True
 
@@ -285,7 +288,11 @@ class WorldServerSessionHandler:
             logging_thread.start()
 
     @staticmethod
-    def start():
+    def start(parent_conn=None):
+
+        if parent_conn:
+            Logger.set_parent_conn(parent_conn)
+
         WorldLoader.load_data()
 
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -298,6 +305,9 @@ class WorldServerSessionHandler:
         server_socket.listen()
 
         WorldServerSessionHandler.schedule_background_tasks()
+
+        world_manager_modules = WorldManagerModules()
+        world_manager_modules.start(parent_conn)
 
         real_binding = server_socket.getsockname()
         Logger.success(f'World server started, listening on {real_binding[0]}:{real_binding[1]}\a')

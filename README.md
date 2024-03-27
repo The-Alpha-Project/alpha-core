@@ -20,6 +20,11 @@ You can install `docker` through your OS package manager or [via download throug
 1. Copy `etc/config/config.yml.dist` to `etc/config/config.yml`.
 2. Run: `docker-compose up -d`.
 
+
+If you are using a Linux/Unix based system, and got make installed. You can run **make** in project root to see a list of commands. For example **make up** will run **docker command up -d** and **make list** will view all running containers. 
+
+
+
 ### Development in Docker
 
 The docker-compose configuration will mount the entire project folder on `/var/wow` in the main container. To access the container run `docker-compose exec main bash` as usual, to inspect the logs `docker-compose logs -f main`.
