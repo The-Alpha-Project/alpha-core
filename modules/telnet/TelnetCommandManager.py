@@ -8,6 +8,7 @@ from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from game.world.managers.CommandManager import CommandManager
 
 from utils.Logger import Logger
+import pprint
 
 
 class TelnetCommandManager(CommandManager):
@@ -217,7 +218,24 @@ class TelnetCommandManager(CommandManager):
         
         code, res = CommandManager.qdel(world_session, args) 
         return code, f'{res}'
+    
+    @staticmethod
+    def qlist(world_session=None, entryr=None, args=None):
+        quest_title = args
 
+        player_mgr = CommandManager._target_or_self(world_session)
+        pprint.pprint(player_mgr)
+
+
+        """if not quest_title:
+            return -1, 'please specifiy a quest title to start searching.'
+        quests = WorldDatabaseManager.quest_get_by_entry(entry)
+        
+        for quest in quests:
+            quest_title = quest.Title
+            quest_text = f'id: {quest.entry} - {quest_title}'
+            Logger.plain(f'{quest_text}\n')
+        return 0, f'{len(quests)} quests found.'"""
 
     @staticmethod
     def rticket(world_session=None, args=None, player=None):
@@ -392,6 +410,7 @@ TELNET_COMMAND_DEFINITIONS = {
     'petlevel': [TelnetCommandManager.petlevel, 'Set player active pet level. Usage: /petlevel <player name> <1-100>'],
     'qadd': [TelnetCommandManager.qadd, 'adds a quest to your log'],
     'qdel': [TelnetCommandManager.qdel, 'delete active or completed quest'],
+    'qlist': [TelnetCommandManager.qlist, 'List player quests'],
     'rticket': [TelnetCommandManager.rticket, 'search a ticket'],
     'serverinfo': [TelnetCommandManager.serverinfo, 'Print server information. Usage: /serverinfo.'],
     'sitem': [TelnetCommandManager.sitem, 'Search items. Usage: /sitem <query>'],
