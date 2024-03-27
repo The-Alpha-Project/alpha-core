@@ -60,7 +60,6 @@ class TelnetCommandManager(CommandManager):
             return -1, f'Missing session or player'
         
         code, res = CommandManager.additem(world_session, args)
-        ChatManager.send_system_message(world_session, f'You got an item')
         return code, f'{res}'
         
     @staticmethod
@@ -68,8 +67,7 @@ class TelnetCommandManager(CommandManager):
         if not world_session:
             return -1, f'Missing session or player'
         
-        code, res = CommandManager.additems(world_session, player)
-        ChatManager.send_system_message(world_session, f'You got items')
+        code, res = CommandManager.additems(world_session, args)
         return code, f'{res}'
 
     @staticmethod
@@ -143,8 +141,8 @@ class TelnetCommandManager(CommandManager):
         if not world_session or not args:
             return -1, f'Missing session or player'
 
-        if 0 < int(args) < 1000000000:
-            return -1, f'Copper not within interval (max 1000000000)'
+        if 0 < int(args) > 1000000000:
+            return -1, f'Copper not within interval (min 1, max 1000000000)'
 
         code, res = CommandManager.money(world_session, args)
 
@@ -206,7 +204,14 @@ class TelnetCommandManager(CommandManager):
     
     @staticmethod
     def rticket(world_session=None, args=None, player=None):
-        return CommandManager.rticket(world_session, player)
+        try:
+            ticket_id = int(player)
+            ticket = RealmDatabaseManager.ticket_get_by_id(ticket_id)
+            if ticket:
+                return 0, f'id: {ticket_id} : {ticket.character_name} : {ticket.text_body}'
+            return -1, 'ticket not found.'
+        except ValueError:
+            return -1, 'please specify a valid ticket id.'
 
     @staticmethod
     def serverinfo(world_session=None, args=None, player=None):
@@ -347,11 +352,9 @@ class TelnetCommandManager(CommandManager):
     def tickets(world_session=None, args=None, player=None):
         tickets = RealmDatabaseManager.ticket_get_all()
         for ticket in tickets:
-            ticket_color = '|cFFFF0000' if ticket.is_bug else '|cFF00FFFF'
             ticket_title = 'Bug report' if ticket.is_bug else 'Suggestion'
-            ticket_text = f'{ticket_color}[{ticket.id}]|r {ticket.submit_time}: {ticket_title} from {ticket.character_name}.\n'
+            ticket_text = f'id: {ticket.id} : {ticket.submit_time} : {ticket_title} from {ticket.character_name}.\n'
             Logger.plain(ticket_text)
-            # ChatManager.send_system_message(world_session, ticket_text)
         return 0, f'{len(tickets)} tickets shown.'
 
 
