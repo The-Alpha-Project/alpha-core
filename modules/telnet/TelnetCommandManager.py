@@ -203,6 +203,23 @@ class TelnetCommandManager(CommandManager):
         return 0, f'pet {player} level is now {args}'
     
     @staticmethod
+    def qadd(world_session=None, args=None, player=None):
+        if not world_session or not args:
+            return -1, f'Missing session or player'
+        
+        code, res = CommandManager.qadd(world_session, args) 
+        return code, f'{res}'
+    
+    @staticmethod
+    def qdel(world_session=None, args=None, player=None):
+        if not world_session or not args:
+            return -1, f'Missing session or player'
+        
+        code, res = CommandManager.qdel(world_session, args) 
+        return code, f'{res}'
+
+
+    @staticmethod
     def rticket(world_session=None, args=None, player=None):
         try:
             ticket_id = int(player)
@@ -359,20 +376,22 @@ class TelnetCommandManager(CommandManager):
 
 
 TELNET_COMMAND_DEFINITIONS = {
-    'alltaxis': [TelnetCommandManager.alltaxis, 'discover all flight paths. Usage: /alltaxis <player name>'],
-    'additem': [TelnetCommandManager.additem, 'add an item to your bag'],
-    'additems': [TelnetCommandManager.additems, 'add items to your bag'],
-    'ann': [TelnetCommandManager.ann, 'write a server side announcement'],
-    'dticket': [TelnetCommandManager.dticket, 'delete a ticket'],
-    'gps': [TelnetCommandManager.gps, 'display information about your location'],
+    'alltaxis': [TelnetCommandManager.alltaxis, 'Discover all flight paths. Usage: /alltaxis <player name>'],
+    'additem': [TelnetCommandManager.additem, 'Add an item to player bag'],
+    'additems': [TelnetCommandManager.additems, 'Add items to player bag'],
+    'ann': [TelnetCommandManager.ann, 'Write a server side announcement'],
+    'dticket': [TelnetCommandManager.dticket, 'Delete a ticket'],
+    'gps': [TelnetCommandManager.gps, 'Display information about player location'],
     'help': [TelnetCommandManager.help, 'Prints this message'],
     'kick': [TelnetCommandManager.kick, 'Kick player from the server. Usage: /kick <player name>.'],
     'level': [TelnetCommandManager.level, 'Set player level. Value must be between 1-25. Usage: /level <player name> <1-25>.'],
     'msg': [TelnetCommandManager.msg, 'Send message to player. Usage: /msg <player name> <msg>'],
     'money': [TelnetCommandManager.money, 'Give money to player. Usage /money <player name> <copper, max 1000000000>'],
     'online': [TelnetCommandManager.online, 'List all online players. Usage: /online'],
-    'pinfo': [TelnetCommandManager.player_info, 'get targeted player info'],
+    'pinfo': [TelnetCommandManager.player_info, 'Get targeted player info'],
     'petlevel': [TelnetCommandManager.petlevel, 'Set player active pet level. Usage: /petlevel <player name> <1-100>'],
+    'qadd': [TelnetCommandManager.qadd, 'adds a quest to your log'],
+    'qdel': [TelnetCommandManager.qdel, 'delete active or completed quest'],
     'rticket': [TelnetCommandManager.rticket, 'search a ticket'],
     'serverinfo': [TelnetCommandManager.serverinfo, 'Print server information. Usage: /serverinfo.'],
     'sitem': [TelnetCommandManager.sitem, 'Search items. Usage: /sitem <query>'],
@@ -380,10 +399,10 @@ TELNET_COMMAND_DEFINITIONS = {
     'speed': [TelnetCommandManager.speed, 'Change run speed. Usage: /speed <player name> <value, max 10>'],
     'squest': [TelnetCommandManager.squest, 'Search quests. Usage: /squest <query>'],
     'stel': [TelnetCommandManager.stel, 'Search for teleport location. Usage: /stel <query>'],
-    'summon': [TelnetCommandManager.summon, 'summon a player to your position. Usage: /summon <player name> <other player name>. Can summon offline players.'],
+    'summon': [TelnetCommandManager.summon, 'Summon a player to another player position. Usage: /summon <player name> <to other player>. Can summon to offline players.'],
     'swimspeed': [TelnetCommandManager.swimspeed, 'change player swim speed. Usage: /swimspeed <player name> <value, max 10'],
-    'tel': [TelnetCommandManager.tel, 'teleport player to a location. Usage: /tel <player name> <location>'],
-    'tickets': [TelnetCommandManager.tickets, 'list all tickets'],
+    'tel': [TelnetCommandManager.tel, 'Teleport player to a location. Usage: /tel <player name> <location>'],
+    'tickets': [TelnetCommandManager.tickets, 'List all tickets'],
  
     # 'pwdchange': [CommandManager.pwdchange, 'change your password']
     # 'telunit': [CommandManager.tel_unit, 'teleport a unit to a given location in the same map'],
@@ -406,8 +425,7 @@ TELNET_COMMAND_DEFINITIONS = {
     # 'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     # 'die': [CommandManager.die, 'kills target or yourself if no target is selected'],
      # 'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
-       # 'qadd': [CommandManager.qadd, 'adds a quest to your log'],
-       # 'qdel': [CommandManager.qdel, 'delete active or completed quest'],
+       # '
      # 'fevent': [CommandManager.fevent, 'force the given event to execute']
      # 'worldoff': [CommandManager.worldoff, 'stop the world server']
 }
