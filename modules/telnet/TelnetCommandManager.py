@@ -55,9 +55,9 @@ class TelnetCommandManager(CommandManager):
         return 0, f'{player} got all taxis enabled'
 
     @staticmethod
-    def ann(world_session=None, player=None, args=None):
-        msg = args + " " + player
-        code, res = CommandManager.ann(world_session, msg)
+    def ann(world_session=None, args=None, player=None):
+        msg = player + ' ' + args
+        code, res = CommandManager.ann(world_session, msg.strip())
 
         if code != 0:
             return code, res
@@ -69,7 +69,9 @@ class TelnetCommandManager(CommandManager):
         if not world_session or not player:
             return -1, f'Missing session or player'
           
-        return CommandManager.gps(world_session, player)
+        code, res = CommandManager.gps(world_session, player)
+
+        return code, f'GPS: \n{res}'
 
     @staticmethod
     def help(world_session=None, args=None, cmd=None):
@@ -167,7 +169,7 @@ class TelnetCommandManager(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f''
+        return code, f'Player info: \n{res}'
 
     @staticmethod
     def petlevel(world_session=None, args=None, player=None):
@@ -188,7 +190,7 @@ class TelnetCommandManager(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f'{res}'
+        return code, f'Server info: \n{res}'
     
     @staticmethod
     def sitem(world_session=None, player=None, args=None):

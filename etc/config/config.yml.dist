@@ -68,7 +68,7 @@ Server:
         #
         #   All = 0x3f (63, the sum of all)
         logging_mask: 0x3f
-        logging_mask_telnet: 0x02
+        logging_mask_telnet: 0x1f
         log_player_chat: False
         log_chat_path: /var/log/alpha-core/chat
         log_dev_path: /var/log/alpha-core/dev
