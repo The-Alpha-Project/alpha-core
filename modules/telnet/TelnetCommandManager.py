@@ -62,7 +62,7 @@ class TelnetCommandManager(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f'Sent "{args}" message to server'
+        return 0, f'Sent "{msg}" message to server'
 
     @staticmethod
     def gps(world_session=None, args=None, player=None):
@@ -149,13 +149,13 @@ class TelnetCommandManager(CommandManager):
         if len(world_sessions) <= 0:
             return -1, f'No players online'
 
-        Logger.info(f'Online players')
+        Logger.plain(f'Online players')
 
         for session in world_sessions:
             if hasattr(session.player_mgr, 'get_name'):
-                Logger.info(f'{session.player_mgr.get_name()}') 
+                Logger.plain(f'{session.player_mgr.get_name()}') 
             else:
-                Logger.info(f'No player online yet. Some are in character creation.')
+                Logger.plain(f'No player online yet. Some are in character creation.')
 
         return 0, f''
     
