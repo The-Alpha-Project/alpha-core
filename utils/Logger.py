@@ -57,7 +57,7 @@ class Logger:
             print(formatted_msg)
         
         if Logger._should_log_telnet(DebugLevel.DEBUG) and Logger.parent_conn:
-            formatted_msg += "\r" if 'DEBUG' in LogMarkers and '%' in msg else "\n"
+            formatted_msg += '\r' if 'DEBUG' in LogMarkers and '%' in msg else '\n'
             Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
@@ -68,7 +68,7 @@ class Logger:
             print(formatted_msg)
         
         if Logger._should_log_telnet(DebugLevel.WARNING) and Logger.parent_conn:
-            formatted_msg += "\r" if 'WARNING' in LogMarkers and '%' in msg else "\n"
+            formatted_msg += '\r' if 'WARNING' in LogMarkers and '%' in msg else '\n'
             Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
@@ -79,7 +79,7 @@ class Logger:
             print(formatted_msg)
         
         if Logger._should_log_telnet(DebugLevel.ERROR) and Logger.parent_conn:
-            formatted_msg += "\r" if 'ERROR' in LogMarkers and '%' in msg else "\n"
+            formatted_msg += '\r' if 'ERROR' in LogMarkers and '%' in msg else '\n'
             Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
@@ -89,8 +89,8 @@ class Logger:
         if Logger._should_log(DebugLevel.INFO):
             print(formatted_msg, end=end)
 
-        if Logger._should_log_telnet(DebugLevel.ERROR) and Logger.parent_conn:
-            formatted_msg += "\r" if 'INFO' in LogMarkers and '%' in msg else "\n"
+        if Logger._should_log_telnet(DebugLevel.INFO) and Logger.parent_conn:
+            formatted_msg += '\r' if 'INFO' in LogMarkers and '%' in msg else '\n'
             Logger.parent_conn.send(formatted_msg)
         
     @staticmethod
@@ -106,7 +106,7 @@ class Logger:
             print(formatted_msg)
         
         if Logger._should_log_telnet(DebugLevel.SUCCESS) and Logger.parent_conn:
-            formatted_msg += "\r" if 'SUCCESS' in LogMarkers and '%' in msg else "\n"
+            formatted_msg += '\r' if 'SUCCESS' in LogMarkers and '%' in msg else '\n'
             Logger.parent_conn.send(formatted_msg)
 
     @staticmethod
@@ -117,7 +117,7 @@ class Logger:
             print(formatted_msg)
         
         if Logger._should_log_telnet(DebugLevel.ANTICHEAT) and Logger.parent_conn:
-            formatted_msg += "\r" if 'ANTICHEAT' in LogMarkers and '%' in msg else "\n"
+            formatted_msg += '\r' if 'ANTICHEAT' in LogMarkers and '%' in msg else '\n'
             Logger.parent_conn.send(formatted_msg)
         
     # Additional methods

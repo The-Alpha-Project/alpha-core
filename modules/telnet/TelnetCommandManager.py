@@ -9,6 +9,7 @@ from game.world.managers.CommandManager import CommandManager
 
 from utils.Logger import Logger
 import pprint
+from game.world.managers.objects.units.player.quest.QuestManager import QuestManager
 
 
 class TelnetCommandManager(CommandManager):
@@ -220,22 +221,22 @@ class TelnetCommandManager(CommandManager):
         return code, f'{res}'
     
     @staticmethod
-    def qlist(world_session=None, entryr=None, args=None):
-        quest_title = args
+    def qlist(world_session=None, args=None, player=None):
+        # player_mgr = CommandManager._target_or_self(world_session)
+        player_mgr = world_session.player_mgr
+        active_quests = player_mgr.quest_manager.active_quests
 
-        player_mgr = CommandManager._target_or_self(world_session)
-        pprint.pprint(player_mgr)
+        if not active_quests:
+            return -1, 'Player got no quests.'
 
-
-        """if not quest_title:
-            return -1, 'please specifiy a quest title to start searching.'
-        quests = WorldDatabaseManager.quest_get_by_entry(entry)
+        for entry in active_quests:
+            quests = WorldDatabaseManager.quest_get_by_entry(entry)
         
-        for quest in quests:
-            quest_title = quest.Title
-            quest_text = f'id: {quest.entry} - {quest_title}'
-            Logger.plain(f'{quest_text}\n')
-        return 0, f'{len(quests)} quests found.'"""
+            for quest in quests:
+                quest_text = f'id: {quest.entry} - {quest.Title}'
+                Logger.info(f'{quest_text}')
+        
+        return 0, f'{len(active_quests)} quests found.'
 
     @staticmethod
     def rticket(world_session=None, args=None, player=None):
