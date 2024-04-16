@@ -445,7 +445,6 @@ TELNET_COMMAND_DEFINITIONS = {
     # 'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     # 'die': [CommandManager.die, 'kills target or yourself if no target is selected'],
      # 'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
-       # '
      # 'fevent': [CommandManager.fevent, 'force the given event to execute']
      # 'worldoff': [CommandManager.worldoff, 'stop the world server']
 }
