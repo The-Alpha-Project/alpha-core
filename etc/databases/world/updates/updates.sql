@@ -1972,5 +1972,32 @@ begin not atomic
 
         INSERT INTO `applied_updates` VALUES ('130320241');
     end if;
+
+    -- 18/04/2024 1
+	if (select count(*) from applied_updates where id='180420241') = 0 then
+        /*
+        World of Warcraft Client Patch 1.7.0 (2005-09-13)
+        - The completion dialogue for the "A Rogue's Deal" quest has been
+          clarified.
+        */
+        UPDATE `quest_template` SET `RequestItemsText` = 'Yes? Yes? What is it?$B$BFor a race of people who don\'t need to breathe underwater, they certainly do have huge appetites. Make yourself at home... make yourself at home. My name\'s Renee if you need anything at all.' WHERE `entry` = 8;
+
+        /*
+        World of Warcraft Client Patch 1.7.0 (2005-09-13)
+        - Fixed a typo on a signpost in Western Plaguelands.
+        */
+        UPDATE `gameobject_template` SET `name` = 'Andorhol' WHERE `entry` IN (176982, 176983);
+        UPDATE `gameobject_template` SET `name` = 'Hearthglenn' WHERE `entry` = 176994;
+
+        /*
+         World of Warcraft Client Patch 1.7.0 (2005-09-13)
+         - Rethban Ore, Black Diamonds, and Pristine Black Diamonds may now be
+           found in the Miscellaneous Junk category of the Auction House.
+        */
+        -- https://web.archive.org/web/20060328050450/http://wow.allakhazam.com/db/itemhistory.html?witem=2798
+        UPDATE `item_template` SET `class` = 12 WHERE `entry` = 2798;
+
+        insert into applied_updates values ('180420241');
+    end if;
 end $
 delimiter ;
