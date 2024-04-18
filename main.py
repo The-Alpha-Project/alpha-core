@@ -121,7 +121,7 @@ if __name__ == '__main__':
                 Logger.info('Terminating login processes...')
     
     if launch_world:
-        world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start,args=(world_conn,))
+        world_process = context.Process(target=WorldManager.WorldServerSessionHandler.start, args=(world_conn,))
         world_process.start()
 
         try:

@@ -26,3 +26,6 @@ venv
 # Compiled libs
 **.pyd
 **.so
+
+# Mac stuff
+.DS_Store

@@ -289,7 +289,6 @@ class WorldServerSessionHandler:
 
     @staticmethod
     def start(parent_conn=None):
-
         if parent_conn:
             Logger.set_parent_conn(parent_conn)
 

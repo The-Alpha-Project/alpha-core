@@ -7,11 +7,9 @@ class WorldManagerModules:
         pass 
     
     def start(self, parent_conn):
-        self.startTelnetCommandHandler(parent_conn)
+        self.start_telnet_command_handler(parent_conn)
         
-        # Add more module starts here as needed
-    
-    def startTelnetCommandHandler(self, parent_conn):
+    def start_telnet_command_handler(self, parent_conn):
         if config.Telnet.Defaults.enabled and not config.Server.Settings.console_mode:
             WorldManagerExtended_thread = threading.Thread(target=TelnetCommandHandler.starts,args=(parent_conn,))
             WorldManagerExtended_thread.daemon = True

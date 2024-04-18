@@ -1,10 +1,9 @@
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
-# from database.realm.RealmDatabaseManager import RealmDatabaseManager
+from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.units.ChatManager import ChatManager
-from utils.TextUtils import GameTextFormatter
-from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
+from utils.constants.SpellCodes import SpellEffects
 from game.world.managers.CommandManager import CommandManager
 
 from utils.Logger import Logger
@@ -55,6 +54,22 @@ class TelnetCommandManager(CommandManager):
         return 0, f'{player} got all taxis enabled'
 
     @staticmethod
+    def additem(world_session=None, args=None, player=None):
+        if not world_session:
+            return -1, f'Missing session or player'
+        
+        code, res = CommandManager.additem(world_session, args)
+        return code, f'{res}'
+        
+    @staticmethod
+    def additems(world_session=None, args=None, player=None):
+        if not world_session:
+            return -1, f'Missing session or player'
+        
+        code, res = CommandManager.additems(world_session, args)
+        return code, f'{res}'
+
+    @staticmethod
     def ann(world_session=None, args=None, player=None):
         msg = player + ' ' + args
         code, res = CommandManager.ann(world_session, msg.strip())
@@ -62,7 +77,11 @@ class TelnetCommandManager(CommandManager):
         if code != 0:
             return code, res
 
-        return 0, f'Sent "{msg}" message to server'
+        return code, f'Sent "{msg}" message to server'
+
+    @staticmethod
+    def dticket(world_session=None, args=None, player=None):
+        return CommandManager.dticket(world_session, player)
 
     @staticmethod
     def gps(world_session=None, args=None, player=None):
@@ -121,9 +140,8 @@ class TelnetCommandManager(CommandManager):
         if not world_session or not args:
             return -1, f'Missing session or player'
 
-        if 0 < int(args) < 1000000000:
-            return -1, f'Copper not within interval (max 1000000000)'
-
+        if 0 < int(args) > 1000000000:
+            return -1, f'Copper not within interval (min 1, max 1000000000)'
 
         code, res = CommandManager.money(world_session, args)
 
@@ -183,6 +201,51 @@ class TelnetCommandManager(CommandManager):
 
         return 0, f'pet {player} level is now {args}'
     
+    @staticmethod
+    def qadd(world_session=None, args=None, player=None):
+        if not world_session or not args:
+            return -1, f'Missing session or player'
+        
+        code, res = CommandManager.qadd(world_session, args) 
+        return code, f'{res}'
+    
+    @staticmethod
+    def qdel(world_session=None, args=None, player=None):
+        if not world_session or not args:
+            return -1, f'Missing session or player'
+        
+        code, res = CommandManager.qdel(world_session, args) 
+        return code, f'{res}'
+    
+    @staticmethod
+    def qlist(world_session=None, args=None, player=None):
+        # player_mgr = CommandManager._target_or_self(world_session)
+        player_mgr = world_session.player_mgr
+        active_quests = player_mgr.quest_manager.active_quests
+
+        if not active_quests:
+            return -1, 'Player got no quests.'
+
+        for entry in active_quests:
+            quests = WorldDatabaseManager.quest_get_by_entry(entry)
+        
+            for quest in quests:
+                quest_text = f'id: {quest.entry} - {quest.Title}'
+                Logger.info(f'{quest_text}')
+        
+        return 0, f'{len(active_quests)} quests found.'
+
+    @staticmethod
+    def rticket(world_session=None, args=None, player=None):
+        try:
+            ticket_id = int(player)
+            ticket = RealmDatabaseManager.ticket_get_by_id(ticket_id)
+            if ticket:
+                return 0, f'id: {ticket_id} : {ticket.character_name} : {ticket.text_body}'
+            return -1, 'ticket not found.'
+        except ValueError:
+            return -1, 'please specify a valid ticket id.'
+
     @staticmethod
     def serverinfo(world_session=None, args=None, player=None):
         code, res = CommandManager.serverinfo(world_session, args) 
@@ -318,33 +381,48 @@ class TelnetCommandManager(CommandManager):
 
         return 0, f'Teleported {player} to {args}'
     
+    @staticmethod
+    def tickets(world_session=None, args=None, player=None):
+        tickets = RealmDatabaseManager.ticket_get_all()
+        for ticket in tickets:
+            ticket_title = 'Bug report' if ticket.is_bug else 'Suggestion'
+            ticket_text = f'id: {ticket.id} : {ticket.submit_time} : {ticket_title} from {ticket.character_name}.\n'
+            Logger.plain(ticket_text)
+        return 0, f'{len(tickets)} tickets shown.'
+
 
 TELNET_COMMAND_DEFINITIONS = {
-    'alltaxis': [TelnetCommandManager.alltaxis, 'discover all flight paths. Usage: /alltaxis <player name>'],
-    'ann': [TelnetCommandManager.ann, 'write a server side announcement'],
-    'gps': [TelnetCommandManager.gps, 'display information about your location'],
+    'alltaxis': [TelnetCommandManager.alltaxis, 'Discover all flight paths. Usage: /alltaxis <player name>'],
+    'additem': [TelnetCommandManager.additem, 'Add an item to player bag'],
+    'additems': [TelnetCommandManager.additems, 'Add items to player bag'],
+    'ann': [TelnetCommandManager.ann, 'Write a server side announcement'],
+    'dticket': [TelnetCommandManager.dticket, 'Delete a ticket'],
+    'gps': [TelnetCommandManager.gps, 'Display information about player location'],
     'help': [TelnetCommandManager.help, 'Prints this message'],
     'kick': [TelnetCommandManager.kick, 'Kick player from the server. Usage: /kick <player name>.'],
     'level': [TelnetCommandManager.level, 'Set player level. Value must be between 1-25. Usage: /level <player name> <1-25>.'],
     'msg': [TelnetCommandManager.msg, 'Send message to player. Usage: /msg <player name> <msg>'],
     'money': [TelnetCommandManager.money, 'Give money to player. Usage /money <player name> <copper, max 1000000000>'],
     'online': [TelnetCommandManager.online, 'List all online players. Usage: /online'],
-    'pinfo': [TelnetCommandManager.player_info, 'get targeted player info'],
+    'pinfo': [TelnetCommandManager.player_info, 'Get targeted player info'],
     'petlevel': [TelnetCommandManager.petlevel, 'Set player active pet level. Usage: /petlevel <player name> <1-100>'],
+    'qadd': [TelnetCommandManager.qadd, 'adds a quest to your log'],
+    'qdel': [TelnetCommandManager.qdel, 'delete active or completed quest'],
+    'qlist': [TelnetCommandManager.qlist, 'List player quests'],
+    'rticket': [TelnetCommandManager.rticket, 'search a ticket'],
     'serverinfo': [TelnetCommandManager.serverinfo, 'Print server information. Usage: /serverinfo.'],
     'sitem': [TelnetCommandManager.sitem, 'Search items. Usage: /sitem <query>'],
     'sspell': [TelnetCommandManager.sspell, 'search spells'],
     'speed': [TelnetCommandManager.speed, 'Change run speed. Usage: /speed <player name> <value, max 10>'],
     'squest': [TelnetCommandManager.squest, 'Search quests. Usage: /squest <query>'],
     'stel': [TelnetCommandManager.stel, 'Search for teleport location. Usage: /stel <query>'],
-    'summon': [TelnetCommandManager.summon, 'summon a player to your position. Usage: /summon <player name> <other player name>. Can summon offline players.'],
+    'summon': [TelnetCommandManager.summon, 'Summon a player to another player position. Usage: /summon <player name> <to other player>. Can summon to offline players.'],
     'swimspeed': [TelnetCommandManager.swimspeed, 'change player swim speed. Usage: /swimspeed <player name> <value, max 10'],
-    'tel': [TelnetCommandManager.tel, 'teleport player to a location. Usage: /tel <player name> <location>'],
+    'tel': [TelnetCommandManager.tel, 'Teleport player to a location. Usage: /tel <player name> <location>'],
+    'tickets': [TelnetCommandManager.tickets, 'List all tickets'],
  
     # 'pwdchange': [CommandManager.pwdchange, 'change your password']
     # 'telunit': [CommandManager.tel_unit, 'teleport a unit to a given location in the same map'],
-       # 'additem': [CommandManager.additem, 'add an item to your bag'],
-       # 'additems': [CommandManager.additems, 'add items to your bag'],
      # 'lspell': [CommandManager.lspell, 'learn a spell'],
      # 'lspells': [CommandManager.lspells, 'learn multiple spells'],
      # 'unlspell': [CommandManager.unlspell, 'unlearn a spell'],
@@ -356,9 +434,6 @@ TELNET_COMMAND_DEFINITIONS = {
      # 'lskills': [CommandManager.lskills, 'learn skills'],
      # 'setskill': [CommandManager.setskill, 'set a skill level'],
      # 'port': [CommandManager.port, 'teleport using coordinates'],
-       # 'tickets': [CommandManager.tickets, 'list all tickets'],
-       # 'rticket': [CommandManager.rticket, 'search a ticket'],
-       # 'dticket': [CommandManager.dticket, 'delete a ticket'],
        # 'goplayer': [CommandManager.goplayer, 'go to a player position'],
      # 'gocreature': [CommandManager.gocreature, 'go to a creature position'], 
     # 'mount': [CommandManager.mount, 'mount'],
@@ -367,11 +442,6 @@ TELNET_COMMAND_DEFINITIONS = {
     # 'demorph': [CommandManager.demorph, 'demorph the targeted unit'],
     # 'die': [CommandManager.die, 'kills target or yourself if no target is selected'],
      # 'guildcreate': [CommandManager.guildcreate, 'create and join a guild'],
-       # 'qadd': [CommandManager.qadd, 'adds a quest to your log'],
-       # 'qdel': [CommandManager.qdel, 'delete active or completed quest'],
      # 'fevent': [CommandManager.fevent, 'force the given event to execute']
-    # 'destroymonster': [CommandManager.destroymonster, 'destroy the selected creature'],
-    # 'createmonster': [CommandManager.createmonster, 'spawn a creature at your position'],
-    # 'sloc': [CommandManager.save_location, 'save your location to locations.log along with a comment'],
      # 'worldoff': [CommandManager.worldoff, 'stop the world server']
 }

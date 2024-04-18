@@ -1972,5 +1972,51 @@ begin not atomic
 
         INSERT INTO `applied_updates` VALUES ('130320241');
     end if;
+
+    -- 18/04/2024 1
+	if (select count(*) from applied_updates where id='180420241') = 0 then
+        /*
+        World of Warcraft Client Patch 1.7.0 (2005-09-13)
+        - The completion dialogue for the "A Rogue's Deal" quest has been
+          clarified.
+        */
+        UPDATE `quest_template` SET `RequestItemsText` = 'Yes? Yes? What is it?$B$BFor a race of people who don\'t need to breathe underwater, they certainly do have huge appetites. Make yourself at home... make yourself at home. My name\'s Renee if you need anything at all.' WHERE `entry` = 8;
+
+        /*
+        World of Warcraft Client Patch 1.7.0 (2005-09-13)
+        - Fixed a typo on a signpost in Western Plaguelands.
+        */
+        UPDATE `gameobject_template` SET `name` = 'Andorhol' WHERE `entry` IN (176982, 176983);
+        UPDATE `gameobject_template` SET `name` = 'Hearthglenn' WHERE `entry` = 176994;
+
+        /*
+         World of Warcraft Client Patch 1.7.0 (2005-09-13)
+         - Rethban Ore, Black Diamonds, and Pristine Black Diamonds may now be
+           found in the Miscellaneous Junk category of the Auction House.
+        */
+        -- https://web.archive.org/web/20060328050450/http://wow.allakhazam.com/db/itemhistory.html?witem=2798
+        UPDATE `item_template` SET `class` = 12 WHERE `entry` = 2798;
+
+        insert into applied_updates values ('180420241');
+    end if;
+
+    -- 31/12/2023 1
+    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='311220231') = 0 then
+        -- First, reset bonding for all weapons and armor.
+        update item_template set bonding = 0 where class in (2, 4);
+        -- Then, set all rings to unique.
+        update item_template set max_count = 1 where inventory_type = 11;
+        -- Set individual items to Bind on Equip where applicable.
+        -- Boss drops.
+        update item_template set bonding = 2 where entry in(6392, 5423, 1292, 5193, 6320, 5198, 5202, 5191, 2816, 5201, 3748, 1156, 6220, 888, 6318, 6324, 1155, 5426, 6321, 5194, 5192, 5196, 5197, 5199, 5195, 872, 6226, 6323, 3191, 6319, 3230, 6340, 6314, 3078);
+        -- Drops from instanced rare spawns. Separated for easier removal because I'm not sure the boss rule applies to them.
+        update item_template set bonding = 2 where entry in(5443, 2942, 3228, 2941);
+        -- Rare Crafting items.
+        update item_template set bonding = 2 where entry in(4262, 3844, 4327, 2870, 4320, 4253);
+        -- Lastly, set all rewards from dungeon quests to Bind on Pickup.
+        update item_template set bonding = 1 where entry in(4197, 4980, 6414, 2037, 2036, 2033, 2906, 3324, 1893, 2074, 2089, 6094, 4746, 6335, 4534, 3041, 4197, 6087, 2041, 2042, 3562, 1264, 3400, 1317);
+
+        INSERT INTO `applied_updates` VALUES ('311220231');
+    end if;
 end $
 delimiter ;
