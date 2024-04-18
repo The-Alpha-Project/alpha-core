@@ -121,16 +121,11 @@ class Logger:
             Logger.parent_conn.send(formatted_msg)
         
     # Additional methods
-
     @staticmethod
     def progress(msg, current, total, divisions=20):
         msg = f'{msg} [{current}/{total}] ({int(current * 100 / total)}%)'
-        try:
-            if current != total and divisions > 0:
-                if int(current % (total / divisions)) == 0:
-                    Logger.info(msg, end='\r')
-            else:
-                Logger.success(msg)
-
-        except:
-            pass
+        if current != total and divisions > 0:
+            if int(current % (total / divisions)) == 0:
+                Logger.info(msg, end='\r')
+        else:
+            Logger.success(msg)

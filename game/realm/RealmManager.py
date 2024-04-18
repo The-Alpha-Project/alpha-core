@@ -71,7 +71,6 @@ class RealmManager:
 
     @staticmethod
     def start_realm(parent_conn=None):
-        
         if parent_conn:
             Logger.set_parent_conn(parent_conn)
 

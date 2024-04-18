@@ -3,13 +3,10 @@ from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.objects.units.ChatManager import ChatManager
-from utils.TextUtils import GameTextFormatter
-from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
+from utils.constants.SpellCodes import SpellEffects
 from game.world.managers.CommandManager import CommandManager
 
 from utils.Logger import Logger
-import pprint
-from game.world.managers.objects.units.player.quest.QuestManager import QuestManager
 
 
 class TelnetCommandManager(CommandManager):
