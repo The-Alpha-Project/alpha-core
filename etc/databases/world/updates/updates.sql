@@ -2152,6 +2152,9 @@ begin not atomic
         -- STV Rebel Camp, we have evidences for corporal and rebel using PH, we extrapolate for the rest
         UPDATE `creature_template` SET `display_id1` = 173 WHERE `entry` IN (733, 734, 738, 754, 1422);
 
+        -- Despawn non sense horde guard far behind the Camp Taurajo
+        UPDATE  `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_entry1` = 3501) AND (`spawn_id` IN (19380));
+
         INSERT INTO `applied_updates` VALUES ('270420241');
     end if;
 end $
