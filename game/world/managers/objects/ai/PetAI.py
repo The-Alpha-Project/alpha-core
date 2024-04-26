@@ -203,7 +203,7 @@ class PetAI(CreatureAI):
             target = self.creature.combat_target if self.creature.combat_target else \
                 self.creature.get_charmer_or_summoner()
             casting_spell = self.creature.spell_manager.try_initialize_spell(spell, target, SpellTargetMask.UNIT, 
-                                                                             validate=False, is_pet_auto_cast=True)
+                                                                             validate=False, hide_result=True)
 
             if casting_spell.has_only_harmful_effects() != bool(self.creature.combat_target):
                 continue  # Cast harmful spells when attacking, helpful when not.

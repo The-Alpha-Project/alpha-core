@@ -175,9 +175,8 @@ class SpellManager:
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
                 # Hide result since this cast can fail (Battle Stance already applied).
-                spell_cast = self.try_initialize_spell(spell_template, self.caster,
-                                                                SpellTargetMask.SELF,
-                                                                triggered=True, hide_result=True)
+                spell_cast = self.try_initialize_spell(spell_template, self.caster, 
+                                                       SpellTargetMask.SELF, triggered=True, hide_result=True)
                 if not spell_cast:
                     continue
                 self.start_spell_cast(initialized_spell=spell_cast)
@@ -272,10 +271,10 @@ class SpellManager:
 
     def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
                              triggered=False, triggered_by_spell=None, hide_result=False,
-                             validate=True, creature_spell=None, is_pet_auto_cast=False) -> Optional[CastingSpell]:
+                             validate=True, creature_spell=None) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item=source_item,
                              triggered=triggered, triggered_by_spell=triggered_by_spell,
-                             hide_result=hide_result,creature_spell=creature_spell, is_pet_auto_cast=is_pet_auto_cast)
+                             hide_result=hide_result,creature_spell=creature_spell)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
@@ -1691,9 +1690,7 @@ class SpellManager:
             charmer_or_summoner = self.caster.get_charmer_or_summoner()
             is_pet = charmer_or_summoner != None
             if is_pet:
-                # Only broadcast errors upon manual pet spell cast failing.
-                if not casting_spell.is_pet_auto_cast:
-                    charmer_or_summoner.pet_manager.handle_cast_result(spell_id, error)
+                charmer_or_summoner.pet_manager.handle_cast_result(spell_id, error)
                 return
             
             data = pack('<QIB', self.caster.guid, spell_id, error)
