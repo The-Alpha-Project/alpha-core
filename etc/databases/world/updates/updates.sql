@@ -2175,6 +2175,18 @@ begin not atomic
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (46221, 4146, 0, 0, 0, 1, 10337.991, 2471.973, 1337.483, 4.219, 300, 300, 0, 100, 100, 0, 0, 0, 0);
         INSERT INTO `applied_updates` VALUES ('270420241');
+
+        -- Valyen Wolf Trainer
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4207) AND (`spawn_id` IN (400077));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (400077, 4207, 0, 0, 0, 1, 10238.249, 2459.261, 1327.635, 1.714, 120, 120, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Mistrunner, Valyen's Pet
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4245) AND (`spawn_id` IN (400116));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (400116, 4245, 0, 0, 0, 1, 10236.08, 2458.621, 1327.699, 1.806, 120, 120, 5, 100, 100, 0, 0, 0, 0);
+
+        insert into applied_updates values ('270420241');
     end if;
 end $
 delimiter ;
