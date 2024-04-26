@@ -2155,6 +2155,25 @@ begin not atomic
         -- Despawn non sense horde guard far behind the Camp Taurajo
         UPDATE  `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_entry1` = 3501) AND (`spawn_id` IN (19380));
 
+        -- Malygen, near First Aid Trainer
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 2803) AND (`spawn_id` IN (39067));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (39067, 2803, 0, 0, 0, 1, 10127.51, 2422.667, 1321.577, 4.299, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Jeen'ra Hunter Trainer
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4138) AND (`spawn_id` IN (46217));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46217, 4138, 0, 0, 0, 1, 10341.325, 2418.336, 1336.664, 2.619, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Nightshade, Jeen'ra's pet
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4243) AND (`spawn_id` IN (46811));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46811, 4243, 0, 0, 0, 1, 10340.028, 2416.647, 1336.664, 2.61, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Jocaste Hunter Trainer
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4146) AND (`spawn_id` IN (46221));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46221, 4146, 0, 0, 0, 1, 10337.991, 2471.973, 1337.483, 4.219, 300, 300, 0, 100, 100, 0, 0, 0, 0);
         INSERT INTO `applied_updates` VALUES ('270420241');
     end if;
 end $
