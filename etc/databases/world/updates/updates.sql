@@ -2139,12 +2139,12 @@ begin not atomic
         -- Darnassus Rogue Pet Trainer #1354 - Anishar
         DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4215) AND (`spawn_id` IN (46470));
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (46470, 4215, 0, 0, 0, 1, 9863.184, 2347.502, 1321.573, 4.302, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+        (46470, 4215, 0, 0, 0, 1, 9864.927, 2341.311, 1321.577, 4.302, 300, 300, 0, 100, 100, 0, 0, 0, 0);
 
         -- Darnassus Rogue Pet Trainer #1354 - Erion
         DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4214) AND (`spawn_id` IN (46469));
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (46469, 4214, 0, 0, 0, 1, 9864.543, 2335.039, 1321.583, 4.3, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+        (46469, 4214, 0, 0, 0, 1, 9864.960, 2341.935, 1331.882, 4.3, 300, 300, 0, 100, 100, 0, 0, 0, 0);
 
         -- Unlit Poor Torch #1277
         UPDATE `item_template` SET `display_id` = 2618 WHERE (`entry` = 6183);
