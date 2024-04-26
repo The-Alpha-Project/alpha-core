@@ -176,7 +176,8 @@ class SpellManager:
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
                 # Hide result since this cast can fail (Battle Stance already applied).
                 spell_cast = self.try_initialize_spell(spell_template, self.caster, 
-                                                       SpellTargetMask.SELF, triggered=True, hide_result=True)
+                                                       SpellTargetMask.SELF, 
+                                                       triggered=True, hide_result=True)
                 if not spell_cast:
                     continue
                 self.start_spell_cast(initialized_spell=spell_cast)
