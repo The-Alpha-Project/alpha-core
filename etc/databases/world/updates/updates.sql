@@ -2125,5 +2125,31 @@ begin not atomic
 
         insert into applied_updates values ('180420242');
     end if;
+
+    -- 27/04/2024 1
+    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='270420241') = 0 then
+        -- We apply Dwarf PH for the SW dwarf, at this point, they're most likely should use standard PH
+        UPDATE `creature_template` SET `display_id1` = 2584 WHERE `entry` IN (5413, 5384, 1472, 1416);
+
+        -- Darnassus Rogue Pet Trainer #1354 - Syurna 
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4163) AND (`spawn_id` IN (46312));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46312, 4163, 0, 0, 0, 1, 9839.778, 2334.644, 1314.257, 4.683, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Darnassus Rogue Pet Trainer #1354 - Anishar
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4215) AND (`spawn_id` IN (46470));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46470, 4215, 0, 0, 0, 1, 9863.184, 2347.502, 1321.573, 4.302, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Darnassus Rogue Pet Trainer #1354 - Erion
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4214) AND (`spawn_id` IN (46469));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46469, 4214, 0, 0, 0, 1, 9864.543, 2335.039, 1321.583, 4.3, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Unlit Poor Torch #1277
+        UPDATE `item_template` SET `display_id` = 2618 WHERE (`entry` = 6183);
+
+        INSERT INTO `applied_updates` VALUES ('270420241');
+    end if;
 end $
 delimiter ;

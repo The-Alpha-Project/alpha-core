@@ -272,11 +272,10 @@ class SpellManager:
 
     def try_initialize_spell(self, spell: Spell, spell_target, target_mask, source_item=None,
                              triggered=False, triggered_by_spell=None, hide_result=False,
-                             validate=True, creature_spell=None) -> Optional[CastingSpell]:
+                             validate=True, creature_spell=None, is_pet_auto_cast=False) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item=source_item,
                              triggered=triggered, triggered_by_spell=triggered_by_spell,
-                             hide_result=hide_result,
-                             creature_spell=creature_spell)
+                             hide_result=hide_result,creature_spell=creature_spell, is_pet_auto_cast=is_pet_auto_cast)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
@@ -1688,21 +1687,25 @@ class SpellManager:
             # Do not broadcast errors upon creature spell cast validate() failing.
             if spell_id not in self.casting_spells and casting_spell.creature_spell:
                 return
+            
+            charmer_or_summoner = self.caster.get_charmer_or_summoner()
+            is_pet = charmer_or_summoner != None
+            if is_pet:
+                # Only broadcast errors upon manual pet spell cast failing.
+                if not casting_spell.is_pet_auto_cast:
+                    charmer_or_summoner.pet_manager.handle_cast_result(spell_id, error)
+                return
+            
             data = pack('<QIB', self.caster.guid, spell_id, error)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
             self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
-        if not is_player:
-            charmer_or_summoner = self.caster.get_charmer_or_summoner()
-            if charmer_or_summoner:
-                charmer_or_summoner.pet_manager.handle_cast_result(spell_id, error)
-            return
-
         # Only players receive cast results.
-        if error == SpellCheckCastResult.SPELL_NO_ERROR:
-            data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
-        else:
-            data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error) if misc_data == -1 else \
-                   pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
+        if is_player:
+            if error == SpellCheckCastResult.SPELL_NO_ERROR:
+                data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
+            else:
+                data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error) if misc_data == -1 else \
+                    pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
 
-        self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
+            self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
