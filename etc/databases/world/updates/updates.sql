@@ -2150,7 +2150,7 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 2618 WHERE (`entry` = 6183);
 
         -- STV Rebel Camp, we have evidences for corporal and rebel using PH, we extrapolate for the rest
-        UPDATE `creature_template` SET `display_id1` = 459 WHERE `entry` IN (733, 734, 738, 754, 1422);
+        UPDATE `creature_template` SET `display_id1` = 173 WHERE `entry` IN (733, 734, 738, 754, 1422);
 
         INSERT INTO `applied_updates` VALUES ('270420241');
     end if;
