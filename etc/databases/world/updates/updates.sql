@@ -1973,6 +1973,25 @@ begin not atomic
         INSERT INTO `applied_updates` VALUES ('130320241');
     end if;
 
+    -- 31/12/2023 1
+    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='311220231') = 0 then
+        -- First, reset bonding for all weapons and armor.
+        update item_template set bonding = 0 where class in (2, 4);
+        -- Then, set all rings to unique.
+        update item_template set max_count = 1 where inventory_type = 11;
+        -- Set individual items to Bind on Equip where applicable.
+        -- Boss drops.
+        update item_template set bonding = 2 where entry in(6392, 5423, 1292, 5193, 6320, 5198, 5202, 5191, 2816, 5201, 3748, 1156, 6220, 888, 6318, 6324, 1155, 5426, 6321, 5194, 5192, 5196, 5197, 5199, 5195, 872, 6226, 6323, 3191, 6319, 3230, 6340, 6314, 3078);
+        -- Drops from instanced rare spawns. Separated for easier removal because I'm not sure the boss rule applies to them.
+        update item_template set bonding = 2 where entry in(5443, 2942, 3228, 2941);
+        -- Rare Crafting items.
+        update item_template set bonding = 2 where entry in(4262, 3844, 4327, 2870, 4320, 4253);
+        -- Lastly, set all rewards from dungeon quests to Bind on Pickup.
+        update item_template set bonding = 1 where entry in(4197, 4980, 6414, 2037, 2036, 2033, 2906, 3324, 1893, 2074, 2089, 6094, 4746, 6335, 4534, 3041, 4197, 6087, 2041, 2042, 3562, 1264, 3400, 1317);
+
+        INSERT INTO `applied_updates` VALUES ('311220231');
+    end if;
+
     -- 18/04/2024 1
 	if (select count(*) from applied_updates where id='180420241') = 0 then
         /*
@@ -2000,23 +2019,111 @@ begin not atomic
         insert into applied_updates values ('180420241');
     end if;
 
-    -- 31/12/2023 1
-    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='311220231') = 0 then
-        -- First, reset bonding for all weapons and armor.
-        update item_template set bonding = 0 where class in (2, 4);
-        -- Then, set all rings to unique.
-        update item_template set max_count = 1 where inventory_type = 11;
-        -- Set individual items to Bind on Equip where applicable.
-        -- Boss drops.
-        update item_template set bonding = 2 where entry in(6392, 5423, 1292, 5193, 6320, 5198, 5202, 5191, 2816, 5201, 3748, 1156, 6220, 888, 6318, 6324, 1155, 5426, 6321, 5194, 5192, 5196, 5197, 5199, 5195, 872, 6226, 6323, 3191, 6319, 3230, 6340, 6314, 3078);
-        -- Drops from instanced rare spawns. Separated for easier removal because I'm not sure the boss rule applies to them.
-        update item_template set bonding = 2 where entry in(5443, 2942, 3228, 2941);
-        -- Rare Crafting items.
-        update item_template set bonding = 2 where entry in(4262, 3844, 4327, 2870, 4320, 4253);
-        -- Lastly, set all rewards from dungeon quests to Bind on Pickup.
-        update item_template set bonding = 1 where entry in(4197, 4980, 6414, 2037, 2036, 2033, 2906, 3324, 1893, 2074, 2089, 6094, 4746, 6335, 4534, 3041, 4197, 6087, 2041, 2042, 3562, 1264, 3400, 1317);
+    -- 18/04/2024 2
+	if (select count(*) from applied_updates where id='180420242') = 0 then
+        -- augmented chain helm
+        UPDATE `item_template` SET `display_id` = 6823 WHERE (`entry` = 3891);
 
-        INSERT INTO `applied_updates` VALUES ('311220231');
+        -- goggles gem hunting
+        UPDATE `item_template` SET `display_id` = 7136 WHERE (`entry` = 4491);
+
+        -- imperial leather boots
+        UPDATE `item_template` SET `display_id` = 11653 WHERE (`entry` = 6431);
+
+        -- blackforge girdle
+        UPDATE `item_template` SET `display_id` = 3394 WHERE (`entry` = 6425);
+
+        -- glyphed helm
+        UPDATE `item_template` SET `display_id` = 4381 WHERE (`entry` = 6422);
+
+        -- glyphed mitts (? icon)
+        UPDATE `item_template` SET `display_id` = 10513 WHERE (`entry` = 6419);
+
+        -- glyphed boots (? icon)
+        UPDATE `item_template` SET `display_id` = 5354 WHERE (`entry` = 6420);
+
+        -- glyphed belt (? icon)
+        UPDATE `item_template` SET `display_id` = 10433 WHERE (`entry` = 6421);
+
+        -- brightweave robe (renamed to Aurora Robe for vanilla)
+        UPDATE `item_template` SET `display_id` = 11609 WHERE (`entry` = 6415);
+
+        -- brightweave boots (renamed to Aurora Boots for vanilla, ? icon)
+        UPDATE `item_template` SET `display_id` = 9488 WHERE (`entry` = 6416);
+
+        -- emblazoned chestpiece (? icon)
+        UPDATE `item_template` SET `display_id` = 6177 WHERE (`entry` = 6396);
+
+        -- glimmering mail coif
+        UPDATE `item_template` SET `display_id` = 11524 WHERE (`entry` = 6389);
+
+        -- infantery tunic
+        UPDATE `item_template` SET `display_id` = 1511 WHERE (`entry` = 6336);
+
+        -- tribal worg helm
+        UPDATE `item_template` SET `display_id` = 10537 WHERE (`entry` = 6204);
+
+        -- dark leather pants
+        UPDATE `item_template` SET `display_id` = 9523 WHERE (`entry` = 5961);
+
+        -- darkstalker boots (? icon)
+        UPDATE `item_template` SET `display_id` = 5522 WHERE (`entry` = 5821);
+
+        -- sunblaze coif
+        UPDATE `item_template` SET `display_id` = 9070 WHERE (`entry` = 5819);
+
+        -- barbaric harness
+        UPDATE `item_template` SET `display_id` = 10018 WHERE (`entry` = 5739);
+
+        -- circlet of the order
+        UPDATE `item_template` SET `display_id` = 3868 WHERE (`entry` = 5624);
+
+        -- living cowl
+        UPDATE `item_template` SET `display_id` = 8415 WHERE (`entry` = 5608);
+
+        -- boar hunter cap
+        UPDATE `item_template` SET `display_id` = 7547 WHERE (`entry` = 5314);
+
+        -- light scorpid armor (? icon)
+        UPDATE `item_template` SET `display_id` = 9265 WHERE (`entry` = 4929);
+
+        -- Demon scared cloak (display_id of 'deprecated demon scared')
+        UPDATE `item_template` SET `display_id` = 7086 WHERE (`entry` = 4854);
+
+        -- boulder pads (? icon)
+        UPDATE `item_template` SET `display_id` = 5496 WHERE (`entry` = 4810);
+
+        -- imperial leather belt
+        UPDATE `item_template` SET `display_id` = 11652 WHERE (`entry` = 4738);
+
+        -- mistscape sash (? icon)
+        UPDATE `item_template` SET `display_id` = 6062 WHERE (`entry` = 4736);
+
+        -- glyphed spaulders (? icon, renamed to glyphed epaulets for vanilla)
+        UPDATE `item_template` SET `display_id` = 11769 WHERE (`entry` = 4731);
+
+        -- humbert helm
+        UPDATE `item_template` SET `display_id` = 6769 WHERE (`entry` = 4724);
+
+        -- lapidis tankard
+        UPDATE `item_template` SET `display_id` = 6523 WHERE (`entry` = 4696);
+
+        -- ceremonial leather belt
+        UPDATE `item_template` SET `display_id` = 7746 WHERE (`entry` = 4693);
+
+        -- magister sash
+        UPDATE `item_template` SET `display_id` = 8328 WHERE (`entry` = 4684);
+
+        -- white drakeskin cap
+        UPDATE `item_template` SET `display_id` = 7528 WHERE (`entry` = 4543);
+
+        -- raptor hide harness
+        UPDATE `item_template` SET `display_id` = 7708 WHERE (`entry` = 4455);
+
+        -- phoenix gloves
+        UPDATE `item_template` SET `display_id` = 11041 WHERE (`entry` = 4331);
+
+        insert into applied_updates values ('180420242');
     end if;
 end $
 delimiter ;
