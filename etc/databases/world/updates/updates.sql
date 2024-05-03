@@ -2125,5 +2125,67 @@ begin not atomic
 
         insert into applied_updates values ('180420242');
     end if;
+
+    -- 27/04/2024 1
+    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='270420241') = 0 then
+        -- We apply Dwarf PH for the SW dwarf, at this point, they're most likely should use standard PH
+        UPDATE `creature_template` SET `display_id1` = 2584 WHERE `entry` IN (5413, 5384, 1472, 1416);
+
+        -- Darnassus Rogue Pet Trainer #1354 - Syurna 
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4163) AND (`spawn_id` IN (46312));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46312, 4163, 0, 0, 0, 1, 9839.778, 2334.644, 1314.257, 4.683, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Darnassus Rogue Pet Trainer #1354 - Anishar
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4215) AND (`spawn_id` IN (46470));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46470, 4215, 0, 0, 0, 1, 9864.927, 2341.311, 1321.577, 4.302, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Darnassus Rogue Pet Trainer #1354 - Erion
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4214) AND (`spawn_id` IN (46469));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46469, 4214, 0, 0, 0, 1, 9864.960, 2341.935, 1331.882, 4.3, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Unlit Poor Torch #1277
+        UPDATE `item_template` SET `display_id` = 2618 WHERE (`entry` = 6183);
+
+        -- STV Rebel Camp, we have evidences for corporal and rebel using PH, we extrapolate for the rest
+        UPDATE `creature_template` SET `display_id1` = 173 WHERE `entry` IN (733, 734, 738, 754, 1422);
+
+        -- Despawn non sense horde guard far behind the Camp Taurajo
+        UPDATE  `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_entry1` = 3501) AND (`spawn_id` IN (19380));
+
+        -- Malygen, near First Aid Trainer
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 2803) AND (`spawn_id` IN (39067));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (39067, 2803, 0, 0, 0, 1, 10127.51, 2422.667, 1321.577, 4.299, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Jeen'ra Hunter Trainer
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4138) AND (`spawn_id` IN (46217));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46217, 4138, 0, 0, 0, 1, 10341.325, 2418.336, 1336.664, 2.619, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Nightshade, Jeen'ra's pet
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4243) AND (`spawn_id` IN (46811));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46811, 4243, 0, 0, 0, 1, 10340.028, 2416.647, 1336.664, 2.61, 300, 300, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Jocaste Hunter Trainer
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4146) AND (`spawn_id` IN (46221));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (46221, 4146, 0, 0, 0, 1, 10337.991, 2471.973, 1337.483, 4.219, 300, 300, 0, 100, 100, 0, 0, 0, 0);
+
+        -- Valyen Wolf Trainer
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4207) AND (`spawn_id` IN (400077));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (400077, 4207, 0, 0, 0, 1, 10238.249, 2459.261, 1327.635, 1.714, 120, 120, 0, 100, 0, 0, 0, 0, 0);
+
+        -- Mistrunner, Valyen's Pet
+        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4245) AND (`spawn_id` IN (400116));
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (400116, 4245, 0, 0, 0, 1, 10236.08, 2458.621, 1327.699, 1.806, 120, 120, 5, 100, 100, 0, 0, 0, 0);
+
+        insert into applied_updates values ('270420241');
+    end if;
 end $
 delimiter ;
