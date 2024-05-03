@@ -175,8 +175,7 @@ class SpellManager:
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if spell_template and spell_template.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CAST_WHEN_LEARNED:
                 # Hide result since this cast can fail (Battle Stance already applied).
-                spell_cast = self.try_initialize_spell(spell_template, self.caster, 
-                                                       SpellTargetMask.SELF, 
+                spell_cast = self.try_initialize_spell(spell_template, self.caster, SpellTargetMask.SELF,
                                                        triggered=True, hide_result=True)
                 if not spell_cast:
                     continue
@@ -275,7 +274,7 @@ class SpellManager:
                              validate=True, creature_spell=None) -> Optional[CastingSpell]:
         spell = CastingSpell(spell, self.caster, spell_target, target_mask, source_item=source_item,
                              triggered=triggered, triggered_by_spell=triggered_by_spell,
-                             hide_result=hide_result,creature_spell=creature_spell)
+                             hide_result=hide_result, creature_spell=creature_spell)
         if not validate:
             return spell
         return spell if self.validate_cast(spell) else None
@@ -1689,8 +1688,7 @@ class SpellManager:
                 return
             
             charmer_or_summoner = self.caster.get_charmer_or_summoner()
-            is_pet = charmer_or_summoner != None
-            if is_pet:
+            if charmer_or_summoner:
                 charmer_or_summoner.pet_manager.handle_cast_result(spell_id, error)
                 return
             
@@ -1703,7 +1701,9 @@ class SpellManager:
             if error == SpellCheckCastResult.SPELL_NO_ERROR:
                 data = pack('<IB', spell_id, SpellCastStatus.CAST_SUCCESS)
             else:
-                data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error) if misc_data == -1 else \
-                    pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
+                if misc_data != -1:
+                    data = pack('<I2BI', spell_id, SpellCastStatus.CAST_FAILED, error, misc_data)
+                else:
+                    data = pack('<I2B', spell_id, SpellCastStatus.CAST_FAILED, error)
 
             self.caster.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_CAST_RESULT, data))
