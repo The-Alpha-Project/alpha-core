@@ -1,13 +1,13 @@
 version: '3.9'
 
-x-alpha-core-shared-conf: &alpha-core-shared-conf
+x-${PROJECT}-shared-conf: &shared-conf
   environment:
-    - TZ=Europe/London
-    - MYSQL_HOST=sql
-    - MYSQL_USERNAME=root
-    - MYSQL_PASSWORD=pwd
-    - CONSOLE_MODE=False
-    - FORWARD_ADDRESS_OVERRIDE=127.0.0.1
+    - TZ=${TIME_ZONE}
+    - MYSQL_HOST=${MYSQL_HOST}
+    - MYSQL_USERNAME=${MYSQL_USERNAME}
+    - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    - CONSOLE_MODE=${CONSOLE_MODE}
+    - FORWARD_ADDRESS_OVERRIDE=${FORWARD_ADDRESS_OVERRIDE}
   volumes:
     - .:/var/wow/
   restart: on-failure
@@ -16,75 +16,72 @@ x-alpha-core-shared-conf: &alpha-core-shared-conf
 
 services:
   main:
-    image: alpha-core:latest
-    container_name: alpha-core-main
-    build:
-      context: .
-      dockerfile: etc/docker/main/Dockerfile
+    image: ${PROJECT}:${OS_TAG}
+    container_name: ${PROJECT}
+    build: {context: ., dockerfile: etc/docker/main/Dockerfile}
     ports:
+      - "3443:3443"
+      - "7878:7878"
       - "8100:8100"
       - "9090:9090"
       - "9100:9100"
-    <<: *alpha-core-shared-conf
+    <<: *shared-conf
 
   world:
-    image: alpha-core:latest
-    container_name: alpha-core-world
-    build:
-      context: .
-      dockerfile: etc/docker/world/Dockerfile
+    image: ${PROJECT}-world:${OS_TAG}
+    container_name: ${PROJECT}-world
+    build: {context: ., dockerfile: etc/docker/world/Dockerfile}
     ports:
+      - "3443:3443"
+      - "7878:7878"
       - "8100:8100"
-    <<: *alpha-core-shared-conf
+    <<: *shared-conf
     profiles:
       - world
 
   realm:
-    image: alpha-core:latest
-    container_name: alpha-core-realm
-    build:
-      context: .
-      dockerfile: etc/docker/realm/Dockerfile
+    image: ${PROJECT}-realm:${OS_TAG}
+    container_name: ${PROJECT}-realm
+    build: {context: ., dockerfile: etc/docker/realm/Dockerfile}
     ports:
       - "9090:9090"
       - "9100:9100"
-    <<: *alpha-core-shared-conf
+    <<: *shared-conf
     profiles:
       - realm
 
   sql:
-    image: alpha-mariadb:latest
-    build: etc/docker/sql
+    image: ${PROJECT}-db:${DB_TAG}
+    container_name: ${PROJECT}-db
+    build: {context: ., dockerfile: etc/docker/sql/Dockerfile}
     environment:
       - MYSQL_ROOT_PASSWORD=pwd
     ports:
-      - "3306:3306"
+      - "3336:3306"
     volumes:
       - ./etc/databases/:/etc/databases/
     restart: on-failure
 
   phpmyadmin:
-    image: phpmyadmin
+    image: ${PHPAD_TAG}
     ports:
       - "8080:80"
     environment:
-      - PMA_HOST=sql
-      - PMA_USER=root
-      - PMA_PASSWORD=pwd
+      - PMA_HOST=${MYSQL_HOST}
+      - PMA_USER=${MYSQL_USERNAME}
+      - PMA_PASSWORD=${MYSQL_PASSWORD}
     restart: "no"
-    depends_on:
-      - sql
     profiles:
       - dev
 
   inotify:
-    image: alpha-inotify:latest
-    build: etc/docker/inotify
+    image: ${PROJECT}-inotify:${INO_TAG}
+    build: {context: ., dockerfile: etc/docker/inotify/Dockerfile}
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - .:/var/wow/
     environment:
-      - CONTAINER=alpha-core-main
+      - CONTAINER=${PROJECT}
       - VOLUMES=/var/wow
     restart: on-failure
     profiles:
@@ -92,4 +89,4 @@ services:
 
 networks:
   default:
-    name: alpha-core-network
+    name: ${PROJECT}-network
