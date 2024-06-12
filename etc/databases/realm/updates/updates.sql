@@ -204,7 +204,7 @@ begin not atomic
     end if;
 
     -- 12/06/2024 1
-	if (select count(*) from applied_updates where id='120620241') = 0 then
+    if (select count(*) from applied_updates where id='120620241') = 0 then
         -- Step 1: Rename the column `friend` to `other_guid`
         ALTER TABLE character_social
         CHANGE COLUMN `friend` `other_guid` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Friend Global Unique Identifier';

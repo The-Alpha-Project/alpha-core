@@ -145,10 +145,9 @@ class FriendsManager(object):
         self.send_ignores()
 
     def send_friends(self):
-        friends_list = [f for f in self.friends.values()]
-        data = pack('<B', len(friends_list))
+        data = pack('<B', len(self.friends))
 
-        for entry in friends_list:
+        for entry in self.friends.values():
             player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.other_guid)
             # If player is offline.
             if not player_mgr or not player_mgr.online:
@@ -163,10 +162,9 @@ class FriendsManager(object):
         self.owner.enqueue_packet(packet)
 
     def send_ignores(self):
-        ignore_list = [f for f in self.ignored.values()]
-        data = pack('<B', len(ignore_list))
+        data = pack('<B', len(self.ignored))
 
-        for entry in ignore_list:
+        for entry in self.ignored.values():
             data += pack('<Q', entry.other_guid)  # Ignored player guid.
 
         packet = PacketWriter.get_packet(OpCode.SMSG_IGNORE_LIST, data)
