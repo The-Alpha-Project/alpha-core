@@ -225,6 +225,18 @@ begin not atomic
         ALTER TABLE character_social
         ADD CONSTRAINT `social_oth` FOREIGN KEY (`other_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
+        -- Add the `other_guid` key with the name `other_guid`
+        ALTER TABLE `character_social` ADD KEY `other_guid` (`other_guid`);
+
+        -- Drop the existing `friend` key
+        ALTER TABLE `character_social` DROP KEY `friend`;
+
+        -- Add `ignore` as another key
+        ALTER TABLE `character_social` ADD KEY `ignore` (`ignore`);
+
+        -- Change the comment for the `ignore` column
+        ALTER TABLE `character_social` MODIFY `ignore` tinyint(1) unsigned NOT NULL DEFAULT 0 COMMENT 'Whether player is a friend(0) or ignore(1)';
+
         insert into applied_updates values ('120620241');
     end if;
 
