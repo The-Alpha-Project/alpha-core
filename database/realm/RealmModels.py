@@ -147,7 +147,7 @@ class CharacterSocial(Base):
 
     guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"), comment='Character Global Unique Identifier')
     other_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"), comment='Friend Global Unique Identifier')
-    ignore = Column(TINYINT(1), primary_key=True, nullable=False, server_default=text("0"), comment='Friend Flags')
+    ignore = Column(TINYINT(1), primary_key=True, nullable=False, index=True, server_default=text("0"), comment='Friend Flags')
 
     character_owner = relationship('Character', primaryjoin='CharacterSocial.guid == Character.guid')
     character_other = relationship('Character', primaryjoin='CharacterSocial.other_guid == Character.guid')
