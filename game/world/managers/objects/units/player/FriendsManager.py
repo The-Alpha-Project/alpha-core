@@ -204,10 +204,8 @@ class FriendsManager(object):
     def _send_friend_notification_packet(self, packet_to_send):
         for player_social in RealmDatabaseManager.character_get_friends_of(self.owner.guid):
             player_mgr = WorldSessionStateHandler.find_player_by_guid(player_social.guid)
-            if not player_mgr:
-                continue
-
-            player_mgr.enqueue_packet(packet_to_send)
+            if player_mgr:
+                player_mgr.enqueue_packet(packet_to_send)
 
     def send_online_notification(self):
         self._send_friend_notification_packet(self._get_online_notification_packet())
