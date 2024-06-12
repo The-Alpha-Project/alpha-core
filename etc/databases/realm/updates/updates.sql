@@ -225,11 +225,12 @@ begin not atomic
         ALTER TABLE character_social
         ADD CONSTRAINT `social_oth` FOREIGN KEY (`other_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-        -- Add the `other_guid` key with the name `other_guid`
-        ALTER TABLE `character_social` ADD KEY `other_guid` (`other_guid`);
-
+        SET FOREIGN_KEY_CHECKS=0;
         -- Drop the existing `friend` key
         ALTER TABLE `character_social` DROP KEY `friend`;
+        -- Add the `other_guid` key with the name `other_guid`
+        ALTER TABLE `character_social` ADD KEY `other_guid` (`other_guid`);
+        SET FOREIGN_KEY_CHECKS=1;
 
         -- Add `ignore` as another key
         ALTER TABLE `character_social` ADD KEY `ignore` (`ignore`);
