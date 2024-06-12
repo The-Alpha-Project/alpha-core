@@ -180,12 +180,6 @@ class FriendsManager(object):
         packet = PacketWriter.get_packet(OpCode.SMSG_IGNORE_LIST, data)
         self.owner.enqueue_packet(packet)
 
-    def send_online_notification(self):
-        have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
-        packet = self._get_online_notification_packet()
-        [player.enqueue_packet(packet) for player in have_me_as_friend
-         if WorldSessionStateHandler.find_player_by_guid(player.guid)]
-
     def _get_online_notification_packet(self):
         data = pack(
             '<BQB3I',
@@ -198,12 +192,6 @@ class FriendsManager(object):
         )
         return PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
 
-    def send_offline_notification(self):
-        have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
-        packet = self._get_offline_notification_packet()
-        [player.enqueue_packet(packet) for player in have_me_as_friend
-         if WorldSessionStateHandler.find_player_by_guid(player.guid)]
-
     def _get_offline_notification_packet(self):
         data = pack(
             '<BQB',
@@ -212,6 +200,20 @@ class FriendsManager(object):
             FriendStatus.FRIEND_STATUS_OFFLINE
         )
         return PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data)
+
+    def _send_friend_notification_packet(self, packet_to_send):
+        for player_social in RealmDatabaseManager.character_get_friends_of(self.owner.guid):
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(player_social.guid)
+            if not player_mgr:
+                continue
+
+            player_mgr.enqueue_packet(packet_to_send)
+
+    def send_online_notification(self):
+        self._send_friend_notification_packet(self._get_online_notification_packet())
+
+    def send_offline_notification(self):
+        self._send_friend_notification_packet(self._get_offline_notification_packet())
 
     def send_update_to_friends(self):
         have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
