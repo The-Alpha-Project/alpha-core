@@ -203,5 +203,30 @@ begin not atomic
         insert into applied_updates values ('180620231');
     end if;
 
+    -- 12/06/2024 1
+	if (select count(*) from applied_updates where id='120620241') = 0 then
+        -- Step 1: Rename the column `friend` to `other_guid`
+        ALTER TABLE character_social
+        CHANGE COLUMN `friend` `other_guid` int(11) unsigned NOT NULL DEFAULT 0 COMMENT 'Friend Global Unique Identifier';
+
+        -- Step 2: Drop the existing primary key
+        ALTER TABLE character_social
+        DROP PRIMARY KEY;
+
+        -- Step 3: Add the new primary key including `guid`, `other_guid`, and `ignore`
+        ALTER TABLE character_social
+        ADD PRIMARY KEY (`guid`, `other_guid`, `ignore`);
+
+        -- Step 4: Drop the existing foreign key constraint for `friend`
+        ALTER TABLE character_social
+        DROP FOREIGN KEY `social_frn`;
+
+        -- Step 5: Add a new foreign key constraint for `other_guid`
+        ALTER TABLE character_social
+        ADD CONSTRAINT `social_oth` FOREIGN KEY (`other_guid`) REFERENCES `characters` (`guid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+        insert into applied_updates values ('120620241');
+    end if;
+
 end $
 delimiter ;

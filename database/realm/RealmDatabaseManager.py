@@ -299,7 +299,7 @@ class RealmDatabaseManager(object):
     @staticmethod
     def character_get_friends_of(guid):
         realm_db_session = SessionHolder()
-        character_social = realm_db_session.query(CharacterSocial).filter_by(friend=guid).all()
+        character_social = realm_db_session.query(CharacterSocial).filter_by(other_guid=guid, ignore=0).all()
         realm_db_session.close()
         return character_social if character_social else []
 
@@ -313,7 +313,7 @@ class RealmDatabaseManager(object):
             realm_db_session.close()
 
     @staticmethod
-    def character_add_friend(character_social):
+    def character_add_social(character_social):
         if character_social:
             realm_db_session = SessionHolder()
             realm_db_session.add(character_social)
@@ -324,7 +324,7 @@ class RealmDatabaseManager(object):
             return character_social
 
     @staticmethod
-    def character_social_delete_friend(character_social):
+    def character_social_delete_social(character_social):
         if character_social:
             realm_db_session = SessionHolder()
             realm_db_session.delete(character_social)

@@ -146,11 +146,11 @@ class CharacterSocial(Base):
     __tablename__ = 'character_social'
 
     guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"), comment='Character Global Unique Identifier')
-    friend = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"), comment='Friend Global Unique Identifier')
-    ignore = Column(TINYINT(1), nullable=False, server_default=text("0"), comment='Friend Flags')
+    other_guid = Column(ForeignKey('characters.guid', ondelete='CASCADE', onupdate='CASCADE'), primary_key=True, nullable=False, index=True, server_default=text("0"), comment='Friend Global Unique Identifier')
+    ignore = Column(TINYINT(1), primary_key=True, nullable=False, server_default=text("0"), comment='Friend Flags')
 
-    character_friend = relationship('Character', primaryjoin='CharacterSocial.friend == Character.guid')
-    character_ignore = relationship('Character', primaryjoin='CharacterSocial.guid == Character.guid')
+    character_owner = relationship('Character', primaryjoin='CharacterSocial.guid == Character.guid')
+    character_other = relationship('Character', primaryjoin='CharacterSocial.other_guid == Character.guid')
 
 
 class CharacterSpellCooldown(Base):

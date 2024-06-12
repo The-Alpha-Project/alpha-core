@@ -18,11 +18,15 @@ class FriendsManager(object):
     def __init__(self, owner):
         self.owner = owner
         self.friends: dict[int, CharacterSocial] = {}
+        self.ignored: dict[int, CharacterSocial] = {}
 
     def load_from_db(self, character_social_list):
         if character_social_list:
             for entry in character_social_list:
-                self.friends[entry.friend] = entry
+                if entry.ignore:
+                    self.friends[entry.other_guid] = entry
+                else:
+                    self.ignored[entry.other_guid] = entry
 
     def try_add_friend(self, target_name):
         online_player = WorldSessionStateHandler.find_player_by_name(target_name)
@@ -56,29 +60,23 @@ class FriendsManager(object):
 
             # No error, proceed to add friend to the list.
             if status == FriendResults.FRIEND_ADDED_ONLINE or status == FriendResults.FRIEND_ADDED_OFFLINE:
-                if self.has_ignore(target_guid):
-                    self.friends[target_guid].ignore = False
-                    RealmDatabaseManager.character_update_social(self.friends[target_guid])
-                    data = pack('<BQ', FriendResults.FRIEND_IGNORE_REMOVED, target_guid)
-                    self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
-                else:
-                    self.friends[target_guid] = self._create_friend(target_guid)
-                    RealmDatabaseManager.character_add_friend(self.friends[target_guid])
+                self.friends[target_guid] = self._create_social(target_guid)
+                RealmDatabaseManager.character_add_social(self.friends[target_guid])
 
         data = pack('<BQ', status, target_guid)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
 
-    def _create_friend(self, player_guid, ignored=False):
-        friend = CharacterSocial()
-        friend.guid = self.owner.guid
-        friend.friend = player_guid
-        friend.ignore = ignored
-        return friend
+    def _create_social(self, player_guid, ignored=False):
+        character_social = CharacterSocial()
+        character_social.guid = self.owner.guid
+        character_social.other_guid = player_guid
+        character_social.ignore = ignored
+        return character_social
 
     def remove_friend(self, player_guid):
         if self.has_friend(player_guid):
             status = FriendResults.FRIEND_REMOVED
-            RealmDatabaseManager.character_social_delete_friend(self.friends[player_guid])
+            RealmDatabaseManager.character_social_delete_social(self.friends[player_guid])
             self.friends.pop(player_guid)
         else:
             status = FriendResults.FRIEND_NOT_FOUND
@@ -89,8 +87,8 @@ class FriendsManager(object):
     def remove_ignore(self, player_guid):
         if self.has_ignore(player_guid):
             status = FriendResults.FRIEND_IGNORE_REMOVED
-            RealmDatabaseManager.character_social_delete_friend(self.friends[player_guid])
-            self.friends.pop(player_guid)
+            RealmDatabaseManager.character_social_delete_social(self.ignored[player_guid])
+            self.ignored.pop(player_guid)
         else:
             status = FriendResults.FRIEND_IGNORE_NOT_FOUND
 
@@ -98,16 +96,16 @@ class FriendsManager(object):
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
 
     def count_friends(self):
-        return len([friend for friend in self.friends.values() if friend.ignore == 0])
+        return len(self.friends)
 
     def count_ignored(self):
-        return len([friend for friend in self.friends.values() if friend.ignore > 0])
+        return len(self.ignored)
 
     def has_friend(self, player_guid):
-        return player_guid in self.friends and self.friends[player_guid].ignore == 0
+        return player_guid in self.friends
 
     def has_ignore(self, player_guid):
-        return player_guid in self.friends and self.friends[player_guid].ignore > 0
+        return player_guid in self.ignored
 
     # TODO: Ignore also affects duel
     def try_add_ignore(self, target_name):
@@ -136,14 +134,8 @@ class FriendsManager(object):
 
             # No error, proceed to add ignored player to the list.
             if status == FriendResults.FRIEND_IGNORE_ADDED:
-                if self.has_friend(target_guid):
-                    self.friends[target_guid].ignore = True
-                    RealmDatabaseManager.character_update_social(self.friends[target_guid])
-                    data = pack('<BQ', FriendResults.FRIEND_REMOVED, target_guid)
-                    self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
-                else:
-                    self.friends[target_guid] = self._create_friend(target_guid, ignored=True)
-                    RealmDatabaseManager.character_add_friend(self.friends[target_guid])
+                self.ignored[target_guid] = self._create_social(target_guid, ignored=True)
+                RealmDatabaseManager.character_add_social(self.ignored[target_guid])
 
         data = pack('<BQ', status, target_guid)
         self.owner.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_FRIEND_STATUS, data))
@@ -153,14 +145,14 @@ class FriendsManager(object):
         self.send_ignores()
 
     def send_friends(self):
-        friends_list = [f for f in self.friends.values() if f.ignore == 0]
+        friends_list = [f for f in self.friends.values()]
         data = pack('<B', len(friends_list))
 
         for entry in friends_list:
-            player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.friend)
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(entry.other_guid)
             # If player is offline.
             if not player_mgr or not player_mgr.online:
-                data += pack('QB', entry.friend, FriendStatus.FRIEND_STATUS_OFFLINE)
+                data += pack('QB', entry.other_guid, FriendStatus.FRIEND_STATUS_OFFLINE)
                 continue
             # If player is online.
             self.owner.enqueue_packet(NameQueryHandler.get_query_details(player_mgr.player))
@@ -171,11 +163,11 @@ class FriendsManager(object):
         self.owner.enqueue_packet(packet)
 
     def send_ignores(self):
-        ignore_list = [f for f in self.friends.values() if f.ignore > 0]
+        ignore_list = [f for f in self.ignored.values()]
         data = pack('<B', len(ignore_list))
 
         for entry in ignore_list:
-            data += pack('<Q', entry.friend)  # Ignored player guid.
+            data += pack('<Q', entry.other_guid)  # Ignored player guid.
 
         packet = PacketWriter.get_packet(OpCode.SMSG_IGNORE_LIST, data)
         self.owner.enqueue_packet(packet)
@@ -214,6 +206,7 @@ class FriendsManager(object):
         self._send_friend_notification_packet(self._get_offline_notification_packet())
 
     def send_update_to_friends(self):
-        have_me_as_friend = RealmDatabaseManager.character_get_friends_of(self.owner.guid)
-        online = [player for player in have_me_as_friend if WorldSessionStateHandler.find_player_by_guid(player.guid)]
-        [player.friends_manager.send_friends() for player in online]
+        for player_social in RealmDatabaseManager.character_get_friends_of(self.owner.guid):
+            player_mgr = WorldSessionStateHandler.find_player_by_guid(player_social.guid)
+            if player_mgr:
+                player_mgr.friends_manager.send_friends()
