@@ -968,7 +968,7 @@ class ScriptHandler:
         _target = None
         if ConditionChecker.is_player(command.source):
             _target = command.source
-        elif command.target and ConditionChecker.is_player(command.target):
+        elif ConditionChecker.is_player(command.target):
             _target = command.target
 
         if result:
@@ -1110,7 +1110,7 @@ class ScriptHandler:
     def handle_script_command_set_combat_movement(command):
         # source = Creature
         # datalong = (bool) 0 = off, 1 = on
-        if not command.source or not ConditionChecker.is_creature(command.source):
+        if not ConditionChecker.is_creature(command.source):
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
             return command.should_abort()
 
@@ -1266,7 +1266,7 @@ class ScriptHandler:
         # source = Unit
         # datalong = spell_id
         # datalong2 = cooldown in seconds
-        if not command.source or not ConditionChecker.is_unit(command.source):
+        if not ConditionChecker.is_unit(command.source):
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
             return command.should_abort()
 
@@ -1282,7 +1282,7 @@ class ScriptHandler:
     def handle_script_command_remove_spell_cooldown(command):
         # source = Unit
         # datalong = spell_id
-        if not command.source or not ConditionChecker.is_unit(command.source):
+        if not ConditionChecker.is_unit(command.source):
             Logger.warning(f'ScriptHandler: Invalid source, aborting {command.get_info()}.')
             return command.should_abort()
 
@@ -1577,7 +1577,7 @@ class ScriptHandler:
     @staticmethod
     def handle_script_command_leave_creature_group(command):
         # source = Creature
-        if not command.source or not ConditionChecker.is_creature(command.source):
+        if not ConditionChecker.is_creature(command.source):
             Logger.warning(f'ScriptHandler: No or invalid target (must be creature), aborting {command.get_info()}')
             return command.should_abort()
 
@@ -1622,7 +1622,7 @@ class ScriptHandler:
     @staticmethod
     def handle_script_command_reset_door_or_button(command):
         # source = GameObject
-        if not command.source or not ConditionChecker.is_gameobject(command.source):
+        if not ConditionChecker.is_gameobject(command.source):
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return command.should_abort()
 
