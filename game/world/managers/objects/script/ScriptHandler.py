@@ -1483,10 +1483,15 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_command_fail_quest(command):
-        # source = Player
+        # source = Unit
+        # target = Unit
         # datalong = quest_id
-        if command.source:
+        if command.source and ConditionChecker.is_player(command.source):
             command.source.quest_manager.fail_quest_by_id(command.datalong)
+            return False
+
+        if command.target and ConditionChecker.is_player(command.target):
+            command.target.quest_manager.fail_quest_by_id(command.datalong)
             return False
 
         Logger.warning('ScriptHandler: handle_script_command_fail_quest failed, no valid target')
