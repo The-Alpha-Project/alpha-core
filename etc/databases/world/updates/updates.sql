@@ -2332,5 +2332,13 @@ begin not atomic
 
         insert into `applied_updates` values ('140620241');
     end if;
+
+    -- 21/06/2024 1
+	if (select count(*) from applied_updates where id='210620241') = 0 then
+        -- Make Sorcerer Ashcrombe use same static flags as Deathstalker Adamant.
+        UPDATE creature_template SET static_flags = 0x400040 WHERE entry = 3850;
+
+        insert into applied_updates values ('210620241');
+    end if;
 end $
 delimiter ;
