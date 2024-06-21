@@ -76,9 +76,9 @@ class CreatureGroupManager:
         self.remove_member(creature_mgr)
 
     def on_leave_combat(self, creature_mgr):
-        leader_evade = creature_mgr.guid == self.leader.guid
         if self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_ANY_EVADE or \
-                (self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_MASTER_EVADE and leader_evade):
+                (self.group_flags & CreatureGroupFlags.OPTION_RESPAWN_ALL_ON_MASTER_EVADE
+                 and self.is_leader(creature_mgr)):
             for guid, member in self.members.items():
                 member.creature.despawn()
             self.disband()
