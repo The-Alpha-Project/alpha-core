@@ -150,7 +150,7 @@ class PlayerManager(UnitManager):
             # GM checks
             self.is_god = False
             if self.session.account_mgr.is_gm():
-                self.set_gm()
+                self.set_gm_tag()
 
             # Update exploration data.
             if self.player.explored_areas and len(self.player.explored_areas) > 0:
@@ -230,13 +230,16 @@ class PlayerManager(UnitManager):
 
         self.team = PlayerManager.get_team_for_race(self.race)
 
-    def set_gm(self, on=True):
+    def set_gm_tag(self, on=True, reload=False):
         if on:
             self.player.extra_flags |= PlayerFlags.PLAYER_FLAGS_GM
             self.chat_flags |= ChatFlags.CHAT_TAG_GM
         else:
             self.player.extra_flags &= ~PlayerFlags.PLAYER_FLAGS_GM
             self.chat_flags &= ~ChatFlags.CHAT_TAG_GM
+
+        if reload:
+            self.set_uint32(PlayerFields.PLAYER_BYTES_2, self.get_player_bytes_2())
 
     def set_player_to_deathbind_location(self):
         self.map_id = self.deathbind.deathbind_map
