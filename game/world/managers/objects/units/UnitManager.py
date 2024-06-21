@@ -264,7 +264,7 @@ class UnitManager(ObjectManager):
                 return False
             if target.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
                 return False
-            if self.get_type_id() == ObjectTypeIds.ID_UNIT and self.static_flags & UnitFlags.UNIT_FLAG_PASSIVE:
+            if self.get_type_id() == ObjectTypeIds.ID_UNIT and self.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
                 return False
 
         # Always short circuit on charmer/summoner relationship.
