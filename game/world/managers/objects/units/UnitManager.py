@@ -239,9 +239,33 @@ class UnitManager(ObjectManager):
         if not target or target is self:
             return False
 
+        if not target.is_alive:
+            return False
+
         is_enemy = super().can_attack_target(target)
         if is_enemy:
             return True
+
+        # Sanctuary.
+        if target.unit_state & UnitStates.SANCTUARY:
+            return False
+
+        # Flight.
+        if target.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+            return False
+
+        # Player only checks.
+        if self.get_type_id() == ObjectTypeIds.ID_PLAYER or self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
+            if target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
+                return False
+        # Creature only checks.
+        elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
+            if not target.is_spawned:
+                return False
+            if target.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
+                return False
+            if self.get_type_id() == ObjectTypeIds.ID_UNIT and self.static_flags & UnitFlags.UNIT_FLAG_PASSIVE:
+                return False
 
         # Always short circuit on charmer/summoner relationship.
         charmer = self.get_charmer_or_summoner()

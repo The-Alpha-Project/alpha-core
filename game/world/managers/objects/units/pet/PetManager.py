@@ -4,7 +4,6 @@ from typing import Optional
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.realm.RealmDatabaseManager import RealmDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from database.world.WorldModels import CreatureTemplate
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager

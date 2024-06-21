@@ -71,7 +71,7 @@ class CreatureManager(UnitManager):
         self.loot_manager = None
         self.pickpocket_loot_manager = None
 
-        # # All creatures can block, parry and dodge by default.
+        # All creatures can block, parry and dodge by default.
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
@@ -109,6 +109,14 @@ class CreatureManager(UnitManager):
             self.react_state = CreatureReactStates.REACT_DEFENSIVE
         else:
             self.react_state = CreatureReactStates.REACT_AGGRESSIVE
+
+        # NPC can't be attacked by other NPCs and can't attack other NPCs.
+        if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_NPC:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_PASSIVE
+
+        # NPC is immune to player characters.
+        if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_PLAYER:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC
 
         self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False

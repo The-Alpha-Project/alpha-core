@@ -10,7 +10,7 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellImmunity
-from utils.constants.UnitCodes import UnitReaction, UnitFlags, UnitStates, CreatureStaticFlags
+from utils.constants.UnitCodes import UnitReaction
 from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
 
@@ -452,30 +452,6 @@ class ObjectManager:
 
         # You can only attack units, not gameobjects.
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            return False
-
-        # Sanctuary.
-        if target.unit_state & UnitStates.SANCTUARY:
-            return False
-
-        # Flight.
-        if target.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
-            return False
-
-        if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
-                target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
-            return False
-
-        # Creature only checks.
-        elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
-            if not target.is_spawned:
-                return False
-            if target.static_flags & CreatureStaticFlags.IMMUNE_NPC:
-                return False
-            if self.get_type_id() == ObjectTypeIds.ID_UNIT and self.static_flags & CreatureStaticFlags.IMMUNE_NPC:
-                return False
-
-        if not target.is_alive:
             return False
 
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE
