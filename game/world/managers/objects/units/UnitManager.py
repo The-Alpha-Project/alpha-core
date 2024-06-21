@@ -239,6 +239,9 @@ class UnitManager(ObjectManager):
         if not target or target is self:
             return False
 
+        if not target.initialized or not self.initialized:
+            return False
+
         if not target.is_alive:
             return False
 

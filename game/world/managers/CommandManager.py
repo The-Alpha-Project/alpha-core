@@ -730,6 +730,8 @@ class CommandManager(object):
                       f'Entry: {creature.creature_template.entry}\n' \
                       f'Display ID: {creature.current_display_id}\n' \
                       f'Faction: {creature.faction}\n' \
+                      f'Unit Flags: {hex(creature.creature_template.unit_flags)}\n' \
+                      f'Static Flags: {hex(creature.creature_template.static_flags)}\n' \
                       f'X: {creature.location.x}, ' \
                       f'Y: {creature.location.y}, ' \
                       f'Z: {creature.location.z}, ' \

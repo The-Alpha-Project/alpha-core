@@ -444,10 +444,7 @@ class ObjectManager:
         return False
 
     def can_attack_target(self, target):
-        if not target:
-            return False
-
-        if target is self:
+        if not target or target is self:
             return False
 
         # You can only attack units, not gameobjects.
