@@ -381,7 +381,7 @@ class GameObjectManager(ObjectManager):
 
     # override
     def generate_create_packets(self, requester):
-        packets = super().generate_create_packets(requester)
+        packets = [super().generate_create_packet(requester)]
 
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR and \
                 self.state != GameObjectStates.GO_STATE_READY:

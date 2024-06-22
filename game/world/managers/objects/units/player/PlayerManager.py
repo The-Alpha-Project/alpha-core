@@ -277,7 +277,7 @@ class PlayerManager(UnitManager):
         # Initial inventory create packets.
         self.enqueue_packets(self.inventory.get_inventory_update_packets(self))
         # Player create packet.
-        self.enqueue_packets(self.generate_create_packets(requester=self))
+        self.enqueue_packet(self.generate_create_packet(requester=self))
 
         # Load & Apply enchantments.
         self.enchantment_manager.apply_enchantments(load=True)
@@ -479,7 +479,7 @@ class PlayerManager(UnitManager):
         active_objects[dynobject.guid] = dynobject
         if dynobject.guid not in self.known_objects or not self.known_objects[dynobject.guid]:
             if dynobject.is_spawned:
-                self.enqueue_packets(dynobject.generate_create_packets(requester=self))
+                self.enqueue_packet(dynobject.generate_create_packet(requester=self))
                 # We only consider 'known' if its spawned, the details query is still sent.
                 self.known_objects[dynobject.guid] = dynobject
         # Player knows the dynamic object but is not spawned anymore, destroy it for self.
@@ -516,7 +516,7 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature))
             if not creature.is_spawned:
                 return
-            self.enqueue_packets(creature.generate_create_packets(requester=self))
+            self.enqueue_packet(creature.generate_create_packet(requester=self))
             # Get partial movement packet if any.
             movement_packet = creature.movement_manager.try_build_movement_packet()
             if movement_packet:
@@ -535,7 +535,7 @@ class PlayerManager(UnitManager):
         active_objects[corpse.guid] = corpse
         if corpse.guid not in self.known_objects or not self.known_objects[corpse.guid]:
             # Create packet.
-            self.enqueue_packets(corpse.generate_create_packets(requester=self))
+            self.enqueue_packet(corpse.generate_create_packet(requester=self))
         self.known_objects[corpse.guid] = corpse
 
     def _update_known_player(self, player_mgr, active_objects: dict):
@@ -556,7 +556,7 @@ class PlayerManager(UnitManager):
             # Retrieve their inventory updates.
             self.enqueue_packets(player_mgr.inventory.get_inventory_update_packets(self))
             # Create packet.
-            self.enqueue_packets(player_mgr.generate_create_packets(requester=self))
+            self.enqueue_packet(player_mgr.generate_create_packet(requester=self))
             # Get partial movement packet if any.
             movement_packet = player_mgr.movement_manager.try_build_movement_packet()
             if movement_packet:
@@ -747,7 +747,7 @@ class PlayerManager(UnitManager):
             # Reset move flags before create packet in order to avoid player starting automatically moving after tele.
             self.movement_flags = MoveFlags.MOVEFLAG_NONE
             # Create packet.
-            self.enqueue_packets(self.generate_create_packets(requester=self))
+            self.enqueue_packet(self.generate_create_packet(requester=self))
             # Apply enchantments again.
             self.enchantment_manager.apply_enchantments()
             # Apply stat bonuses again.

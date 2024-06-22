@@ -92,10 +92,13 @@ class ObjectManager:
     def has_pending_updates(self):
         return self.update_packet_factory.has_pending_updates()
 
-    def generate_create_packets(self, requester):
-        return [UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+    def generate_create_packet(self, requester):
+        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
-            self.get_object_create_bytes(requester)))]
+            self.get_object_create_bytes(requester)))
+
+    def generate_create_packets(self, requester):
+        return [self.generate_create_packet(requester)]
 
     def generate_partial_packet(self, requester):
         if not self.initialized:
