@@ -58,8 +58,8 @@ class CreatureManager(UnitManager):
         self.ranged_attack_time = 0
         self.dmg_min = 0
         self.dmg_max = 0
-        self.destroy_time = 0
-        self.destroy_timer = 420  # Standalone instances, destroyed after 7 minutes.
+        self.destroy_time = 420  # Standalone instances, destroyed after 7 minutes.
+        self.destroy_timer = 0
         self.virtual_item_info = {}
         self.wander_distance = 0
         self.movement_type = MovementTypes.IDLE
