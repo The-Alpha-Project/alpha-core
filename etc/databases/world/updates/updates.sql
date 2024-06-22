@@ -2333,8 +2333,133 @@ begin not atomic
         insert into `applied_updates` values ('140620241');
     end if;
 
+    -- 21/06/2024 1
+	if (select count(*) from applied_updates where id='210620241') = 0 then
+        -- Make Sorcerer Ashcrombe use same static flags as Deathstalker Adamant.
+        UPDATE creature_template SET static_flags = 0x400040 WHERE entry = 3850;
+
+        insert into applied_updates values ('210620241');
+    end if;
+
     -- 22/06/2024 1
-    if (select count(*) from `applied_updates` where id='220620241') = 0 then
+	if (select count(*) from applied_updates where id='220620241') = 0 then
+
+        -- Mottled Riptooth update based on Mottled Scytheclaw #1360
+        UPDATE `creature_template` SET `subname` = '', `level_min` = 27, `level_max` = 28, `faction` = 48, `beast_family` = 11, `type_flags` = 1, `loot_id` = 1022, `skinning_loot_id` = 1022 WHERE (`entry` = 1066);
+
+        -- Mottled Riptooth SPAWNS #1360
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3431.544,    -1721.19,       61.617,         2.342,                300,                300,                 5,              100,              0,                1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3467.037,    -1691.383,       63.690,         4.342,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3504.158,    -1771.97,        17.469,         5.342,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3495.513,    -1826.39,        17.187,         4.447,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3486.829,    -1852.667,       17.329,         0.742,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3500.462,    -1746.789,       23.731,         4.742,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3360.850,    -1835.442,       17.845,         2.886,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3384.544,    -1802.19,       16.241,          5.242,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3443.216,    -1782.717,       17.247,         2.501,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
+        (                                        0,           1066,              0,              0,              0,     0,    -3514.737,    -1896.171,       25.782,         0.361,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+
+        -- Murloc Streamrunner #1361
+        UPDATE `creature_template` SET `display_id1` = 617 WHERE (`entry` = 735);
+
+        -- Galthuk #1335
+        UPDATE `creature_template` SET `subname` = 'Bear Trainer' WHERE (`entry` = 4043);
+
+        insert into applied_updates values ('220620241');
+    end if;
+
+    -- 22/06/2024 2
+	if (select count(*) from applied_updates where id='220620242') = 0 then
+        DELETE FROM `gameobject_scripts` WHERE `id`=34006;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (34006, 0, 0, 11, 33219, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lever - Open Sourcerer Ashcrombe Cell'),
+        (34006, 2, 0, 39, 301, 0, 0, 0, 3850, 30, 8, 2, 100, 0, 0, 0, 0, 0, 0, 0, 3, 'Lever - Start Sorcerer Ashcrombe Script');
+
+        DELETE FROM `generic_scripts` WHERE `id`=301;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (301, 0, 0, 4, 147, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Remove Gossip Flag'),
+        (301, 0, 0, 60, 3, 0, 4000, 0, 0, 0, 0, 0, 1, 3850, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Start Waypoints'),
+        (301, 0, 0, 4, 46, 512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Add Passive Flag'),
+        (301, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1331, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=385012;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (385012, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1332, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text 1'),
+        (385012, 0, 0, 15, 6421, 5, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Cast Spell Ashcrombe\'s Unlock'),
+        (385012, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1334, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text 2'),
+        (385012, 5, 0, 11, 20835, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Open Courtyard Door'),
+        (385012, 5, 0, 37, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Set Instance Data'),
+        (385012, 10, 0, 15, 6422, 5, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Cast Spell Ashcrombe\'s Teleport'),
+        (385012, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1343, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text 3 (Emoted)'),
+        (385012, 12, 0, 18, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Despawn');
+
+        DELETE FROM `gameobject_scripts` WHERE `id`=32442;
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (32442, 0, 0, 11, 32445, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lever - Open Deathstalker Adamant Cell'),
+        (32442, 2, 0, 39, 302, 0, 0, 0, 3849, 30, 8, 2, 100, 0, 0, 0, 0, 0, 0, 0, 2, 'Lever - Start Deathstalker Adamant Script');
+
+        DELETE FROM `generic_scripts` WHERE `id`=302;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (302, 0, 0, 4, 147, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Remove Gossip Flag'),
+        (302, 0, 0, 60, 3, 0, 4000, 0, 0, 0, 0, 0, 1, 3849, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Start Waypoints'),
+        (302, 0, 0, 4, 46, 512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Add Passive Flag'),
+        (302, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1320, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text');
+
+        DELETE FROM `creature_movement_scripts` WHERE `id`=384911;
+        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (384911, 0, 0, 1, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Emote Crafting'),
+        (384911, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1321, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text 1'),
+        (384911, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1322, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text 2 (Emoted)'),
+        (384911, 6, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Stop Emoting'),
+        (384911, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1323, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text 3'),
+        (384911, 6, 0, 11, 20835, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Open Courtyard Door'),
+        (384911, 6, 0, 37, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Set Instance Data'),
+        (384911, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1324, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text 4'),
+        (384911, 10, 0, 25, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Set Run');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=427403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (427403, 0, 0, 37, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenrus the Devourer - Set Instance Data'),
+        (427403, 0, 0, 10, 4275, 14000, 0, 0, 0, 0, 0, 0, 0, 427403, -1, 3, -137.29, 2169.59, 136.57, 2.81, 0, 'Fenrus the Devourer - Summon Archmage Arugal'),
+        (427403, 0, 0, 39, 9536, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenrus the Devourer - Start Script to Summon Voidwalkers'),
+        (427403, 0, 0, 11, 33785, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenrus the Devourer - Open Door - TODO: This should happen on 4th Voidwalker death instead');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=392705;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (392705, 0, 0, 37, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wolf Master Nandos - Set Instance Data'),
+        (392705, 0, 0, 11, 33241, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wolf Master Nandos - Open Door'),
+        (392705, 0, 0, 4, 46, 256, 2, 0, 4275, 100, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wolf Master Nandos - Make Archmage Arugal Attackable');
+
+        -- Fix Deathstalker Vincent faction.
+        UPDATE `creature_template` SET `faction` = 68 WHERE `entry` = 4444;
+
+        -- Fix Z placement of Fenrus Door.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = 132.057 WHERE `spawn_id` = 33785;
+
+        insert into applied_updates values ('220620242');
+    end if;
+
+    -- 23/06/2024 1
+    if (select count(*) from `applied_updates` where id='230620241') = 0 then
         INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (26205, 0, 0, 80, 2, 0, 0, 0, 16397, 40, 11, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Cannon - Activate door');
         INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
@@ -2342,7 +2467,7 @@ begin not atomic
         INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (6341, 0, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -128.926, -616.4946, 13.53234, 6.269623, 0, 'Defias Overseer - Gunpowder event move');
 
-        insert into `applied_updates` values ('220620241');
+        insert into `applied_updates` values ('230620241');
     end if;
 end $
 delimiter ;

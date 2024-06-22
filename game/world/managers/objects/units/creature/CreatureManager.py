@@ -71,7 +71,7 @@ class CreatureManager(UnitManager):
         self.loot_manager = None
         self.pickpocket_loot_manager = None
 
-        # # All creatures can block, parry and dodge by default.
+        # All creatures can block, parry and dodge by default.
         self.has_block_passive = True
         self.has_dodge_passive = True
         self.has_parry_passive = True
@@ -100,8 +100,15 @@ class CreatureManager(UnitManager):
         self.subtype = subtype
         self.level = randint(self.creature_template.level_min, self.creature_template.level_max)
 
+        # Elite mob.
         if 0 < self.creature_template.rank < 4:
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLUS_MOB
+        # NPC can't be attacked by other NPCs and can't attack other NPCs.
+        if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_NPC:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_PASSIVE
+        # NPC is immune to player characters.
+        if self.creature_template.static_flags & CreatureStaticFlags.IMMUNE_PLAYER:
+            self.unit_flags |= UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC
 
         if self.is_totem() or self.is_critter() or not self.can_have_target():
             self.react_state = CreatureReactStates.REACT_PASSIVE

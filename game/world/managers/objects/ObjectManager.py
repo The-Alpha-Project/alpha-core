@@ -11,7 +11,7 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, UpdateTypes, LiquidTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellImmunity
-from utils.constants.UnitCodes import UnitReaction, UnitFlags, UnitStates
+from utils.constants.UnitCodes import UnitReaction
 from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
 
@@ -28,6 +28,7 @@ class ObjectManager:
                  movement_flags=0,
                  unit_flags=0,
                  dynamic_flags=0,
+                 static_flags=0,
                  native_scale=1,
                  native_display_id=0,
                  faction=0,
@@ -47,6 +48,7 @@ class ObjectManager:
         self.movement_flags = movement_flags
         self.unit_flags = unit_flags
         self.dynamic_flags = dynamic_flags
+        self.static_flags = static_flags
         self.native_scale = native_scale
         self.current_scale = native_scale
         self.native_display_id = native_display_id  # Native display ID
@@ -460,33 +462,11 @@ class ObjectManager:
         return False
 
     def can_attack_target(self, target):
-        if not target:
-            return False
-
-        if target is self:
+        if not target or target is self:
             return False
 
         # You can only attack units, not gameobjects.
         if not target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            return False
-
-        # Sanctuary.
-        if target.unit_state & UnitStates.SANCTUARY:
-            return False
-
-        # Flight.
-        if target.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
-            return False
-
-        if self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED and \
-                target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
-            return False
-
-        # Creature only checks.
-        elif target.get_type_id() == ObjectTypeIds.ID_UNIT and not target.is_spawned:
-            return False
-
-        if not target.is_alive:
             return False
 
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_AMIABLE

@@ -239,9 +239,32 @@ class UnitManager(ObjectManager):
         if not target or target is self:
             return False
 
-        is_enemy = super().can_attack_target(target)
-        if is_enemy:
-            return True
+        if not target.initialized or not self.initialized:
+            return False
+
+        if not target.is_alive:
+            return False
+
+        # Sanctuary.
+        if target.unit_state & UnitStates.SANCTUARY:
+            return False
+
+        # Flight.
+        if target.unit_flags & UnitFlags.UNIT_FLAG_TAXI_FLIGHT:
+            return False
+
+        # Player only checks.
+        if self.get_type_id() == ObjectTypeIds.ID_PLAYER or self.unit_flags & UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED:
+            if target.unit_flags & UnitFlags.UNIT_FLAG_NOT_ATTACKABLE_OCC:
+                return False
+        # Creature only checks.
+        elif target.get_type_id() == ObjectTypeIds.ID_UNIT:
+            if not target.is_spawned:
+                return False
+            if target.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
+                return False
+            if self.get_type_id() == ObjectTypeIds.ID_UNIT and self.unit_flags & UnitFlags.UNIT_FLAG_PASSIVE:
+                return False
 
         # Always short circuit on charmer/summoner relationship.
         charmer = self.get_charmer_or_summoner()
@@ -252,6 +275,10 @@ class UnitManager(ObjectManager):
         if charmer and charmer.get_type_id() == ObjectTypeIds.ID_PLAYER and \
                 charmer.duel_manager and charmer.duel_manager.is_unit_involved(target):
             return charmer.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
+
+        is_enemy = super().can_attack_target(target)
+        if is_enemy:
+            return True
 
         # Might be neutral, but was attacked by target.
         return target and self.threat_manager.has_aggro_from(target)

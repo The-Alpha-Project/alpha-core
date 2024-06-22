@@ -117,14 +117,14 @@ class ScriptHandler:
             if event.id in self.ooc_ignore:
                 self.ooc_ignore.remove(event.id)
 
-        occ_event = ScriptOocEvent(event, source, target, forced=forced)
+        ooc_event = ScriptOocEvent(event, source, target, forced=forced)
         # Has no scripts, ignore.
-        if not occ_event.scripts:
+        if not ooc_event.scripts:
             self.ooc_ignore.add(event.id)
             return
 
-        self.ooc_events[event.id] = occ_event
-        if not occ_event.should_repeat():
+        self.ooc_events[event.id] = ooc_event
+        if not ooc_event.should_repeat():
             self.ooc_ignore.add(event.id)
 
     # Handlers
@@ -307,10 +307,10 @@ class ScriptHandler:
             19: (GameObjectFields.GAMEOBJECT_DYN_FLAGS, command.source.flags, command.source.set_uint32)
             if command.source.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT else (None, None, None),
             # UNIT_FIELD_FLAGS
-            46: (UnitFields.UNIT_FIELD_FLAGS, command.source.unit_flags, command.source.set_uint32)
+            46: (UnitFields.UNIT_FIELD_FLAGS, command.source.unit_flags, command.source.set_unit_flag)
             if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
             # UNIT_DYNAMIC_FLAGS
-            143: (UnitFields.UNIT_DYNAMIC_FLAGS, command.source.dynamic_flags, command.source.set_uint32)
+            143: (UnitFields.UNIT_DYNAMIC_FLAGS, command.source.dynamic_flags, command.source.set_dynamic_type_flag)
             if command.source.get_type_id() == ObjectTypeIds.ID_UNIT else (None, None, None),
             # UNIT_NPC_FLAGS
             147: (UnitFields.UNIT_FIELD_BYTES_1, command.source.npc_flags, command.source.set_npc_flag)
@@ -356,19 +356,22 @@ class ScriptHandler:
 
         # Set flag.
         if command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_SET:
-            if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1 or flag_data[0] == PlayerFields.PLAYER_BYTES_2:
+            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
+                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
                 flag_data[2](command.datalong2)
             else:
                 flag_data[2](flag_data[0], command.datalong2)
         # Remove flag.
         elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_REMOVE:
-            if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1 or flag_data[0] == PlayerFields.PLAYER_BYTES_2:
+            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
+                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
                 flag_data[2](command.datalong2, False)
             else:
                 flag_data[2](flag_data[0], flag_data[1] & ~command.datalong2)
         # Toggle flag.
         elif command.datalong3 == ModifyFlagsOptions.SO_MODIFYFLAGS_TOGGLE:
-            if flag_data[0] == UnitFields.UNIT_FIELD_BYTES_1 or flag_data[0] == PlayerFields.PLAYER_BYTES_2:
+            if flag_data[0] in (UnitFields.UNIT_FIELD_BYTES_1, UnitFields.UNIT_FIELD_FLAGS,
+                                UnitFields.UNIT_DYNAMIC_FLAGS, PlayerFields.PLAYER_BYTES_2):
                 # Second param means: if flag exists, remove (and viceversa).
                 flag_data[2](command.datalong2, not flag_data[1] & command.datalong2)
             else:

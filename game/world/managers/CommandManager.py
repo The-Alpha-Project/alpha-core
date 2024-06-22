@@ -730,6 +730,8 @@ class CommandManager(object):
                       f'Entry: {creature.creature_template.entry}\n' \
                       f'Display ID: {creature.current_display_id}\n' \
                       f'Faction: {creature.faction}\n' \
+                      f'Unit Flags: {hex(creature.unit_flags)}\n' \
+                      f'Static Flags: {hex(creature.static_flags)}\n' \
                       f'X: {creature.location.x}, ' \
                       f'Y: {creature.location.y}, ' \
                       f'Z: {creature.location.z}, ' \
@@ -1001,6 +1003,17 @@ class CommandManager(object):
             return 0, 'Location saved.'
         else:
             return -1, 'please use it like: .sloc comment'
+        
+    @staticmethod
+    def gmtag(world_session, args):
+        arg = str(args).strip().lower()
+        if arg not in ('on', 'off', 'enable', 'disable', '1', '0'):
+            return -1, 'please use it like .gmtag on|off'
+
+        enable = arg in ('on', 'enable', '1')
+        world_session.player_mgr.set_gm_tag(enable, reload=True)
+
+        return 0, f'<GM> tag {"enabled" if enable else "disabled"}.'
 
 
 PLAYER_COMMAND_DEFINITIONS = {
@@ -1062,7 +1075,8 @@ GM_COMMAND_DEFINITIONS = {
     'squest': [CommandManager.squest, 'search quests'],
     'qadd': [CommandManager.qadd, 'adds a quest to your log'],
     'qdel': [CommandManager.qdel, 'delete active or completed quest'],
-    'fevent': [CommandManager.fevent, 'force the given event to execute']
+    'fevent': [CommandManager.fevent, 'force the given event to execute'],
+    'gmtag': [CommandManager.gmtag, 'enable or disable the <GM> tag']
 }
 
 DEV_COMMAND_DEFINITIONS = {
