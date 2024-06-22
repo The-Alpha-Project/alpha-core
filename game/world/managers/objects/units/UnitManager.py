@@ -245,10 +245,6 @@ class UnitManager(ObjectManager):
         if not target.is_alive:
             return False
 
-        is_enemy = super().can_attack_target(target)
-        if is_enemy:
-            return True
-
         # Sanctuary.
         if target.unit_state & UnitStates.SANCTUARY:
             return False
@@ -279,6 +275,10 @@ class UnitManager(ObjectManager):
         if charmer and charmer.get_type_id() == ObjectTypeIds.ID_PLAYER and \
                 charmer.duel_manager and charmer.duel_manager.is_unit_involved(target):
             return charmer.duel_manager.duel_state == DuelState.DUEL_STATE_STARTED
+
+        is_enemy = super().can_attack_target(target)
+        if is_enemy:
+            return True
 
         # Might be neutral, but was attacked by target.
         return target and self.threat_manager.has_aggro_from(target)
