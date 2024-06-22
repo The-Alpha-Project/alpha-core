@@ -185,7 +185,7 @@ class EffectTargets:
         if not source:
             source = caster
 
-        if casting_spell.initial_target_is_terrain():
+        if isinstance(source, Vector):
             result = caster.get_map().get_surrounding_units_by_location(source,
                                                                         caster.map_id, caster.instance_id,
                                                                         target_effect.get_radius(), include_players=True)
