@@ -520,7 +520,8 @@ class CastingSpell:
 
         if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if self.spell_entry.ManaCostPct != 0:
-                mana_cost = self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
+                base_mana = self.spell_caster.stat_manager.get_base_stat(UnitStats.MANA)
+                mana_cost = base_mana * self.spell_entry.ManaCostPct / 100
 
             mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SPELL_SCHOOL_POWER_COST,
                                                                                misc_value=self.spell_entry.School)
