@@ -2332,5 +2332,17 @@ begin not atomic
 
         insert into `applied_updates` values ('140620241');
     end if;
+
+    -- 22/06/2024 1
+    if (select count(*) from `applied_updates` where id='220620241') = 0 then
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (26205, 0, 0, 80, 2, 0, 0, 0, 16397, 40, 11, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Cannon - Activate door');
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (26203, 0, 0, 10, 634, 310000, 0, 0, 0, 0, 0, 0, 0, 6341, -1, 4, -131.291, -591.243, 18.0772, 4.79219, 0, 'Defias Gunpowder - Spawn Defias Overseer');
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6341, 0, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -128.926, -616.4946, 13.53234, 6.269623, 0, 'Defias Overseer - Gunpowder event move');
+
+        insert into `applied_updates` values ('220620241');
+    end if;
 end $
 delimiter ;
