@@ -2566,5 +2566,13 @@ begin not atomic
 
         insert into applied_updates values ('230620244');
     end if;
+
+    -- 23/06/2024 5
+	if (select count(*) from applied_updates where id='230620245') = 0 then
+        -- Fix Chestnut Mare display id.
+        UPDATE `creature_template` SET `display_id1` = 2405 WHERE `entry` = 4269;
+
+        insert into applied_updates values ('230620245');
+    end if;
 end $
 delimiter ;
