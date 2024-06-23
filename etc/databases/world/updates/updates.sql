@@ -2457,5 +2457,46 @@ begin not atomic
 
         insert into applied_updates values ('220620242');
     end if;
+
+    -- 23/06/2024 1
+	if (select count(*) from applied_updates where id='230620241') = 0 then
+        -- Swim Speed potion
+        UPDATE `item_template` SET `display_id` = 7121 WHERE (`entry` = 6372);
+
+        -- Mana potion
+        UPDATE `item_template` SET `display_id` = 4136 WHERE (`entry` = 3827);
+
+        -- Greater Mana potion
+        UPDATE `item_template` SET `display_id` = 4136 WHERE (`entry` = 6149);
+
+        -- Greater Healing potion
+        UPDATE `item_template` SET `display_id` = 1215 WHERE (`entry` = 1710);
+
+        -- Elixir of Fortitude
+        UPDATE `item_template` SET `display_id` = 2221 WHERE (`entry` = 3825);
+
+        -- Swiftness potion
+        UPDATE `item_template` SET `display_id` = 1482 WHERE (`entry` = 2459);
+
+        -- Elixir of Minor Agility
+        UPDATE `item_template` SET `display_id` = 7568 WHERE (`entry` = 2457);
+
+        -- Elixir of Minor Defense
+        UPDATE `item_template` SET `display_id` = 2511 WHERE (`entry` = 5997);
+
+        -- Elixir of Lesser Agility
+        UPDATE `item_template` SET `display_id` = 7568 WHERE (`entry` = 3390);
+
+        -- Elixir of Firepower
+        UPDATE `item_template` SET `display_id` = 7568 WHERE (`entry` = 6373);
+
+        -- Elixir of Ogre's Strength
+        UPDATE `item_template` SET `display_id` = 2511 WHERE (`entry` = 3391);
+
+        -- Frost Oil
+        UPDATE `item_template` SET `display_id` = 1249 WHERE (`entry` = 3829);
+
+        insert into applied_updates values ('230620241');
+    end if;
 end $
 delimiter ;
