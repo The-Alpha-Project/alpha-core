@@ -495,7 +495,7 @@ class PlayerManager(UnitManager):
             # We don't know this game object, notify self with its update packet.
             self.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject))
             if gobject.is_spawned:
-                self.enqueue_packets(gobject.generate_create_packets(requester=self))
+                self.enqueue_packets(gobject.generate_create_packet_chain(requester=self))
                 # We only consider 'known' if its spawned, the details query is still sent.
                 self.known_objects[gobject.guid] = gobject
                 # Add ourselves to gameobject known players.

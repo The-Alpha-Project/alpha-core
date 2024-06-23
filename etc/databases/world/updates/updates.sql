@@ -2460,12 +2460,33 @@ begin not atomic
 
     -- 23/06/2024 1
     if (select count(*) from `applied_updates` where id='230620241') = 0 then
+        DELETE FROM `gameobject_scripts` WHERE `id`=26205;
         INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (26205, 0, 0, 80, 2, 0, 0, 0, 16397, 40, 11, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Cannon - Activate door');
+        (26205, 0, 0, 80, 2, 0, 0, 0, 16397, 40, 11, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Cannon - Activate Door');
+        DELETE FROM `gameobject_scripts` WHERE `id`=26203;
         INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (26203, 0, 0, 10, 634, 310000, 0, 0, 0, 0, 0, 0, 0, 6341, -1, 4, -131.291, -591.243, 18.0772, 4.79219, 0, 'Defias Gunpowder - Spawn Defias Overseer');
+        (26203, 0, 0, 10, 634, 310000, 0, 0, 0, 0, 0, 0, 0, 6341, -1, 4, -130.776, -605.473, 15.2352, 5.44543, 0, 'Defias Gunpowder - Summon Defias Overseer');
+        DELETE FROM `generic_scripts` WHERE `id`=6341;
         INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (6341, 0, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -128.926, -616.4946, 13.53234, 6.269623, 0, 'Defias Overseer - Gunpowder event move');
+        (6341, 0, 0, 60, 3, 0, 0, 0, 0, 0, 0, 0, 0, 63402, 0, 0, 0, 0, 0, 0, 0, 'Defias Overseer - Gunpowder Event Start Waypoints');
+        DELETE FROM `creature_movement_special` WHERE `id`=63402;
+        INSERT INTO `creature_movement_special` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
+        (63402, 1, -129.631714, -609.388977, 14.556828, 100.000000, 0, 0.000000, 0),
+        (63402, 2, -129.381714, -610.138977, 14.306828, 100.000000, 0, 0.000000, 0),
+        (63402, 3, -128.881714, -610.638977, 14.306828, 100.000000, 0, 0.000000, 0),
+        (63402, 4, -127.881714, -612.638977, 14.556828, 100.000000, 0, 0.000000, 0),
+        (63402, 5, -127.131714, -614.138977, 14.306828, 100.000000, 0, 0.000000, 0),
+        (63402, 6, -126.381714, -615.638977, 14.056828, 100.000000, 0, 0.000000, 0),
+        (63402, 7, -124.881714, -616.388977, 13.806828, 100.000000, 0, 0.000000, 0),
+        (63402, 8, -122.131714, -617.388977, 14.056828, 100.000000, 0, 0.000000, 0),
+        (63402, 9, -121.381714, -617.888977, 14.306828, 100.000000, 0, 0.000000, 0),
+        (63402, 10, -119.631714, -617.638977, 14.306828, 100.000000, 0, 0.000000, 0),
+        (63402, 11, -119.381714, -617.638977, 14.306828, 100.000000, 0, 0.000000, 0),
+        (63402, 12, -119.131714, -617.388977, 14.306828, 100.000000, 0, 0.000000, 0),
+        (63402, 13, -117.881714, -617.388977, 14.556828, 100.000000, 0, 0.000000, 0),
+        (63402, 14, -117.381714, -617.388977, 14.306828, 100.000000, 0, 0.000000, 0),
+        (63402, 15, -115.381714, -616.888977, 14.056828, 100.000000, 0, 0.000000, 0),
+        (63402, 16, -112.987709, -616.805054, 13.378482, 100.000000, 0, 0.000000, 0);
 
         insert into `applied_updates` values ('230620241');
     end if;

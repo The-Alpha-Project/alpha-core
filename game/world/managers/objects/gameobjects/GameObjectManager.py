@@ -380,7 +380,7 @@ class GameObjectManager(ObjectManager):
         return 0
 
     # override
-    def generate_create_packets(self, requester):
+    def generate_create_packet_chain(self, requester):
         packets = [super().generate_create_packet(requester)]
 
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR and \

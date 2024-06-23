@@ -99,7 +99,12 @@ class ObjectManager:
             OpCode.SMSG_UPDATE_OBJECT,
             self.get_object_create_bytes(requester)))
 
-    def generate_create_packets(self, requester):
+    """
+    If more than 1 packet is needed to properly create an object, this method will return all needed ones.
+    So far this is only needed for GameObjects since client doesn't remove collision for doors sent with active state,
+    so we need to always send them as ready first, and then send the actual state.
+    """
+    def generate_create_packet_chain(self, requester):
         return [self.generate_create_packet(requester)]
 
     def generate_partial_packet(self, requester):
