@@ -617,7 +617,8 @@ class UnitManager(ObjectManager):
         self.mana_regen_timer = min(5, self.mana_regen_timer + elapsed)
 
         # Mana regen disruption.
-        if self.spell_manager.get_casting_spell(ignore_melee=True):
+        casting_spell = self.spell_manager.get_casting_spell(ignore_melee=True)
+        if casting_spell and not casting_spell.is_ability() and not casting_spell.is_tradeskill():
             self.mana_regen_timer = 0
 
         # Every 2 seconds.
@@ -658,7 +659,8 @@ class UnitManager(ObjectManager):
         #  therefore increases the total contribution from Spirit for mana-based classes.
 
         # Always regen 1% base mana per second.
-        regen_per_5 = self.base_mana * 0.05 if power_type == PowerTypes.TYPE_MANA else 0
+        regen_per_5 = self.stat_manager.get_base_stat(UnitStats.MANA) * 0.05 if \
+            power_type == PowerTypes.TYPE_MANA else 0
 
         # Apply regen bonuses from stats.
         # Apply mana regen bonus if the player hasn't cast for 5 seconds, and apply health regen bonus out of combat.

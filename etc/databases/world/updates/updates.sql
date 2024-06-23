@@ -2345,39 +2345,39 @@ begin not atomic
 	if (select count(*) from applied_updates where id='220620241') = 0 then
 
         -- Mottled Riptooth update based on Mottled Scytheclaw #1360
-        UPDATE `creature_template` SET `subname` = '', `level_min` = 27, `level_max` = 28, `faction` = 48, `beast_family` = 11, `type_flags` = 1, `loot_id` = 1022, `skinning_loot_id` = 1022 WHERE (`entry` = 1066);        
-        
+        UPDATE `creature_template` SET `subname` = '', `level_min` = 27, `level_max` = 28, `faction` = 48, `beast_family` = 11, `type_flags` = 1, `loot_id` = 1022, `skinning_loot_id` = 1022 WHERE (`entry` = 1066);
+
         -- Mottled Riptooth SPAWNS #1360
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3431.544,    -1721.19,       61.617,         2.342,                300,                300,                 5,              100,              0,                1,             0,                0,         0);
 
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3467.037,    -1691.383,       63.690,         4.342,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-        
+
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3504.158,    -1771.97,        17.469,         5.342,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-        
+
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3495.513,    -1826.39,        17.187,         4.447,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
 
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3486.829,    -1852.667,       17.329,         0.742,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-        
+
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3500.462,    -1746.789,       23.731,         4.742,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
 
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3360.850,    -1835.442,       17.845,         2.886,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-        
+
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3384.544,    -1802.19,       16.241,          5.242,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
 
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3443.216,    -1782.717,       17.247,         2.501,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-        
+
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
         (                                        0,           1066,              0,              0,              0,     0,    -3514.737,    -1896.171,       25.782,         0.361,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-        
+
         -- Murloc Streamrunner #1361
         UPDATE `creature_template` SET `display_id1` = 617 WHERE (`entry` = 735);
 
@@ -2456,6 +2456,18 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = 132.057 WHERE `spawn_id` = 33785;
 
         insert into applied_updates values ('220620242');
+    end if;
+
+    -- 23/06/2024 1
+    if (select count(*) from `applied_updates` where id='230620241') = 0 then
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (26205, 0, 0, 80, 2, 0, 0, 0, 16397, 40, 11, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Cannon - Activate door');
+        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (26203, 0, 0, 10, 634, 310000, 0, 0, 0, 0, 0, 0, 0, 6341, -1, 4, -131.291, -591.243, 18.0772, 4.79219, 0, 'Defias Gunpowder - Spawn Defias Overseer');
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6341, 0, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, -128.926, -616.4946, 13.53234, 6.269623, 0, 'Defias Overseer - Gunpowder event move');
+
+        insert into `applied_updates` values ('230620241');
     end if;
 end $
 delimiter ;

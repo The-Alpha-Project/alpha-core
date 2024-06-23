@@ -332,7 +332,7 @@ class SpellManager:
         # Reset mana regen timer on cast perform.
         # Regen update will handle regen timer resets if a spell is casting,
         # but instants reach perform without update.
-        if not casting_spell.triggered:
+        if not casting_spell.triggered and not casting_spell.is_ability() and not casting_spell.is_tradeskill():
             self.caster.mana_regen_timer = 0
 
         if casting_spell.cast_state == SpellState.SPELL_STATE_DELAYED:
@@ -1074,7 +1074,7 @@ class SpellManager:
 
             # Pacified.
             if self.caster.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED and \
-                    casting_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY and \
+                    casting_spell.is_ability() and \
                     casting_spell.spell_entry.School == SpellSchools.SPELL_SCHOOL_NORMAL:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_PACIFIED)
                 return False
