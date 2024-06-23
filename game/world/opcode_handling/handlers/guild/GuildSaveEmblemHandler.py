@@ -3,7 +3,7 @@ from struct import unpack
 from game.world.managers.objects.units.player.guild.GuildManager import GuildManager
 from utils.constants.MiscCodes import GuildEmblemResult, GuildRank
 
-EMBLEM_COST = 10000
+EMBLEM_COST = 100000
 
 
 class GuildSaveEmblemHandler(object):
