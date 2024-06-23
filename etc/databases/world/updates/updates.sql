@@ -2490,5 +2490,33 @@ begin not atomic
 
         insert into `applied_updates` values ('230620241');
     end if;
+
+    -- 23/06/2024 2
+	if (select count(*) from applied_updates where id='230620242') = 0 then
+        UPDATE `spawns_gameobjects` SET `spawn_entry` = 16400 WHERE `spawn_id` = 26185;
+        UPDATE `spawns_gameobjects` SET `spawn_entry` = 16399 WHERE `spawn_id` = 26182;
+        -- Events list for Rhahk'Zor
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=644;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64401, 644, 0, 4, 0, 100, 0, 0, 0, 0, 0, 64401, 0, 0, 'Rhahk\'Zor - Aggro Yell');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64402, 644, 0, 6, 0, 100, 0, 0, 0, 0, 0, 6441, 0, 0, 'Rhahk\'Zor - On Death');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6441;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6441, 0, 0, 11, 30533, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rhahk\'Zor - Open Door');
+        -- Events list for Sneed
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=643;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64301, 643, 0, 6, 0, 100, 0, 0, 0, 0, 0, 6431, 0, 0, 'Sneed - On Death');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6431;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (6431, 0, 0, 11, 26185, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sneed - Open Door');
+        -- Events list for Gilnid
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1763;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176301, 1763, 0, 1, 0, 100, 1, 120000, 120000, 120000, 120000, 176301, 0, 0, 'Gilnid - Random Say OOC');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176302, 1763, 0, 6, 0, 100, 0, 0, 0, 0, 0, 17631, 0, 0, 'Gilnid - On Death');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=17631;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (17631, 0, 0, 11, 26182, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gilnid - Open Door');
+
+        insert into applied_updates values ('230620242');
+    end if;
 end $
 delimiter ;
