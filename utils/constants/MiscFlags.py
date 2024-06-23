@@ -8,7 +8,8 @@ class GameObjectFlags(IntEnum):
     UNTARGETABLE = 4  # Can't be targeted.
     # Below flags don't exist in 0.5.3:
     TRANSPORT = 8  # Transport (object can transport (elevator, boat, car)).
-    NO_DESPAWN = 16  # No despawn (never despawn, typically for doors, they just change state).
+    NO_INTERACT = 16  # Players cannot interact with this go (often need to remove flag in event).
+    NO_DESPAWN = 32  # No despawn (never despawn, typically for doors, they just change state).
     TRIGGERED = 64  # Triggered (typically, summoned objects. Triggered by spell or other events).
 
 

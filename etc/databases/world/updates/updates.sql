@@ -2343,7 +2343,6 @@ begin not atomic
 
     -- 22/06/2024 1
 	if (select count(*) from applied_updates where id='220620241') = 0 then
-
         -- Mottled Riptooth update based on Mottled Scytheclaw #1360
         UPDATE `creature_template` SET `subname` = '', `level_min` = 27, `level_max` = 28, `faction` = 48, `beast_family` = 11, `type_flags` = 1, `loot_id` = 1022, `skinning_loot_id` = 1022 WHERE (`entry` = 1066);
 
@@ -2558,6 +2557,14 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = 1249 WHERE (`entry` = 3829);
 
         insert into applied_updates values ('230620243');
+    end if;
+
+    -- 23/06/2024 4
+	if (select count(*) from applied_updates where id='230620244') = 0 then
+        -- Fix Factory Door faction (shouldn't be interactable).
+        UPDATE `gameobject_template` SET `faction` = 114 WHERE entry = 13965;
+
+        insert into applied_updates values ('230620244');
     end if;
 end $
 delimiter ;
