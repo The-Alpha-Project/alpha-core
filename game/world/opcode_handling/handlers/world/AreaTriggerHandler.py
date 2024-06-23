@@ -48,12 +48,14 @@ class AreaTriggerHandler(object):
                 Logger.debug(f'Player {player_mgr.get_name()} ignore invalid Area Trigger ID {trigger_id}, wrong map.')
                 return 0
 
-            if world_session.player_mgr.level <= area_trigger_teleport.required_level and \
-                    not world_session.account_mgr.is_gm():
-                # Missing SMSG_AREA_TRIGGER_MESSAGE.
-                message = f'You must be at least level {area_trigger_teleport.required_level} to enter.'
-                ChatManager.send_system_message(world_session, message)
-                return 0
+            # TODO: Assuming there was no level requirement for dungeons since SMSG_AREA_TRIGGER_MESSAGE
+            #  doesn't exist in 0.5.3. Leaving this commented out here anyway.
+            #if world_session.player_mgr.level <= area_trigger_teleport.required_level and \
+            #        not world_session.account_mgr.is_gm():
+            #    # Missing SMSG_AREA_TRIGGER_MESSAGE.
+            #    message = f'You must be at least level {area_trigger_teleport.required_level} to enter.'
+            #    ChatManager.send_system_message(world_session, message)
+            #    return 0
 
             # Trigger teleport.
             player_mgr.teleport(area_trigger_teleport.target_map, Vector(area_trigger_teleport.target_position_x,
