@@ -7,7 +7,7 @@ from game.world.managers.objects.units.player.EnchantmentManager import Enchantm
 from utils.Formulas import UnitFormulas, CreatureFormulas
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventorySlots, InventoryStats, ItemSubClasses, ItemEnchantmentType
-from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds
+from utils.constants.MiscCodes import AttackTypes, HitInfo, ObjectTypeIds, SkillCategories
 from utils.constants.SpellCodes import SpellSchools, SpellImmunity, SpellHitFlags, SpellMissReason
 from utils.constants.UnitCodes import PowerTypes, Classes, Races, UnitFlags, UnitStates
 from utils.constants.UpdateFields import UnitFields
@@ -897,8 +897,9 @@ class StatManager(object):
                 trigger_spell_id = casting_spell.triggered_by_spell.spell_entry.ID
                 # If this spell was triggered by another spell, use the triggering spell's skill.
                 _, skill, _ = self.unit_mgr.skill_manager.get_skill_info_for_spell_id(trigger_spell_id)
-            # Use skill level if one exists for the spell.
-            skill_value = self.unit_mgr.skill_manager.get_total_skill_value(skill.ID) if skill else -1
+            # Use skill level if a valid one exists for the spell.
+            skill_value = self.unit_mgr.skill_manager.get_total_skill_value(skill.ID) if \
+                skill and skill.CategoryID in [SkillCategories.CLASS_SKILL, SkillCategories.COMBAT_SKILL] else -1
 
         # If attack type is provided and no skill could be resolved by spellcast, resolve off weapon skill.
         if attack_type != -1 and skill_value == -1:

@@ -280,6 +280,12 @@ class CastingSpell:
     def is_passive(self):
         return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_PASSIVE == SpellAttributes.SPELL_ATTR_PASSIVE
 
+    def is_ability(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_IS_ABILITY
+
+    def is_tradeskill(self):
+        return self.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_TRADESPELL
+
     def is_channeled(self):
         return self.spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_CHANNELED
 
@@ -503,8 +509,7 @@ class CastingSpell:
             ranged_delay = self.spell_caster.stat_manager.get_total_stat(UnitStats.RANGED_DELAY)
             cast_time += ranged_delay
 
-        if caster_is_unit and not self.spell_entry.Attributes & (SpellAttributes.SPELL_ATTR_TRADESPELL |
-                                                                 SpellAttributes.SPELL_ATTR_IS_ABILITY):
+        if caster_is_unit and not self.is_ability() and not self.is_tradeskill():
             cast_time = self.spell_caster.stat_manager.apply_bonuses_for_value(cast_time, UnitStats.SPELL_CASTING_SPEED)
 
         return max(0, cast_time)
@@ -515,7 +520,8 @@ class CastingSpell:
 
         if self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
             if self.spell_entry.ManaCostPct != 0:
-                mana_cost = self.spell_caster.base_mana * self.spell_entry.ManaCostPct / 100
+                base_mana = self.spell_caster.stat_manager.get_base_stat(UnitStats.MANA)
+                mana_cost = base_mana * self.spell_entry.ManaCostPct / 100
 
             mana_cost = self.spell_caster.stat_manager.apply_bonuses_for_value(mana_cost, UnitStats.SPELL_SCHOOL_POWER_COST,
                                                                                misc_value=self.spell_entry.School)

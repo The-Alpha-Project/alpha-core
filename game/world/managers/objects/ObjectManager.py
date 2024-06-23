@@ -3,6 +3,7 @@ from struct import pack, unpack
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.abstractions.Vector import Vector
 from network.packet.PacketWriter import PacketWriter
+from network.packet.update.UpdateMask import UpdateMask
 from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
 from utils.ConfigManager import config
 from utils.GuidUtils import GuidUtils
@@ -98,6 +99,14 @@ class ObjectManager:
             OpCode.SMSG_UPDATE_OBJECT,
             self.get_object_create_bytes(requester)))
 
+    """
+    If more than 1 packet is needed to properly create an object, this method will return all needed ones.
+    So far this is only needed for GameObjects since client doesn't remove collision for doors sent with active state,
+    so we need to always send them as ready first, and then send the actual state.
+    """
+    def generate_create_packet_chain(self, requester):
+        return [self.generate_create_packet(requester)]
+
     def generate_partial_packet(self, requester):
         if not self.initialized:
             self.initialize_field_values()
@@ -105,6 +114,20 @@ class ObjectManager:
         return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT,
             self.get_partial_update_bytes(requester)))
+
+    def generate_single_field_packet(self, field, value):
+        data = bytearray()
+        data.extend(self._get_base_structure(UpdateTypes.PARTIAL))
+
+        mask = UpdateMask()
+        mask.set_count(field)
+        mask.set_bit(field)
+
+        field_update = pack('<B', mask.block_count) + mask.to_bytes() + pack('<I', value)
+        data.extend(field_update)
+
+        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
+            OpCode.SMSG_UPDATE_OBJECT, data))
 
     def generate_movement_packet(self):
         return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_bytes())

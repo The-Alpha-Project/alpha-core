@@ -380,6 +380,17 @@ class GameObjectManager(ObjectManager):
         return 0
 
     # override
+    def generate_create_packet_chain(self, requester):
+        packets = [super().generate_create_packet(requester)]
+
+        if self.gobject_template.type == GameObjectTypes.TYPE_DOOR and \
+                self.state != GameObjectStates.GO_STATE_READY:
+            # Send real GO state for doors after create packet.
+            packets.append(self.generate_single_field_packet(GameObjectFields.GAMEOBJECT_STATE, self.state))
+
+        return packets
+
+    # override
     def _get_fields_update(self, is_create, requester):
         data = bytearray()
         mask = self.update_packet_factory.update_mask.copy()
@@ -391,14 +402,19 @@ class GameObjectManager(ObjectManager):
             if not self.update_packet_factory.has_read_rights_for_field(index, requester):
                 mask[index] = 0
                 continue
-            # Handle dynamic field, turn on this extra bit.
+
             if self.update_packet_factory.is_dynamic_field(index):
-                data.extend(pack('<I', self.generate_dynamic_field_value(requester)))
-                mask[index] = 1
+                value = pack('<I', self.generate_dynamic_field_value(requester))
+            elif is_create and \
+                    index == GameObjectFields.GAMEOBJECT_STATE and \
+                    self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
+                # Client doesn't remove collision for doors sent with active state - always send as ready.
+                value = pack('<I', GameObjectStates.GO_STATE_READY)
             else:
-                # Append field value and turn on bit on mask.
-                data.extend(self.update_packet_factory.update_values_bytes[index])
-                mask[index] = 1
+                value = self.update_packet_factory.update_values_bytes[index]
+
+            data.extend(value)
+            mask[index] = 1
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
     def _check_time_to_live(self, elapsed):
