@@ -20,7 +20,8 @@ from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
-from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags
+from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, \
+    ItemBondingTypes
 from utils.constants.MiscFlags import GameObjectFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
@@ -254,6 +255,10 @@ class SpellManager:
 
             if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here.
                 self.caster.set_stand_state(StandState.UNIT_SITTING)
+
+            # If item bind on use, bind it now.
+            if item.item_template.bonding == ItemBondingTypes.BIND_WHEN_USE:
+                item.set_binding(True)
 
             self.start_spell_cast(initialized_spell=casting_spell)
 

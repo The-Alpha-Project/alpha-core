@@ -53,8 +53,8 @@ class PetManager:
 
     def set_creature_as_pet(self, creature: CreatureManager, summon_spell_id: int, pet_slot: PetSlot,
                             pet_level=-1, pet_index=-1, is_permanent=False) -> Optional[ActivePet]:
-        if self.active_pets.get(pet_slot):
-            return None
+        # Try to detach any active pet on this slot, prevent having more than one.
+        self.detach_pet_by_slot(pet_slot)
 
         # Modify and link owner and creature.
         self._handle_creature_spawn_detach(creature, is_permanent)
