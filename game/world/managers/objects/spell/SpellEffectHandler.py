@@ -597,7 +597,7 @@ class SpellEffectHandler:
         if not creature_entry:
             return
 
-        if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             SpellEffectHandler.handle_summon_wild(casting_spell, effect, caster, target)
             return
 
