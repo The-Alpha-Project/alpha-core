@@ -256,7 +256,7 @@ class SpellManager:
             if casting_spell.is_refreshment_spell():  # Food/drink items don't send sit packet - handle here.
                 self.caster.set_stand_state(StandState.UNIT_SITTING)
 
-            # If item bind on use, bind it now.
+            # If item binds on use, bind it now.
             if item.item_template.bonding == ItemBondingTypes.BIND_WHEN_USE:
                 item.set_binding(True)
 
