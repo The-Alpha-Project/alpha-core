@@ -587,16 +587,31 @@ class SpellEffectHandler:
         caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, creature_id=effect.misc_value)
 
     # TODO:
+    #  PetManager - Guardians handling.
     #  EffectMultipleValue <= 0, guardian pets use their caster level modified by EffectMultipleValue.
     #  Can't have more than 15 guardians. (Need a way to do this lookup for unit caster).
     #  Level of pet summoned using engineering item based at engineering skill level.
-    #  Should use PetManager?
     @staticmethod
     def handle_summon_guardian(casting_spell, effect, caster, target):
         creature_entry = effect.misc_value
         if not creature_entry:
             return
-        SpellEffectHandler.handle_summon_wild(casting_spell, effect, caster, target)
+
+        if caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            SpellEffectHandler.handle_summon_wild(casting_spell, effect, caster, target)
+            return
+
+        duration = casting_spell.get_duration() / 1000
+        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_id, caster.instance_id,
+                                                  summoner=caster,
+                                                  spell_id=casting_spell.spell_entry.ID,
+                                                  faction=caster.faction, ttl=duration,
+                                                  level=caster.level,
+                                                  possessed=False,
+                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+
+        caster.get_map().spawn_object(world_object_instance=creature_manager)
+        caster.pet_manager.set_creature_as_pet(creature_manager, casting_spell.spell_entry.ID, PetSlot.PET_SLOT_CHARM)
 
     @staticmethod
     def handle_summon_wild(casting_spell, effect, caster, target):
