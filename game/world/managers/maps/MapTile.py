@@ -150,10 +150,14 @@ class MapTile(object):
     def validate_version():
         # Try to use the first available tile map.
         map_file = None
-        for file in os.listdir(PathManager.get_maps_path()):
-            if file.endswith('.map'):
-                map_file = file
-                break
+        try:
+            for file in os.listdir(PathManager.get_maps_path()):
+                if file.endswith('.map'):
+                    map_file = file
+                    break
+        except (FileNotFoundError, PermissionError, WindowsError):
+            return False
+
         if not map_file:
             return False
 
