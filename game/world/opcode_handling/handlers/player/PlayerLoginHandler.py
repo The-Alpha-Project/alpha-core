@@ -82,6 +82,10 @@ class PlayerLoginHandler(object):
         # Initialize stats first to have existing base stats for further calculations.
         player_mgr.stat_manager.init_stats()
 
+        # Set the player inside its Guild/Group, if any.
+        GuildManager.set_character_guild(player_mgr)
+        GroupManager.set_character_group(player_mgr)
+
         # Need to make sure map/instance exist before applying passives and cast when learned. (They need a Map)
         player_mgr.ensure_map_exists()
 
@@ -94,8 +98,7 @@ class PlayerLoginHandler(object):
 
         player_mgr.quest_manager.load_quests()
         player_mgr.reputation_manager.load_reputations()
-        GuildManager.set_character_guild(player_mgr)
-        GroupManager.set_character_group(player_mgr)
+
 
         first_login = player_mgr.player.totaltime == 0
         # Send cinematic.

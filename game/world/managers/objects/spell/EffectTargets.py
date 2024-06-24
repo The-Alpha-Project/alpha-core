@@ -388,7 +388,8 @@ class EffectTargets:
 
         if target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_WILD or \
                 target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON or \
-                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD:
+                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_OBJECT_WILD or \
+                target_effect.effect_type == SpellEffects.SPELL_EFFECT_SUMMON_GUARDIAN:
             return [casting_spell.spell_caster.location]
 
         Logger.warning(f'Unimplemented implicit target called for spell {casting_spell.spell_entry.ID}')
