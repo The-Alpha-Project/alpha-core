@@ -99,7 +99,6 @@ class PlayerLoginHandler(object):
         player_mgr.quest_manager.load_quests()
         player_mgr.reputation_manager.load_reputations()
 
-
         first_login = player_mgr.player.totaltime == 0
         # Send cinematic.
         if first_login:
