@@ -8,6 +8,7 @@ class SwapItemHandler(object):
     def handle(world_session, reader):
         if len(reader.data) >= 4:  # Avoid handling empty swap item packet.
             dest_bag, dest_slot, source_bag, source_slot = unpack('<4B', reader.data[:4])
+            inventory = world_session.player_mgr.inventory
 
             if dest_bag == 0xFF:
                 dest_bag = InventorySlots.SLOT_INBACKPACK.value
@@ -15,4 +16,8 @@ class SwapItemHandler(object):
                 source_bag = InventorySlots.SLOT_INBACKPACK.value
 
             world_session.player_mgr.inventory.swap_item(source_bag, source_slot, dest_bag, dest_slot)
+
+            if inventory.update_locked:
+                inventory.update_locked = False
+
         return 0
