@@ -83,7 +83,7 @@ class PetManager:
         self.active_pets[pet_slot] = active_pet
 
         active_pet.attach()
-        creature.movement_manager.initialize()
+        creature.movement_manager.initialize_or_reset()
         creature.leave_combat()
 
         self.send_pet_spell_info()
