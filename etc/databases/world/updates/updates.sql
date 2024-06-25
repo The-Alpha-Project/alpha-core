@@ -2574,5 +2574,18 @@ begin not atomic
 
         insert into applied_updates values ('230620245');
     end if;
+
+    -- 25/06/2024 5
+	if (select count(*) from applied_updates where id='250620245') = 0 then
+        -- Lost Necklace should be awarded upon the completion of Goldtooth quest.
+        UPDATE `quest_template` SET `RewItemId1` = '1359' WHERE (`entry` = '87');
+        UPDATE `quest_template` SET `RewItemId1` = '0' WHERE (`entry` = '85');
+
+        -- Wrong details and objectives for Stocking Jetsteam (317) quest.
+        UPDATE `quest_template` SET `Details` = 'I\'m preparing to start a mission for the Siege Brigade.  It\'s a long one, and I need to stock Jetsteam with a month\'s worth of supplies.  So while Steelgrill is working on my tank, can you do some hunting for me?$B$BI\'ll need some boar meat for food.  You can get meat from boars... you can find them in the snow fields south of the Grizzled Den.', `Objectives` = 'Gather 4 Chunks of Boar Meat, and deliver them to Pilot Bellowfiz at Steelgrill\'s Depot.' WHERE (`entry` = '317');
+
+        insert into applied_updates values ('250620245');
+    end if;
+
 end $
 delimiter ;
