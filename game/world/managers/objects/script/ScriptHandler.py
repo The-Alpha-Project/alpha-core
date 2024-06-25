@@ -1594,6 +1594,7 @@ class ScriptHandler:
                 flags=command.datalong
             ))
             command.source.creature_group = creature_group_mgr
+            command.source.creature_group.add_member(command.source)
 
         command.source.creature_group.add_member(command.target)
         return False

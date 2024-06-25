@@ -56,7 +56,7 @@ class GridManager:
         if current_cell_key != source_cell_key:
             if current_cell_key not in self.active_cell_keys:
                 self._activate_cell_by_world_object(world_object)
-                Logger.warning(f'Unit {world_object.get_name()} triggered inactive cell {current_cell_key}')
+                Logger.debug(f'Unit {world_object.get_name()} triggered inactive cell {current_cell_key}')
             world_object.on_cell_change()
 
     # Remove a world_object from its cell and notify surrounding players if required.
@@ -66,7 +66,8 @@ class GridManager:
             self._update_players_surroundings(cell.key)
 
     def unit_should_relocate(self, world_object, destination, destination_map, destination_instance):
-        destination_cells = self._get_surrounding_cells_by_location(destination.x, destination.y, destination_map, destination_instance)
+        destination_cells = self._get_surrounding_cells_by_location(destination.x, destination.y, destination_map,
+                                                                    destination_instance)
         current_cell = self.get_cells()[world_object.current_cell]
         return current_cell in destination_cells
 
@@ -94,7 +95,8 @@ class GridManager:
                     cell.stop_movement()
 
     def _add_world_object_spawn(self, world_object_spawn):
-        cell = self._get_create_cell(world_object_spawn.location, world_object_spawn.map_id, world_object_spawn.instance_id)
+        cell = self._get_create_cell(world_object_spawn.location, world_object_spawn.map_id,
+                                     world_object_spawn.instance_id)
         cell.add_world_object_spawn(world_object_spawn)
 
     def _add_world_object(self, world_object, update_players=True):
