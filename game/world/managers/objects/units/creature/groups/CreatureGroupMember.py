@@ -1,5 +1,4 @@
 from database.world.WorldModels import CreatureGroup
-from utils.constants.MiscCodes import CreatureGroupFlags
 
 
 class CreatureGroupMember(object):
@@ -7,4 +6,4 @@ class CreatureGroupMember(object):
         self.creature = creature_mgr
         self.distance_leader = creature_group.dist
         self.angle = creature_group.angle
-        self.flags: CreatureGroupFlags = CreatureGroupFlags(creature_group.flags)
+        self.flags = creature_group.flags
