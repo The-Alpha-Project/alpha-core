@@ -105,7 +105,8 @@ class InventoryManager(object):
             self.update_locked = True
             # Add to any existing stacks
             for slot, container in self.containers.items():
-                if not container or not container.can_contain_item(item_template):
+                if (not container or not container.can_contain_item(item_template) or
+                        self.is_bank_slot(container.current_slot, slot)):
                     continue
                 amount_left = container.add_item_to_existing_stacks(item_template, amount_left)
                 if amount_left <= 0:
@@ -208,6 +209,13 @@ class InventoryManager(object):
                         new_stack_count = dest_item.item_instance.stackcount + diff
                         dest_item.set_stack_count(new_stack_count)
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
+
+                    # Backpack was touched, refresh slot fields.
+                    if dest_container.is_backpack:
+                        self.build_update()
+                    else:
+                        dest_container.build_container_update_packet()
+
                     return True
                 else:
                     if handle_error:
@@ -737,6 +745,10 @@ class InventoryManager(object):
 
         if InventorySlots.SLOT_BAG1 <= bag_slot <= InventorySlots.SLOT_BAG4:
             return slot < container.max_slot
+
+        if BankSlots.BANK_SLOT_BAG_START <= bag_slot < BankSlots.BANK_SLOT_BAG_END:
+            return slot < container.max_slot
+
         return False
 
     def get_main_hand(self):
