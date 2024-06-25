@@ -7,4 +7,4 @@ class CreatureGroupMember(object):
         self.creature = creature_mgr
         self.distance_leader = creature_group.dist
         self.angle = creature_group.angle
-        self.flags: CreatureGroupFlags = creature_group.flags
+        self.flags: CreatureGroupFlags = CreatureGroupFlags(creature_group.flags)

@@ -235,7 +235,7 @@ class CreatureManager(UnitManager):
         creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
         if creature_group:
             self.creature_group = CreatureGroupManager.get_create_group(creature_group)
-            self.creature_group.add_member(self, creature_group)
+            self.creature_group.add_member(self)
 
         # Equipment.
         if self.creature_template.equipment_id > 0:

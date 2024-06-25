@@ -14,23 +14,26 @@ class CreatureGroupManager:
         self.original_leader_spawn_id = 0
         self.waypoints: list[MovementWaypoint] = []
         self.leader = None
+        self.creature_group = None
         self.members: dict[int, CreatureGroupMember] = {}
         self.group_flags = 0
 
     @staticmethod
     def get_create_group(creature_group):
         if creature_group.leader_guid not in CREATURE_GROUPS:
-            CREATURE_GROUPS[creature_group.leader_guid] = CreatureGroupManager()
+            creature_group_mgr = CreatureGroupManager()
+            creature_group_mgr.creature_group = creature_group
+            CREATURE_GROUPS[creature_group.leader_guid] = creature_group_mgr
         return CREATURE_GROUPS[creature_group.leader_guid]
 
     def is_leader(self, creature_mgr):
         return self.leader and self.leader.guid == creature_mgr.guid
 
-    def add_member(self, creature_mgr, creature_group):
+    def add_member(self, creature_mgr):
         if creature_mgr.guid not in self.members:
-            self.members[creature_mgr.guid] = CreatureGroupMember(creature_mgr, creature_group)
+            self.members[creature_mgr.guid] = CreatureGroupMember(creature_mgr, self.creature_group)
         # Set leader.
-        if creature_group.leader_guid == creature_mgr.spawn_id:
+        if self.creature_group.leader_guid == creature_mgr.spawn_id:
             self.leader = creature_mgr
             self.original_leader_spawn_id = creature_mgr.spawn_id
             # Generate waypoints that will be used by the current/temporary leader.
@@ -40,11 +43,13 @@ class CreatureGroupManager:
                 creature_movement.sort(key=lambda wp: wp.point)
                 self.waypoints = self._get_sorted_waypoints_by_distance(creature_movement)
 
-        self.group_flags |= creature_group.flags
+        self.group_flags |= self.creature_group.flags
 
     def remove_member(self, creature_mgr):
         if creature_mgr.guid not in self.members:
             return
+        self.members.pop(creature_mgr.guid)
+
         if not self.members:
             self.disband()
         elif self.is_leader(creature_mgr) and self.is_formation():

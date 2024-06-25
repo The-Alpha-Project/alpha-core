@@ -3,6 +3,7 @@ import random
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import CreatureGroup
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.Script import Script
@@ -10,6 +11,7 @@ from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptOocEvent import ScriptOocEvent
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
+from game.world.managers.objects.units.creature.groups.CreatureGroupManager import CreatureGroupManager
 from game.world.managers.objects.units.movement.helpers.CommandMoveInfo import CommandMoveInfo
 from game.world.managers.objects.units.movement.helpers.SplineEvent import SplineRestoreOrientationEvent, \
     SplineTargetedEmoteEvent
@@ -1574,14 +1576,33 @@ class ScriptHandler:
         # datalong = OptionFlags
         # x = distance
         # o = angle
-        Logger.debug('ScriptHandler: handle_script_command_join_creature_group not implemented yet')
-        return command.should_abort()
+        if not ConditionChecker.is_creature(command.source):
+            Logger.warning(f'ScriptHandler: No or invalid source (must be creature), aborting {command.get_info()}')
+            return command.should_abort()
+
+        if not ConditionChecker.is_creature(command.target):
+            Logger.warning(f'ScriptHandler: No or invalid target (must be creature), aborting {command.get_info()}')
+            return command.should_abort()
+
+        creature_group_mgr = command.source.creature_group
+        if not creature_group_mgr:
+            creature_group_mgr = CreatureGroupManager.get_create_group(CreatureGroup(
+                leader_guid=command.source.spawn_id,
+                member_guid=command.source.spawn_id,
+                dist=command.x,
+                angle=command.o,
+                flags=command.datalong
+            ))
+            command.source.creature_group = creature_group_mgr
+
+        command.source.creature_group.add_member(command.target)
+        return False
 
     @staticmethod
     def handle_script_command_leave_creature_group(command):
         # source = Creature
         if not ConditionChecker.is_creature(command.source):
-            Logger.warning(f'ScriptHandler: No or invalid target (must be creature), aborting {command.get_info()}')
+            Logger.warning(f'ScriptHandler: No or invalid source (must be creature), aborting {command.get_info()}')
             return command.should_abort()
 
         if not command.source.creature_group:
