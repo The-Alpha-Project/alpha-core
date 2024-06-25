@@ -74,9 +74,13 @@ class PetAI(CreatureAI):
 
     # Called when owner takes damage. This function helps keep pets from running off simply due to owner gaining aggro.
     # override
-    def owner_attacked_by(self, attacker):
-        if self._get_react_state() != PetReactState.REACT_PASSIVE and not self.creature.combat_target:
-            self.creature.attack(attacker)
+    def owner_attacked_by(self, attacker, proximity_aggro=False):
+        if self.creature.combat_target or self._get_react_state() == PetReactState.REACT_PASSIVE:
+            return
+        # If defensive state and owner did not take a real hit yet, do not attack.
+        if self._get_react_state() == PetReactState.REACT_DEFENSIVE and proximity_aggro:
+            return
+        self.creature.attack(attacker)
 
     # Called when owner attacks something.
     # override
