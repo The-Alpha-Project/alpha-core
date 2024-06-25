@@ -103,7 +103,7 @@ class InventoryManager(object):
                 return False
 
             self.update_locked = True
-            # Add to any existing stacks
+            # Add to any existing stacks.
             for slot, container in self.containers.items():
                 if (not container or not container.can_contain_item(item_template) or
                         self.is_bank_slot(container.current_slot, slot)):

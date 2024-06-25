@@ -377,7 +377,7 @@ class ChannelManager(object):
 
             # Handle AddOn channel.
             if channel.is_addon():
-                Logger.success(f'Registered addon channel [{channel_name}].')
+                Logger.info(f'Registered addon channel [{channel_name}].')
                 ChannelManager.ADDON_CHANNELS[channel_name] = channel
             else:
                 ChannelManager.CHANNELS[player_mgr.team][channel_name] = channel
