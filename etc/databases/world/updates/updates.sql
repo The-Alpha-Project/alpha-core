@@ -2584,6 +2584,9 @@ begin not atomic
         -- Wrong details and objectives for Stocking Jetsteam (317) quest.
         UPDATE `quest_template` SET `Details` = 'I\'m preparing to start a mission for the Siege Brigade.  It\'s a long one, and I need to stock Jetsteam with a month\'s worth of supplies.  So while Steelgrill is working on my tank, can you do some hunting for me?$B$BI\'ll need some boar meat for food.  You can get meat from boars... you can find them in the snow fields south of the Grizzled Den.', `Objectives` = 'Gather 4 Chunks of Boar Meat, and deliver them to Pilot Bellowfiz at Steelgrill\'s Depot.' WHERE (`entry` = '317');
 
+        -- Deafening Screech to Dustwind Harpies
+        UPDATE `creature_template` SET `spell_list_id` = '41000' WHERE (`entry` = '3115');
+
         insert into applied_updates values ('250620245');
     end if;
 
