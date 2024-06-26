@@ -49,11 +49,11 @@ class MovementManager:
         if self.unit.is_controlled():
             is_default = self.unit.is_pet()
             self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=is_default))
+        elif self.unit.creature_group and self.unit.creature_group.is_formation():
+            self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
-        elif self.unit.creature_group and self.unit.creature_group.is_formation() and self.unit.spawn_id:
-            self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
-        elif self.unit.has_waypoints_type() and self.unit.spawn_id:
+        elif self.unit.has_waypoints_type():
             self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, is_default=True))
 
     # Broadcast a new spline from an active movement behavior.
