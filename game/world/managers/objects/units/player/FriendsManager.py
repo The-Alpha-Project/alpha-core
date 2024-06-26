@@ -24,9 +24,9 @@ class FriendsManager(object):
         if character_social_list:
             for entry in character_social_list:
                 if entry.ignore:
-                    self.friends[entry.other_guid] = entry
-                else:
                     self.ignored[entry.other_guid] = entry
+                else:
+                    self.friends[entry.other_guid] = entry
 
     def try_add_friend(self, target_name):
         online_player = WorldSessionStateHandler.find_player_by_name(target_name)
