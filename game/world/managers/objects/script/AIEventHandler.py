@@ -40,17 +40,22 @@ class AIEventHandler:
         self.update_hp_events(now)
         self.update_range_events(now)
 
+    def _enqueue_scripts(self, map_, event, target):
+        scripts = ScriptHelpers.get_filtered_event_scripts(event)
+        if not scripts:
+            return
+
+        for script in scripts:
+            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
+                                script_id=script)
+
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
         map_ = self.creature.get_map()
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
-
-            script = event.action1_script
-            if not script:
-                continue
-            map_.enqueue_script(self.creature, target=None, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+            self._enqueue_scripts(map_, event, None)
 
     def on_enter_combat(self, source=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
@@ -58,13 +63,7 @@ class AIEventHandler:
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
-
-            choices = ScriptHelpers.get_filtered_event_scripts(event)
-            script = choice(choices)
-
-            if not script:
-                continue
-            map_.enqueue_script(self.creature, target=source, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+            self._enqueue_scripts(map_, event, source)
 
     def on_idle(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
@@ -80,12 +79,7 @@ class AIEventHandler:
         for event in events:
             if event.event_chance != 100 and randint(0, 100) > event.event_chance:
                 continue
-            choices = ScriptHelpers.get_filtered_event_scripts(event)
-            script = choice(choices)
-
-            if not script:
-                continue
-            map_.enqueue_script(self.creature, target=killer, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+            self._enqueue_scripts(map_, event, killer)
 
     def on_emote_received(self, player, emote):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RECEIVE_EMOTE)
@@ -95,11 +89,7 @@ class AIEventHandler:
                 continue
 
             # TODO: Check conditions (EmoteId, Condition, CondValue1, CondValue2).
-
-            script = event.action1_script
-            if not script:
-                continue
-            map_.enqueue_script(self.creature, target=player, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+            self._enqueue_scripts(map_, event, player)
 
     def update_hp_events(self, now):
         target = self.creature.combat_target
@@ -120,11 +110,8 @@ class AIEventHandler:
             if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
                 continue
 
-            script = event.action1_script
-            if not script:
-                continue
             self._lock_event(event, now)
-            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+            self._enqueue_scripts(map_, event, target)
 
     def update_range_events(self, now):
         target = self.creature.combat_target
@@ -145,11 +132,8 @@ class AIEventHandler:
             if distance < event.event_param1 or distance > event.event_param2:
                 continue
 
-            script = event.action1_script
-            if not script:
-                continue
             self._lock_event(event, now)
-            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+            self._enqueue_scripts(map_, event, target)
 
     def _event_get_by_type(self, event_type):
         # Skip for charmed units.

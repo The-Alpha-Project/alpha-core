@@ -2606,5 +2606,91 @@ begin not atomic
         insert into applied_updates values ('250620241');
     end if;
 
+    -- 26/06/2024 1
+	if (select count(*) from applied_updates where id='260620241') = 0 then
+        DELETE FROM `spawns_creatures` where `spawn_id` IN (79373, 79374);
+
+        -- Events list for Rhahk'Zor
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=644;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64401, 644, 0, 4, 0, 100, 0, 0, 0, 0, 0, 64401, 0, 0, 'Rhahk\'Zor - Aggro Yell');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64402, 644, 0, 6, 0, 100, 0, 0, 0, 0, 0, 64402, 64403, 0, 'Rhahk\'Zor - On Death');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6441;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=64402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (64402, 0, 0, 11, 30533, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rhahk\'Zor - Open Door');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=64403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (64403, 45, 0, 10, 1729, 0, 0, 0, 0, 0, 0, 0, 0, 172901, -1, 7, -93.0234, -400.3, 58.0467, 3.36123, 0, 'Rhahk\'Zor Death: Summon Defias Evoker'),
+        (64403, 45, 0, 10, 634, 0, 0, 0, 0, 0, 0, 0, 0, 63401, -1, 7, -94.3284, -402.581, 57.4746, 1.52871, 0, 'Rhahk\'Zor Death: Summon Defias Overseer');
+
+
+        -- Events list for Sneed
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=643;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64301, 643, 0, 6, 0, 100, 0, 0, 0, 0, 0, 64301, 0, 0, 'Sneed - On Death');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=6431;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=64301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (64301, 0, 0, 11, 26185, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sneed - Open Door');
+
+        -- Events list for Gilnid
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1763;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176301, 1763, 0, 1, 0, 100, 1, 120000, 120000, 120000, 120000, 176301, 0, 0, 'Gilnid - Random Say OOC');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176302, 1763, 0, 6, 0, 100, 0, 0, 0, 0, 0, 176302, 0, 0, 'Gilnid - On Death');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=17631;
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176302, 0, 0, 11, 26182, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gilnid - Open Door');
+
+        DELETE FROM `creature_movement` WHERE `id` = 79374;
+        DELETE FROM `creature_groups` WHERE `leader_guid` = 79374;
+        DELETE FROM `creature_movement_special` WHERE `id` = 172901;
+        INSERT INTO creature_movement_special (id, point, position_x, position_y, position_z, orientation, waittime, wander_distance, script_id) VALUES
+        (172901, 1, -164.558, -400.443, 56.7705, 0.149922, 0, 0, 0),
+        (172901, 2, -158.347, -399.586, 56.3125, 6.11699, 0, 0, 0),
+        (172901, 3, -149.121, -402.949, 56.9735, 5.93633, 0, 0, 0),
+        (172901, 4, -151.234, -399.159, 56.7516, 2.84383, 0, 0, 0),
+        (172901, 5, -160.264, -396.618, 56.6574, 3.23455, 0, 0, 0),
+        (172901, 6, -167.164, -398.439, 57.2954, 3.64687, 0, 0, 0),
+        (172901, 7, -174.915, -405.601, 56.4655, 4.0317, 0, 0, 0),
+        (172901, 8, -182.109, -415.769, 54.9732, 4.15738, 0, 0, 0),
+        (172901, 9, -188.333, -426.058, 53.9842, 4.20058, 0, 0, 0),
+        (172901, 10, -193.178, -434.586, 53.3664, 4.42246, 0, 0, 0),
+        (172901, 11, -194.276, -445.181, 54.0619, 4.83284, 0, 0, 0),
+        (172901, 12, -192.278, -459.332, 54.5998, 4.86033, 0, 0, 0),
+        (172901, 13, -189.77, -472.617, 54.0449, 4.81126, 0, 0, 0),
+        (172901, 14, -189.769, -478.574, 54.0453, 4.68387, 0, 0, 0),
+        (172901, 15, -187.202, -472.422, 54.0442, 1.6326, 0, 0, 0),
+        (172901, 16, -189.931, -459.185, 54.6009, 1.78183, 0, 0, 0),
+        (172901, 17, -192.156, -444.909, 54.0954, 1.70918, 0, 0, 0),
+        (172901, 18, -191.306, -435.284, 53.2804, 1.10246, 0, 0, 0),
+        (172901, 19, -186.48, -426.263, 53.9539, 1.00821, 0, 0, 0),
+        (172901, 20, -180.007, -416.785, 54.8724, 0.845252, 0, 0, 0),
+        (172901, 21, -171.419, -405.611, 56.9207, 0.876666, 0, 0, 0);
+
+        DELETE FROM `generic_scripts` WHERE `id`=172901;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (172901, 5, 0, 60, 3, 0, 0, 1, 0, 0, 0, 0, 0, 172901, 0, 0, 0, 0, 0, 0, 0, 'Defias Evoker - Start Waypoints');
+        DELETE FROM `generic_scripts` WHERE `id`=63401;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (63401, 0, 0, 78, 15, 0, 0, 0, 1729, 5, 8, 0, 0, 0, 0, 0, 2, 0, 0, 1.57, 0, 'Defias Overseer - Join Group');
+
+        -- Waypoints for Creature Rhahk'Zor (Entry: 644)
+        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_entry1` = 644;
+        DELETE FROM `creature_movement_template` WHERE `entry` = 644;
+        INSERT INTO `creature_movement_template` (`entry`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
+        (644, 1, -192.736313, -450.028412, 54.700020, 100.000000, 0, 0.000000, 0),
+        (644, 2, -192.557236, -446.491516, 54.331799, 100.000000, 0, 0.000000, 0),
+        (644, 3, -192.332230, -444.368164, 54.154686, 100.000000, 0, 0.000000, 0),
+        (644, 4, -191.909073, -440.374908, 53.659283, 100.000000, 20000, 0.000000, 0),
+        (644, 5, -192.332230, -444.368164, 54.154686, 100.000000, 0, 0.000000, 0),
+        (644, 6, -192.557236, -446.491516, 54.331799, 100.000000, 0, 0.000000, 0),
+        (644, 7, -192.736313, -450.028412, 54.700020, 100.000000, 0, 0.000000, 0),
+        (644, 8, -191.670792, -453.175537, 54.566357, 1.658063, 10000, 0.000000, 0);
+
+        insert into applied_updates values ('260620241');
+    end if;
+
 end $
 delimiter ;

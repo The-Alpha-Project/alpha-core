@@ -52,7 +52,7 @@ class CreatureGroupManager:
         if self.creature_group.leader_guid != creature_mgr.spawn_id:
             creature_mgr.movement_manager.initialize_or_reset()
 
-        Logger.debug(f'{creature_mgr.get_name()} joined group, leader is {self.leader.get_name()}.')
+        Logger.debug(f'{creature_mgr.get_name()} joined group.')
 
     def remove_member(self, creature_mgr):
         if creature_mgr.guid not in self.members:

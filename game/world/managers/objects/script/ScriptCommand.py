@@ -73,4 +73,4 @@ class ScriptCommand:
 
     def get_info(self):
         return (f'ScriptID: {self.script_id}, Command {ScriptCommands(self.command).name}, '
-                f'Abort {'True' if self.should_abort() else 'False'}')
+                f'Abort: {"True" if self.should_abort() else "False"}')
