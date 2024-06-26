@@ -115,7 +115,7 @@ class CreatureAI:
         pass
 
     # Called only for pets.
-    def owner_attacked_by(self, attacker):
+    def owner_attacked_by(self, attacker, proximity_aggro=False):
         pass
 
     # Called only for pets.

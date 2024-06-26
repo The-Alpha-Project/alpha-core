@@ -96,7 +96,8 @@ class ThreatManager:
         # Notify pet that owner has been attacked.
         active_pet = self.unit.pet_manager.get_active_controlled_pet()
         if active_pet:
-            active_pet.creature.object_ai.owner_attacked_by(source)
+            proximity_aggro = ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT == threat
+            active_pet.creature.object_ai.owner_attacked_by(source, proximity_aggro)
 
         if threat < 0.0:
             Logger.warning(f'Passed non positive threat {threat} from {source.get_low_guid()}')
