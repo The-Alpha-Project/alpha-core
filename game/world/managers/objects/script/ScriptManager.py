@@ -86,11 +86,15 @@ class ScriptManager:
     def handle_creature_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
         spawn_id: Optional[int] = param1
         surrounding_units = caster.get_map().get_surrounding_units(world_object=caster, include_players=False)
-        found_unit = [unit for unit in surrounding_units.values() if unit.spawn_id == spawn_id]
-        if not found_unit or not found_unit[0].is_alive:
+        found_unit = None
+        for unit in surrounding_units.values():
+            if unit.spawn_id == spawn_id:
+                found_unit = unit
+                break
+        if not found_unit or not found_unit.is_alive:
             Logger.warning(f'Creature lookup by guid failed, source {caster.get_name()} search location {caster.location}')
             return None
-        return found_unit[0]
+        return found_unit
 
     @staticmethod
     def handle_creature_instance_data(caster, target=None, param1=None, param2=None, spell_template=None):
