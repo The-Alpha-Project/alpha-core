@@ -1,5 +1,6 @@
 from game.world.managers.maps.helpers import CellUtils
 from utils.ConfigManager import config
+from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
@@ -31,6 +32,8 @@ class GroupMovement(BaseMovement):
                 self._set_last_movement(now)
             elif self._can_perform_follow_movement(now) and self._perform_follow_movement(elapsed):
                 self._set_last_movement(now)
+        else:
+            Logger.warning(f'{self.unit.get_name()} creature group has no leader.')
 
         super().update(now, elapsed)
 

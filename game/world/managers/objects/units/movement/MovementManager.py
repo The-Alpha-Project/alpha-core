@@ -39,7 +39,7 @@ class MovementManager:
         }
         self.spline_events = []
 
-    def initialize(self):
+    def initialize_or_reset(self):
         if self.is_player:
             return
 

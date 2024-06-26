@@ -3,6 +3,7 @@ from random import choice
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.units.creature.groups.CreatureGroupMember import CreatureGroupMember
 from game.world.managers.objects.units.movement.helpers.MovementWaypoint import MovementWaypoint
+from utils.Logger import Logger
 from utils.constants.MiscCodes import CreatureGroupFlags
 
 
@@ -29,9 +30,9 @@ class CreatureGroupManager:
     def is_leader(self, creature_mgr):
         return self.leader and self.leader.guid == creature_mgr.guid
 
-    def add_member(self, creature_mgr):
+    def add_member(self, creature_mgr, dist: int = 0, angle: int = 0, flags: int = 0):
         if creature_mgr.guid not in self.members:
-            self.members[creature_mgr.guid] = CreatureGroupMember(creature_mgr, self.creature_group)
+            self.members[creature_mgr.guid] = CreatureGroupMember(creature_mgr, self.creature_group, dist, angle, flags)
         # Set leader.
         if self.creature_group.leader_guid == creature_mgr.spawn_id:
             self.leader = creature_mgr
@@ -45,16 +46,36 @@ class CreatureGroupManager:
 
         self.group_flags |= self.creature_group.flags
 
+        if not creature_mgr.creature_group:
+            creature_mgr.creature_group = self
+
+        if self.creature_group.leader_guid != creature_mgr.spawn_id:
+            creature_mgr.movement_manager.initialize_or_reset()
+
+        Logger.debug(f'{creature_mgr.get_name()} joined group, leader is {self.leader.get_name()}.')
+
     def remove_member(self, creature_mgr):
         if creature_mgr.guid not in self.members:
             return
         self.members.pop(creature_mgr.guid)
+        disbanded = False
 
-        if not self.members:
+        if not self.members or self.original_leader_spawn_id == creature_mgr.spawn_id:
             self.disband()
+            disbanded = True
         elif self.is_leader(creature_mgr) and self.is_formation():
             new_leader = self._pick_new_leader()
             self.leader = new_leader if new_leader else None
+
+        if creature_mgr.creature_group:
+            creature_mgr.creature_group = None
+
+        # Member left the group but group still exists, reset leaver movement behavior.
+        if not disbanded and self.original_leader_spawn_id != creature_mgr.spawn_id:
+            creature_mgr.movement_manager.initialize_or_reset()
+
+        if not disbanded:
+            Logger.debug(f'{creature_mgr.get_name()} left creature group.')
 
     def on_members_attack_start(self, creature_mgr, target):
         if not target or not self.group_flags & CreatureGroupFlags.OPTION_AGGRO_TOGETHER:
@@ -94,8 +115,14 @@ class CreatureGroupManager:
                 member.creature.leave_combat()
 
     def disband(self):
+        Logger.debug(f'Disbanding creature group.')
         for guid, member in self.members.items():
             member.creature_group = None
+            member.creature.creature_group = None
+            # Reset movement behavior for non leader members.
+            if self.original_leader_spawn_id != member.creature.spawn_id:
+                member.creature.movement_manager.initialize_or_reset()
+            Logger.debug(f'{member.creature.get_name()} left creature group.')
         self.members.clear()
         CREATURE_GROUPS.pop(self.original_leader_spawn_id)
 

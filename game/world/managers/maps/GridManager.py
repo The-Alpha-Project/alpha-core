@@ -264,7 +264,7 @@ class GridManager:
         return None
 
     def _get_surrounding_creature_spawns(self, world_object):
-        spawns = {}
+        spawns = dict()
         location = world_object.location
         cells = self._get_surrounding_cells_by_location(location.x, location.y, world_object.map_id,
                                                         world_object.instance_id)

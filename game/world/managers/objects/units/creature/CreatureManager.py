@@ -279,7 +279,7 @@ class CreatureManager(UnitManager):
         self.apply_default_auras()
 
         # Movement.
-        self.movement_manager.initialize()
+        self.movement_manager.initialize_or_reset()
 
         self.fully_loaded = True
 

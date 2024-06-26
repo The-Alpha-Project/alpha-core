@@ -85,10 +85,12 @@ class ScriptManager:
     @staticmethod
     def handle_creature_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
         spawn_id: Optional[int] = param1
-        spawn = caster.get_map().get_surrounding_creature_spawn_by_spawn_id(caster, spawn_id)
-        if not spawn or not spawn.creature_instance or not spawn.creature_instance.is_alive:
+        surrounding_units = caster.get_map().get_surrounding_units(world_object=caster, include_players=False)
+        found_unit = [unit for unit in surrounding_units.values() if unit.spawn_id == spawn_id]
+        if not found_unit or not found_unit[0].is_alive:
+            Logger.warning(f'Creature lookup by guid failed, source {caster.get_name()} search location {caster.location}')
             return None
-        return spawn.creature_instance
+        return found_unit[0]
 
     @staticmethod
     def handle_creature_instance_data(caster, target=None, param1=None, param2=None, spell_template=None):
@@ -127,6 +129,7 @@ class ScriptManager:
         spawn_id: Optional[int] = param1
         spawn = caster.get_map().get_surrounding_gameobject_spawn_by_spawn_id(caster, spawn_id)
         if not spawn or not spawn.gameobject_instance or not spawn.gameobject_instance.is_spawned:
+            Logger.warning(f'Gameobject lookup by guid failed, source {caster.get_name()} search location {caster.location}')
             return None
         return spawn.gameobject_instance
 
