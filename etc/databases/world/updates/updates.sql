@@ -2671,7 +2671,7 @@ begin not atomic
 
         DELETE FROM `generic_scripts` WHERE `id`=172901;
         INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (172901, 2, 0, 60, 3, 0, 0, 1, 0, 0, 0, 0, 0, 172901, 0, 0, 0, 0, 0, 0, 0, 'Defias Evoker - Start Waypoints');
+        (172901, 1, 0, 60, 3, 0, 0, 1, 0, 0, 0, 0, 0, 172901, 0, 0, 0, 0, 0, 0, 0, 'Defias Evoker - Start Waypoints');
         DELETE FROM `generic_scripts` WHERE `id`=63401;
         INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (63401, 0, 0, 78, 15, 0, 0, 0, 1729, 5, 8, 0, 0, 0, 0, 0, 2, 0, 0, 1.57, 0, 'Defias Overseer - Join Group');

@@ -1,6 +1,6 @@
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
-from game.world.managers.objects.guids.GuidManager import GuidManager
+from game.world.managers.objects.GuidManager import GuidManager
 from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
 from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 

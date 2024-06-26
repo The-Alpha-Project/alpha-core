@@ -1,10 +1,12 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
-from game.world.managers.objects.guids.GuidManager import GuidManager
+from game.world.managers.objects.GuidManager import GuidManager
 from utils.constants import CustomCodes
 from utils.constants.UnitCodes import MovementTypes, UnitFlags, UnitStates
 
 
 class CreatureBuilder:
+    MAX_SPAWN_ID = WorldDatabaseManager.creature_get_max_spawn_id()
+
     UNIT_GUID_MANAGER = GuidManager()
     PET_GUID_MANAGER = GuidManager()
 
@@ -16,6 +18,11 @@ class CreatureBuilder:
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
         if not creature_template:
             return None
+
+        # If no spawn_id is provided (for creatures spawned on runtime), generate a new unique one.
+        if spawn_id == 0:
+            CreatureBuilder.MAX_SPAWN_ID += 1
+            spawn_id = CreatureBuilder.MAX_SPAWN_ID
 
         from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
         creature_instance = CreatureManager()

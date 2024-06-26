@@ -1,5 +1,5 @@
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.guids.GuidManager import GuidManager
+from game.world.managers.objects.GuidManager import GuidManager
 from game.world.managers.objects.units.player.PlayerManager import PlayerManager
 from utils.ByteUtils import ByteUtils
 from utils.constants.ItemCodes import InventorySlots

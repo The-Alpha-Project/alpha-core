@@ -2,7 +2,7 @@ import os
 from typing import Optional
 from difflib import SequenceMatcher
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.world.WorldModels import *
@@ -327,6 +327,13 @@ class WorldDatabaseManager(object):
         return res
 
     @staticmethod
+    def gameobject_get_max_spawn_id() -> int:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(func.max(SpawnsGameobjects.spawn_id)).filter_by(ignored=0).scalar()
+        world_db_session.close()
+        return res
+
+    @staticmethod
     def gameobject_get_all_spawns_by_map_id(map_id) -> [list[SpawnsGameobjects], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsGameobjects).filter_by(ignored=0, spawn_map=map_id).all()
@@ -588,6 +595,13 @@ class WorldDatabaseManager(object):
     def creature_get_all_spawns() -> [list[SpawnsCreatures], scoped_session]:
         world_db_session = SessionHolder()
         res = world_db_session.query(SpawnsCreatures).filter_by(ignored=0).all()
+        world_db_session.close()
+        return res
+
+    @staticmethod
+    def creature_get_max_spawn_id() -> int:
+        world_db_session = SessionHolder()
+        res = world_db_session.query(func.max(SpawnsCreatures.spawn_id)).filter_by(ignored=0).scalar()
         world_db_session.close()
         return res
 

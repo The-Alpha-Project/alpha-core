@@ -3,7 +3,6 @@ from typing import Optional
 
 from database.world.WorldModels import SpawnsCreatures
 from game.world.managers.abstractions.Vector import Vector
-from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.CreatureManager import CreatureManager
 from utils.Logger import Logger

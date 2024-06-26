@@ -13,8 +13,7 @@ from game.world.managers.objects.gameobjects.managers.RitualManager import Ritua
 from game.world.managers.objects.gameobjects.managers.SpellFocusManager import SpellFocusManager
 from game.world.managers.objects.gameobjects.managers.TrapManager import TrapManager
 from game.world.managers.objects.ObjectManager import ObjectManager
-from game.world.managers.objects.guids.GuidManager import GuidManager
-from game.world.managers.objects.script.ScriptHandler import ScriptHandler
+from game.world.managers.objects.GuidManager import GuidManager
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, GameObjectTypes, \
     GameObjectStates, ScriptTypes

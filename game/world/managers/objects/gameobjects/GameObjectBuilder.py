@@ -1,9 +1,11 @@
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.gameobjects.GameObjectManager import GameObjectManager
-from game.world.managers.objects.guids.GuidManager import GuidManager
+from game.world.managers.objects.GuidManager import GuidManager
 
 
 class GameObjectBuilder:
+    MAX_SPAWN_ID = WorldDatabaseManager.gameobject_get_max_spawn_id()
+
     GUID_MANAGER = GuidManager()
 
     @staticmethod
@@ -13,6 +15,11 @@ class GameObjectBuilder:
         gobject_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry_id)
         if not gobject_template:
             return None
+
+        # If no spawn_id is provided (for gameobjects spawned on runtime), generate a new unique one.
+        if spawn_id == 0:
+            GameObjectBuilder.MAX_SPAWN_ID += 1
+            spawn_id = GameObjectBuilder.MAX_SPAWN_ID
 
         gameobject_instance = GameObjectManager()
         gameobject_instance.is_default = is_default
