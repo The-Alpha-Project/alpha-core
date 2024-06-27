@@ -95,7 +95,7 @@ class ActivePet:
         movement_type = MovementTypes.IDLE
         map_ = self.creature.get_map()
         # Check if this is a borrowed creature instance.
-        if self.creature.spawn_id:
+        if not self.creature.is_dynamic_spawn:
             spawn = map_.get_surrounding_creature_spawn_by_spawn_id(self.creature, self.creature.spawn_id)
             # This creature might be too far from its spawn upon detach, search in all map cells.
             if not spawn:
@@ -121,7 +121,7 @@ class ActivePet:
             self._pet_manager.send_pet_spell_info(reset=True)
 
         # Orphan creature. In some cases, the creature may already be destroyed.
-        if self.creature.is_spawned and not self.creature.spawn_id:
+        if self.creature.is_spawned and self.creature.is_dynamic_spawn:
             self.creature.despawn()
 
         # Releasing a pet. Restore state.

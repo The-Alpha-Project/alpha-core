@@ -29,6 +29,7 @@ class CreatureBuilder:
         creature_instance.summoner = summoner
         creature_instance.subtype = subtype
         creature_instance.spawn_id = spawn_id
+        creature_instance.is_dynamic_spawn = spawn_id == CreatureBuilder.MAX_SPAWN_ID
         creature_instance.entry = creature_template.entry
         creature_instance.guid = CreatureBuilder._get_guid(creature_instance, subtype)
         creature_instance.creature_template = creature_template

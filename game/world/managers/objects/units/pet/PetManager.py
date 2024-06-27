@@ -387,7 +387,7 @@ class PetManager:
 
     def _handle_creature_spawn_detach(self, creature: CreatureManager, is_permanent):
         # Creatures which are linked to a CreatureSpawn.
-        if creature.get_type_id() != ObjectTypeIds.ID_UNIT or not creature.spawn_id:
+        if creature.get_type_id() != ObjectTypeIds.ID_UNIT or creature.is_dynamic_spawn:
             return
 
         spawn = self.owner.get_map().get_surrounding_creature_spawn_by_spawn_id(self.owner, creature.spawn_id)
