@@ -127,7 +127,8 @@ class StatManager(object):
         if not base_stats:
             if self.unit_mgr.level > 60:
                 # Default to max available base stats, level 60.
-                base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(self.unit_mgr.class_, 60)
+                base_stats = WorldDatabaseManager.UnitClassLevelStatsHolder.get_for_class_level(
+                    self.unit_mgr.class_, 60)
                 Logger.warning(f'Unsupported base stats for level ({self.unit_mgr.level})'
                                f' Unit class ({Classes(self.unit_mgr.class_).name})'
                                f' Unit type ({ObjectTypeIds(self.unit_mgr.get_type_id()).name})'
@@ -266,9 +267,11 @@ class StatManager(object):
                 self.unit_mgr.level)
             if not pet_stats:
                 Logger.warning(f'Unable to locate pet level stats for creature entry '
-                               f'{creature_template.entry} level {self.unit_mgr.level}')
-                # Use default stats.
-                pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(1, self.unit_mgr.level)
+                               f'{creature_template.entry} level {self.unit_mgr.level}, '
+                               f'using default stats (capped at level 60).')
+                # Use default stats, capped at level 60.
+                pet_stats = WorldDatabaseManager.get_pet_level_stats_by_entry_and_level(
+                    1, min(self.unit_mgr.level, 60))
 
             # From VMaNGOS.
             delay_mod = creature_template.base_attack_time / 2000
