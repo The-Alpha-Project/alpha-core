@@ -61,6 +61,14 @@ class CreatureBuilder:
             creature_instance.unit_state |= UnitStates.POSSESSED
             summoner.possessed_unit = creature_instance
 
+        # TODO: Hackfix to reduce aggro radius for dungeon creatures until (if?) we determine if dungeons actually
+        #  had LoS data or not and (in that case) determine why namigator is not properly finding it.
+        #  This prevents pulling across most walls and ceilings.
+        from game.world.managers.maps.MapManager import MapManager
+        if MapManager.is_dungeon_map_id(creature_instance.map_id):
+            creature_instance.creature_template.detection_range = min(
+                creature_instance.creature_template.detection_range, 8)
+
         return creature_instance
 
     @staticmethod
