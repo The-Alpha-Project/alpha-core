@@ -31,6 +31,7 @@ class CreatureManager(UnitManager):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.spawn_id = 0
+        self.is_dynamic_spawn = False
         self.entry = 0
         self.guid = 0
         self.creature_template = None
