@@ -30,7 +30,7 @@ class LootManager(object):
     # noinspection PyMethodMayBeStatic
     def generate_loot_groups(self, loot_template):
         loot_groups = {}
-        max_groupid = max(loot_item.groupid for loot_item in loot_template)
+        max_groupid = max(loot_item.groupid for loot_item in loot_template) if loot_template else 0
         for loot_item in loot_template:
             # Group skinning loot templates separately.
             if isinstance(loot_item, SkinningLootTemplate):
