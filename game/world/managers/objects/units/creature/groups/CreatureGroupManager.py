@@ -124,6 +124,9 @@ class CreatureGroupManager:
                 member.creature.movement_manager.initialize_or_reset()
             Logger.debug(f'{member.creature.get_name()} left creature group.')
         self.members.clear()
+        if not self.original_leader_spawn_id:
+            Logger.error(f'Orphan creature group with no leader. Leader Spawn ID: {self.creature_group.leader_guid}.')
+            return
         CREATURE_GROUPS.pop(self.original_leader_spawn_id)
 
     def is_formation(self):
