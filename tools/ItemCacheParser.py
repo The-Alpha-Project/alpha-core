@@ -138,7 +138,8 @@ class ItemCacheParser:
                                 index += 12  # Unknown fields.
 
                             index, max_count = ItemCacheParser._read_int(data, index)
-                            if ItemCacheParser._should_update(max_count, item_template.max_count):
+                            # Don't update max_count for rings. See https://github.com/The-Alpha-Project/alpha-core/pull/1345
+                            if inventory_type != 11 and ItemCacheParser._should_update(max_count, item_template.max_count):
                                 sql_field_comment.append(f"-- max_count, from {item_template.max_count} to {max_count}")
                                 sql_field_updates.append(f"`max_count` = {max_count}")
 

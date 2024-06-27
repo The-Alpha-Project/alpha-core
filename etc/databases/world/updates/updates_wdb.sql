@@ -11084,3 +11084,6 @@ UPDATE `applied_item_updates` SET `entry` = 11848, `version` = 3810 WHERE (`entr
 -- max_durability, from 35 to 0
 UPDATE `item_template` SET `max_durability` = 0 WHERE (`entry` = 3260);
 UPDATE `applied_item_updates` SET `entry` = 3260, `version` = 3810 WHERE (`entry` = 3260);
+
+-- Set all rings to unique. https://github.com/The-Alpha-Project/alpha-core/pull/1345
+UPDATE `item_template` set `max_count` = 1 where `inventory_type` = 11;
