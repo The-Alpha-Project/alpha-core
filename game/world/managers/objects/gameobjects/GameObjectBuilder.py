@@ -17,7 +17,9 @@ class GameObjectBuilder:
             return None
 
         # If no spawn_id is provided (for gameobjects spawned on runtime), generate a new unique one.
+        is_dynamic_spawn = False
         if spawn_id == 0:
+            is_dynamic_spawn = True
             GameObjectBuilder.MAX_SPAWN_ID += 1
             spawn_id = GameObjectBuilder.MAX_SPAWN_ID
 
@@ -25,7 +27,7 @@ class GameObjectBuilder:
         gameobject_instance.is_default = is_default
         gameobject_instance.is_spawned = is_spawned
         gameobject_instance.spawn_id = spawn_id
-        gameobject_instance.is_dynamic_spawn = spawn_id == GameObjectBuilder.MAX_SPAWN_ID
+        gameobject_instance.is_dynamic_spawn = is_dynamic_spawn
         gameobject_instance.entry = gobject_template.entry
         gameobject_instance.gobject_template = gobject_template
         gameobject_instance.guid = gameobject_instance.generate_object_guid(GameObjectBuilder.GUID_MANAGER.get_new_guid())
