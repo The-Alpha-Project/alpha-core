@@ -3,6 +3,7 @@ from struct import pack
 from threading import RLock
 
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from database.world.WorldModels import SkinningLootTemplate
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeIds
 from utils.constants.OpCodes import OpCode
@@ -29,7 +30,11 @@ class LootManager(object):
     # noinspection PyMethodMayBeStatic
     def generate_loot_groups(self, loot_template):
         loot_groups = {}
+        max_groupid = max(loot_item.groupid for loot_item in loot_template) if loot_template else 0
         for loot_item in loot_template:
+            # Group skinning loot templates separately.
+            if isinstance(loot_item, SkinningLootTemplate):
+                loot_item.groupid = max_groupid + 1
             if loot_item.groupid not in loot_groups:
                 loot_groups[loot_item.groupid] = []
             loot_groups[loot_item.groupid].append(loot_item)
