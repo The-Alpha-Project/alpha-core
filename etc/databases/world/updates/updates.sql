@@ -2826,5 +2826,16 @@ begin not atomic
         insert into applied_updates values ('260620241');
     end if;
 
+    -- 27/06/2024 1
+	if (select count(*) from applied_updates where id='270620241') = 0 then
+        -- Suspicious Barrel placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4746.282', `spawn_positionY` = '-3530.934', `spawn_positionZ` = '297.854' WHERE (`spawn_id` = '11525');
+        
+        -- Baros Alexston @ Trade District.
+        UPDATE `quest_template` SET `Details` = 'Searching Edwin VanCleef\'s person, you discover, among other things, an unsent letter. It is addressed to Baros Alexston, the City Architect of Stormwind, Trade District.$B$BIt appears to be recently written and sealed.' WHERE (`entry` = '373');
+
+        insert into applied_updates values ('270620241');
+    end if;
+
 end $
 delimiter ;
