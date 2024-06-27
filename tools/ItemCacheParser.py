@@ -20,6 +20,9 @@ class ItemCacheParser:
                         version = unpack('<i', wdb.read(4))[0]
                         record_count = unpack('<i', wdb.read(4))[0]  # Does not match real count.
                         wdb.read(4)  # Record version.
+                        # TODO: The WDB we have for this version is altered and bugged, ignore for automatic parsing.
+                        if version == 3734:
+                            continue
 
                         if version not in cached_results:
                             cached_results[version] = []
@@ -156,10 +159,10 @@ class ItemCacheParser:
                                 index, stat_value = ItemCacheParser._read_int(data, index)
                                 current_stat_value = eval(f'item_template.stat_value{y + 1}')
                                 if ItemCacheParser._should_update(stat_type, current_stat_type):
-                                    sql_field_comment.append(f"-- stat_type{y + 1}, from {current} to {stat_type}")
+                                    sql_field_comment.append(f"-- stat_type{y + 1}, from {current_stat_type} to {stat_type}")
                                     sql_field_updates.append(f"`stat_type{y + 1}` = {stat_type}")
                                 if ItemCacheParser._should_update(current_stat_value, stat_value):
-                                    sql_field_comment.append(f"-- stat_value{y + 1}, from {current} to {stat_value}")
+                                    sql_field_comment.append(f"-- stat_value{y + 1}, from {current_stat_value} to {stat_value}")
                                     sql_field_updates.append(f"`stat_value{y + 1}` = {stat_value}")
 
                             for y in range(5):
@@ -255,10 +258,12 @@ class ItemCacheParser:
                                     sql_field_comment.append(f"-- spellcategorycooldown_{y + 1}, from {current_spellcategorycooldown} to {spellcategorycooldown}")
                                     sql_field_updates.append(f"`spellcategorycooldown_{y + 1}` = {spellcategorycooldown}")
 
+                            # Don't update bonding manually as it worked quite differently in 0.5.3.
+                            # See https://github.com/The-Alpha-Project/alpha-core/pull/1345
                             index, bonding = ItemCacheParser._read_int(data, index)
-                            if ItemCacheParser._should_update(bonding, item_template.bonding):
-                                sql_field_comment.append(f"-- bonding, from {item_template.bonding} to {bonding}")
-                                sql_field_updates.append(f"`bonding` = {bonding}")
+                            #if ItemCacheParser._should_update(bonding, item_template.bonding):
+                                #sql_field_comment.append(f"-- bonding, from {item_template.bonding} to {bonding}")
+                                #sql_field_updates.append(f"`bonding` = {bonding}")
 
                             index, description = ItemCacheParser._read_string(data, index)
                             if ItemCacheParser._should_update(description, item_template.description) and len(description) > 0:
@@ -338,7 +343,7 @@ class ItemCacheParser:
 
         if len(cached_results) > 0:
             for version, update_lines in cached_results.items():
-                print(f'-- \n{version}\n')
+                print(f'-- {version}\n')
                 for line in update_lines:
                     print(line)
 
@@ -358,4 +363,4 @@ class ItemCacheParser:
 
     @staticmethod
     def _should_update(new, old):
-        return new != -1 and new != 0 and old != -1 and old != 0 and new != old
+        return new != -1 and old != -1 and new != old
