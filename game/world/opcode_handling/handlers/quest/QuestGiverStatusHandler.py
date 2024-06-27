@@ -25,7 +25,7 @@ class QuestGiverStatusHandler(object):
                 high_guid = GuidUtils.extract_high_guid(guid)
                 if high_guid == HighGuid.HIGHGUID_ITEM:
                     quest_giver = player_mgr.inventory.get_item_by_guid(guid)
-                elif high_guid == HighGuid.HIGHGUID_UNIT:
+                elif high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PET:
                     quest_giver = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
                 elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
                     quest_giver = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)

@@ -44,7 +44,7 @@ class ActiveQuest:
 
         if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
             quest_giver = self.owner.get_map().get_surrounding_gameobject_by_guid(self.owner, quest_giver_guid)
-        elif high_guid == HighGuid.HIGHGUID_UNIT:
+        elif high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PET:
             quest_giver = self.owner.get_map().get_surrounding_unit_by_guid(self.owner, quest_giver_guid)
 
         if not quest_giver:

@@ -1337,8 +1337,8 @@ class WorldDatabaseManager(object):
             return WorldDatabaseManager.QuestGossipHolder.GOSSIP_MENU.get(entry, None)
 
         @staticmethod
-        def npc_gossip_get_by_guid(npc_guid: int) -> Optional[NpcGossip]:
-            return WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS.get(npc_guid & ~HighGuid.HIGHGUID_UNIT)
+        def npc_gossip_get_by_guid(spawn_id: int) -> Optional[NpcGossip]:
+            return WorldDatabaseManager.QuestGossipHolder.NPC_GOSSIPS.get(spawn_id)
 
         @staticmethod
         def npc_text_get_by_id(text_id: int) -> Optional[NpcText]:

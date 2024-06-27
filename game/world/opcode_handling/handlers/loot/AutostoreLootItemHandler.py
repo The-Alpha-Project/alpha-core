@@ -19,7 +19,7 @@ class AutostoreLootItemHandler(object):
         if player_mgr.loot_selection:
             high_guid: HighGuid = GuidUtils.extract_high_guid(player_mgr.loot_selection.object_guid)
             world_obj_target = None
-            if high_guid == HighGuid.HIGHGUID_UNIT:
+            if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PET:
                 world_obj_target = player_mgr.get_map().get_surrounding_unit_by_guid(
                     player_mgr, player_mgr.loot_selection.object_guid, include_players=False)
             elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:

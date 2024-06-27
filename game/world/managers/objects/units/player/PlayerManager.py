@@ -958,7 +958,7 @@ class PlayerManager(UnitManager):
 
         # Resolve loot target first.
         target_world_object = None
-        if high_guid == HighGuid.HIGHGUID_UNIT:
+        if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PET:
             target_world_object = self.get_map().get_surrounding_unit_by_guid(self, loot_selection.object_guid,
                                                                               include_players=False)
         elif high_guid == HighGuid.HIGHGUID_GAMEOBJECT:

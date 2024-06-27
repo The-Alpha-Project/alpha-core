@@ -24,7 +24,7 @@ class DebugAIStateHandler(object):
             guid = unpack('<Q', reader.data[:8])[0]
 
             high_guid: HighGuid = GuidUtils.extract_high_guid(guid)
-            if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PLAYER:
+            if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PLAYER or high_guid == HighGuid.HIGHGUID_PET:
                 world_object = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid, include_players=True)
             else:
                 world_object = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)

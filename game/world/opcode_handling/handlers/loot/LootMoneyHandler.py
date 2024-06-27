@@ -17,11 +17,11 @@ class LootMoneyHandler(object):
         if player_mgr.loot_selection:
             high_guid = GuidUtils.extract_high_guid(player_mgr.loot_selection.object_guid)
             if high_guid == HighGuid.HIGHGUID_GAMEOBJECT:
-                world_object = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr,
-                                                                                       player_mgr.loot_selection.object_guid)
-            elif high_guid == HighGuid.HIGHGUID_UNIT:
-                world_object = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr,
-                                                                                 player_mgr.loot_selection.object_guid)
+                world_object = player_mgr.get_map().get_surrounding_gameobject_by_guid(
+                    player_mgr, player_mgr.loot_selection.object_guid)
+            elif high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PET:
+                world_object = player_mgr.get_map().get_surrounding_unit_by_guid(
+                    player_mgr, player_mgr.loot_selection.object_guid)
             else:
                 Logger.error(f'Tried to loot money from an unknown object type: ({high_guid}).')
                 return
