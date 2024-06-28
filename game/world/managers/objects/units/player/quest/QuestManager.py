@@ -922,7 +922,12 @@ class QuestManager(object):
         # TODO: Mysterious Dovah crash, no one can reproduce.
         #  https://www.youtube.com/watch?v=vGtCHEKg9Qk
         if quest_id not in self.active_quests:
-            Logger.error(f'Unable to locate active quest for id {quest_id}.')
+            map_ = self.player_mgr.get_map()
+            player_x = self.player_mgr.location.x
+            player_y = self.player_mgr.location.y
+            player_z = self.player_mgr.location.z
+            Logger.error(f'Unable to locate active quest for id {quest_id}. '
+                         f'Player Map: {map_}, X: {player_x}, Y: {player_y}, Z: {player_z}.')
             return
 
         active_quest = self.active_quests[quest_id]
