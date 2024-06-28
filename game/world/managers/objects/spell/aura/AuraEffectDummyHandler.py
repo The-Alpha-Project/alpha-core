@@ -28,7 +28,7 @@ class AuraEffectDummyHandler:
         aura.caster.possessed_unit = None
 
     @staticmethod
-    def handle_party_fever(_aura, effect_target, remove):
+    def handle_party_fever(aura, effect_target, remove):
         if remove or effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
@@ -50,7 +50,7 @@ class AuraEffectDummyHandler:
 
     @staticmethod
     # This does not display an aura, it can't be cancelled.
-    def handle_sleep(_aura, effect_target, remove):
+    def handle_sleep(aura, effect_target, remove):
         if not effect_target.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 

@@ -256,7 +256,10 @@ class AuraEffectHandler:
     def handle_feign_death(aura, effect_target, remove):
         if not aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
-        effect_target.mirror_timers_manager.feign_death = not remove
+
+        if aura.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            effect_target.mirror_timers_manager.feign_death = not remove
+
         if not remove:
             duration = aura.source_spell.get_duration() / 1000
             # Set sanctuary state.
@@ -265,8 +268,9 @@ class AuraEffectHandler:
             aura.caster.set_sanctuary(False)
 
     @staticmethod
-    def handle_water_breathing(_aura, effect_target, remove):
-        effect_target.mirror_timers_manager.update_water_breathing(state=not remove)
+    def handle_water_breathing(aura, effect_target, remove):
+        if aura.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+            effect_target.mirror_timers_manager.update_water_breathing(state=not remove)
 
     @staticmethod
     def handle_mod_disarm(aura, effect_target, remove):
