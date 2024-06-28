@@ -29,7 +29,15 @@ class Script:
             # Check if it's time to execute the command action.
             if script_command.delay and now - self.time_added < script_command.delay:
                 return
-            self.commands.remove(script_command)
+
+            try:
+                self.commands.remove(script_command)
+            except ValueError:
+                # TODO: This *shouldn't* happen, but I have seen it in the logs. Adding some debugging code to try
+                #  to gather more information about it in case it happens again.
+                Logger.error(f'Unable to remove script command with ID {script_command.script_id} and comment '
+                             f'"{script_command.comments}". Already executed?')
+                continue
 
             # Try to resolve initial targets for this command.
             succeed, source, target = script_command.resolve_initial_targets(self.source, self.target)
