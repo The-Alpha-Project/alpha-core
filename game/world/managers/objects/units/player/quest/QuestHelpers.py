@@ -94,7 +94,7 @@ class QuestHelpers:
     @staticmethod
     @lru_cache
     def generate_rew_item_list(quest_template):
-        return [quest_template.RewItemId1, quest_template.RewItemId3, quest_template.RewItemId2, quest_template.RewItemId4]
+        return [quest_template.RewItemId1, quest_template.RewItemId2, quest_template.RewItemId3, quest_template.RewItemId4]
 
     @staticmethod
     @lru_cache
