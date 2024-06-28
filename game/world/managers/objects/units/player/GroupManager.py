@@ -374,21 +374,32 @@ class GroupManager(object):
         return True
 
     def reward_group_xp(self, requester, creature, is_elite):
+        # TODO: Below logic is an educated guess, find out if this is exactly how it should work.
         close_members = self.get_close_members(requester)
-        highest_level = requester.level
-        level_sum = 0
-        # Need to loop first through all members in order to find the highest level one and the total sum of levels.
-        for player_mgr in close_members:
-            if player_mgr.level > highest_level:
-                highest_level = player_mgr.level
-            level_sum += player_mgr.level
+        group_count = len(close_members)
 
-        # Calculate base XP based on the player with the highest level.
-        base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, highest_level, is_elite)
+        if group_count == 0:
+            return  # No members to award XP to.
 
-        # Iterate again over member players in order to award XP.
+        group_rate = Formulas.PlayerFormulas.group_xp_rate(group_count)
+        total_xp = 0
+        xp_awards = []
+
+        # Calculate XP for each player, then sum it together.
         for player_mgr in close_members:
-            player_mgr.give_xp([base_xp * player_mgr.level / level_sum], creature)
+            base_xp = Formulas.CreatureFormulas.xp_reward(creature.level, player_mgr.level, is_elite)
+            if base_xp:
+                xp_awards.append(player_mgr)
+                total_xp += base_xp
+
+        if not xp_awards:
+            return  # No XP to award.
+
+        # Calculate final XP to award to each player.
+        average_xp = (total_xp / group_count) * group_rate
+
+        for player_mgr in xp_awards:
+            player_mgr.give_xp([average_xp], creature)
 
     def reward_group_creature_or_go(self, requester, creature):
         close_members = self.get_close_members(requester)

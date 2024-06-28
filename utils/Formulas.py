@@ -224,3 +224,16 @@ class PlayerFormulas:
             return math.ceil(rew_xp * 0.2)
         else:
             return math.ceil(rew_xp * 0.1)
+
+    # Guesses based on Vanilla observations.
+    @staticmethod
+    def group_xp_rate(group_count):
+        if group_count < 3:
+            return 1.0
+        if group_count == 3:
+            return 1.166
+        if group_count == 4:
+            return 1.3
+        if group_count == 5:
+            return 1.4
+        return max(1 - (group_count * 0.05), 0.01)
