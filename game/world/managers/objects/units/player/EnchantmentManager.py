@@ -115,7 +115,7 @@ class EnchantmentManager(object):
                     if update_slot != -1 and update_slot != slot:
                         continue
                     duration = 0 if enchantment.duration <= 0 else enchantment.duration
-                    data = pack('<Q2IQ', item.guid, slot, duration, self.unit_mgr.guid)
+                    data = pack('<Q2I', item.guid, slot, duration)
                     self.unit_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_ENCHANT_TIME_UPDATE, data))
 
     def handle_equipment_change(self, source_item, dest_item):
