@@ -2835,7 +2835,7 @@ begin not atomic
         UPDATE `quest_template` SET `Details` = 'Searching Edwin VanCleef\'s person, you discover, among other things, an unsent letter. It is addressed to Baros Alexston, the City Architect of Stormwind, Trade District.$B$BIt appears to be recently written and sealed.' WHERE (`entry` = '373');
 
         -- Remove vendor flag from Yarlyn Amberstill, Rabbit Crate did not exist.
-        UPDATE `alpha_world`.`creature_template` SET `npc_flags` = '0' WHERE (`entry` = '1263');
+        UPDATE `creature_template` SET `npc_flags` = '0' WHERE (`entry` = '1263');
 
         insert into applied_updates values ('270620241');
     end if;
