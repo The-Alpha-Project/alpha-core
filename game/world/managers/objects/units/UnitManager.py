@@ -1070,12 +1070,12 @@ class UnitManager(ObjectManager):
         return change_speed
 
     # override
-    def can_detect_target(self, target, distance=0):
+    def can_detect_target(self, target, distance=-1):
         if not target.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
             return True, False
 
         # No distance provided, calculate here.
-        if not distance:
+        if distance < 0:
             distance = self.location.distance(target.location)
 
         if distance > 30.0:
@@ -1815,10 +1815,23 @@ class UnitManager(ObjectManager):
             distance = unit.location.distance(self.location)
             unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
             detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
+
+            # Adjustments due to level differences, cap at 25 level difference. Aggro radius seems to vary at a rate of
+            # 1 yard per level (it can both grow or shrink). Only make this effective if one of the parties involved is
+            # a player (or a player controlled pet) and always take its level into account, not the level from the
+            # creature.
+            if unit_is_player or unit.is_player_controlled_pet():
+                detection_range -= min(unit.level - self.level, 25)
+            elif self_is_player or self.is_player_controlled_pet():
+                detection_range -= min(self.level - unit.level, 25)
+            # Minimum aggro radius seems to be combat distance.
+            detection_range = max(detection_range, UnitFormulas.combat_distance(self, unit))
+
             if distance > detection_range or not unit.is_hostile_to(self) or not unit.can_attack_target(self):
                 continue
             if unit.threat_manager.has_aggro_from(self):
                 continue
+
             # Check for stealth/invisibility.
             unit_can_detect_self, alert = unit.can_detect_target(self, distance)
             if alert and self_is_player:
@@ -1827,6 +1840,7 @@ class UnitManager(ObjectManager):
                 continue
             if not map_.los_check(unit.get_ray_position(), self.get_ray_position()):
                 continue
+
             # Player standing still case.
             if unit_is_player and not unit.pending_relocation and not unit.beast_master:
                 unit.pending_relocation = True

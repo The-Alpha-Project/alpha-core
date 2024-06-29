@@ -349,6 +349,7 @@ class CreatureManager(UnitManager):
     def is_unit_pet(self, unit):
         return self.is_pet() and self.get_charmer_or_summoner() == unit
 
+    # override
     def is_player_controlled_pet(self):
         charmer_or_summoner = self.get_charmer_or_summoner()
         return self.is_pet() and charmer_or_summoner and charmer_or_summoner.get_type_id() == ObjectTypeIds.ID_PLAYER

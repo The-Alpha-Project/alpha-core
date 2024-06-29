@@ -466,6 +466,10 @@ class ObjectManager:
     def is_unit_pet(self, unit):
         return False
 
+    # override
+    def is_player_controlled_pet(self):
+        return False
+
     def can_attack_target(self, target):
         if not target or target is self:
             return False
@@ -478,7 +482,7 @@ class ObjectManager:
 
     # Implemented by UnitManager.
     # Returns 1. if the target can be detected and 2. if alert should happen (AI reaction).
-    def can_detect_target(self, target, distance):
+    def can_detect_target(self, target, distance=-1):
         return True, False
 
     # Implemented by UnitManager.
