@@ -910,25 +910,19 @@ class QuestManager(object):
         if not quest:
             return
 
-        # If this is an instant complete quest, load or create its db state.
-        if QuestHelpers.is_instant_complete_quest(quest) and quest_id not in self.active_quests:
-            db_quest = RealmDatabaseManager.character_get_quest_by_id(self.player_mgr.guid, quest_id)
-            if db_quest:
-                self.active_quests[quest_id] = ActiveQuest(db_quest, self.player_mgr, quest)
-            else:
-                self.active_quests[quest_id] = self._create_db_quest_status(quest)
-                self.active_quests[quest_id].save(is_new=True)
-
-        # TODO: Mysterious Dovah crash, no one can reproduce.
-        #  https://www.youtube.com/watch?v=vGtCHEKg9Qk
         if quest_id not in self.active_quests:
-            map_ = self.player_mgr.get_map()
-            player_x = self.player_mgr.location.x
-            player_y = self.player_mgr.location.y
-            player_z = self.player_mgr.location.z
-            Logger.error(f'Unable to locate active quest for id {quest_id}. '
-                         f'Player Map: {map_}, X: {player_x}, Y: {player_y}, Z: {player_z}.')
-            return
+            if QuestHelpers.is_instant_complete_quest(quest):
+                db_quest = RealmDatabaseManager.character_get_quest_by_id(self.player_mgr.guid, quest_id)
+                if db_quest:
+                    self.active_quests[quest_id] = ActiveQuest(db_quest, self.player_mgr, quest)
+                else:
+                    self.active_quests[quest_id] = self._create_db_quest_status(quest)
+                    self.active_quests[quest_id].save(is_new=True)
+            # Client will send multiple CMSG_QUESTGIVER_CHOOSE_REWARD packets if player spams the quest complete button,
+            # resulting in the quest not being active anymore after it has been completed once (of course). Silently
+            # ignoring this case. AKA the nefarious Dovah bug.
+            else:
+                return
 
         active_quest = self.active_quests[quest_id]
         if not active_quest.is_quest_complete(quest_giver.guid):
