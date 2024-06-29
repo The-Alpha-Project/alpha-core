@@ -420,6 +420,7 @@ class RealmDatabaseManager(object):
         guild_member = realm_db_session.query(GuildMember).filter_by(guid=character_guid & ~HighGuid.HIGHGUID_PLAYER).first()
         if guild_member:
             return guild_member.rank == 0
+        realm_db_session.close()
         return False
 
     @staticmethod
