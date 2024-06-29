@@ -1821,9 +1821,9 @@ class UnitManager(ObjectManager):
             # a player (or a player controlled pet) and always take its level into account, not the level from the
             # creature.
             if unit_is_player or unit.is_player_controlled_pet():
-                detection_range -= min(unit.level - self.level, 25)
+                detection_range -= max(-25, min(unit.level - self.level, 25))
             elif self_is_player or self.is_player_controlled_pet():
-                detection_range -= min(self.level - unit.level, 25)
+                detection_range -= max(-25, min(self.level - unit.level, 25))
             # Minimum aggro radius seems to be combat distance.
             detection_range = max(detection_range, UnitFormulas.combat_distance(self, unit))
 
