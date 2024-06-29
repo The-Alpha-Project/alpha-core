@@ -1029,7 +1029,7 @@ class UnitManager(ObjectManager):
         self.stand_state = stand_state
         self.aura_manager.check_aura_interrupts(changed_stand_state=True)
 
-    def set_sanctuary(self, active, time_secs=0):
+    def set_sanctuary(self, active=True, time_secs=0):
         if active:
             self.unit_state |= UnitStates.SANCTUARY
             self.sanctuary_timer = time_secs
@@ -1144,10 +1144,10 @@ class UnitManager(ObjectManager):
     def is_stealthed(self) -> bool:
         return self.unit_flags & UnitFlags.UNIT_FLAG_SNEAK == UnitFlags.UNIT_FLAG_SNEAK
 
-    def set_stealthed(self, active, index=-1) -> bool:
+    def set_stealthed(self, active=True, index=-1) -> bool:
         return self.set_unit_flag(UnitFlags.UNIT_FLAG_SNEAK, active, index)
 
-    def set_rooted(self, active, index=-1) -> bool:
+    def set_rooted(self, active=True, index=-1) -> bool:
         is_rooted = self.set_move_flag(MoveFlags.MOVEFLAG_ROOTED, active, index)
         is_rooted |= self.set_unit_state(UnitStates.ROOTED, active, index)
 
@@ -1157,7 +1157,7 @@ class UnitManager(ObjectManager):
 
         return is_rooted
 
-    def set_stunned(self, active, index=-1) -> bool:
+    def set_stunned(self, active=True, index=-1) -> bool:
         self.set_rooted(active, index)
 
         was_stunned = self.unit_state & UnitStates.STUNNED
@@ -1174,7 +1174,7 @@ class UnitManager(ObjectManager):
 
         return is_stunned
 
-    def set_unit_state(self, unit_state, active, index=-1) -> bool:
+    def set_unit_state(self, unit_state, active=True, index=-1) -> bool:
         is_active = self._set_effect_flag_state(UnitStates, unit_state, active, index)
         if is_active:
             self.unit_state |= unit_state
@@ -1183,7 +1183,7 @@ class UnitManager(ObjectManager):
 
         return is_active
 
-    def set_unit_flag(self, unit_flag, active, index=-1) -> bool:
+    def set_unit_flag(self, unit_flag, active=True, index=-1) -> bool:
         is_active = self._set_effect_flag_state(UnitFlags, unit_flag, active, index)
         if is_active:
             self.unit_flags |= unit_flag
@@ -1193,7 +1193,7 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
         return is_active
 
-    def set_move_flag(self, move_flag, active, index=-1) -> bool:
+    def set_move_flag(self, move_flag, active=True, index=-1) -> bool:
         is_active = self._set_effect_flag_state(MoveFlags, move_flag, active, index)
 
         flag_changed = (is_active and not self.movement_flags & move_flag) or \
@@ -1211,7 +1211,7 @@ class UnitManager(ObjectManager):
 
         return is_active
 
-    def set_dynamic_type_flag(self, type_flag, active, index=-1) -> bool:
+    def set_dynamic_type_flag(self, type_flag, active=True, index=-1) -> bool:
         is_active = self._set_effect_flag_state(UnitDynamicTypes, type_flag, active, index)
         if is_active:
             self.dynamic_flags |= type_flag
@@ -1221,7 +1221,7 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_DYNAMIC_FLAGS, self.dynamic_flags)
         return is_active
 
-    def _set_effect_flag_state(self, flag_type, flag, active, index=-1) -> bool:
+    def _set_effect_flag_state(self, flag_type, flag, active=True, index=-1) -> bool:
         # Initialize required containers.
         if flag_type not in self._flag_effects:
             self._flag_effects[flag_type] = dict()
