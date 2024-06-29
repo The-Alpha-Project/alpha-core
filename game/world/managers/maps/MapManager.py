@@ -282,12 +282,16 @@ class MapManager:
         dst_adt_x, dst_adt_y = MapManager.get_tile(dst_loc.x, dst_loc.y)
 
         # Check if loaded or unable to load, return True if this fails.
-        if MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y) != MapTileStates.READY:
-            return True
+        initial_source_tile_state = MapManager._check_tile_load(map_id, src_loc.x, src_loc.y, src_adt_x, src_adt_y)
+        if initial_source_tile_state != MapTileStates.READY:
+            # If tile is loading return false.
+            return initial_source_tile_state != MapTileStates.LOADING
 
         # Check if loaded or unable to load, return True if this fails.
-        if MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y) != MapTileStates.READY:
-            return True
+        initial_dest_tile_state = MapManager._check_tile_load(map_id, dst_loc.x, dst_loc.y, dst_adt_x, dst_adt_y)
+        if initial_dest_tile_state != MapTileStates.READY:
+            # If tile is loading return false.
+            return initial_dest_tile_state != MapTileStates.LOADING
 
         return namigator.line_of_sight(src_loc.x, src_loc.y, src_loc.z, dst_loc.x, dst_loc.y, dst_loc.z, doodads)
 
