@@ -2840,5 +2840,13 @@ begin not atomic
         insert into applied_updates values ('270620241');
     end if;
 
+    -- 28/06/2024 1
+	if (select count(*) from applied_updates where id='280620241') = 0 then
+        -- Caledra Dawnbreeze, set faction 11 SW.
+	UPDATE `creature_template` SET `faction` = '11' WHERE (`entry` = '1752');
+
+        insert into applied_updates values ('280620241');
+    end if;
+
 end $
 delimiter ;
