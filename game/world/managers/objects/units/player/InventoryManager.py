@@ -934,7 +934,7 @@ class InventoryManager(object):
 
             for slot, item in list(container.sorted_slots.items()):
                 # Other players do not care about other items outside the inventory of another player.
-                if self.is_bag_pos(slot) or self.is_inventory_pos(container_slot, slot) and requester != self.owner:
+                if (self.is_bag_pos(slot) or self.is_inventory_pos(container_slot, slot)) and requester != self.owner:
                     continue
 
                 # Add item query details if the requester does not know this item.
