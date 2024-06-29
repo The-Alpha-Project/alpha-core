@@ -220,7 +220,8 @@ class ThreatManager:
             return False
         elif not caller_unit.can_assist_help_calls():
             return False
-        elif caller_unit.get_creature_family() != self.unit.get_creature_family():
+        elif (caller_unit.get_creature_family() != self.unit.get_creature_family()
+              and not caller_unit.get_map().is_dungeon()):
             return False
         elif not caller_unit.get_map().los_check(self.unit.get_ray_position(), caller_unit.get_ray_position()):
             return False
