@@ -1,5 +1,6 @@
 from struct import unpack
 
+from game.world.managers.objects.item.ContainerManager import ContainerManager
 from game.world.opcode_handling.HandlerValidator import HandlerValidator
 from utils.constants.MiscCodes import SellResults
 
@@ -42,7 +43,7 @@ class SellItemHandler(object):
                     return 0
 
                 # Check if player is attempting to sell a bag with something in it.
-                if player_mgr.inventory.is_bag_pos(slot) and not item.is_empty():
+                if isinstance(item, ContainerManager) and not item.is_empty():
                     player_mgr.inventory.send_sell_error(SellResults.SELL_ERR_ONLY_EMPTY_BAG, item_id, npc_guid)
                     return 0
 

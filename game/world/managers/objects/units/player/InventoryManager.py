@@ -95,6 +95,8 @@ class InventoryManager(object):
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         amount_left = count
         target_bag_slot = -1  # Highest bag slot items were added to
+        backpack_touched = False
+
         if item_template:
             error = self.can_store_item(item_template, count)
             if error != InventoryError.BAG_OK:
@@ -103,12 +105,17 @@ class InventoryManager(object):
                 return False
 
             self.update_locked = True
+
             # Add to any existing stacks.
             for slot, container in self.containers.items():
                 if (not container or not container.can_contain_item(item_template) or
                         self.is_bank_slot(container.current_slot, slot)):
                     continue
                 amount_left = container.add_item_to_existing_stacks(item_template, amount_left)
+
+                if not backpack_touched and slot == InventorySlots.SLOT_INBACKPACK:
+                    backpack_touched = True
+
                 if amount_left <= 0:
                     target_bag_slot = slot
                     container.build_container_update_packet()
@@ -129,6 +136,9 @@ class InventoryManager(object):
                         # Persist.
                         item_mgr.save()
 
+                    if not backpack_touched and slot == InventorySlots.SLOT_INBACKPACK:
+                        backpack_touched = True
+
                     if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
                         container.build_container_update_packet()
@@ -148,7 +158,7 @@ class InventoryManager(object):
             self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
 
         # Refresh backpack slot fields if needed.
-        if target_bag_slot == InventorySlots.SLOT_INBACKPACK:
+        if backpack_touched or target_bag_slot == InventorySlots.SLOT_INBACKPACK:
             self.build_update()
 
         self.update_locked = False
@@ -924,7 +934,7 @@ class InventoryManager(object):
 
             for slot, item in list(container.sorted_slots.items()):
                 # Other players do not care about other items outside the inventory of another player.
-                if self.is_bag_pos(slot) or self.is_inventory_pos(container_slot, slot) and requester != self.owner:
+                if (self.is_bag_pos(slot) or self.is_inventory_pos(container_slot, slot)) and requester != self.owner:
                     continue
 
                 # Add item query details if the requester does not know this item.
