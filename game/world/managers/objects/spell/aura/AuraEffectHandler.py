@@ -257,7 +257,7 @@ class AuraEffectHandler:
         if not aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        if aura.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             effect_target.mirror_timers_manager.feign_death = not remove
 
         if not remove:
@@ -269,7 +269,7 @@ class AuraEffectHandler:
 
     @staticmethod
     def handle_water_breathing(aura, effect_target, remove):
-        if aura.caster.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
             effect_target.mirror_timers_manager.update_water_breathing(state=not remove)
 
     @staticmethod
