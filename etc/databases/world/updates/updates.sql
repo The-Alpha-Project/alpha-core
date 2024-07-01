@@ -2843,9 +2843,17 @@ begin not atomic
     -- 28/06/2024 1
 	if (select count(*) from applied_updates where id='280620241') = 0 then
         -- Caledra Dawnbreeze, set faction 11 SW.
-	UPDATE `creature_template` SET `faction` = '11' WHERE (`entry` = '1752');
+	    UPDATE `creature_template` SET `faction` = '11' WHERE (`entry` = '1752');
 
         insert into applied_updates values ('280620241');
+    end if;
+
+    -- 01/07/2024 1
+	if (select count(*) from applied_updates where id='010720241') = 0 then
+        -- Fix Mechanical Dragonling display id.
+	    UPDATE `creature_template` SET `display_id1` = '6' WHERE `entry` = '2678';
+
+        insert into applied_updates values ('010720241');
     end if;
 
 end $
