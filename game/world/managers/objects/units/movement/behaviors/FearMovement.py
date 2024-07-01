@@ -32,6 +32,7 @@ class FearMovement(BaseMovement):
     def initialize(self, unit):
         super().initialize(unit)
         unit.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, True)
+
         if not self.seek_assist or not unit.combat_target:
             return True
         # Should search assistance, search for a friendly unit.
@@ -66,7 +67,9 @@ class FearMovement(BaseMovement):
     def _trigger_fear(self):
         # Attack stop if needed, else unit will keep trying to turn towards target.
         if self.unit.combat_target:
-            self.unit.send_attack_stop(self.unit.combat_target.guid)
+            target_guid = self.unit.combat_target.guid
+            self.unit.combat_target = None
+            self.unit.send_attack_stop(target_guid)
         speed = self.unit.running_speed
         if not self.waypoints:
             self.waypoints = self._get_path(self._get_fear_point())

@@ -63,7 +63,7 @@ class ScriptHandler:
         try:
             return SCRIPT_TYPES[script_type](script_id)
         except KeyError:
-            Logger.warning(f'Unknown script type: {script_type}.')
+            Logger.warning(f'Unsupported script command type: {ScriptCommands(script_type).name}.')
             return None
 
     def reset(self):
@@ -763,7 +763,8 @@ class ScriptHandler:
         elif motion_type == MotionTypes.RANDOM_MOTION_TYPE:
             if clear:
                 source.movement_manager.flush()
-            Logger.warning('ScriptHandler: handle_script_command_movement, WANDERING motion type not implemented yet')
+            wandering_distance = command.x if command.x else 0
+            source.movement_manager.move_wander(use_current_position=bool_param, wandering_distance=wandering_distance)
             return command.should_abort()
         elif motion_type == MotionTypes.WAYPOINT_MOTION_TYPE:
             if clear:
@@ -772,7 +773,9 @@ class ScriptHandler:
                                         initial_delay=0, repeat=bool_param, overwrite_entry=0, overwrite_guid=0)
             command.source.movement_manager.move_automatic_waypoints_from_script(command_move_info=move_info)
         elif motion_type == MotionTypes.CONFUSED_MOTION_TYPE:
-            Logger.warning('ScriptHandler: handle_script_command_movement, CONFUSED motion type not implemented yet')
+            if clear:
+                source.movement_manager.flush()
+            command.source.movement_manager.move_confused()
             return command.should_abort()
         elif motion_type == MotionTypes.CHASE_MOTION_TYPE:
             #  TODO: Check VMaNGOS, for now, just trigger combat through threat if source has no target.
