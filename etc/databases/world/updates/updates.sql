@@ -2849,9 +2849,9 @@ begin not atomic
     end if;
 
     -- 01/07/2024 1
-	if (select count(*) from applied_updates where id='010720241') = 0 then
+    if (select count(*) from applied_updates where id='010720241') = 0 then
         -- Fix Mechanical Dragonling display id.
-	    UPDATE `creature_template` SET `display_id1` = '6' WHERE `entry` = '2678';
+        UPDATE `creature_template` SET `display_id1` = '6' WHERE `entry` = '2678';
 
         insert into applied_updates values ('010720241');
     end if;
