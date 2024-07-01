@@ -232,7 +232,7 @@ class UnitManager(ObjectManager):
     def can_perform_melee_attack(self):
         return self.combat_target and self.has_melee() and not self.is_casting() \
             and not self.unit_state & UnitStates.STUNNED and not self.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED \
-            and not self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING
+            and not self.unit_flags & UnitFlags.UNIT_FLAG_FLEEING and not self.unit_state & UnitStates.CONFUSED
 
     # override
     def can_attack_target(self, target):
@@ -343,7 +343,7 @@ class UnitManager(ObjectManager):
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
     def update_melee_attacking_state(self):
-        # Don't update melee attacking state while casting, stunned, pacified or fleeing.
+        # Don't update melee attacking state while casting, stunned, pacified, fleeing or confused.
         if not self.can_perform_melee_attack():
             return False
 

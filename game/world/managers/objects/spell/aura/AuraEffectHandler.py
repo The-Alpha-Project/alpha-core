@@ -282,6 +282,16 @@ class AuraEffectHandler:
         effect_target.set_dynamic_type_flag(UnitDynamicTypes.UNIT_DYNAMIC_TRACK_UNIT, not remove, aura.index)
 
     @staticmethod
+    def handle_mod_confuse(aura, effect_target, remove):
+        effect_target.set_unit_state(UnitStates.CONFUSED, not remove, aura.index)
+        if not remove:
+            if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER:
+                effect_target.interrupt_looting()
+            effect_target.spell_manager.remove_casts(remove_active=False)
+            duration = aura.source_spell.get_duration() / 1000
+            effect_target.movement_manager.move_confused(duration)
+
+    @staticmethod
     def handle_mod_fear(aura, effect_target, remove):
         effect_target.set_unit_flag(UnitFlags.UNIT_FLAG_FLEEING, not remove, aura.index)
         if not remove:
@@ -802,6 +812,7 @@ AURA_EFFECTS = {
     AuraTypes.SPELL_AURA_MOD_TAUNT: AuraEffectHandler.handle_taunt,
     AuraTypes.SPELL_AURA_CHANNEL_DEATH_ITEM: AuraEffectHandler.handle_channel_death_item,
     AuraTypes.SPELL_AURA_MOD_FEAR: AuraEffectHandler.handle_mod_fear,
+    AuraTypes.SPELL_AURA_MOD_CONFUSE: AuraEffectHandler.handle_mod_confuse,
 
 
     # Immunity modifiers.

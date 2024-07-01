@@ -10,15 +10,18 @@ from game.world.managers.objects.units.movement.behaviors.BaseMovement import Ba
 
 # TODO: Namigator: FindRandomPointAroundCircle (Detour)
 class WanderingMovement(BaseMovement):
-    def __init__(self, spline_callback, is_default):
+    def __init__(self, spline_callback, is_default, use_current_position=False, wandering_distance=0.0):
         super().__init__(move_type=MoveType.WANDER, spline_callback=spline_callback, is_default=is_default)
-        self.wandering_distance = 0
+        self.wandering_distance = wandering_distance
+        self.use_current_position = use_current_position
+        self.wander_home_position = None
         self.last_wandering_movement = 0
         self.wait_time_seconds = 0
 
     # override
     def initialize(self, unit):
-        self.wandering_distance = unit.wander_distance
+        self.wandering_distance = unit.wander_distance if not self.wandering_distance else self.wandering_distance
+        self.wander_home_position = unit.spawn_position if not self.use_current_position else unit.location
         self.reset()
         return super().initialize(unit)
 
@@ -57,7 +60,7 @@ class WanderingMovement(BaseMovement):
         return not self.spline and now > self.last_wandering_movement + self.wait_time_seconds
 
     def _get_wandering_point(self):
-        start_point = self.unit.spawn_position
+        start_point = self.wander_home_position
         random_point = start_point.get_random_point_in_radius(self.wandering_distance, map_id=self.unit.map_id)
         map_ = self.unit.get_map()
         # Check line of sight.

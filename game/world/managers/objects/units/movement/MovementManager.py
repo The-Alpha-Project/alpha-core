@@ -1,5 +1,4 @@
 from typing import Optional
-
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder
@@ -15,6 +14,7 @@ from game.world.managers.objects.units.movement.behaviors.EvadeMovement import E
 from game.world.managers.objects.units.movement.behaviors.FearMovement import FearMovement
 from game.world.managers.objects.units.movement.behaviors.FlightMovement import FlightMovement
 from game.world.managers.objects.units.movement.behaviors.WanderingMovement import WanderingMovement
+from game.world.managers.objects.units.movement.behaviors.ConfusedMovement import ConfusedMovement
 
 
 class MovementManager:
@@ -29,6 +29,7 @@ class MovementManager:
             MoveType.EVADE: None,
             MoveType.FLIGHT: None,
             MoveType.FEAR: None,
+            MoveType.CONFUSED: None,
             MoveType.DISTRACTED: None,
             MoveType.CHASE: None,
             MoveType.PET: None,
@@ -144,8 +145,12 @@ class MovementManager:
         # Do not allow shorter fear to override a current fear.
         if current_fear_behavior and current_fear_behavior.fear_duration > duration_seconds:
             return
+        self.reset(clean_behaviors=True)
         self.set_behavior(FearMovement(duration_seconds, spline_callback=self.spline_callback,
                                        target=target, seek_assist=seek_assist))
+
+    def move_confused(self, duration_seconds=-1):
+        self.set_behavior(ConfusedMovement(spline_callback=self.spline_callback, duration_seconds=duration_seconds))
 
     def move_automatic_waypoints_from_script(self, command_move_info=None):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, command_move_info=command_move_info))
@@ -153,6 +158,11 @@ class MovementManager:
     def move_to_point(self, location, speed=config.Unit.Defaults.walk_speed):
         self.set_behavior(WaypointMovement(spline_callback=self.spline_callback, waypoints=[location], speed=speed,
                                            is_single=True))
+
+    def move_wander(self, use_current_position=False, wandering_distance=0.0):
+        self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=False,
+                                            use_current_position=use_current_position,
+                                            wandering_distance=wandering_distance))
 
     def get_move_behavior_by_type(self, move_type) -> Optional[BaseMovement]:
         return self.movement_behaviors.get(move_type, None)
@@ -181,6 +191,7 @@ class MovementManager:
 
     def set_behavior(self, movement_behavior):
         if movement_behavior.initialize(self.unit):
+            Logger.debug(f'Set movement {movement_behavior.move_type} for unit {self.unit.entry}')
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()
             if movement_behavior.is_default:

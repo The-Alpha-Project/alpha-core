@@ -189,6 +189,8 @@ class ThreatManager:
             return False
         if self.unit.unit_state & UnitStates.STUNNED:
             return False
+        if self.unit.unit_state & UnitStates.CONFUSED:
+            return False
         elif self.unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
             return False
         elif self.unit.unit_flags & UnitFlags.UNIT_FLAG_POSSESSED:
@@ -207,6 +209,8 @@ class ThreatManager:
         elif caller_unit.unit_flags & UnitFlags.UNIT_FLAG_PACIFIED:
             return False
         elif caller_unit.unit_state & UnitStates.STUNNED:
+            return False
+        elif caller_unit.unit_state & UnitStates.CONFUSED:
             return False
         elif caller_unit.unit_flags & UnitFlags.UNIT_FLAG_FLEEING:
             return False

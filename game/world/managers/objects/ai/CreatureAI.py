@@ -341,8 +341,8 @@ class CreatureAI:
 
         if not cast_flags & CastFlags.CF_FORCE_CAST:
             # Need internal/custom unit states. UNIT_STAT_CAN_NOT_MOVE
-            # Check self fleeing.
-            if self.creature.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or self.creature.unit_state & UnitStates.FLEEING:
+            if (self.creature.unit_flags & UnitFlags.UNIT_FLAG_FLEEING or self.creature.unit_state & UnitStates.FLEEING
+                    or self.creature.unit_state & UnitStates.CONFUSED):
                 return SpellCheckCastResult.SPELL_FAILED_NOPATH
 
             # If the spell requires specific unit placement.
