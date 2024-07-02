@@ -945,6 +945,8 @@ CONDITIONS = {
     ConditionType.CONDITION_REPUTATION_RANK_MIN: ConditionChecker.check_condition_reputation_rank_min,
     ConditionType.CONDITION_TEAM: ConditionChecker.check_condition_team,
     ConditionType.CONDITION_SKILL: ConditionChecker.check_condition_skill,
+    ConditionType.CONDITION_QUEST_NONE: ConditionChecker.check_condition_quest_none,
+    ConditionType.CONDITION_QUESTAVAILABLE: ConditionChecker.check_condition_quest_available,
     ConditionType.CONDITION_QUESTREWARDED: ConditionChecker.check_condition_questrewarded,
     ConditionType.CONDITION_QUESTTAKEN: ConditionChecker.check_condition_questtaken,
     ConditionType.CONDITION_AD_COMMISSION_AURA: ConditionChecker.check_condition_ad_commission_aura,
@@ -956,10 +958,10 @@ CONDITIONS = {
     ConditionType.CONDITION_SOURCE_ENTRY: ConditionChecker.check_condition_source_entry,
     ConditionType.CONDITION_SPELL: ConditionChecker.check_condition_spell,
     ConditionType.CONDITION_INSTANCE_SCRIPT: ConditionChecker.check_condition_instance_script,
-    ConditionType.CONDITION_QUESTAVAILABLE: ConditionChecker.check_condition_quest_available,
+
     ConditionType.CONDITION_NEARBY_CREATURE: ConditionChecker.check_condition_nearby_creature,
     ConditionType.CONDITION_NEARBY_GAMEOBJECT: ConditionChecker.check_condition_nearby_gameobject,
-    ConditionType.CONDITION_QUEST_NONE: ConditionChecker.check_condition_quest_none,
+
     ConditionType.CONDITION_ITEM_WITH_BANK: ConditionChecker.check_condition_item_with_bank,
     ConditionType.CONDITION_WOW_PATCH: ConditionChecker.check_condition_wow_patch,
     ConditionType.CONDITION_ESCORT: ConditionChecker.check_condition_escort,

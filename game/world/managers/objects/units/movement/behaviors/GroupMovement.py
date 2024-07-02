@@ -9,7 +9,7 @@ from game.world.managers.objects.units.movement.behaviors.BaseMovement import Ba
 
 class GroupMovement(BaseMovement):
     def __init__(self, spline_callback, is_default):
-        super().__init__(move_type=MoveType.WAYPOINTS, spline_callback=spline_callback, is_default=is_default)
+        super().__init__(move_type=MoveType.GROUP, spline_callback=spline_callback, is_default=is_default)
         self.creature_movement = None
         self.last_waypoint_movement = 0
         self.wait_time_seconds = 0
@@ -84,6 +84,7 @@ class GroupMovement(BaseMovement):
             return False
         spline = SplineBuilder.build_normal_spline(self.unit, points=[location], speed=speed)
         self.spline_callback(spline, movement_behavior=self)
+        return True
 
     def _get_speed(self, creature_group):
         force_running = not creature_group.leader.movement_flags & MoveFlags.MOVEFLAG_WALK

@@ -3,6 +3,7 @@ import time
 from dataclasses import dataclass
 from random import randint, choice
 from database.world.WorldDatabaseManager import WorldDatabaseManager
+from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes
 from utils.constants.ScriptCodes import EventFlags
@@ -41,13 +42,15 @@ class AIEventHandler:
         self.update_range_events(now)
 
     def _enqueue_scripts(self, map_, event, target):
+        if not ConditionChecker.validate(event.condition_id, self.creature, target):
+            return
+
         scripts = ScriptHelpers.get_filtered_event_scripts(event)
         if not scripts:
             return
 
         for script in scripts:
-            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
-                                script_id=script)
+            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
 
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
@@ -85,10 +88,12 @@ class AIEventHandler:
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RECEIVE_EMOTE)
         map_ = self.creature.get_map()
         for event in events:
+            if event.event_chance != 100 and randint(0, 100) > event.event_chance:
+                continue
+
             if event.event_param1 != emote:
                 continue
 
-            # TODO: Check conditions (EmoteId, Condition, CondValue1, CondValue2).
             self._enqueue_scripts(map_, event, player)
 
     def update_hp_events(self, now):
