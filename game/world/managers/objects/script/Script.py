@@ -2,7 +2,6 @@ import time
 from game.world.managers.objects.script.ScriptCommand import ScriptCommand
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from utils.Logger import Logger
-from multiprocessing import RLock
 
 
 class Script:
@@ -16,7 +15,6 @@ class Script:
         self.delay: float = delay
         self.time_added: float = time.time()
         self.started = False
-        self.lock = RLock()
 
     def __hash__(self):
         return self.id
@@ -27,43 +25,40 @@ class Script:
             return
         self.started = True
 
-        with self.lock:
-            for script_command in list(self.commands):
-                # Check if it's time to execute the command action.
-                if script_command.delay and now - self.time_added < script_command.delay:
-                    continue
+        for script_command in list(self.commands):
+            # Check if it's time to execute the command action.
+            if script_command.delay and now - self.time_added < script_command.delay:
+                continue
 
-                try:
-                    self.commands.remove(script_command)
-                except ValueError:
-                    # TODO: This *shouldn't* happen, but I have seen it in the logs. Adding some debugging code to try
-                    #  to gather more information about it in case it happens again.
-                    Logger.error(f'Unable to remove script command, ScriptID {self.id} '
-                                 f'with command ID {script_command.script_id} and comment '
-                                 f'"{script_command.comments}". Already executed?')
-                    continue
+            try:
+                self.commands.remove(script_command)
+            except ValueError:
+                # This can happen if the script has been aborted externally. Silently stop looping over expired script
+                # commands. i.e. on handle_script_command_terminate_condition method.
+                return
 
-                # Try to resolve initial targets for this command.
-                succeed, source, target = script_command.resolve_initial_targets(self.source, self.target)
-                if not succeed:
-                    continue
+            # Try to resolve initial targets for this command.
+            succeed, source, target = script_command.resolve_initial_targets(self.source, self.target)
+            if not succeed:
+                continue
 
-                # Try to resolve the final targets for this command.
-                succeed, source, target = script_command.resolve_final_targets(self.source, self.target)
-                if not succeed:
-                    continue
+            # Try to resolve the final targets for this command.
+            succeed, source, target = script_command.resolve_final_targets(self.source, self.target)
+            if not succeed:
+                continue
 
-                script_command.source = source
-                script_command.target = target
+            script_command.source = source
+            script_command.target = target
 
-                # Condition is not met, skip.
-                if not ConditionChecker.validate(script_command.condition_id, source=self.source, target=self.target):
-                    continue
+            # Condition is not met, skip.
+            if not ConditionChecker.validate(script_command.condition_id, source=self.source, target=self.target):
+                continue
 
-                # Execute action.
-                should_abort = self.script_handler.handle_script_command_execution(script_command)
-                if should_abort:
-                    self.abort()
+            # Execute action.
+            should_abort = self.script_handler.handle_script_command_execution(script_command)
+            if should_abort:
+                self.abort()
+                break
 
     def abort(self):
         Logger.warning(f'Script {self.id} aborted.')
