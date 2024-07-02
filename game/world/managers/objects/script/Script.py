@@ -58,7 +58,7 @@ class Script:
             should_abort = self.script_handler.handle_script_command_execution(script_command)
             if should_abort:
                 self.abort()
-                break
+                return
 
     def abort(self):
         Logger.warning(f'Script {self.id} aborted.')
