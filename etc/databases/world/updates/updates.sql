@@ -2857,12 +2857,12 @@ begin not atomic
     end if;
 
     -- 01/07/2024 1
-	if (select count(*) from applied_updates where id='010720241') = 0 then
+    if (select count(*) from applied_updates where id='010720242') = 0 then
         -- Quests, fix Lost Necklace reward item.
         UPDATE `quest_template` SET `RewItemCount1` = '1' WHERE (`entry` = '87');
         UPDATE `quest_template` SET `RewItemCount1` = '0' WHERE (`entry` = '85');
 
-        insert into applied_updates values ('010720241');
+        insert into applied_updates values ('010720242');
     end if;
 
 end $
