@@ -22,39 +22,39 @@ class ScriptManager:
         return None
 
     @staticmethod
-    def handle_provided_target(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_provided_target(caster, target=None, param1=None, param2=None, spell_template=None):
         return target
 
     @staticmethod
-    def handle_hostile(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_hostile(caster, target=None, param1=None, param2=None, spell_template=None):
         return caster.combat_target if caster.combat_target else None
 
     @staticmethod
-    def handle_hostile_second_aggro(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_hostile_second_aggro(caster, target=None, param1=None, param2=None, spell_template=None):
         return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_TOPAGGRO)
 
     @staticmethod
-    def handle_hostile_last_aggro(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_hostile_last_aggro(caster, target=None, param1=None, param2=None, spell_template=None):
         return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_BOTTOMAGGRO)
 
     @staticmethod
-    def handle_hostile_random(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_hostile_random(caster, target=None, param1=None, param2=None, spell_template=None):
         return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOM)
 
     @staticmethod
-    def handle_hostile_random_not_top(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_hostile_random_not_top(caster, target=None, param1=None, param2=None, spell_template=None):
         return caster.threat_manager.select_attacking_target(AttackingTarget.ATTACKING_TARGET_RANDOMNOTTOP)
 
     @staticmethod
-    def handle_owner_or_self(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_owner_or_self(caster, target=None, param1=None, param2=None, spell_template=None):
         return caster.get_charmer_or_summoner(include_self=True)
 
     @staticmethod
-    def handle_owner(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_owner(caster, target=None, param1=None, param2=None, spell_template=None):
         return caster.get_charmer_or_summoner()
 
     @staticmethod
-    def handle_nearest_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_nearest_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param1
         targets = ScriptManager._get_surrounding_units(caster, friends_only=False, include_players=False, alive=True)
         if not targets:
@@ -68,7 +68,7 @@ class ScriptManager:
         return None
 
     @staticmethod
-    def handle_random_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_random_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         entry: Optional[int] = param2
         units = ScriptManager._get_surrounding_units(caster, search_range=search_range, include_players=False,
@@ -83,7 +83,7 @@ class ScriptManager:
         return None
 
     @staticmethod
-    def handle_creature_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_creature_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
         spawn_id: Optional[int] = param1
         surrounding_units = caster.get_map().get_surrounding_units(world_object=caster, include_players=False)
         found_unit = None
@@ -97,12 +97,12 @@ class ScriptManager:
         return found_unit
 
     @staticmethod
-    def handle_creature_instance_data(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_creature_instance_data(caster, target=None, param1=None, param2=None, spell_template=None):
         Logger.warning(f'Unimplemented script target: handle_creature_instance_data.')
         return None
 
     @staticmethod
-    def handle_nearest_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_nearest_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param1
         go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
@@ -116,7 +116,7 @@ class ScriptManager:
         return None
 
     @staticmethod
-    def handle_random_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_random_gameobject_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):
         entry: Optional[int] = param2
         go_objects = list(caster.get_map().get_surrounding_gameobjects(caster).values())
         if not go_objects:
@@ -129,7 +129,7 @@ class ScriptManager:
         return None
 
     @staticmethod
-    def handle_gameobject_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_gameobject_with_guid(caster, target=None, param1=None, param2=None, spell_template=None):
         spawn_id: Optional[int] = param1
         spawn = caster.get_map().get_surrounding_gameobject_spawn_by_spawn_id(caster, spawn_id)
         if not spawn or not spawn.gameobject_instance or not spawn.gameobject_instance.is_spawned:
@@ -138,12 +138,12 @@ class ScriptManager:
         return spawn.gameobject_instance
 
     @staticmethod
-    def handle_gameobject_from_instance_data(caster, target, param1=None, param2=None, spell_template=None):
+    def resolve_gameobject_from_instance_data(caster, target, param1=None, param2=None, spell_template=None):
         Logger.warning(f'Unimplemented script target: handle_gameobject_from_instance_data.')
         return None
 
     @staticmethod
-    def handle_friendly(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_friendly(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         exclude_target: Optional[UnitManager] = param2
 
@@ -164,7 +164,7 @@ class ScriptManager:
         return choice(friendlies)
 
     @staticmethod
-    def handle_friendly_injured(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_friendly_injured(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         hp_percent: Optional[float] = param2
         # Set range if not provided.
@@ -177,7 +177,7 @@ class ScriptManager:
         return injured_friendlies[0] if injured_friendlies else None
 
     @staticmethod
-    def handle_friendly_injured_except(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_friendly_injured_except(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         hp_percent: Optional[float] = param2
         # Set range if not provided.
@@ -191,7 +191,7 @@ class ScriptManager:
         return injured_friendlies[0] if injured_friendlies else None
 
     @staticmethod
-    def handle_friendly_missing_buf(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_friendly_missing_buf(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         spell_id: int = param2
         # Set range if not provided.
@@ -212,7 +212,7 @@ class ScriptManager:
         return None
 
     @staticmethod
-    def handle_friendly_missing_buf_except(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_friendly_missing_buf_except(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         spell_id: int = param2
         # Set range if not provided.
@@ -234,12 +234,12 @@ class ScriptManager:
         return None
 
     @staticmethod
-    def handle_friendly_cc(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_friendly_cc(caster, target=None, param1=None, param2=None, spell_template=None):
         Logger.warning(f'Unimplemented script target: handle_friendly_cc.')
         return None
 
     @staticmethod
-    def handle_map_event_source(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_map_event_source(caster, target=None, param1=None, param2=None, spell_template=None):
         target = caster if caster else target
         if not target:
             Logger.error(f'TARGET_T_MAP_EVENT_SOURCE, Unable to resolve target for event {param1}.')
@@ -259,7 +259,7 @@ class ScriptManager:
         return target
 
     @staticmethod
-    def handle_map_event_target(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_map_event_target(caster, target=None, param1=None, param2=None, spell_template=None):
         target = caster if caster else target
         if not target:
             Logger.error(f'TARGET_T_MAP_EVENT_TARGET, Unable to resolve target for event {param1}.')
@@ -279,12 +279,12 @@ class ScriptManager:
         return target
 
     @staticmethod
-    def handle_map_event_extra_target(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_map_event_extra_target(caster, target=None, param1=None, param2=None, spell_template=None):
         Logger.warning(f'Unimplemented script target: handle_map_event_extra_target.')
         return None
 
     @staticmethod
-    def handle_nearest_player(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_nearest_player(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         # Set range if not provided.
         search_range = ScriptManager._get_search_range(search_range, spell_template)
@@ -298,7 +298,7 @@ class ScriptManager:
         return players[0]
 
     @staticmethod
-    def handle_nearest_hostile_player(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_nearest_hostile_player(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         # Set range if not provided.
         search_range = ScriptManager._get_search_range(search_range, spell_template)
@@ -312,7 +312,7 @@ class ScriptManager:
         return enemy_players[0]
 
     @staticmethod
-    def handle_nearest_friendly_player(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_nearest_friendly_player(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         # Set range if not provided.
         search_range = ScriptManager._get_search_range(search_range, spell_template)
@@ -426,30 +426,30 @@ class ScriptManager:
 
 
 SCRIPT_TARGETS = {
-    ScriptTarget.TARGET_T_PROVIDED_TARGET: ScriptManager.handle_provided_target,
-    ScriptTarget.TARGET_T_HOSTILE: ScriptManager.handle_hostile,
-    ScriptTarget.TARGET_T_HOSTILE_SECOND_AGGRO: ScriptManager.handle_hostile_second_aggro,
-    ScriptTarget.TARGET_T_HOSTILE_LAST_AGGRO: ScriptManager.handle_hostile_last_aggro,
-    ScriptTarget.TARGET_T_HOSTILE_RANDOM: ScriptManager.handle_hostile_random,
-    ScriptTarget.TARGET_T_HOSTILE_RANDOM_NOT_TOP: ScriptManager.handle_hostile_random_not_top,
-    ScriptTarget.TARGET_T_OWNER_OR_SELF: ScriptManager.handle_owner_or_self,
-    ScriptTarget.TARGET_T_OWNER: ScriptManager.handle_owner,
-    ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY: ScriptManager.handle_nearest_creature_with_entry,
-    ScriptTarget.TARGET_T_CREATURE_WITH_GUID: ScriptManager.handle_creature_with_guid,
-    ScriptTarget.TARGET_T_CREATURE_FROM_INSTANCE_DATA: ScriptManager.handle_creature_instance_data,
-    ScriptTarget.TARGET_T_NEAREST_GAMEOBJECT_WITH_ENTRY: ScriptManager.handle_nearest_gameobject_with_entry,
-    ScriptTarget.TARGET_T_GAMEOBJECT_WITH_GUID: ScriptManager.handle_gameobject_with_guid,
-    ScriptTarget.TARGET_T_FRIENDLY: ScriptManager.handle_friendly,
-    ScriptTarget.TARGET_T_FRIENDLY_INJURED: ScriptManager.handle_friendly_injured,
-    ScriptTarget.TARGET_T_FRIENDLY_INJURED_EXCEPT: ScriptManager.handle_friendly_injured_except,
-    ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF: ScriptManager.handle_friendly_missing_buf,
-    ScriptTarget.TARGET_T_FRIENDLY_CC: ScriptManager.handle_friendly_cc,
-    ScriptTarget.TARGET_T_MAP_EVENT_SOURCE: ScriptManager.handle_map_event_source,
-    ScriptTarget.TARGET_T_MAP_EVENT_TARGET: ScriptManager.handle_map_event_target,
-    ScriptTarget.TARGET_T_MAP_EVENT_EXTRA_TARGET: ScriptManager.handle_map_event_extra_target,
-    ScriptTarget.TARGET_T_NEAREST_PLAYER: ScriptManager.handle_nearest_player,
-    ScriptTarget.TARGET_T_NEAREST_HOSTILE_PLAYER: ScriptManager.handle_nearest_hostile_player,
-    ScriptTarget.TARGET_T_NEAREST_FRIENDLY_PLAYER: ScriptManager.handle_nearest_friendly_player,
-    ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY: ScriptManager.handle_random_creature_with_entry,
-    ScriptTarget.TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY: ScriptManager.handle_random_gameobject_with_entry
+    ScriptTarget.TARGET_T_PROVIDED_TARGET: ScriptManager.resolve_provided_target,
+    ScriptTarget.TARGET_T_HOSTILE: ScriptManager.resolve_hostile,
+    ScriptTarget.TARGET_T_HOSTILE_SECOND_AGGRO: ScriptManager.resolve_hostile_second_aggro,
+    ScriptTarget.TARGET_T_HOSTILE_LAST_AGGRO: ScriptManager.resolve_hostile_last_aggro,
+    ScriptTarget.TARGET_T_HOSTILE_RANDOM: ScriptManager.resolve_hostile_random,
+    ScriptTarget.TARGET_T_HOSTILE_RANDOM_NOT_TOP: ScriptManager.resolve_hostile_random_not_top,
+    ScriptTarget.TARGET_T_OWNER_OR_SELF: ScriptManager.resolve_owner_or_self,
+    ScriptTarget.TARGET_T_OWNER: ScriptManager.resolve_owner,
+    ScriptTarget.TARGET_T_NEAREST_CREATURE_WITH_ENTRY: ScriptManager.resolve_nearest_creature_with_entry,
+    ScriptTarget.TARGET_T_CREATURE_WITH_GUID: ScriptManager.resolve_creature_with_guid,
+    ScriptTarget.TARGET_T_CREATURE_FROM_INSTANCE_DATA: ScriptManager.resolve_creature_instance_data,
+    ScriptTarget.TARGET_T_NEAREST_GAMEOBJECT_WITH_ENTRY: ScriptManager.resolve_nearest_gameobject_with_entry,
+    ScriptTarget.TARGET_T_GAMEOBJECT_WITH_GUID: ScriptManager.resolve_gameobject_with_guid,
+    ScriptTarget.TARGET_T_FRIENDLY: ScriptManager.resolve_friendly,
+    ScriptTarget.TARGET_T_FRIENDLY_INJURED: ScriptManager.resolve_friendly_injured,
+    ScriptTarget.TARGET_T_FRIENDLY_INJURED_EXCEPT: ScriptManager.resolve_friendly_injured_except,
+    ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF: ScriptManager.resolve_friendly_missing_buf,
+    ScriptTarget.TARGET_T_FRIENDLY_CC: ScriptManager.resolve_friendly_cc,
+    ScriptTarget.TARGET_T_MAP_EVENT_SOURCE: ScriptManager.resolve_map_event_source,
+    ScriptTarget.TARGET_T_MAP_EVENT_TARGET: ScriptManager.resolve_map_event_target,
+    ScriptTarget.TARGET_T_MAP_EVENT_EXTRA_TARGET: ScriptManager.resolve_map_event_extra_target,
+    ScriptTarget.TARGET_T_NEAREST_PLAYER: ScriptManager.resolve_nearest_player,
+    ScriptTarget.TARGET_T_NEAREST_HOSTILE_PLAYER: ScriptManager.resolve_nearest_hostile_player,
+    ScriptTarget.TARGET_T_NEAREST_FRIENDLY_PLAYER: ScriptManager.resolve_nearest_friendly_player,
+    ScriptTarget.TARGET_T_RANDOM_CREATURE_WITH_ENTRY: ScriptManager.resolve_random_creature_with_entry,
+    ScriptTarget.TARGET_T_RANDOM_GAMEOBJECT_WITH_ENTRY: ScriptManager.resolve_random_gameobject_with_entry
 }

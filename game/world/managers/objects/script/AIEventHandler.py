@@ -173,9 +173,9 @@ class AIEventHandler:
 
             # Param1: HP percent.
             # Param2: Search radius.
-            injured_friendly = ScriptManager.handle_friendly_injured(self.creature, target=None,
-                                                                     param1=event.event_param2,
-                                                                     param2=event.event_param1)
+            injured_friendly = ScriptManager.resolve_friendly_injured(self.creature, target=None,
+                                                                      param1=event.event_param2,
+                                                                      param2=event.event_param1)
 
             if not injured_friendly:
                 continue
