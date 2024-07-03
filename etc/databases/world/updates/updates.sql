@@ -2866,7 +2866,7 @@ begin not atomic
     end if;
 
     -- 02/07/2024 1
-    if (select count(*) from applied_updates where id='020720242') = 0 then
+    if (select count(*) from applied_updates where id='020720241') = 0 then
         -- New spells for trainer template ID 17
         --  Nature\'s Wrath - (Rank 6), Trainer Spell 6781, Player Spell 6780
         --  Nature\'s Touch - (Rank 6), Trainer Spell 6779, Player Spell 6778
@@ -2994,7 +2994,7 @@ begin not atomic
         -- Spell: Nature\'s Wrath - (Rank 2)
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5181', '5177', '100', '0', '0', '0', '0', '6');
         
-        insert into applied_updates values ('020720242');
+        insert into applied_updates values ('020720241');
     end if;
 end $
 delimiter ;
