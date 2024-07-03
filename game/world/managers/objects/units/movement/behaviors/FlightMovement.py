@@ -22,6 +22,7 @@ class FlightMovement(BaseMovement):
         return not self.spline
 
     def _begin_flight(self):
+        self.unit.pet_manager.detach_active_pets()
         speed = config.Unit.Player.Defaults.flight_speed
         spline_flags = SplineFlags.SPLINEFLAG_FLYING
         spline = SplineBuilder.build_normal_spline(self.unit, self.waypoints, speed,
