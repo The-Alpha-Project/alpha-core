@@ -6,7 +6,6 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptManager import ScriptManager
-from utils.Logger import Logger
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes
 from utils.constants.ScriptCodes import EventFlags
 from utils.constants.UnitCodes import PowerTypes
@@ -181,7 +180,6 @@ class AIEventHandler:
             if not injured_friendly:
                 continue
 
-            Logger.warning(f'Injured friendly {injured_friendly.get_name()}')
             self._lock_event(event, now)
             self._enqueue_scripts(map_, event, injured_friendly)
 
