@@ -99,7 +99,7 @@ class ScriptHandler:
             elif not ooc_event.started and ooc_event.check_phase():
                 # Initialize the ooc event.
                 ooc_event.initialize(now)
-                for script_id in ooc_event.script_ids:
+                for script_id in ooc_event.pick_scripts():
                     self.enqueue_script(ooc_event.source, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
                                         script_id=script_id, delay=ooc_event.delay, ooc_event=ooc_event)
 
@@ -121,7 +121,7 @@ class ScriptHandler:
 
         ooc_event = ScriptOocEvent(event, source, target, forced=forced)
         # Has no scripts, ignore.
-        if not ooc_event.scripts:
+        if not ooc_event.has_scripts:
             self.ooc_ignore.add(event.id)
             return
 

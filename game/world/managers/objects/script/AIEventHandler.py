@@ -47,7 +47,7 @@ class AIEventHandler:
         self.update_missing_aura_events(now)
 
     def _enqueue_scripts(self, map_, event, target):
-        scripts = ScriptHelpers.get_filtered_event_scripts(event)
+        scripts = event.pick_scripts()
         if not scripts:
             return
 
