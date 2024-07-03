@@ -58,6 +58,9 @@ class TaxiManager(object):
         if flight_master:
             mount_display_id = self.get_mount_display_id(flight_master)
 
+        # Detach active pets.
+        self.owner.pet_manager.detach_active_pets()
+
         dest_taxi_node = DbcDatabaseManager.TaxiNodesHolder.taxi_nodes_get_by_map_id_and_node_id(self.owner.map_id, dest_node)
         self.owner.pending_taxi_destination = Vector(dest_taxi_node.X, dest_taxi_node.Y, dest_taxi_node.Z)
         self.owner.set_taxi_flying_state(True, mount_display_id)
