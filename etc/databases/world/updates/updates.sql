@@ -2865,5 +2865,136 @@ begin not atomic
         insert into applied_updates values ('010720242');
     end if;
 
+    -- 02/07/2024 1
+    if (select count(*) from applied_updates where id='020720242') = 0 then
+        -- New spells for trainer template ID 17
+        --  Nature\'s Wrath - (Rank 6), Trainer Spell 6781, Player Spell 6780
+        --  Nature\'s Touch - (Rank 6), Trainer Spell 6779, Player Spell 6778
+        --  Nature\'s Touch - (Rank 5), Trainer Spell 5194, Player Spell 5189
+        --  Nature\'s Touch - (Rank 4), Trainer Spell 5193, Player Spell 5188
+        --  Nature\'s Touch - (Rank 3), Trainer Spell 5192, Player Spell 5187
+        --  Nature\'s Touch - (Rank 2), Trainer Spell 5190, Player Spell 5186
+        --  Nature\'s Wrath - (Rank 5), Trainer Spell 5184, Player Spell 5180
+        --  Nature\'s Wrath - (Rank 4), Trainer Spell 5183, Player Spell 5179
+        --  Nature\'s Wrath - (Rank 3), Trainer Spell 5182, Player Spell 5178
+        --  Nature\'s Wrath - (Rank 2), Trainer Spell 5181, Player Spell 5177
+        -- New spells for trainer template ID 16
+        --  Nature\'s Wrath - (Rank 6), Trainer Spell 6781, Player Spell 6780
+        --  Nature\'s Touch - (Rank 6), Trainer Spell 6779, Player Spell 6778
+        --  Nature\'s Touch - (Rank 5), Trainer Spell 5194, Player Spell 5189
+        --  Nature\'s Touch - (Rank 4), Trainer Spell 5193, Player Spell 5188
+        --  Nature\'s Touch - (Rank 3), Trainer Spell 5192, Player Spell 5187
+        --  Nature\'s Touch - (Rank 2), Trainer Spell 5190, Player Spell 5186
+        --  Nature\'s Wrath - (Rank 5), Trainer Spell 5184, Player Spell 5180
+        --  Nature\'s Wrath - (Rank 4), Trainer Spell 5183, Player Spell 5179
+        --  Nature\'s Wrath - (Rank 3), Trainer Spell 5182, Player Spell 5178
+        --  Nature\'s Wrath - (Rank 2), Trainer Spell 5181, Player Spell 5177
+        -- New spells for trainer template ID 507
+        --  Nature\'s Wrath - (Rank 6), Trainer Spell 6781, Player Spell 6780
+        --  Nature\'s Touch - (Rank 6), Trainer Spell 6779, Player Spell 6778
+        --  Nature\'s Touch - (Rank 5), Trainer Spell 5194, Player Spell 5189
+        --  Nature\'s Touch - (Rank 4), Trainer Spell 5193, Player Spell 5188
+        --  Nature\'s Touch - (Rank 3), Trainer Spell 5192, Player Spell 5187
+        --  Nature\'s Touch - (Rank 2), Trainer Spell 5190, Player Spell 5186
+        --  Nature\'s Wrath - (Rank 5), Trainer Spell 5184, Player Spell 5180
+        --  Nature\'s Wrath - (Rank 4), Trainer Spell 5183, Player Spell 5179
+        --  Nature\'s Wrath - (Rank 3), Trainer Spell 5182, Player Spell 5178
+        --  Nature\'s Wrath - (Rank 2), Trainer Spell 5181, Player Spell 5177
+
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 6)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '6779', '6778', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 5)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5194', '5189', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 4)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5193', '5188', '5300', '0', '0', '0', '0', '24');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5192', '5187', '1800', '0', '0', '0', '0', '16');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5190', '5186', '200', '0', '0', '0', '0', '8');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 6)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '6781', '6780', '23000', '0', '0', '0', '0', '38');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 5)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5184', '5180', '8000', '0', '0', '0', '0', '30');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 4)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5183', '5179', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5182', '5178', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID 17 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5181', '5177', '100', '0', '0', '0', '0', '6');
+        
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 6)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '6779', '6778', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 5)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5194', '5189', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 4)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5193', '5188', '5300', '0', '0', '0', '0', '24');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5192', '5187', '1800', '0', '0', '0', '0', '16');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5190', '5186', '200', '0', '0', '0', '0', '8');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 6)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '6781', '6780', '23000', '0', '0', '0', '0', '38');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 5)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5184', '5180', '8000', '0', '0', '0', '0', '30');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 4)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5183', '5179', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5182', '5178', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID 16 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5181', '5177', '100', '0', '0', '0', '0', '6');
+
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 6)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '6779', '6778', '16000', '0', '0', '0', '0', '40');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 5)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5194', '5189', '11000', '0', '0', '0', '0', '32');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 4)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5193', '5188', '5300', '0', '0', '0', '0', '24');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5192', '5187', '1800', '0', '0', '0', '0', '16');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Touch - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5190', '5186', '200', '0', '0', '0', '0', '8');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 6)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '6781', '6780', '23000', '0', '0', '0', '0', '38');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 5)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5184', '5180', '8000', '0', '0', '0', '0', '30');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 4)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5183', '5179', '3400', '0', '0', '0', '0', '22');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 3)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5182', '5178', '1200', '0', '0', '0', '0', '14');
+        -- Trainer Template ID 507 - DRUID
+        -- Spell: Nature\'s Wrath - (Rank 2)
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5181', '5177', '100', '0', '0', '0', '0', '6');
+        
+        insert into applied_updates values ('020720242');
+    end if;
 end $
 delimiter ;
