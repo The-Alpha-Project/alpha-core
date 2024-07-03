@@ -143,7 +143,7 @@ class ScriptManager:
         return None
 
     @staticmethod
-    def handle_fiendly(caster, target=None, param1=None, param2=None, spell_template=None):
+    def handle_friendly(caster, target=None, param1=None, param2=None, spell_template=None):
         search_range: Optional[float] = param1
         exclude_target: Optional[UnitManager] = param2
 
@@ -154,6 +154,7 @@ class ScriptManager:
                                                           search_range=search_range,
                                                           friends_only=True,
                                                           exclude_unit=exclude_target,
+                                                          alive=True,
                                                           in_combat=True)
         # Did not find any friendlies.
         if not friendlies:
@@ -198,7 +199,8 @@ class ScriptManager:
         # Surrounding friendly units.
         surrounding_units = ScriptManager._get_surrounding_units(caster,
                                                                  search_range,
-                                                                 friends_only=True)
+                                                                 friends_only=True,
+                                                                 alive=True)
         # No surrounding units found.
         if not surrounding_units:
             return None
@@ -218,6 +220,7 @@ class ScriptManager:
         # Surrounding friendly units.
         surrounding_units = ScriptManager._get_surrounding_units(caster,
                                                                  search_range,
+                                                                 alive=True,
                                                                  friends_only=True,
                                                                  exclude_unit=target)
         # No surrounding units found.
@@ -286,7 +289,7 @@ class ScriptManager:
         # Set range if not provided.
         search_range = ScriptManager._get_search_range(search_range, spell_template)
         # Surrounding units.
-        players = ScriptManager._get_surrounding_units(caster, search_range)
+        players = ScriptManager._get_surrounding_units(caster, search_range, alive=True)
         # No surrounding units found.
         if not players:
             return None
@@ -300,7 +303,7 @@ class ScriptManager:
         # Set range if not provided.
         search_range = ScriptManager._get_search_range(search_range, spell_template)
         # Surrounding enemy units.
-        enemy_players = ScriptManager._get_surrounding_players(caster, search_range, enemies_only=True)
+        enemy_players = ScriptManager._get_surrounding_players(caster, search_range, enemies_only=True, alive=True)
         # No surrounding units found.
         if not enemy_players:
             return None
@@ -314,7 +317,7 @@ class ScriptManager:
         # Set range if not provided.
         search_range = ScriptManager._get_search_range(search_range, spell_template)
         # Surrounding friendly units.
-        friendly_players = ScriptManager._get_surrounding_players(caster, search_range, friends_only=True)
+        friendly_players = ScriptManager._get_surrounding_players(caster, search_range, friends_only=True, alive=True)
         # No surrounding units found.
         if not friendly_players:
             return None
@@ -345,6 +348,7 @@ class ScriptManager:
         # Surrounding friendly units within range, including players.
         surrounding_units_and_players = ScriptManager._get_surrounding_units(caster, radius,
                                                                              friends_only=True,
+                                                                             alive=True,
                                                                              exclude_unit=exclude_unit)
         # Did not find any injured friendly.
         if not surrounding_units_and_players:
@@ -435,7 +439,7 @@ SCRIPT_TARGETS = {
     ScriptTarget.TARGET_T_CREATURE_FROM_INSTANCE_DATA: ScriptManager.handle_creature_instance_data,
     ScriptTarget.TARGET_T_NEAREST_GAMEOBJECT_WITH_ENTRY: ScriptManager.handle_nearest_gameobject_with_entry,
     ScriptTarget.TARGET_T_GAMEOBJECT_WITH_GUID: ScriptManager.handle_gameobject_with_guid,
-    ScriptTarget.TARGET_T_FRIENDLY: ScriptManager.handle_fiendly,
+    ScriptTarget.TARGET_T_FRIENDLY: ScriptManager.handle_friendly,
     ScriptTarget.TARGET_T_FRIENDLY_INJURED: ScriptManager.handle_friendly_injured,
     ScriptTarget.TARGET_T_FRIENDLY_INJURED_EXCEPT: ScriptManager.handle_friendly_injured_except,
     ScriptTarget.TARGET_T_FRIENDLY_MISSING_BUFF: ScriptManager.handle_friendly_missing_buf,

@@ -35,6 +35,8 @@ class Map:
         count = 0
         length = len(creature_spawns)
         for creature_spawn in creature_spawns:
+            if creature_spawn.spawn_id not in (6443, 6444):
+                continue
             creature_spawn = CreatureSpawn(creature_spawn, instance_id=self.instance_id)
             creature_spawn.spawn_creature()
             count += 1
