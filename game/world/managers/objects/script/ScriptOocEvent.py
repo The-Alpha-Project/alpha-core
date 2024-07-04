@@ -15,10 +15,10 @@ class ScriptOocEvent:
         self.phase_mask = event.event_inverse_phase_mask
         self._scripts = ScriptHelpers.get_filtered_event_scripts(event)
         self.has_scripts = len(self._scripts) > 0
-        self.min_delay = event.event_param1 / 1000  # Seconds
-        self.max_delay = event.event_param2 / 1000  # Seconds
-        self.min_repeat = event.event_param3 / 1000  # Seconds
-        self.max_repeat = event.event_param4 / 1000  # Seconds
+        self.min_delay = event.event_param1 / 1000  # Seconds.
+        self.max_delay = event.event_param2 / 1000  # Seconds.
+        self.min_repeat = event.event_param3 / 1000  # Seconds.
+        self.max_repeat = event.event_param4 / 1000  # Seconds.
         self.delay = 0 if forced else uniform(self.min_delay, self.max_delay)
         self.repeat = 0 if forced else uniform(self.min_repeat, self.max_repeat)
         self.started = False
@@ -33,7 +33,7 @@ class ScriptOocEvent:
         if not self.phase_mask:
             return True
 
-        # Check the inverse phase mask (event doesn't trigger if current phase bit is set in mask)
+        # Check the inverse phase mask (event doesn't trigger if current phase bit is set in mask).
         return self.phase_mask & (1 << self.source.object_ai.script_phase)
 
     def should_repeat(self):

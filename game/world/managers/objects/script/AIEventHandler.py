@@ -347,7 +347,7 @@ class AIEventHandler:
         if not ConditionChecker.validate(event.condition_id, self.creature, target if target else self.creature):
             return False
 
-        # Check the inverse phase mask (event doesn't trigger if current phase bit is set in mask)
+        # Check the inverse phase mask (event doesn't trigger if current phase bit is set in mask).
         if event.event_inverse_phase_mask & (1 << self.creature.object_ai.script_phase):
             return False
 
