@@ -104,11 +104,11 @@ class CreatureAI:
 
     # Group member just died.
     def group_member_just_died(self, unit, is_leader):
-        pass
+        self.ai_event_handler.on_group_member_died(unit, is_leader)
 
     # Called when the creature kills a unit.
     def killed_unit(self, unit):
-        pass
+        self.ai_event_handler.on_killed_unit(unit)
 
     # Called when owner of m_creature (if m_creature is PROTECTOR_PET) kills a unit.
     def owner_killed_unit(self, unit):
@@ -135,8 +135,8 @@ class CreatureAI:
         pass
 
     # Called when hit by a spell.
-    def spell_hit(self, caster, spell_entry):
-        pass
+    def spell_hit(self, caster, casting_spell):
+        self.ai_event_handler.on_spell_hit(casting_spell, caster)
 
     # Called when spell hits creature's target.
     def spell_hit_target(self, unit, spell_entry):
@@ -405,7 +405,7 @@ class CreatureAI:
     def on_combat_stop(self):
         # Reset back to default spells template. This also resets timers.
         # Reset combat movement and melee attack.
-        pass
+        self.ai_event_handler.on_evade()
 
     # Called at any Damage to any victim (before damage apply).
     def damage_deal(self, unit, damage):
@@ -423,7 +423,7 @@ class CreatureAI:
 
     # Called at reaching home after evade.
     def just_reached_home(self):
-        pass
+        self.ai_event_handler.on_reached_home()
 
     # Called when a unit moves within visibility distance.
     def move_in_line_of_sight(self, unit):

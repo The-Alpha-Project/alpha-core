@@ -383,6 +383,8 @@ class CreatureManager(UnitManager):
         self.movement_manager.face_angle(self.spawn_position.o)
         # Scan surrounding for enemies.
         self._on_relocation()
+        if self.object_ai:
+            self.object_ai.just_reached_home()
 
     # override
     def on_cell_change(self):
@@ -426,6 +428,8 @@ class CreatureManager(UnitManager):
 
         if not self.is_player_controlled_pet():
             self.evade()
+            if self.object_ai:
+                self.object_ai.on_combat_stop()
         else:
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
 
@@ -662,6 +666,9 @@ class CreatureManager(UnitManager):
             # Notify member death.
             self.creature_group.on_member_died(self)
 
+        if killer and killer.get_type_id() == ObjectTypeIds.ID_UNIT and killer.object_ai:
+            killer.object_ai.killed_unit(self)
+
         # Handle one shot kills leading to player remaining in combat.
         if was_oneshot and killer:
             self.threat_manager.add_threat(killer)
@@ -734,10 +741,12 @@ class CreatureManager(UnitManager):
         map_ = self.get_map()
         if not map_.validate_teleport_destination(location.x, location.y):
             return False
+
         self.movement_manager.reset()
         self.location = location.copy()
-        map_.update_object(self)
-        map_.send_surrounding(self.get_heartbeat_packet(), self, False)
+        self.set_has_moved(has_moved=True, has_turned=True)
+        self.get_map().send_surrounding(self.get_heartbeat_packet(), self, False)
+
         if location == self.spawn_position:
             self.on_at_home()
         return True

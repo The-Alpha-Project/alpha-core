@@ -786,6 +786,10 @@ class UnitManager(ObjectManager):
         if target.is_evading:
             return
 
+        if (casting_spell and target.object_ai and damage_info.spell_miss_reason == SpellMissReason.MISS_REASON_NONE
+                and damage_info.total_damage):
+            target.object_ai.spell_hit(caster=self, casting_spell=casting_spell)
+
         target.receive_damage(damage_info, source=self, casting_spell=casting_spell, is_periodic=is_periodic)
 
     def receive_damage(self, damage_info, source=None, casting_spell=None, is_periodic=False):

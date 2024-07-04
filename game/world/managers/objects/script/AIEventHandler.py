@@ -46,6 +46,9 @@ class AIEventHandler:
         self.update_range_events(now)
         self.update_friendly_hp_events(now)
         self.update_missing_aura_events(now)
+        self.update_timer_in_combat_events(now)
+        self.update_target_hp_events(now)
+        self.update_target_casting_events(now)
 
     def _enqueue_creature_ai_event(self, map_, event, target, now=0):
         scripts = ScriptHelpers.get_filtered_event_scripts(event)
@@ -72,10 +75,39 @@ class AIEventHandler:
     def on_enter_combat(self, source=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
         map_ = self.creature.get_map()
+        target = source if source else self.creature
         for event in events:
-            if not self._validate_event(event, target=source):
+            if not self._validate_event(event, target=target):
                 continue
-            self._enqueue_creature_ai_event(map_, event, target=source if source else self.creature)
+            self._enqueue_creature_ai_event(map_, event, target=target)
+
+    def on_spell_hit(self, casting_spell, source=None):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SPELL_HIT)
+        map_ = self.creature.get_map()
+        target = source if source else self.creature
+        for event in events:
+            if not self._validate_event(event, target=target):
+                continue
+
+            if not event.event_param1 or casting_spell.spell_entry.ID == event.event_param1:
+                # TODO: Review this mask comparison.
+                if casting_spell.get_damage_school_mask() & event.event_param2:
+                    self._enqueue_creature_ai_event(map_, event, target=target)
+
+    def on_group_member_died(self, source, is_leader):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_GROUP_MEMBER_DIED)
+        map_ = self.creature.get_map()
+        target = source if source else self.creature
+        for event in events:
+            if not self._validate_event(event, target=target):
+                continue
+
+            if event.event_param1 and event.event_param1 != target.entry:
+                continue
+
+            requires_leader = event.event_param2 != 0
+            if requires_leader == is_leader:
+                self._enqueue_creature_ai_event(map_, event, target=target)
 
     def on_idle(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
@@ -105,6 +137,75 @@ class AIEventHandler:
 
             self._enqueue_creature_ai_event(map_, event, player)
 
+    def on_killed_unit(self, target):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_KILL_UNIT)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=target)
+
+    def on_evade(self):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_EVADE)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=self.creature)
+
+    def on_reached_home(self):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_REACHED_HOME)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=self.creature)
+
+    # TODO.
+    def on_movement_inform(self, behavior, point_id):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MOVEMENT_INFORM)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature):
+                continue
+
+            if event.event_param1 == behavior and point_id == event.event_param2:
+                self._enqueue_creature_ai_event(map_, event, target=self.creature)
+
+    def update_target_missing_aura_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_MISSING_AURA)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
+                continue
+
+            # Param1: SpellID.
+            auras = target.creature.aura_manager.get_auras_by_spell_id(event.event_param1)
+            if not auras:
+                continue
+
+            # Param2: Expected stacks.
+            if auras[0].applied_stacks >= event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, target, now)
+
+    def update_timer_in_combat_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TIMER_COMBAT)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature, now=now):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=target, now=now)
+
     def update_missing_aura_events(self, now):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MISSING_AURA)
         map_ = self.creature.get_map()
@@ -123,6 +224,22 @@ class AIEventHandler:
 
             self._enqueue_creature_ai_event(map_, event, self.creature, now)
 
+    def update_target_casting_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_CASTING)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
+                continue
+
+            if not target.is_casting():
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, self.creature, now)
+
     def update_hp_events(self, now):
         target = self.creature.combat_target
         if not target:
@@ -135,6 +252,24 @@ class AIEventHandler:
                 continue
 
             current_hp_percent = (self.creature.health / self.creature.max_health) * 100
+            # param1 %MaxHP, param2 %MinHp.
+            if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, self.creature, now)
+
+    def update_target_hp_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_HP)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
+                continue
+
+            current_hp_percent = (target.creature.health / target.creature.max_health) * 100
             # param1 %MaxHP, param2 %MinHp.
             if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
                 continue
@@ -212,6 +347,10 @@ class AIEventHandler:
         if not ConditionChecker.validate(event.condition_id, self.creature, target if target else self.creature):
             return False
 
+        # Check the inverse phase mask (event doesn't trigger if current phase bit is set in mask)
+        if event.event_inverse_phase_mask & (1 << self.creature.object_ai.script_phase):
+            return False
+
         if event.event_flags & EventFlags.NOT_CASTING and self.creature.is_casting():
             return False
 
@@ -231,7 +370,7 @@ class AIEventHandler:
         return self._events.get(event_type, [])
 
     def _lock_event(self, event, now):
-        delay = random.uniform(event.min_delay, event.max_delay) / 1000  # Seconds.
+        delay = random.uniform(event.min_delay, event.max_delay)
         self.event_locks[event.id] = EventLock(event_id=event.id, time_added=now, delay=delay,
                                                can_repeat=delay > 0 and event.event_flags & EventFlags.REPEATABLE)
 

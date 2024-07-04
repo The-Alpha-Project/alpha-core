@@ -281,9 +281,6 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_teleport_units(casting_spell, effect, caster, target):
-        if not target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
-            return
-
         # Teleport targets should follow the format (map, Vector).
         teleport_targets = effect.targets.get_resolved_effect_targets_by_type(tuple)
         if len(teleport_targets) == 0:
@@ -292,7 +289,10 @@ class SpellEffectHandler:
         if len(teleport_info) != 2 or not isinstance(teleport_info[1], Vector):
             return
 
-        target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved.
+        if target.get_type_mask() & ObjectTypeFlags.TYPE_PLAYER:
+            target.teleport(teleport_info[0], teleport_info[1])  # map, coordinates resolved.
+        else:
+            target.near_teleport(teleport_info[1])
         # TODO Die sides are assigned for at least Word of Recall (ID 1)
 
     @staticmethod

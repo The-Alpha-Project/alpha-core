@@ -32,7 +32,9 @@ class ScriptOocEvent:
     def check_phase(self):
         if not self.phase_mask:
             return True
-        return self.source.object_ai.script_phase & self.phase_mask
+
+        # Check the inverse phase mask (event doesn't trigger if current phase bit is set in mask)
+        return self.phase_mask & (1 << self.source.object_ai.script_phase)
 
     def should_repeat(self):
         return self.repeat > 0 and self.event_flags & EventFlags.REPEATABLE
