@@ -261,6 +261,9 @@ class WaypointPathOrigin(IntEnum):
 class EventFlags(IntEnum):
     REPEATABLE = 0x01
     RANDOM_ACTION = 0x02
+    NOT_CASTING = 0x4
+    CHECK_RESULT = 0x8
+    DEBUG_ONLY = 0x10
 
 
 class SetMapScriptDataOptions(IntEnum):

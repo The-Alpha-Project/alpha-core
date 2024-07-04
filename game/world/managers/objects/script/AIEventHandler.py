@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from random import randint, choice
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
+from game.world.managers.objects.script.ScriptCreatureAIEvent import ScriptCreatureAIEvent
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes
@@ -46,10 +47,16 @@ class AIEventHandler:
         self.update_friendly_hp_events(now)
         self.update_missing_aura_events(now)
 
-    def _enqueue_scripts(self, map_, event, target):
-        scripts = event.pick_scripts()
+    def _enqueue_creature_ai_event(self, map_, event, target, now=0):
+        scripts = ScriptHelpers.get_filtered_event_scripts(event)
         if not scripts:
             return
+
+        creature_event = ScriptCreatureAIEvent(event, self.creature)
+        scripts = creature_event.pick_scripts()
+
+        if now:
+            self._lock_event(creature_event, now)
 
         for script in scripts:
             map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
@@ -58,51 +65,51 @@ class AIEventHandler:
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event):
+            if not self._validate_event(event, target=self.creature):
                 continue
-            self._enqueue_scripts(map_, event, None)
+            self._enqueue_creature_ai_event(map_, event, target=self.creature)
 
     def on_enter_combat(self, source=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_ENTER_COMBAT)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event, target=source):
+            if not self._validate_event(event, target=source):
                 continue
-            self._enqueue_scripts(map_, event, source)
+            self._enqueue_creature_ai_event(map_, event, target=source if source else self.creature)
 
     def on_idle(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event):
+            if not self._validate_event(event, target=self.creature):
                 continue
-            map_.set_random_ooc_event(self.creature, None, event)
+            map_.set_random_ooc_event(source=self.creature, target=self.creature, event=event)
 
     def on_death(self, killer=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event, target=killer):
+            if not self._validate_event(event, target=killer if killer else self.creature):
                 continue
-            self._enqueue_scripts(map_, event, killer)
+            self._enqueue_creature_ai_event(map_, event, killer if killer else self.creature)
 
     def on_emote_received(self, player, emote):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RECEIVE_EMOTE)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event, target=player):
+            if not self._validate_event(event, target=player):
                 continue
 
             if event.event_param1 != emote:
                 continue
 
-            self._enqueue_scripts(map_, event, player)
+            self._enqueue_creature_ai_event(map_, event, player)
 
     def update_missing_aura_events(self, now):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MISSING_AURA)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event, target=None, now=now):
+            if not self._validate_event(event, target=self.creature, now=now):
                 continue
 
             # Param1: SpellID.
@@ -114,7 +121,7 @@ class AIEventHandler:
             if auras[0].applied_stacks >= event.event_param2:
                 continue
 
-            self._enqueue_scripts(map_, event, self.creature)
+            self._enqueue_creature_ai_event(map_, event, self.creature, now)
 
     def update_hp_events(self, now):
         target = self.creature.combat_target
@@ -124,7 +131,7 @@ class AIEventHandler:
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_HP)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event, target=target, now=now):
+            if not self._validate_event(event, target=self.creature, now=now):
                 continue
 
             current_hp_percent = (self.creature.health / self.creature.max_health) * 100
@@ -132,8 +139,7 @@ class AIEventHandler:
             if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
                 continue
 
-            self._lock_event(event, now)
-            self._enqueue_scripts(map_, event, target)
+            self._enqueue_creature_ai_event(map_, event, target, now)
 
     def update_mana_events(self, now):
         target = self.creature.combat_target
@@ -143,7 +149,7 @@ class AIEventHandler:
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MANA)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event, target=target, now=now):
+            if not self._validate_event(event, target=self.creature, now=now):
                 continue
 
             if self.creature.power_type != PowerTypes.TYPE_MANA:
@@ -157,8 +163,7 @@ class AIEventHandler:
             if current_mana_percent > event.event_param1 or current_mana_percent < event.event_param2:
                 continue
 
-            self._lock_event(event, now)
-            self._enqueue_scripts(map_, event, target)
+            self._enqueue_creature_ai_event(map_, event, self.creature, now)
 
     def update_friendly_hp_events(self, now):
         target = self.creature.combat_target
@@ -168,7 +173,7 @@ class AIEventHandler:
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_FRIENDLY_HP)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event, target=None, now=now):
+            if not self._validate_event(event, target=self.creature, now=now):
                 continue
 
             # Param1: HP percent.
@@ -180,8 +185,7 @@ class AIEventHandler:
             if not injured_friendly:
                 continue
 
-            self._lock_event(event, now)
-            self._enqueue_scripts(map_, event, injured_friendly)
+            self._enqueue_creature_ai_event(map_, event, injured_friendly, now)
 
     def update_range_events(self, now):
         target = self.creature.combat_target
@@ -191,7 +195,7 @@ class AIEventHandler:
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RANGE)
         map_ = self.creature.get_map()
         for event in events:
-            if not self._validate_chance_condition_lock(event, target=None, now=now):
+            if not self._validate_event(event, target=target, now=now):
                 continue
 
             distance = self.creature.location.distance(target.location)
@@ -199,14 +203,16 @@ class AIEventHandler:
             if distance < event.event_param1 or distance > event.event_param2:
                 continue
 
-            self._lock_event(event, now)
-            self._enqueue_scripts(map_, event, target)
+            self._enqueue_creature_ai_event(map_, event, target, now)
 
-    def _validate_chance_condition_lock(self, event, target=None, now=0):
+    def _validate_event(self, event, target=None, now=0):
         if event.event_chance != 100 and randint(0, 100) > event.event_chance:
             return False
 
-        if target and not ConditionChecker.validate(event.condition_id, self.creature, target):
+        if not ConditionChecker.validate(event.condition_id, self.creature, target if target else self.creature):
+            return False
+
+        if event.event_flags & EventFlags.NOT_CASTING and self.creature.is_casting():
             return False
 
         if now and self._is_event_locked(event, now):
@@ -225,7 +231,7 @@ class AIEventHandler:
         return self._events.get(event_type, [])
 
     def _lock_event(self, event, now):
-        delay = random.uniform(event.event_param3, event.event_param4) / 1000  # Seconds.
+        delay = random.uniform(event.min_delay, event.max_delay) / 1000  # Seconds.
         self.event_locks[event.id] = EventLock(event_id=event.id, time_added=now, delay=delay,
                                                can_repeat=delay > 0 and event.event_flags & EventFlags.REPEATABLE)
 
