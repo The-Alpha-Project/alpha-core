@@ -169,7 +169,7 @@ class ConditionChecker:
         return target.skill_manager.get_total_skill_value(condition.value1) >= condition.value2
 
     @staticmethod
-    def check_condition_questrewarded(condition, _source, target):
+    def check_condition_quest_rewarded(condition, _source, target):
         # Requires Player target.
         # Returns True if target has completed quest.
         # Quest_id = condition_value1.
@@ -178,7 +178,7 @@ class ConditionChecker:
         return target.quest_manager.get_quest_state(condition.value1) == QuestState.QUEST_REWARD
 
     @staticmethod
-    def check_condition_questtaken(condition, _source, target):
+    def check_condition_quest_taken(condition, _source, target):
         # Requires Player target.
         # Returns True if target has taken quest.
         # Quest_id = condition_value1.
@@ -367,7 +367,7 @@ class ConditionChecker:
         # Condition_value2 = count.
         if not ConditionChecker.is_player(target):
             return False
-        return target.inventory_manager.get_item_count(condition.value1) >= condition.value2
+        return target.inventory_manager.get_item_count(condition.value1, include_bank=True) >= condition.value2
 
     @staticmethod
     def check_condition_wow_patch(_condition, _source, _target):
@@ -593,7 +593,7 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target):
             return False
 
-        health_percent = target.health / target.max_health * 100
+        health_percent = (target.health / target.max_health) * 100
         if condition.value2 == 0:
             return health_percent == condition.value1
         elif condition.value2 == 1:
@@ -613,7 +613,7 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target) or target.power_type != PowerTypes.TYPE_MANA:
             return False
 
-        mana_percent = target.power1 / target.max_power1 * 100
+        mana_percent = (target.power1 / target.max_power1) * 100
         if condition.value2 == 0:
             return mana_percent == condition.value1
         elif condition.value2 == 1:
@@ -789,19 +789,29 @@ class ConditionChecker:
         return False
 
     @staticmethod
-    def check_condition_creature_group_member(_condition, _source, _target):
+    def check_condition_creature_group_member(condition, _source, target):
         # Checks if creature is part of a group.
         # Requirement: Creature Source.
         # Condition_value1 = leader_guid (optional).
-        Logger.warning('CONDITION_CREATURE_GROUP_MEMBER is not implemented.')
-        return False
+        if not ConditionChecker.is_unit(target):
+            return False
+
+        if not target.creature_group:
+            return False
+
+        return not condition.value2 or target.creature_group.original_leader_spawn_id == condition.value2
 
     @staticmethod
-    def check_condition_creature_group_dead(_condition, _source, _target):
+    def check_condition_creature_group_dead(_condition, _source, target):
         # Checks if creature's group is dead.
         # Requirement: Creature Source
-        Logger.warning('CONDITION_CREATURE_GROUP_DEAD is not implemented.')
-        return False
+        if not ConditionChecker.is_unit(target):
+            return True
+
+        if not target.creature_group:
+            return True
+
+        return target.creature_group.get_alive_count() == 0
 
     # Target Internal Check
     @staticmethod
@@ -947,8 +957,8 @@ CONDITIONS = {
     ConditionType.CONDITION_SKILL: ConditionChecker.check_condition_skill,
     ConditionType.CONDITION_QUEST_NONE: ConditionChecker.check_condition_quest_none,
     ConditionType.CONDITION_QUESTAVAILABLE: ConditionChecker.check_condition_quest_available,
-    ConditionType.CONDITION_QUESTREWARDED: ConditionChecker.check_condition_questrewarded,
-    ConditionType.CONDITION_QUESTTAKEN: ConditionChecker.check_condition_questtaken,
+    ConditionType.CONDITION_QUESTREWARDED: ConditionChecker.check_condition_quest_rewarded,
+    ConditionType.CONDITION_QUESTTAKEN: ConditionChecker.check_condition_quest_taken,
     ConditionType.CONDITION_AD_COMMISSION_AURA: ConditionChecker.check_condition_ad_commission_aura,
     ConditionType.CONDITION_SAVED_VARIABLE: ConditionChecker.check_condition_saved_variable,
     ConditionType.CONDITION_ACTIVE_GAME_EVENT: ConditionChecker.check_condition_active_game_event,

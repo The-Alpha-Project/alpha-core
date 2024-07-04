@@ -129,6 +129,13 @@ class CreatureGroupManager:
             return
         CREATURE_GROUPS.pop(self.original_leader_spawn_id)
 
+    def get_alive_count(self):
+        alive = 0
+        for guid, member in self.members.items():
+            if member.creature.is_alive:
+                alive += 1
+        return alive
+
     def is_formation(self):
         return self.group_flags & CreatureGroupFlags.OPTION_FORMATION_MOVE
 

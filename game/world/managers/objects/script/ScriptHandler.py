@@ -104,9 +104,6 @@ class ScriptHandler:
                                         script_id=script_id, delay=ooc_event.delay, ooc_event=ooc_event)
 
     def set_random_ooc_event(self, source, target, event, forced=False):
-        if not ConditionChecker.validate(event.condition_id, source, target):
-            return
-
         # Ignored or already running a script.
         if event.id in self.ooc_ignore or event.id in self.ooc_events:
             if not forced:
