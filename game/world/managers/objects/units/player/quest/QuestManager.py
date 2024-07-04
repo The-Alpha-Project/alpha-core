@@ -233,7 +233,12 @@ class QuestManager(object):
             if not self.check_quest_requirements(quest) or not self.check_quest_level(quest, False):
                 continue
             quest_state = self.get_quest_state(quest_entry)
+
             if QuestHelpers.is_instant_with_no_requirements(quest) and quest_entry not in self.active_quests:
+                quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_REWARD, QuestState.QUEST_REWARD)
+            elif (QuestHelpers.is_instant_requires_only_items(quest)
+                    and QuestHelpers.has_required_items_for_quest(self.player_mgr, quest)
+                    and quest_entry not in self.active_quests):
                 quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_REWARD, QuestState.QUEST_REWARD)
             elif QuestHelpers.is_instant_complete_quest(quest) and quest_entry not in self.active_quests:
                 quest_menu.add_menu_item(quest, QuestGiverStatus.QUEST_GIVER_REWARD, QuestState.QUEST_ACCEPTED)
@@ -670,11 +675,6 @@ class QuestManager(object):
         quest_title = quest.Title
         request_items_text = quest.RequestItemsText
         is_completable = quest.entry in self.active_quests and self.active_quests[quest.entry].is_quest_complete(quest_giver_id)
-
-        # Not completable by normal means, check if this is an instant quest that requires items.
-        if not is_completable and not QuestHelpers.is_instant_with_no_requirements(quest):
-            if QuestHelpers.has_item_requirements(quest):
-                is_completable = QuestHelpers.has_required_items_for_quest(self.player_mgr, quest)
 
         # Doesn't have request items text or does not require items and is completable, offer reward.
         if not request_items_text or (not QuestHelpers.has_item_requirements(quest) and is_completable):

@@ -167,6 +167,31 @@ class MovementManager:
     def get_move_behavior_by_type(self, move_type) -> Optional[BaseMovement]:
         return self.movement_behaviors.get(move_type, None)
 
+    # TODO: Unused atm, lacking many specific move types from vMangos and some refactoring to our current move behaviors.
+    #  For now, attempt to resolve to the closest types in order to trigger some creature ai events.
+    def _translate_to_vmangos_move_type(self):
+        current_behavior = self._get_current_behavior()
+        if current_behavior.move_type == MoveType.IDLE or not current_behavior:
+            return [0]  # Idle.
+        elif current_behavior.move_type == MoveType.WANDER:
+            return [1]  # Random.
+        elif current_behavior.move_type == MoveType.WAYPOINTS:
+            return [2, 3, 9]  # Waypoint / Cyclic / Point.
+        elif current_behavior.move_type == MoveType.CONFUSED:
+            return [5]  # Confused.
+        elif current_behavior.move_type == MoveType.CHASE:
+            return [6]
+        elif current_behavior.move_type == MoveType.EVADE:
+            return [7]  # Home.
+        elif current_behavior.move_type == MoveType.FLIGHT:
+            return [8]
+        elif current_behavior.move_type == MoveType.FEAR:
+            return [10]
+        elif current_behavior.move_type == MoveType.DISTRACTED:
+            return [11]
+        elif current_behavior.move_type == MoveType.GROUP:
+            return [2, 15, 17]
+
     # Instant.
     def stop(self, force=False):
         if not force and not self.unit.is_moving():

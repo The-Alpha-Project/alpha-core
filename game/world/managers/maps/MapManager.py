@@ -570,43 +570,43 @@ class MapManager:
 
     @staticmethod
     def update_creatures():
-        for map_id, instances in MAPS.items():
-            for instance_map in instances.values():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
                 instance_map.update_creatures()
 
     @staticmethod
     def update_gameobjects():
-        for map_id, instances in MAPS.items():
-            for instance_map in instances.values():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
                 instance_map.update_gameobjects()
 
     @staticmethod
     def update_dynobjects():
-        for map_id, instances in MAPS.items():
-            for instance_map in instances.values():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
                 instance_map.update_dynobjects()
 
     @staticmethod
     def update_spawns():
-        for map_id, instances in MAPS.items():
-            for instance_map in instances.values():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
                 instance_map.update_spawns()
 
     @staticmethod
     def update_corpses():
-        for map_id, instances in MAPS.items():
-            for instance_map in instances.values():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
                 instance_map.update_corpses()
 
     @staticmethod
     def update_map_scripts_and_events():
         now = time.time()
-        for map_id, instances in MAPS.items():
-            for instance_map in instances.values():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
                 instance_map.update_map_scripts_and_events(now)
 
     @staticmethod
     def deactivate_cells():
-        for map_id, instances in MAPS.items():
-            for instance_map in instances.values():
+        for map_id, instances in list(MAPS.items()):
+            for instance_map in list(instances.values()):
                 instance_map.deactivate_cells()

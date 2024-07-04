@@ -12,7 +12,12 @@ class QuestHelpers:
     @lru_cache
     def is_instant_with_no_requirements(quest_template):
         return QuestHelpers.is_instant_complete_quest(quest_template) and \
-               not QuestHelpers.requires_items_or_gos(quest_template)
+               not QuestHelpers.requires_items_creatures_or_gos(quest_template)
+
+    @staticmethod
+    def is_instant_requires_only_items(quest_template):
+        return (QuestHelpers.is_instant_complete_quest(quest_template) and QuestHelpers.requires_items(quest_template)
+                and not QuestHelpers.requires_creatures_or_gos(quest_template))
 
     @staticmethod
     @lru_cache
@@ -62,10 +67,19 @@ class QuestHelpers:
     @staticmethod
     @lru_cache
     # noinspection PyUnusedLocal
-    def requires_items_or_gos(quest_template):
+    def requires_items_creatures_or_gos(quest_template):
         for index in range(1, 5):
             if eval(f'quest_template.ReqItemId{index}') > 0:
                 return True
+            if eval(f'quest_template.ReqCreatureOrGOId{index}') > 0:
+                return True
+        return False
+
+    @staticmethod
+    @lru_cache
+    # noinspection PyUnusedLocal
+    def requires_creatures_or_gos(quest_template):
+        for index in range(1, 5):
             if eval(f'quest_template.ReqCreatureOrGOId{index}') > 0:
                 return True
         return False
