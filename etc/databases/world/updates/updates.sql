@@ -3030,12 +3030,311 @@ begin not atomic
           
         -- Scarlet Initiate - Fix invalid Frost Armor spell.
         DELETE FROM `creature_ai_scripts` WHERE `id`=150701;
-INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(150701, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Initiate - Cast Spell Frost Armor');
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (150701, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Initiate - Cast Spell Frost Armor');
 
         DELETE FROM `creature_ai_scripts` WHERE `id`=150702;
-INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-(150702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Initiate - Cast Spell Frost Armor');
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (150702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Initiate - Cast Spell Frost Armor');
+        -- Skeletal Mage - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=20301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (20301, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Skeletal Mage - Cast Spell Frost Armor');
+
+        -- Defias Rogue Wizard - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=47402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (47402, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Rogue Wizard - Cast Spell Frost Armor');
+
+        -- Kobold Geomancer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=47602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (47602, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Geomancer - Cast Spell Frost Armor');
+
+        -- Fenros - Cast Frost Armor on Missing Buff
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=507;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (50701, 507, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 50701, 0, 0, 'Fenros - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (50704, 507, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 50704, 0, 0, 'Fenros - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=50701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (50701, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenros - Cast Spell Frost Armor');
+    
+        -- Fix many events Frost Armor spell casts pointing to unexistent Frost Armor spell.
+        
+        -- Defias Pillager - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=58900;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (58900, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Pillager - Cast Spell Frost Armor');
+
+        -- Defias Conjurer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=61902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (61902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Conjurer - Cast Spell Frost Armor');
+
+        -- Surena Caledon - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=88102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (88102, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Surena Caledon - Cast Spell Frost Armor');
+
+        -- Defias Enchanter - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=91002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (91002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Enchanter - Cast Spell Frost Armor');
+
+        -- Scarlet Neophyte - Cast Frost Armor on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=153902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (153902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Neophyte - Cast Spell Frost Armor');
+
+        -- Defias Magician - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=172602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (172602, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Magician - Cast Spell Frost Armor');
+
+        -- Defias Evoker - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=172901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (172901, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Evoker - Cast Spell Frost Armor');
+
+        -- TODO - Defias Evoker (Check events for 1729)
+
+        -- Defias Squallshaper - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=173201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (173201, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Squallshaper - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=173204;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (173204, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Squallshaper - Cast Spell Frost Armor');
+
+        -- Events list for Defias Squallshaper
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1732;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173201, 1732, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 173201, 0, 0, 'Defias Squallshaper - Cast Frost Armor on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173202, 1732, 0, 9, 0, 100, 1, 0, 8, 23500, 33500, 173202, 0, 0, 'Defias Squallshaper - Cast Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173204, 1732, 0, 27, 0, 100, 1, 768, 1, 15000, 30000, 173204, 0, 0, 'Defias Squallshaper - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173205, 1732, 0, 2, 0, 100, 0, 15, 0, 0, 0, 173205, 0, 0, 'Defias Squallshaper - Flee at 15% HP');
+
+        -- Vile Fin Tidehunter - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176801, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vile Fin Tidehunter - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176803;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176803, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vile Fin Tidehunter - Cast Spell Frost Armor');
+
+        -- Events list for Vile Fin Tidehunter
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1768;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176704, 1768, 0, 2, 0, 100, 0, 15, 0, 0, 0, 176704, 0, 0, 'Vile Fin Tidehunter - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176801, 1768, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 176801, 0, 0, 'Vile Fin Tidehunter - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176803, 1768, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 176803, 0, 0, 'Vile Fin Tidehunter - Cast Frost Armor on Missing Buff');
+
+        -- Moonrage Whitescalp - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Whitescalp - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Whitescalp - Cast Spell Frost Armor');
+
+        -- Events list for Moonrage Whitescalp
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1769;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176901, 1769, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 176901, 0, 0, 'Moonrage Whitescalp - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176902, 1769, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 176902, 0, 0, 'Moonrage Whitescalp - Cast Frost Armor on Missing Buff');
+
+        -- Dalaran Apprentice - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=186702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (186702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Apprentice - Cast Spell Frost Armor');
+
+        -- Dalaran Wizard - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=188902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (188902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Wizard - Cast Spell Frost Armor');
+
+        -- Dalaran Spellscribe - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=192002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (192002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Spellscribe - Cast Spell Frost Armor');
+
+        -- Bloodfeather Sorceress - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=201802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (201802, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodfeather Sorceress - Cast Spell Frost Armor');
+
+        -- Gravelflint Geomancer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=216002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (216002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gravelflint Geomancer - Cast Spell Frost Armor');
+
+        -- Events list for Stormscale Sorceress
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2182;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (218201, 2182, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 218201, 0, 0, 'Stormscale Sorceress - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (218202, 2182, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 218202, 0, 0, 'Stormscale Sorceress - Cast Frost Armor on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=218201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (218201, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormscale Sorceress - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=218202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (218202, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormscale Sorceress - Cast Spell Frost Armor');
+
+        -- Syndicate Wizard - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=231901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (231901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Wizard - Cast Spell Frost Armor');
+
+        -- Hillsbrad Councilman - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=238702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (238702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hillsbrad Councilman - Cast Spell Frost Armor');
+
+        -- Events list for Hillsbrad Councilman
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2387;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238701, 2387, 0, 9, 0, 100, 1, 0, 5, 25000, 25000, 238701, 0, 0, 'Hillsbrad Councilman - Cast Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238702, 2387, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 238702, 0, 0, 'Hillsbrad Councilman - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238703, 2387, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 238702, 0, 0, 'Hillsbrad Councilman - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238704, 2387, 0, 2, 0, 100, 0, 15, 0, 0, 0, 238704, 0, 0, 'Hillsbrad Councilman - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238705, 2387, 0, 33, 0, 100, 1, 10000, 10000, 0, 0, 238705, 0, 0, 'Hillsbrad Councilman - Run Away from Target when Frozen');
+
+        -- Boulderfist Magus - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=256702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (256702, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Boulderfist Magus - Cast Spell Frost Armor');
+
+        -- Drywhisker Surveyor - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=257302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (257302, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Drywhisker Surveyor - Cast Spell Frost Armor');
+
+        -- Syndicate Magus - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=259102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (259102, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Magus - Cast Spell Frost Armor');
+
+        -- Cresting Exile - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=276101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (276101, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cresting Exile - Cast Spell Frost Armor');
+
+        -- Events list for Cresting Exile
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2761;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276101, 2761, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 276101, 0, 0, 'Cresting Exile - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276102, 2761, 0, 9, 0, 100, 1, 0, 8, 25600, 32300, 276102, 0, 0, 'Cresting Exile - Cast Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276103, 2761, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 276103, 0, 0, 'Cresting Exile - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=276103;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (276103, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cresting Exile - Cast Spell Frost Armor');
+
+        -- Razormane Geomancer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=326902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (326902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razormane Geomancer - Cast Spell Frost Armor');
+
+        -- Events list for Mosh'Ogg Spellcrafter
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=710;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (71001, 710, 0, 4, 0, 15, 0, 0, 0, 0, 0, 71001, 0, 0, 'Mosh\'Ogg Spellcrafter - Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (71002, 710, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 71002, 0, 0, 'Mosh\'Ogg Spellcrafter - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=71002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (71002, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mosh\'Ogg Spellcrafter - Cast Spell Frost Armor');
+
+        -- Venture Co. Tinkerer - Cast Spell Fireball
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (67701, 0, 0, 15, 133, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Tinkerer - Cast Spell Fireball');
+
+        -- Venture Co. Tinkerer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (67703, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Tinkerer - Cast Spell Frost Armor');
+
+        -- Shadowfang Whitescalp - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=385101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (385101, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowfang Whitescalp - Cast Spell Frost Armor');
+
+        -- Events list for Shadowfang Whitescalp
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3851;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (385101, 3851, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 385101, 0, 0, 'Shadowfang Whitescalp - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (385102, 3851, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 385102, 0, 0, 'Shadowfang Whitescalp - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=385102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (385102, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowfang Whitescalp - Cast Spell Frost Armor');
+
+        -- Murkgill Lord - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=446002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (446002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Murkgill Lord - Cast Spell Frost Armor');
+
+        -- Events list for Slitherblade Sorceress
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4712;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471201, 4712, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 471201, 0, 0, 'Slitherblade Sorceress - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471202, 4712, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 471202, 0, 0, 'Slitherblade Sorceress - Cast Frost Armor on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (471201, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sorceress - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (471202, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sorceress - Cast Spell Frost Armor');
+
+        -- Slitherblade Sea Witch - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (471901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sea Witch - Cast Spell Frost Armor');
+
+        -- Events list for Slitherblade Sea Witch
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4719;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471901, 4719, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 471901, 0, 0, 'Slitherblade Sea Witch - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471903, 4719, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 471903, 0, 0, 'Slitherblade Sea Witch - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471903;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (471903, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sea Witch - Cast Spell Frost Armor');
+
+        -- Shadowforge Surveyor - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=484402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (484402, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowforge Surveyor - Cast Spell Frost Armor');
+
+        -- Events list for Coast Crawl Deepseer
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5328;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (532801, 5328, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 532801, 0, 0, 'Coast Crawl Deepseer - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (532802, 5328, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 532802, 0, 0, 'Coast Crawl Deepseer - Cast Frost Armor on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=532801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (532801, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coast Crawl Deepseer - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=532802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (532802, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coast Crawl Deepseer - Cast Spell Frost Armor');
+
+        -- Events list for Highborne Lichling
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=6117;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (611701, 6117, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 611701, 0, 0, 'Highborne Lichling - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (611702, 6117, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 611702, 0, 0, 'Highborne Lichling - Cast Frost Armor on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=611701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (611701, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Highborne Lichling - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=611702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (611702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Highborne Lichling - Cast Spell Frost Armor');
+
+        -- Saltscale Tide Lord - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=87501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (87501, 0, 0, 15, 168, 32, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Saltscale Tide Lord - Cast Spell Frost Armor');
 
         insert into applied_updates values ('040720241');
     end if;
