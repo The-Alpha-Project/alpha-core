@@ -3013,6 +3013,59 @@ begin not atomic
         
         insert into applied_updates values ('030720241');
     end if;
+
+    -- 05/07/2024 1
+    if (select count(*) from applied_updates where id='050720241') = 0 then
+        -- Elemental Mage Staff to Magebane Staff
+        UPDATE `item_template` SET `name` = 'Magebane Staff', `display_id` = 1190, `item_level` = 35, `required_level` = 30, `dmg_min1` = 45, `dmg_max1` = 53, `fire_res` = 0, `frost_res` = 0 WHERE (`entry` = 944);
+
+        -- Conjured Fresh Water
+        UPDATE `item_template` SET `display_id` = 2754 WHERE (`entry` = 2288);
+
+        -- Coyote Meat
+        UPDATE `item_template` SET `display_id` = 1762 WHERE (`entry` = 2684);
+
+        -- Dry Pork Ribs
+        UPDATE `item_template` SET `display_id` = 1118 WHERE (`entry` = 2687);
+
+        -- Deadly Poison
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 2892);
+
+        -- Deadly Poison II
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 2893);
+
+        -- Crocilisk Meat
+        UPDATE `item_template` SET `display_id` = 2603 WHERE (`entry` = 2924);
+
+        -- Curiously Tasty Omelet
+        UPDATE `item_template` SET `display_id` = 3967 WHERE (`entry` = 3665);
+
+        -- Southshore Stout
+        UPDATE `item_template` SET `display_id` = 9304 WHERE (`entry` = 3703);
+
+        -- Big Bear Steak
+        UPDATE `item_template` SET `display_id` = 7998 WHERE (`entry` = 3726);
+
+        -- Shadow Oil
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 3824);
+
+        -- Junglewine
+        UPDATE `item_template` SET `display_id` = 2754 WHERE (`entry` = 4595);
+
+        -- Poisonious Mushroom
+        UPDATE `item_template` SET `display_id` = 6624 WHERE (`entry` = 5823);
+
+        -- Holy Protection Potion
+        UPDATE `item_template` SET `display_id` = 6326 WHERE (`entry` = 6051);
+
+        -- Raw Bristle Whisker Catfish
+        UPDATE `item_template` SET `display_id` = 1208 WHERE (`entry` = 4593);
+
+        -- Rune Sword, only one katana model available
+        UPDATE `item_template` SET `display_id` = 5181 WHERE (`entry` = 864);
+        
+        insert into applied_updates values ('050720241');
+    end if;
     
 end $
 delimiter ;
