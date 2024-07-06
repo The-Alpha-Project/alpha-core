@@ -3017,8 +3017,7 @@ begin not atomic
     -- 05/07/2024 1
     if (select count(*) from applied_updates where id='050720241') = 0 then
         -- Elemental Mage Staff to Magebane Staff
-        UPDATE `item_template` SET `name` = 'Magebane Staff', `display_id` = 1190, `item_level` = 35, `required_level` = 30, `dmg_min1` = 45, `dmg_max1` = 53, `fire_res` = 0, `frost_res` = 0 WHERE (`entry` = 944);
-
+        UPDATE `item_template` SET `display_id` = 1190, `item_level` = 35, `required_level` = 30, `dmg_min1` = 45, `dmg_max1` = 53, `dmg_type1` = 5, `fire_res` = 0, `frost_res` = 0, `spellid_1` = 7843, `spellid_2` = 2230 WHERE (`entry` = 944);
         -- Conjured Fresh Water
         UPDATE `item_template` SET `display_id` = 2754 WHERE (`entry` = 2288);
 
@@ -3063,7 +3062,7 @@ begin not atomic
 
         -- Rune Sword, only one katana model available
         UPDATE `item_template` SET `display_id` = 5181 WHERE (`entry` = 864);
-        
+
         insert into applied_updates values ('050720241');
     end if;
     
