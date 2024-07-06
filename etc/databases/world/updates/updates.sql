@@ -3305,6 +3305,9 @@ begin not atomic
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '1162', '1159', '1600', '0', '0', '129', '100', '15');
         -- Nissa Firestone <First Aid Trainer> - Relocate her, she was falling from the sky below IF.
         UPDATE `spawns_creatures` SET `position_x` = '-4770.74', `position_y` = ' -1199.86', `position_z` = ' 494.186', `orientation` = '1.742' WHERE (`spawn_id` = '2015');
+        -- Keldas binder faction.
+        UPDATE `creature_template` SET `faction` = '35' WHERE (`entry` = '3306');
+
     insert into applied_updates values ('050720241');
 end $
 delimiter ;
