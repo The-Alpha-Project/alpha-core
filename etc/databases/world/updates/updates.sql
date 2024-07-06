@@ -3296,5 +3296,15 @@ begin not atomic
 
         insert into applied_updates values ('040720241');
     end if;
+
+    -- 05/07/2024 1
+    if (select count(*) from applied_updates where id='050720241') = 0 then
+        -- Journeyman Physician
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '3280', '3274', '0', '0', '2', '129', '75', '1');
+        -- First Aid II
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '1162', '1159', '1600', '0', '0', '129', '100', '15');
+        -- Nissa Firestone <First Aid Trainer> - Relocate her, she was falling from the sky below IF.
+        UPDATE `spawns_creatures` SET `position_x` = '-4770.74', `position_y` = ' -1199.86', `position_z` = ' 494.186', `orientation` = '1.742' WHERE (`spawn_id` = '2015');
+    insert into applied_updates values ('050720241');
 end $
 delimiter ;
