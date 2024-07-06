@@ -164,7 +164,7 @@ class ScriptManager:
         return choice(friendlies)
 
     @staticmethod
-    def resolve_friendly_injured(caster, target=None, param1=None, param2=None, spell_template=None):
+    def resolve_friendly_injured(caster, target=None, param1=None, param2=None, spell_template=None, is_percent=True):
         search_range: Optional[float] = param1
         hp_percent: Optional[float] = param2
         # Set range if not provided.
@@ -173,7 +173,8 @@ class ScriptManager:
             hp_percent = 50.0
         injured_friendlies = ScriptManager._get_injured_friendly_units(caster,
                                                                        radius=search_range,
-                                                                       hp_threshold=hp_percent)
+                                                                       hp_threshold=hp_percent,
+                                                                       is_percent=is_percent)
         return injured_friendlies[0] if injured_friendlies else None
 
     @staticmethod
@@ -344,7 +345,7 @@ class ScriptManager:
         return unit_caller.health * 100 / unit_caller.max_health
 
     @staticmethod
-    def _get_injured_friendly_units(caster, radius, hp_threshold, exclude_unit=None) -> Optional[list[UnitManager]]:
+    def _get_injured_friendly_units(caster, radius, hp_threshold, exclude_unit=None, is_percent=True) -> Optional[list[UnitManager]]:
         # Surrounding friendly units within range, including players.
         surrounding_units_and_players = ScriptManager._get_surrounding_units(caster, radius,
                                                                              friends_only=True,
@@ -354,9 +355,13 @@ class ScriptManager:
         if not surrounding_units_and_players:
             return []
 
-        # Units below hp_threshold.
-        injured_friendly_units = [unit for unit in surrounding_units_and_players if ScriptManager._get_unit_hp_percent(
-            unit) < hp_threshold]
+        if is_percent:
+            # Units below hp_threshold.
+            injured_friendly_units = [unit for unit in surrounding_units_and_players if ScriptManager._get_unit_hp_percent(
+                unit) < hp_threshold]
+        else:
+            # HP Deficit.
+            injured_friendly_units = [unit for unit in surrounding_units_and_players if abs(unit.health - unit.max_health) >= hp_threshold]
 
         # No units below hp_threshold found.
         if not injured_friendly_units:
