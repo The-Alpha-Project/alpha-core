@@ -613,7 +613,7 @@ class QuestManager(object):
 
         data.extend(pack(
             '<4I',
-            0x00, # No Items
+            0x00,  # No Items
             0x02,  # MaskMatch
             0x00,  # Completable
             0x04,  # HasFaction
