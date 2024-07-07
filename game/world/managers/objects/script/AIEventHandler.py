@@ -46,7 +46,7 @@ class AIEventHandler:
         self.update_range_events(now)
         self.update_friendly_hp_events(now)
         self.update_missing_aura_events(now)
-        self.update_timer_in_combat_events(now)
+        self.update_timer_ooc_events(now)
         self.update_target_hp_events(now)
         self.update_target_casting_events(now)
 
@@ -195,12 +195,12 @@ class AIEventHandler:
 
             self._enqueue_creature_ai_event(map_, event, target, now)
 
-    def update_timer_in_combat_events(self, now):
+    def update_timer_ooc_events(self, now):
         target = self.creature.combat_target
-        if not target:
+        if target:
             return
 
-        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TIMER_COMBAT)
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
         map_ = self.creature.get_map()
         for event in events:
             if not self._validate_event(event, target=self.creature, now=now):

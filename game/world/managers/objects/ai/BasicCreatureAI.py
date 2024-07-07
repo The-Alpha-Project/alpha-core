@@ -15,7 +15,13 @@ class BasicCreatureAI(CreatureAI):
     # override
     def update_ai(self, elapsed):
         super().update_ai(elapsed)
-        if not self.creature or not self.creature.combat_target:
+        if not self.creature:
+            return
+
+        #  Update events bound to AI update calls timing, this includes OOC.
+        self.ai_event_handler.ai_update(elapsed)
+
+        if not self.creature.combat_target:
             return
 
         if self.has_spell_list():
@@ -23,8 +29,6 @@ class BasicCreatureAI(CreatureAI):
 
         self.do_melee_attack_if_ready()
 
-        #  Update events bound to AI update calls timing.
-        self.ai_event_handler.ai_update(elapsed)
 
     # override
     def permissible(self, creature):
