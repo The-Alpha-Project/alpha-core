@@ -1,5 +1,5 @@
 Version:
-    current: 14
+    current: 15
 
 Database:
     Connection:
@@ -62,9 +62,10 @@ Server:
         #   Warning = 0x08 (8)
         #   Error = 0x10 (16)
         #   Debug = 0x20 (32)
+        #   Scripts = 0x40 (64)
         #
-        #   All = 0x3f (63, the sum of all)
-        logging_mask: 0x3f
+        #   All = 0x7f (127, the sum of all)
+        logging_mask: 0x7f
         log_player_chat: False
         log_chat_path: /var/log/alpha-core/chat
         log_dev_path: /var/log/alpha-core/dev
