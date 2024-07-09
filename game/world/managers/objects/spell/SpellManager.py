@@ -11,6 +11,7 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.WorldSessionStateHandler import WorldSessionStateHandler
 from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.ObjectManager import ObjectManager
+from game.world.managers.objects.item.ItemManager import ItemManager
 from game.world.managers.objects.locks.LockManager import LockManager
 from game.world.managers.objects.spell import ExtendedSpellData
 from game.world.managers.objects.spell.CastingSpell import CastingSpell
@@ -19,7 +20,7 @@ from game.world.managers.objects.spell.SpellEffectHandler import SpellEffectHand
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags
+from utils.constants.ItemCodes import InventoryError, ItemSubClasses, ItemClasses, ItemDynFlags, ItemSpellTriggerType
 from utils.constants.MiscCodes import ObjectTypeFlags, HitInfo, GameObjectTypes, AttackTypes, ObjectTypeIds, ProcFlags, \
     ItemBondingTypes
 from utils.constants.MiscFlags import GameObjectFlags
@@ -212,7 +213,17 @@ class SpellManager:
 
         return PacketWriter.get_packet(OpCode.SMSG_INITIAL_SPELLS, data)
 
-    def handle_equipment_change(self):
+    def apply_equipment_effects(self):
+        if self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
+            return
+        for slot, item in list(self.caster.inventory.get_backpack().sorted_slots.items()):
+            if item.is_equipped():
+                self._handle_item_equip_effects(item)
+
+    def handle_equipment_change(self, source_item: ItemManager | None, dest_item: ItemManager | None):
+        self._handle_item_equip_effects(source_item)
+        self._handle_item_equip_effects(dest_item)
+
         casting_spell = self.get_casting_spell()
         if not casting_spell:
             return
@@ -236,16 +247,47 @@ class SpellManager:
         if required_item_class != item_class or not required_item_subclass & item_subclass_mask:
             self.remove_cast(casting_spell, interrupted=True)
 
+    def _handle_item_equip_effects(self, item: ItemManager | None):
+        if not item:
+            return
+
+        for item_spell in item.spell_stats:
+            if not item_spell.spell_id:
+                break
+
+            if not item.is_equipped():
+                self.caster.aura_manager.cancel_auras_by_spell_id(item_spell.spell_id)
+                continue
+
+            if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_EQUIP:
+                continue
+
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(item_spell.spell_id)
+            if not spell:
+                Logger.warning(f'Spell {item_spell.spell_id} tied to item {item.item_template.entry} '
+                               f'({item.get_name()}) could not be found in the spell database.')
+                continue
+
+            casting_spell = self.try_initialize_spell(spell, self.caster, SpellTargetMask.SELF, source_item=item)
+            if not casting_spell:
+                continue
+
+            self.start_spell_cast(initialized_spell=casting_spell)
+
     def handle_item_cast_attempt(self, item, spell_target, target_mask):
         if not self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             return
 
-        for spell_info in item.spell_stats:
-            if spell_info.spell_id == 0:
+        for item_spell in item.spell_stats:
+            if not item_spell.spell_id:
                 break
-            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_info.spell_id)
+
+            if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_USE:
+                continue
+
+            spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(item_spell.spell_id)
             if not spell:
-                Logger.warning(f'Spell {spell_info.spell_id} tied to item {item.item_template.entry} '
+                Logger.warning(f'Spell {item_spell.spell_id} tied to item {item.item_template.entry} '
                                f'({item.get_name()}) could not be found in the spell database.')
                 continue
 

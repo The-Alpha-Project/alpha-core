@@ -294,12 +294,13 @@ class ItemManager(ObjectManager):
 
         for spell_stat in spell_stats:
             data.extend(pack(
-                '<Q4i',
+                '<6i',
                 spell_stat.spell_id,
                 spell_stat.trigger,
                 spell_stat.charges,
                 spell_stat.cooldown,
-                spell_stat.category_cooldown
+                spell_stat.category_cooldown,
+                0,
             ))
 
         description_bytes = PacketWriter.string_to_bytes(item_template.description)
@@ -341,7 +342,7 @@ class ItemManager(ObjectManager):
             # Spell charges.
             for slot in range(5):
                 charges = eval(f'self.item_instance.SpellCharges{slot + 1}')
-                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, charges)
+                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + slot, charges if self.has_charges() else -1)
             
             # Enchantments.
             for slot in range(MAX_ENCHANTMENTS):

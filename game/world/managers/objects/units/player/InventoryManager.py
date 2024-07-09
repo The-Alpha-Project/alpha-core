@@ -717,8 +717,8 @@ class InventoryManager(object):
                               send_message=False, show_item_get=False)
                 self.remove_item(InventorySlots.SLOT_INBACKPACK, InventorySlots.SLOT_OFFHAND)
 
-        # Handle spells interrupt.
-        self.owner.spell_manager.handle_equipment_change()
+        # Handle cast interrupt and equipment effects.
+        self.owner.spell_manager.handle_equipment_change(source_item, dest_item)
 
         # Update equipment effects.
         self.owner.enchantment_manager.handle_equipment_change(source_item, dest_item)

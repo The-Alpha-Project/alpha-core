@@ -339,3 +339,9 @@ class LootState(IntEnum):
     ITEM_LOOT_CHANGED = 3,
     ITEM_LOOT_NEW = 4,
     ITEM_LOOT_REMOVED = 5
+
+
+class ItemSpellTriggerType(IntEnum):
+    ITEM_SPELL_TRIGGER_ON_USE          = 0,
+    ITEM_SPELL_TRIGGER_ON_EQUIP        = 1,
+    ITEM_SPELL_TRIGGER_CHANCE_ON_HIT   = 2,
