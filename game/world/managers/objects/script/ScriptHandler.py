@@ -44,9 +44,9 @@ class ScriptHandler:
             return
 
         if not event:
-            Logger.scripts(f'{source.get_name()} triggered script {script_id} with type {ScriptTypes(script_type).name}')
+            Logger.script(f'{source.get_name()} triggered script {script_id} with type {ScriptTypes(script_type).name}')
         else:
-            Logger.scripts(f'{source.get_name()} triggered event {event.get_event_info()}, script {script_id}, with type {ScriptTypes(script_type).name}')
+            Logger.script(f'{source.get_name()} triggered event {event.get_event_info()}, script {script_id}, with type {ScriptTypes(script_type).name}')
 
         script_commands.sort(key=lambda command: command.delay)
         new_script = Script(script_id, script_commands, source, target, self, delay=delay, event=event)

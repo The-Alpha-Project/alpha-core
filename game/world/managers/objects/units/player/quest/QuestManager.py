@@ -526,11 +526,7 @@ class QuestManager(object):
     def send_quest_giver_quest_list(self, message, emote, quest_giver_guid, quests):
         message_bytes = PacketWriter.string_to_bytes(message)
 
-        # Handle only gossip text with no quests.
-        if not quests and message_bytes:
-            self.send_gossip_text_no_quest(quest_giver_guid, message_bytes)
-            return
-
+        # TODO: Many texts from Vanilla don't fit. Find what should happen in 0.5.3? Maybe texts were simply different?
         # Client has a 256 characters limitation, truncate.
         if len(message_bytes) > 256:
             message_bytes = message_bytes[:255] + b'\x00'
@@ -597,30 +593,6 @@ class QuestManager(object):
             data.extend(pack('<2I', detail_emote, detail_emote_delay))
 
         self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_QUEST_DETAILS, data))
-
-    def send_gossip_text_no_quest(self, quest_giver_guid, message_bytes):
-        header = PacketWriter.string_to_bytes('')
-        data = bytearray(pack(
-            f'<QI{len(header)}s{len(message_bytes)}s3I',
-            quest_giver_guid,
-            0,
-            header,
-            message_bytes,
-            0,  # Emote delay
-            0,  # Incomplete
-            1,  # Close Window after cancel
-        ))
-
-        data.extend(pack(
-            '<4I',
-            0x00,  # No Items
-            0x02,  # MaskMatch
-            0x00,  # Completable
-            0x04,  # HasFaction
-        ))
-
-        self.player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_QUESTGIVER_REQUEST_ITEMS, data))
-        return
 
     def send_quest_query_response(self, quest):
         data = bytearray(pack(

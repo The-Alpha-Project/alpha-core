@@ -34,5 +34,3 @@ class ScriptAIEvent:
 
     def get_event_info(self):
         return f'Event id: {self.id}, Comment: {self.comment}'
-
-

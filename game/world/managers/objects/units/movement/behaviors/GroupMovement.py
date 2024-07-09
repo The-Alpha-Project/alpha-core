@@ -14,7 +14,6 @@ class GroupMovement(BaseMovement):
         self.last_waypoint_movement = 0
         self.wait_time_seconds = 0
         self._is_lagging = False
-        self.warning_logged = set()
 
     # override
     def initialize(self, unit):
@@ -26,16 +25,15 @@ class GroupMovement(BaseMovement):
     # override
     def update(self, now, elapsed):
         # We require a leader, always.
-        if self.unit.creature_group.leader:
-            if self._can_perform_waypoint(now):
-                # Only the leader leads the way.
-                self._perform_waypoint()
-                self._set_last_movement(now)
-            elif self._can_perform_follow_movement(now) and self._perform_follow_movement(elapsed):
-                self._set_last_movement(now)
-        elif self.unit.guid not in self.warning_logged:
-            self.warning_logged.add(self.unit.guid)
-            Logger.warning(f'{self.unit.get_name()} creature group has no leader.')
+        if not self.unit.creature_group.leader:
+            return
+
+        if self._can_perform_waypoint(now):
+            # Only the leader leads the way.
+            self._perform_waypoint()
+            self._set_last_movement(now)
+        elif self._can_perform_follow_movement(now) and self._perform_follow_movement(elapsed):
+            self._set_last_movement(now)
 
         super().update(now, elapsed)
 

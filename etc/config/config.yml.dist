@@ -62,7 +62,7 @@ Server:
         #   Warning = 0x08 (8)
         #   Error = 0x10 (16)
         #   Debug = 0x20 (32)
-        #   Scripts = 0x40 (64)
+        #   Script = 0x40 (64)
         #
         #   All = 0x7f (127, the sum of all)
         logging_mask: 0x7f

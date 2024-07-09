@@ -27,16 +27,15 @@ class Script:
         self.started = True
 
         for script_command in list(self.commands):
+            # Stop looping if script has been aborted externally.
+            if self.aborted:
+                return
+
             # Check if it's time to execute the command action.
             if script_command.delay and now - self.time_added < script_command.delay:
                 continue
 
-            try:
-                self.commands.remove(script_command)
-            except ValueError:
-                # This can happen if the script has been aborted externally. Silently stop looping over expired script
-                # commands. i.e. on handle_script_command_terminate_condition method.
-                return
+            self.commands.remove(script_command)
 
             # Try to resolve initial targets for this command.
             succeed, source, target = script_command.resolve_initial_targets(self.source, self.target)

@@ -72,9 +72,9 @@ class Logger:
             print(Logger._colorize_message('[ANTICHEAT]', DebugColorLevel.ANTICHEAT, msg))
 
     @staticmethod
-    def scripts(msg):
+    def script(msg):
         if Logger._should_log(DebugLevel.SCRIPT):
-            print(Logger._colorize_message('[SCRIPTS]', DebugColorLevel.SCRIPT, msg))
+            print(Logger._colorize_message('[SCRIPT]', DebugColorLevel.SCRIPT, msg))
 
     # Additional methods
 
