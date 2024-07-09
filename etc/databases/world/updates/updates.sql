@@ -3297,12 +3297,64 @@ begin not atomic
         insert into applied_updates values ('040720241');
     end if;
 
+    -- 05/07/2024 1
+    if (select count(*) from applied_updates where id=''050720241'') = 0 then
+        -- Elemental Mage Staff to Magebane Staff
+        UPDATE `item_template` SET `display_id` = 1190, `item_level` = 35, `required_level` = 30, `dmg_min1` = 45, `dmg_max1` = 53, `dmg_type1` = 5, `fire_res` = 0, `frost_res` = 0, `spellid_1` = 7843, `spellid_2` = 2230 WHERE (`entry` = 944);
+        -- Conjured Fresh Water
+        UPDATE `item_template` SET `display_id` = 2754 WHERE (`entry` = 2288);
+
+        -- Coyote Meat
+        UPDATE `item_template` SET `display_id` = 1762 WHERE (`entry` = 2684);
+
+        -- Dry Pork Ribs
+        UPDATE `item_template` SET `display_id` = 1118 WHERE (`entry` = 2687);
+
+        -- Deadly Poison
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 2892);
+
+        -- Deadly Poison II
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 2893);
+
+        -- Crocilisk Meat
+        UPDATE `item_template` SET `display_id` = 2603 WHERE (`entry` = 2924);
+
+        -- Curiously Tasty Omelet
+        UPDATE `item_template` SET `display_id` = 3967 WHERE (`entry` = 3665);
+
+        -- Southshore Stout
+        UPDATE `item_template` SET `display_id` = 9304 WHERE (`entry` = 3703);
+
+        -- Big Bear Steak
+        UPDATE `item_template` SET `display_id` = 7998 WHERE (`entry` = 3726);
+
+        -- Shadow Oil
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 3824);
+
+        -- Junglewine
+        UPDATE `item_template` SET `display_id` = 2754 WHERE (`entry` = 4595);
+
+        -- Poisonious Mushroom
+        UPDATE `item_template` SET `display_id` = 6624 WHERE (`entry` = 5823);
+
+        -- Holy Protection Potion
+        UPDATE `item_template` SET `display_id` = 6326 WHERE (`entry` = 6051);
+
+        -- Raw Bristle Whisker Catfish
+        UPDATE `item_template` SET `display_id` = 1208 WHERE (`entry` = 4593);
+
+        -- Rune Sword, only one katana model available
+        UPDATE `item_template` SET `display_id` = 5181 WHERE (`entry` = 864);
+
+        insert into applied_updates values (''050720241'');
+    end if;
+
     -- 07/07/2024 1
     if (select count(*) from applied_updates where id='070720241') = 0 then
         -- Journeyman Physician
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '3280', '3274', '0', '0', '2', '129', '75', '1');
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '3280', '3274', '0', '0', '2', '129', '50', '1');
         -- First Aid II
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '1162', '1159', '100', '0', '0', '129', '40', '1');
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '1162', '1159', '1400', '0', '0', '129', '40', '15');
         -- Nissa Firestone <First Aid Trainer> - Relocate her, she was falling from the sky below IF.
         UPDATE `spawns_creatures` SET `position_x` = '-4770.74', `position_y` = ' -1199.86', `position_z` = ' 494.186', `orientation` = '1.742' WHERE (`spawn_id` = '2015');
         -- Keldas binder faction.
@@ -4607,6 +4659,7 @@ begin not atomic
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (449401, 0, 0, 15, 6131, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Spellbinder - Cast Spell Frost Nova');
 
-    insert into applied_updates values ('070720241');
+        insert into applied_updates values ('070720241');
+    end if;
 end $
 delimiter ;
