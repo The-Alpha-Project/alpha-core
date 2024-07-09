@@ -39,7 +39,7 @@ class ScriptHandler:
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
             Logger.warning(f'Script [{script_id}] not found, '
-                           f'Event: {event.get_event_info() if event else 'None'}, '
+                           f'Event: {event.get_event_info() if event else "None"}, '
                            f'Caller: {source.get_name()}')
             return
 
