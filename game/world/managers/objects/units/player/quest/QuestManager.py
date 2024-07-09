@@ -526,6 +526,7 @@ class QuestManager(object):
     def send_quest_giver_quest_list(self, message, emote, quest_giver_guid, quests):
         message_bytes = PacketWriter.string_to_bytes(message)
 
+        # TODO: Many texts from Vanilla don't fit. Find what should happen in 0.5.3? Maybe texts were simply different?
         # Client has a 256 characters limitation, truncate.
         if len(message_bytes) > 256:
             message_bytes = message_bytes[:255] + b'\x00'
@@ -556,6 +557,7 @@ class QuestManager(object):
         quest_title = PacketWriter.string_to_bytes(quest_template.Title)
         quest_details = PacketWriter.string_to_bytes(quest_template.Details)
         quest_objectives = PacketWriter.string_to_bytes(quest_template.Objectives)
+
         data = bytearray(pack(
             f'<QI{len(quest_title)}s{len(quest_details)}s{len(quest_objectives)}sI',
             quest_giver_guid,

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from random import randint, choice
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
-from game.world.managers.objects.script.ScriptCreatureAIEvent import ScriptCreatureAIEvent
+from game.world.managers.objects.script.ScriptAIEvent import ScriptAIEvent
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes
@@ -16,7 +16,7 @@ from utils.constants.UnitCodes import PowerTypes
 class EventLock:
     event_id: int
     time_added: float
-    delay: float
+    repeat: float
     can_repeat: bool
 
 
@@ -41,12 +41,13 @@ class AIEventHandler:
 
         # TODO: Update all type of events that are bound to AI update calls time diff (No on-action triggering).
         now = time.time()
+        self.update_timer_in_combat_events(now)
+        self.update_timer_out_of_combat_events(now)
         self.update_hp_events(now)
         self.update_mana_events(now)
         self.update_range_events(now)
         self.update_friendly_hp_events(now)
         self.update_missing_aura_events(now)
-        self.update_timer_in_combat_events(now)
         self.update_target_hp_events(now)
         self.update_target_casting_events(now)
 
@@ -55,14 +56,15 @@ class AIEventHandler:
         if not scripts:
             return
 
-        creature_event = ScriptCreatureAIEvent(event, self.creature)
-        scripts = creature_event.pick_scripts()
+        script_event = ScriptAIEvent(event, self.creature)
+        scripts = script_event.pick_scripts()
 
         if now:
-            self._lock_event(creature_event, now)
+            self._lock_event(script_event, now)
 
         for script in scripts:
-            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script)
+            map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script,
+                                delay=script_event.get_delay_seconds(), event=script_event)
 
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
@@ -108,14 +110,6 @@ class AIEventHandler:
             requires_leader = event.event_param2 != 0
             if requires_leader == is_leader:
                 self._enqueue_creature_ai_event(map_, event, target=target)
-
-    def on_idle(self):
-        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
-        map_ = self.creature.get_map()
-        for event in events:
-            if not self._validate_event(event, target=self.creature):
-                continue
-            map_.set_random_ooc_event(source=self.creature, target=self.creature, event=event)
 
     def on_death(self, killer=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
@@ -199,7 +193,18 @@ class AIEventHandler:
         if not target:
             return
 
-        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TIMER_COMBAT)
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TIMER_IN_COMBAT)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature, now=now):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=target, now=now)
+
+    def update_timer_out_of_combat_events(self, now):
+        target = self.creature.combat_target
+        if target:
+            return
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
         map_ = self.creature.get_map()
         for event in events:
             if not self._validate_event(event, target=self.creature, now=now):
@@ -311,11 +316,12 @@ class AIEventHandler:
             if not self._validate_event(event, target=self.creature, now=now):
                 continue
 
-            # Param1: HP percent.
+            # Param1: Missing HP.
             # Param2: Search radius.
             injured_friendly = ScriptManager.resolve_friendly_injured(self.creature, target=None,
                                                                       param1=event.event_param2,
-                                                                      param2=event.event_param1)
+                                                                      param2=event.event_param1,
+                                                                      is_percent=False)
 
             if not injured_friendly:
                 continue
@@ -369,16 +375,16 @@ class AIEventHandler:
                 self.creature.entry)
         return self._events.get(event_type, [])
 
-    def _lock_event(self, event, now):
-        delay = random.uniform(event.min_delay, event.max_delay)
-        self.event_locks[event.id] = EventLock(event_id=event.id, time_added=now, delay=delay,
-                                               can_repeat=delay > 0 and event.event_flags & EventFlags.REPEATABLE)
+    def _lock_event(self, script_event, now):
+        self.event_locks[script_event.id] = EventLock(event_id=script_event.id, time_added=now,
+                                                        repeat=script_event.get_repeat_seconds(),
+                                                        can_repeat=script_event.can_repeat())
 
     def _is_event_locked(self, event, now):
         event_lock = self.event_locks.get(event.id)
         if not event_lock:
             return False
-        locked = not event_lock.can_repeat or now - event_lock.time_added < event_lock.delay
+        locked = not event_lock.can_repeat or now - event_lock.time_added < event_lock.repeat
         # Delete lock if necessary.
         if not locked:
             self.event_locks.pop(event.id)

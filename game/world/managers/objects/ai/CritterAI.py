@@ -22,5 +22,5 @@ class CritterAI(CreatureAI):
         pass
 
     # override
-    def spell_hit(self, caster, spell_entry):
+    def spell_hit(self, caster, casting_spell):
         pass

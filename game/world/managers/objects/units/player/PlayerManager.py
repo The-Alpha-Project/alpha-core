@@ -1884,26 +1884,28 @@ class PlayerManager(UnitManager):
         if len(self.known_stealth_units) == 0:
             return
         self.stealth_detect_timer += elapsed
-        if self.stealth_detect_timer >= 1:  # Secs.
-            for guid, stealth_status in list(self.known_stealth_units.items()):
-                is_stealth = stealth_status[1]
-                unit = stealth_status[0]
-                can_detect = self.can_detect_target(unit)[0]
-                # Can detect and we had the object invisible.
-                if is_stealth and can_detect and guid in self.known_objects:
-                    # Unit is no longer stealth, pop.
-                    if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
-                        del self.known_stealth_units[guid]
-                    self.enqueue_known_objects_update(object_type=unit.get_type_id())
-                # Unit is stealth but remains visible to us, should destroy.
-                elif is_stealth and not can_detect and guid in self.known_objects:
-                    self.enqueue_known_objects_update(object_type=unit.get_type_id())
-                # Unit is no longer stealth, can detect, and we don't know this unit, should create.
-                elif not is_stealth and can_detect and guid not in self.known_objects:
-                    # Unit is no longer stealth, pop.
-                    if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
-                        del self.known_stealth_units[guid]
-                    self.enqueue_known_objects_update(object_type=unit.get_type_id())
+        if self.stealth_detect_timer < 1:  # Secs.
+            return
+
+        for guid, stealth_status in list(self.known_stealth_units.items()):
+            is_stealth = stealth_status[1]
+            unit = stealth_status[0]
+            can_detect = self.can_detect_target(unit)[0]
+            # Can detect and we had the object invisible.
+            if is_stealth and can_detect and guid in self.known_objects:
+                # Unit is no longer stealth, pop.
+                if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+                    del self.known_stealth_units[guid]
+                self.enqueue_known_objects_update(object_type=unit.get_type_id())
+            # Unit is stealth but remains visible to us, should destroy.
+            elif is_stealth and not can_detect and guid in self.known_objects:
+                self.enqueue_known_objects_update(object_type=unit.get_type_id())
+            # Unit is no longer stealth, can detect, and we don't know this unit, should create.
+            elif not is_stealth and can_detect and guid not in self.known_objects:
+                # Unit is no longer stealth, pop.
+                if not unit.unit_flags & UnitFlags.UNIT_FLAG_SNEAK:
+                    del self.known_stealth_units[guid]
+                self.enqueue_known_objects_update(object_type=unit.get_type_id())
 
             self.stealth_detect_timer = 0
 

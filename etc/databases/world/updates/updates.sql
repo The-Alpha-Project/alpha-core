@@ -2889,17 +2889,6 @@ begin not atomic
         --  Nature\'s Wrath - (Rank 4), Trainer Spell 5183, Player Spell 5179
         --  Nature\'s Wrath - (Rank 3), Trainer Spell 5182, Player Spell 5178
         --  Nature\'s Wrath - (Rank 2), Trainer Spell 5181, Player Spell 5177
-        -- New spells for trainer template ID 507
-        --  Nature\'s Wrath - (Rank 6), Trainer Spell 6781, Player Spell 6780
-        --  Nature\'s Touch - (Rank 6), Trainer Spell 6779, Player Spell 6778
-        --  Nature\'s Touch - (Rank 5), Trainer Spell 5194, Player Spell 5189
-        --  Nature\'s Touch - (Rank 4), Trainer Spell 5193, Player Spell 5188
-        --  Nature\'s Touch - (Rank 3), Trainer Spell 5192, Player Spell 5187
-        --  Nature\'s Touch - (Rank 2), Trainer Spell 5190, Player Spell 5186
-        --  Nature\'s Wrath - (Rank 5), Trainer Spell 5184, Player Spell 5180
-        --  Nature\'s Wrath - (Rank 4), Trainer Spell 5183, Player Spell 5179
-        --  Nature\'s Wrath - (Rank 3), Trainer Spell 5182, Player Spell 5178
-        --  Nature\'s Wrath - (Rank 2), Trainer Spell 5181, Player Spell 5177
 
         -- Trainer Template ID 17 - DRUID
         -- Spell: Nature\'s Touch - (Rank 6)
@@ -2962,37 +2951,6 @@ begin not atomic
         -- Trainer Template ID 16 - DRUID
         -- Spell: Nature\'s Wrath - (Rank 2)
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5181', '5177', '100', '0', '0', '0', '0', '6');
-
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 6)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '6779', '6778', '16000', '0', '0', '0', '0', '40');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 5)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5194', '5189', '11000', '0', '0', '0', '0', '32');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 4)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5193', '5188', '5300', '0', '0', '0', '0', '24');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 3)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5192', '5187', '1800', '0', '0', '0', '0', '16');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 2)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5190', '5186', '200', '0', '0', '0', '0', '8');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 6)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '6781', '6780', '23000', '0', '0', '0', '0', '38');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 5)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5184', '5180', '8000', '0', '0', '0', '0', '30');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 4)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5183', '5179', '3400', '0', '0', '0', '0', '22');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 3)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5182', '5178', '1200', '0', '0', '0', '0', '14');
-        -- Trainer Template ID 507 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 2)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('507', '5181', '5177', '100', '0', '0', '0', '0', '6');
         
         insert into applied_updates values ('020720241');
     end if;
@@ -3014,8 +2972,333 @@ begin not atomic
         insert into applied_updates values ('030720241');
     end if;
 
+    -- 04/07/2024 1
+    if (select count(*) from applied_updates where id='040720241') = 0 then
+        -- Mountain Boar should use Boar Charge.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=119001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (119001, 0, 0, 15, 3385, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mountain Boar - Cast Spell Boar Charge');
+        
+        -- Events list for Mountain Boar
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1190;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (119001, 1190, 0, 4, 0, 30, 0, 0, 0, 0, 0, 119001, 0, 0, 'Mountain Boar - Cast Boar Charge');
+        
+        -- Add Shoot to Ironforge Mountaineers
+        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (7270, 'Dun Morogh - Ironforge Mountaineer', 5532, 100, 1, 0, 0, 0, 5, 10, 10, 15, 0, 6660, 100, 1, 0, 0, 0, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+          
+        -- Scarlet Initiate - Fix invalid Frost Armor spell.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=150701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (150701, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Initiate - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=150702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (150702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Initiate - Cast Spell Frost Armor');
+        -- Skeletal Mage - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=20301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (20301, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Skeletal Mage - Cast Spell Frost Armor');
+
+        -- Defias Rogue Wizard - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=47402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (47402, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Rogue Wizard - Cast Spell Frost Armor');
+
+        -- Kobold Geomancer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=47602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (47602, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Geomancer - Cast Spell Frost Armor');
+
+        -- Fenros - Cast Frost Armor on Missing Buff
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=507;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (50701, 507, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 50701, 0, 0, 'Fenros - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (50704, 507, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 50704, 0, 0, 'Fenros - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=50701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (50701, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenros - Cast Spell Frost Armor');
+    
+        -- Fix many events Frost Armor spell casts pointing to unexistent Frost Armor spell.
+        
+        -- Defias Pillager - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=58900;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (58900, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Pillager - Cast Spell Frost Armor');
+
+        -- Defias Conjurer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=61902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (61902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Conjurer - Cast Spell Frost Armor');
+
+        -- Surena Caledon - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=88102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (88102, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Surena Caledon - Cast Spell Frost Armor');
+
+        -- Defias Enchanter - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=91002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (91002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Enchanter - Cast Spell Frost Armor');
+
+        -- Scarlet Neophyte - Cast Frost Armor on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=153902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (153902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Neophyte - Cast Spell Frost Armor');
+
+        -- Defias Magician - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=172602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (172602, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Magician - Cast Spell Frost Armor');
+
+        -- Defias Evoker - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=172901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (172901, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Evoker - Cast Spell Frost Armor');
+
+        -- TODO - Defias Evoker (Check events for 1729)
+
+        -- Defias Squallshaper - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=173201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (173201, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Squallshaper - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=173204;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (173204, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Squallshaper - Cast Spell Frost Armor');
+
+        -- Events list for Defias Squallshaper
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1732;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173201, 1732, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 173201, 0, 0, 'Defias Squallshaper - Cast Frost Armor on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173202, 1732, 0, 9, 0, 100, 1, 0, 8, 23500, 33500, 173202, 0, 0, 'Defias Squallshaper - Cast Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173204, 1732, 0, 27, 0, 100, 1, 768, 1, 15000, 30000, 173204, 0, 0, 'Defias Squallshaper - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173205, 1732, 0, 2, 0, 100, 0, 15, 0, 0, 0, 173205, 0, 0, 'Defias Squallshaper - Flee at 15% HP');
+
+        -- Vile Fin Tidehunter - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176801, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vile Fin Tidehunter - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176803;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176803, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vile Fin Tidehunter - Cast Spell Frost Armor');
+
+        -- Events list for Vile Fin Tidehunter
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1768;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176704, 1768, 0, 2, 0, 100, 0, 15, 0, 0, 0, 176704, 0, 0, 'Vile Fin Tidehunter - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176801, 1768, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 176801, 0, 0, 'Vile Fin Tidehunter - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176803, 1768, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 176803, 0, 0, 'Vile Fin Tidehunter - Cast Frost Armor on Missing Buff');
+
+        -- Moonrage Whitescalp - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Whitescalp - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=176902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (176902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Whitescalp - Cast Spell Frost Armor');
+
+        -- Events list for Moonrage Whitescalp
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1769;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176901, 1769, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 176901, 0, 0, 'Moonrage Whitescalp - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176902, 1769, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 176902, 0, 0, 'Moonrage Whitescalp - Cast Frost Armor on Missing Buff');
+
+        -- Dalaran Apprentice - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=186702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (186702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Apprentice - Cast Spell Frost Armor');
+
+        -- Dalaran Wizard - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=188902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (188902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Wizard - Cast Spell Frost Armor');
+
+        -- Dalaran Spellscribe - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=192002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (192002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Spellscribe - Cast Spell Frost Armor');
+
+        -- Bloodfeather Sorceress - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=201802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (201802, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodfeather Sorceress - Cast Spell Frost Armor');
+
+        -- Gravelflint Geomancer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=216002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (216002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gravelflint Geomancer - Cast Spell Frost Armor');
+
+        -- Events list for Stormscale Sorceress
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2182;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (218201, 2182, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 218201, 0, 0, 'Stormscale Sorceress - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (218202, 2182, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 218202, 0, 0, 'Stormscale Sorceress - Cast Frost Armor on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=218201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (218201, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormscale Sorceress - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=218202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (218202, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormscale Sorceress - Cast Spell Frost Armor');
+
+        -- Syndicate Wizard - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=231901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (231901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Wizard - Cast Spell Frost Armor');
+
+        -- Hillsbrad Councilman - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=238702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (238702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hillsbrad Councilman - Cast Spell Frost Armor');
+
+        -- Events list for Hillsbrad Councilman
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2387;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238701, 2387, 0, 9, 0, 100, 1, 0, 5, 25000, 25000, 238701, 0, 0, 'Hillsbrad Councilman - Cast Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238702, 2387, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 238702, 0, 0, 'Hillsbrad Councilman - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238703, 2387, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 238702, 0, 0, 'Hillsbrad Councilman - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238704, 2387, 0, 2, 0, 100, 0, 15, 0, 0, 0, 238704, 0, 0, 'Hillsbrad Councilman - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238705, 2387, 0, 33, 0, 100, 1, 10000, 10000, 0, 0, 238705, 0, 0, 'Hillsbrad Councilman - Run Away from Target when Frozen');
+
+        -- Boulderfist Magus - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=256702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (256702, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Boulderfist Magus - Cast Spell Frost Armor');
+
+        -- Drywhisker Surveyor - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=257302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (257302, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Drywhisker Surveyor - Cast Spell Frost Armor');
+
+        -- Syndicate Magus - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=259102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (259102, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Magus - Cast Spell Frost Armor');
+
+        -- Cresting Exile - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=276101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (276101, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cresting Exile - Cast Spell Frost Armor');
+
+        -- Events list for Cresting Exile
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2761;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276101, 2761, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 276101, 0, 0, 'Cresting Exile - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276102, 2761, 0, 9, 0, 100, 1, 0, 8, 25600, 32300, 276102, 0, 0, 'Cresting Exile - Cast Frost Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276103, 2761, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 276103, 0, 0, 'Cresting Exile - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=276103;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (276103, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cresting Exile - Cast Spell Frost Armor');
+
+        -- Razormane Geomancer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=326902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (326902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razormane Geomancer - Cast Spell Frost Armor');
+
+        -- Events list for Mosh'Ogg Spellcrafter
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=710;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (71001, 710, 0, 4, 0, 15, 0, 0, 0, 0, 0, 71001, 0, 0, 'Mosh\'Ogg Spellcrafter - Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (71002, 710, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 71002, 0, 0, 'Mosh\'Ogg Spellcrafter - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=71002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (71002, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mosh\'Ogg Spellcrafter - Cast Spell Frost Armor');
+
+        -- Venture Co. Tinkerer - Cast Spell Fireball
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (67701, 0, 0, 15, 133, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Tinkerer - Cast Spell Fireball');
+
+        -- Venture Co. Tinkerer - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (67703, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Tinkerer - Cast Spell Frost Armor');
+
+        -- Shadowfang Whitescalp - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=385101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (385101, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowfang Whitescalp - Cast Spell Frost Armor');
+
+        -- Events list for Shadowfang Whitescalp
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3851;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (385101, 3851, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 385101, 0, 0, 'Shadowfang Whitescalp - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (385102, 3851, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 385102, 0, 0, 'Shadowfang Whitescalp - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=385102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (385102, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowfang Whitescalp - Cast Spell Frost Armor');
+
+        -- Murkgill Lord - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=446002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (446002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Murkgill Lord - Cast Spell Frost Armor');
+
+        -- Events list for Slitherblade Sorceress
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4712;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471201, 4712, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 471201, 0, 0, 'Slitherblade Sorceress - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471202, 4712, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 471202, 0, 0, 'Slitherblade Sorceress - Cast Frost Armor on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (471201, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sorceress - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (471202, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sorceress - Cast Spell Frost Armor');
+
+        -- Slitherblade Sea Witch - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (471901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sea Witch - Cast Spell Frost Armor');
+
+        -- Events list for Slitherblade Sea Witch
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4719;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471901, 4719, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 471901, 0, 0, 'Slitherblade Sea Witch - Cast Frost Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471903, 4719, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 471903, 0, 0, 'Slitherblade Sea Witch - Cast Frost Armor on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471903;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (471903, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sea Witch - Cast Spell Frost Armor');
+
+        -- Shadowforge Surveyor - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=484402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (484402, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowforge Surveyor - Cast Spell Frost Armor');
+
+        -- Events list for Coast Crawl Deepseer
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5328;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (532801, 5328, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 532801, 0, 0, 'Coast Crawl Deepseer - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (532802, 5328, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 532802, 0, 0, 'Coast Crawl Deepseer - Cast Frost Armor on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=532801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (532801, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coast Crawl Deepseer - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=532802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (532802, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coast Crawl Deepseer - Cast Spell Frost Armor');
+
+        -- Events list for Highborne Lichling
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=6117;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (611701, 6117, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 611701, 0, 0, 'Highborne Lichling - Cast Frost Armor on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (611702, 6117, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 611702, 0, 0, 'Highborne Lichling - Cast Frost Armor on Spawn');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=611701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (611701, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Highborne Lichling - Cast Spell Frost Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=611702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (611702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Highborne Lichling - Cast Spell Frost Armor');
+
+        -- Saltscale Tide Lord - Cast Spell Frost Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=87501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (87501, 0, 0, 15, 168, 32, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Saltscale Tide Lord - Cast Spell Frost Armor');
+
+        insert into applied_updates values ('040720241');
+    end if;
+
     -- 05/07/2024 1
-    if (select count(*) from applied_updates where id='050720241') = 0 then
+    if (select count(*) from applied_updates where id=''050720241'') = 0 then
         -- Elemental Mage Staff to Magebane Staff
         UPDATE `item_template` SET `display_id` = 1190, `item_level` = 35, `required_level` = 30, `dmg_min1` = 45, `dmg_max1` = 53, `dmg_type1` = 5, `fire_res` = 0, `frost_res` = 0, `spellid_1` = 7843, `spellid_2` = 2230 WHERE (`entry` = 944);
         -- Conjured Fresh Water
@@ -3063,8 +3346,1320 @@ begin not atomic
         -- Rune Sword, only one katana model available
         UPDATE `item_template` SET `display_id` = 5181 WHERE (`entry` = 864);
 
-        insert into applied_updates values ('050720241');
+        insert into applied_updates values (''050720241'');
     end if;
-    
+
+    -- 07/07/2024 1
+    if (select count(*) from applied_updates where id='070720241') = 0 then
+        -- Journeyman Physician
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '3280', '3274', '0', '0', '2', '129', '50', '1');
+        -- First Aid II
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('500', '1162', '1159', '1400', '0', '0', '129', '40', '15');
+        -- Nissa Firestone <First Aid Trainer> - Relocate her, she was falling from the sky below IF.
+        UPDATE `spawns_creatures` SET `position_x` = '-4770.74', `position_y` = ' -1199.86', `position_z` = ' 494.186', `orientation` = '1.742' WHERE (`spawn_id` = '2015');
+        -- Keldas binder faction.
+        UPDATE `creature_template` SET `faction` = '35' WHERE (`entry` = '3306');
+        -- Conjurer placement (Was facing wall).
+        UPDATE `spawns_creatures` SET `position_x` = '-1637.021', `position_y` = '-1892.087', `orientation` = '1.83' WHERE (`spawn_id` = '14546');
+        -- Invalid Monster Shield.
+        UPDATE `item_template` SET `display_id` = '1705' WHERE (`entry` = '6434');
+        
+        -- Events/Script monster spells.
+        -- Forest Spider - Cast Poison Proc on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=3001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (3001, 0, 0, 15, 3616, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Forest Spider - Cast Spell Poison Proc');
+
+        -- Mine Spider - Cast Spell Poison Proc
+        DELETE FROM `creature_ai_scripts` WHERE `id`=4301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (4301, 0, 0, 15, 3616, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mine Spider - Cast Spell Poison Proc');
+
+        -- Defias Pathstalker - Cast Spell Shield Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=12103;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (12103, 0, 0, 15, 1671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Pathstalker - Cast Spell Shield Bash');
+
+        -- Riverpaw Mongrel - Cast Spirit Decay (Remove, does not exist)
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (12302);
+
+        -- Events list for Riverpaw Mongrel
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=123;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (12301, 123, 0, 4, 0, 15, 0, 0, 0, 0, 0, 12301, 0, 0, 'Riverpaw Mongrel - Random Aggro Say');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (12303, 123, 0, 2, 0, 100, 0, 15, 0, 0, 0, 12303, 0, 0, 'Riverpaw Mongrel - Flee at 15% HP');
+
+        -- Defias Night Runner - Cast Spell Sneak -> Stealth (Rank1)
+        DELETE FROM `creature_ai_scripts` WHERE `id`=21501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (21501, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Night Runner - Cast Spell Stealth');
+
+        -- Eliza - Cast Spell Frostbolt
+        -- Eliza - Cast Spell Frost Nova
+        DELETE FROM `creature_ai_scripts` WHERE `id`=31404;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (31404, 0, 0, 15, 205, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Cast Spell Frostbolt');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=31412;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (31412, 0, 0, 15, 865, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Eliza - Cast Spell Frost Nova');
+
+        -- Gath'Ilzogg - Cast Shield Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=33403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (33403, 0, 0, 15, 1671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gath Ilzogg - Cast Spell Shield Bash');
+
+        -- Morganth - Cast Demon Armor on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=39702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (39702, 0, 0, 15, 706, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Morganth - Cast Spell Demon Armor');
+
+        -- Blackrock Champion - Cast Spell Devotion Aura
+        DELETE FROM `creature_ai_scripts` WHERE `id`=43502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (43502, 0, 0, 15, 643, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Champion - Cast Spell Devotion Aura');
+
+        -- Blackrock Champion - Cast Spell Demoralizing Shout
+        DELETE FROM `creature_ai_scripts` WHERE `id`=43504;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (43504, 0, 0, 15, 6190, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Champion - Cast Spell Demoralizing Shout'),
+        (43504, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Champion - Say Text');
+
+        -- Blackrock Shadowcaster - Cast Spell Demon Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=43602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (43602, 0, 0, 15, 706, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Shadowcaster - Cast Spell Demon Armor');
+
+        -- Murloc Netter (Sunder Armor -> Sundering Strike, Net -> Throw Net)
+        -- Events list for Murloc Netter
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=513;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (51301, 513, 0, 4, 0, 100, 0, 0, 0, 0, 0, 51301, 0, 0, 'Murloc Netter - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (51302, 513, 0, 9, 5, 100, 1, 0, 5, 5000, 9000, 51302, 0, 0, 'Murloc Netter - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (51303, 513, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 51303, 0, 0, 'Murloc Netter - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (51304, 513, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 51304, 0, 0, 'Murloc Netter - Set Phase 1 on Target Missing Sundering Striker Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (51305, 513, 0, 0, 0, 100, 1, 11000, 13900, 20500, 33000, 51305, 0, 0, 'Murloc Netter - Cast Net');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (51306, 513, 0, 2, 0, 100, 0, 15, 0, 0, 0, 51306, 0, 0, 'Murloc Netter - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (51307, 513, 0, 7, 0, 100, 0, 0, 0, 0, 0, 51307, 0, 0, 'Murloc Netter - Set Phase to 0 on Evade');
+
+        -- Murloc Netter - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=51302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (51302, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Murloc Netter - Cast Spell Sundering Strike');
+
+        -- Murloc Netter - Cast Spell Throw Net
+        DELETE FROM `creature_ai_scripts` WHERE `id`=51305;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (51305, 0, 0, 15, 7740, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Murloc Netter - Cast Spell Net');
+
+        -- Naraxis - Cast Spell Poison Proc
+        DELETE FROM `creature_ai_scripts` WHERE `id`=57401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (57401, 0, 0, 15, 3616, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Naraxis - Cast Spell Deadly Poison');
+
+        -- Shadowhide Assassin - Cast Stealth and Poison Proc on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=57901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (57901, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowhide Assassin - Cast Spell Stealth'),
+        (57901, 0, 0, 15, 3616, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowhide Assassin - Cast Spell Poison Proc');
+
+        -- Bloodscalp Shaman - Cast Spell Lightning Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=69701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (69701, 0, 0, 15, 905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Shaman - Cast Spell Lightning Shield');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=69703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (69703, 0, 0, 15, 905, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Shaman - Cast Spell Lightning Shield');
+
+        -- Events list for Bloodscalp Shaman
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=697;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (69701, 697, 0, 1, 0, 100, 1, 1000, 1000, 600000, 600000, 69701, 0, 0, 'Bloodscalp Shaman - Cast Lightning Shield on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (69703, 697, 0, 27, 0, 100, 1, 905, 1, 15000, 30000, 69703, 0, 0, 'Bloodscalp Shaman - Cast Lightning Shield on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (69704, 697, 0, 2, 0, 100, 0, 30, 0, 0, 0, 69704, 0, 0, 'Bloodscalp Shaman - Cast Enrage at 30% HP');
+
+        -- Wyrmkin Dreamwalker - Cast Spell Rejuvenation
+        DELETE FROM `creature_ai_scripts` WHERE `id`=74303;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (74303, 0, 0, 15, 2090, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wyrmkin Dreamwalker - Cast Spell Rejuvenation');
+
+        -- Green Scalebane - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=74401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (74401, 0, 0, 15, 7371, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Green Scalebane - Cast Spell Cleave');
+
+        -- Scalebane Captain - Cast Spell Kick
+        -- Events list for Scalebane Captain
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=745;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (74503, 745, 0, 9, 0, 100, 1, 0, 5, 13000, 18000, 74503, 0, 0, 'Scalebane Captain - Cast Kick');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=74503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (74503, 0, 0, 15, 6555, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scalebane Captain - Cast Spell Kick');
+
+        -- Marsh Inkspewer - Cast Spell Darken Vision
+        -- Events list for Marsh Inkspewer
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=750;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (75001, 750, 0, 9, 0, 100, 1, 0, 5, 8000, 11000, 75001, 0, 0, 'Marsh Inkspewer - Cast Darken Vision');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (75002, 750, 0, 2, 0, 100, 0, 15, 0, 0, 0, 75002, 0, 0, 'Marsh Inkspewer - Flee at 15% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=75001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (75001, 0, 0, 15, 5514, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Marsh Inkspewer - Cast Spell Darken Vision');
+
+        -- Marsh Oracle - Cast Spell Lightning Shield
+        -- Events list for Marsh Oracle
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=752;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (75201, 752, 0, 2, 0, 100, 0, 15, 0, 0, 0, 75201, 0, 0, 'Marsh Oracle - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (75202, 752, 0, 1, 0, 100, 1, 1000, 1000, 600000, 600000, 75202, 0, 0, 'Marsh Oracle - Cast Lightning Shield on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (75203, 752, 0, 27, 0, 100, 1, 905, 1, 15000, 30000, 75203, 0, 0, 'Marsh Oracle - Cast Lightning Shield on Missing Buff');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=75202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (75202, 0, 0, 15, 905, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Marsh Oracle - Cast Spell Lightning Shield');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=75203;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (75203, 0, 0, 15, 905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Marsh Oracle - Cast Spell Lightning Shield');
+
+        -- Swampwalker - Cast Spell Rejuvenation
+        -- Events list for Swampwalker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=764;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (76401, 764, 0, 2, 0, 100, 1, 30, 0, 20000, 25000, 76401, 0, 0, 'Swampwalker - CastRejuvenation at 50% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=76401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (76401, 0, 0, 15, 1058, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Swampwalker - Cast Spell Rejuvenation');
+
+        -- Swampwalker Elder - Cast Spell Rejuvenation
+        -- Events list for Swampwalker Elder
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=765;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (76501, 765, 0, 2, 0, 100, 1, 30, 0, 20000, 25000, 76501, 0, 0, 'Swampwalker Elder - Cast Rejuvenation at 50% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=76501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (76501, 0, 0, 15, 1058, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Swampwalker Elder - Cast Spell Rejuvenation');
+
+        -- Tangled Horror - Cast Spell Rejuvenation
+        -- Events list for Tangled Horror
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=766;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (76601, 766, 0, 2, 0, 100, 1, 30, 0, 20000, 25000, 76601, 0, 0, 'Tangled Horror - Cast Rejuvenation at 30% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=76601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (76601, 0, 0, 15, 1058, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Tangled Horror - Cast Spell Rejuvenation');
+
+        -- Rotten Ghoul - Cast Spell Poison Proc
+        DELETE FROM `creature_ai_scripts` WHERE `id`=84601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (84601, 0, 0, 15, 3616, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rotten Ghoul - Cast Spell Poison Proc');
+
+        -- Lord Grayson Shadowbreaker - Cast Spell Holy Light
+        DELETE FROM `creature_ai_scripts` WHERE `id`=92802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (92802, 0, 0, 15, 1042, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lord Grayson Shadowbreaker - Cast Spell Holy Light');
+
+        -- Kurzen Commando - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=93801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (93801, 0, 0, 15, 1785, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kurzen Commando - Cast Spell Stealth');
+
+        -- Rohh the Silent - Cast Spell Sneak
+        DELETE FROM `creature_ai_scripts` WHERE `id`=94702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (94702, 0, 0, 15, 1785, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rohh the Silent - Cast Spell Stealth');
+
+        -- Events list for Scalebane Lieutenant
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1048;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (104801, 1048, 0, 4, 0, 100, 0, 0, 0, 0, 0, 104801, 0, 0, 'Scalebane Lieutenant - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (104802, 1048, 0, 9, 5, 100, 1, 0, 5, 5400, 9200, 104802, 0, 0, 'Scalebane Lieutenant - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (104803, 1048, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 104803, 0, 0, 'Scalebane Lieutenant - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (104804, 1048, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 104804, 0, 0, 'Scalebane Lieutenant - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (104805, 1048, 0, 0, 0, 100, 1, 3400, 7600, 9800, 26800, 104805, 0, 0, 'Scalebane Lieutenant - Cast Rend');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (104806, 1048, 0, 0, 0, 100, 1, 4000, 15100, 6900, 23100, 104806, 0, 0, 'Scalebane Lieutenant - Cast Shield Block');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (104807, 1048, 0, 7, 0, 100, 0, 0, 0, 0, 0, 104807, 0, 0, 'Scalebane Lieutenant - Set Phase to 0 on Evade');
+
+        -- Scalebane Lieutenant - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=104802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (104802, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scalebane Lieutenant - Cast Spell Sundering Strike');
+
+        -- Rend
+        DELETE FROM `creature_ai_scripts` WHERE `id`=104805;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (104805, 0, 0, 15, 6548, 32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scalebane Lieutenant - Cast Spell Rend');
+
+        -- Shield Block
+        DELETE FROM `creature_ai_scripts` WHERE `id`=104806;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (104806, 0, 0, 15, 2565, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scalebane Lieutenant - Cast Spell Shield Block');
+
+        -- Dark Iron Tunneler - Cast Spell Sundering Strike
+        -- Events list for Dark Iron Tunneler
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1053;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105301, 1053, 0, 4, 0, 100, 0, 0, 0, 0, 0, 105301, 0, 0, 'Dark Iron Tunneler - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105302, 1053, 0, 4, 0, 15, 0, 0, 0, 0, 0, 105302, 0, 0, 'Dark Iron Tunneler - Random Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105303, 1053, 0, 9, 5, 100, 1, 0, 5, 5400, 9200, 105303, 0, 0, 'Dark Iron Tunneler - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105304, 1053, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 105304, 0, 0, 'Dark Iron Tunneler - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105305, 1053, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 105305, 0, 0, 'Dark Iron Tunneler - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105306, 1053, 0, 0, 0, 100, 1, 1000, 3000, 1300, 5000, 105306, 0, 0, 'Dark Iron Tunneler - Cast Defensive Stance');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105307, 1053, 0, 0, 0, 100, 1, 2000, 8500, 18000, 22000, 105307, 0, 0, 'Dark Iron Tunneler - Cast Gift of Ragnaros');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105308, 1053, 0, 2, 0, 100, 0, 15, 0, 0, 0, 105308, 0, 0, 'Dark Iron Tunneler - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105309, 1053, 0, 7, 0, 100, 0, 0, 0, 0, 0, 105309, 0, 0, 'Dark Iron Tunneler - Set Phase to 0 on Evade');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=105303;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (105303, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Iron Tunneler - Cast Spell Sundering Strike');
+
+        -- Mogh the Undying - Cast Spell Demon Skin
+        DELETE FROM `creature_ai_scripts` WHERE `id`=106001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (106001, 0, 0, 15, 696, 34, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mogh the Undying - Cast Spell Demon Skin');
+
+        -- Lost One Cook - Cast Spell Bash
+        -- Events list for Lost One Cook
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1106;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (110601, 1106, 0, 9, 0, 100, 1, 0, 5, 8000, 11000, 110601, 0, 0, 'Lost One Cook - Cast Bash');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=110601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (110601, 0, 0, 15, 5211, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lost One Cook - Cast Spell Bash');
+
+        -- Frostmane Shadowcaster - Cast Spell Demon Skin
+        DELETE FROM `creature_ai_scripts` WHERE `id`=112402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (112402, 0, 0, 15, 696, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Frostmane Shadowcaster - Cast Spell Demon Skin');
+
+        -- Razormaw Matriarch - Cast Spell Touch of Death
+        -- Events list for Razormaw Matriarch
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1140;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (114002, 1140, 0, 2, 0, 100, 0, 30, 0, 0, 0, 114002, 0, 0, 'Razormaw Matriarch - Call for Help at 30% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (114003, 1140, 0, 2, 0, 100, 0, 15, 0, 0, 0, 114003, 0, 0, 'Razormaw Matriarch - Cast Touch Of Death at 15% HP');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=114003;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (114003, 0, 0, 15, 3108, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razormaw Matriarch - Cast Spell Touch of Death');
+
+        -- Mo grosh Enforcer - Cast Spell Demoralizing Shout
+        DELETE FROM `creature_ai_scripts` WHERE `id`=117902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (117902, 0, 0, 15, 6190, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mo grosh Enforcer - Cast Spell Demoralizing Shout'),
+        (117902, 0, 0, 1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mo grosh Enforcer - Emote 15');
+
+        -- Balgaras the Foul - Cast Spell Voidwalker Guardian
+        DELETE FROM `creature_ai_scripts` WHERE `id`=136401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (136401, 0, 0, 15, 697, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Balgaras the Foul - Cast Spell Voidwalker Guardian');
+
+        -- Frostmane Seer - Cast Spell Lightning Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=139702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (139702, 0, 0, 15, 905, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Frostmane Seer - Cast Spell Lightning Shield');
+
+        -- Riverpaw Miner - Cast Spell Sundering Strike
+        -- Events list for Riverpaw Miner
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1426;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (142601, 1426, 0, 4, 0, 100, 0, 0, 0, 0, 0, 142601, 0, 0, 'Riverpaw Miner - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (142602, 1426, 0, 4, 0, 8, 0, 0, 0, 0, 0, 142602, 0, 0, 'Riverpaw Miner - Random Aggro Say');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (142603, 1426, 0, 9, 5, 100, 1, 0, 5, 7800, 12400, 142603, 0, 0, 'Riverpaw Miner - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (142604, 1426, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 142604, 0, 0, 'Riverpaw Miner - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (142605, 1426, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 142605, 0, 0, 'Riverpaw Miner - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (142606, 1426, 0, 2, 0, 100, 0, 15, 0, 0, 0, 142606, 0, 0, 'Riverpaw Miner - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (142607, 1426, 0, 7, 0, 100, 0, 0, 0, 0, 0, 142607, 0, 0, 'Riverpaw Miner - Set Phase to 0 on Evade');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=142603;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (142603, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Riverpaw Miner - Cast Spell Sundering Strike');
+
+        -- Captain Melrache - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=166502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (166502, 0, 0, 15, 284, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain Melrache - Cast Spell Strike');
+
+        -- Night Web Matriarch - Cast Spell Poison Proc
+        DELETE FROM `creature_ai_scripts` WHERE `id`=168801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (168801, 0, 0, 15, 3616, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Night Web Matriarch - Cast Spell Poison Proc');
+
+        -- Soulless Ghoul - Cast Spell Mana Burn
+
+        -- Events list for Soulless Ghoul
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1794;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (179402, 1794, 0, 9, 0, 100, 1, 0, 30, 8000, 12000, 179402, 0, 0, 'Soulless Ghoul - Cast Mana Burn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (179403, 1794, 0, 9, 0, 100, 1, 0, 30, 9000, 14000, 179403, 0, 0, 'Soulless Ghoul - Cast Shadow Bolt');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=179402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (179402, 0, 0, 15, 2691, 1, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Soulless Ghoul - Cast Spell Mana Burn');
+
+        -- Cast Spell Shadow Bolt
+        DELETE FROM `creature_ai_scripts` WHERE `id`=179403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (179403, 0, 0, 15, 1106, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Soulless Ghoul - Cast Spell Shadow Bolt');
+
+        -- Scarlet Paladin - Cast Spell Holy Light
+        DELETE FROM `creature_ai_scripts` WHERE `id`=183403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (183403, 0, 0, 15, 1026, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Paladin - Cast Spell Holy Light');
+
+        -- Scarlet Invoker - Cast Spell Arcane Missiles
+        DELETE FROM `creature_ai_scripts` WHERE `id`=183501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (183501, 0, 0, 15, 5145, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Invoker - Cast Spell Arcane Missiles');
+
+        -- Scarlet Judge - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=183701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (183701, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Judge - Cast Spell Strike');
+
+        -- Events list for Scarlet High Clerist
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1839;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (183901, 1839, 0, 9, 0, 100, 1, 0, 30, 14000, 19000, 183901, 0, 0, 'Scarlet High Clerist - Cast Fire Blast');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (183903, 1839, 0, 2, 0, 100, 1, 50, 0, 15000, 21000, 183903, 0, 0, 'Scarlet High Clerist - Cast Healing Ward at 50% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (183904, 1839, 0, 2, 0, 100, 0, 15, 0, 0, 0, 183904, 0, 0, 'Scarlet High Clerist - Flee at 15% HP');
+
+        -- Scarlet High Clerist - Cast Spell Fire Blast
+        DELETE FROM `creature_ai_scripts` WHERE `id`=183901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (183901, 0, 0, 15, 2137, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet High Clerist - Cast Spell Fire Blast');
+
+        -- Scarlet High Clerist - Cast Spell Healing Ward
+        DELETE FROM `creature_ai_scripts` WHERE `id`=183903;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (183903, 0, 0, 15, 6274, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet High Clerist - Cast Spell Healing Ward');
+
+        -- Scarlet Executioner - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184101, 0, 0, 15, 7371, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Executioner - Cast Spell Cleave');
+
+        -- Foreman Jerris - Cast Spell Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184302, 0, 0, 15, 5211, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Foreman Jerris - Cast Spell Bash');
+
+        -- Foreman Marcrid - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184401, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Foreman Marcrid - Cast Spell Strike');
+
+        -- Foreman Marcrid - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184402, 0, 0, 15, 7371, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Foreman Marcrid - Cast Spell Cleave');
+
+        -- High Protector Tarsen - Cast Spell Holy Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184502, 0, 0, 15, 5569, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'High Protector Tarsen - Cast Spell Holy Strike');
+
+        -- High Protector Tarsen - Cast Spell Arcane Missiles
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184503, 0, 0, 15, 5145, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'High Protector Tarsen - Cast Spell Arcane Missiles');
+
+        -- Events list for High Protector Tarsen
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1845;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (184502, 1845, 0, 9, 0, 100, 1, 0, 5, 8000, 11000, 184502, 0, 0, 'High Protector Tarsen - Cast Holy Strike');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (184503, 1845, 0, 9, 0, 100, 1, 0, 5, 12000, 16000, 184503, 0, 0, 'High Protector Tarsen - Cast Arcane Missiles');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (184505, 1845, 0, 2, 0, 100, 0, 15, 0, 0, 0, 184505, 0, 0, 'High Protector Tarsen - Flee at 15% HP');
+
+        -- Foulmane - Cast Rend
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184703, 0, 0, 15, 6548, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Foulmane - Cast Spell Rend');
+
+        -- Dalaran Wizard - Cast Spell Frost Nova
+        DELETE FROM `creature_ai_scripts` WHERE `id`=188903;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (188903, 0, 0, 15, 122, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Wizard - Cast Spell Frost Nova');
+
+        -- Dalaran Conjuror - Cast Spell Demon Skin
+        DELETE FROM `creature_ai_scripts` WHERE `id`=191502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (191502, 0, 0, 15, 696, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Conjuror - Cast Spell Demon Skin');
+
+        -- Dalaran Conjuror - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=191503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (191503, 0, 0, 15, 697, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Conjuror - Cast Spell Summon Voidwalker');
+
+        -- Rot Hide Brute - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=193903;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (193903, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rot Hide Brute - Cast Spell Sundering Strike');
+
+        -- Events list for Rot Hide Brute
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1939;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (193901, 1939, 0, 4, 0, 15, 0, 0, 0, 0, 0, 193901, 0, 0, 'Rot Hide Brute - Random Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (193902, 1939, 0, 4, 0, 100, 0, 0, 0, 0, 0, 193902, 0, 0, 'Rot Hide Brute - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (193903, 1939, 0, 9, 5, 100, 1, 0, 5, 5000, 9000, 193903, 0, 0, 'Rot Hide Brute - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (193904, 1939, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 193904, 0, 0, 'Rot Hide Brute - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (193905, 1939, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 193905, 0, 0, 'Rot Hide Brute - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (193906, 1939, 0, 0, 0, 100, 1, 7200, 20700, 32700, 54900, 193906, 0, 0, 'Rot Hide Brute - Cast Curse of Thule');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (193907, 1939, 0, 7, 0, 100, 0, 0, 0, 0, 0, 193907, 0, 0, 'Rot Hide Brute - Set Phase to 0 on Evade');
+
+        -- Thule Ravenclaw - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=194701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (194701, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Thule Ravenclaw - Cast Spell Summon Imp');
+
+        -- Thule Ravenclaw - Cast Spell Demon Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=194702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (194702, 0, 0, 15, 1086, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Thule Ravenclaw - Cast Spell Demon Armor');
+
+        DELETE FROM `creature_ai_scripts` WHERE `id`=194703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (194703, 0, 0, 15, 1086, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Thule Ravenclaw - Cast Spell Demon Armor');
+
+        -- Events list for Thule Ravenclaw
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1947;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (194701, 1947, 0, 1, 0, 100, 0, 0, 0, 0, 0, 194701, 0, 0, 'Thule Ravenclaw - Summon Imp on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (194702, 1947, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 194702, 0, 0, 'Thule Ravenclaw - Cast Demon Armor on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (194703, 1947, 0, 27, 0, 100, 1, 1086, 1, 15000, 30000, 194703, 0, 0, 'Thule Ravenclaw - Cast Demon Armor on Missing Buff');
+
+        -- Elder Lake Skulker - Cast Spell Rejuvenation
+        DELETE FROM `creature_ai_scripts` WHERE `id`=195402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (195402, 0, 0, 15, 2090, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Elder Lake Skulker - Cast Spell Rejuvenation');
+
+        -- Events list for Elder Lake Skulker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1954;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (195401, 1954, 0, 11, 0, 100, 0, 0, 0, 0, 0, 195401, 0, 0, 'Lake Skulker - Cast Moss Covered Hands Proc on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (195402, 1954, 0, 2, 0, 100, 1, 50, 0, 32000, 45000, 195402, 0, 0, 'Elder Lake Skulker - Cast Rejuvenation at 50% HP');
+
+        -- Webwood Silkspinner - Cast Spell Web
+        DELETE FROM `creature_ai_scripts` WHERE `id`=200001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (200001, 0, 0, 15, 4167, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Webwood Silkspinner - Cast Spell Web');
+
+        -- Gnarlpine Warrior - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=200801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (200801, 0, 0, 15, 78, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gnarlpine Warrior - Cast Spell Strike');
+
+        -- Ursal the Mauler - Cast Spell Maul
+        DELETE FROM `creature_ai_scripts` WHERE `id`=203901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (203901, 0, 0, 15, 6807, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ursal the Mauler - Cast Spell Maul');
+
+        -- Ancient Protector - Cast Spell Entangling Roots
+        DELETE FROM `creature_ai_scripts` WHERE `id`=204101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (204101, 0, 0, 15, 2920, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ancient Protector - Cast Spell Entangling Roots');
+
+        -- Blackwood Warrior - Cast Spell Thunderclap
+        DELETE FROM `creature_ai_scripts` WHERE `id`=216802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (216802, 0, 0, 15, 1344, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackwood Warrior - Cast Spell Thunderclap');
+
+        -- Shadowclaw - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=217501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (217501, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowclaw - Cast Spell Stealth');
+
+        -- Shadowclaw - Cast Spell Curse of Weakness
+        DELETE FROM `creature_ai_scripts` WHERE `id`=217502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (217502, 0, 0, 15, 702, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowclaw - Cast Spell Curse of Weakness');
+
+        -- Shadowclaw - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=217503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (217503, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowclaw - Cast Spell Stealth');
+
+        -- Firecaller Radison - Cast Spell Immolate
+        DELETE FROM `creature_ai_scripts` WHERE `id`=219201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (219201, 0, 0, 15, 707, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Firecaller Radison - Cast Spell Immolate');
+
+        -- Greymist Netter - Cast Spell Net
+        DELETE FROM `creature_ai_scripts` WHERE `id`=220401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (220401, 0, 0, 15, 7740, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Greymist Netter - Cast Spell Net');
+
+        -- High Executor Darthalia - Cast Spell Hamstring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=221502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (221502, 0, 0, 15, 7373, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'High Executor Darthalia - Cast Spell Hamstring');
+
+        -- High Executor Darthalia - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=221503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (221503, 0, 0, 15, 7371, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'High Executor Darthalia - Cast Spell Cleave');
+
+        -- Events list for Syndicate Spy
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2242;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (224201, 2242, 0, 11, 0, 100, 0, 0, 0, 0, 0, 224201, 0, 0, 'Syndicate Spy - Cast Stealth on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (224202, 2242, 0, 9, 0, 100, 1, 0, 5, 1800, 9800, 224202, 0, 0, 'Syndicate Spy - Cast Backstab');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (224203, 2242, 0, 2, 0, 100, 0, 15, 0, 0, 0, 224203, 0, 0, 'Syndicate Spy - Flee at 15% HP');
+
+        -- Syndicate Spy - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=224201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (224201, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Spy - Cast Spell Stealth');
+
+        -- Syndicate Shadow Mage - Cast Demon Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=224401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (224401, 0, 0, 15, 706, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Shadow Mage - Cast Demon Armor');
+
+        -- Events list for Syndicate Assassin
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2246;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (224601, 2246, 0, 11, 0, 100, 0, 0, 0, 0, 0, 224601, 0, 0, 'Syndicate Assassin - Cast Stealth and Poison Proc on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (224602, 2246, 0, 2, 0, 100, 0, 15, 0, 0, 0, 224602, 0, 0, 'Syndicate Assassin - Flee at 15% HP');
+
+        -- Syndicate Assassin - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=224601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (224601, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Assassin - Cast Spell Stealth'),
+        (224601, 0, 0, 15, 7276, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Assassin - Cast Spell Poison Proc');
+
+        -- Syndicate Rogue - Cast Spell Backstab
+        DELETE FROM `creature_ai_scripts` WHERE `id`=226001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (226001, 0, 0, 15, 2589, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Rogue - Cast Spell Backstab');
+
+        -- Magistrate Henry Maleb - Cast Spell Frost Nova
+        DELETE FROM `creature_ai_scripts` WHERE `id`=227602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (227602, 0, 0, 15, 6131, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Magistrate Henry Maleb - Cast Spell Frost Nova');
+
+        -- Events list for Captain Ironhill
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2304;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (230402, 2304, 0, 9, 0, 100, 1, 0, 5, 10000, 14000, 230402, 0, 0, 'Captain Ironhill - Cast Bash');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (230403, 2304, 0, 2, 0, 100, 0, 30, 0, 0, 0, 230403, 0, 0, 'Captain Ironhill - Flee at 30% HP');
+
+        -- Captain Ironhill - Cast Spell Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=230402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (230402, 0, 0, 15, 5211, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain Ironhill - Cast Spell Bash');
+
+        -- Events list for Magistrate Burnside
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2335;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (233501, 2335, 0, 9, 0, 100, 1, 0, 8, 12000, 15000, 233501, 0, 0, 'Magistrate Burnside - Cast Immolate');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (233502, 2335, 0, 2, 0, 100, 0, 15, 0, 0, 0, 233502, 0, 0, 'Magistrate Burnside - Flee at 15% HP');
+
+        -- Magistrate Burnside - Cast Spell Immolate
+        DELETE FROM `creature_ai_scripts` WHERE `id`=233501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (233501, 0, 0, 15, 707, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Magistrate Burnside - Cast Spell Immolate');
+
+        -- Dark Strand Voidcaller - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=233702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (233702, 0, 0, 15, 697, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Strand Voidcaller - Cast Spell Summon Voidwalker');
+
+        -- Dun Garok Mountaineer - Cast Spell Devotion Aura
+        DELETE FROM `creature_ai_scripts` WHERE `id`=234401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (234401, 0, 0, 15, 643, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dun Garok Mountaineer - Cast Spell Devotion Aura');
+
+        -- Dun Garok Mountaineer - Cast Spell Holy Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=234402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (234402, 0, 0, 15, 680, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dun Garok Mountaineer - Cast Spell Holy Strike');
+
+        -- Events list for Daggerspine Shorestalker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2368;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (236802, 2368, 0, 9, 0, 100, 1, 0, 5, 9000, 13000, 236802, 0, 0, 'Daggerspine Shorestalker - Cast Bash');
+
+        -- Daggerspine Shorestalker - Cast Spell Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=236802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (236802, 0, 0, 15, 5211, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Daggerspine Shorestalker - Cast Spell Bash');
+
+        -- Events list for Mountain Lion
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2406;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (240601, 2406, 0, 11, 0, 100, 0, 0, 0, 0, 0, 240601, 0, 0, 'Mountain Lion - Cast Stealth on Spawn');
+
+        -- Mountain Lion - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=240601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (240601, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mountain Lion - Cast Spell Stealth');
+
+        -- Lord Aliden Perenolde - Cast Spell Renew
+        DELETE FROM `creature_ai_scripts` WHERE `id`=242302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (242302, 0, 0, 15, 6077, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lord Aliden Perenolde - Cast Spell Renew');
+
+        -- Narillasanz - Cast Spell Renew
+        DELETE FROM `creature_ai_scripts` WHERE `id`=244702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (244702, 0, 0, 15, 6077, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Narillasanz - Cast Spell Renew');
+
+        -- Events list for Skhowl
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2452;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (245203, 2452, 0, 2, 0, 100, 1, 50, 0, 19000, 23000, 245203, 0, 0, 'Skhowl - Cast Intimidating Growl at 50% HP');
+
+        -- Skhowl - Cast Spell Intimidating Growl
+        DELETE FROM `creature_ai_scripts` WHERE `id`=245203;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (245203, 0, 0, 15, 6576, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Skhowl - Cast Spell Intimidating Growl');
+
+        -- Ironpatch - Cast Spell Shield Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=254702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (254702, 0, 0, 15, 1672, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ironpatch - Cast Spell Shield Bash');
+
+        -- Events list for Drywhisker Digger
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2574;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (257401, 2574, 0, 4, 0, 100, 0, 0, 0, 0, 0, 257401, 0, 0, 'Drywhisker Digger - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (257402, 2574, 0, 1, 0, 100, 1, 2500, 6100, 179800, 180400, 257402, 0, 0, 'Drywhisker Digger - Cast Defensive Stance');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (257403, 2574, 0, 9, 5, 100, 1, 0, 5, 6100, 15400, 257403, 0, 0, 'Drywhisker Digger - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (257404, 2574, 0, 24, 5, 100, 1, 7405, 5, 5000, 5000, 257404, 0, 0, 'Drywhisker Digger - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (257405, 2574, 0, 28, 3, 100, 1, 7405, 1, 5000, 5000, 257405, 0, 0, 'Drywhisker Digger - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (257406, 2574, 0, 2, 0, 100, 0, 15, 0, 0, 0, 257406, 0, 0, 'Drywhisker Digger - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (257407, 2574, 0, 7, 0, 100, 0, 0, 0, 0, 0, 257407, 0, 0, 'Drywhisker Digger - Set Phase to 0 on Evade');
+
+        -- Drywhisker Digger - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=257403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (257403, 0, 0, 15, 7405, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Drywhisker Digger - Cast Spell Sundering Strike');
+
+        -- Stromgarde Troll Hunter - Cast Spell Heal
+        DELETE FROM `creature_ai_scripts` WHERE `id`=258302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (258302, 0, 0, 15, 6064, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stromgarde Troll Hunter - Cast Spell Heal');
+
+        -- Events list for Syndicate Highwayman
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2586;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (258601, 2586, 0, 1, 0, 100, 0, 0, 0, 0, 0, 258601, 0, 0, 'Syndicate Highwayman - Cast Stealth when OOC');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (258602, 2586, 0, 4, 0, 100, 0, 0, 0, 0, 0, 258602, 0, 0, 'Syndicate Highwayman - Removes Sneak on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (258604, 2586, 0, 2, 0, 100, 0, 15, 0, 0, 0, 258604, 0, 0, 'Syndicate Highwayman - Flee at 15% HP');
+
+        -- Syndicate Highwayman - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=258601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (258601, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Highwayman - Cast Spell Stealth');
+
+        -- Syndicate Highwayman - Remove Aura Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=258602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (258602, 0, 0, 14, 1784, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Highwayman - Remove Aura Stealth');
+
+        -- Events list for Syndicate Prowler
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2588;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (258801, 2588, 0, 1, 0, 100, 0, 0, 0, 0, 0, 258801, 0, 0, 'Syndicate Prowler - Cast Stealth when OOC');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (258802, 2588, 0, 4, 0, 100, 0, 0, 0, 0, 0, 258802, 0, 0, 'Syndicate Prowler - Removes Stealth on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (258805, 2588, 0, 2, 0, 100, 0, 15, 0, 0, 0, 258805, 0, 0, 'Syndicate Prowler - Flee at 15% HP');
+
+        -- Syndicate Prowler - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=258801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (258801, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Prowler - Cast Spell Stealth');
+
+        -- Syndicate Prowler - Remove Aura Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=258802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (258802, 0, 0, 14, 1784, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Prowler - Remove Aura Stealth');
+
+        -- Events list for Syndicate Conjuror
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2590;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (259001, 2590, 0, 2, 0, 100, 0, 15, 0, 0, 0, 259001, 0, 0, 'Syndicate Conjuror - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (259002, 2590, 0, 1, 0, 50, 1, 13000, 13000, 300000, 300000, 259002, 0, 0, 'Syndicate Conjuror - Cast Bright Campfire on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (259003, 2590, 0, 1, 0, 100, 0, 1000, 1000, 0, 0, 259003, 0, 0, 'Syndicate Conjuror -  Summon Voidwalker on Spawn');
+
+        -- Syndicate Conjuror - Cast Spell Bright Campfire
+        DELETE FROM `creature_ai_scripts` WHERE `id`=259002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (259002, 0, 0, 15, 7359, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Conjuror - Cast Spell Bright Campfire');
+
+        -- Syndicate Conjuror - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=259003;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (259003, 0, 0, 15, 697, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Conjuror - Cast Spell Summon Voidwalker');
+
+        -- Daggerspine Sorceress - Cast Spell Lightning Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=259601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (259601, 0, 0, 15, 905, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Daggerspine Sorceress - Cast Spell Lightning Shield');
+
+        -- Events list for Prince Galen Trollbane
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2607;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (260701, 2607, 0, 4, 0, 100, 0, 0, 0, 0, 0, 260701, 0, 0, 'Prince Galen Trollbane - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (260702, 2607, 0, 9, 5, 100, 1, 0, 5, 5000, 9000, 260702, 0, 0, 'Prince Galen Trollbane - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (260703, 2607, 0, 24, 5, 100, 1, 7405, 5, 5000, 5000, 260703, 0, 0, 'Prince Galen Trollbane - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (260704, 2607, 0, 28, 3, 100, 1, 7405, 1, 5000, 5000, 260704, 0, 0, 'Prince Galen Trollbane - Set Phase 1 on Target Missing Sunder Armor Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (260705, 2607, 0, 0, 0, 100, 1, 3000, 5000, 12000, 15000, 260705, 0, 0, 'Prince Galen Trollbane - Cast Demoralizing Shout');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (260706, 2607, 0, 7, 0, 100, 0, 0, 0, 0, 0, 260706, 0, 0, 'Prince Galen Trollbane - Set Phase to 0 on Evade');
+
+        -- Prince Galen Trollbane - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=260702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (260702, 0, 0, 15, 7405, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Prince Galen Trollbane - Cast Spell Sundering Strike');
+
+        -- Prince Galen Trollbane - Cast Spell Demoralizing Shout
+        DELETE FROM `creature_ai_scripts` WHERE `id`=260705;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (260705, 0, 0, 15, 6190, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Prince Galen Trollbane - Cast Spell Demoralizing Shout');
+
+        -- Vilebranch Shadowcaster - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=264202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (264202, 0, 0, 15, 697, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vilebranch Shadowcaster - Cast Spell Summon Voidwalker');
+
+        -- Vilebranch Hideskinner - Cast Spell Backstab
+        DELETE FROM `creature_ai_scripts` WHERE `id`=264401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (264401, 0, 0, 15, 2591, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vilebranch Hideskinner - Cast Spell Backstab');
+
+        -- Vilebranch Blood Drinker - Cast Spell Blood Leech
+        DELETE FROM `creature_ai_scripts` WHERE `id`=264601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (264601, 0, 0, 15, 6958, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vilebranch Blood Drinker - Cast Spell Blood Leech');
+
+        -- Ward of Laze - Cast Spell Self Stun (Spawn)
+        DELETE FROM `creature_ai_scripts` WHERE `id`=266701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (266701, 0, 0, 15, 25, 7, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ward of Laze - Cast Spell Self Stun'),
+        (266701, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ward of Laze - Disable Melee Attack');
+
+        -- Ward of Laze - Cast Spell Self Stun (Aggro)
+        DELETE FROM `creature_ai_scripts` WHERE `id`=266702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (266702, 0, 0, 15, 25, 7, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ward of Laze - Cast Spell Self Stun'),
+        (266702, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ward of Laze - Disable Melee Attack');
+
+        -- Ward of Laze - Cast Spell Self Stun (Evade)
+        DELETE FROM `creature_ai_scripts` WHERE `id`=266703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (266703, 0, 0, 15, 25, 7, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ward of Laze - Cast Spell Self Stun'),
+        (266703, 0, 0, 42, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ward of Laze - Disable Melee Attack');
+
+        -- Events list for Ridge Stalker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2731;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (273101, 2731, 0, 1, 0, 100, 0, 1000, 1000, 0, 0, 273101, 0, 0, 'Ridge Stalker - Cast Stealth on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (273102, 2731, 0, 4, 0, 100, 0, 0, 0, 0, 0, 273102, 0, 0, 'Ridge Stalker - Remove Stealth on Aggro');
+
+        -- Ridge Stalker - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=273101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (273101, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ridge Stalker - Cast Spell Stealth');
+
+        -- Ridge Stalker - Remove Aura Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=273102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (273102, 0, 0, 14, 1784, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ridge Stalker - Remove Aura Stealth');
+
+        -- Events list for Shadowforge Tunneler
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=2739;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (273901, 2739, 0, 4, 0, 100, 0, 0, 0, 0, 0, 273901, 0, 0, 'Shadowforge Tunneler - Cast Defensive Stance and Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (273902, 2739, 0, 9, 5, 100, 1, 0, 5, 7600, 13700, 273902, 0, 0, 'Shadowforge Tunneler - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (273903, 2739, 0, 24, 5, 100, 1, 7405, 5, 5000, 5000, 273903, 0, 0, 'Shadowforge Tunneler - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (273904, 2739, 0, 28, 3, 100, 1, 7405, 1, 5000, 5000, 273904, 0, 0, 'Shadowforge Tunneler - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (273905, 2739, 0, 2, 0, 100, 0, 15, 0, 0, 0, 273905, 0, 0, 'Shadowforge Tunneler - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (273906, 2739, 0, 7, 0, 100, 0, 0, 0, 0, 0, 273906, 0, 0, 'Shadowforge Tunneler - Set Phase to 0 on Evade');
+
+        -- Shadowforge Tunneler - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=273902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (273902, 0, 0, 15, 7405, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowforge Tunneler - Cast Spell Sundering Strike');
+
+        -- Kurden Bloodclaw - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=280401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (280401, 0, 0, 15, 7371, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kurden Bloodclaw - Cast Spell Cleave');
+
+        -- Prismatic Exile - Cast Spell Lightning Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=288701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (288701, 0, 0, 15, 945, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Prismatic Exile - Cast Spell Lightning Shield');
+
+        -- Prismatic Exile - Cast Spell Fireball
+        DELETE FROM `creature_ai_scripts` WHERE `id`=288702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (288702, 0, 0, 15, 3140, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Prismatic Exile - Cast Spell Fireball');
+
+        -- Prismatic Exile - Cast Spell Frost Nova
+        DELETE FROM `creature_ai_scripts` WHERE `id`=288703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (288703, 0, 0, 15, 6131, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Prismatic Exile - Cast Spell Frost Nova');
+
+        -- Palemane Tanner - Cast Spell Wrath
+        DELETE FROM `creature_ai_scripts` WHERE `id`=294901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (294901, 0, 0, 15, 5176, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Palemane Tanner - Cast Spell Wrath');
+
+        -- Mazzranache - Cast Spell Poison Proc
+        DELETE FROM `creature_ai_scripts` WHERE `id`=306801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (306801, 0, 0, 15, 7276, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mazzranache - Cast Spell Poison Proc');
+
+        -- Burning Blade Apprentice - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=319802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (319802, 0, 0, 15, 697, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Burning Blade Apprentice - Cast Spell Summon Voidwalker');
+
+        -- Burning Blade Cultist - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=319901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (319901, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Burning Blade Cultist - Cast Spell Summon Imp');
+
+        -- Fizzle Darkstorm - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=320302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (320302, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fizzle Darkstorm - Cast Spell Summon Imp');
+
+        -- Gazz uz - Cast Spell Demon Skin
+        DELETE FROM `creature_ai_scripts` WHERE `id`=320402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (320402, 0, 0, 15, 696, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gazz uz - Cast Spell Demon Skin');
+
+        -- Gazz uz - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=320403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (320403, 0, 0, 15, 697, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gazz uz - Cast Spell Summon Voidwalker');
+
+        -- Kolkar Pack Runner - Cast Spell Battle Shout
+        DELETE FROM `creature_ai_scripts` WHERE `id`=327401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (327401, 0, 0, 15, 3152, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kolkar Pack Runner - Cast Spell Battle Shout');
+
+        -- Witchwing Slayer - Cast Spell Demoralizing Shout
+        DELETE FROM `creature_ai_scripts` WHERE `id`=327801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (327801, 0, 0, 15, 6190, 32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Witchwing Slayer - Cast Spell Demoralizing Shout');
+
+        -- Venture Co. Overseer - Cast Overseet Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=328601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (328601, 0, 0, 15, 6531, 33, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Overseer - Cast Overseet Poison');
+
+        -- Captain Fairmount - Cast Spell Battle Shout
+        DELETE FROM `creature_ai_scripts` WHERE `id`=339302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (339302, 0, 0, 15, 3152, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain Fairmount - Cast Spell Battle Shout');
+
+        -- Captain Fairmount - Cast Spell Intimidating Growl
+        DELETE FROM `creature_ai_scripts` WHERE `id`=339303;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (339303, 0, 0, 15, 6576, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Captain Fairmount - Cast Spell Intimidating Growl');
+
+        -- Moonrage Tailor - Cast Spell Backstab
+        DELETE FROM `creature_ai_scripts` WHERE `id`=353101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (353101, 0, 0, 15, 2589, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Tailor - Cast Spell Backstab');
+
+        -- Deviate Creeper - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=363201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (363201, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deviate Creeper - Cast Spell Stealth');
+
+        -- Events list for Mad Magglish
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3655;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (365501, 3655, 0, 11, 0, 100, 0, 0, 0, 0, 0, 365501, 0, 0, 'Mad Magglish - Cast Stealth on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (365502, 3655, 0, 9, 0, 100, 1, 0, 5, 9000, 14000, 365502, 0, 0, 'Mad Magglish - Cast Smoke Bomb');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (365503, 3655, 0, 7, 0, 100, 0, 0, 0, 0, 0, 365503, 0, 0, 'Mad Magglish - Cast Stealth on Evade');
+
+        -- Mad Magglish - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=365501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (365501, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mad Magglish - Cast Spell Stealth');
+
+        -- Mad Magglish - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=365503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (365503, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mad Magglish - Cast Spell Stealth');
+
+        -- Wrathtail Myrmidon - Cast Spell Rend
+        DELETE FROM `creature_ai_scripts` WHERE `id`=371102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (371102, 0, 0, 15, 6546, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wrathtail Myrmidon - Cast Spell Rend');
+
+        -- Dark Strand Cultist - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=372501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (372501, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Strand Cultist - Cast Spell Summon Imp');
+
+        -- Dark Strand Adept - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=372802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (372802, 0, 0, 15, 697, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Strand Adept - Cast Spell Summon Voidwalker');
+
+        -- Foulweald Ursa - Cast Spell Hamstring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=374903;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (374903, 0, 0, 15, 7372, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Foulweald Ursa - Cast Spell Hamstring');
+
+        -- Events list for Felmusk Shadowstalker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3763;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (376301, 3763, 0, 11, 0, 100, 0, 0, 0, 0, 0, 376301, 0, 0, 'Felmusk Shadowstalker - Cast Stealth on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (376302, 3763, 0, 9, 0, 100, 1, 0, 5, 14500, 23900, 376302, 0, 0, 'Felmusk Shadowstalker - Cast Overwhelming Stench');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (376303, 3763, 0, 2, 0, 100, 0, 15, 0, 0, 0, 376303, 0, 0, 'Felmusk Shadowstalker - Flee at 15% HP');
+
+        -- Felmusk Shadowstalker - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=376301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (376301, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Felmusk Shadowstalker - Cast Spell Stealth');
+
+        -- Bleakheart Hellcaller - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=377103;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (377103, 0, 0, 15, 688, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bleakheart Hellcaller - Cast Spell Summon Imp'),
+        (377103, 0, 0, 44, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bleakheart Hellcaller - Set Phase to 0');
+
+        -- Lesser Felguard - Cast Spell Knockdown
+        DELETE FROM `creature_ai_scripts` WHERE `id`=377201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (377201, 0, 0, 15, 5164, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lesser Felguard - Cast Spell Knockdown');
+
+        -- Felslayer - Cast Spell Mana Burn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=377401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (377401, 0, 0, 15, 2691, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Felslayer - Cast Spell Mana Burn');
+
+        -- Shadethicket Wood Shaper - Cast Spell Entangling Roots
+        DELETE FROM `creature_ai_scripts` WHERE `id`=378101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (378101, 0, 0, 15, 1062, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadethicket Wood Shaper - Cast Spell Entangling Roots');
+
+        -- Shadethicket Raincaller - Cast Spell Lightning Bolt
+        DELETE FROM `creature_ai_scripts` WHERE `id`=378302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (378302, 0, 0, 15, 548, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadethicket Raincaller - Cast Spell Lightning Bolt');
+
+        -- Forsaken Dark Stalker - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=380802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (380802, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Forsaken Dark Stalker - Cast Spell Stealth');
+
+        -- Wildthorn Stalker - Cast Spell Web
+        DELETE FROM `creature_ai_scripts` WHERE `id`=381901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (381901, 0, 0, 15, 4167, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wildthorn Stalker - Cast Spell Web');
+
+        -- Relara Whitemoon - Cast Spell Sleep Visual DND
+        DELETE FROM `creature_ai_scripts` WHERE `id`=389201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (389201, 0, 0, 15, 6606, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Relara Whitemoon - Cast Spell Sleep Visual DND');
+
+        -- Relara Whitemoon - Remove Aura Sleep Visual DND
+        DELETE FROM `creature_ai_scripts` WHERE `id`=389202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (389202, 0, 0, 14, 6606, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Relara Whitemoon - Remove Aura Sleep Visual DND');
+
+        -- Events list for Forsaken Dark Stalker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3808;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (380801, 3808, 0, 2, 0, 100, 0, 15, 0, 0, 0, 380801, 0, 0, 'Forsaken Dark Stalker - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (380802, 3808, 0, 1, 0, 100, 0, 0, 0, 0, 0, 380802, 0, 0, 'Forsaken Dark Stalker - Cast Stealth on Spawn');
+
+        -- Events list for Aligar the Tormentor
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3898;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (389801, 3898, 0, 11, 0, 100, 0, 0, 0, 0, 0, 389801, 0, 0, 'Aligar the Tormentor - Cast Battle Stance on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (389802, 3898, 0, 9, 0, 100, 1, 0, 5, 8000, 12000, 389802, 0, 0, 'Aligar the Tormentor - Cast Strike');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (389803, 3898, 0, 9, 0, 100, 1, 0, 5, 12000, 15000, 389803, 0, 0, 'Aligar the Tormentor - Cast Hamstring');
+
+        -- Aligar the Tormentor - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=389802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (389802, 0, 0, 15, 285, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Aligar the Tormentor - Cast Spell Strike');
+
+        -- Aligar the Tormentor - Cast Spell Hamstring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=389803;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (389803, 0, 0, 15, 7372, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Aligar the Tormentor - Cast Spell Hamstring');
+
+        -- Balizar the Umbrage - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=389901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (389901, 0, 0, 15, 688, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Balizar the Umbrage - Cast Spell Summon Imp');
+
+        -- Events list for Thistlefur Ursa
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=3921;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (392101, 3921, 0, 1, 0, 100, 0, 1000, 1000, 0, 0, 392101, 0, 0, 'Thistlefur Ursa - Cast Coat of Thistlefur on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (392102, 3921, 0, 1, 0, 100, 0, 3000, 3000, 0, 0, 392102, 0, 0, 'Thistlefur Ursa - Cast Battle Stance on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (392103, 3921, 0, 9, 0, 100, 1, 0, 5, 23900, 38400, 392103, 0, 0, 'Thistlefur Ursa - Cast Strike');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (392104, 3921, 0, 2, 0, 100, 0, 15, 0, 0, 0, 392104, 0, 0, 'Thistlefur Ursa - Flee at 15% HP');
+
+        -- Thistlefur Ursa - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=392103;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (392103, 0, 0, 15, 285, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Thistlefur Ursa - Cast Spell Strike');
+
+        -- Ruuzel - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=394302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (394302, 0, 0, 15, 285, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ruuzel - Cast Spell Strike');
+
+        -- Raging Cliff Stormer - Cast Spell Thunderclap
+        DELETE FROM `creature_ai_scripts` WHERE `id`=400902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (400902, 0, 0, 15, 6343, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Cliff Stormer - Cast Spell Thunderclap');
+
+        -- Wily Fey Dragon - Cast Spell Mana Burn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=401701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (401701, 0, 0, 15, 2691, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wily Fey Dragon - Cast Spell Mana Burn');
+
+        -- Events list for Sap Beast
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4020;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (402001, 4020, 0, 9, 0, 100, 1, 0, 5, 7000, 16000, 402001, 0, 0, 'Sap Beast - Cast Plague Cloud');
+
+        -- Sap Beast - Cast Spell Plague Cloud
+        DELETE FROM `creature_ai_scripts` WHERE `id`=402001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (402001, 0, 0, 15, 3256, 32, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sap Beast - Cast Spell Plague Cloud');
+
+        -- Charred Ancient - Cast Spell Entangling Roots
+        DELETE FROM `creature_ai_scripts` WHERE `id`=402801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (402801, 0, 0, 15, 2920, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Charred Ancient - Cast Spell Entangling Roots');
+
+        -- Events list for Cenarion Caretaker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4050;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (405001, 4050, 0, 1, 0, 100, 1, 0, 0, 300000, 300000, 405001, 0, 0, 'Cenarion Caretaker - Cast Bear Form OOC');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (405002, 4050, 0, 4, 0, 100, 0, 0, 0, 0, 0, 405002, 0, 0, 'Cenarion Caretaker - Cast Thorns on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (405003, 4050, 0, 9, 0, 100, 1, 0, 5, 7000, 10000, 405003, 0, 0, 'Cenarion Caretaker - Cast Roar of Fortitude');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (405004, 4050, 0, 2, 0, 100, 0, 15, 0, 0, 0, 405004, 0, 0, 'Cenarion Caretaker - Remove Bear Form and Flee at 15% HP');
+
+        -- Cenarion Caretaker - Cast Spell Roar of Fortitude
+        DELETE FROM `creature_ai_scripts` WHERE `id`=405003;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (405003, 0, 0, 15, 4238, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cenarion Caretaker - Cast Spell Roar of Fortitude');
+
+        -- Events list for Dark Iron Bombardier
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4062;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (406201, 4062, 0, 9, 0, 100, 1, 5, 30, 6000, 9000, 406201, 0, 0, 'Dark Iron Bombardier - Cast Big Iron Bomb');
+
+        -- Dark Iron Bombardier - Cast Spell Big Iron Bomb
+        DELETE FROM `creature_ai_scripts` WHERE `id`=406201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (406201, 0, 0, 15, 4069, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Iron Bombardier - Cast Spell Big Iron Bomb');
+
+        -- Events list for Nal'taszar
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4066;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (406601, 4066, 0, 9, 0, 100, 1, 0, 30, 11000, 18000, 406601, 0, 0, 'Nal\'taszar - Cast Immolate');
+
+        -- Nal taszar - Cast Spell Immolate
+        DELETE FROM `creature_ai_scripts` WHERE `id`=406601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (406601, 0, 0, 15, 707, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Nal taszar - Cast Spell Immolate');
+
+        -- Gravelsnout Forager - Cast Spell Corrosive Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=411401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (411401, 0, 0, 15, 3396, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gravelsnout Forager - Cast Spell Corrosive Poison');
+
+        -- Events list for Venomous Cloud Serpent
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4118;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (411801, 4118, 0, 11, 0, 100, 0, 0, 0, 0, 0, 411801, 0, 0, 'Venomous Cloud Serpent - Cast Poison Proc on Spawn');
+
+        -- Venomous Cloud Serpent - Cast Spell Poison Proc
+        DELETE FROM `creature_ai_scripts` WHERE `id`=411801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (411801, 0, 0, 15, 3616, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venomous Cloud Serpent - Cast Spell Poison Proc');
+
+        -- Crag Stalker - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=412601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (412601, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Crag Stalker - Cast Spell Stealth');
+
+        -- Crag Stalker - Cast Spell Surprise Attack
+        DELETE FROM `creature_ai_scripts` WHERE `id`=412602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (412602, 0, 0, 15, 6800, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Crag Stalker - Cast Spell Surprise Attack');
+
+        -- Scarlet Preserver - Cast Spell Holy Light
+        DELETE FROM `creature_ai_scripts` WHERE `id`=428002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (428002, 0, 0, 15, 1026, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Preserver - Cast Spell Holy Light');
+
+        -- Scarlet Gallant - Cast Spell Crusader Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=428702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (428702, 0, 0, 15, 2537, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Gallant - Cast Spell Crusader Strike');
+
+        -- Scarlet Protector - Cast Spell Holy Light
+        DELETE FROM `creature_ai_scripts` WHERE `id`=429203;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (429203, 0, 0, 15, 1026, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Protector - Cast Spell Holy Light');
+
+        -- Scarlet Chaplain - Cast Spell Renew
+        DELETE FROM `creature_ai_scripts` WHERE `id`=429905;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (429905, 0, 0, 15, 6078, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Chaplain - Cast Spell Renew');
+
+        -- Events list for Scarlet Wizard
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4300;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (430002, 4300, 0, 9, 0, 100, 1, 0, 8, 3600, 12100, 430002, 0, 0, 'Scarlet Wizard - Cast Arcane Missiles');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (430003, 4300, 0, 2, 0, 100, 0, 15, 0, 0, 0, 430003, 0, 0, 'Scarlet Wizard - Flee at 15% HP');
+
+        -- Scarlet Wizard - Cast Spell Arcane Missiles
+        DELETE FROM `creature_ai_scripts` WHERE `id`=430002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (430002, 0, 0, 15, 5144, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Wizard - Cast Spell Arcane Missiles');
+
+        -- Scarlet Abbot - Cast Spell Renew
+        DELETE FROM `creature_ai_scripts` WHERE `id`=430305;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (430305, 0, 0, 15, 6078, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Abbot - Cast Spell Renew');
+
+        -- Scarlet Torturer - Cast Spell Immolate
+        DELETE FROM `creature_ai_scripts` WHERE `id`=430601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (430601, 0, 0, 15, 707, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Torturer - Cast Spell Immolate');
+
+        -- Searing Whelp - Cast Spell Flame Blast
+        DELETE FROM `creature_ai_scripts` WHERE `id`=432401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (432401, 0, 0, 15, 7101, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Searing Whelp - Cast Spell Flame Blast');
+
+        -- Events list for Firemane Scalebane
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4328;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (432801, 4328, 0, 4, 0, 100, 0, 0, 0, 0, 0, 432801, 0, 0, 'Firemane Scalebane - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (432802, 4328, 0, 0, 0, 100, 1, 1000, 1000, 600000, 600000, 432802, 0, 0, 'Firemane Scalebane - Cast Fire Shield on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (432803, 4328, 0, 9, 5, 100, 1, 0, 5, 5000, 9000, 432803, 0, 0, 'Firemane Scalebane - Cast Sundering Strike(Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (432804, 4328, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 432804, 0, 0, 'Firemane Scalebane - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (432805, 4328, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 432805, 0, 0, 'Firemane Scalebane - Set Phase 1 on Target Missing Sunder Armor Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (432807, 4328, 0, 27, 0, 100, 1, 18968, 1, 15000, 30000, 432807, 0, 0, 'Firemane Scalebane - Cast Fire Shield on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (432808, 4328, 0, 7, 0, 100, 0, 0, 0, 0, 0, 432808, 0, 0, 'Firemane Scalebane - Set Phase to 0 on Evade');
+
+        -- Firemane Scalebane - Cast Spell Fire Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=432802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (432802, 0, 0, 15, 184, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Firemane Scalebane - Cast Spell Fire Shield');
+
+        -- Firemane Scalebane - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=432803;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (432803, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Firemane Scalebane - Cast Spell Sundering Strike');
+
+        -- Firemane Scalebane - Cast Spell Fire Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=432807;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (432807, 0, 0, 15, 184, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Firemane Scalebane - Cast Spell Fire Shield');
+
+        -- Events list for Firemane Scout
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4329;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (432902, 4329, 0, 27, 0, 100, 1, 184, 1, 15000, 30000, 432902, 0, 0, 'Firemane Scout - Cast Fire Shield on Missing Buff');
+
+        -- Events list for Firemane Ash Tail
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4331;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (433102, 4331, 0, 9, 0, 100, 1, 0, 8, 12000, 16000, 433102, 0, 0, 'Firemane Ash Tail - Cast Fire Nova');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (433103, 4331, 0, 27, 0, 100, 1, 184, 1, 15000, 30000, 433103, 0, 0, 'Firemane Ash Tail - Cast Fire Shield on Missing Buff');
+
+        -- Firemane Scout - Cast Fire Shield on Missing Buff
+        DELETE FROM `creature_ai_scripts` WHERE `id`=432902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (432902, 0, 0, 15, 184, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Firemane Scout - Cast Spell Fire Shield');
+
+        -- Drywallow Snapper - Cast Spell Infected Bite
+        DELETE FROM `creature_ai_scripts` WHERE `id`=434301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (434301, 0, 0, 15, 7367, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Drywallow Snapper - Cast Spell Infected Bite');
+
+        -- Strashaz Warrior - Cast Spell Hamstring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=436401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (436401, 0, 0, 15, 7373, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Strashaz Warrior - Cast Spell Hamstring');
+
+        -- Strashaz Serpent Guard - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=436601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (436601, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Strashaz Serpent Guard - Cast Spell Strike');
+
+        -- Strashaz Myrmidon - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=436801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (436801, 0, 0, 15, 7371, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Strashaz Myrmidon - Cast Spell Cleave');
+
+        -- Strashaz Sorceress - Cast Spell Frost Nova
+        DELETE FROM `creature_ai_scripts` WHERE `id`=437001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (437001, 0, 0, 15, 6131, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Strashaz Sorceress - Cast Spell Frost Nova');
+
+        -- Strashaz Hydra - Cast Spell Infected Bite
+        DELETE FROM `creature_ai_scripts` WHERE `id`=437402;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (437402, 0, 0, 15, 7367, 32, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Strashaz Hydra - Cast Spell Infected Bite');
+
+        -- Events list for Corrosive Swamp Ooze
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4392;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (439201, 4392, 0, 9, 0, 100, 1, 0, 5, 5000, 11000, 439201, 0, 0, 'Corrosive Swamp Ooze - Cast Corrosive Poison');
+
+        -- Corrosive Swamp Ooze - Cast Spell Corrosive Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=439201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (439201, 0, 0, 15, 3396, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Corrosive Swamp Ooze - Cast Spell Corrosive Poison');
+
+        -- Events list for Darkfang Creeper
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4412;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (441201, 4412, 0, 9, 0, 100, 1, 0, 30, 10000, 13000, 441201, 0, 0, 'Darkfang Creeper - Cast Spell Diseased Slime');
+
+        -- Darkfang Creeper - Cast Spell Diseased Slime
+        DELETE FROM `creature_ai_scripts` WHERE `id`=441201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (441201, 0, 0, 15, 6907, 32, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Darkfang Creeper - Cast Spell Duseased Slime');
+
+        -- Overlord Ramtusk - Cast Spell Thunderclap
+        DELETE FROM `creature_ai_scripts` WHERE `id`=442004;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (442004, 0, 0, 15, 6343, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Overlord Ramtusk - Cast Spell Thunderclap');
+
+        -- Events list for Aggem Thorncurse
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4424;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (442403, 4424, 0, 2, 0, 100, 1, 75, 0, 13000, 18000, 442403, 0, 0, 'Aggem Thorncurse - Cast Healing Ward at 75% HP');
+
+        -- Aggem Thorncurse - Cast Spell Healing Ward
+        DELETE FROM `creature_ai_scripts` WHERE `id`=442403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (442403, 0, 0, 15, 6274, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Aggem Thorncurse - Cast Spell Healing Ward');
+
+        -- Razorfen Quilguard - Cast Spell Thunderclap
+        DELETE FROM `creature_ai_scripts` WHERE `id`=443603;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (443603, 0, 0, 15, 6343, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razorfen Quilguard - Cast Spell Thunderclap');
+
+        -- Events list for Razorfen Totemic
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4440;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (444001, 4440, 0, 9, 0, 100, 1, 0, 10, 30000, 35000, 444001, 0, 0, 'Razorfen Totemic - Cast Ensnaring Totem');
+
+        -- Razorfen Totemic - Cast Spell Ensnaring Totem
+        DELETE FROM `creature_ai_scripts` WHERE `id`=444001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (444001, 0, 0, 15, 2076, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razorfen Totemic - Cast Spell Ensnaring Totem');
+
+        -- Razorfen Defender - Cast Spell Shield Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=444202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (444202, 0, 0, 15, 1671, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razorfen Defender - Cast Spell Shield Bash');
+
+        -- Blackrock Summoner - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=446302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (446302, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Summoner - Cast Spell Summon Imp');
+
+        -- Vilebranch Warrior - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=446501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (446501, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vilebranch Warrior - Cast Spell Strike');
+
+        -- Events list for Emerald Ooze
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4469;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (446901, 4469, 0, 9, 0, 100, 1, 0, 30, 12000, 19000, 446901, 0, 0, 'Emerald Ooze - Cast Corrosive Poison');
+
+        -- Emerald Ooze - Cast Spell Corrosive Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=446901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (446901, 0, 0, 15, 3396, 32, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Emerald Ooze - Cast Spell Corrosive Poison');
+
+        -- Events list for Rotting Cadaver
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4474;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (447402, 4474, 0, 4, 0, 100, 0, 0, 0, 0, 0, 447402, 0, 0, 'Rotting Cadaver - Cast Corrupted Stamina Passive on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (447403, 4474, 0, 6, 0, 100, 0, 0, 0, 0, 0, 447403, 0, 0, 'Rotting Cadaver - Cast Spell Summon Rotted One Worms on Death');
+
+        -- Rotting Cadaver - Cast Spell Summon Rotted One Worms
+        DELETE FROM `creature_ai_scripts` WHERE `id`=447403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (447403, 0, 0, 15, 3428, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rotting Cadaver - Cast Spell Summon Rotted One Worms');
+
+        -- Scarlet Spellbinder - Cast Spell Frost Nova
+        DELETE FROM `creature_ai_scripts` WHERE `id`=449401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (449401, 0, 0, 15, 6131, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Spellbinder - Cast Spell Frost Nova');
+
+        insert into applied_updates values ('070720241');
+    end if;
 end $
 delimiter ;

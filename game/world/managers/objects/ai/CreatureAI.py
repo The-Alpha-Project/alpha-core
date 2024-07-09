@@ -160,7 +160,6 @@ class CreatureAI:
 
         # Run on-spawn AI scripts.
         self.ai_event_handler.on_spawn()
-        self.ai_event_handler.on_idle()
 
     # Called when a creature is despawned by natural means (TTL).
     def just_despawned(self):

@@ -1,9 +1,9 @@
-from random import choice
+from random import choice, uniform
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from utils.constants.ScriptCodes import EventFlags
 
 
-class ScriptCreatureAIEvent:
+class ScriptAIEvent:
     def __init__(self, event, source):
         self.id = event.id
         self.source = source
@@ -22,3 +22,15 @@ class ScriptCreatureAIEvent:
             return [choice(self._scripts)]
         else:
             return list(self._scripts)
+
+    def can_repeat(self):
+        return self.event_flags & EventFlags.REPEATABLE and self.get_repeat_seconds()
+
+    def get_repeat_seconds(self):
+        return uniform(self.min_repeat, self.max_repeat)
+
+    def get_delay_seconds(self):
+        return uniform(self.min_delay, self.max_delay)
+
+    def get_event_info(self):
+        return f'Event id: {self.id}, Comment: {self.comment}'

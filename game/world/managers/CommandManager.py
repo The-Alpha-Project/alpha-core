@@ -682,6 +682,7 @@ class CommandManager(object):
         except:
             return -1, 'please specify a valid weapon mode.'
 
+    # TODO, implement event/script forcing.
     @staticmethod
     def fevent(world_session, args):
         try:
@@ -698,8 +699,8 @@ class CommandManager(object):
             if event.creature_id != creature.entry:
                 return -1, 'invalid creature for provided event.'
 
-            creature.get_map().set_random_ooc_event(creature, event, forced=True)
-            return 0, f'Triggered event {event.comment}.'
+            # creature.get_map().set_random_ooc_event(creature, event, forced=True)
+            return -1, 'NYI.'
         except:
             return -1, 'invalid event id.'
 
