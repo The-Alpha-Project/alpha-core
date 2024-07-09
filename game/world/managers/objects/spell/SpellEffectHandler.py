@@ -404,6 +404,15 @@ class SpellEffectHandler:
             Logger.error(f'Unable to resolve target, go entry {object_entry}, spell {casting_spell.spell_entry.ID}.')
             return
 
+        map_ = caster.get_map()
+        # TODO: Not sure if this check should be done here, an example of this: A creature spawning a camp fire
+        #  behind a wall or inside another object with collision. @Fluglow
+        if isinstance(target, Vector) and not map_.los_check(caster.location, target):
+            Logger.error(f'Unable to resolve line of sight to vector target, go entry {object_entry},'
+                         f' spell {casting_spell.spell_entry.ID},'
+                         f' caster {caster.get_name()}, spawn_id {caster.spawn_id}')
+            return
+
         duration = casting_spell.get_duration()
         # If no duration, default to 2 minutes.
         duration = 120 if duration == 0 else (duration / 1000)
@@ -413,7 +422,7 @@ class SpellEffectHandler:
                                               summoner=caster,
                                               spell_id=casting_spell.spell_entry.ID,
                                               faction=faction, ttl=duration)
-        caster.get_map().spawn_object(world_object_instance=gameobject)
+        map_.spawn_object(world_object_instance=gameobject)
 
     @staticmethod
     def handle_summon_possessed(casting_spell, effect, caster, target):

@@ -1019,7 +1019,7 @@ class CreatureAIEventTypes(IntEnum):
     #     EVENT_T_GROUP_MEMBER_DIED       = 32,                   // Param1 = CreatureId, Param2 = IsLeader
     #     EVENT_T_VICTIM_ROOTED           = 33,                   // RepeatMin, RepeatMax
 
-    AI_EVENT_TYPE_TIMER_COMBAT = 0
+    AI_EVENT_TYPE_TIMER_IN_COMBAT = 0
     AI_EVENT_TYPE_OUT_OF_COMBAT = 1
     AI_EVENT_TYPE_HP = 2
     AI_EVENT_TYPE_MANA = 3
