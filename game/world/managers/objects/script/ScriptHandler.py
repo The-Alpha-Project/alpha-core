@@ -844,6 +844,7 @@ class ScriptHandler:
             return command.should_abort()
 
         run_enabled = command.datalong == 1
+        Logger.script(f"{command.source.get_name()} is now {'Running' if run_enabled else 'Walking'}.")
         if run_enabled:
             command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=False)
         else:

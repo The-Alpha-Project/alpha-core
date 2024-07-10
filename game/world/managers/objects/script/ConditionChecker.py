@@ -387,17 +387,14 @@ class ConditionChecker:
         if not ConditionChecker.is_creature(source) or not ConditionChecker.is_player(target):
             return True
 
-        if condition.value1 & EscortConditionFlags.CF_ESCORT_SOURCE_DEAD:
-            if not source.is_alive:
-                return True
+        if condition.value1 & EscortConditionFlags.CF_ESCORT_SOURCE_DEAD and not source.is_alive:
+            return True
 
-        if condition.value1 & EscortConditionFlags.CF_ESCORT_TARGET_DEAD:
-            if not target.is_alive or not target.online:
-                return True
+        if condition.value1 & EscortConditionFlags.CF_ESCORT_TARGET_DEAD and not target.is_alive or not target.online:
+            return True
 
-        if condition.value2:
-            if not source.location.distance(target.location) <= condition.value2:
-                return True
+        if condition.value2 and source.location.distance(target.location) >= condition.value2:
+            return True
 
         return False
 
