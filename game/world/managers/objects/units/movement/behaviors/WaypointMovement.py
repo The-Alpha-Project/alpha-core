@@ -26,9 +26,6 @@ class WaypointMovement(BaseMovement):
     def initialize(self, unit):
         super().initialize(unit)
 
-        # Use either walk or run speed by default.
-        self.unit.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not self.unit.should_always_run_ooc())
-
         # Triggered from scripts.
         if self.command_move_info:
             return self._initialize_from_script(unit)

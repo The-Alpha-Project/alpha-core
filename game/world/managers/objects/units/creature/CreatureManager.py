@@ -281,6 +281,7 @@ class CreatureManager(UnitManager):
         self.apply_default_auras()
 
         # Movement.
+        self.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not self.should_always_run_ooc())
         self.movement_manager.initialize_or_reset()
 
         self.fully_loaded = True
