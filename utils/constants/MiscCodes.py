@@ -982,6 +982,12 @@ class MotionTypes(IntEnum):
     DISTANCING_MOTION_TYPE = 18
 
 
+class UnitInLosReaction(IntEnum):
+    ULR_ANY = 0,
+    ULR_HOSTILE = 1,
+    ULR_NON_HOSTILE = 2
+
+
 class CreatureAIEventTypes(IntEnum):
     # TODO: (Taken as-is from VMaNGOS) Finish moving all of these to our naming.
     #     EVENT_T_TIMER                   = 0,                    // InitialMin, InitialMax, RepeatMin, RepeatMax
@@ -1029,6 +1035,7 @@ class CreatureAIEventTypes(IntEnum):
     AI_EVENT_TYPE_ON_EVADE = 7
     AI_EVENT_TYPE_SPELL_HIT = 8
     AI_EVENT_TYPE_RANGE = 9
+    AI_EVENT_TYPE_OOC_LOS = 10
     AI_EVENT_TYPE_ON_SPAWN = 11
     AI_EVENT_TYPE_TARGET_HP = 12
     AI_EVENT_TYPE_TARGET_CASTING = 13

@@ -155,6 +155,16 @@ class CommandManager(object):
             return -1, 'invalid unit selection.'
 
     @staticmethod
+    def distance_unit(world_session, args):
+        try:
+            unit = CommandManager._target_or_self(world_session)
+            if unit == world_session.player_mgr:
+                return -1, f'invalid unit selection.'
+            return 0, f'{round(world_session.player_mgr.location.distance(unit.location),3)}'
+        except ValueError:
+            return -1, 'please use the "x y z" format.'
+
+    @staticmethod
     def move_unit(world_session, args):
         try:
             unit = CommandManager._target_or_self(world_session)
@@ -1033,6 +1043,7 @@ GM_COMMAND_DEFINITIONS = {
     'stel': [CommandManager.stel, 'search for a location where you can teleport'],
     'telunit': [CommandManager.tel_unit, 'teleport a unit to a given location in the same map'],
     'moveunit': [CommandManager.move_unit, 'command a unit to move to a given location'],
+    'distunit': [CommandManager.distance_unit, 'get the distance between you and target unit'],
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],

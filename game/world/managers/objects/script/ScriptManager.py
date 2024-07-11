@@ -51,7 +51,7 @@ class ScriptManager:
 
     @staticmethod
     def resolve_owner(caster, target=None, param1=None, param2=None, spell_template=None):
-        return caster.get_charmer_or_summoner()
+        return caster.get_charmer_or_summoner(include_self=True)
 
     @staticmethod
     def resolve_nearest_creature_with_entry(caster, target=None, param1=None, param2=None, spell_template=None):

@@ -7,7 +7,7 @@ from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.ScriptAIEvent import ScriptAIEvent
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptManager import ScriptManager
-from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes
+from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes, UnitInLosReaction
 from utils.constants.ScriptCodes import EventFlags
 from utils.constants.UnitCodes import PowerTypes
 
@@ -82,6 +82,29 @@ class AIEventHandler:
             if not self._validate_event(event, target=target):
                 continue
             self._enqueue_creature_ai_event(map_, event, target=target)
+
+    def on_ooc_los(self, source=None):
+        target = self.creature.combat_target
+        if target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OOC_LOS)
+        map_ = self.creature.get_map()
+        target = source if source else self.creature
+        for event in events:
+            if not self._validate_event(event, target=target):
+                continue
+
+            reaction = event.event_param1
+            radius = event.event_param2
+
+            if self.creature.location.distance(source.location) > radius:
+                continue
+
+            if (reaction == UnitInLosReaction.ULR_ANY
+                    or (reaction == UnitInLosReaction.ULR_NON_HOSTILE and not self.creature.is_hostile_to(source))
+                    or (reaction == UnitInLosReaction.ULR_HOSTILE and self.creature.is_hostile_to(source))):
+                self._enqueue_creature_ai_event(map_, event, target=target)
 
     def on_spell_hit(self, casting_spell, source=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SPELL_HIT)

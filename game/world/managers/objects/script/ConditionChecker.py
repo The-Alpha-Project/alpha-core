@@ -319,8 +319,10 @@ class ConditionChecker:
             return False
 
         creatures = target.get_map().get_surrounding_units_by_location(target.location, target.map_id,
-                                                                       target.instance_id, condition.value2)
-        for creature in creatures[0].values():
+                                                                       target.instance_id, condition.value2,
+                                                                       include_players=False)[0].values()
+
+        for creature in creatures:
             if creature.creature_template.entry != condition.value1:
                 continue
             if condition.value3 and creature.is_alive:
@@ -773,8 +775,7 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target):
             return False
         radius = condition.value2
-        units = target.get_map().get_surrounding_players(target)
-        for player in units:
+        for guid, player in list(target.get_map().get_surrounding_players(target).items()):
             if condition.value1 == 0 and player.location.distance(target.location) <= radius:
                 return True
             elif condition.value1 == 1 and player.is_hostile_to(target) and \
@@ -843,7 +844,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_worldobject(_source, target):
-        return target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+        return target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT
 
     @staticmethod
     def check_target_source_creature(source, _target):
