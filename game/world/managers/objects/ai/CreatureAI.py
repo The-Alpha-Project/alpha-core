@@ -426,6 +426,8 @@ class CreatureAI:
 
     # Called when a unit moves within visibility distance.
     def move_in_line_of_sight(self, unit, ai_event=False):
+        if not ai_event:
+            return
         self.ai_event_handler.on_ooc_los(source=unit)
 
     # Called when a player interacts with this creature.
