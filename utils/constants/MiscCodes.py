@@ -983,8 +983,8 @@ class MotionTypes(IntEnum):
 
 
 class UnitInLosReaction(IntEnum):
-    ULR_ANY = 0,
-    ULR_HOSTILE = 1,
+    ULR_ANY = 0
+    ULR_HOSTILE = 1
     ULR_NON_HOSTILE = 2
 
 

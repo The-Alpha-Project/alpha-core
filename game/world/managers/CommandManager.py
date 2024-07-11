@@ -151,7 +151,7 @@ class CommandManager(object):
                 return -1, f'invalid unit selection.'
             unit.movement_manager.move_automatic_waypoints_from_script()
             return 0, ''
-        except:
+        except ValueError:
             return -1, 'invalid unit selection.'
 
     @staticmethod
@@ -160,7 +160,7 @@ class CommandManager(object):
             unit = CommandManager._target_or_self(world_session)
             if unit == world_session.player_mgr:
                 return -1, f'invalid unit selection.'
-            return 0, f'{round(world_session.player_mgr.location.distance(unit.location),3)}'
+            return 0, f'{round(world_session.player_mgr.location.distance(unit.location), 3)}'
         except ValueError:
             return -1, 'invalid unit selection.'
 

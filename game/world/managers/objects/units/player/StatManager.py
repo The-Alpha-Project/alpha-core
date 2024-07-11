@@ -616,12 +616,14 @@ class StatManager(object):
             new_hp -= int(self.get_health_bonus_from_stamina(self.unit_mgr.class_,
                                                              self.get_base_stat(UnitStats.STAMINA)))
 
+        # Prevent negative health.
+        new_hp = max(1, new_hp)
+        # Calculate health difference.
         hp_diff = new_hp - current_total_hp
-        if new_hp > 0:
-            # Update current health if the new total value is lower and health is currently greater than the new total.
-            if current_hp > new_hp < current_total_hp:
-                self.unit_mgr.set_health(new_hp)
-            self.unit_mgr.set_max_health(new_hp)
+        # Update current health if the new total value is lower and health is currently greater than the new total.
+        if current_hp > new_hp < current_total_hp:
+            self.unit_mgr.set_health(new_hp)
+        self.unit_mgr.set_max_health(new_hp)
 
         return max(0, hp_diff)
 
