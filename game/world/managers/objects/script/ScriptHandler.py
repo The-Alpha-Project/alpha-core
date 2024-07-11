@@ -474,7 +474,8 @@ class ScriptHandler:
 
         if command.datalong3:
             units = map_.get_surrounding_units_by_location(command.source.location, command.source.map_id,
-                                                           command.source.instance_id, command.datalong4)
+                                                           command.source.instance_id, command.datalong4,
+                                                           include_players=False)[0].values()
             summoned = [unit for unit in units if unit.creature_template.entry == command.datalong]
             if summoned and len(summoned) >= command.datalong3:
                 return command.should_abort()
@@ -493,7 +494,7 @@ class ScriptHandler:
         if command.dataint2:
             map_.enqueue_script(source=creature_manager, target=None, script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
                                 script_id=command.dataint2)
-        # Attack target.
+        # Attack target type.
         if command.dataint3 <= 0:  # Can be -1.
             return command.should_abort()
 
