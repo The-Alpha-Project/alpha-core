@@ -16,7 +16,7 @@ class InitiateTradeHandler(object):
                 trade_status = None
                 if not trade_player or not trade_player.is_alive:
                     trade_status = TradeStatus.TRADE_STATUS_PLAYER_NOT_FOUND
-                if trade_player.friends_manager.has_ignore(player.guid):
+                elif trade_player.friends_manager.has_ignore(player.guid):
                     trade_status = TradeStatus.TRADE_STATUS_PLAYER_IGNORED
                 elif not player.is_alive:
                     trade_status = TradeStatus.TRADE_STATUS_DEAD
