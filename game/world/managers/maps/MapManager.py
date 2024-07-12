@@ -442,6 +442,11 @@ class MapManager:
                 if not z_locked:
                     return nav_z, False
 
+            # Check if we have .map data for this request.
+            tile = MAPS_TILES[map_id][adt_x][adt_y]
+            if not tile or not tile.has_maps:
+                return current_z, True
+
             try:
                 calculated_z = MapManager.get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x, cell_y)
                 # Tolerance.
