@@ -1818,8 +1818,13 @@ class UnitManager(ObjectManager):
         for unit in surrounding_units:
             # Handle ooc los event first, which will do its own checks.
             los_check = map_.los_check(unit.get_ray_position(), self.get_ray_position())
-            if self_is_player and los_check:
-                unit.object_ai.move_in_line_of_sight(unit=self, ai_event=True)
+            if los_check:
+                # Player notifies creature.
+                if self_is_player and unit.object_ai:
+                    unit.object_ai.move_in_line_of_sight(unit=self, ai_event=True)
+                # Self notifies player/creature presence.
+                elif not self_is_player and self.object_ai:
+                    self.object_ai.move_in_line_of_sight(unit=unit, ai_event=True)
 
             distance = unit.location.distance(self.location)
             unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
