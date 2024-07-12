@@ -61,7 +61,7 @@ class WanderingMovement(BaseMovement):
 
     def _get_wandering_point(self):
         start_point = self.wander_home_position
-        random_point = start_point.get_random_point_in_radius(self.wandering_distance, map_id=self.unit.map_id)
+        random_point = start_point.find_random_point_around_circle(self.unit, self.wandering_distance)
         map_ = self.unit.get_map()
         # Check line of sight.
         if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True)):

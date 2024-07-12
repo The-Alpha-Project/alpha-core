@@ -74,15 +74,27 @@ class MapTile(object):
     def load_namigator_data(self, namigator):
         if not config.Server.Settings.use_nav_tiles or not namigator:
             return False
+
+        if not self.map_.is_dungeon() and namigator.has_adts():
+            return self._load_namigator_adt(namigator)
+        else:
+            return self._load_namigator_wmo_map(namigator)
+
+    def _load_namigator_adt(self, namigator):
         try:
             Logger.debug(f'[Namigator] Loading nav ADT, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}')
             # Notice, namigator has inverted coordinates.
             namigator.load_adt(self.adt_y, self.adt_x)
             self.has_navigation = True
             return True
-        except:
+        except RuntimeError:
             Logger.error(traceback.format_exc())
-            return False
+        return False
+
+    def _load_namigator_wmo_map(self, namigator):
+        Logger.debug(f'[Namigator] Loading nav WMO, Map:{self.map_id} Tile:{self.adt_x},{self.adt_y}')
+        self.has_navigation = True
+        return True
 
     def load_maps_data(self):
         if not config.Server.Settings.use_map_tiles:

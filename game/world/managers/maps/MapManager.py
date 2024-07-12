@@ -27,7 +27,8 @@ MAPS_TILES = dict()
 # Holds namigator instances per Map.
 MAPS_NAMIGATOR: dict[int, Namigator] = dict()
 # Holds maps which have no navigation data in alpha.
-MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90, 109, 129}
+# UnderMine, test, ScottTest, Test, PVPZone1/2, Collin, SunkenTemple.
+MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 37, 42, 109}
 
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
@@ -310,6 +311,33 @@ class MapManager:
 
         failed, in_place, _ = MapManager.calculate_path(src_object.map_id, src_object.location, dst_object.location)
         return not failed
+
+    @staticmethod
+    def find_point_in_between_vectors(map_id, offset, start_location, end_location):
+        # If nav tiles disabled or unable to load Namigator, return None..
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+            return None
+
+        # We don't have navs loaded for a given map, return None..
+        namigator = MAPS_NAMIGATOR.get(map_id, None)
+        if not namigator:
+            return None
+
+        return namigator.find_point_in_between_vectors(offset, start_location.x, start_location.y, start_location.z,
+                                                       end_location.x, end_location.y, end_location.z)
+
+    @staticmethod
+    def find_random_point_around_circle(map_id, location, radius):
+        # If nav tiles disabled or unable to load Namigator, return None..
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+            return None
+
+        # We don't have navs loaded for a given map, return None..
+        namigator = MAPS_NAMIGATOR.get(map_id, None)
+        if not namigator:
+            return None
+
+        return namigator.find_random_point_around_circle(location.x, location.y, location.z, radius)
 
     @staticmethod
     def calculate_path(map_id, src_loc, dst_loc, los=False) -> tuple:  # bool failed, in_place, path list.

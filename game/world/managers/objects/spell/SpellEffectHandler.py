@@ -559,7 +559,7 @@ class SpellEffectHandler:
         # It wasn't until Patch 0.6 that Charge speeded you along a path towards the target, it just teleported you
         # next to the target (there's also video evidence of this behavior).
         distance = caster.location.distance(target.location) - UnitFormulas.combat_distance(leaper, leap_target)
-        charge_location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_id)
+        charge_location = caster.location.get_point_in_between(caster, distance, target.location, map_id=caster.map_id)
         charge_location.face_point(target.location)
 
         # Always increase Z when not using namigator to protect players from falling off world.
@@ -641,13 +641,13 @@ class SpellEffectHandler:
                     py = target.y
                     pz = target.z
                 else:
-                    location = caster.location.get_random_point_in_radius(radius, caster.map_id)
+                    location = caster.location.find_random_point_around_circle(caster, radius)
                     px = location.x
                     py = location.Y
                     pz = location.z
             else:
                 if radius > 0.0:
-                    location = caster.location.get_random_point_in_radius(radius, caster.map_id)
+                    location = caster.location.find_random_point_around_circle(caster, radius)
                     px = location.x
                     py = location.Y
                     pz = location.z

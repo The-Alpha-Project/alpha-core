@@ -96,7 +96,7 @@ class Spline(object):
             return pending_waypoint.location
         guessed_distance = self.speed * elapsed
         # This can return None.
-        return self.unit.location.get_point_in_between(guessed_distance, pending_waypoint.location,
+        return self.unit.location.get_point_in_between(self.unit, guessed_distance, pending_waypoint.location,
                                                        map_id=self.unit.map_id)
 
     # noinspection PyMethodMayBeStatic

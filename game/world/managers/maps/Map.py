@@ -129,6 +129,12 @@ class Map:
     def calculate_path(self, start_vector, end_vector, los=False) -> tuple:  # bool failed, in_place, path list.
         return self.map_manager.calculate_path(self.map_id, start_vector, end_vector, los=los)
 
+    def find_point_in_between_vectors(self, offset, start_location, end_location):
+        return self.map_manager.find_point_in_between_vectors(self.map_id, offset, start_location, end_location)
+
+    def find_random_point_around_circle(self, location, radius):
+        return self.map_manager.find_random_point_around_circle(self.map_id, location, radius)
+
     def calculate_z_for_object(self, world_object):
         return self.map_manager.calculate_z_for_object(world_object)
 

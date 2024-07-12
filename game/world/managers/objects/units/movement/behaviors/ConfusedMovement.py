@@ -78,16 +78,8 @@ class ConfusedMovement(BaseMovement):
 
     def _get_confused_move_point(self):
         start_point = self.home_position
-        random_point = start_point.get_random_point_in_radius(self.confused_distance, map_id=self.unit.map_id)
+        random_point = start_point.find_random_point_around_circle(self.unit, self.confused_distance)
         map_ = self.unit.get_map()
-        # Check line of sight.
-        if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True)):
-            return False, start_point
-
-        # Validate a path to the random point.
-        failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
-        if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
-            return False, start_point
 
         # Ignore point if 'slope' above 2.5.
         diff = math.fabs(random_point.z - self.unit.location.z)
