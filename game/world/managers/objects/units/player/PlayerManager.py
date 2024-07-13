@@ -631,6 +631,8 @@ class PlayerManager(UnitManager):
 
         # End duel and detach pets if this is a long-distance teleport.
         if not is_instant:
+            # Set sanctuary, this will take care of leaving combat, removing casts, etc.
+            self.set_sanctuary(True, time_secs=1)
             self.pet_manager.detach_active_pets()
             if self.duel_manager:
                 self.duel_manager.force_duel_end(self)
@@ -639,8 +641,9 @@ class PlayerManager(UnitManager):
         if self.movement_manager.unit_is_moving():
             self.movement_manager.reset()
 
-        # Set sanctuary, this will take care of leaving combat, removing casts, etc.
-        self.set_sanctuary(True, time_secs=1)
+        # Remove any ongoing cast.
+        if self.spell_manager.is_casting():
+            self.spell_manager.remove_casts(remove_active=False)
 
         pending_teleport = PendingTeleportDataHolder(recovery_percentage=recovery,
                                                      origin_location=self.location.copy(),
