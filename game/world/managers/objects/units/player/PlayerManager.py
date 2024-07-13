@@ -639,9 +639,8 @@ class PlayerManager(UnitManager):
         if self.movement_manager.unit_is_moving():
             self.movement_manager.reset()
 
-        # Remove any ongoing cast.
-        if self.spell_manager.is_casting():
-            self.spell_manager.remove_casts(remove_active=False)
+        # Set sanctuary, this will take care of leaving combat, removing casts, etc.
+        self.set_sanctuary(True, time_secs=1)
 
         pending_teleport = PendingTeleportDataHolder(recovery_percentage=recovery,
                                                      origin_location=self.location.copy(),
