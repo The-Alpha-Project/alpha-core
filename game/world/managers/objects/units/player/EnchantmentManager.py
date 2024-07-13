@@ -4,7 +4,8 @@ from typing import Tuple, Dict
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots, InventoryTypes
+from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots, InventoryTypes, \
+    ItemSpellTriggerType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
@@ -19,20 +20,24 @@ class EnchantmentManager(object):
         self.unit_mgr = unit_mgr
         self.duration_timer_seconds = 0
         # enchantment id: (item_slot, spell id, proc chance).
-        self._applied_proc_enchants: Dict[int, Tuple[int, int, int]] = {}
+        self._applied_proc_enchants: Dict[int, Tuple[int, int, float]] = {}
 
     # Load and apply enchantments from item_instance.
-    def load_enchantments_for_item(self, item, from_db=False):
+    def load_enchantments_for_item(self, item, from_db=False) -> bool:
         db_enchantments = item.item_instance.enchantments
         if db_enchantments:
             values = db_enchantments.rsplit(',')
+            has_enchantments = False
             for slot in range(MAX_ENCHANTMENTS):
                 entry = int(values[slot * 3 + 0])
                 if from_db and not entry:
                     continue
+                has_enchantments = True
                 duration = int(values[slot * 3 + 1])
                 charges = int(values[slot * 3 + 2])
                 self.set_item_enchantment(item, slot, entry, duration, charges)
+
+        return has_enchantments
 
     # TODO: Need to optimize item lookup or even move Enchantment updates to a new global thread.
     def update(self, elapsed, saving=False):
@@ -75,7 +80,8 @@ class EnchantmentManager(object):
                     continue
                 # Initialize enchantments from db state if needed.
                 if load:
-                    self.load_enchantments_for_item(item, from_db=True)
+                    if not self.load_enchantments_for_item(item, from_db=True):
+                        self._handle_equip_buffs(item)
                 else:
                     for enchantment_slot, enchantment in enumerate(item.enchantments):
                         self.set_item_enchantment(item, enchantment_slot, enchantment.entry, enchantment.duration,
@@ -202,8 +208,24 @@ class EnchantmentManager(object):
 
             self._applied_proc_enchants[enchantment.entry] = (item.current_slot, effect_spell_value, proc_chance)
 
+        for item_spell in item.spell_stats:
+            if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_CHANCE_ON_HIT:
+                continue
+
+            if remove:
+                self._applied_proc_enchants.pop(-item_spell.spell_id, None)
+                continue
+
+            # 1 PPM chance for chance on hit procs.
+            proc_chance = self.get_ppm_proc_chance(item.item_template.delay, 1)
+            self._applied_proc_enchants[-item_spell.spell_id] = (item.current_slot, item_spell.spell_id, proc_chance)
+
         # Update stats upon add or removal.
         self.unit_mgr.stat_manager.apply_bonuses()
+
+    @staticmethod
+    def get_ppm_proc_chance(weapon_speed: int, ppm: int):
+        return weapon_speed * (ppm / 600)
 
     @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):

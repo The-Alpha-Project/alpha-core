@@ -260,7 +260,7 @@ class SpellManager:
                 continue
 
             if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_EQUIP:
-                continue
+                continue  # Chance on hit effects are handled in EnchantmentManager.
 
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(item_spell.spell_id)
             if not spell:
