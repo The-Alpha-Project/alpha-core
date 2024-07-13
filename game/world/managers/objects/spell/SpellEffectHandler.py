@@ -33,8 +33,8 @@ class SpellEffectHandler:
     @staticmethod
     def apply_effect(casting_spell, effect, caster, target):
         if effect.effect_type not in SPELL_EFFECTS:
-            Logger.debug(f'Unimplemented spell effect called ({SpellEffects(effect.effect_type).name}: '
-                         f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
+            Logger.warning(f'Unimplemented spell effect called ({SpellEffects(effect.effect_type).name}: '
+                           f'{effect.effect_type}) from spell {casting_spell.spell_entry.ID}.')
             return
 
         from game.world.managers.objects.units.UnitManager import UnitManager

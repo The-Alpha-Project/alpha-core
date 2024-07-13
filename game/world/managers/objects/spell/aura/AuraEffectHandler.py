@@ -21,8 +21,8 @@ class AuraEffectHandler:
 
         aura_type = aura.spell_effect.aura_type
         if aura_type not in AURA_EFFECTS:
-            Logger.debug(f'Unimplemented aura effect called ({AuraTypes(aura.spell_effect.aura_type).name}: '
-                         f'{aura.spell_effect.aura_type}) from spell {aura.source_spell.spell_entry.ID}.')
+            Logger.warning(f'Unimplemented aura effect called ({AuraTypes(aura.spell_effect.aura_type).name}: '
+                           f'{aura.spell_effect.aura_type}) from spell {aura.source_spell.spell_entry.ID}.')
             return
 
         is_proc_effect = aura_type in PROC_AURA_EFFECTS

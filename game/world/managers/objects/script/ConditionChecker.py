@@ -5,6 +5,8 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
+MAX_3368_SPELL_ID = 7913
+
 
 class ConditionChecker:
     def __init__(self):
@@ -102,6 +104,9 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target):
             return False
         # TODO: Effect index.
+        if condition.value1 > MAX_3368_SPELL_ID:
+            Logger.error(f'ConditionChecker: Invalid spell id ({condition.value1}), '
+                         f'Condition entry {condition.condition_entry}')
         return target.aura_manager.has_aura_by_spell_id(condition.value1)
 
     @staticmethod

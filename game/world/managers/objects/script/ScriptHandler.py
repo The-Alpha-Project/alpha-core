@@ -27,6 +27,8 @@ from utils.Logger import Logger
 from utils.ConfigManager import config
 from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFields
 
+MAX_3368_SPELL_ID = 7913
+
 
 class ScriptHandler:
 
@@ -599,6 +601,7 @@ class ScriptHandler:
         # source = Unit
         # datalong = spell_id
         if command.source and command.source.aura_manager:
+            ScriptHandler._validate_spell_id(command)
             command.source.aura_manager.cancel_auras_by_spell_id(command.datalong)
             return False
 
@@ -618,6 +621,7 @@ class ScriptHandler:
 
         spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(command.datalong)
         if not spell_entry:
+            ScriptHandler._validate_spell_id(command)
             return command.should_abort()
 
         self_cast = not command.target or command.target == command.source
@@ -1236,7 +1240,7 @@ class ScriptHandler:
 
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(command.datalong)
         if not spell:
-            Logger.warning(f'ScriptHandler: Invalid spell Id, {command.get_info()}.')
+            ScriptHandler._validate_spell_id(command)
             return command.should_abort()
 
         command.source.spell_manager.set_on_cooldown(spell, command.datalong2 * 1000)
@@ -1250,6 +1254,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
             return command.should_abort()
 
+        ScriptHandler._validate_spell_id(command)
         command.source.spell_manager.unlock_spell_cooldown(command.datalong)
         return False
 
@@ -1499,10 +1504,7 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_command_add_aura(command):
-        # source = Unit
-        # datalong = spell_id
-        # datalong2 = flags
-        Logger.debug('ScriptHandler: handle_script_command_add_aura not implemented yet')
+        # Unused.
         return command.should_abort()
 
     @staticmethod
@@ -1669,6 +1671,11 @@ class ScriptHandler:
     @staticmethod
     def handle_script_type_creature_movement(script_id):
         return WorldDatabaseManager.CreatureMovementScriptHolder.creature_movement_scripts_get_by_id(script_id)
+
+    @staticmethod
+    def _validate_spell_id(command):
+        if command.datalong > MAX_3368_SPELL_ID:
+            Logger.error(f'ScriptHandler: Invalid spell id ({command.datalong}), {command.get_info()}')
 
 
 SCRIPT_TYPES = {
