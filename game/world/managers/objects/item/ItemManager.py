@@ -299,8 +299,8 @@ class ItemManager(ObjectManager):
                 spell_stat.trigger,
                 spell_stat.charges,
                 spell_stat.cooldown,
+                spell_stat.category,
                 spell_stat.category_cooldown,
-                0,
             ))
 
         description_bytes = PacketWriter.string_to_bytes(item_template.description)
