@@ -13,7 +13,7 @@ begin not atomic
 
         insert into applied_updates values ('120720241');
     end if;
-    
+
     -- 12/07/2024 2
     if (select count(*) from applied_updates where id='120720242') = 0 then
         -- Green Tea Leaf

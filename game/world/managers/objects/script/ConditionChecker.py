@@ -81,13 +81,13 @@ class ConditionChecker:
     # Returns True if any condition is met.
     def check_condition_or(condition, source, target):
         conditions = ConditionChecker.get_filtered_condition_values(condition)
-        return any([ConditionChecker.validate(condition, source, target) for condition in conditions])
+        return any([ConditionChecker.validate(req_condition, source, target) for req_condition in conditions])
 
     @staticmethod
     # Returns True if all conditions are met.
     def check_condition_and(condition, source, target):
         conditions = ConditionChecker.get_filtered_condition_values(condition)
-        return all([ConditionChecker.validate(condition, source, target) for condition in conditions])
+        return all([ConditionChecker.validate(req_condition, source, target) for req_condition in conditions])
 
     @staticmethod
     def check_condition_none(_condition, _source, _target):
@@ -268,8 +268,7 @@ class ConditionChecker:
         if not source:
             return False
 
-        return source.entry == condition.value1 or source.entry == condition.value2 \
-            or source.entry == condition.value3 or source.entry == condition.value4
+        return any(source.entry == entry for entry in ConditionChecker.get_filtered_condition_values(condition))
 
     @staticmethod
     def check_condition_spell(condition, _source, target):
