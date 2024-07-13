@@ -94,7 +94,7 @@ class PlayerLoginHandler(object):
         if player_mgr.is_alive:
             player_mgr.spell_manager.cast_passive_spells()
             player_mgr.spell_manager.apply_cast_when_learned_spells()
-            player_mgr.spell_manager.apply_equipment_effects()
+
         player_mgr.skill_manager.init_proficiencies()
 
         player_mgr.quest_manager.load_quests()

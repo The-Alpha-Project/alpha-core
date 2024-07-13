@@ -719,8 +719,6 @@ class InventoryManager(object):
 
         # Handle cast interrupt and equipment effects.
         self.owner.spell_manager.handle_equipment_change(source_item, dest_item)
-
-        # Update equipment effects.
         self.owner.enchantment_manager.handle_equipment_change(source_item, dest_item)
 
         # Bonus application.

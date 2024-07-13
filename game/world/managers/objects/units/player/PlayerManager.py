@@ -166,7 +166,7 @@ class PlayerManager(UnitManager):
 
             self.threat_manager = ThreatManager(self)
             self.enchantment_manager = EnchantmentManager(self)
-            self.proc_effect_manager = EquipmentProcManager(self)
+            self.equipment_proc_manager = EquipmentProcManager(self)
             self.talent_manager = TalentManager(self)
             self.skill_manager = SkillManager(self)
             self.quest_manager = QuestManager(self)
@@ -286,6 +286,9 @@ class PlayerManager(UnitManager):
 
         # Load & Apply enchantments.
         self.enchantment_manager.apply_enchantments(load=True)
+
+        # Apply equipment effects.
+        self.spell_manager.apply_equipment_effects()
 
         # Apply stat bonuses.
         self.stat_manager.apply_bonuses(replenish=first_login)
@@ -1476,7 +1479,7 @@ class PlayerManager(UnitManager):
     # override
     def handle_melee_attack_procs(self, damage_info):
         super().handle_melee_attack_procs(damage_info)
-        self.proc_effect_manager.handle_melee_attack_procs(damage_info)
+        self.equipment_proc_manager.handle_melee_attack_procs(damage_info)
 
     def _send_attack_swing_error(self, victim, opcode):
         data = pack('<2Q', self.guid, victim.guid if victim else 0)

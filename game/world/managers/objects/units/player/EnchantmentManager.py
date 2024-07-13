@@ -56,8 +56,8 @@ class EnchantmentManager(object):
                     item.save()
 
     # noinspection PyMethodMayBeStatic
-    def consume_enchant_charge(self, item, enchant_entry):
-        enchantment_slot = [i for i, enchantment in enumerate(item.enchantments) if enchantment.entry == enchant_entry]
+    def consume_enchant_charge(self, item, spell_id):
+        enchantment_slot = [i for i, enchantment in enumerate(item.enchantments) if enchantment.effect_spell == spell_id]
 
         if not enchantment_slot:
             return
@@ -143,7 +143,6 @@ class EnchantmentManager(object):
                                                                     source_restriction=self.unit_mgr)
 
     def _handle_equip_buffs(self, item, remove=False):
-        # Spell proc enchants are handled by EquipmentProcManager.
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
             effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
@@ -160,6 +159,9 @@ class EnchantmentManager(object):
                 self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value,
                                                                 self.unit_mgr, SpellTargetMask.SELF,
                                                                 triggered=True)
+
+        self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)
+
         # Update stats upon add or removal.
         self.unit_mgr.stat_manager.apply_bonuses()
 

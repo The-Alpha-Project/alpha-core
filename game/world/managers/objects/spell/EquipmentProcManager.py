@@ -34,46 +34,50 @@ class ProcEffect:
 
 
 class EquipmentProcManager:
-    # Indexed by enchantment ID or -spell ID
-    proc_effects: dict[int, ProcEffect]
+    # Item slot: effects
+    proc_effects: dict[int, [ProcEffect]]
 
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.proc_effects = dict()
 
-    def update_procs_for_items(self, *items: [ItemManager]):
-        for item in items:
-            # Spell proc enchants.
-            enchantment_type = ItemEnchantmentType.PROC_SPELL
-            for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
-                if enchantment.is_expired():
-                    self._remove_enchantment(enchantment.entry)
-                    continue
+    def handle_equipment_change(self, item: ItemManager | None):
+        if not item:
+            return
 
-                spell_id = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
-                proc_chance = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
-                if not spell_id or not proc_chance:
-                    continue
-                self._add_enchantment(enchantment.entry, item.current_slot, spell_id, proc_chance)
+        # Spell proc enchants.
+        enchantment_type = ItemEnchantmentType.PROC_SPELL
+        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
+            spell_id = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
 
-            # Item chance on hit effects.
-            for item_spell in item.spell_stats:
-                if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_CHANCE_ON_HIT:
-                    continue
+            if enchantment.is_expired() or not item.is_equipped():
+                self._remove_effect(ItemManager.get_inv_slot_by_type(item.item_template.inventory_type), spell_id)
+                continue
 
-                if not item.is_equipped():
-                    self._remove_equip_spell(item_spell.spell_id)
-                    continue
+            proc_chance = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
+            if not spell_id or not proc_chance:
+                continue
+            self._add_enchantment(item, spell_id, proc_chance)
 
-                self._add_equipment(item, item_spell.spell_id)
+        # Item chance on hit effects.
+        for item_spell in item.spell_stats:
+            if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_CHANCE_ON_HIT:
+                continue
+
+            if not item.is_equipped():
+                self._remove_effect(ItemManager.get_inv_slot_by_type(item.item_template.inventory_type), item_spell.spell_id)
+                continue
+
+            self._add_equipment(item, item_spell.spell_id)
 
     def handle_melee_attack_procs(self, damage_info: DamageInfoHolder):
-        for entry, proc_effect in self.proc_effects.items():
+        for proc_effect in [effect for item_slot in self.proc_effects.values()
+                            for effect in item_slot]:
             attack_weapon = self.player_mgr.get_current_weapon_for_attack_type(damage_info.attack_type)
-            if not attack_weapon:
-                continue  # Disarmed / feral form.
+            if not attack_weapon or attack_weapon.current_slot != proc_effect.item_slot:
+                continue
 
-            if not self.player_mgr.stat_manager.roll_proc_cha1nce(proc_effect.get_proc_chance(attack_weapon)):
+            if not self.player_mgr.stat_manager.roll_proc_chance(proc_effect.get_proc_chance(attack_weapon)):
                 continue
 
             spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(proc_effect.spell_id)
@@ -92,20 +96,23 @@ class EquipmentProcManager:
             self.player_mgr.spell_manager.start_spell_cast(initialized_spell=spell)
 
             # Remove enchantment charges.
-            if proc_effect.effect_type == ProcEffectType.ENCHANTMENT:
+            if proc_effect.effect_type != ProcEffectType.ENCHANTMENT:
                 continue
 
             proc_item = self.player_mgr.inventory.get_item(InventorySlots.SLOT_INBACKPACK, proc_effect.item_slot)
-            self.player_mgr.enchantment_manager.consume_enchant_charge(proc_item, entry)
+            self.player_mgr.enchantment_manager.consume_enchant_charge(proc_item, proc_effect.spell_id)
 
-    def _add_enchantment(self, enchant_id: int, slot: int, spell_id: int, proc_chance: float):
-        self.proc_effects[enchant_id] = ProcEffect(slot, spell_id, ProcEffectType.ENCHANTMENT, proc_chance)
-
-    def _remove_enchantment(self, enchant_id):
-        self.proc_effects.pop(enchant_id, None)
+    def _add_enchantment(self, item: ItemManager, spell_id: int, proc_chance: float):
+        current = self.proc_effects.get(item.current_slot, [])
+        current.append(ProcEffect(item.current_slot, spell_id, ProcEffectType.ENCHANTMENT, proc_chance))
+        self.proc_effects[item.current_slot] = current
 
     def _add_equipment(self, item: ItemManager, spell_id: int):
-        self.proc_effects[-spell_id] = ProcEffect(item.current_slot, spell_id, ProcEffectType.EQUIPMENT_EFFECT)
+        current = self.proc_effects.get(item.current_slot, [])
+        current.append(ProcEffect(item.current_slot, spell_id, ProcEffectType.EQUIPMENT_EFFECT))
+        self.proc_effects[item.current_slot] = current + []
 
-    def _remove_equip_spell(self, spell_id):
-        self.proc_effects.pop(-spell_id, None)
+    def _remove_effect(self, slot: int, spell_id: int):
+        if slot not in self.proc_effects:
+            return
+        self.proc_effects[slot] = [effect for effect in self.proc_effects[slot] if effect.spell_id != spell_id]

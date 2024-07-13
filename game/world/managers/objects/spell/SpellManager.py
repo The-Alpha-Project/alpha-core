@@ -223,7 +223,6 @@ class SpellManager:
     def handle_equipment_change(self, source_item: ItemManager | None, dest_item: ItemManager | None):
         self._handle_item_equip_effects(source_item)
         self._handle_item_equip_effects(dest_item)
-        self.caster.proc_effect_manager.update_procs_for_items(source_item, dest_item)
 
         casting_spell = self.get_casting_spell()
         if not casting_spell:
@@ -253,7 +252,7 @@ class SpellManager:
             return
 
         # Proc effects.
-        self.caster.proc_effect_manager.update_procs_for_items(item)
+        self.caster.equipment_proc_manager.handle_equipment_change(item)
 
         # On equip effects.
         for item_spell in item.spell_stats:
