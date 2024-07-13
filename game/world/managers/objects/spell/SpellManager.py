@@ -223,6 +223,7 @@ class SpellManager:
     def handle_equipment_change(self, source_item: ItemManager | None, dest_item: ItemManager | None):
         self._handle_item_equip_effects(source_item)
         self._handle_item_equip_effects(dest_item)
+        self.caster.proc_effect_manager.update_procs_for_items(source_item, dest_item)
 
         casting_spell = self.get_casting_spell()
         if not casting_spell:
@@ -248,9 +249,13 @@ class SpellManager:
             self.remove_cast(casting_spell, interrupted=True)
 
     def _handle_item_equip_effects(self, item: ItemManager | None):
-        if not item:
+        if not item or self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
+        # Proc effects.
+        self.caster.proc_effect_manager.update_procs_for_items(item)
+
+        # On equip effects.
         for item_spell in item.spell_stats:
             if not item_spell.spell_id:
                 break
@@ -260,7 +265,7 @@ class SpellManager:
                 continue
 
             if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_ON_EQUIP:
-                continue  # Chance on hit effects are handled in EnchantmentManager.
+                continue
 
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(item_spell.spell_id)
             if not spell:
