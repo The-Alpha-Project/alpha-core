@@ -1741,6 +1741,14 @@ class SpellManager:
             
             data = pack('<QIB', self.caster.guid, spell_id, error)
             packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_FAILURE, data)
+
+            # TODO: Cozy Fire, client crashes, maybe we should not broadcast some Gameobjects spell cast errors?
+            # TODO: Also noticed this buff is applied to players from Bright Campfires spawned by enemies, not sure
+            #  if thats suppose to happen given that they do inherit the enemy faction and the buff is beneficial.
+            #  @Fluglow you can reproduce this by standing at -1648.34 -1869.82 80.8706 0, it will hit eventually.
+            if spell_id == 7358:
+                return
+
             self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
 
         # Only players receive cast results.

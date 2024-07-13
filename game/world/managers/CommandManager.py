@@ -151,7 +151,17 @@ class CommandManager(object):
                 return -1, f'invalid unit selection.'
             unit.movement_manager.move_automatic_waypoints_from_script()
             return 0, ''
-        except:
+        except ValueError:
+            return -1, 'invalid unit selection.'
+
+    @staticmethod
+    def distance_unit(world_session, args):
+        try:
+            unit = CommandManager._target_or_self(world_session)
+            if unit == world_session.player_mgr:
+                return -1, f'invalid unit selection.'
+            return 0, f'{round(world_session.player_mgr.location.distance(unit.location), 3)}'
+        except ValueError:
             return -1, 'invalid unit selection.'
 
     @staticmethod
@@ -682,6 +692,7 @@ class CommandManager(object):
         except:
             return -1, 'please specify a valid weapon mode.'
 
+    # TODO, implement event/script forcing.
     @staticmethod
     def fevent(world_session, args):
         try:
@@ -698,8 +709,8 @@ class CommandManager(object):
             if event.creature_id != creature.entry:
                 return -1, 'invalid creature for provided event.'
 
-            creature.get_map().set_random_ooc_event(creature, event, forced=True)
-            return 0, f'Triggered event {event.comment}.'
+            # creature.get_map().set_random_ooc_event(creature, event, forced=True)
+            return -1, 'NYI.'
         except:
             return -1, 'invalid event id.'
 
@@ -1032,6 +1043,7 @@ GM_COMMAND_DEFINITIONS = {
     'stel': [CommandManager.stel, 'search for a location where you can teleport'],
     'telunit': [CommandManager.tel_unit, 'teleport a unit to a given location in the same map'],
     'moveunit': [CommandManager.move_unit, 'command a unit to move to a given location'],
+    'distunit': [CommandManager.distance_unit, 'get the distance between you and target unit'],
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],

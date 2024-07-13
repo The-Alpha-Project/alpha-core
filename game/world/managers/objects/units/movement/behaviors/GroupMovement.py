@@ -17,23 +17,21 @@ class GroupMovement(BaseMovement):
 
     # override
     def initialize(self, unit):
-        # Use either walk or run speed by default.
-        unit.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not unit.should_always_run_ooc())
         super().initialize(unit)
         return True
 
     # override
     def update(self, now, elapsed):
         # We require a leader, always.
-        if self.unit.creature_group.leader:
-            if self._can_perform_waypoint(now):
-                # Only the leader leads the way.
-                self._perform_waypoint()
-                self._set_last_movement(now)
-            elif self._can_perform_follow_movement(now) and self._perform_follow_movement(elapsed):
-                self._set_last_movement(now)
-        else:
-            Logger.warning(f'{self.unit.get_name()} creature group has no leader.')
+        if not self.unit.creature_group.leader:
+            return
+
+        if self._can_perform_waypoint(now):
+            # Only the leader leads the way.
+            self._perform_waypoint()
+            self._set_last_movement(now)
+        elif self._can_perform_follow_movement(now) and self._perform_follow_movement(elapsed):
+            self._set_last_movement(now)
 
         super().update(now, elapsed)
 

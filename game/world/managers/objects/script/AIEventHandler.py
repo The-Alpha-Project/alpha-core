@@ -4,10 +4,10 @@ from dataclasses import dataclass
 from random import randint, choice
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
-from game.world.managers.objects.script.ScriptCreatureAIEvent import ScriptCreatureAIEvent
+from game.world.managers.objects.script.ScriptAIEvent import ScriptAIEvent
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptManager import ScriptManager
-from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes
+from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes, UnitInLosReaction
 from utils.constants.ScriptCodes import EventFlags
 from utils.constants.UnitCodes import PowerTypes
 
@@ -41,12 +41,13 @@ class AIEventHandler:
 
         # TODO: Update all type of events that are bound to AI update calls time diff (No on-action triggering).
         now = time.time()
+        self.update_timer_in_combat_events(now)
+        self.update_timer_out_of_combat_events(now)
         self.update_hp_events(now)
         self.update_mana_events(now)
         self.update_range_events(now)
         self.update_friendly_hp_events(now)
         self.update_missing_aura_events(now)
-        self.update_timer_in_combat_events(now)
         self.update_target_hp_events(now)
         self.update_target_casting_events(now)
 
@@ -55,15 +56,15 @@ class AIEventHandler:
         if not scripts:
             return
 
-        creature_event = ScriptCreatureAIEvent(event, self.creature)
-        scripts = creature_event.pick_scripts()
+        script_event = ScriptAIEvent(event, self.creature)
+        scripts = script_event.pick_scripts()
 
         if now:
-            self._lock_event(creature_event, now)
+            self._lock_event(script_event, now)
 
         for script in scripts:
             map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script,
-                                delay=creature_event.get_delay_seconds())
+                                delay=script_event.get_delay_seconds(), event=script_event)
 
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
@@ -81,6 +82,29 @@ class AIEventHandler:
             if not self._validate_event(event, target=target):
                 continue
             self._enqueue_creature_ai_event(map_, event, target=target)
+
+    def on_ooc_los(self, source=None):
+        target = self.creature.combat_target
+        if target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OOC_LOS)
+        map_ = self.creature.get_map()
+        target = source if source else self.creature
+        for event in events:
+            if not self._validate_event(event, target=target):
+                continue
+
+            reaction = event.event_param1
+            radius = event.event_param2
+
+            if self.creature.location.distance(source.location) > radius:
+                continue
+
+            if (reaction == UnitInLosReaction.ULR_ANY
+                    or (reaction == UnitInLosReaction.ULR_NON_HOSTILE and not self.creature.is_hostile_to(source))
+                    or (reaction == UnitInLosReaction.ULR_HOSTILE and self.creature.is_hostile_to(source))):
+                self._enqueue_creature_ai_event(map_, event, target=target)
 
     def on_spell_hit(self, casting_spell, source=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SPELL_HIT)
@@ -109,14 +133,6 @@ class AIEventHandler:
             requires_leader = event.event_param2 != 0
             if requires_leader == is_leader:
                 self._enqueue_creature_ai_event(map_, event, target=target)
-
-    def on_idle(self):
-        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
-        map_ = self.creature.get_map()
-        for event in events:
-            if not self._validate_event(event, target=self.creature):
-                continue
-            map_.set_random_ooc_event(source=self.creature, target=self.creature, event=event)
 
     def on_death(self, killer=None):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_DEATH)
@@ -200,7 +216,18 @@ class AIEventHandler:
         if not target:
             return
 
-        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TIMER_COMBAT)
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TIMER_IN_COMBAT)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature, now=now):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=target, now=now)
+
+    def update_timer_out_of_combat_events(self, now):
+        target = self.creature.combat_target
+        if target:
+            return
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_OUT_OF_COMBAT)
         map_ = self.creature.get_map()
         for event in events:
             if not self._validate_event(event, target=self.creature, now=now):
@@ -371,10 +398,10 @@ class AIEventHandler:
                 self.creature.entry)
         return self._events.get(event_type, [])
 
-    def _lock_event(self, creature_event, now):
-        self.event_locks[creature_event.id] = EventLock(event_id=creature_event.id, time_added=now,
-                                                        repeat=creature_event.get_repeat_seconds(),
-                                                        can_repeat=creature_event.can_repeat())
+    def _lock_event(self, script_event, now):
+        self.event_locks[script_event.id] = EventLock(event_id=script_event.id, time_added=now,
+                                                        repeat=script_event.get_repeat_seconds(),
+                                                        can_repeat=script_event.can_repeat())
 
     def _is_event_locked(self, event, now):
         event_lock = self.event_locks.get(event.id)

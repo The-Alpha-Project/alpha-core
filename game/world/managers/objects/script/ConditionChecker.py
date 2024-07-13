@@ -5,6 +5,8 @@ from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeIds, QuestState, ObjectTypeFlags
 from utils.constants.UnitCodes import Genders, PowerTypes, UnitFlags
 
+MAX_3368_SPELL_ID = 7913
+
 
 class ConditionChecker:
     def __init__(self):
@@ -81,13 +83,13 @@ class ConditionChecker:
     # Returns True if any condition is met.
     def check_condition_or(condition, source, target):
         conditions = ConditionChecker.get_filtered_condition_values(condition)
-        return any([ConditionChecker.validate(condition, source, target) for condition in conditions])
+        return any([ConditionChecker.validate(req_condition, source, target) for req_condition in conditions])
 
     @staticmethod
     # Returns True if all conditions are met.
     def check_condition_and(condition, source, target):
         conditions = ConditionChecker.get_filtered_condition_values(condition)
-        return all([ConditionChecker.validate(condition, source, target) for condition in conditions])
+        return all([ConditionChecker.validate(req_condition, source, target) for req_condition in conditions])
 
     @staticmethod
     def check_condition_none(_condition, _source, _target):
@@ -102,6 +104,9 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target):
             return False
         # TODO: Effect index.
+        if condition.value1 > MAX_3368_SPELL_ID:
+            Logger.error(f'ConditionChecker: Invalid spell id ({condition.value1}), '
+                         f'Condition entry {condition.condition_entry}')
         return target.aura_manager.has_aura_by_spell_id(condition.value1)
 
     @staticmethod
@@ -268,8 +273,7 @@ class ConditionChecker:
         if not source:
             return False
 
-        return source.entry == condition.value1 or source.entry == condition.value2 \
-            or source.entry == condition.value3 or source.entry == condition.value4
+        return any(source.entry == entry for entry in ConditionChecker.get_filtered_condition_values(condition))
 
     @staticmethod
     def check_condition_spell(condition, _source, target):
@@ -319,8 +323,10 @@ class ConditionChecker:
             return False
 
         creatures = target.get_map().get_surrounding_units_by_location(target.location, target.map_id,
-                                                                       target.instance_id, condition.value2)
-        for creature in creatures[0].values():
+                                                                       target.instance_id, condition.value2,
+                                                                       include_players=False)[0].values()
+
+        for creature in creatures:
             if creature.creature_template.entry != condition.value1:
                 continue
             if condition.value3 and creature.is_alive:
@@ -387,17 +393,14 @@ class ConditionChecker:
         if not ConditionChecker.is_creature(source) or not ConditionChecker.is_player(target):
             return True
 
-        if condition.value1 & EscortConditionFlags.CF_ESCORT_SOURCE_DEAD:
-            if not source.is_alive:
-                return True
+        if condition.value1 & EscortConditionFlags.CF_ESCORT_SOURCE_DEAD and not source.is_alive:
+            return True
 
-        if condition.value1 & EscortConditionFlags.CF_ESCORT_TARGET_DEAD:
-            if not target.is_alive or not target.online:
-                return True
+        if condition.value1 & EscortConditionFlags.CF_ESCORT_TARGET_DEAD and not target.is_alive or not target.online:
+            return True
 
-        if condition.value2:
-            if not source.location.distance(target.location) <= condition.value2:
-                return True
+        if condition.value2 and source.location.distance(target.location) >= condition.value2:
+            return True
 
         return False
 
@@ -776,8 +779,7 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target):
             return False
         radius = condition.value2
-        units = target.get_map().get_surrounding_players(target)
-        for player in units:
+        for guid, player in list(target.get_map().get_surrounding_players(target).items()):
             if condition.value1 == 0 and player.location.distance(target.location) <= radius:
                 return True
             elif condition.value1 == 1 and player.is_hostile_to(target) and \
@@ -846,7 +848,7 @@ class ConditionChecker:
 
     @staticmethod
     def check_target_worldobject(_source, target):
-        return target and target.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT
+        return target and target.get_type_mask() & ObjectTypeFlags.TYPE_OBJECT
 
     @staticmethod
     def check_target_source_creature(source, _target):

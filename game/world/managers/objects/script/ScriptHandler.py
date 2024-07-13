@@ -8,7 +8,6 @@ from game.world.managers.abstractions.Vector import Vector
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.Script import Script
 from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
-from game.world.managers.objects.script.ScriptOocEvent import ScriptOocEvent
 from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
 from game.world.managers.objects.units.creature.groups.CreatureGroupManager import CreatureGroupManager
@@ -28,27 +27,32 @@ from utils.Logger import Logger
 from utils.ConfigManager import config
 from utils.constants.UpdateFields import GameObjectFields, UnitFields, PlayerFields
 
+MAX_3368_SPELL_ID = 7913
+
 
 class ScriptHandler:
 
     def __init__(self, map_):
         self.map = map_
-        self.script_queue = set()
-        self.ooc_ignore = set()
-        self.ooc_events = {}
+        self.scripts_set = set()
 
-    def enqueue_script(self, source, target, script_type, script_id, delay=0.0, ooc_event=None):
-        if script_id in self.script_queue:
-            Logger.warning(f'Skip duplicate script {script_id}.')
-            return
+    def enqueue_script(self, source, target, script_type, script_id, delay=0.0, event=None):
         # Grab start script command(s).
         script_commands = self.resolve_script_actions(script_type, script_id)
         if not script_commands:
-            Logger.warning(f'Unimplemented advanced script: {script_id}.')
+            Logger.warning(f'Script [{script_id}] not found, '
+                           f'Event: {event.get_event_info() if event else "None"}, '
+                           f'Caller: {source.get_name()}')
             return
+
+        if not event:
+            Logger.script(f'{source.get_name()} triggered script {script_id} with type {ScriptTypes(script_type).name}')
+        else:
+            Logger.script(f'{source.get_name()} triggered event {event.get_event_info()}, script {script_id}, with type {ScriptTypes(script_type).name}')
+
         script_commands.sort(key=lambda command: command.delay)
-        new_script = Script(script_id, script_commands, source, target, self, delay=delay, ooc_event=ooc_event)
-        self.script_queue.add(new_script)
+        new_script = Script(script_id, script_commands, source, target, self, delay=delay, event=event)
+        self.scripts_set.add(new_script)
 
     # noinspection PyMethodMayBeStatic
     def handle_script_command_execution(self, script_command):
@@ -67,64 +71,17 @@ class ScriptHandler:
             return None
 
     def reset(self):
-        self.script_queue.clear()
-        self.ooc_events.clear()
+        self.scripts_set.clear()
 
     def update(self, now):
         # Update scripts, each one can contain multiple script actions.
-        for script in list(self.script_queue):
+        for script in list(self.scripts_set):
             script.update(now)
             if not script.is_complete():
                 continue
             # Finished all actions, remove.
-            if script in self.script_queue:
-                self.script_queue.remove(script)
-
-        # Check if we need to initialize or remove ooc event.
-        self._check_ooc_events(now)
-
-    def _check_ooc_events(self, now):
-        if not self.ooc_events:
-            return
-
-        for event_id, ooc_event in list(self.ooc_events.items()):
-            if ooc_event.source.in_combat or ooc_event.source.is_evading:
-                continue
-            # Check if we should remove the ongoing ooc event.
-            if ooc_event.started and ooc_event.is_complete(now):
-                ooc_event.started = False
-                # Should not repeat, remove.
-                if event_id in self.ooc_ignore:
-                    self.ooc_events.pop(event_id)
-            elif not ooc_event.started and ooc_event.check_phase():
-                # Initialize the ooc event.
-                ooc_event.initialize(now)
-                for script_id in ooc_event.pick_scripts():
-                    self.enqueue_script(ooc_event.source, ooc_event.target, script_type=ScriptTypes.SCRIPT_TYPE_AI,
-                                        script_id=script_id, delay=ooc_event.delay, ooc_event=ooc_event)
-
-    def set_random_ooc_event(self, source, target, event, forced=False):
-        # Ignored or already running a script.
-        if event.id in self.ooc_ignore or event.id in self.ooc_events:
-            if not forced:
-                return
-            # Event is already in, force it.
-            if event.id in self.ooc_events:
-                self.ooc_events[event.id].force()
-                return
-            # Remove from ignored if needed.
-            if event.id in self.ooc_ignore:
-                self.ooc_ignore.remove(event.id)
-
-        ooc_event = ScriptOocEvent(event, source, target, forced=forced)
-        # Has no scripts, ignore.
-        if not ooc_event.has_scripts:
-            self.ooc_ignore.add(event.id)
-            return
-
-        self.ooc_events[event.id] = ooc_event
-        if not ooc_event.should_repeat():
-            self.ooc_ignore.add(event.id)
+            if script in self.scripts_set:
+                self.scripts_set.remove(script)
 
     # Handlers
 
@@ -519,7 +476,8 @@ class ScriptHandler:
 
         if command.datalong3:
             units = map_.get_surrounding_units_by_location(command.source.location, command.source.map_id,
-                                                           command.source.instance_id, command.datalong4)
+                                                           command.source.instance_id, command.datalong4,
+                                                           include_players=False)[0].values()
             summoned = [unit for unit in units if unit.creature_template.entry == command.datalong]
             if summoned and len(summoned) >= command.datalong3:
                 return command.should_abort()
@@ -538,7 +496,7 @@ class ScriptHandler:
         if command.dataint2:
             map_.enqueue_script(source=creature_manager, target=None, script_type=ScriptTypes.SCRIPT_TYPE_GENERIC,
                                 script_id=command.dataint2)
-        # Attack target.
+        # Attack target type.
         if command.dataint3 <= 0:  # Can be -1.
             return command.should_abort()
 
@@ -643,6 +601,7 @@ class ScriptHandler:
         # source = Unit
         # datalong = spell_id
         if command.source and command.source.aura_manager:
+            ScriptHandler._validate_spell_id(command)
             command.source.aura_manager.cancel_auras_by_spell_id(command.datalong)
             return False
 
@@ -662,6 +621,7 @@ class ScriptHandler:
 
         spell_entry = DbcDatabaseManager.SpellHolder.spell_get_by_id(command.datalong)
         if not spell_entry:
+            ScriptHandler._validate_spell_id(command)
             return command.should_abort()
 
         self_cast = not command.target or command.target == command.source
@@ -678,7 +638,9 @@ class ScriptHandler:
         elif not targets_terrain and command.source.get_type_id() == ObjectTypeIds.ID_UNIT:
             cast_result = command.source.object_ai.try_to_cast(target, spell, command.datalong2, chance=100)
             if cast_result != SpellCheckCastResult.SPELL_NO_ERROR:
-                Logger.warning(f'[Script] Unable to cast spell {command.datalong}, script_id {command.script_id}.')
+                Logger.warning(f'[Script] [{command.script_id}],'
+                               f' Unable to cast spell {command.datalong}-{spell.spell_entry.Name_enUS},'
+                               f' Cast result {SpellCheckCastResult(cast_result).name}')
                 return command.should_abort()
 
         command.source.spell_manager.start_spell_cast(initialized_spell=spell)
@@ -887,6 +849,7 @@ class ScriptHandler:
             return command.should_abort()
 
         run_enabled = command.datalong == 1
+        Logger.script(f"{command.source.get_name()} is now {'Running' if run_enabled else 'Walking'}.")
         if run_enabled:
             command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=False)
         else:
@@ -1277,7 +1240,7 @@ class ScriptHandler:
 
         spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(command.datalong)
         if not spell:
-            Logger.warning(f'ScriptHandler: Invalid spell Id, {command.get_info()}.')
+            ScriptHandler._validate_spell_id(command)
             return command.should_abort()
 
         command.source.spell_manager.set_on_cooldown(spell, command.datalong2 * 1000)
@@ -1291,6 +1254,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
             return command.should_abort()
 
+        ScriptHandler._validate_spell_id(command)
         command.source.spell_manager.unlock_spell_cooldown(command.datalong)
         return False
 
@@ -1540,10 +1504,7 @@ class ScriptHandler:
 
     @staticmethod
     def handle_script_command_add_aura(command):
-        # source = Unit
-        # datalong = spell_id
-        # datalong2 = flags
-        Logger.debug('ScriptHandler: handle_script_command_add_aura not implemented yet')
+        # Unused.
         return command.should_abort()
 
     @staticmethod
@@ -1710,6 +1671,11 @@ class ScriptHandler:
     @staticmethod
     def handle_script_type_creature_movement(script_id):
         return WorldDatabaseManager.CreatureMovementScriptHolder.creature_movement_scripts_get_by_id(script_id)
+
+    @staticmethod
+    def _validate_spell_id(command):
+        if command.datalong > MAX_3368_SPELL_ID:
+            Logger.error(f'ScriptHandler: Invalid spell id ({command.datalong}), {command.get_info()}')
 
 
 SCRIPT_TYPES = {

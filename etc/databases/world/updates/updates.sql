@@ -1,3300 +1,591 @@
 delimiter $
 begin not atomic
-    -- 25/08/2023 1
-	if (select count(*) from applied_updates where id='250820231') = 0 then
-	    -- Replace faction 875 (Gnome, doesn't exist in 0.5.3) with faction 57. At this moment all of these had faction
-	    -- 64 which makes them Neutral and not fitting for friendly NPCs.
-        UPDATE `creature_template` set `faction` = 57 WHERE `entry` IN (374, 460, 1676, 2682, 2683, 3133, 3181, 3290, 4081, 5100, 5114, 5127, 5132, 5144, 5151, 5152, 5157, 5158, 5162, 5163, 5167, 5169, 5172, 5175, 5177, 5178, 5518, 5519, 5520, 5569, 5612, 6119, 6120, 6169, 6328, 6376, 6382, 6826, 7207, 7312, 7950, 7954, 7955, 7978, 8416, 8681, 9099, 9676, 10455, 10456, 11026, 11028, 11029, 11037, 12784, 13000, 14481, 14724, 15353, 15763, 15707, 15434, 15450, 15455, 15456, 15733, 7954);
-
-        insert into applied_updates values ('250820231');
-    end if;
-
-    -- 25/08/2023 2
-    if (select count(*) from `applied_updates` where id='250820232') = 0 then
-
-        -- CREATURE CLASSLEVELSTATS GENERATION
-        
-        -- UNIT CLASS 1
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 64, 130.348, 118.879, 273, 199, 3425, 1952, 0, 0, 146, 107, 276, 51, 85, 3684);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 65, 132.993, 121.1565, 278, 207, 3520, 2011, 0, 0, 148, 108, 281, 51, 86, 3743);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 66, 135.657, 123.4475, 283, 215, 3616, 2071, 0, 0, 150, 110, 286, 51, 87, 3802);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 67, 138.34, 125.752, 289, 223, 3714, 2132, 0, 0, 152, 112, 291, 51, 88, 3861);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 68, 141.042, 128.07, 295, 231, 3813, 2194, 0, 0, 154, 114, 296, 51, 89, 3920);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 69, 143.763, 130.4015, 301, 239, 3913, 2257, 0, 0, 156, 116, 301, 51, 90, 3979);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 70, 146.503, 132.7465, 307, 247, 4015, 2321, 0, 0, 158, 118, 306, 51, 91, 4038);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 71, 149.262, 135.105, 313, 255, 4118, 2386, 0, 0, 160, 120, 312, 51, 92, 4097);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 72, 152.04, 137.477, 319, 263, 4222, 2452, 0, 0, 162, 122, 318, 51, 93, 4156);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 73, 154.837, 139.8625, 325, 271, 4327, 2519, 0, 0, 164, 124, 324, 51, 94, 4215);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 74, 157.653, 142.2615, 331, 279, 4434, 2587, 0, 0, 166, 126, 330, 51, 95, 4274);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 75, 160.488, 144.674, 337, 287, 4542, 2656, 0, 0, 168, 128, 336, 51, 96, 4333);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 76, 163.342, 147.1, 343, 295, 4651, 2726, 0, 0, 170, 130, 342, 51, 97, 4392);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 77, 166.215, 149.5395, 349, 303, 4761, 2796, 0, 0, 172, 132, 348, 51, 98, 4451);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 78, 169.107, 151.9925, 355, 311, 4873, 2867, 0, 0, 174, 134, 354, 51, 99, 4510);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 79, 172.018, 154.459, 361, 319, 4986, 2939, 0, 0, 176, 136, 360, 51, 100, 4569);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 80, 174.948, 156.939, 367, 327, 5100, 3012, 0, 0, 178, 138, 366, 51, 101, 4628);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 81, 177.897, 159.4325, 373, 335, 5216, 3086, 0, 0, 180, 140, 372, 51, 102, 4687);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 82, 180.865, 161.9395, 379, 343, 5333, 3161, 0, 0, 182, 142, 378, 51, 103, 4746);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 83, 183.852, 164.46, 386, 351, 5451, 3237, 0, 0, 185, 144, 384, 51, 104, 4805);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 84, 186.858, 166.994, 393, 359, 5570, 3314, 0, 0, 188, 146, 390, 51, 105, 4864);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 85, 189.883, 169.5415, 400, 367, 5691, 3392, 0, 0, 191, 148, 396, 51, 106, 4923);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 86, 192.927, 172.1025, 407, 375, 5813, 3471, 0, 0, 194, 150, 402, 52, 107, 4982);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 87, 195.99, 174.677, 414, 385, 5936, 3551, 0, 0, 197, 152, 408, 53, 108, 5041);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 88, 199.072, 177.265, 421, 395, 6060, 3632, 0, 0, 200, 154, 414, 54, 109, 5100);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 89, 202.173, 179.8665, 428, 405, 6186, 3713, 0, 0, 203, 156, 420, 55, 110, 5159);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 90, 205.293, 182.4815, 435, 415, 6313, 3795, 0, 0, 206, 158, 426, 56, 111, 5218);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 91, 208.432, 185.11, 442, 425, 6441, 3878, 0, 0, 209, 160, 433, 57, 112, 5277);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 92, 211.59, 187.752, 449, 435, 6571, 3962, 0, 0, 212, 162, 440, 58, 113, 5336);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 93, 214.767, 190.4075, 456, 445, 6702, 4047, 0, 0, 215, 164, 447, 59, 114, 5395);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 94, 217.963, 193.0765, 463, 455, 6834, 4133, 0, 0, 218, 166, 454, 60, 115, 5454);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 95, 221.178, 195.759, 470, 465, 6967, 4220, 0, 0, 221, 168, 461, 61, 116, 5513);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 96, 224.412, 198.455, 477, 475, 7102, 4308, 0, 0, 224, 170, 468, 62, 117, 5572);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 97, 227.665, 201.1645, 484, 485, 7238, 4397, 0, 0, 227, 172, 475, 63, 118, 5631);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 98, 230.937, 203.8875, 491, 495, 7375, 4487, 0, 0, 230, 174, 482, 64, 119, 5690);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 99, 234.228, 206.624, 498, 505, 7513, 4578, 0, 0, 233, 176, 489, 65, 120, 5749);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 100, 237.538, 209.374, 506, 515, 7653, 4670, 0, 0, 236, 178, 496, 66, 121, 5808);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 101, 240.867, 212.1375, 514, 525, 7794, 4763, 0, 0, 239, 180, 503, 67, 122, 5867);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 102, 244.215, 214.9145, 522, 535, 7936, 4856, 0, 0, 242, 182, 510, 68, 123, 5926);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 103, 247.582, 217.705, 530, 545, 8080, 4950, 0, 0, 245, 184, 517, 69, 124, 5985);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 104, 250.968, 220.509, 538, 555, 8225, 5045, 0, 0, 248, 186, 524, 70, 125, 6044);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 105, 254.373, 223.3265, 546, 565, 8371, 5141, 0, 0, 251, 188, 531, 71, 126, 6103);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 106, 257.797, 226.1575, 554, 575, 8518, 5238, 0, 0, 254, 190, 538, 72, 127, 6162);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 107, 261.24, 229.002, 562, 585, 8667, 5336, 0, 0, 257, 192, 545, 73, 128, 6221);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 108, 264.702, 231.86, 570, 595, 8817, 5435, 0, 0, 260, 194, 552, 74, 129, 6280);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 109, 268.183, 234.7315, 578, 605, 8968, 5535, 0, 0, 263, 196, 559, 75, 130, 6339);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 110, 271.683, 237.6165, 586, 615, 9121, 5636, 0, 0, 266, 198, 566, 76, 131, 6398);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 111, 275.202, 240.515, 594, 627, 9275, 5738, 0, 0, 269, 200, 573, 77, 132, 6457);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 112, 278.74, 243.427, 602, 639, 9430, 5841, 0, 0, 272, 202, 581, 78, 133, 6516);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 113, 282.297, 246.3525, 610, 651, 9586, 5945, 0, 0, 275, 204, 589, 79, 134, 6575);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 114, 285.873, 249.2915, 618, 663, 9744, 6050, 0, 0, 278, 206, 597, 80, 135, 6634);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 115, 289.468, 252.244, 626, 675, 9903, 6155, 0, 0, 281, 208, 605, 81, 136, 6693);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 116, 293.082, 255.21, 635, 687, 10063, 6261, 0, 0, 284, 210, 613, 82, 137, 6752);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 117, 296.715, 258.1895, 644, 699, 10224, 6368, 0, 0, 287, 212, 621, 83, 138, 6811);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 118, 300.367, 261.1825, 653, 711, 10387, 6476, 0, 0, 290, 214, 629, 84, 139, 6870);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 119, 304.038, 264.189, 662, 723, 10551, 6585, 0, 0, 293, 216, 637, 85, 140, 6929);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 120, 307.728, 267.209, 671, 735, 10716, 6695, 0, 0, 296, 219, 645, 86, 142, 6988);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 121, 311.437, 270.2425, 680, 747, 10883, 6806, 0, 0, 299, 222, 653, 87, 144, 7047);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 122, 315.165, 273.2895, 689, 759, 11051, 6918, 0, 0, 302, 225, 661, 88, 146, 7106);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 123, 318.912, 276.35, 698, 771, 11220, 7031, 0, 0, 305, 228, 669, 89, 148, 7165);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 124, 322.678, 279.424, 707, 783, 11390, 7145, 0, 0, 308, 231, 677, 90, 150, 7224);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 125, 326.463, 282.5115, 716, 795, 11562, 7260, 0, 0, 311, 234, 685, 91, 152, 7283);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 126, 330.267, 285.6125, 725, 807, 11735, 7376, 0, 0, 314, 237, 693, 92, 154, 7342);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 127, 334.09, 288.727, 734, 819, 11909, 7492, 0, 0, 317, 240, 701, 93, 156, 7401);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 128, 337.932, 291.855, 743, 831, 12084, 7609, 0, 0, 320, 243, 709, 94, 158, 7460);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 129, 341.793, 294.9965, 752, 843, 12261, 7727, 0, 0, 323, 246, 717, 95, 160, 7519);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 130, 345.673, 298.1515, 761, 855, 12439, 7846, 0, 0, 326, 249, 725, 96, 162, 7578);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 131, 349.572, 301.32, 770, 867, 12618, 7966, 0, 0, 329, 252, 733, 97, 164, 7637);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 132, 353.49, 304.502, 779, 879, 12799, 8087, 0, 0, 332, 255, 742, 98, 166, 7696);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 133, 357.427, 307.6975, 789, 891, 12981, 8209, 0, 0, 336, 258, 751, 99, 168, 7755);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 134, 361.383, 310.9065, 799, 903, 13164, 8332, 0, 0, 340, 261, 760, 100, 170, 7814);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 135, 365.358, 314.129, 809, 917, 13348, 8456, 0, 0, 344, 264, 769, 101, 172, 7873);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 136, 369.352, 317.365, 819, 931, 13534, 8581, 0, 0, 348, 267, 778, 102, 174, 7932);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 137, 373.365, 320.6145, 829, 945, 13721, 8707, 0, 0, 352, 270, 787, 103, 176, 7991);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 138, 377.397, 323.8775, 839, 959, 13909, 8834, 0, 0, 356, 273, 796, 104, 178, 8050);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 139, 381.448, 327.154, 849, 973, 14098, 8962, 0, 0, 360, 276, 805, 105, 180, 8109);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 140, 385.518, 330.444, 859, 987, 14289, 9090, 0, 0, 364, 279, 814, 106, 182, 8168);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 141, 389.607, 333.7475, 869, 1001, 14481, 9219, 0, 0, 368, 282, 823, 107, 184, 8227);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 142, 393.715, 337.0645, 879, 1015, 14674, 9349, 0, 0, 372, 285, 832, 108, 186, 8286);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 143, 397.842, 340.395, 889, 1029, 14869, 9480, 0, 0, 376, 288, 841, 109, 188, 8345);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 144, 401.988, 343.739, 899, 1043, 15065, 9612, 0, 0, 380, 291, 850, 110, 190, 8404);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 145, 406.153, 347.0965, 909, 1057, 15262, 9745, 0, 0, 384, 294, 859, 111, 192, 8463);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 146, 410.337, 350.4675, 919, 1071, 15460, 9879, 0, 0, 388, 297, 868, 112, 194, 8522);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 147, 414.54, 353.852, 929, 1085, 15660, 10014, 0, 0, 392, 300, 877, 113, 196, 8581);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 148, 418.762, 357.25, 939, 1099, 15861, 10150, 0, 0, 396, 303, 886, 114, 198, 8640);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 149, 423.003, 360.6615, 950, 1113, 16063, 10287, 0, 0, 400, 306, 895, 115, 200, 8699);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 150, 427.263, 364.0865, 961, 1127, 16267, 10425, 0, 0, 404, 309, 904, 116, 202, 8758);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 151, 431.542, 367.525, 972, 1141, 16472, 10564, 0, 0, 408, 312, 913, 117, 204, 8817);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 152, 435.84, 370.977, 983, 1155, 16678, 10704, 0, 0, 412, 315, 923, 118, 206, 8876);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 153, 440.157, 374.4425, 994, 1169, 16885, 10844, 0, 0, 416, 318, 933, 119, 208, 8935);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 154, 444.493, 377.9215, 1005, 1183, 17094, 10985, 0, 0, 420, 321, 943, 120, 210, 8994);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 155, 448.848, 381.414, 1016, 1197, 17304, 11127, 0, 0, 424, 324, 953, 121, 212, 9053);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 156, 453.222, 384.92, 1027, 1211, 17515, 11270, 0, 0, 428, 327, 963, 122, 214, 9112);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 157, 457.615, 388.4395, 1038, 1225, 17727, 11414, 0, 0, 432, 330, 973, 123, 216, 9171);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 158, 462.027, 391.9725, 1049, 1239, 17941, 11559, 0, 0, 436, 333, 983, 124, 218, 9230);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 159, 466.458, 395.519, 1060, 1255, 18156, 11705, 0, 0, 440, 336, 993, 125, 220, 9289);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 160, 470.908, 399.079, 1071, 1271, 18372, 11852, 0, 0, 444, 339, 1003, 126, 222, 9348);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 161, 475.377, 402.6525, 1082, 1287, 18590, 12000, 0, 0, 448, 342, 1013, 127, 224, 9407);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 162, 479.865, 406.2395, 1093, 1303, 18809, 12149, 0, 0, 452, 345, 1023, 128, 226, 9466);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 163, 484.372, 409.84, 1104, 1319, 19029, 12299, 0, 0, 456, 348, 1033, 129, 228, 9525);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 164, 488.898, 413.454, 1115, 1335, 19250, 12450, 0, 0, 460, 351, 1043, 130, 230, 9584);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 165, 493.443, 417.0815, 1126, 1351, 19473, 12602, 0, 0, 464, 354, 1053, 131, 232, 9643);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 166, 498.007, 420.7225, 1138, 1367, 19697, 12754, 0, 0, 468, 357, 1063, 132, 234, 9702);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 167, 502.59, 424.377, 1150, 1383, 19922, 12907, 0, 0, 472, 360, 1073, 133, 236, 9761);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 168, 507.192, 428.045, 1162, 1399, 20148, 13061, 0, 0, 476, 363, 1083, 134, 238, 9820);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 169, 511.813, 431.7265, 1174, 1415, 20376, 13216, 0, 0, 480, 366, 1093, 135, 240, 9879);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 170, 516.453, 435.4215, 1186, 1431, 20605, 13372, 0, 0, 484, 369, 1103, 136, 242, 9938);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 171, 521.112, 439.13, 1198, 1447, 20835, 13529, 0, 0, 488, 372, 1113, 137, 244, 9997);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 172, 525.79, 442.852, 1210, 1463, 21067, 13687, 0, 0, 492, 375, 1124, 138, 246, 10056);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 173, 530.487, 446.5875, 1222, 1479, 21300, 13846, 0, 0, 496, 378, 1135, 139, 248, 10115);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 174, 535.203, 450.3365, 1234, 1495, 21534, 14006, 0, 0, 500, 382, 1146, 140, 250, 10174);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 175, 539.938, 454.099, 1246, 1511, 21769, 14167, 0, 0, 504, 386, 1157, 141, 252, 10233);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 176, 544.692, 457.875, 1258, 1527, 22006, 14329, 0, 0, 508, 390, 1168, 142, 254, 10292);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 177, 549.465, 461.6645, 1270, 1543, 22244, 14492, 0, 0, 512, 394, 1179, 143, 256, 10351);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 178, 554.257, 465.4675, 1282, 1559, 22483, 14655, 0, 0, 516, 398, 1190, 144, 258, 10410);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 179, 559.068, 469.284, 1294, 1575, 22723, 14819, 0, 0, 520, 402, 1201, 145, 260, 10469);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 180, 563.898, 473.114, 1306, 1591, 22965, 14984, 0, 0, 524, 406, 1212, 146, 262, 10528);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 181, 568.747, 476.9575, 1318, 1607, 23208, 15150, 0, 0, 528, 410, 1223, 147, 264, 10587);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 182, 573.615, 480.8145, 1331, 1623, 23452, 15317, 0, 0, 532, 414, 1234, 148, 266, 10646);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 183, 578.502, 484.685, 1344, 1641, 23698, 15485, 0, 0, 537, 418, 1245, 149, 268, 10705);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 184, 583.408, 488.569, 1357, 1659, 23945, 15654, 0, 0, 542, 422, 1256, 150, 270, 10764);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 185, 588.333, 492.4665, 1370, 1677, 24193, 15824, 0, 0, 547, 426, 1267, 151, 272, 10823);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 186, 593.277, 496.3775, 1383, 1695, 24442, 15995, 0, 0, 552, 430, 1278, 152, 274, 10882);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 187, 598.24, 500.302, 1396, 1713, 24693, 16167, 0, 0, 557, 434, 1289, 153, 276, 10941);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 188, 603.222, 504.24, 1409, 1731, 24945, 16340, 0, 0, 562, 438, 1300, 154, 278, 11000);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 189, 608.223, 508.1915, 1422, 1749, 25198, 16514, 0, 0, 567, 442, 1311, 155, 280, 11059);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 190, 613.243, 512.1565, 1435, 1767, 25453, 16689, 0, 0, 572, 446, 1322, 156, 282, 11118);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 191, 618.282, 516.135, 1448, 1785, 25709, 16864, 0, 0, 577, 450, 1333, 157, 284, 11177);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 192, 623.34, 520.127, 1461, 1803, 25966, 17040, 0, 0, 582, 454, 1345, 158, 286, 11236);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 193, 628.417, 524.1325, 1474, 1821, 26224, 17217, 0, 0, 587, 458, 1357, 159, 288, 11295);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 194, 633.513, 528.1515, 1487, 1839, 26484, 17395, 0, 0, 592, 462, 1369, 160, 290, 11354);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 195, 638.628, 532.184, 1500, 1857, 26745, 17574, 0, 0, 597, 466, 1381, 161, 292, 11413);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 196, 643.762, 536.23, 1513, 1875, 27007, 17754, 0, 0, 602, 470, 1393, 162, 294, 11472);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 197, 648.915, 540.2895, 1526, 1893, 27270, 17935, 0, 0, 607, 474, 1405, 164, 296, 11531);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 198, 654.087, 544.3625, 1539, 1911, 27535, 18117, 0, 0, 612, 478, 1417, 166, 298, 11590);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 199, 659.278, 548.449, 1553, 1929, 27801, 18300, 0, 0, 617, 482, 1429, 168, 300, 11649);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 200, 664.488, 552.549, 1567, 1947, 28068, 18484, 0, 0, 622, 486, 1441, 170, 302, 11708);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 201, 669.717, 556.6625, 1581, 1965, 28337, 18669, 0, 0, 627, 490, 1453, 172, 304, 11767);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 202, 674.965, 560.7895, 1595, 1983, 28607, 18855, 0, 0, 632, 494, 1465, 174, 306, 11826);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 203, 680.232, 564.93, 1609, 2001, 28878, 19042, 0, 0, 637, 498, 1477, 176, 308, 11885);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 204, 685.518, 569.084, 1623, 2019, 29150, 19229, 0, 0, 642, 502, 1489, 178, 310, 11944);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 205, 690.823, 573.2515, 1637, 2037, 29424, 19417, 0, 0, 647, 506, 1501, 180, 312, 12003);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 206, 696.147, 577.4325, 1651, 2057, 29699, 19606, 0, 0, 652, 510, 1513, 182, 314, 12062);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 207, 701.49, 581.627, 1665, 2077, 29975, 19796, 0, 0, 657, 514, 1525, 184, 316, 12121);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 208, 706.852, 585.835, 1679, 2097, 30252, 19987, 0, 0, 662, 518, 1537, 186, 318, 12180);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 209, 712.233, 590.0565, 1693, 2117, 30531, 20179, 0, 0, 667, 522, 1549, 188, 320, 12239);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 210, 717.633, 594.2915, 1707, 2137, 30811, 20372, 0, 0, 672, 526, 1561, 190, 323, 12298);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 211, 723.052, 598.54, 1721, 2157, 31092, 20566, 0, 0, 677, 530, 1573, 192, 326, 12357);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 212, 728.49, 602.802, 1735, 2177, 31375, 20761, 0, 0, 682, 534, 1585, 194, 329, 12416);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 213, 733.947, 607.0775, 1749, 2197, 31659, 20957, 0, 0, 687, 538, 1598, 196, 332, 12475);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 214, 739.423, 611.3665, 1763, 2217, 31944, 21154, 0, 0, 692, 542, 1611, 198, 335, 12534);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 215, 744.918, 615.669, 1777, 2237, 32230, 21352, 0, 0, 697, 546, 1624, 200, 338, 12593);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 216, 750.432, 619.985, 1792, 2257, 32518, 21550, 0, 0, 702, 550, 1637, 202, 341, 12652);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 217, 755.965, 624.3145, 1807, 2277, 32807, 21749, 0, 0, 707, 554, 1650, 204, 344, 12711);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 218, 761.517, 628.6575, 1822, 2297, 33097, 21949, 0, 0, 712, 558, 1663, 206, 347, 12770);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 219, 767.088, 633.014, 1837, 2317, 33388, 22150, 0, 0, 717, 562, 1676, 208, 350, 12829);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 220, 772.678, 637.384, 1852, 2337, 33681, 22352, 0, 0, 722, 566, 1689, 210, 353, 12888);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 221, 778.287, 641.7675, 1867, 2357, 33975, 22555, 0, 0, 727, 570, 1702, 212, 356, 12947);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 222, 783.915, 646.1645, 1882, 2377, 34270, 22759, 0, 0, 732, 574, 1715, 214, 359, 13006);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 223, 789.562, 650.575, 1897, 2397, 34567, 22964, 0, 0, 737, 578, 1728, 216, 362, 13065);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 224, 795.228, 654.999, 1912, 2417, 34865, 23170, 0, 0, 742, 582, 1741, 218, 365, 13124);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 225, 800.913, 659.4365, 1927, 2437, 35164, 23377, 0, 0, 747, 586, 1754, 220, 368, 13183);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 226, 806.617, 663.8875, 1942, 2457, 35464, 23585, 0, 0, 752, 590, 1767, 222, 371, 13242);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 227, 812.34, 668.352, 1957, 2477, 35766, 23794, 0, 0, 757, 594, 1780, 224, 374, 13301);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 228, 818.082, 672.83, 1972, 2497, 36069, 24004, 0, 0, 762, 599, 1793, 226, 377, 13360);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 229, 823.843, 677.3215, 1987, 2517, 36373, 24214, 0, 0, 767, 604, 1806, 228, 380, 13419);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 230, 829.623, 681.8265, 2002, 2539, 36679, 24425, 0, 0, 772, 609, 1819, 230, 383, 13478);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 231, 835.422, 686.345, 2017, 2561, 36986, 24637, 0, 0, 777, 614, 1832, 232, 386, 13537);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 232, 841.24, 690.877, 2033, 2583, 37294, 24850, 0, 0, 782, 619, 1845, 234, 389, 13596);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 233, 847.077, 695.4225, 2049, 2605, 37603, 25064, 0, 0, 788, 624, 1859, 236, 392, 13655);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 234, 852.933, 699.9815, 2065, 2627, 37914, 25279, 0, 0, 794, 629, 1873, 238, 395, 13714);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 235, 858.808, 704.554, 2081, 2649, 38226, 25495, 0, 0, 800, 634, 1887, 240, 398, 13773);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 236, 864.702, 709.14, 2097, 2671, 38539, 25712, 0, 0, 806, 639, 1901, 242, 401, 13832);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 237, 870.615, 713.7395, 2113, 2693, 38853, 25930, 0, 0, 812, 644, 1915, 244, 404, 13891);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 238, 876.547, 718.3525, 2129, 2715, 39169, 26149, 0, 0, 818, 649, 1929, 246, 407, 13950);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 239, 882.498, 722.979, 2145, 2737, 39486, 26369, 0, 0, 824, 654, 1943, 248, 410, 14009);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 240, 888.468, 727.619, 2161, 2759, 39804, 26590, 0, 0, 830, 659, 1957, 250, 413, 14068);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 241, 894.457, 732.2725, 2177, 2781, 40124, 26812, 0, 0, 836, 664, 1971, 252, 416, 14127);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 242, 900.465, 736.9395, 2193, 2803, 40445, 27034, 0, 0, 842, 669, 1985, 254, 419, 14186);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 243, 906.492, 741.62, 2209, 2825, 40767, 27257, 0, 0, 848, 674, 1999, 256, 422, 14245);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 244, 912.538, 746.314, 2225, 2847, 41090, 27481, 0, 0, 854, 679, 2013, 258, 425, 14304);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 245, 918.603, 751.0215, 2241, 2869, 41415, 27706, 0, 0, 860, 684, 2027, 260, 428, 14363);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 246, 924.687, 755.7425, 2257, 2891, 41741, 27932, 0, 0, 866, 689, 2041, 262, 431, 14422);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 247, 930.79, 760.477, 2273, 2913, 42068, 28159, 0, 0, 872, 694, 2055, 264, 434, 14481);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 248, 936.912, 765.225, 2289, 2935, 42396, 28387, 0, 0, 878, 699, 2069, 266, 437, 14540);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 249, 943.053, 769.9865, 2306, 2957, 42726, 28616, 0, 0, 884, 704, 2083, 268, 440, 14599);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 250, 949.213, 774.7615, 2323, 2979, 43057, 28846, 0, 0, 890, 709, 2097, 270, 443, 14658);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 251, 955.392, 779.55, 2340, 3001, 43389, 29077, 0, 0, 896, 714, 2111, 272, 446, 14717);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 252, 961.59, 784.352, 2357, 3023, 43723, 29309, 0, 0, 902, 719, 2125, 274, 449, 14776);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 253, 967.807, 789.1675, 2374, 3045, 44058, 29542, 0, 0, 908, 724, 2140, 276, 452, 14835);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 254, 974.043, 793.9965, 2391, 3069, 44394, 29775, 0, 0, 914, 729, 2155, 278, 455, 14894);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 1, 255, 980.298, 798.839, 2408, 3093, 44731, 30009, 0, 0, 920, 734, 2170, 280, 458, 14953);
-
-
-        -- UNIT CLASS 2
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 64, 121.088, 107.418, 257, 165, 2740, 1568, 2696, 1616, 138.53, 90, 253, 73, 160, 2964);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 65, 123.408, 109.4955, 262, 172, 2816, 1618, 2773, 1654, 141.08, 91, 258, 74, 162, 3007);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 66, 125.742, 111.5865, 267, 179, 2893, 1668, 2851, 1693, 143.65, 92, 263, 75, 164, 3050);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 67, 128.09, 113.691, 272, 186, 2971, 1719, 2930, 1732, 146.24, 93, 268, 76, 166, 3093);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 68, 130.452, 115.809, 277, 193, 3050, 1771, 3010, 1772, 148.85000000000002, 94, 273, 77, 168, 3136);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 69, 132.828, 117.9405, 282, 200, 3130, 1824, 3091, 1812, 151.48000000000002, 95, 279, 78, 170, 3179);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 70, 135.218, 120.0855, 288, 207, 3211, 1878, 3173, 1852, 154.13000000000002, 96, 285, 79, 172, 3222);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 71, 137.622, 122.244, 294, 214, 3293, 1932, 3256, 1893, 156.8, 97, 291, 80, 174, 3265);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 72, 140.04, 124.416, 300, 221, 3376, 1987, 3340, 1934, 159.49, 98, 297, 81, 176, 3308);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 73, 142.472, 126.6015, 306, 228, 3460, 2043, 3425, 1976, 162.20000000000002, 99, 303, 82, 178, 3351);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 74, 144.918, 128.8005, 312, 235, 3545, 2100, 3511, 2018, 164.93, 100, 309, 83, 180, 3394);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 75, 147.378, 131.013, 318, 242, 3631, 2157, 3598, 2060, 167.68, 101, 315, 84, 182, 3436);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 76, 149.852, 133.239, 324, 249, 3718, 2215, 3686, 2103, 170.45000000000002, 102, 321, 85, 184, 3478);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 77, 152.34, 135.4785, 330, 256, 3806, 2274, 3775, 2146, 173.24, 104, 327, 86, 186, 3520);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 78, 154.842, 137.7315, 336, 263, 3895, 2334, 3865, 2190, 176.05, 106, 333, 87, 188, 3562);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 79, 157.358, 139.998, 342, 270, 3985, 2395, 3956, 2234, 178.88000000000002, 108, 339, 88, 190, 3604);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 80, 159.888, 142.278, 348, 277, 4076, 2456, 4048, 2278, 181.73000000000002, 110, 345, 89, 192, 3646);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 81, 162.432, 144.5715, 354, 284, 4168, 2518, 4141, 2323, 184.60000000000002, 112, 351, 90, 194, 3688);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 82, 164.99, 146.8785, 360, 291, 4261, 2581, 4235, 2368, 187.49, 114, 357, 91, 196, 3730);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 83, 167.562, 149.199, 366, 298, 4355, 2645, 4330, 2414, 190.4, 116, 363, 92, 198, 3772);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 84, 170.148, 151.533, 372, 305, 4450, 2709, 4426, 2460, 193.33, 118, 369, 93, 200, 3814);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 85, 172.748, 153.8805, 378, 312, 4546, 2774, 4523, 2506, 196.28, 120, 375, 94, 202, 3855);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 86, 175.362, 156.2415, 384, 319, 4643, 2840, 4621, 2553, 199.25, 122, 382, 95, 204, 3896);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 87, 177.99, 158.616, 391, 327, 4741, 2907, 4720, 2600, 202.24, 124, 389, 96, 206, 3937);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 88, 180.632, 161.004, 398, 335, 4840, 2974, 4820, 2648, 205.25, 126, 396, 97, 208, 3978);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 89, 183.288, 163.4055, 405, 343, 4940, 3042, 4921, 2696, 208.28, 128, 403, 98, 210, 4019);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 90, 185.958, 165.8205, 412, 351, 5041, 3111, 5024, 2744, 211.33, 130, 410, 99, 212, 4060);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 91, 188.642, 168.249, 419, 359, 5143, 3181, 5128, 2793, 214.4, 132, 417, 100, 214, 4101);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 92, 191.34, 170.691, 426, 368, 5246, 3252, 5233, 2842, 217.49, 134, 424, 101, 216, 4142);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 93, 194.052, 173.1465, 433, 377, 5350, 3323, 5339, 2892, 220.60000000000002, 136, 431, 102, 218, 4183);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 94, 196.778, 175.6155, 440, 386, 5455, 3395, 5446, 2942, 223.73000000000002, 138, 438, 103, 220, 4224);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 95, 199.518, 178.098, 447, 395, 5561, 3468, 5554, 2992, 226.88000000000002, 140, 445, 104, 222, 4264);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 96, 202.272, 180.594, 454, 404, 5668, 3542, 5663, 3043, 230.05, 142, 452, 105, 224, 4304);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 97, 205.04, 183.1035, 461, 413, 5776, 3616, 5773, 3094, 233.24, 144, 459, 106, 226, 4344);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 98, 207.822, 185.6265, 468, 422, 5885, 3691, 5884, 3146, 236.45000000000002, 146, 466, 107, 228, 4384);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 99, 210.618, 188.163, 475, 431, 5995, 3767, 5996, 3198, 239.68, 148, 473, 108, 230, 4424);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 100, 213.428, 190.713, 482, 440, 6106, 3844, 6109, 3250, 242.93, 150, 480, 109, 232, 4464);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 101, 216.252, 193.2765, 489, 449, 6218, 3922, 6223, 3303, 246.20000000000002, 152, 487, 110, 234, 4504);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 102, 219.09, 195.8535, 496, 458, 6331, 4000, 6338, 3356, 249.49, 154, 495, 111, 236, 4544);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 103, 221.942, 198.444, 504, 467, 6445, 4079, 6454, 3410, 252.8, 156, 503, 112, 238, 4584);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 104, 224.808, 201.048, 512, 476, 6560, 4159, 6571, 3464, 256.13, 158, 511, 113, 240, 4624);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 105, 227.688, 203.6655, 520, 485, 6676, 4240, 6689, 3518, 259.48, 160, 519, 114, 242, 4663);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 106, 230.582, 206.2965, 528, 494, 6793, 4321, 6808, 3573, 262.85, 162, 527, 115, 244, 4702);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 107, 233.49, 208.941, 536, 503, 6911, 4403, 6928, 3628, 266.24, 164, 535, 116, 246, 4741);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 108, 236.412, 211.599, 544, 512, 7030, 4486, 7049, 3684, 269.65000000000003, 166, 543, 118, 248, 4780);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 109, 239.348, 214.2705, 552, 521, 7150, 4570, 7171, 3740, 273.08000000000004, 168, 551, 120, 250, 4819);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 110, 242.298, 216.9555, 560, 530, 7271, 4654, 7294, 3796, 276.53000000000003, 170, 559, 122, 253, 4858);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 111, 245.262, 219.654, 568, 540, 7393, 4739, 7418, 3853, 280.00000000000006, 172, 567, 124, 256, 4897);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 112, 248.24, 222.366, 576, 550, 7516, 4825, 7543, 3910, 283.49000000000007, 174, 575, 126, 259, 4936);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 113, 251.232, 225.0915, 584, 560, 7640, 4912, 7669, 3968, 287.00000000000006, 176, 583, 128, 262, 4975);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 114, 254.238, 227.8305, 592, 570, 7765, 5000, 7796, 4026, 290.53000000000003, 178, 591, 130, 265, 5014);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 115, 257.258, 230.583, 600, 580, 7891, 5088, 7924, 4084, 294.08000000000004, 180, 599, 132, 268, 5052);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 116, 260.292, 233.349, 608, 590, 8018, 5177, 8053, 4143, 297.65000000000003, 182, 607, 134, 271, 5090);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 117, 263.34, 236.1285, 616, 600, 8146, 5267, 8183, 4202, 301.24, 184, 615, 136, 274, 5128);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 118, 266.402, 238.9215, 624, 610, 8275, 5358, 8314, 4262, 304.85, 186, 623, 138, 277, 5166);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 119, 269.478, 241.728, 632, 620, 8405, 5449, 8446, 4322, 308.48, 188, 632, 140, 280, 5204);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 120, 272.568, 244.548, 641, 630, 8537, 5541, 8579, 4382, 312.13, 190, 641, 142, 283, 5242);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 121, 275.672, 247.3815, 650, 640, 8670, 5634, 8713, 4443, 315.8, 192, 650, 144, 286, 5280);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 122, 278.79, 250.2285, 659, 650, 8804, 5728, 8848, 4504, 319.49, 194, 659, 146, 289, 5318);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 123, 281.922, 253.089, 668, 660, 8939, 5823, 8984, 4566, 323.2, 196, 668, 148, 292, 5356);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 124, 285.068, 255.963, 677, 670, 9075, 5918, 9122, 4628, 326.93, 198, 677, 150, 295, 5394);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 125, 288.228, 258.8505, 686, 681, 9212, 6014, 9261, 4690, 330.68, 200, 686, 152, 298, 5431);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 126, 291.402, 261.7515, 695, 692, 9350, 6111, 9401, 4753, 334.45, 202, 695, 154, 301, 5468);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 127, 294.59, 264.666, 704, 703, 9489, 6209, 9542, 4816, 338.24, 204, 704, 156, 304, 5505);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 128, 297.792, 267.594, 713, 714, 9629, 6307, 9684, 4880, 342.05, 206, 713, 158, 307, 5542);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 129, 301.008, 270.5355, 722, 725, 9770, 6406, 9827, 4944, 345.88, 208, 722, 160, 310, 5579);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 130, 304.238, 273.4905, 731, 736, 9912, 6506, 9971, 5008, 349.73, 210, 731, 162, 313, 5616);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 131, 307.482, 276.459, 740, 747, 10055, 6607, 10116, 5073, 353.6, 213, 740, 164, 316, 5653);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 132, 310.74, 279.441, 749, 758, 10199, 6708, 10262, 5138, 357.49, 216, 749, 166, 319, 5690);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 133, 314.012, 282.4365, 758, 769, 10344, 6810, 10409, 5204, 361.40000000000003, 219, 758, 168, 322, 5727);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 134, 317.298, 285.4455, 767, 780, 10490, 6913, 10557, 5270, 365.33000000000004, 222, 767, 170, 325, 5764);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 135, 320.598, 288.468, 776, 792, 10637, 7017, 10706, 5336, 369.28000000000003, 225, 777, 172, 328, 5800);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 136, 323.912, 291.504, 786, 804, 10785, 7122, 10856, 5403, 373.25000000000006, 228, 787, 174, 331, 5836);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 137, 327.24, 294.5535, 796, 816, 10934, 7227, 11007, 5470, 377.24000000000007, 231, 797, 176, 334, 5872);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 138, 330.582, 297.6165, 806, 828, 11084, 7333, 11159, 5538, 381.25000000000006, 234, 807, 178, 337, 5908);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 139, 333.938, 300.693, 816, 840, 11235, 7440, 11312, 5606, 385.28000000000003, 237, 817, 180, 340, 5944);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 140, 337.308, 303.783, 826, 852, 11387, 7548, 11466, 5674, 389.33000000000004, 240, 827, 182, 343, 5980);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 141, 340.692, 306.8865, 836, 864, 11540, 7656, 11621, 5743, 393.40000000000003, 243, 837, 184, 346, 6016);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 142, 344.09, 310.0035, 846, 876, 11694, 7765, 11777, 5812, 397.49, 246, 847, 186, 349, 6052);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 143, 347.502, 313.134, 856, 888, 11849, 7875, 11934, 5882, 401.6, 249, 857, 188, 352, 6088);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 144, 350.928, 316.278, 866, 900, 12005, 7986, 12092, 5952, 405.73, 252, 867, 190, 355, 6124);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 145, 354.368, 319.4355, 876, 912, 12162, 8097, 12251, 6022, 409.88, 255, 877, 192, 358, 6159);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 146, 357.822, 322.6065, 886, 924, 12320, 8209, 12411, 6093, 414.05, 258, 887, 194, 361, 6194);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 147, 361.29, 325.791, 896, 936, 12479, 8322, 12572, 6164, 418.24, 261, 897, 196, 364, 6229);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 148, 364.772, 328.989, 906, 948, 12639, 8436, 12734, 6236, 422.45, 264, 907, 198, 367, 6264);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 149, 368.268, 332.2005, 916, 960, 12800, 8551, 12897, 6308, 426.68, 267, 917, 200, 370, 6299);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 150, 371.778, 335.4255, 926, 972, 12962, 8666, 13061, 6380, 430.93, 270, 927, 202, 373, 6334);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 151, 375.302, 338.664, 936, 984, 13125, 8782, 13226, 6453, 435.2, 273, 937, 204, 376, 6369);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 152, 378.84, 341.916, 946, 996, 13289, 8899, 13392, 6526, 439.49, 276, 948, 206, 379, 6404);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 153, 382.392, 345.1815, 957, 1008, 13454, 9017, 13559, 6600, 443.8, 279, 959, 208, 382, 6439);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 154, 385.958, 348.4605, 968, 1020, 13620, 9135, 13727, 6674, 448.13, 282, 970, 210, 385, 6474);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 155, 389.538, 351.753, 979, 1032, 13787, 9254, 13896, 6748, 452.48, 285, 981, 212, 388, 6508);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 156, 393.132, 355.059, 990, 1044, 13955, 9374, 14066, 6823, 456.85, 288, 992, 214, 391, 6542);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 157, 396.74, 358.3785, 1001, 1056, 14124, 9495, 14238, 6898, 461.24, 291, 1003, 216, 394, 6576);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 158, 400.362, 361.7115, 1012, 1068, 14294, 9617, 14411, 6974, 465.65000000000003, 294, 1014, 218, 397, 6610);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 159, 403.998, 365.058, 1023, 1082, 14465, 9739, 14585, 7050, 470.08000000000004, 297, 1025, 220, 400, 6644);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 160, 407.648, 368.418, 1034, 1096, 14637, 9862, 14760, 7126, 474.53000000000003, 300, 1036, 222, 403, 6678);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 161, 411.312, 371.7915, 1045, 1110, 14810, 9986, 14936, 7203, 479.00000000000006, 303, 1047, 224, 406, 6712);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 162, 414.99, 375.1785, 1056, 1124, 14984, 10111, 15113, 7280, 483.49000000000007, 306, 1058, 226, 409, 6746);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 163, 418.682, 378.579, 1067, 1138, 15159, 10236, 15291, 7358, 488.00000000000006, 309, 1069, 228, 412, 6780);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 164, 422.388, 381.993, 1078, 1152, 15335, 10362, 15470, 7436, 492.53000000000003, 312, 1080, 230, 415, 6814);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 165, 426.108, 385.4205, 1089, 1166, 15512, 10489, 15650, 7514, 497.08000000000004, 315, 1091, 232, 418, 6847);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 166, 429.842, 388.8615, 1100, 1180, 15690, 10617, 15831, 7593, 501.65000000000003, 318, 1102, 234, 421, 6880);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 167, 433.59, 392.316, 1111, 1194, 15869, 10745, 16013, 7672, 506.24, 321, 1113, 236, 424, 6913);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 168, 437.352, 395.784, 1122, 1208, 16049, 10874, 16196, 7752, 510.85, 324, 1125, 238, 427, 6946);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 169, 441.128, 399.2655, 1134, 1222, 16230, 11004, 16380, 7832, 515.48, 327, 1137, 240, 430, 6979);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 170, 444.918, 402.7605, 1146, 1236, 16412, 11135, 16565, 7912, 520.13, 330, 1149, 242, 433, 7012);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 171, 448.722, 406.269, 1158, 1250, 16595, 11267, 16751, 7993, 524.8, 333, 1161, 244, 436, 7045);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 172, 452.54, 409.791, 1170, 1264, 16779, 11399, 16938, 8074, 529.49, 336, 1173, 246, 439, 7078);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 173, 456.372, 413.3265, 1182, 1278, 16964, 11532, 17126, 8156, 534.2, 339, 1185, 248, 442, 7111);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 174, 460.218, 416.8755, 1194, 1292, 17150, 11666, 17315, 8238, 538.9300000000001, 342, 1197, 250, 445, 7144);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 175, 464.078, 420.438, 1206, 1306, 17337, 11801, 17505, 8320, 543.6800000000001, 345, 1209, 253, 448, 7176);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 176, 467.952, 424.014, 1218, 1320, 17525, 11936, 17696, 8403, 548.45, 348, 1221, 256, 451, 7208);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 177, 471.84, 427.6035, 1230, 1334, 17714, 12072, 17888, 8486, 553.24, 351, 1233, 259, 454, 7240);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 178, 475.742, 431.2065, 1242, 1348, 17904, 12209, 18081, 8570, 558.05, 354, 1245, 262, 457, 7272);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 179, 479.658, 434.823, 1254, 1362, 18095, 12347, 18275, 8654, 562.88, 357, 1257, 265, 460, 7304);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 180, 483.588, 438.453, 1266, 1376, 18287, 12486, 18470, 8738, 567.73, 360, 1269, 268, 463, 7336);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 181, 487.532, 442.0965, 1278, 1390, 18480, 12625, 18666, 8823, 572.6, 363, 1281, 271, 466, 7368);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 182, 491.49, 445.7535, 1290, 1404, 18674, 12765, 18863, 8908, 577.49, 366, 1293, 274, 469, 7400);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 183, 495.462, 449.424, 1302, 1419, 18869, 12906, 19061, 8994, 582.4, 369, 1305, 277, 472, 7432);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 184, 499.448, 453.108, 1314, 1434, 19066, 13048, 19260, 9080, 587.3299999999999, 372, 1317, 280, 475, 7464);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 185, 503.448, 456.8055, 1326, 1449, 19264, 13190, 19460, 9166, 592.28, 376, 1330, 283, 478, 7495);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 186, 507.462, 460.5165, 1339, 1464, 19463, 13333, 19661, 9253, 597.25, 380, 1343, 286, 481, 7526);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 187, 511.49, 464.241, 1352, 1479, 19663, 13477, 19863, 9340, 602.24, 384, 1356, 289, 484, 7557);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 188, 515.532, 467.979, 1365, 1494, 19864, 13622, 20066, 9428, 607.25, 388, 1369, 292, 487, 7588);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 189, 519.588, 471.7305, 1378, 1509, 20066, 13767, 20270, 9516, 612.28, 392, 1382, 295, 490, 7619);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 190, 523.658, 475.4955, 1391, 1524, 20269, 13913, 20476, 9604, 617.3299999999999, 396, 1395, 298, 493, 7650);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 191, 527.742, 479.274, 1404, 1539, 20473, 14060, 20683, 9693, 622.4, 400, 1408, 301, 496, 7681);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 192, 531.84, 483.066, 1417, 1555, 20678, 14208, 20891, 9782, 627.49, 404, 1421, 304, 499, 7712);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 193, 535.952, 486.8715, 1430, 1571, 20884, 14357, 21100, 9872, 632.6, 408, 1434, 307, 502, 7743);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 194, 540.078, 490.6905, 1443, 1587, 21091, 14506, 21310, 9962, 637.73, 412, 1447, 310, 505, 7774);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 195, 544.218, 494.523, 1456, 1603, 21299, 14656, 21521, 10052, 642.88, 416, 1460, 313, 508, 7804);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 196, 548.372, 498.369, 1469, 1619, 21508, 14807, 21733, 10143, 648.05, 420, 1473, 316, 511, 7834);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 197, 552.54, 502.2285, 1482, 1635, 21718, 14959, 21946, 10234, 653.24, 424, 1486, 319, 514, 7864);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 198, 556.722, 506.1015, 1495, 1651, 21929, 15111, 22160, 10326, 658.45, 428, 1499, 322, 517, 7894);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 199, 560.918, 509.988, 1508, 1667, 22141, 15264, 22375, 10418, 663.6800000000001, 432, 1512, 325, 520, 7924);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 200, 565.128, 513.888, 1521, 1683, 22354, 15418, 22591, 10510, 668.9300000000001, 436, 1525, 328, 524, 7954);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 201, 569.352, 517.8015, 1534, 1699, 22568, 15573, 22808, 10603, 674.2, 440, 1539, 331, 528, 7984);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 202, 573.59, 521.7285, 1548, 1715, 22783, 15729, 23026, 10696, 679.49, 444, 1553, 334, 532, 8014);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 203, 577.842, 525.669, 1562, 1731, 22999, 15885, 23245, 10790, 684.8, 448, 1567, 337, 536, 8044);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 204, 582.108, 529.623, 1576, 1747, 23216, 16042, 23465, 10884, 690.13, 452, 1581, 340, 540, 8074);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 205, 586.388, 533.5905, 1590, 1763, 23434, 16200, 23686, 10978, 695.48, 456, 1595, 343, 544, 8103);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 206, 590.682, 537.5715, 1604, 1780, 23653, 16359, 23908, 11073, 700.85, 460, 1609, 346, 548, 8132);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 207, 594.99, 541.566, 1618, 1797, 23873, 16518, 24131, 11168, 706.24, 464, 1623, 349, 552, 8161);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 208, 599.312, 545.574, 1632, 1814, 24094, 16678, 24355, 11264, 711.65, 468, 1637, 352, 556, 8190);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 209, 603.648, 549.5955, 1646, 1831, 24316, 16839, 24580, 11360, 717.0799999999999, 472, 1651, 355, 560, 8219);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 210, 607.998, 553.6305, 1660, 1848, 24539, 17001, 24806, 11456, 722.53, 476, 1665, 358, 564, 8248);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 211, 612.362, 557.679, 1674, 1865, 24763, 17163, 25033, 11553, 728.0, 480, 1679, 361, 568, 8277);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 212, 616.74, 561.741, 1688, 1882, 24988, 17326, 25261, 11650, 733.49, 484, 1693, 364, 572, 8306);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 213, 621.132, 565.8165, 1702, 1899, 25214, 17490, 25490, 11748, 739.0, 488, 1707, 367, 576, 8335);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 214, 625.538, 569.9055, 1716, 1916, 25441, 17655, 25720, 11846, 744.53, 492, 1721, 370, 580, 8364);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 215, 629.958, 574.008, 1730, 1933, 25669, 17821, 25951, 11944, 750.0799999999999, 496, 1735, 373, 584, 8392);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 216, 634.392, 578.124, 1744, 1950, 25898, 17987, 26183, 12043, 755.65, 500, 1749, 376, 588, 8420);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 217, 638.84, 582.2535, 1758, 1967, 26128, 18154, 26416, 12142, 761.24, 504, 1763, 379, 592, 8448);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 218, 643.302, 586.3965, 1772, 1984, 26359, 18322, 26650, 12242, 766.85, 508, 1778, 382, 596, 8476);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 219, 647.778, 590.553, 1787, 2001, 26591, 18491, 26885, 12342, 772.48, 512, 1793, 385, 600, 8504);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 220, 652.268, 594.723, 1802, 2018, 26824, 18660, 27121, 12442, 778.13, 516, 1808, 388, 604, 8532);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 221, 656.772, 598.9065, 1817, 2035, 27058, 18830, 27358, 12543, 783.8, 520, 1823, 391, 608, 8560);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 222, 661.29, 603.1035, 1832, 2052, 27293, 19001, 27596, 12644, 789.49, 524, 1838, 394, 612, 8588);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 223, 665.822, 607.314, 1847, 2069, 27529, 19173, 27835, 12746, 795.2, 528, 1853, 397, 616, 8616);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 224, 670.368, 611.538, 1862, 2086, 27766, 19346, 28076, 12848, 800.9300000000001, 532, 1868, 400, 620, 8644);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 225, 674.928, 615.7755, 1877, 2104, 28004, 19519, 28318, 12950, 806.6800000000001, 536, 1883, 403, 624, 8671);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 226, 679.502, 620.0265, 1892, 2122, 28243, 19693, 28561, 13053, 812.45, 540, 1898, 406, 628, 8698);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 227, 684.09, 624.291, 1907, 2140, 28483, 19868, 28805, 13156, 818.24, 544, 1913, 409, 632, 8725);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 228, 688.692, 628.569, 1922, 2158, 28724, 20044, 29050, 13260, 824.05, 548, 1928, 412, 636, 8752);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 229, 693.308, 632.8605, 1937, 2176, 28966, 20220, 29296, 13364, 829.88, 552, 1943, 415, 640, 8779);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 230, 697.938, 637.1655, 1952, 2195, 29209, 20397, 29543, 13468, 835.73, 556, 1958, 418, 644, 8806);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 231, 702.582, 641.484, 1967, 2214, 29453, 20575, 29791, 13573, 841.6, 560, 1973, 421, 648, 8833);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 232, 707.24, 645.816, 1982, 2233, 29698, 20754, 30040, 13678, 847.49, 564, 1988, 424, 652, 8860);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 233, 711.912, 650.1615, 1997, 2252, 29944, 20933, 30290, 13784, 853.4, 568, 2003, 427, 656, 8887);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 234, 716.598, 654.5205, 2012, 2271, 30191, 21113, 30541, 13890, 859.3299999999999, 572, 2019, 430, 660, 8914);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 235, 721.298, 658.893, 2028, 2290, 30439, 21294, 30793, 13996, 865.28, 576, 2035, 433, 664, 8940);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 236, 726.012, 663.279, 2044, 2309, 30688, 21476, 31046, 14103, 871.25, 580, 2051, 436, 668, 8966);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 237, 730.74, 667.6785, 2060, 2328, 30938, 21659, 31300, 14210, 877.24, 584, 2067, 439, 672, 8992);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 238, 735.482, 672.0915, 2076, 2347, 31189, 21842, 31555, 14318, 883.25, 588, 2083, 442, 676, 9018);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 239, 740.238, 676.518, 2092, 2366, 31441, 22026, 31811, 14426, 889.28, 593, 2099, 445, 680, 9044);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 240, 745.008, 680.958, 2108, 2385, 31694, 22211, 32068, 14534, 895.3299999999999, 598, 2115, 448, 684, 9070);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 241, 749.792, 685.4115, 2124, 2404, 31948, 22397, 32326, 14643, 901.4, 603, 2131, 451, 688, 9096);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 242, 754.59, 689.8785, 2140, 2423, 32203, 22583, 32585, 14752, 907.49, 608, 2147, 455, 692, 9122);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 243, 759.402, 694.359, 2156, 2442, 32459, 22770, 32845, 14862, 913.6, 613, 2163, 459, 696, 9148);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 244, 764.228, 698.853, 2172, 2461, 32716, 22958, 33106, 14972, 919.73, 618, 2179, 463, 700, 9174);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 245, 769.068, 703.3605, 2188, 2480, 32974, 23147, 33368, 15082, 925.88, 623, 2195, 467, 704, 9199);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 246, 773.922, 707.8815, 2204, 2499, 33233, 23337, 33631, 15193, 932.05, 628, 2211, 471, 708, 9224);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 247, 778.79, 712.416, 2220, 2518, 33493, 23527, 33895, 15304, 938.24, 633, 2227, 475, 712, 9249);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 248, 783.672, 716.964, 2236, 2537, 33754, 23718, 34160, 15416, 944.45, 638, 2243, 479, 716, 9274);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 249, 788.568, 721.5255, 2252, 2556, 34017, 23910, 34426, 15528, 950.6800000000001, 643, 2259, 483, 720, 9299);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 250, 793.478, 726.1005, 2268, 2575, 34281, 24103, 34693, 15640, 956.9300000000001, 648, 2275, 487, 724, 9324);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 251, 798.402, 730.689, 2284, 2594, 34546, 24296, 34961, 15753, 963.2, 653, 2292, 491, 728, 9349);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 252, 803.34, 735.291, 2301, 2613, 34812, 24490, 35230, 15866, 969.49, 658, 2309, 495, 732, 9374);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 253, 808.292, 739.9065, 2318, 2632, 35079, 24685, 35500, 15980, 975.8, 663, 2326, 499, 736, 9399);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 254, 813.258, 744.5355, 2335, 2652, 35347, 24881, 35771, 16094, 982.13, 668, 2343, 503, 740, 9424);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 2, 255, 818.238, 749.178, 2352, 2672, 35616, 25077, 36043, 16208, 988.48, 673, 2360, 507, 744, 9448);
-
-        -- UNIT_CLASS 8
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 64, 94.873, 85.1227, 121, 57, 2397, 1562, 6333, 1269, 131, 37, 92, 278, 279, 1870);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 65, 96.783, 86.6202, 123, 61, 2463, 1610, 6512, 1288, 133, 37, 93, 283, 283, 1896);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 66, 98.707, 88.1232, 126, 65, 2530, 1659, 6694, 1307, 135, 37, 94, 288, 287, 1922);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 67, 100.645, 89.6317, 129, 69, 2598, 1709, 6878, 1326, 137, 37, 95, 293, 291, 1948);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 68, 102.597, 91.1457, 132, 73, 2667, 1760, 7064, 1345, 139, 37, 96, 298, 295, 1974);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 69, 104.563, 92.6652, 135, 77, 2737, 1811, 7253, 1364, 141, 37, 97, 303, 299, 1999);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 70, 106.543, 94.1902, 138, 81, 2808, 1863, 7444, 1383, 143, 37, 98, 308, 304, 2024);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 71, 108.537, 95.7207, 141, 85, 2879, 1916, 7637, 1402, 145, 37, 99, 313, 309, 2049);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 72, 110.545, 97.2567, 144, 89, 2951, 1970, 7833, 1421, 147, 37, 100, 318, 314, 2074);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 73, 112.567, 98.7982, 147, 93, 3024, 2024, 8031, 1440, 149, 37, 101, 323, 319, 2099);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 74, 114.603, 100.3452, 150, 97, 3098, 2079, 8232, 1459, 151, 37, 102, 328, 324, 2124);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 75, 116.653, 101.8977, 153, 101, 3173, 2135, 8435, 1478, 153, 37, 103, 333, 329, 2149);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 76, 118.717, 103.4557, 156, 105, 3249, 2192, 8640, 1497, 155, 37, 104, 338, 334, 2174);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 77, 120.795, 105.0192, 159, 109, 3326, 2249, 8848, 1516, 157, 37, 105, 343, 339, 2199);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 78, 122.887, 106.5882, 162, 113, 3404, 2307, 9058, 1535, 159, 37, 106, 348, 344, 2224);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 79, 124.993, 108.1627, 165, 117, 3483, 2366, 9271, 1554, 161, 37, 107, 353, 349, 2248);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 80, 127.113, 109.7427, 168, 121, 3562, 2426, 9486, 1573, 164, 37, 108, 359, 354, 2272);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 81, 129.247, 111.3282, 171, 125, 3642, 2486, 9703, 1592, 167, 37, 109, 365, 359, 2296);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 82, 131.395, 112.9192, 174, 129, 3723, 2547, 9923, 1611, 170, 37, 110, 371, 364, 2320);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 83, 133.557, 114.5157, 177, 133, 3805, 2609, 10145, 1630, 173, 37, 111, 377, 369, 2344);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 84, 135.733, 116.1177, 180, 137, 3888, 2672, 10370, 1649, 176, 37, 112, 383, 374, 2368);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 85, 137.923, 117.7252, 183, 141, 3972, 2735, 10597, 1668, 179, 37, 113, 389, 379, 2392);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 86, 140.127, 119.3382, 186, 145, 4057, 2799, 10826, 1687, 182, 37, 114, 395, 384, 2416);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 87, 142.345, 120.9567, 189, 150, 4143, 2864, 11058, 1706, 185, 37, 115, 401, 389, 2440);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 88, 144.577, 122.5807, 192, 155, 4230, 2930, 11292, 1725, 188, 37, 116, 407, 394, 2464);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 89, 146.823, 124.2102, 195, 160, 4317, 2996, 11529, 1744, 191, 37, 117, 413, 399, 2487);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 90, 149.083, 125.8452, 198, 165, 4405, 3063, 11768, 1763, 194, 37, 118, 419, 404, 2510);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 91, 151.357, 127.4857, 201, 170, 4494, 3131, 12009, 1782, 197, 37, 119, 425, 409, 2533);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 92, 153.645, 129.1317, 205, 175, 4584, 3200, 12253, 1801, 200, 37, 120, 431, 414, 2556);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 93, 155.947, 130.7832, 209, 180, 4675, 3269, 12499, 1820, 203, 37, 121, 437, 419, 2579);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 94, 158.263, 132.4402, 213, 185, 4767, 3339, 12748, 1839, 206, 37, 122, 443, 424, 2602);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 95, 160.593, 134.1027, 217, 190, 4860, 3410, 12999, 1858, 209, 37, 124, 449, 429, 2625);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 96, 162.937, 135.7707, 221, 195, 4954, 3482, 13252, 1877, 212, 37, 126, 455, 434, 2648);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 97, 165.295, 137.4442, 225, 200, 5049, 3554, 13508, 1896, 215, 37, 128, 461, 439, 2671);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 98, 167.667, 139.1232, 229, 205, 5144, 3627, 13766, 1915, 218, 37, 130, 467, 444, 2694);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 99, 170.053, 140.8077, 233, 210, 5240, 3701, 14027, 1934, 221, 37, 132, 473, 449, 2716);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 100, 172.453, 142.4977, 237, 215, 5337, 3776, 14290, 1953, 224, 37, 134, 479, 454, 2738);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 101, 174.867, 144.1932, 241, 220, 5435, 3851, 14555, 1972, 227, 37, 136, 485, 459, 2760);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 102, 177.295, 145.8942, 245, 225, 5534, 3927, 14823, 1991, 230, 37, 138, 491, 464, 2782);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 103, 179.737, 147.6007, 249, 230, 5634, 4004, 15093, 2010, 233, 37, 140, 497, 469, 2804);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 104, 182.193, 149.3127, 253, 235, 5735, 4082, 15366, 2029, 236, 37, 142, 503, 474, 2826);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 105, 184.663, 151.0302, 257, 240, 5837, 4160, 15641, 2048, 239, 37, 144, 510, 479, 2848);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 106, 187.147, 152.7532, 261, 245, 5940, 4239, 15918, 2067, 242, 37, 146, 517, 484, 2870);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 107, 189.645, 154.4817, 265, 250, 6043, 4319, 16198, 2086, 245, 37, 148, 524, 489, 2892);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 108, 192.157, 156.2157, 269, 255, 6147, 4400, 16480, 2105, 248, 37, 150, 531, 494, 2914);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 109, 194.683, 157.9552, 273, 260, 6252, 4481, 16765, 2124, 251, 37, 152, 538, 499, 2935);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 110, 197.223, 159.7002, 277, 265, 6358, 4563, 17052, 2143, 254, 37, 154, 545, 504, 2956);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 111, 199.777, 161.4507, 281, 271, 6465, 4646, 17341, 2162, 257, 37, 156, 552, 509, 2977);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 112, 202.345, 163.2067, 285, 277, 6573, 4730, 17633, 2181, 260, 37, 158, 559, 515, 2998);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 113, 204.927, 164.9682, 289, 283, 6682, 4814, 17927, 2200, 263, 37, 160, 566, 521, 3019);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 114, 207.523, 166.7352, 293, 289, 6792, 4899, 18223, 2219, 266, 37, 162, 573, 527, 3040);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 115, 210.133, 168.5077, 297, 295, 6903, 4985, 18522, 2238, 269, 37, 164, 580, 533, 3061);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 116, 212.757, 170.2857, 301, 301, 7014, 5072, 18823, 2257, 272, 37, 166, 587, 539, 3082);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 117, 215.395, 172.0692, 305, 307, 7126, 5159, 19127, 2276, 275, 37, 168, 594, 545, 3103);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 118, 218.047, 173.8582, 309, 313, 7239, 5247, 19433, 2295, 278, 37, 170, 601, 551, 3124);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 119, 220.713, 175.6527, 314, 319, 7353, 5336, 19741, 2314, 281, 37, 172, 608, 557, 3144);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 120, 223.393, 177.4527, 319, 325, 7468, 5426, 20052, 2333, 285, 37, 174, 615, 563, 3164);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 121, 226.087, 179.2582, 324, 331, 7584, 5516, 20365, 2352, 289, 37, 176, 622, 569, 3184);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 122, 228.795, 181.0692, 329, 337, 7701, 5607, 20681, 2371, 293, 37, 178, 629, 575, 3204);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 123, 231.517, 182.8857, 334, 343, 7819, 5699, 20999, 2390, 297, 37, 180, 636, 581, 3224);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 124, 234.253, 184.7077, 339, 349, 7937, 5792, 21319, 2409, 301, 37, 182, 643, 587, 3244);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 125, 237.003, 186.5352, 344, 355, 8056, 5885, 21642, 2428, 305, 37, 184, 650, 593, 3264);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 126, 239.767, 188.3682, 349, 361, 8176, 5979, 21967, 2447, 309, 37, 186, 657, 599, 3284);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 127, 242.545, 190.2067, 354, 367, 8297, 6074, 22295, 2466, 313, 37, 188, 664, 605, 3304);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 128, 245.337, 192.0507, 359, 373, 8419, 6170, 22625, 2485, 317, 37, 190, 671, 611, 3324);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 129, 248.143, 193.9002, 364, 379, 8542, 6266, 22957, 2504, 321, 37, 192, 678, 617, 3343);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 130, 250.963, 195.7552, 369, 385, 8666, 6363, 23292, 2523, 325, 37, 194, 686, 623, 3362);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 131, 253.797, 197.6157, 374, 391, 8791, 6461, 23629, 2542, 329, 37, 196, 694, 629, 3381);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 132, 256.645, 199.4817, 379, 397, 8917, 6560, 23969, 2561, 333, 37, 198, 702, 635, 3400);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 133, 259.507, 201.3532, 384, 403, 9043, 6659, 24311, 2580, 337, 37, 200, 710, 641, 3419);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 134, 262.383, 203.2302, 389, 409, 9170, 6759, 24655, 2599, 341, 37, 202, 718, 647, 3438);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 135, 265.273, 205.1127, 394, 416, 9298, 6860, 25002, 2618, 345, 37, 204, 726, 653, 3457);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 136, 268.177, 207.0007, 399, 423, 9427, 6962, 25351, 2637, 349, 37, 206, 734, 659, 3476);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 137, 271.095, 208.8942, 404, 430, 9557, 7064, 25703, 2656, 353, 37, 208, 742, 665, 3495);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 138, 274.027, 210.7932, 409, 437, 9688, 7167, 26057, 2675, 357, 37, 210, 750, 671, 3514);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 139, 276.973, 212.6977, 414, 444, 9820, 7271, 26413, 2694, 361, 37, 212, 758, 677, 3532);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 140, 279.933, 214.6077, 419, 451, 9953, 7376, 26772, 2713, 365, 37, 214, 766, 683, 3550);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 141, 282.907, 216.5232, 424, 458, 10087, 7481, 27133, 2732, 369, 37, 216, 774, 689, 3568);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 142, 285.895, 218.4442, 429, 465, 10221, 7587, 27497, 2751, 373, 37, 218, 782, 695, 3586);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 143, 288.897, 220.3707, 434, 472, 10356, 7694, 27863, 2770, 377, 37, 220, 790, 701, 3604);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 144, 291.913, 222.3027, 439, 479, 10492, 7802, 28231, 2789, 381, 37, 222, 798, 707, 3622);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 145, 294.943, 224.2402, 444, 486, 10629, 7910, 28602, 2808, 385, 37, 224, 806, 713, 3640);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 146, 297.987, 226.1832, 450, 493, 10767, 8019, 28975, 2827, 389, 37, 226, 814, 719, 3658);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 147, 301.045, 228.1317, 456, 500, 10906, 8129, 29351, 2846, 393, 37, 228, 822, 725, 3676);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 148, 304.117, 230.0857, 462, 508, 11046, 8240, 29729, 2865, 397, 37, 230, 830, 731, 3694);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 149, 307.203, 232.0452, 468, 516, 11187, 8351, 30109, 2884, 401, 37, 232, 838, 737, 3711);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 150, 310.303, 234.0102, 474, 524, 11329, 8463, 30492, 2903, 405, 37, 234, 846, 743, 3728);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 151, 313.417, 235.9807, 480, 532, 11471, 8576, 30877, 2922, 409, 37, 236, 854, 749, 3745);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 152, 316.545, 237.9567, 486, 540, 11614, 8690, 31264, 2941, 413, 37, 238, 862, 755, 3762);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 153, 319.687, 239.9382, 492, 548, 11758, 8804, 31654, 2960, 417, 37, 240, 870, 761, 3779);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 154, 322.843, 241.9252, 498, 556, 11903, 8919, 32046, 2979, 421, 37, 242, 878, 768, 3796);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 155, 326.013, 243.9177, 504, 564, 12049, 9035, 32441, 2998, 425, 37, 244, 887, 775, 3813);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 156, 329.197, 245.9157, 510, 572, 12196, 9152, 32838, 3017, 429, 37, 246, 896, 782, 3830);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 157, 332.395, 247.9192, 516, 580, 12344, 9269, 33237, 3036, 433, 37, 248, 905, 789, 3847);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 158, 335.607, 249.9282, 522, 588, 12493, 9387, 33639, 3055, 437, 37, 250, 914, 796, 3864);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 159, 338.833, 251.9427, 528, 597, 12643, 9506, 34043, 3074, 441, 37, 252, 923, 803, 3880);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 160, 342.073, 253.9627, 534, 606, 12793, 9626, 34450, 3093, 446, 37, 254, 932, 810, 3896);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 161, 345.327, 255.9882, 540, 615, 12944, 9746, 34859, 3112, 451, 37, 256, 941, 817, 3912);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 162, 348.595, 258.0192, 546, 624, 13096, 9867, 35270, 3131, 456, 37, 258, 950, 824, 3928);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 163, 351.877, 260.0557, 552, 633, 13249, 9989, 35684, 3150, 461, 37, 260, 959, 831, 3944);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 164, 355.173, 262.0977, 558, 642, 13403, 10112, 36100, 3169, 466, 37, 262, 968, 838, 3960);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 165, 358.483, 264.1452, 564, 651, 13558, 10235, 36519, 3188, 471, 37, 264, 977, 845, 3976);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 166, 361.807, 266.1982, 570, 660, 13714, 10359, 36940, 3207, 476, 37, 266, 986, 852, 3992);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 167, 365.145, 268.2567, 576, 669, 13871, 10484, 37363, 3226, 481, 37, 268, 995, 859, 4008);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 168, 368.497, 270.3207, 582, 678, 14029, 10610, 37789, 3245, 486, 37, 270, 1004, 866, 4024);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 169, 371.863, 272.3902, 588, 687, 14187, 10736, 38217, 3264, 491, 37, 273, 1013, 873, 4039);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 170, 375.243, 274.4652, 594, 696, 14346, 10863, 38648, 3283, 496, 37, 276, 1022, 880, 4054);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 171, 378.637, 276.5457, 600, 705, 14506, 10991, 39081, 3302, 501, 37, 279, 1031, 887, 4069);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 172, 382.045, 278.6317, 607, 714, 14667, 11120, 39516, 3321, 506, 37, 282, 1040, 894, 4084);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 173, 385.467, 280.7232, 614, 723, 14829, 11249, 39954, 3340, 511, 37, 285, 1049, 901, 4099);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 174, 388.903, 282.8202, 621, 732, 14992, 11379, 40394, 3359, 516, 37, 288, 1058, 908, 4114);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 175, 392.353, 284.9227, 628, 741, 15156, 11510, 40837, 3378, 521, 37, 291, 1067, 915, 4129);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 176, 395.817, 287.0307, 635, 750, 15321, 11642, 41282, 3397, 526, 37, 294, 1076, 922, 4144);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 177, 399.295, 289.1442, 642, 759, 15487, 11774, 41729, 3416, 531, 37, 297, 1085, 929, 4159);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 178, 402.787, 291.2632, 649, 768, 15653, 11907, 42179, 3435, 536, 37, 300, 1094, 936, 4174);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 179, 406.293, 293.3877, 656, 777, 15820, 12041, 42631, 3454, 541, 37, 303, 1103, 943, 4188);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 180, 409.813, 295.5177, 663, 786, 15988, 12176, 43086, 3473, 546, 37, 306, 1113, 950, 4202);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 181, 413.347, 297.6532, 670, 795, 16157, 12311, 43543, 3492, 551, 37, 309, 1123, 957, 4216);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 182, 416.895, 299.7942, 677, 804, 16327, 12447, 44002, 3511, 556, 37, 312, 1133, 964, 4230);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 183, 420.457, 301.9407, 684, 814, 16498, 12584, 44464, 3530, 561, 37, 315, 1143, 971, 4244);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 184, 424.033, 304.0927, 691, 824, 16670, 12722, 44928, 3549, 566, 37, 318, 1153, 978, 4258);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 185, 427.623, 306.2502, 698, 834, 16843, 12860, 45395, 3568, 571, 37, 321, 1163, 985, 4272);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 186, 431.227, 308.4132, 705, 844, 17017, 12999, 45864, 3587, 576, 37, 324, 1173, 992, 4286);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 187, 434.845, 310.5817, 712, 854, 17191, 13139, 46335, 3606, 581, 37, 327, 1183, 999, 4300);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 188, 438.477, 312.7557, 719, 864, 17366, 13280, 46809, 3625, 586, 37, 330, 1193, 1006, 4314);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 189, 442.123, 314.9352, 726, 874, 17542, 13421, 47285, 3644, 591, 37, 333, 1203, 1013, 4327);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 190, 445.783, 317.1202, 733, 884, 17719, 13563, 47764, 3663, 596, 37, 336, 1213, 1020, 4340);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 191, 449.457, 319.3107, 740, 894, 17897, 13706, 48245, 3682, 601, 37, 339, 1223, 1027, 4353);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 192, 453.145, 321.5067, 747, 904, 18076, 13850, 48728, 3701, 606, 37, 342, 1233, 1034, 4366);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 193, 456.847, 323.7082, 754, 914, 18256, 13994, 49214, 3720, 611, 37, 345, 1243, 1041, 4379);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 194, 460.563, 325.9152, 761, 924, 18437, 14139, 49702, 3739, 616, 37, 348, 1253, 1048, 4392);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 195, 464.293, 328.1277, 768, 934, 18619, 14285, 50192, 3758, 621, 37, 351, 1263, 1056, 4405);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 196, 468.037, 330.3457, 775, 944, 18801, 14432, 50685, 3777, 626, 37, 354, 1273, 1064, 4418);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 197, 471.795, 332.5692, 782, 954, 18984, 14579, 51180, 3796, 631, 37, 357, 1283, 1072, 4431);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 198, 475.567, 334.7982, 789, 964, 19168, 14727, 51678, 3815, 636, 37, 360, 1293, 1080, 4444);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 199, 479.353, 337.0327, 797, 974, 19353, 14876, 52178, 3834, 641, 37, 363, 1303, 1088, 4456);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 200, 483.153, 339.2727, 805, 984, 19539, 15026, 52680, 3853, 647, 37, 366, 1313, 1096, 4468);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 201, 486.967, 341.5182, 813, 994, 19726, 15176, 53185, 3872, 653, 37, 369, 1323, 1104, 4480);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 202, 490.795, 343.7692, 821, 1004, 19914, 15327, 53692, 3891, 659, 37, 372, 1333, 1112, 4492);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 203, 494.637, 346.0257, 829, 1014, 20103, 15479, 54202, 3910, 665, 37, 375, 1343, 1120, 4504);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 204, 498.493, 348.2877, 837, 1024, 20293, 15632, 54714, 3929, 671, 37, 378, 1353, 1128, 4516);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 205, 502.363, 350.5552, 845, 1034, 20483, 15785, 55228, 3948, 677, 37, 381, 1364, 1136, 4528);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 206, 506.247, 352.8282, 853, 1045, 20674, 15939, 55745, 3967, 683, 37, 384, 1375, 1144, 4540);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 207, 510.145, 355.1067, 861, 1056, 20866, 16094, 56264, 3986, 689, 37, 387, 1386, 1152, 4552);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 208, 514.057, 357.3907, 869, 1067, 21059, 16250, 56786, 4005, 695, 37, 390, 1397, 1160, 4564);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 209, 517.983, 359.6802, 877, 1078, 21253, 16406, 57310, 4024, 701, 37, 393, 1408, 1168, 4575);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 210, 521.923, 361.9752, 885, 1089, 21448, 16563, 57836, 4043, 707, 37, 396, 1419, 1176, 4586);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 211, 525.877, 364.2757, 893, 1100, 21644, 16721, 58365, 4062, 713, 37, 399, 1430, 1184, 4597);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 212, 529.845, 366.5817, 901, 1111, 21841, 16880, 58896, 4081, 719, 37, 402, 1441, 1192, 4608);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 213, 533.827, 368.8932, 909, 1122, 22039, 17039, 59430, 4100, 725, 37, 405, 1452, 1200, 4619);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 214, 537.823, 371.2102, 917, 1133, 22237, 17199, 59966, 4119, 731, 37, 408, 1463, 1208, 4630);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 215, 541.833, 373.5327, 925, 1144, 22436, 17360, 60504, 4138, 737, 37, 411, 1474, 1216, 4641);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 216, 545.857, 375.8607, 933, 1155, 22636, 17522, 61045, 4157, 743, 37, 414, 1485, 1224, 4652);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 217, 549.895, 378.1942, 941, 1166, 22837, 17684, 61588, 4176, 749, 37, 417, 1496, 1232, 4663);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 218, 553.947, 380.5332, 949, 1177, 23039, 17847, 62134, 4195, 755, 37, 420, 1507, 1240, 4674);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 219, 558.013, 382.8777, 957, 1188, 23242, 18011, 62682, 4214, 761, 37, 423, 1518, 1248, 4684);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 220, 562.093, 385.2277, 965, 1199, 23446, 18176, 63232, 4233, 767, 37, 426, 1529, 1256, 4694);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 221, 566.187, 387.5832, 973, 1210, 23651, 18341, 63785, 4252, 773, 37, 429, 1540, 1264, 4704);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 222, 570.295, 389.9442, 981, 1221, 23857, 18507, 64340, 4271, 779, 37, 432, 1551, 1272, 4714);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 223, 574.417, 392.3107, 989, 1232, 24063, 18674, 64898, 4290, 785, 37, 435, 1562, 1280, 4724);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 224, 578.553, 394.6827, 997, 1243, 24270, 18842, 65458, 4309, 791, 37, 438, 1573, 1288, 4734);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 225, 582.703, 397.0602, 1005, 1254, 24478, 19010, 66020, 4328, 797, 37, 441, 1584, 1296, 4744);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 226, 586.867, 399.4432, 1014, 1265, 24687, 19179, 66585, 4347, 803, 37, 444, 1595, 1304, 4754);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 227, 591.045, 401.8317, 1023, 1276, 24897, 19349, 67152, 4366, 809, 37, 447, 1606, 1312, 4764);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 228, 595.237, 404.2257, 1032, 1287, 25108, 19520, 67722, 4385, 815, 37, 450, 1617, 1320, 4774);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 229, 599.443, 406.6252, 1041, 1298, 25320, 19691, 68294, 4404, 821, 37, 453, 1628, 1328, 4783);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 230, 603.663, 409.0302, 1050, 1310, 25533, 19863, 68868, 4423, 827, 37, 456, 1640, 1336, 4792);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 231, 607.897, 411.4407, 1059, 1322, 25747, 20036, 69445, 4442, 833, 37, 459, 1652, 1344, 4801);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 232, 612.145, 413.8567, 1068, 1334, 25961, 20210, 70024, 4461, 839, 37, 462, 1664, 1352, 4810);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 233, 616.407, 416.2782, 1077, 1346, 26176, 20384, 70605, 4480, 845, 37, 465, 1676, 1360, 4819);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 234, 620.683, 418.7052, 1086, 1358, 26392, 20559, 71189, 4499, 851, 37, 468, 1688, 1368, 4828);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 235, 624.973, 421.1377, 1095, 1370, 26609, 20735, 71775, 4518, 857, 37, 471, 1700, 1376, 4837);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 236, 629.277, 423.5757, 1104, 1382, 26827, 20912, 72364, 4537, 863, 37, 474, 1712, 1384, 4846);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 237, 633.595, 426.0192, 1113, 1394, 27046, 21089, 72955, 4556, 869, 37, 477, 1724, 1393, 4855);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 238, 637.927, 428.4682, 1122, 1406, 27266, 21267, 73548, 4575, 875, 37, 480, 1736, 1402, 4864);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 239, 642.273, 430.9227, 1131, 1418, 27487, 21446, 74144, 4594, 881, 37, 483, 1748, 1411, 4872);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 240, 646.633, 433.3827, 1140, 1430, 27709, 21626, 74742, 4613, 888, 37, 486, 1760, 1420, 4880);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 241, 651.007, 435.8482, 1149, 1442, 27931, 21806, 75343, 4632, 895, 37, 489, 1772, 1429, 4888);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 242, 655.395, 438.3192, 1158, 1454, 28154, 21987, 75946, 4651, 902, 37, 492, 1784, 1438, 4896);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 243, 659.797, 440.7957, 1167, 1466, 28378, 22169, 76551, 4670, 909, 37, 496, 1796, 1447, 4904);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 244, 664.213, 443.2777, 1176, 1478, 28603, 22352, 77159, 4689, 916, 37, 500, 1808, 1456, 4912);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 245, 668.643, 445.7652, 1185, 1490, 28829, 22535, 77769, 4708, 923, 37, 504, 1820, 1465, 4920);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 246, 673.087, 448.2582, 1194, 1502, 29056, 22719, 78382, 4727, 930, 37, 508, 1832, 1474, 4928);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 247, 677.545, 450.7567, 1203, 1514, 29284, 22904, 78997, 4746, 937, 37, 512, 1844, 1483, 4936);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 248, 682.017, 453.2607, 1212, 1526, 29513, 23090, 79614, 4765, 944, 37, 516, 1856, 1492, 4944);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 249, 686.503, 455.7702, 1221, 1538, 29742, 23276, 80234, 4784, 951, 37, 520, 1868, 1501, 4951);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 250, 691.003, 458.2852, 1230, 1550, 29972, 23463, 80856, 4803, 958, 37, 524, 1880, 1510, 4958);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 251, 695.517, 460.8057, 1239, 1562, 30203, 23651, 81481, 4822, 965, 37, 528, 1892, 1519, 4965);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 252, 700.045, 463.3317, 1249, 1574, 30435, 23840, 82108, 4841, 972, 37, 532, 1904, 1528, 4972);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 253, 704.587, 465.8632, 1259, 1586, 30668, 24029, 82737, 4860, 979, 37, 536, 1916, 1537, 4979);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 254, 709.143, 468.4002, 1269, 1599, 30902, 24219, 83369, 4879, 986, 37, 540, 1928, 1546, 4986);
-        INSERT INTO `creature_classlevelstats` VALUES (NULL, 8, 255, 713.713, 470.9427, 1279, 1612, 31137, 24410, 84003, 4898, 993, 37, 544, 1941, 1555, 4993);
-
-
-        -- SOME LEVEL CORRECTION
-
-        -- Stormwind City Guard
-        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 68;
-
-        -- Stormwind Royal Guard
-        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 1756;
-
-        -- Stormwind City Patroller
-        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 1976;
-
-        -- Elanaria
-        UPDATE `creature_template` SET `level_min`= 65, `level_max`= 65 WHERE `entry`= 4088;
-        
-        -- Thrall
-        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 4949;
-
-        -- Cairne
-        UPDATE `creature_template` SET `level_min`= 100, `level_max`= 100 WHERE `entry`= 3057;     
-
-        -- Orgrimmar Grunt
-        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 3296;     
-        
-        -- Dungar Longdrink
-        UPDATE `creature_template` SET `level_min`= 10, `level_max`= 10 WHERE `entry`= 352;     
-        
-        -- Angus Stern
-        UPDATE `creature_template` SET `level_min`= 70, `level_max`= 70 WHERE `entry`= 1141;     
-        
-        -- Zardeth of the Black Claw
-        UPDATE `creature_template` SET `level_min`= 70, `level_max`= 70 WHERE `entry`= 1135;     
-        
-        -- Highlord Bolvar Fordragon
-        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 1748;     
-
-        -- Lord Daval Prestor
-        UPDATE `creature_template` SET `level_min`= 75, `level_max`= 75 WHERE `entry`= 1749;     
-        
-        -- Bluffwatcher
-        UPDATE `creature_template` SET `level_min`= 75, `level_max`= 75 WHERE `entry`= 3084;     
-        
-        -- Honor Guard
-        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 3083;     
-                
-        -- Undercity Guardian
-        UPDATE `creature_template` SET `level_min`= 90, `level_max`= 90 WHERE `entry`= 5624;     
-        
-        -- VARIOUS DB FIXES
-
-        -- CAMP TAURAJO, despawn some guards
-        UPDATE `spawns_creatures` SET `ignored` = 1 WHERE `spawn_id`IN (19384, 19399, 19400, 19379, 19383, 19357, 19358, 19381, 19401, 19382);
-
-        -- Remove torch in Greatwood Vale
-        update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (47502, 47504, 47486, 30232, 30226);
-
-        -- Correct campfire location in Greatwood Vale
-        UPDATE `spawns_gameobjects` SET `spawn_positionX` = 126.667, `spawn_positionY` = -362.093, `spawn_positionZ` = 3.616 WHERE `spawn_id` = 34176;
-
-        -- WAYPOINTS FOR ZUL FARRAK
-
-        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_id`IN (400182, 400157, 400126, 39666, 400123);
-        INSERT INTO creature_movement VALUES (400184, 1, -6197.812, -2927.01, 14.318, 1, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400184, 2, -6207.812, -2979.56, 14.284, 1, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400182, 1, -6629.31103515625, -2914.589111328125, 8.890827178955078, 2.792034387588501, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400182, 2, -6644.35009765625, -2912.31640625, 8.964310646057129, 3.0237269401550293, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400182, 3, -6664.6298828125, -2906.72998046875, 8.890830039978027, 2.979740619659424, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400182, 4, -6674.16845703125, -2903.486083984375, 8.890828132629395, 2.506145715713501, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400182, 5, -6651.21435546875, -2911.152587890625, 9.086282730102539, 6.01216459274292, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400182, 6, -6589.48193359375, -2921.39404296875, 8.887046813964844, 6.215582847595215, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400182, 7, -6627.232421875, -2914.906005859375, 8.890827178955078, 6.071069717407227, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400183, 1, -6629.80712890625, -2918.236083984375, 8.890827178955078, 2.9365475177764893, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400183, 2, -6645.486328125, -2915.03076171875, 8.890829086303711, 2.882355213165283, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400183, 3, -6667.234375, -2909.262939453125, 8.883689880371094, 2.882355213165283, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400183, 4, -6676.60205078125, -2906.442138671875, 8.999785423278809, 2.7951719760894775, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400183, 5, -6652.68017578125, -2914.4462890625, 8.890829086303711, 6.109553813934326, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400183, 6, -6628.705078125, -2918.1484375, 8.890827178955078, 6.168458938598633, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400183, 7, -6594.2548828125, -2922.1181640625, 8.882157325744629, 6.168458938598633, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400213, 1, -6566.318359375, -2922.197021484375, 8.954911231994629, 3.4714066982269287, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400213, 2, -6574.068359375, -2924.845703125, 8.954911231994629, 2.942833423614502, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400213, 3, -6621.86962890625, -2917.2861328125, 8.890827178955078, 2.9601120948791504, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400213, 4, -6587.34375, -2923.382568359375, 8.881696701049805, 6.089925289154053, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400213, 5, -6505.09814453125, -2900.929931640625, 8.890827178955078, 0.3431669771671295, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400177, 1, -6509.85888671875, -2935.16552734375, 8.890824317932129, 2.139373540878296, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400177, 2, -6526.89208984375, -2908.5078125, 8.890829086303711, 0.27954983711242676, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400177, 3, -6493.01611328125, -2897.593505859375, 8.879341125488281, 0.24185070395469666, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400177, 4, -6478.18505859375, -2908.78662109375, 8.891790390014648, 4.084017753601074, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400210, 1, -6412.9169921875, -2860.73193359375, 8.891433715820312, 0.6133419275283813, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400210, 2, -6377.13720703125, -2848.857666015625, 8.891433715820312, 0.29525554180145264, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400210, 3, -6421.66162109375, -2868.473876953125, 8.891790390014648, 3.593144178390503, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400210, 4, -6455.447265625, -2896.172607421875, 8.891790390014648, 3.814626455307007, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400165, 1, -6403.5390625, -2866.319580078125, 8.890827178955078, 0.6094178557395935, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400165, 2, -6377.92236328125, -2853.43017578125, 8.891433715820312, 0.390291690826416, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400157, 3, -6312.1318359375, -2828.310546875, 8.876791954040527, 2.4040536880493164, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400157, 4, -6362.19091796875, -2788.931640625, 8.876775741577148, 2.4417526721954346, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400157, 5, -6380.79736328125, -2751.669189453125, 9.533853530883789, 2.023920774459839, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400157, 6, -6365.16064453125, -2788.013916015625, 8.876775741577148, 5.104253768920898, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400157, 7, -6318.34912109375, -2825.16796875, 8.876791954040527, 5.620260238647461, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400157, 8, -6312.65673828125, -2845.724365234375, 8.876787185668945, 4.982516765594482, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400158, 1, -6321.4052734375, -2879.890380859375, 8.876787185668945, 1.221246361732483, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400158, 2, -6341.216796875, -2929.573486328125, 8.876785278320312, 4.3369221687316895, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400198, 1, -6254.74609375, -2901.07275390625, 8.876786231994629, 3.6434149742126465, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400198, 2, -6293.07763671875, -2922.341064453125, 8.876786231994629, 3.6159262657165527, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400126, 1, -6135.7861328125, -2753.25146484375, 8.8818941116333, 0.7500072121620178, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400126, 2, -6126.27685546875, -2750.72265625, 8.87679386138916, 0.25991854071617126, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400126, 3, -6136.99755859375, -2754.83935546875, 8.8818941116333, 4.172771453857422, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400126, 4, -6176.95849609375, -2819.585205078125, 8.903288841247559, 4.1680588722229, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400121, 1, -6147.2041015625, -2672.5703125, 8.876791000366211, 5.101113796234131, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400121, 2, -6136.89697265625, -2697.736328125, 8.876791954040527, 5.101113796234131, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400121, 3, -6148.0615234375, -2673.720458984375, 8.876790046691895, 1.0516016483306885, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400121, 4, -6120.59423828125, -2624.16748046875, 8.959833145141602, 1.0516016483306885, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400144, 1, -6290.5625, -2540.610107421875, 9.18094253540039, 0.8065624833106995, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400144, 2, -6333.1787109375, -2583.39306640625, 8.876781463623047, 3.941084861755371, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400123, 1, -6292.35107421875, -2521.233642578125, 8.876777648925781, 4.74611759185791, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400123, 2, -6292.21240234375, -2548.15625, 8.908246994018555, 3.934800863265991, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400123, 3, -6345.84375, -2603.046142578125, 9.025752067565918, 4.021194934844971, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400123, 4, -6368.291015625, -2575.3828125, 8.968757629394531, 2.2524774074554443, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400123, 5, -6367.90966796875, -2548.494873046875, 9.03447151184082, 0.8371893167495728, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400123, 6, -6328.72265625, -2509.279541015625, 8.876777648925781, 0.8364039063453674, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400123, 7, -6300.171875, -2486.81298828125, 9.323782920837402, 5.759279251098633, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400241, 1, -6437.015625, -2721.98681640625, 8.876777648925781, 2.103252410888672, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400241, 2, -6426.873046875, -2679.963134765625, 8.876779556274414, 1.2479534149169922, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400241, 3, -6416.369140625, -2651.72412109375, 8.876779556274414, 1.2228206396102905, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400241, 4, -6406.54833984375, -2635.42626953125, 8.876778602600098, 0.8905970454216003, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400241, 5, -6428.58935546875, -2679.637939453125, 8.876779556274414, 4.266239643096924, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400241, 6, -6435.70068359375, -2722.623779296875, 8.876777648925781, 5.463972091674805, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400241, 7, -6410.4580078125, -2749.652099609375, 9.22799301147461, 5.539370536804199, 0, 0, 0);
-
-        -- KAERBRUS WAYPOINTS
-
-        INSERT INTO creature_movement VALUES (39666, 1, -8747.017578125, 985.604736328125, 97.89386749267578, 1.147691011428833, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 2, -8731.4912109375, 1003.0662231445312, 95.74864196777344, 1.5757335424423218, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 3, -8731.6025390625, 1025.5859375, 94.298828125, 1.723388433456421, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 4, -8739.7177734375, 1060.01025390625, 89.67137908935547, 2.1286540031433105, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 5, -8772.416015625, 1066.4442138671875, 90.78028106689453, 2.7546167373657227, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 6, -8788.599609375, 1075.42626953125, 90.78028106689453, 1.8961759805679321, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 7, -8797.1552734375, 1103.9505615234375, 90.78028869628906, 1.3927356004714966, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 8, -8791.830078125, 1133.473876953125, 90.78028106689453, 0.7204344868659973, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 9, -8770.6796875, 1146.765380859375, 90.78028106689453, 0.023000624030828476, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 10, -8750.0654296875, 1146.82470703125, 90.32986450195312, 5.93704891204834, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 11, -8727.994140625, 1137.1412353515625, 90.44760131835938, 5.395909309387207, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 12, -8716.0078125, 1106.9197998046875, 90.50601196289062, 4.500555515289307, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 13, -8714.85546875, 1084.73046875, 90.722412109375, 4.373321056365967, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 14, -8717.982421875, 1075.8656005859375, 95.16466522216797, 3.883232593536377, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 15, -8724.9140625, 1069.515869140625, 95.5447769165039, 3.883232593536377, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 16, -8738.9501953125, 1061.408203125, 89.65679931640625, 4.8414177894592285, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 17, -8730.677734375, 1010.927490234375, 95.41535186767578, 4.0976457595825195, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 18, -8747.5849609375, 989.341796875, 97.60567474365234, 4.858696937561035, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (39666, 19, -8743.4677734375, 968.7826538085938, 99.21542358398438, 4.831207752227783, 0, 0, 0);
-        
-        -- TANARIS adjustements
-
-        -- Correct a lost goblin to look less random
-        UPDATE `spawns_creatures` SET `position_x` = -7152.677, `position_y` = -3826.417, `position_z` = 8.378, `orientation`= 0.821  WHERE `spawn_id` = 23443;
-        
-        -- Despawn GO over the beach at 1.12 pirates location
-        update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (17336, 17330, 17338, 17339, 17340, 17350, 17351, 17354, 17343, 17344, 17244, 17349, 17346, 17347, 17348, 17345, 17341);
-
-        -- Correct z, half inserted into floor
-        update `spawns_creatures` set `position_z` = 142.24 where `spawn_id` = 26631;
-
-
-        -- TIRISFAL
-
-        -- Despawn GO at the WPL entrance
-        update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (44778, 44795, 45059, 88087, 44771, 44767, 44780, 44802, 44769);
-
-        -- ALTERAC
-
-        -- Despawn Tarren Mill Deathguard at Alterac valley entrance
-        update `spawns_creatures` set `ignored` = 1 where `spawn_id` IN (16600, 16602, 16607, 16601);
-
-        -- ARATHI
-
-        -- Despawn Hammerfall guard at Arathi Bassin entrance
-        update `spawns_creatures` set `ignored` = 1 where `spawn_id` IN (11237, 11205, 11253, 11240, 11235, 11236, 11212);
-
-        -- ULDAMAN
-        
-        -- Forgot to change a dwarf to trogg at uldaman entrance
-        update `spawns_creatures` set `spawn_entry1` = 2890 where `spawn_id` IN(8187, 8190, 7714);
-
-        -- Boar display_id #1149
-        UPDATE `creature_template` SET `display_id1`= 744 WHERE `entry`= 1689;
-
-        -- Lord Maldazzar, given its vanilla display_id he probably use default human caster PH
-        UPDATE `creature_template` SET `display_id1`= 263 WHERE `entry`= 1848;
-
-        -- Morbent Fell, most of named caster use default human caster PH as well
-        UPDATE `creature_template` SET `display_id1`= 263 WHERE `entry`= 1200; 
-
-        -- Skeletal sorcerer, now we know that caster skel mostly use 201, we set display_id 201
-        UPDATE `creature_template` SET `display_id1`= 201 WHERE `entry`= 1784; 
-
-        -- Closes #1288
-        UPDATE `creature_template` SET `name`= "Tauren Horde Runner" WHERE `entry`= 2478;
-        UPDATE `creature_template` SET `name`= "Orc Horde Runner" WHERE `entry`= 2477; 
-        -- this guy has waypoints, we reuse Thargromm original spawn
-        update `spawns_creatures` set `ignored` = 0, `spawn_entry1`=2477 where `spawn_id` = 9205;
-
-        -- QUESTS
-
-        -- 844
-        UPDATE `quest_template` SET `RewOrReqMoney`= 405, `RewXP` = 1200, `Details` = "So you want to help, %n? There are many things in the Barrens that need attention. However, before I turn your attention towards them, you should first learn a lesson.%B%BYes, I think that is exactly what you need. The greater plainstriders to the east have been harassing some of our food supplies and have become a general nuisance.%B%BPut down the greater plainstriders and return to me seven of their beaks. With their numbers reduced, perhaps they will not look to our foodstores for their daily meal.", `OfferRewardText` = "I feel the spirits of the Greater Plainstriders call out to me, can you not hear them? Ponder their deaths, %n, for I sense that you do not truly understand what it is you have done.%B%BThere will be a falling out because of your actions here today. You have no choice but to follow it through to the end now. Speak with me again, when you are ready." WHERE `entry`= 844; 
-
-        -- 845
-        UPDATE `quest_template` SET `RewOrReqMoney`= 467, `RewXP` = 1300, `Details` = "There is an interdependency between the zhevra and the plainstriders. The plainstrider's constant scratching and pecking of the land actually tills the soil, allowing the plants that the zhevra eat to propogate.%B%BWithout steady food, the zhevra have become agitated and encroach upon our field grains. Though your initial path was faulty, we must continue.%B%BSlay the zhevra runners to the north and bring me four zhevra hooves", `OfferRewardText` = "With a good number of Zhevra Runners slaughtered, the orcish graints are safe again. I worry though what effect the deaths of so many Zhevra will have upon the beasts surrounding the Crossroads. Worry not, young one. The mystery of my teachings will become clear in time." WHERE `entry`= 845; 
-
-        -- 903
-        UPDATE `quest_template` SET `RewOrReqMoney`= 607, `ReqItemCount1` = 10, `Objectives` = "Collect 10 Prowler Claws from Savannah Prowlers for Sergra Darkthorn in the Crossroads.", `Details` = "It would seem our previous actions return to haunt us. WIth the Zhevra and Plainstrider game diminished, the Savannah Prowlers have turned upon our people as they use the southern road.%B%BGo south and collect 10 Prowler Claws and we just might reach an equilibrium again.", `RequestItemsText`="Hurry, young one. The lives of those around the Crossroads are in your hands. Do you have the 10 Prowler Claws I requested?", `OfferRewardText` = "Well done, young one. Though the bloodshed here seems senseless, I can feel that the lessons of the Earthmother are close to your heart. There are few steps left to complete this circle, but soon you shall have the whole of the picture." WHERE `entry`= 903; 
-
-        -- 905
-        UPDATE `quest_template` SET `RewOrReqMoney`= 765, `RewXP` = 1300 WHERE `entry`=905;
-
-        -- 881
-        UPDATE `quest_template` SET `RewXP` = 2200 WHERE `entry`=881;
-        UPDATE `creature_template` SET `level_min`= 17, `level_max`=17 WHERE `entry`= 3475;
-
-        -- 882
-        UPDATE `quest_template` SET `RewXP` = 2300, `Details` = "Ishamuhale, Speartooth, is the fiercest sunscale raptor of the Barrens. He does not hunt for sport, nor for food. He hunts because hunting is his passion. He kills because it is his nature to kill.%B%BAnd you will learn of his nature, %n, for your path now follows the taloned tracks of Ishamuhale.%B%BBegin the hunt. He roams to the east of the Crossroads, where his lesser brothers and sisters stalk their prey." WHERE `entry`=882;
-        INSERT INTO `spawns_creatures` VALUES (NULL, 3257, 0, 0, 0, 1, -512, -3485.9, 95.24, 3, 300, 300, 50, 100, 0, 1, 0, 0, 0);
-
-        -- Mull, partial #695
-        UPDATE `spawns_creatures` SET `position_x` = -2298.616, `position_y` = -505.560, `position_z` = -8.228, `orientation`= 4.294  WHERE `spawn_id` = 24799;
-
-        -- closes #589
-        UPDATE `creature_template` SET `subname`="Leatherworker" WHERE `entry`=3967;
-        UPDATE `creature_template` SET `subname`="Enchantress" WHERE `entry`=3606 ;
-        UPDATE `creature_template` SET `subname`="Alchemist" WHERE `entry`=4900 ;
-        UPDATE `creature_template` SET `subname`="Superior Alchemist" WHERE `entry`=5594 ;
-        UPDATE `creature_template` SET `subname`="Leatherworker" WHERE `entry`=3552 ;
-        UPDATE `creature_template` SET `subname`="Superior Leatherworker" WHERE `entry`=2816 ;
-        UPDATE `creature_template` SET `subname`="Superior Herbalist" WHERE `entry`=2856 ;
-        UPDATE `creature_template` SET `subname`="Rogue Trainer" WHERE `entry`=989 ;
-        UPDATE `creature_template` SET `subname`="Needs Model" WHERE `entry`=1880 ;
-        UPDATE `creature_template` SET `subname`="Superior Alchemist" WHERE `entry`=2481 ;
-        UPDATE `creature_template` SET `subname`="Tailoring Vendor" WHERE `entry`=3364 ;
-        UPDATE `creature_template` SET `subname`="Weaponsmith" WHERE `entry`=1441 ;
-        UPDATE `creature_template` SET `subname`="Herbalist" WHERE `entry`=4898 ;
-        UPDATE `creature_template` SET `subname`="Superior Leatherworker" WHERE `entry`=1385 ;
-        UPDATE `creature_template` SET `subname`="Superior Blacksmith" WHERE `entry`=2836 ;
-        UPDATE `creature_template` SET `subname`="Specialist Tailor" WHERE `entry`=3096 ;
-        UPDATE `creature_template` SET `subname`="Leatherworker" WHERE `entry`=3069 ;
-        UPDATE `creature_template` SET `subname`="Cooking Trainer" WHERE `entry`=1355;
-        UPDATE `creature_template` SET `subname`="Superior Tailor" WHERE `entry`=2672 ;
-        UPDATE `creature_template` SET `subname`="Clothier & Leathercrafter" WHERE `entry`=3166 ;
-        UPDATE `creature_template` SET `subname`="Herbalist" WHERE `entry`=3965 ;
-        UPDATE `creature_template` SET `subname`="Tailor" WHERE `entry`=2668 ;
-        UPDATE `creature_template` SET `subname`="Engineer" WHERE `entry`=3290 ;
-        UPDATE `creature_template` SET `subname`="Superior Alchemist" WHERE `entry`=2812 ;
-        UPDATE `creature_template` SET `subname`="Blacksmith" WHERE `entry`=3174 ;
-        UPDATE `creature_template` SET `subname`="Needs Model" WHERE `entry`=1881 ;
-        UPDATE `creature_template` SET `subname`="Engineer" WHERE `entry`=1676 ;
-        UPDATE `creature_template` SET `subname`="Superior Herbalist" WHERE `entry`=908 ;
-        UPDATE `creature_template` SET `subname`="Engineer" WHERE `entry`=2682 ;
-        UPDATE `creature_template` SET `subname`="Tailoring Supplier" WHERE `entry`=3091 ;
-        UPDATE `creature_template` SET `subname`="Two Handed Weapons Merchant" WHERE `entry`=4043 ;
-        UPDATE `creature_template` SET `subname`="Alchemist" WHERE `entry`=1470 ;
-        UPDATE `creature_template` SET `subname`="Superior Engineer" WHERE `entry`=2687 ;
-        UPDATE `creature_template` SET `subname`="Armorer & Shieldcrafter" WHERE `entry`=1213 ;
-        UPDATE `creature_template` SET `subname`="Tailor" WHERE `entry`=2627 ;
-        UPDATE `creature_template` SET `subname`="Shaman Trainer" WHERE `entry`=3343 ;
-        UPDATE `creature_template` SET `subname`="Gryphon Master" WHERE `entry`=2858 ;
-        UPDATE `creature_template` SET `subname`="Grom'gol Guard" WHERE `entry`=1064 ;
-        UPDATE `creature_template` SET `subname`="Armor Crafter" WHERE `entry`=5164 ;
-        UPDATE `creature_template` SET `subname`="Blacksmith" WHERE `entry`=3557 ;
-        UPDATE `creature_template` SET `subname`="Leather Armor Merchant" WHERE `entry`=3316 ;
-        UPDATE `creature_template` SET `subname`="Wands Merchant" WHERE `entry`=5133 ;
-        UPDATE `creature_template` SET `subname`="Alchemist" WHERE `entry`=3956 ;
-        UPDATE `creature_template` SET `subname`="Superior Clothier and Leathercrafter" WHERE `entry`=1147 ;
-        UPDATE `creature_template` SET `subname`="Clothier & Leathercrafter" WHERE `entry`=3160 ;
-        UPDATE `creature_template` SET `subname`="Superior Blacksmith" WHERE `entry`=2844 ;
-        UPDATE `creature_template` SET `subname`="Mage Trainer" WHERE `entry`=1411 ;
-        UPDATE `creature_template` SET `subname`="Innkeeper" WHERE `entry`=1247 ;
-        UPDATE `creature_template` SET `subname`="Innkeeper" WHERE `entry`=5111 ;
-        UPDATE `creature_template` SET `subname`="Leatherworker & Armorer" WHERE `entry`=3483 ;
-        UPDATE `creature_template` SET `subname`="Macecrafter" WHERE `entry`=1471 ;
-        UPDATE `creature_template` SET `subname`="Superior Blacksmith" WHERE `entry`=2847 ;
-        UPDATE `creature_template` SET `subname`="Superior Alchemist" WHERE `entry`=2837 ;
-        UPDATE `creature_template` SET `subname`="Herbalist" WHERE `entry`=1473 ;
-        UPDATE `creature_template` SET `subname`="Leathercrafter" WHERE `entry`=954 ;
-        UPDATE `creature_template` SET `subname`="Maces & Staves" WHERE `entry`=5121 ;
-        UPDATE `creature_template` SET `subname`="Tailor" WHERE `entry`=3484 ;
-        UPDATE `creature_template` SET `subname`="Wolf Rider" WHERE `entry`=4752 ;
-        UPDATE `creature_template` SET `subname`="Enchanting Supplier" WHERE `entry`=3346 ;
-        UPDATE `creature_template` SET `subname`="Alchemy Vendor" WHERE `entry`=3348 ;
-        UPDATE `creature_template` SET `subname`="Mace Vendor" WHERE `entry`=3360 ;
-        UPDATE `creature_template` SET `subname`="Superior Blacksmith" WHERE `entry`=5411 ;
-        UPDATE `creature_template` SET `subname`="Leathercrafter" WHERE `entry`=3703 ;
-        UPDATE `creature_template` SET `subname`="Alchemist" WHERE `entry`=3964 ;
-        UPDATE `creature_template` SET `subname`="Fruit Seller" WHERE `entry`=1671 ;
-        UPDATE `creature_template` SET `subname`="Tiger Handler" WHERE `entry`=4730 ;
-        UPDATE `creature_template` SET `subname`="Tailoring Supplier" WHERE `entry`=1672 ;
-        UPDATE `creature_template` SET `subname`="Guild Tabard Vendor" WHERE `entry`=5049 ;
-        UPDATE `creature_template` SET `subname`="Tailor" WHERE `entry`=3704 ;
-        UPDATE `creature_template` SET `subname`="Tailoring Supplier" WHERE `entry`=3005 ;
-        UPDATE `creature_template` SET `subname`="Leatherworking Supplier" WHERE `entry`=3008 ;
-        UPDATE `creature_template` SET `subname`="Grocer" WHERE `entry`=3961 ;
-        UPDATE `creature_template` SET `subname`="Alchemy Supplier" WHERE `entry`=3010 ;
-        UPDATE `creature_template` SET `subname`="Superior Engineer" WHERE `entry`=2685 ;
-        UPDATE `creature_template` SET `subname`="Horse Trainer" WHERE `entry`=2357 ;
-        UPDATE `creature_template` SET `subname`="Alchemist" WHERE `entry`=3184 ;
-        UPDATE `creature_template` SET `subname`="Herbalist" WHERE `entry`=3185 ;
-        UPDATE `creature_template` SET `subname`="Engineer" WHERE `entry`=2683 ;
-        UPDATE `creature_template` SET `subname`="Alchemist" WHERE `entry`=2380 ;
-        UPDATE `creature_template` SET `subname`="Enchanting Supplier" WHERE `entry`=3012 ;
-        UPDATE `creature_template` SET `subname`="Engineering Trainer" WHERE `entry`=3412 ;
-        UPDATE `creature_template` SET `subname`="Fisherman" WHERE `entry`=1700 ;
-        UPDATE `creature_template` SET `subname`="Stylish Leathercrafter" WHERE `entry`=3684 ;
-        UPDATE `creature_template` SET `subname`="Light Armor & Tailoring Supplies" WHERE `entry`=2849 ;
-        UPDATE `creature_template` SET `subname`="Armorer & Shieldcrafter" WHERE `entry`=1249 ;
-        UPDATE `creature_template` SET `subname`="Tailor" WHERE `entry`=1474 ;
-        UPDATE `creature_template` SET `subname`="Superior Leatherworker" WHERE `entry`=2699 ;
-        UPDATE `creature_template` SET `subname`="Superior Engineer" WHERE `entry`=2684 ;
-        UPDATE `creature_template` SET `subname`="Armorsmith" WHERE `entry`=3543 ;
-        UPDATE `creature_template` SET `subname`="Superior Alchemist" WHERE `entry`=1386 ;
-        UPDATE `creature_template` SET `subname`="Drink Merchant" WHERE `entry`=3541 ;
-        UPDATE `creature_template` SET `subname`="Tailor" WHERE `entry`=2669 ;
-        UPDATE `creature_template` SET `subname`="Drum Merchant" WHERE `entry`=3037 ;
-        UPDATE `creature_template` SET `subname`="Blade Merchant" WHERE `entry`=3361 ;
-        UPDATE `creature_template` SET `subname`="Superior Tailor" WHERE `entry`=2855 ;
-        UPDATE `creature_template` SET `subname`="Superior Blacksmith" WHERE `entry`=1383 ;
-        UPDATE `creature_template` SET `subname`="Engineering Supplier" WHERE `entry`=3413 ;
-        UPDATE `creature_template` SET `subname`="Rogue Trainer" WHERE `entry`=1407 ;
-        UPDATE `creature_template` SET `subname`="Leatherworking Supplier" WHERE `entry`=3366 ;
-        UPDATE `creature_template` SET `subname`="Leathercrafter" WHERE `entry`=3953 ;
-        UPDATE `creature_template` SET `subname`="Blacksmithing Supplier" WHERE `entry`=2999 ;
-        UPDATE `creature_template` SET `subname`="Cloth & Leather Merchant" WHERE `entry`=984 ;
-        UPDATE `creature_template` SET `subname`="Superior Engineer" WHERE `entry`=2857 ;
-        UPDATE `creature_template` SET `subname`="Engineer" WHERE `entry`=3494 ;
-        UPDATE `creature_template` SET `subname`="Grocer" WHERE `entry`=4195 ;
-        UPDATE `creature_template` SET `subname`="Cloth Armor Merchant" WHERE `entry`=3315 ;
-        UPDATE `creature_template` SET `subname`="Blacksmith" WHERE `entry`=3478 ;
-        UPDATE `creature_template` SET `subname`="Superior Leatherworker" WHERE `entry`=2819 ;
-        UPDATE `creature_template` SET `subname`="Shady Dealer" WHERE `entry`=5169 ;
-        UPDATE `creature_template` SET `subname`="Leathercrafter" WHERE `entry`=3079 ;
-        UPDATE `creature_template` SET `subname`="Leatherworker" WHERE `entry`=3074 ;
-        UPDATE `creature_template` SET `subname`="Clothier & Leathercrafter" WHERE `entry`=3492 ;
-        UPDATE `creature_template` SET `subname`="Ancient Blacksmith" WHERE `entry`=3682 ;
-        UPDATE `creature_template` SET `subname`="Tailoring Goods" WHERE `entry`=3485 ;
-        UPDATE `creature_template` SET `subname`="Superior Tailor" WHERE `entry`=2670 ;
-        UPDATE `creature_template` SET `subname`="Mining Trainer" WHERE `entry`=5392 ;
-        UPDATE `creature_template` SET `subname`="Darkspear hostage" WHERE `entry`=2530 ;
-        UPDATE `creature_template` SET `subname`="Lockpicking Trainer" WHERE `entry`=3402 ;
-        UPDATE `creature_template` SET `subname`="Superior Swordsmith" WHERE `entry`=2482 ;
-        UPDATE `creature_template` SET `subname`="Axe Vendor" WHERE `entry`=3409 ;
-
-        -- closes #621
-        UPDATE `creature_template` SET `subname`="Herbalist" WHERE `entry`= 3185;
-        UPDATE `creature_template` SET `subname`="Herbalist" WHERE `entry`= 3965;
-        UPDATE `creature_template` SET `subname`="Alchemist" WHERE `entry`= 3956;
-        UPDATE `creature_template` SET `subname`="Expert Engineer" WHERE `entry`= 3412;
-        UPDATE `creature_template` SET `subname`="Expert Leatherworker" WHERE `entry`= 3365;
-
-        -- Darnassus banker guards fix, there are in a nonsence spot since bankers was moved
-        UPDATE `spawns_creatures` SET `position_x` = 10043.713, `position_y` = 2509.819, `position_z` = 1318.398, `orientation`= 4.594  WHERE `spawn_id` = 46883;
-        UPDATE `spawns_creatures` SET `position_x` = 10026.343, `position_y` = 2507.747, `position_z` = 1318.414, `orientation`= 5.014  WHERE `spawn_id` = 46841;    
-
-        -- Berthe et Evalyn waypoints
-        INSERT INTO creature_movement VALUES (400113, 1, -5352.65771484375, -2963.413818359375, 323.9547119140625, 5.046975612640381, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400112, 1, -5348.97705078125, -2961.716796875, 323.67010498046875, 4.84905481338501, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400113, 2, -5342.2783203125, -2988.3251953125, 323.717529296875, 5.032838821411133, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400112, 2, -5341.6708984375, -2985.308349609375, 323.8820495605469, 4.929166793823242, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400113, 3, -5334.3857421875, -3019.335693359375, 324.0635986328125, 4.974720001220703, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400112, 3, -5330.47802734375, -3022.72265625, 323.9331359863281, 4.764233112335205, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400113, 4, -5342.97216796875, -2987.744140625, 323.72808837890625, 1.900670051574707, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400113, 5, -5359.20556640625, -2947.6494140625, 324.2459411621094, 2.011411428451538, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400112, 4, -5341.47119140625, -2987.35595703125, 323.763916015625, 1.8299880027770996, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400112, 5, -5353.17724609375, -2953.93115234375, 323.9293212890625, 2.08681321144104, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400112, 6, -5384.07568359375, -2918.373046875, 334.5067443847656, 2.3130080699920654, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400113, 6, -5393.248046875, -2911.83837890625, 337.48480224609375, 2.3514928817749023, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400113, 7, -5347.60693359375, -2959.097412109375, 323.5735168457031, 6.055429458618164, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400113, 8, -5338.06884765625, -2957.317626953125, 325.0440979003906, 0.23955610394477844, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400112, 7, -5349.8310546875, -2955.586669921875, 323.7593994140625, 6.00830602645874, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400112, 8, -5333.73974609375, -2955.90869140625, 326.431884765625, 6.272199630737305, 0, 0, 0);
-        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_id` IN (400112, 400113);
-        UPDATE `creature_template` SET `flags_extra` = 33554432 WHERE `entry` IN (1881, 1880);
-
-        insert into`applied_updates`values ('250820232');
-    end if;
-
-    -- 30/08/2023 1
-    if (select count(*) from applied_updates where id='300820231') = 0 then
-
-        -- waypoints for redridge bridgeworkers
-        INSERT INTO creature_movement VALUES (400103, 1, -9273.5322265625, -2263.800048828125, 66.2210464477539, 4.392728328704834, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400103, 2, -9279.8134765625, -2275.6298828125, 67.5046615600586, 3.707075595855713, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400103, 3, -9292.966796875, -2275.2177734375, 67.95291900634766, 3.046555280685425, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400103, 4, -9308.5224609375, -2274.104736328125, 70.20968627929688, 1.390149474143982, 120000, 0, 0);
-        INSERT INTO creature_movement VALUES (400103, 5, -9277.890625, -2276.53466796875, 67.51786041259766, 1.1741650104522705, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400103, 6, -9274.9658203125, -2264.047119140625, 66.4827880859375, 1.4309903383255005, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400103, 7, -9289.3740234375, -2254.568359375, 63.178401947021484, 1.3288885354995728, 30000, 0, 0);
-        INSERT INTO creature_movement VALUES (400102, 1, -9275.37109375, -2258.993408203125, 65.47622680664062, 4.620493412017822, 5000, 0, 0);
-        INSERT INTO creature_movement VALUES (400102, 2, -9279.107421875, -2294.4033203125, 67.84982299804688, 4.620493412017822, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400102, 3, -9292.9892578125, -2294.510986328125, 67.6749038696289, 3.033203125, 40, 0, 0);
-        INSERT INTO creature_movement VALUES (400102, 4, -9382.947265625, -2286.892822265625, 70.42097473144531, 4.523889541625977, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400102, 5, -9305.6181640625, -2292.28369140625, 69.78971862792969, 4.601644515991211, 60, 0, 0);
-        INSERT INTO creature_movement VALUES (400102, 6, -9274.1083984375, -2268.1748046875, 66.79535675048828, 1.597497820854187, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400102, 7, -9276.103515625, -2256.450439453125, 64.99832916259766, 3.0834715366363525, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400102, 8, -9292.8056640625, -2256.870849609375, 62.0775260925293, 3.4392571449279785, 30000, 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 1, -9272.34765625, -2268.39453125, 66.55569458007812, 4.672332763671875, 5000, 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 2, -9282.5068359375, -2285.707275390625, 67.51226806640625, 3.064622163772583, 0 , 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 3, -9385.021484375, -2277.675048828125, 70.19278717041016, 3.0693345069885254, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 4, -9293.68359375, -2284.76806640625, 67.93246459960938, 6.2085723876953125, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 5, -9382.025390625, -2278.083984375, 70.44505310058594, 3.0497026443481445, 10000, 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 6, -9293.6904296875, -2284.905029296875, 67.92780303955078, 6.20464563369751, 10000, 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 7, -9282.6015625, -2285.777587890625, 67.51226806640625, 1.0995579957962036, 10000, 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 8, -9272.8974609375, -2262.074462890625, 65.8905029296875, 2.371903657913208, 10000, 0, 0);
-        INSERT INTO creature_movement VALUES (400099, 9, -9286.9306640625, -2247.989013671875, 63.22495651245117, 4.04323148727417, 40000, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 1, -9296.796875, -2245.725341796875, 60.652992248535156, 5.209540367126465, 25000, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 2, -9292.1171875, -2254.054443359375, 62.962833404541016, 5.647792816162109, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 3, -9282.5224609375, -2261.12939453125, 66.0398178100586, 5.647792816162109, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 4, -9276.73828125, -2265.875244140625, 66.9942855834961, 4.739086627960205, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 5, -9281.185546875, -2274.3671875, 67.49750518798828, 4.083278656005859, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 6, -9298.6865234375, -2277.63427734375, 68.95601654052734, 3.040269374847412, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 7, -9323.1396484375, -2275.1484375, 71.2531967163086, 3.040269374847412, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 8, -9338.748046875, -2270.497314453125, 71.60730743408203, 2.6750590801239014, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 9, -9346.380859375, -2259.515625, 71.6443862915039, 2.0483107566833496, 200000, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 10, -9338.748046875, -2270.497314453125, 71.60730743408203, 2.6750590801239014, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 11, -9323.1396484375, -2275.1484375, 71.2531967163086, 3.040269374847412, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 12, -9298.6865234375, -2277.63427734375, 68.95601654052734, 3.040269374847412, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 13, -9281.185546875, -2274.3671875, 67.49750518798828, 4.083278656005859, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 14, -9276.73828125, -2265.875244140625, 66.9942855834961, 4.739086627960205, 0, 0, 0);
-        INSERT INTO creature_movement VALUES (400100, 15, -9292.1171875, -2254.054443359375, 62.962833404541016, 5.647792816162109, 0, 0, 0);
-
-        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_id` IN (400099, 400102, 400103, 400100);
-
-        -- add datefield
-        ALTER TABLE `quest_template` ADD COLUMN `parse_timestamp` DATE NOT NULL DEFAULT "2004-12-04";
-
-        -- default release date for modified quests entries
-        UPDATE `quest_template` SET `parse_timestamp` = "1970-01-01" WHERE entry IN (2, 7, 8, 10, 11, 12, 13, 14, 15, 17, 19, 21, 22, 23, 24, 26, 27, 28, 29, 30, 31, 32, 33, 47, 52, 54, 55, 56, 60, 61, 62, 63, 64, 76, 77, 81, 82, 83, 85, 87, 88, 96, 99, 100, 105, 106, 109, 113, 114, 115, 116, 117, 119, 121, 122, 123, 135, 138, 139, 140, 151, 153, 155, 156, 162, 167, 168, 170, 171, 179, 181, 182, 183, 191, 192, 193, 194, 196, 201, 202, 204, 208, 211, 212, 216, 218, 220, 228, 232, 233, 234, 236, 238, 243, 246, 247, 252, 255, 272, 275, 279, 282, 287, 289, 291, 301, 303, 304, 308, 310, 311, 312, 313, 314, 315, 317, 318, 319, 320, 325, 332, 333, 334, 338, 349, 351, 353, 358, 364, 367, 374, 375, 376, 379, 380, 381, 384, 387, 388, 392, 393, 399, 400, 408, 412, 417, 420, 426, 429, 430, 432, 433, 434, 437, 447, 450, 452, 456, 457, 458, 459, 460, 464, 475, 476, 483, 485, 486, 487, 488, 489, 501, 505, 518, 529, 532, 537, 541, 543, 553, 567, 576, 577, 580, 586, 592, 595, 604, 606, 607, 614, 621, 626, 628, 636, 640, 648, 654, 661, 665, 676, 679, 682, 684, 685, 686, 697, 698, 704, 709, 717, 722, 724, 727, 729, 731, 741, 745, 747, 748, 750, 752, 754, 756, 757, 758, 759, 760, 783, 787, 791, 792, 793, 794, 821, 822, 824, 829, 836, 841, 842, 843, 844, 845, 846, 850, 851, 852, 855, 861, 862, 864, 868, 869, 870, 880, 881, 882, 883, 884, 885, 889, 893, 899, 903, 905, 908, 909, 914, 916, 917, 919, 922, 923, 934, 937, 939, 947, 951, 952, 957, 958, 959, 960, 962, 964, 965, 969, 971, 972, 974, 975, 976, 977, 978, 981, 982, 984, 986, 992, 995, 996, 997, 998, 1003, 1013, 1014, 1016, 1021, 1022, 1026, 1031, 1032, 1035, 1036, 1045, 1046, 1048, 1049, 1050, 1051, 1053, 1058, 1059, 1061, 1062, 1063, 1068, 1069, 1072, 1073, 1078, 1079, 1080, 1081, 1089, 1092, 1096, 1097, 1101, 1102, 1103, 1105, 1107, 1113, 1116, 1132, 1133, 1135, 1136, 1137, 1138, 1139, 1141, 1142, 1143, 1144, 1150, 1153, 1156, 1166, 1167, 1168, 1169, 1172, 1173, 1177, 1184, 1189, 1193, 1197, 1199, 1200, 1203, 1206, 1218, 1219, 1221, 1222, 1258, 1264, 1267, 1270, 1273, 1275, 1282, 1286, 1302, 1322);
-
-        -- 0.5.5 date for WDB parsed entries
-        UPDATE `quest_template` SET `parse_timestamp` = "2004-03-18" WHERE entry IN (179, 233, 234, 183, 783, 7, 15, 62, 47, 60, 85, 86, 106, 84, 87, 76, 111, 107, 112, 61, 239, 40, 35, 114, 11, 88, 37, 109, 333, 1097, 13, 153, 436, 1678, 1618, 65, 176, 783, 7, 62, 47, 87, 76, 60, 61, 333, 334, 52, 15, 21, 54, 239, 11, 64, 12, 151, 102, 22, 13, 14, 117, 399, 246, 1097, 116, 412, 287, 315, 310, 384, 400, 308, 311, 291, 433, 432, 313, 353, 65, 118, 120, 132, 121, 119, 122, 135, 141, 142);
-
-        -- 0.5.3 date for WDB parsed entries
-        UPDATE `quest_template` SET `parse_timestamp` = "2003-12-12" WHERE entry IN (364, 376, 380, 381, 363, 382, 383, 404, 426,  375, 367);
-
-        -- Change Susan Tilinghast mvmt type to be able to use their wp
-        UPDATE `spawns_creatures` SET `movement_type`= 2 WHERE `spawn_id`= 38101;
-
-
-        insert into applied_updates values ('300820231');
-    end if;
-
-    -- 01/09/2023 1
-    if (select count(*) from `applied_updates` where id='010920231') = 0 then
-        -- Closes #1286
-        UPDATE `quest_template` SET `RewXP` = 1500, `RewOrReqMoney` = 350, `parse_timestamp` = "2004-03-18" WHERE `entry` = 224;
-
-        insert into `applied_updates` values ('010920231');
-    end if;
-
-    -- 08/09/2023 1
-    IF (SELECT COUNT(*) FROM `applied_updates` WHERE id='080920231') = 0 THEN
-        UPDATE `creature_template` SET `trainer_id` = 280 WHERE `entry` IN (3620, 4901);
-        UPDATE `creature_template` SET `trainer_id` = 287 WHERE `entry` IN (3624);
-        INSERT INTO `applied_updates` VALUES ('080920231');
-    end if;
-
-    -- 13/09/2023 1
-	if (select count(*) from applied_updates where id='130920231') = 0 then
-
-        -- Wendigo, go back to normal lvl
-        UPDATE `creature_template` SET `level_min`= 6, `level_max`= 7 WHERE `entry`= 1135;     
-
-        -- Zardeth
-        UPDATE `creature_template` SET `level_min`= 70, `level_max`= 70 WHERE `entry`= 1435;
-
-        -- Andrew brounel #1294
-        UPDATE `spawns_creatures` SET `position_x` = 1861.978, `position_y` = 1571.675, `position_z` = 99.053, `orientation`= 0.185  WHERE `spawn_id` = 32024;
-
-        -- Skeletal enrage
-        UPDATE `creature_template` SET `display_id1`= 200 WHERE `entry`= 2454;
-
-        -- Natheril #1161
-        UPDATE `creature_template` SET `npc_flags`= 0 WHERE `entry`= 2084;
-
-        -- Ravenholdt GO #1306
-        update `spawns_gameobjects` set `ignored` = 1 where `spawn_id` IN (121618, 17977, 17994, 17982, 17984, 17974, 17988, 17993, 17973, 17979, 17986, 17993, 17980, 17991, 17976, 17976);
-
-        -- tiyani #1305
-        UPDATE `creature_template` SET `display_id1`= 2575 WHERE `entry`= 4195;
-
-        -- Steed #1291 1
-        INSERT INTO spawns_creatures 
-        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
-        VALUES 
-        (5689, 0, 2248.764, 331.255, 35.189, 5.605, 300, 300, 0);
-
-        -- Steed #1291 2
-        INSERT INTO spawns_creatures 
-        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
-        VALUES 
-        (5689, 0, 2246.688, 329.018, 35.189, 5.582, 300, 300, 0);
-
-        -- Darnassus npc, #1313
-        UPDATE `spawns_creatures` SET `position_x` = 9825.762, `position_y` = 2338.439, `position_z` = 1329.324, `orientation`= 5.118 WHERE `spawn_id` = 49519;
-        UPDATE `spawns_creatures` SET `position_x` = 9826.717, `position_y` = 2336.335, `position_z` = 1321.659, `orientation`= 5.131  WHERE `spawn_id` = 49540;
-
-        -- Darna Spider trainer, he can't be located at current pos since we have tons of ss of it
-        UPDATE `spawns_creatures` SET `position_x` = 9895.199, `position_y` = 2121.367, `position_z` = 1329.626 , `orientation`= 2.1142  WHERE `spawn_id` = 32651;
-
-        -- Darna Bag Mrchant, flip o as ss shows
-        UPDATE `spawns_creatures` SET `orientation`= 1.433  WHERE `spawn_id` = 46562;
-
-        -- Darna nighsaber inst, correct o to look less random spawned
-        UPDATE `spawns_creatures` SET `orientation`= 3.743  WHERE `spawn_id` = 46722;
-
-        -- Lesser Elem 1
-        INSERT INTO spawns_creatures 
-        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
-        VALUES 
-        (691, 0, -11855.547, 1260.772, 2.641, 4.0, 300, 300, 1);
-
-        -- Lesser Elem 2
-        INSERT INTO spawns_creatures 
-        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
-        VALUES 
-        (691, 0, -11858.30, 1230.882, 1.349, 4.0, 300, 300, 1);
-
-        -- Lesser Elem 3
-        INSERT INTO spawns_creatures 
-        (spawn_entry1, map, position_x, position_y, position_z, orientation, spawntimesecsmin, spawntimesecsmax, movement_type) 
-        VALUES 
-        (691, 0, -11899.0, 1252.23, 2.631, 1.0, 300, 300, 1);
-
-        -- Correct scale for big dragons
-        UPDATE `creature_template` SET `display_id1`= 2717 WHERE `entry` IN (5312, 5314, 5718);
-
-        insert into applied_updates values ('130920231');
-    end if;
-
-    -- 14/09/2023 1
-    IF (SELECT COUNT(*) FROM `applied_updates` WHERE id='140920231') = 0 THEN
-
-        -- Quests Parsing from Warcraft Strategy
-        UPDATE `quest_template` SET `Details` = 'As the mystical taint creeps through the forest the need for self-protection is undeniable, $n.  The winds whisper to me and they speak of a great danger which waits patiently for you in the near-future.$B$BIf you wish to protect yourself, noble $r, bring to me 10 ghoul fangs, 10 skeleton fingers and 5 vials of spider venom.  For you I shall enchant a Totem of Infliction which will harm those who attempt violent acts against you.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 101;
-        UPDATE `quest_template` SET `Details` = 'The forest spirits tell me you are brave and willing to travel.$B$BTo the south, not far from Mystral Lake, there lies a tunnel named The Talondeep Path. Through this tunnel you will come to an area known as Windshear Crag in the Stonetalon Mountains. Once there, journey to the southwest past Cragpool Lake and then north, up the steep slope until you reach Stonetalon Peak.$B$BThere awaits Keeper Albagorm. Heed his bidding, $r.$B$BThe journey will be perilous.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 1056;
-        UPDATE `quest_template` SET `Objectives` = 'Deliver Darsok\'s letter to Jin\'Zil within his cave in Stonetalon.',  `parse_timestamp`='2004-04-25' WHERE `entry` = 1060;
-        UPDATE `quest_template` SET `Objectives` = 'Speak with Apothecary Zamah in the Pools of Vision.',  `parse_timestamp`='2004-05-20' WHERE `entry` = 1064;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1300,  `parse_timestamp`='2004-05-18' WHERE `entry` = 1086;
-        UPDATE `quest_template` SET `Objectives` = 'Kill 4 Sons of Cenarius, 4 Daughters of Cenarius and 4 Cenarion Botanists for Braelyn Firehand near Stonetalon Peak.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 1087;
-        UPDATE `quest_template` SET `Objectives` = 'Bring Ordanus\' head to Braelyn Firehand near Stonetalon Peak.',  `parse_timestamp`='2004-05-20' WHERE `entry` = 1088;
-        UPDATE `quest_template` SET `PrevQuestId` = 1483,  `parse_timestamp`='2004-05-18' WHERE `entry` = 1093;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1000,  `parse_timestamp`='2004-05-20' WHERE `entry` = 1098;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 12 Salty Scorpid Venoms to Fizzle Brassbolts in the Shimmering Flats.', `ReqItemCount1` = 10, `RewOrReqMoney` = 1500,  `parse_timestamp`='2004-05-20' WHERE `entry` = 1104;
-        UPDATE `quest_template` SET `Details` = 'Heh heh, with all the races they\'re running here, it\'s no suprise that a few mishaps happen along the way.  If you look around the Shimmering Flats then you\'ll see evidence of past crashes -- scraps of rocket car parts are littered everywhere!$B$BAnd those parts are worth money to the gnomes and goblins.  They\'re always looking for more contraptions to slap onto their cars.$B$BSo go out and get me parts.  Bring me a heap and I\'ll pay you well.', `RewOrReqMoney` = 1600,  `parse_timestamp`='2004-05-18' WHERE `entry` = 1110;
-        UPDATE `quest_template` SET `Objectives` = 'Bring the Delicate Car Parts to Fizzle Brassbolts.', `RewOrReqMoney` = 500,  `parse_timestamp`='2004-05-13' WHERE `entry` = 1114;
-        UPDATE `quest_template` SET `Objectives` = 'Find Braug Dimspirit in the Talondeep Path connecting the Stonetalon Mountains and Ashenvale.', `Details` = 'Your time with me is just about finished. I am knowledgeable, but the Test of Lore is not mine to give. There are lessons to be learned and places to visit that others claim domain over.$B$BIf you are prepared, then seek out Braug Dimspirit--he is a shaman of great wisdom. He will test you further, so heed his words, $n.$B$BWhen you are ready, find the tunnel that connects the Stonetalon Mountains with Ashenvale: Braug dwells there. And be careful, $n, the night elves may wish to impede your test.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 1152;
-        UPDATE `quest_template` SET `Objectives` = 'Find the Legacy of the Aspects and return it to Braug Dimspirit in Talondeep Path between Ashenvale and Stonetalon.',  `parse_timestamp`='2004-05-18' WHERE `entry` = 1154;
-        UPDATE `quest_template` SET `PrevQuestId` = 1156,  `parse_timestamp`='2004-05-18' WHERE `entry` = 1159;
-        UPDATE `quest_template` SET `Details` = 'The harlot! The swine! Kenata still lives; her family healthy and prospering while I suffer. Forsaken indeed!$B$BMy family is gone, taken by the plague. Our estate also forfeit; looted and burned during the war. And after all that, her and her lousy children had the audacity to steal the only precious belongings I had left.$B$BI don\'t care about the things they stole any more. What I want now are their heads!$B$BKill them for me! Go to the Dabyrie Farmstead in Arathi, northwest of Refuge Point.',  `parse_timestamp`='2004-05-20' WHERE `entry` = 1164;
-        UPDATE `quest_template` SET `Objectives` = 'Get 6 Hollow Vulture Bones for Pozzik in the Shimmering Flats.', `ReqItemCount1` = 6, `RewOrReqMoney` = 2000,  `parse_timestamp`='2004-05-18' WHERE `entry` = 1176;
-        UPDATE `quest_template` SET `Objectives` = 'Bring the Fuel Injector Blueprints to Baron Revilgaz in Booty Bay.', `Details` = 'See, the Venture Company shredders out in Lake Nazferiti have been equipped with a new model fuel regulator. I was thinking that Pozzik would be able to take advantage of it, if he could get some details. Unfortunately, Cozzle, the foreman out there, appears to be a little more clever than I gave him credit for.$B$BYou seem like you might have more luck finding the blueprints though. I know he keeps them in his house, but they\'re almost certainly under lock and key.', `RewOrReqMoney` = 2200,  `parse_timestamp`='2004-05-18' WHERE `entry` = 1182;
-        UPDATE `quest_template` SET `Objectives` = 'Retrieve the Seaforium Booster for Razzeric on the Shimmering Flats.', `Details` = 'Pozzik\'s a great mechanic, I know that, but he\'s afraid to just load on the firepower and grab on for the ride. Not me, though.$B$BAfter Pozzik finishes with a racer, I take a little time to put my own modifications on. Loosening up the controls, removing parts of the frame, and adding more juice!$B$BI ordered a seaforium booster from Shreev at the Gizmorium in Gadgetzan, but apparently the zeppelin it was being sent on crashed in Dustwallow Marsh! I gotta have it, $n!', `RewOrReqMoney` = 2400,  `parse_timestamp`='2004-05-07' WHERE `entry` = 1187;
-        UPDATE `quest_template` SET `Details` = 'The Galak centaur in the Thousand Needles are protecting an artifact from the time of the centaurs\' creation.$B$BWe would like to retrieve it, but we require a phial of water from one of the night elves\' moonwells.$B$BTo collect the water, you will first need to obtain one of the phials carried by the dryads near the Raynewood Retreat in the heart of Ashenvale Forest. There is a moonwell near the western bank of the Falfarren River, south of the main road that you can fill the phial.', `RewOrReqMoney` = 1800,  `parse_timestamp`='2004-05-20' WHERE `entry` = 1195;
-        UPDATE `quest_template` SET `Details` = 'Deadmire is an ancient crocilisk in Dustwallow marsh.  And it is his time to die.$B$BOld bones grind as he pulls his huge body through the swamp, and although he still moves with the strength and speed of youth, his aging body tortures the great spirit within it, a spirit whose flame will not waver.$B$BYet now he lives in constant, maddening pain.  You must end the life of this noble creature, $n.  You must lead Deadmire to peace.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 1205;
-        UPDATE `quest_template` SET `Objectives` = 'Forman Oslow of Lakeshire wants you to retrieve his toolbox from the bottom of Lake Everstill.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 125;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 100,  `parse_timestamp`='2004-06-01' WHERE `entry` = 127;
-        UPDATE `quest_template` SET `Details` = 'Excuse me,  sir : madam;. Bishop DeLavey asked me to approach adventurers that might be able to help him with a delicate matter.$B$BIf you could quietly head to Stormwind Keep and speak to him at your earliest convenience, I\'m sure he would appreciate your help. Again, please be discrete. It is a matter of some importance.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 1274;
-        UPDATE `quest_template` SET `PrevQuestId` = 1339, `RewOrReqMoney` = 400,  `parse_timestamp`='2004-06-01' WHERE `entry` = 1338;
-        UPDATE `quest_template` SET `Details` = 'I hear Mountaineer Stormpike is looking for a runner.  Someone to do a little traveling for him.  How about it?  Are you the  for the job?$B$BIf so, then you\'ll find Stormpike at the top of the northern guard tower.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 1339;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 500,  `parse_timestamp`='2004-06-01' WHERE `entry` = 134;
-        UPDATE `quest_template` SET `RewItemId1` = 1217, `RewItemCount1` = 1,  `parse_timestamp`='2004-06-01' WHERE `entry` = 136;
-        UPDATE `quest_template` SET `Details` = 'Magistrate Solomon\'s note pains me to read.  But it is obvious he knows not the war which is waged in Westfall or else he would know better than to expect aid from the Militia.  If Stormwind had not deserted us as well, we would not have the need for the Militia.$B$BTake this response to your Master in Redridge, $r.  And let him know that my heart is heavy with the loss of good men.', `RewOrReqMoney` = 100,  `parse_timestamp`='2004-06-01' WHERE `entry` = 144;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 200,  `parse_timestamp`='2004-06-01' WHERE `entry` = 146;
-        UPDATE `quest_template` SET `RewItemId1` = 1217,  `parse_timestamp`='2004-06-01' WHERE `entry` = 150;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 300,  `parse_timestamp`='2004-06-01' WHERE `entry` = 154;
-        UPDATE `quest_template` SET `Objectives` = 'Bring the Ghost Hair Thread to Abercrombie, in his shack north of the Raven Hill Cemetary.', `RewOrReqMoney` = 500,  `parse_timestamp`='2004-06-01' WHERE `entry` = 157;
-        UPDATE `quest_template` SET `Objectives` = 'Bring the Zombie Juice to Abercrombie at this shack.', `RewOrReqMoney` = 1000,  `parse_timestamp`='2004-06-01' WHERE `entry` = 159;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 100,  `parse_timestamp`='2004-06-01' WHERE `entry` = 164;
-        UPDATE `quest_template` SET `Details` = 'There was an old man who used to come into town to buy supplies rather frequently, but I haven\'t seen him for quite some time now. He lives out in a shack overlooking Raven Hill cemetary, if I remember correctly. Perhaps you should go see if something is amiss.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 165;
-        UPDATE `quest_template` SET `Objectives` = 'Behead Gath\'Ilzogg and report to Magistrate Solomon in Lakeshire for the reward.', `RewOrReqMoney` = 1900,  `parse_timestamp`='2004-06-01' WHERE `entry` = 169;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1400,  `parse_timestamp`='2004-06-01' WHERE `entry` = 172;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1100,  `parse_timestamp`='2004-06-01' WHERE `entry` = 173;
-        UPDATE `quest_template` SET `Details` = 'Do not be alarmed.  I am Theocritus, High Mage of Tower Azora in Elwynn Forest.  The pendant you are holding is a method of communication between the Shadowhide Gnolls and their master, Morganth.$B$BThrough months of research, I believe I too can communicate through these pendants.  If you can hear this message, then my spell was a success.$B$BBring me this pendant and I will reward you for the service.', `RewOrReqMoney` = 500,  `parse_timestamp`='2004-06-01' WHERE `entry` = 178;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 8 Red Burlap Bandanas to Deputy Willem outside the Northshire Abbey.', `Details` = 'Recently, a new group of thieves has been hanging around Northshire.  They call themselves the Defias Brotherhood, and have been seen across the river to the east.$B$BI don\'t know what they\'re up to, but I\'m sure it\'s not good!  Bring me 8 of the bandanas they wear, and I\'ll reward you with a weapon.', `ReqItemCount1` = 8,  `parse_timestamp`='2004-05-13' WHERE `entry` = 18;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1900,  `parse_timestamp`='2004-06-01' WHERE `entry` = 180;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 2000,  `parse_timestamp`='2004-05-18' WHERE `entry` = 189;
-        UPDATE `quest_template` SET `Details` = 'Hmm. Yes, I do have something you could do, actually. Lieutenant Doren and his followers up in the north need their regular supplies from us.$B$BThey haven\'t been delivered, and with the trolls attacking, I\'ll need someone to do it. Doren\'s camp lies northwest of the road at the entrance to Stranglethorn from Duskwood. Give the supplies to Private Thorsen. He\'ll take care of them.$B$BMind you, if you fail, you\'ll owe me restitution for the supplies.$B$BOf course, you\'ll probably be dead then...', `RewOrReqMoney` = 900,  `parse_timestamp`='2004-06-01' WHERE `entry` = 198;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1000,  `parse_timestamp`='2004-06-01' WHERE `entry` = 20;
-        UPDATE `quest_template` SET `Details` = 'It\'s expensive and hard to kill enough tigers to support the export of tiger fangs to the islands in the South Seas. Luckily, we\'ve developed a technique that we can use mundane horn-like objects and turn them into undetectable forgeries.$B$BThe closest match we\'ve found, amazingly, are the tusks of the Skullsplitter trolls.$B$BHey, before you say anything, what the buyer doesn\'t know doesn\'t hurt them, am I right? Bring me a large number of them so we can get to work on the monthly shipment!', `RewOrReqMoney` = 2400,  `parse_timestamp`='2004-05-07' WHERE `entry` = 209;
-        UPDATE `quest_template` SET `Objectives` = 'Retrieve 12 Tumbled Crystals and return them to Kebok in Booty Bay.', `Details` = 'He\'s done it this time! Bad enough that Gelriz\'s muscling out the moguls who were appointed by the trade princes, now he tries to cut in on the most notorious pirate!$B$BRevilgaz won\'t have it, and he\'s told me to take care of the problem in my own way.$B$BMy way? Theft. The Venture Co. geologists are deeply interested in those strange blue crystals they have been finding in the mines. Bring me samples of the stone from their geologists, I don\'t care what you have to do to get them.', `ReqItemCount1` = 12,  `parse_timestamp`='2004-05-07' WHERE `entry` = 213;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1200,  `parse_timestamp`='2004-06-01' WHERE `entry` = 221;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1200, `RewItemId1` = 5244, `RewItemCount1` = 1,  `parse_timestamp`='2004-06-01' WHERE `entry` = 222;
-        UPDATE `quest_template` SET `Details` = 'Here you go, $n. Bring this message to Master Carevin.$B$B$B$BA few more like you, and we will outnumber the Night Watch! Perhaps then we could complete the work that we few carry on today.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 223;
-        UPDATE `quest_template` SET `Objectives` = 'Kill 12 Starving Dire Wolves, then return to Lars at Sven\'s Camp on the western border of Duskwood.', `Details` = 'Sven and I have dangerous days ahead of us, what with the Necromancer to the east and all.  And out here alone as we are, we have to hunt and fish for our own food.  It seems every time I\'m heading back to camp with some meat or fish on me, Starving Dire Wolves come out of the forest, wanting a bite.  It goes without saying, living out here is dangerous work!$B$BBut if you can rid us of some of those wolves, we\'d have an easier time of it.  They mostly prowl north and east of here, near the river.', `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0,  `parse_timestamp`='2004-06-01' WHERE `entry` = 226;
-        UPDATE `quest_template` SET `Details` = 'Mountaineer Cobbleflint had nothing but good things to say about you, $r.  For that reason I am going to entrust upon you a mission of utmost importance.  We need to keep pressure on the invading Trogg forces until our Dwarven brethren return from the Alliance front.$B$BSet forth into the southern hills and kill 10 Stonesplinter Skullthumpers and 10 Stonesplinter Seers.  Your attacks will buy us some time.  Report back when your mission is complete.', `RewOrReqMoney` = 400,  `parse_timestamp`='2004-06-01' WHERE `entry` = 237;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1000,  `parse_timestamp`='2004-06-01' WHERE `entry` = 240;
-        UPDATE `quest_template` SET `Details` = 'Hail, $r.  I am charged to patrol this stretch of road.  Although the road is safe for now, I\'ve seen gnoll encampments to the north and east of here.$B$BLakeshire must know of the gathering gnoll force!  Report to Deputy Feldon in Lakeshire and tell him of the gnolls.  Do this, and I\'m sure Feldon will offer you a scout\'s wage.$B$BFeldon\'s usually inspecting the area south of the bridge to Lakeshire.', `RewOrReqMoney` = 300,  `parse_timestamp`='2004-06-01' WHERE `entry` = 244;
-        UPDATE `quest_template` SET `Objectives` = 'Watcher Dodds would like you to kill 15 Pygmy Venom Web Spiders.', `Details` = 'Hail, $r. Perhaps you\'ve seen those spiders that have taken over the western border? The eight-legged menaces are too much for us to handle, and the Commander hasn\'t enough manpower to spare so far from Darkshire.$B$BI hate to ask this of you, but you seem like you might be able to handle them. I can\'t promise you anything of great value, but I can reward you if you can help root out the filthy bugs.$B$BOh, and a word of advice, you\'ll want to avoid their venom if you can.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 245;
-        UPDATE `quest_template` SET `Objectives` = 'Kill 5 Mountain Buzzards and return to Daryl the Youngling in the Farstrider Lodge in 15 minutes.', `Details` = 'Think you can match wits with Daryl the Bold, huh? I should think not! Of course, you\'re more than welcome to try. Here\'s a challenge that should prove to be above your abilities, so don\'t feel too bad if you can\'t face up to it.$B$BA flock of buzzards has nested here in Loch Modan. Why don\'t you try to take down some of the beasts? Tell you what, if you meet my challenge in fifteen minutes, I\'ll give you one of my guns.$B$B$B$BIt seems you haven\'t much to lose, anyways.', `ReqCreatureOrGOCount1` = 5, `RewItemId1` = 2904, `RewItemCount1` = 1,  `parse_timestamp`='2004-06-01' WHERE `entry` = 257;
-        UPDATE `quest_template` SET `Objectives` = 'Kill 5 Elder Mountain Boars and return to Daryl the Youngling in the Farstrider Lodge in 12 minutes.', `Details` = '$nath, is it? I can tell you\'re bursting with pride over completing the first test, hm? As I told you before, it\'s no large feat.$B$BYou should try your hand at boar hunting. Trust me, this is no Coldridge Valley boar hunt, so you\'d best have a care with them. I\'ll give you just twelve minutes this time.$B$BDon\'t feel bad if you don\'t have any luck, though, I\'d give you the shirt off my back if you could!$B$BHave I ever related to you the story of how I received my famous scar? No? It was two years ago...',  `parse_timestamp`='2004-06-01' WHERE `entry` = 258;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 20 Trogg Stone Teeth to Captain Rugelfuss in the southern guard tower.', `Details` = '$r, you may or may not be aware of the Trogg threat looming over Dwarven lands.  With the Ironforge Reserve called up to the Alliance Front, we are left with a fraction of the defense forces needed to keep these lands safe.  My regiment is assigned to watch over the Gate here and we cannot leave our post for fear of invasion.$B$BBut we need some pressure put on those damned Troggs lurking in the hills.  If you\'re up to the task, wage an assault on the Troggs.  Bring me back 20 Trogg Stone Teeth as proof.', `ReqItemCount1` = 20, `RewOrReqMoney` = 400,  `parse_timestamp`='2004-06-01' WHERE `entry` = 267;
-        UPDATE `quest_template` SET `Details` = 'This ain\'t no ordinary blast powder.  Look at the tiny silver crystals.  And the distinct smell!  Why it\'s clear as daylight that this is Seaforium Powder.  Seaforium is harmless enough.  But once it\'s wet it could blow Ironforge out of the mountain.$B$BThe chemical reaction can be defused by mixing four components:  Lurker Venom, Crushed Mo\'Grosh Crystal, a Crocilisk Tear and this Disarming Colloid.  Now tell Hinderweir before it\'s too late!',  `parse_timestamp`='2004-06-01' WHERE `entry` = 274;
-        UPDATE `quest_template` SET `PrevQuestId` = 463,  `parse_timestamp`='2004-06-01' WHERE `entry` = 276;
-        UPDATE `quest_template` SET `Details` = 'You thoroghly search this cluster of Murloc hovels, and find no trace of the Menethil Statuette.$B$BPerhaps one of the two nearby hovels to the north and northeast will have more clues.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 284;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1200,  `parse_timestamp`='2004-06-01' WHERE `entry` = 294;
-        UPDATE `quest_template` SET `Objectives` = 'Ormer Ironbraid wants you to kill 10 Mottled Razormaw raptors, 10 Mottled Scytheclaw raptors and 10 Mottled Riptooth raptors, then return to him at the Whelgar Excavation Site.', `Details` = 'Now it\'s time to really make those dreaded Raptors regret their blood-thirst.  Just down below there are scores of Mottled Razormaws, Mottled Scytheclaws and Mottled Riptooths.  Make those rotten creatures pay by slaying 10 of each!', `ReqCreatureOrGOId3` = 1066, `ReqCreatureOrGOCount3` = 10, `RewOrReqMoney` = 1600,  `parse_timestamp`='2004-06-01' WHERE `entry` = 295;
-        UPDATE `quest_template` SET `PrevQuestId` = 436, `Objectives` = 'Bring Magmar Fellhew 5 Carved Stone Idols.', `Details` = 'Recently, just before the Troggs surfaced within the site, we had uncovered a large number of strange, carved idols.  But we didn\'t have the chance to study them, for soon after their discovery the Troggs chased us away from the ruins!  And those idols have a strange effect on the Troggs.  It makes them go berserk!$B$BBring me 5 idols - I want to study them, and I want them out of Trogg hands!  You can find the idols on the Troggs infesting the site.', `ReqItemCount1` = 5,  `parse_timestamp`='2004-06-01' WHERE `entry` = 297;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 200,  `parse_timestamp`='2004-06-01' WHERE `entry` = 299;
-        UPDATE `quest_template` SET `Details` = 'Ready to go, $n?$B$BFirst, we need to get this powder to Ironband. It\'ll be a lot for me to carry, and these parts can get dangerous--and who knows what else the Dark Irons might have in store for me?$B$BI\'ll feel a lot better with you coming along.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 309;
-        UPDATE `quest_template` SET `Objectives` = 'Search the wreckage of The Flying Osprey.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 321;
-        UPDATE `quest_template` SET `Objectives` = 'Take the Crate of Lightforge Ingots to Grimand Elmore.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 322;
-        UPDATE `quest_template` SET `Objectives` = 'Gather 5 Lightforge Ingots, then return to Glorin Steelbrow.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 324;
-        UPDATE `quest_template` SET `Details` = 'Lord Wishock is causing quite a stir amongst the House of Nobles.  He was made aware of our little "establishment" down here and is lobbying for a full investigation.  I have a plan to keep Wishock. . .preoccupied. . .but I\'ll need your help. $B$BThere is a flower growing in the Garden of Stalvan on the outskirts of Darkshire.  This small white flower is known as the Tear of Tilloa.  I will also need a Musquash Root, found only at the very base of the falls far beneath the Stonewrought Dam in the Wetlands.', `RewOrReqMoney` = 1000,  `parse_timestamp`='2004-06-01' WHERE `entry` = 335;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 500,  `parse_timestamp`='2004-06-01' WHERE `entry` = 34;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 100,  `parse_timestamp`='2004-05-18' WHERE `entry` = 360;
-        UPDATE `quest_template` SET `Details` = 'What have we here?  You look like a fledgling $r.  If you hope to prove yourself to The Dark Lady, you need to learn the ways of The Forsaken.$B$BTo the west you\'ll find a farm.  Humans infest the land like mold on a rotting corpse.  And worse yet, the Scarlet Crusade patrols nearby from their tower.  Teach those scum a lesson and steal 10 of their precious pumpkins.$B$BOnce you have 10, take them to Apothecary Johaan in Brill.', `RewOrReqMoney` = 50,  `parse_timestamp`='2004-04-25' WHERE `entry` = 365;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 50,  `parse_timestamp`='2004-04-25' WHERE `entry` = 368;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 200,  `parse_timestamp`='2004-05-18' WHERE `entry` = 370;
-        UPDATE `quest_template` SET `Details` = 'You have proven your loyalty to King Magni, $r.  And your hatred for the Dark Iron scum is as great as my own.$B$BThere is a task I wish to complete myself but I am bound by honor to stay with Longbraid.  But Roggo has gathered intelligence that proves Kam Deepfury was a conspirator in the attack on the Thandol Span.  It was by Deepfury\'s planning that Longbraid lost his kin.$B$BDeepfury is being held for political reasons in the Stormwind Stockade.  I want him dead, $n.  For Longbraid!  Bring me his head!',  `parse_timestamp`='2004-06-01' WHERE `entry` = 378;
-        UPDATE `quest_template` SET `RewItemId1` = 1479, `RewItemCount1` = 1, `RewItemId2` = 733, `RewItemCount2` = 3, `RewItemId3` = 728, `RewItemId4` = 0, `RewItemCount4` = 0,  `parse_timestamp`='2004-06-01' WHERE `entry` = 38;
-        UPDATE `quest_template` SET `Title` = 'Crocilisk Hunting', `Objectives` = 'Get 6 pieces of Crocilisk Meat and 3 Crocilisk Skins for Marek Ironheart at the Farstrider Lodge.', `Details` = 'Many a hunter is attracted to Loch Modan to hunt our famous crocs. There are always merchants who seek out crocilisk skins for clothing items or armor, and there are also some who enjoy the taste of their meat.$B$BWe do some trade in this, but not a huge amount, as the crocilisks are ferocious and have entrenched themselves on the islands in the Loch. But don\'t let me dissuade you, it\'s quite an experience, wrestling with the jaws of the beasts.$B$BWhy, this one time...', `ReqItemCount1` = 6, `ReqItemCount2` = 3,  `parse_timestamp`='2004-06-01' WHERE `entry` = 385;
-        UPDATE `quest_template` SET `Details` = 'Bethor Iceshard, a high-ranking and powerful mage in the Undercity to the south, commands me to send him an agent with proven worth against the Scourge.  You, $n, will be that agent.$B$BPresent these orders to Bethor.  He will then instruct you on your mission.  I don\'t know its details, but it deals with recruiting a wayward Lich.  And it will be dangerous.$B$BSo ready yourself, $r.  You must not fail.$B$BYou may find Bethor in the Magic Quarter of the Undercity.',  `parse_timestamp`='2004-05-18' WHERE `entry` = 405;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 9 tunnel rat ears to Mountaineer Kadrell in Thelsamar.', `ReqItemCount1` = 9, `RewOrReqMoney` = 300,  `parse_timestamp`='2004-06-01' WHERE `entry` = 416;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 3 pieces of Bear Meat, 3 Boar Intestines, and 3 quantities of Spider Ichor to Vidra Hearthstove in Thelsamar.', `Details` = 'There\'s never a shortage of empty bellies here in Thelsamar, kids running in and out, workers from the excavation coming in after  a hard day\'s work. We\'re famous for our blood sausages, I don\'t suppose you\'ve ever tried them?$B$BNo? Well, around here you\'ve got to work for your meals, and don\'t think just because you\'re a fancy $r, you\'ll be any exception.$B$BI\'ll need bear meat, boar intestines for the casings, and spider ichor for spice. You get me some of those, and leave the cooking to Vidra!', `RewOrReqMoney` = 300,  `parse_timestamp`='2004-06-01' WHERE `entry` = 418;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 5 Glutton Shackles and 5 Darksoul Shackles to Dalar Dawnweaver at the Sepulcher.', `Details` = 'After examining Arugal\'s work my worst suspicions were confirmed.  The old hack was not qualified to clean chamber pots in Dalaran let alone represent the Kirin Tor in its most dire hour.  Fools!$B$BArugal used enchanted items to reinforce his weak magic.  I need to examine these items first hand.  Travel forth and slay Moonrage Gluttons and Moonrage Darksouls until you have collected 5 of each of their enchanted shackles for my research.  The foul creatures have been seen to the north and east.', `ReqItemCount1` = 5, `ReqItemCount2` = 5, `RewOrReqMoney` = 500,  `parse_timestamp`='2004-05-18' WHERE `entry` = 423;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 500,  `parse_timestamp`='2004-05-18' WHERE `entry` = 424;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 200,  `parse_timestamp`='2004-05-18' WHERE `entry` = 425;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 44,  `parse_timestamp`='2004-05-18' WHERE `entry` = 427;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 600,  `parse_timestamp`='2004-05-18' WHERE `entry` = 443;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 44,  `parse_timestamp`='2004-05-18' WHERE `entry` = 445;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 300,  `parse_timestamp`='2004-05-18' WHERE `entry` = 449;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 600,  `parse_timestamp`='2004-05-18' WHERE `entry` = 461;
-        UPDATE `quest_template` SET `Details` = 'You\'ve heard of the Greenwarden?  You\'re not looking for him, are you?  Well I say you\'re crazy if you are, but who am I to keep a fool from :her; death?$B$BIf you are seeking that beast, then I hear he is in the marsh, east of the road where it forks to Dun Modr.  He\'s lurking there among the crocs...and worse!$B$BAnd leave your money here.  You won\'t need it where you\'re going...and you don\'t want to chip ol\' Greenie\'s tooth on your gold when he bites you in half, do you?',  `parse_timestamp`='2004-06-01' WHERE `entry` = 463;
-        UPDATE `quest_template` SET `Objectives` = 'One of the oozes in the cemetery has Sida\'s bag, retrieve it and bring it back to her in Menethil Harbor.', `Details` = 'On my weekly visit to Ironbeard\'s Tomb at the base of the mountains north from here, I was attacked by dreadful, dripping oozes! Naturally, I panicked.$B$BI threw my bag at one, but it didn\'t do anything! The ooze just sucked it right up... Luckily, it did give me enough time to get away.$B$BThe bad news is that I really need to get the contents of my bag!$B$BI don\'t know which ooze I threw my bag at--they all looked the same!--so you might have to kill a few to find my bag. Thank you!', `RewOrReqMoney` = 400, `RewItemId1` = 1217,  `parse_timestamp`='2004-06-01' WHERE `entry` = 470;
-        UPDATE `quest_template` SET `Details` = 'Dun Modr has fallen to the Dark Iron Dwarves!$B$BMy wounds are grave, $r.  Most of the regiment was killed!  The Dark Iron thugs attacked us before we could regroup from the Thandol Span ambush.$B$BOur leader, Longbraid, sounded the retreat horn.  As we left the town I was hit by a stray axe in the back.  All went black.$B$BI awoke here in Menethil but I fear for my fellow soldiers.  Hope still burns within me.  Perhaps Longbraid is still alive!  See if you can find him near Dun Modr, !',  `parse_timestamp`='2004-06-01' WHERE `entry` = 472;
-        UPDATE `quest_template` SET `Objectives` = 'Retrieve the contents of one of the Dalaran wizards\' crates.',  `parse_timestamp`='2004-05-18' WHERE `entry` = 477;
-        UPDATE `quest_template` SET `Details` = '', `RewOrReqMoney` = 400,  `parse_timestamp`='2004-05-18' WHERE `entry` = 478;
-        UPDATE `quest_template` SET `Objectives` = 'Obtain 6 Rune-inscribed pendants from Dalaran Mages and Conjurers in Ambermill for Shadow Priest Allister at the Sepulcher.', `Details` = 'Dalar is attempting to locate the source of the wizards\' spellcasting. For now, we\'ll have to slow their progress in any way we can...$B$BThe conjurers and mages are no doubt carrying the pendants. Remove and retrieve them.$B$BTake the main road south and the eastern fork into Ambermill.', `ReqItemCount1` = 6,  `parse_timestamp`='2004-05-20' WHERE `entry` = 479;
-        UPDATE `quest_template` SET `Details` = 'Be silent and pay attention, $r.$B$BI was sent to this position in order to survey the town of Hillsbrad.  My mission is one of reconnaissance.  It is imperative that you send word to High Executor Darthalia in Tarren Mill at once.  Let her know that I, Deathstalker Lesh, send the following message:$B$B"The raven\'s cry from the west doth beckon."$B$BFollow the road to the east and pay close attention to the signs.  Now, hurry!  Off you go to Tarren Mill, and with urgency I might add!', `RewOrReqMoney` = 500,  `parse_timestamp`='2004-05-18' WHERE `entry` = 494;
-        UPDATE `quest_template` SET `Objectives` = 'Apothecary Lydon of Tarren Mill wants 10 Grey Bear Tongues and some Creeper Ichor.', `Details` = 'Ah, another wretched day in Tarren Mill.  All of this clean air puts me in such a foul mood, $n.$B$BThe sooner we can plague the humans here, the better.  I\'ve been conducting intense studies on possible killing agents to use in my concoctions but I haven\'t the time to collect them all.$B$BIf you want to make yourself of use, procure the following items for me:  10 Grey Bear Tongues and the very rare and hard to find, Creeper Ichor.  You\'ll find both bears and creepers just outside of Tarren Mill.', `RewOrReqMoney` = 1200,  `parse_timestamp`='2004-05-20' WHERE `entry` = 496;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1800,  `parse_timestamp`='2004-06-01' WHERE `entry` = 500;
-        UPDATE `quest_template` SET `Objectives` = 'Place the Elixir of Pain in Stanley\'s dish.', `Details` = 'Ah, nothing like the smell of fresh blood in the foothills!$B$BNow we\'ll mix in a touch of this and a little of that and let the real fun begin!  What I have created with this blood, I like to call an Elixir of Pain.  If my calculations are correct this concoction could be the start of something very beautiful for Lady Sylvanas.  But what we need is a test.$B$BTake this elixir out to the northern farm in Hillsbrad Fields to the southeast.  Let\'s see how Farmer Ray\'s little dog Stanley likes this "treat."',  `parse_timestamp`='2004-05-20' WHERE `entry` = 502;
-        UPDATE `quest_template` SET `Objectives` = 'Kill Lord Aliden Perenolde and retrieve Taretha\'s pendant from his mistress, Elysa.',  `parse_timestamp`='2004-05-13' WHERE `entry` = 507;
-        UPDATE `quest_template` SET `Details` = 'A Mudsnout Composite?  Absolutely brilliant!  Why didn\'t I think of that?$B$BLet me contribute my colloid of decay to this devilish brew.$B$BIn order to activate the contaminating agents in this Mudsnout Mixture, Lydon is going to need a Strong Troll\'s Blood Potion, as well as some Daggerspine Scales and Torn Fin Eyes from the southern coast.  He\'ll know what to do once you\'ve gathered him all the reagents.  And my, how anxious I am to hear how his experiment goes!',  `parse_timestamp`='2004-05-20' WHERE `entry` = 515;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1400,  `parse_timestamp`='2004-05-20' WHERE `entry` = 528;
-        UPDATE `quest_template` SET `RewItemId1` = 1217, `RewItemCount1` = 1,  `parse_timestamp`='2004-06-01' WHERE `entry` = 531;
-        UPDATE `quest_template` SET `Details` = 'At last we begin to hear word and rumor, find evidence of Gol\'dir\'s whereabouts. The humans have been moving him around, but we are narrowing down our search and focusing on the large Syndicate camp just north of here.$B$BGo there, $n, and bring back whatever information you can put your hands on.', `RewOrReqMoney` = 2000,  `parse_timestamp`='2004-05-18' WHERE `entry` = 533;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1300,  `parse_timestamp`='2004-06-01' WHERE `entry` = 536;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 5 Recovered Tomes and the the Worn Leather Book containing The Arm of Gri\'lek to Loremaster Dibbs in Southshore.', `Details` = 'Those beastly ogres now reside within Alterac\'s ruins, and I shudder to think what they\'re doing with the precious books still there.  You must recover what you can!$B$BEnter the Ruins of Alterac and search for tomes looted by the ogres.  Get whatever you can find and bring them to me, but also seek out one book in particular: The Arm of Gri\'lek.  It contains ancient troll lore that I must learn, and Alterac was the last known location of an intact copy of this book.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 540;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 2500,  `parse_timestamp`='2004-05-20' WHERE `entry` = 544;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1500,  `parse_timestamp`='2004-05-18' WHERE `entry` = 545;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1200,  `parse_timestamp`='2004-05-20' WHERE `entry` = 549;
-        UPDATE `quest_template` SET `Details` = 'Because you fought with such valor and perseverance in the Battle of Hillsbrad, I have written this commendation, extolling your heroics in combat for the high command to recognize.$B$BTake this sealed commendation to Varimathras in the Undercity.  Go with pride, $r.',  `parse_timestamp`='2004-05-18' WHERE `entry` = 550;
-        UPDATE `quest_template` SET `Details` = 'If there\'s one thing you\'ll learn about Southshore it\'s that we have some of the best cuisine north of Stormwind!$B$BTake my secret recipe for Turtle Bisque, for example.  I\'ve known folks to travel as far as Darkshire just to enjoy a bowl.  Speaking of which, I haven\'t been able to make any lately.  I used to head up past Dalaran to Lake Lordamere myself to hunt Snapjaws but it\'s just too dangerous now. If you bring me some Turtle Meat from the Snapjaws up north and Soothing Spices, I\'ll whip some up!', `RewOrReqMoney` = 500,  `parse_timestamp`='2004-06-01' WHERE `entry` = 555;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 2000,  `parse_timestamp`='2004-05-18' WHERE `entry` = 557;
-        UPDATE `quest_template` SET `Details` = 'Throm\'ka, $r!$B$BYour arrival at Grom\'gol is timely, indeed.  As commander of the Warchief\'s base camp here in the jungle I am bound by honor to ensure the safety of all members of the Horde.  Our mission to provide a safe chain of supply to Stonard is being hampered by some of the local inhabitants.$B$BI am putting you in charge of thinning out the raptor population outside of Grom\'gol.  Once you have made significant progress, report back to me for reassignment.', `RewItemId1` = 1623, `RewItemCount1` = 1,  `parse_timestamp`='2004-05-13' WHERE `entry` = 568;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1000,  `parse_timestamp`='2004-06-01' WHERE `entry` = 57;
-        UPDATE `quest_template` SET `Details` = 'The power of the jungle\'s magic must be realized and then harnessed by the Horde.  My rituals have proven successful so far.  I can cast very powerful enchantments.  For you, brave $r, I shall make a special item indeed.$B$BBring to me some Shadowmaw Panther claws along with a Tigress fang.  Not just any fang will do.  It must be in pristine condition.$B$BThe beasts lurk throughout the jungle but you will find some close by, just across the river from Mizjah Ruins to the southeast.',  `parse_timestamp`='2004-05-13' WHERE `entry` = 570;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 500,  `parse_timestamp`='2004-06-01' WHERE `entry` = 58;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 10,  `parse_timestamp`='2004-05-18' WHERE `entry` = 590;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 20 Singing Crystal Shards to Crank Fizzlebub.', `Details` = 'The Singing Crystals are unique to Stranglethorn, and are very valuable to certain parties.  I can move those crystals, but the cursed Venture Company makes it hard for an honest entrepreneur like myself to gather any!$B$BI\'d like to hire you.$B$BThe basilisks in Stranglethorn eat the crystal.  This gives them their hardened skin, and sometimes decent quality crystal can be harvested from it.$B$BYou can get it from any basilisk, but the less nasty ones are along the shores to the distant north.', `ReqItemCount1` = 20, `RewOrReqMoney` = 2000,  `parse_timestamp`='2004-05-18' WHERE `entry` = 605;
-        UPDATE `quest_template` SET `Details` = 'My list is shortening, but there are still people who owe me.$B$BNext, we have Maury "Club Foot" Wilkins, Jon-Jon the Crow, and Chucky "Ten Thumbs."$B$BThese scurvy dogs\' debts are months outstanding and I thought they skipped town to avoid paying up!  Later, I heard they\'re cursed and bewitched and now wander the jungle ruins.  But I don\'t care what their fate is - I want what\'s mine!$B$BThey\'re at the Ruins of Aboraz and the Ruins of Jubuwai, northeast of here.  Find them, and collect.', `RewOrReqMoney` = 2500,  `parse_timestamp`='2004-05-07' WHERE `entry` = 609;
-        UPDATE `quest_template` SET `Details` = 'Long ago, a great shudder of the earth sunk an old troll city beneath the waters of the Savage Coast to the northeast.  We call that place the Vile Reef, for murlocs now reside in the ruins of the city, attacking any who draw close.$B$BThere is an old tablet among those ruins that tells the ancient tale of Gri\'lek, a hero of troll legends.  The tale is sacred to the Darkspear tribe, and although the tablet is too large to move, I want a shard of it to enshrine in our new home in Orgrimmar.',  `parse_timestamp`='2004-05-18' WHERE `entry` = 629;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 2200,  `parse_timestamp`='2004-05-18' WHERE `entry` = 639;
-        UPDATE `quest_template` SET `Objectives` = 'Gather Motes of Myzrael.$B$BBring them to the Iridescent Shards in Drywhisker Gorge.', `Details` = 'My name is Myzrael.  I am a princess of the earth, and my captors, the giants, have trapped me deep beneath the Arathi Highlands.  These crystal shards are the only way I can speak with the surface world.$B$BPlease help me.  Allies of the giants, the Drywhisker Kobolds, have a cluster of shards like this one in their Drywhisker Gorge, to the east.  To power the cluster, you must gather Motes of Myzrael from the kobolds and apply them to it.$B$BI beg you, $n, aid me!',  `parse_timestamp`='2004-05-07' WHERE `entry` = 642;
-        UPDATE `quest_template` SET `Details` = 'Lolo sees a tiny ! Always on the lookout, Lolo is!$B$BWelcome to Faldir\'s Cove.  Captain O\'Breen said we\'d only be here for a few hours.  Just long enough to gather the treasure and get back to Booty Bay.$B$BBut Lolo thinks we\'re going to be here a lot longer than that.  We lost the other two ships from our formation.  Poor Spirit of Silverpine and Maiden\'s Folly.  On the bottom of the sea they rest now!$B$BLolo suggests you talk to Captain O\'Breen if you plan on sticking around here.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 663;
-        UPDATE `quest_template` SET `Details` = 'It has been so long since the treasure has been on the sea floor the gems have calcified into thick stone. But the power harnessed in these goggles will allow you to locate them easily.$B$BA little gnomish ingenuity goes a long way!$B$BSo borrow the Goggles of Gem Hunting, $n, and see if you can collect some of the lost treasure for Captain O\'Breen.$B$BI\'d swim down there myself but...um...well, I have important scientific business to tend to up on the safe, dry land....er, yeah.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 666;
-        UPDATE `quest_template` SET `Details` = 'There is no doubt in my mind that a powerful warlock resides within the walls of Stromgarde. From time to time, using an arcane magical relic, this warlock has summoned forth terrible demons in large numbers. We must remove the source of his energy.$B$BFind the warlock and kill him. Bring me whatever magical object you find on his person, and I will take steps to destroy it and see that its power is used to taint this land any longer.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 673;
-        UPDATE `quest_template` SET `Details` = 'Tor\'gan sent you, didn\'t he? Pah! Why he feels some mercy towards me I would not understand. Mercy was denied me when I was not allowed to die with my Warchief in battle. A cruel blow fate has dealt me...',  `parse_timestamp`='2004-05-18' WHERE `entry` = 675;
-        UPDATE `quest_template` SET `Objectives` = 'Kill 10 Syndicate Mercenaries and 10 Syndicate Highwaymen.$B$BReturn to Captain Nials at Refuge Pointe.', `ReqCreatureOrGOCount2` = 10,  `parse_timestamp`='2004-06-01' WHERE `entry` = 681;
-        UPDATE `quest_template` SET `PrevQuestId` = 688,  `parse_timestamp`='2004-05-07' WHERE `entry` = 687;
-        UPDATE `quest_template` SET `Details` = 'Free!  I AM FREE!  I am free to gather strength, hidden from my captors.  For if they faced me now they would surely overpower and again imprison me.$B$BBut in time I will confront the giants, and they will regret their wardship of me!$B$BYou are a noble ally, $n.  I will need your help again in time.  When I am ready, I will need you to summon me to the surface$B$BSpeak with Zaruk in Hammerfall.  He knows how I can be summoned.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 688;
-        UPDATE `quest_template` SET `Details` = 'The name Stalvan rings a bell.  I remember now.$B$BMany years back, on a stormy night, a messenger came in, seeking refuge for the night.  Near the stroke of midnight, the man ran down the stairs screaming, his face pale with fear.  Still wearing his bedclothes, he dissappeared into the downpour.$B$BIn his haste he forgot his letters in the chest upstairs.  He never returned for them. One remains from that Stalvan fellow, intended for the Canal District in Stormwind.  Help yourself to it.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 70;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 5 Large Stone Slabs to Lotwil Veriatus in the Badlands.', `ReqItemCount1` = 5,  `parse_timestamp`='2004-05-07' WHERE `entry` = 711;
-        UPDATE `quest_template` SET `Details` = 'Greetin\'s, $r. Be careful \'round here. There be Dark Iron dwarves all around--looked like the Shadowforge clan.$B$BThey just attacked the excavation site I was workin\' at... killed nearly everyone there, including my boss Hammertoe. I barely escaped with me life.$B$BThe site\'s just to the north of here, and I\'m tryin\' to plan a way to get some of our supplies back, especially me lucky pick.$B$BThink you\'d be up to helpin\' me out some? I\'d like to at least get me pick back, if nothing else.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 719;
-        UPDATE `quest_template` SET `Details` = 'Inside the crate you find various objects: musty heirlooms, a family portrait, a few hunting trophies and some old books.  Near the bottom, underneath a cermaic vase, you uncover A Torn Journal Page.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 74;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 200,  `parse_timestamp`='2004-04-25' WHERE `entry` = 743;
-        UPDATE `quest_template` SET `Details` = 'I have traveled many paths through life and these old legs lack the vigor they once had. I can still perform my duties to the tribe. Sometimes it just takes an old woman a little longer to do the task.$B$BBut you look like an eager $r. Let\'s put some of that youthful vitality to the test. Take a water pitcher from the well and bring it to my son, the Chief, in Camp Narache.$B$BRemember that even the most humble task can gain the recognition of elders.', `RewOrReqMoney` = 35,  `parse_timestamp`='2004-04-25' WHERE `entry` = 753;
-        UPDATE `quest_template` SET `Details` = 'Your willingness to perform a humble task for the tauren of Narache and your eagerness to learn are noble traits, $n. I believe one day you will be heralded in Thunder Bluff as a $r of greatness.$B$BBefore that you must embark on the Rites of the Earthmother, of which there are three.$B$BThe first test is the Rite of Strength. Travel to Seer Graytongue and tell him Chief Hawkwind has sent you.$B$BYou will find the seer\'s abode directly to the south of Camp Narache, tucked away in the hills.',  `parse_timestamp`='2004-04-25' WHERE `entry` = 755;
-        UPDATE `quest_template` SET `Details` = 'To gain acceptance amongst the elders of Thunder Bluff you must next complete the Rite of Wisdom.$B$BNow that you have passed the Rite of Vision, the ancestral spirits of Red Rocks will give you the blessing of our ancestors. Only those who have drank from the Water of Seers can gain the blessing.$B$BTravel east of Thunder Bluff, to Red Rocks and seek out the Ancestral Spirit, $n.',  `parse_timestamp`='2004-04-25' WHERE `entry` = 773;
-        UPDATE `quest_template` SET `Details` = 'I know of someone who might be able to assist you.  Back when I was leading the Stormwind Guard, we used to get drinks at the Scarlet Raven Tavern in Darkshire.  The Tavernkeep there, Smitts, was quite an expert on the local lore.  Show him this page and see what he has to say about it.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 78;
-        UPDATE `quest_template` SET `Objectives` = 'Grull Hawkwind in Camp Narache wants you to kill Battleboars and bring back 4 Battleboar Snouts and 4 Battleboar Flanks.', `ReqItemCount1` = 4, `ReqItemCount2` = 4,  `parse_timestamp`='2004-04-25' WHERE `entry` = 780;
-        UPDATE `quest_template` SET `Details` = 'From the Horde\'s alliance with the dragon Deathwing during the Second War, we know that two of his lieutenants, the black drakes Blacklash and Hematus, were imprisoned within Lethlor Ravine.$B$BNow we seek to silence our depraved allies of old, restoring honor to the name of the Horde. We hired Tho\'grun and his band of ogre mercenaries to help us obtain the Sign of the Earth, a key needed to unlock the drakes\' prison.$B$BTho\'grun betrayed us, however, overwhelming us and taking the Sign for himself.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 782;
-        UPDATE `quest_template` SET `Details` = 'Lower your voice, $r. The Kolkar centaurs lie just over the ridge to the west in Kolkar Crag.$B$BLast night while they were raiding, I snuck into their village and discovered that the dirty beasts have a three-tiered attack planned on the trolls and orcs of Durotar.$B$BWe mustn\'t let their invasion come to fruition. Perhaps you can muster the might needed to infiltrate Kolkar Crag and destroy their attack plans.$B$BLast I saw, they had divided them up amongst three of their leaders.',  `parse_timestamp`='2004-04-25' WHERE `entry` = 786;
-        UPDATE `quest_template` SET `PrevQuestId` = 787,  `parse_timestamp`='2004-05-20' WHERE `entry` = 788;
-        UPDATE `quest_template` SET `Objectives` = 'Get 8 Scorpid Worker Tails for Gornek in the Den.', `Details` = 'Powerful warrior and awkward novice alike have fallen to the venomous sting of the scorpid. You will find large numbers of scorpids northwest of here. Bring me eight of their tails as proof of your prowess in battle.$B$BThe antidote for their sting is actually made from venom extracted from their stingers. We keep large quantities of antidote for scorpid venom on hand to heal young bloods just like you...$B$BBut I\'m sure you won\'t be needing any of that, will you?', `ReqItemCount1` = 8,  `parse_timestamp`='2004-05-20' WHERE `entry` = 789;
-        UPDATE `quest_template` SET `Details` = '$r! I thought I would die out here with none to know of it. While I was hunting the scorpids of the Valley, I came across a particularly vicious-looking one. Hurling myself at it, I managed to inflict a massive blow to its claw before it closed around my leg.$B$BI wasn\'t ready for its stinger though, and it sliced down and into my chest, cutting into my flesh and letting my blood. Please, you must kill the scorpid for me! My honor must be upheld! I fought it up on the plateau to the south.',  `parse_timestamp`='2004-04-25' WHERE `entry` = 790;
-        UPDATE `quest_template` SET `Title` = 'Journey to the Undercity!',  `parse_timestamp`='2004-05-07' WHERE `entry` = 798;
-        UPDATE `quest_template` SET `Title` = 'Journey to the Undercity!',  `parse_timestamp`='2004-05-20' WHERE `entry` = 802;
-        UPDATE `quest_template` SET `Title` = 'Journey to Grom\'gol',  `parse_timestamp`='2004-05-18' WHERE `entry` = 803;
-        UPDATE `quest_template` SET `Title` = 'Report to Orgnil', `Objectives` = 'Speak with Orgnil Soulscar in Razor Hill.', `Details` = 'Your trials against the Burning Blade are finished...here in the Valley.  But I want you to report your findings.$B$BGo to the town Razor Hill and seek out Orgnil Soulscar.  Razor Hill is east out of the valley, then north along the dry riverbed.$B$BWe must tell Orgnil of the Burning Blade, and that they have reached as far as the Valley of Trials.$B$BGo, $n, and be swift.  I fear the evil found in the Burning Blade Coven is but the herald of a larger threat...',  `parse_timestamp`='2004-04-25' WHERE `entry` = 805;
-        UPDATE `quest_template` SET `Details` = '$n, I have grim news.  My investigations into the Burning Blade revealed more groups hiding within Durotar.  We cannot allow this!  We must destroy them before they gain a foothold, and before their evil festers!$B$BA warlock, a goblin called Fizzle Darkstorm, has camped within Thunder Ridge to the northwest.  There he and his cultist minions spread chaos.$B$BFind and defeat Fizzle, and bring me his dead claw!',  `parse_timestamp`='2004-04-25' WHERE `entry` = 806;
-        UPDATE `quest_template` SET `Details` = 'I hear the voice of my brother, Minshina, calling to me in my dreams.$B$BHe was taken by Zalazane, the warlock on the Echo Isles. And he is dead.$B$BBut death is not freedom for my poor brother. Minshina\'s spirit was trapped within his own skull by Zalazane\'s evil magics. In my dreams I see it with other skulls, in a circle of power on the largest Echo Isle. As long as it remains there my brother\'s soul is doomed.$B$BPlease, $n. Find the circle and retrieve Minshina\'s skull. Bring it to me.$B$BFree him!',  `parse_timestamp`='2004-04-25' WHERE `entry` = 808;
-        UPDATE `quest_template` SET `Details` = 'Many of the hides we use come from Durotar tigers, $n. Blankets, armor, tents: there are a great many reasons we hunt the beasts, and many reasons we let them thrive at the same time.$B$BThe time has come to for us to cull the flock, so to speak. Our numbers grow, and our needs are beginning to overwhelm our stocks. I need more hides if I\'m to prepare suitable goods for our people.$B$BBring me 4 Durotar tiger furs, and I shall reward you.', `RewOrReqMoney` = 200,  `parse_timestamp`='2004-04-25' WHERE `entry` = 817;
-        UPDATE `quest_template` SET `Details` = 'Although my eyes fail me, I still can see clearly enough. More often I must rely on my alchemical skills to aid me in magics that once came easily. But I refuse to take on an apprentice--no troll or orc worthy enough has ever come forward.$B$BAre you worthy? Yes, of course you are... of course you think you are.$B$BI need a few things. Will you get them for me?$B$BI need 4 intact makrura eyes, and 8 vials of crawler mucus. You can find them on any crawler or makrura in Durotar. We shall speak again soon.', `RewOrReqMoney` = 50,  `parse_timestamp`='2004-04-25' WHERE `entry` = 818;
-        UPDATE `quest_template` SET `Title` = 'Master Gadrin', `Objectives` = 'Speak with Master Gadrin in Sen\'jin Village.', `Details` = 'News regarding the Burning Blade has me troubled.  And I have reports from our troll allies at Sen\'jin Village that other evils may be brewing in our lands.  We must stamp these out!  Our people did not endure and defeat the demon\'s curse to let it infect our new home!$B$BI will investigate the Burning Blade.  You go to Sen\'jin Village to the south and speak with Gadrin.  He will tell you of their troubles.$B$BHelp the trolls, then return to me.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 823;
-        UPDATE `quest_template` SET `Objectives` = 'Kill 12 Dustwind Savages and 8 Dustwind Storm Witches for Rezlak near Orgrimmar.',  `parse_timestamp`='2004-04-25' WHERE `entry` = 835;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 600,  `parse_timestamp`='2004-05-20' WHERE `entry` = 848;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 800,  `parse_timestamp`='2004-05-20' WHERE `entry` = 849;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1800,  `parse_timestamp`='2004-05-20' WHERE `entry` = 857;
-        UPDATE `quest_template` SET `Objectives` = 'Bring Root Samples to Mebok Mizzyrix in Ratchet.', `RewOrReqMoney` = 200,  `parse_timestamp`='2004-06-01' WHERE `entry` = 866;
-        UPDATE `quest_template` SET `Details` = 'You have hunted the beasts of the Barrens.  Your spirit is strong.  But a hunter must always be prepared.  A true hunter can stalk prey down any path.  Mountains and swamps will not sway :her;.$B$BNot even the sea.$B$BFind my sister Mahren.  She hunts the great water beasts along the coast.  She will be your teacher in their ways.$B$BBut be wary in your search for her, for the Barrens\' coast is held by humans.',  `parse_timestamp`='2004-05-07' WHERE `entry` = 874;
-        UPDATE `quest_template` SET `Objectives` = 'Kill 12 Bristleback Geomancers and return to Mangletooth at the Crossroads.', `Details` = 'You! ! Come here. *snort*$B$BTime is short, and my end *snort* is near. Mangletooth shall win; you will see. *snort*$B$BMy capture can still aid *snort* the Razormanes. The Horde wants to know who leads the raids on their people? Then you *snort* shall aid Mangletooth in return for information.$B$BThe Bristleback tribe, our hated enemies, rely too much on their geomancers. To slay them would help my tribe... and yours. *snort* A good deal, yes? Head south and slay them, and we shall talk again..', `ReqCreatureOrGOId1` = 3263, `ReqCreatureOrGOCount1` = 12, `ReqCreatureOrGOId2` = 0, `ReqCreatureOrGOCount2` = 0, `ReqCreatureOrGOId3` = 0, `ReqCreatureOrGOCount3` = 0,  `parse_timestamp`='2004-04-25' WHERE `entry` = 878;
-        UPDATE `quest_template` SET `PrevQuestId` = 878, `Objectives` = 'Kill Nak, Kuz, and Lok Orcbane and bring their Skulls to Mangletooth at the Crossroads.', `Details` = 'But now you want the information I promised,  yes? It matters not. I shall turn my back on my tribe, as they turned on me, leaving me to rot in this cage. $B$BHope that I would be rescued once filled my heart, but now I know the truth: my life is meaningless to my tribe.  My sacrifices do not warrant sacrifices of their own. So be it.$B$BNak, Kuz, and Lok Orcbane are the ones you seek. They are to the southeast of the Field of Giants.$B$BKill them, as they have killed me.',  `parse_timestamp`='2004-05-13' WHERE `entry` = 879;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 400,  `parse_timestamp`='2004-05-20' WHERE `entry` = 887;
-        UPDATE `quest_template` SET `Objectives` = 'Bring 5 Iron Pikes and 5 Iron Rivets to Forman Oslow in Lakeshire.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 89;
-        UPDATE `quest_template` SET `Details` = 'I\'ve been waiting forever for my last shipment of goods from Booty Bay! I\'m pretty sure that it must have been stolen by the Freebooters, but just to make sure, will you go down to the dockside and ask Dizzywig if my goods were already put into my warehouse without my knowledge.$B$BHere, take my ledger down to Dizzywig and have him double check my inventory records against his logs.',  `parse_timestamp`='2004-05-20' WHERE `entry` = 890;
-        UPDATE `quest_template` SET `Details` = 'Being Wharfmaster of a busy port like Ratchet, I keep my finger on the pulse of information. I know all about the exchange of goods and money between here and Booty Bay.$B$BThe latest bit of news I\'ve heard is about the Venture Company\'s Boulder Load mine northeast of the Sludge Fen. One of the miners discovered an emerald the size of your fist. I know a few buyers who\'d be interested in getting their hands on something like that, and I\'d be willing to go half and half on its sale.',  `parse_timestamp`='2004-05-20' WHERE `entry` = 896;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 700,  `parse_timestamp`='2004-06-01' WHERE `entry` = 898;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1000,  `parse_timestamp`='2004-06-01' WHERE `entry` = 90;
-        UPDATE `quest_template` SET `Objectives` = 'Bring Lok\'s Skull to Thork at the Crossroads.', `Details` = 'Take Lok\'s head to Thork over there by the wagons, $r. *snort* He should know what\'s happened to my tribe. Ha, not that he\'d believe I helped in *snort* such things, but I\'m sure he\'ll reward you for carrying out such a great deed. *snort*$B$BWe will not speak again. *snort*',  `parse_timestamp`='2004-05-13' WHERE `entry` = 906;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 1100,  `parse_timestamp`='2004-06-01' WHERE `entry` = 91;
-        UPDATE `quest_template` SET `Title` = 'Cry of the Cloudscraper', `Objectives` = 'Find and slay a Thunderhawk Cloudscraper, return its wings to Sergra Darkthorn in the Crossroads.', `Details` = 'Something is disrupting the energies of my spell! The Earthmother is crying out, can you not hear it, $n?$B$BEarthmother! What is it that tears at your spirit?$B$B$n, you must do as I say. Seek out the flying serpent Cloudscraper to the south, slay it and bring me its wings. Something dark has come upon the Barrens, and we are all at risk.$B$BBe swift, $r. I do not know what atrocities it commits, but they must be of great magnitude to rile the spirits so.',  `parse_timestamp`='2004-05-20' WHERE `entry` = 913;
-        UPDATE `quest_template` SET `RewOrReqMoney` = 300,  `parse_timestamp`='2004-06-01' WHERE `entry` = 92;
-        UPDATE `quest_template` SET `Details` = 'I\'ll let you in on a little secret - Dusky "Crab" Cakes are really made from spider legs!  I know it\'s a bit disgusting, but the cakes have a nice, tangy flavor and make great snacks!  Bring me Gooey Spider Legs and I\'ll whip you up a few of them.$B$BI hear Venom Web Spiders are a good source - they nest to the northeast between the foothills and the river.  Or, Gooey Spider Legs from any spiders in Duskwood will work.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 93;
-        UPDATE `quest_template` SET `RewItemId1` = 1217, `RewItemCount1` = 1,  `parse_timestamp`='2004-06-01' WHERE `entry` = 94;
-        UPDATE `quest_template` SET `Objectives` = 'Archaeologist Flagongut in Menethil Harbor wants you to bring him the Stone of Relu.', `Details` = 'Prospector Whelgar now holds the original sample at his site - I gave it to him after the conference. Later, I uncovered the Stone of Relu in Loch Modan that I believed to be the key to unlocking the mystery of the fossil.$B$BWhen I tried to travel to Whelgar, I was attacked by raptors and the relic was lost.$B$BI don\'t know which one of the mottled beasts swallowed the relic but if you can retrieve it, I can unleash the power of these artifacts. We\'ll need the original fossil from Whelgar\'s site as well.', `ReqItemId2` = 0, `ReqItemCount2` = 0,  `parse_timestamp`='2004-06-01' WHERE `entry` = 943;
-        UPDATE `quest_template` SET `Details` = 'I used to work one of the farms to the southeast...until Dark Riders from Deadwind Pass descended upon my farm and slaughtered my family when I was away!$B$BWhen I returned I saw a shadowy figure skulking near my barn, burying something.  He fled before I could catch him, and I couldn\'t linger for I was hot on the heels of the Dark Riders.  So I never discovered what was hidden.$B$BIf you can find what that shadowy figured buried, I would be grateful.  The hiding spot is behind the old stump near my barn.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 95;
-        UPDATE `quest_template` SET `RewItemId1` = 5622, `RewItemCount1` = 1,  `parse_timestamp`='2004-06-01' WHERE `entry` = 973;
-        UPDATE `quest_template` SET `Details` = 'Stalvan Mistmantle led a life of depravity.  Innocent victims died by his hand.  Undoubtedly he is guilty of countless crimes.  Now the lunatic threatens Darkshire.  The Light only knows what sordid acts he is plotting.  Travel to his cottage just north of town, $r, and execute Stalvan, once and for all.$B$BWhen the deed is done, travel to Madame Eva\'s and show her his family ring.  After all, it was her premonition that led to this gruesome discovery.  But Darkshire is safer because of her.',  `parse_timestamp`='2004-06-01' WHERE `entry` = 98;
-        UPDATE `quest_template` SET `PrevQuestId` = 990,  `parse_timestamp`='2004-06-01' WHERE `entry` = 991;
-
-        INSERT INTO `applied_updates` VALUES ('140920231');
-    end if;
-
-    -- 16/09/2023 1
-	if (select count(*) from applied_updates where id='160920231') = 0 then
-        -- Quest Ambushed in the Forest - Duskwood zone.
-        UPDATE `quest_template` SET `ZoneOrSort` = '10' WHERE (`entry` = '172');
-        -- Quest Four-Legged Meneces, correct required kills, xp and rew money. Add offer reward text.
-        UPDATE `quest_template` SET `OfferRewardText` = 'Excellent. Your assistance to the people of Duskwood will not be forgotten. Here, a token of my appreciation.', `ReqCreatureOrGOCount1` = '12', `RewXP` = '1500', `RewOrReqMoney` = '800' WHERE (`entry` = '171');
-       -- Rot Hide Graverobbers's Display ID.
-        UPDATE `creature_template` SET `display_id1` = '847' WHERE (`entry` = '1941');
-        -- Closes #1288
-        UPDATE `creature_template` SET `subname` = '' WHERE (`entry` = '2477');
-        UPDATE `creature_template` SET `subname` = '' WHERE (`entry` = '2478');
-        -- Krang Stonehoof - Remove OOC script not valid for alpha.
-        DELETE FROM `creature_ai_events` WHERE (`id` = '306301');
-        -- Script between Grub (3443) and Duhng (8306 - Ignored spawn)
-        DELETE FROM `creature_ai_events` WHERE (`id` = '344301');
-
-        insert into applied_updates values ('160920231');
-    end if;
-
-    -- 17/09/2023 1
-	if (select count(*) from applied_updates where id='170920231') = 0 then
-
-        -- WEAPON - same models as vanilla
-        
-        -- Riverpaw Mystic Staff
-        UPDATE `item_template` SET `display_id` = 5542 WHERE `entry`= 1391;
-
-        -- Sword Of Decay
-        UPDATE `item_template` SET `display_id` = 5166 WHERE `entry`= 1727;
-
-        -- Gouging Pick
-        UPDATE `item_template` SET `display_id` = 6259 WHERE `entry`= 1819;
-
-        -- Oaken War Staff
-        UPDATE `item_template` SET `display_id` = 1716 WHERE `entry`= 1831;
-
-        -- Cold Iron Pick
-        UPDATE `item_template` SET `display_id` = 1682 WHERE `entry`= 1959;
-
-        -- Morning Star
-        UPDATE `item_template` SET `display_id` = 7477 WHERE `entry`= 2532;
-
-        -- Spinner Fang
-        UPDATE `item_template` SET `display_id` = 6447 WHERE `entry`= 2664;
-
-        -- Hurricane
-        UPDATE `item_template` SET `display_id` = 6235 WHERE `entry`= 2824;
-
-        -- BKP 42
-        UPDATE `item_template` SET `display_id` = 6592 WHERE `entry`= 3025;
-
-        -- "Mage-Eye" Blunderbuss
-        UPDATE `item_template` SET `display_id` = 2409 WHERE `entry`= 3041;
-
-        -- Naga Heatpiercer
-        UPDATE `item_template` SET `display_id` = 8106 WHERE `entry`= 3078;
-
-        -- Deadman Cleaver
-        UPDATE `item_template` SET `display_id` = 8466 WHERE `entry`= 3293;
-
-        -- Vile Fin Battle Axe
-        UPDATE `item_template` SET `display_id` = 8899 WHERE `entry`= 3325;
-
-        -- Decapitating Sword
-        UPDATE `item_template` SET `display_id` = 859 WHERE `entry`= 3740;
-
-        -- Compound Bow
-        UPDATE `item_template` SET `display_id` = 8107 WHERE `entry`= 3778;
-
-        -- Sharp Shortsword
-        UPDATE `item_template` SET `display_id` = 5129 WHERE `entry`= 4017;
-
-        -- Sentinel Musket
-        UPDATE `item_template` SET `display_id` = 2409 WHERE `entry`= 4026;
-
-        -- Guerilla Cleaver
-        UPDATE `item_template` SET `display_id` = 5639 WHERE `entry`= 4126;
-
-        -- Silver Spade
-        UPDATE `item_template` SET `display_id` = 7495 WHERE `entry`= 4128;
-
-        -- Shadow Wand
-        UPDATE `item_template` SET `display_id` = 6093 WHERE `entry`= 5071;
-
-        -- Firebelcher
-        UPDATE `item_template` SET `display_id` = 9062 WHERE `entry`= 5243;
-
-        -- Elven Wand
-        UPDATE `item_template` SET `display_id` = 6093 WHERE `entry`= 5604;
-
-        -- Gemstone Dagger
-        UPDATE `item_template` SET `display_id` = 6454 WHERE `entry`= 5742;
-
-        -- Wyvern Tailspike
-        UPDATE `item_template` SET `display_id` = 6447 WHERE `entry`= 5752;
-
-        -- Darkwood Fishing Pole
-        UPDATE `item_template` SET `display_id` = 7453 WHERE `entry`= 6366;
-
-        -- Big Iron Fishing Pole
-        UPDATE `item_template` SET `display_id` = 7453 WHERE `entry`= 6367;
-
-        -- Antipodeon Rod
-        UPDATE `item_template` SET `display_id` = 9062 WHERE `entry`= 2879;
-
-        -- SHIELD - Same models as vanilla
-
-        -- Wall Of The Dead
-        UPDATE `item_template` SET `display_id` = 2456 WHERE `entry`= 1979;
-
-        -- Small Round Shield
-        UPDATE `item_template` SET `display_id` = 1680 WHERE `entry`= 2219;
-
-        -- Box Shield
-        UPDATE `item_template` SET `display_id` = 5422 WHERE `entry`= 2220;
-
-        -- Targe Shield
-        UPDATE `item_template` SET `display_id` = 1684 WHERE `entry`= 2221;
-
-        -- Deflecting Tower
-        UPDATE `item_template` SET `display_id` = 5422 WHERE `entry`= 3987;
-
-        -- Blocking Targe
-        UPDATE `item_template` SET `display_id` = 4983 WHERE `entry`= 3989;
-
-        -- Plated Buckler
-        UPDATE `item_template` SET `display_id` = 4108 WHERE `entry`= 3991;
-
-        -- Standard Issue Shield
-        UPDATE `item_template` SET `display_id` = 4404 WHERE `entry`= 4263;
-
-        -- Reinforced Buckler
-        UPDATE `item_template` SET `display_id` = 2916 WHERE `entry`= 3817;
-
-        -- Blackforge Buckler
-        UPDATE `item_template` SET `display_id` = 6275 WHERE `entry`= 4069;
-
-        -- Charging Buckler
-        UPDATE `item_template` SET `display_id` = 2208 WHERE `entry`= 4937;
-
-        -- Vigilant Buckler
-        UPDATE `item_template` SET `display_id` = 6274 WHERE `entry`= 4975;
-
-        -- CLOAK - PH based on screenshot
-        
-        -- inv_robe_2 (cloth)
-        UPDATE `item_template` SET `display_id` = 936 WHERE `entry` IN (1190, 1782, 3331, 3475, 3749, 3803, 3955, 3964, 3972, 3980, 5969, 6417, 6424, 6432, 4735, 3261, 3939, 4944, 4011, 3795, 3995, 4327, 4732);
-
-        -- inv_misc_pelt_wolf (leather)
-        UPDATE `item_template` SET `display_id` = 6655 WHERE `entry` IN (4771, 5965, 4963, 1280, 1355, 2308, 3008, 1798);
-
-        -- inv_misc_cap_02 (mail)
-        UPDATE `item_template` SET `display_id` = 7952 WHERE `entry` IN (4933, 4958, 1774);
-
-        -- RING, the first ring icon ever avalaible
-
-        -- PH Inv_Jewelry_Ring_01
-        UPDATE `item_template` SET `display_id` = 224 WHERE `entry` IN (1993, 862, 1447);
-
-        insert into applied_updates values ('170920231');
-    end if;
-
-    -- 19/09/2023 1
-    if (select count(*) from `applied_updates` where id='190920231') = 0 then
-
-        -- ROBES
-
-        -- Scarlet Initiate Robe
-        UPDATE `item_template` SET `display_id` = 8846 WHERE `entry` = 3260;
-
-        -- Spider Web Robe
-        UPDATE `item_template` SET `display_id` = 8856  WHERE `entry` = 3328;
-
-        -- Robe of the Keeper
-        UPDATE `item_template` SET `display_id` = 10896  WHERE `entry` = 3161;
-
-        -- Vicar's Robe
-        UPDATE `item_template` SET `display_id` = 3876  WHERE `entry` = 3569;
-
-        -- Beastwalker Robe
-        UPDATE `item_template` SET `display_id` =  4741 WHERE `entry` = 4476 ;
-
-        -- Mage Dragon Robe
-        UPDATE `item_template` SET `display_id` =  8865 WHERE `entry` = 4989;
-
-        -- Dalaran Robe, Lesser Wizard Robe
-        UPDATE `item_template` SET `display_id` =  8864 WHERE `entry` in (5110, 5766, 5767);
-
-        -- Robe of Arcana
-        UPDATE `item_template` SET `display_id` =  8865 WHERE `entry` = 5770;
-
-        -- Robe of Antiquity
-        UPDATE `item_template` SET `display_id` =  9053 WHERE `entry` = 5812;
-
-        -- Bloody Apron
-        UPDATE `item_template` SET `display_id` =  10810 WHERE `entry` = 6226;
-
-        -- Green Woolen Robe
-        UPDATE `item_template` SET `display_id` =  10894 WHERE `entry` = 6243;
-
-        -- Robe of Arugal
-        UPDATE `item_template` SET `display_id` =  11528 WHERE `entry` = 6324;
-
-        -- OFFHAND 
-
-        -- Fireproof Orb, Orb of Power
-        UPDATE `item_template` SET `display_id` =  8043 WHERE `entry` IN (4836, 4838) ;
-
-        -- Sakrasis Scepter
-        UPDATE `item_template` SET `display_id` =  7479 WHERE `entry` = 5028;
-
-        -- Strength of Will, SpellStone
-        UPDATE `item_template` SET `display_id` =  8044 WHERE `entry` IN (4837, 5522) ;
-
-        -- Skull of Impending Doom
-        UPDATE `item_template` SET `display_id` =  7469 WHERE `entry` = 4984 ;
-
-        -- Swampchill Fetish
-        UPDATE `item_template` SET `display_id` = 7469 WHERE `entry` = 1992;
-
-        -- MISC
-
-        -- Quiver have no models, we use PH icons (first quiver icon)
-        UPDATE `item_template` SET `display_id` =  5560 WHERE `entry` IN (3605, 2662, 3573);
-
-        -- Thunderbrew's Boot Flask, inv_wine_02, drink icons are not present
-        UPDATE `item_template` SET `display_id` = 7920 WHERE `entry` = 744;
-
-        -- Skullflame Shield, it is a buckler for 0.5.3
-        UPDATE `item_template` SET `display_id` = 2456 WHERE `entry` = 1168;
-
-        -- Eye of flames
-        UPDATE `item_template` SET `display_id` = 1170 WHERE `entry` = 3075;
-
-        -- Ironheart Chain, PH low lvl mail
-        UPDATE `item_template` SET `display_id` = 977 WHERE `entry` = 3166;
-
-        insert into `applied_updates` values ('190920231');
-    end if;
-    
-        -- 22/09/2023 1
-    if (select count(*) from `applied_updates` where id='220920231') = 0 then
-        DELETE FROM `quest_end_scripts` WHERE (`id` = '407');
-        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,4,0,20,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Start Waypoint Movement');
-        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,3,0,15,3287,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Cast Ghoul Form');
-        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,0,0,0,0,0,0,0,0,0,0,0,425,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Say Text 1');
-        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,6,0,0,0,0,0,0,0,0,0,0,428,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Say Text 2');
-        INSERT INTO `quest_end_scripts` (`id`,`delay`,`priority`,`command`,`datalong`,`datalong2`,`datalong3`,`datalong4`,`target_param1`,`target_param2`,`target_type`,`data_flags`,`dataint`,`dataint2`,`dataint3`,`dataint4`,`x`,`y`,`z`,`o`,`condition_id`,`comments`) VALUES (407,22,0,15,7,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,'Fields of Grief 2: Captured Scarlet Zealot - Cast Suicide');
-
-        -- Fix quest Leaders of the Fang given information from June 2004.
-        UPDATE `quest_template` SET `PrevQuestId` = '0', `Title` = '<NYI> Leaders of the Fang', `Details` = 'The druids in the Wailing Caverns, the Druids of the Fang, are an aberration.  They were part of an order of noble druids whose plan was to heal the Barrens, but now seek to remake that land to match their own, twisted dreams.$B$BI have seen them in my dreams, and even now their faces haunt me. You must defeat them if the Barrens is ever to know peace.$B$BGo, $N.  You will find them lurking deep within the Wailing Caverns', `Objectives` = 'Kill Cobrahn, Anacondra, Pythas and Serpentis, then return to Nara Wildmane in Thunder Bluff.', `RequestItemsText` = 'Memories of my nightmares haunt me, $N.  Have you defeated the leaders of the fang?', `ReqCreatureOrGOId1` = '3669', `ReqCreatureOrGOId2` = '3670', `ReqCreatureOrGOId3` = '3671', `ReqCreatureOrGOId4` = '3673', `ReqCreatureOrGOCount1` = '1', `ReqCreatureOrGOCount2` = '1', `ReqCreatureOrGOCount3` = '1', `ReqCreatureOrGOCount4` = '1', `RewItemId1` = '1217', `RewItemCount1` = '1' WHERE (`entry` = '914');
-
-        insert into `applied_updates` values ('220920231');
-    end if;
-    
-    -- 23/09/2023 1
-    if (select count(*) from `applied_updates` where id='230920231') = 0 then
-       
-        -- mistake on the last PR, good color for Sakrasis Scepter
-        UPDATE `item_template` SET `display_id` =  7203 WHERE `entry` = 5028;
-
-        -- mistake on last PR, good color for Fireproof Orb
-        UPDATE `item_template` SET `display_id` =  5566 WHERE `entry` = 4836 ;
-
-        -- mistake on the last PR good color for Skull of Impending Doom, Swampchill Fetish
-        UPDATE `item_template` SET `display_id` =  5565 WHERE `entry` IN (4984, 1992);
-
-        -- mistake on the last PR, good color for Antipodeon Rod
-        UPDATE `item_template` SET `display_id` = 6168 WHERE `entry`= 2879;
-
-        -- mistake on the last PR, good icons for Quiver
-        UPDATE `item_template` SET `display_id` =  1302 WHERE `entry` IN (3605, 2662, 3573);
-
-        -- Brain Hacker
-        UPDATE `item_template` SET `display_id` =  8505 WHERE `entry` = 1263;
-
-        -- Red Linen Bag
-        UPDATE `item_template` SET `display_id` =  981 WHERE `entry` = 5762;
-
-        -- Axe of the Deep Woods
-        UPDATE `item_template` SET `display_id` =  2805 WHERE `entry` = 811;
-
-        -- Glowing Brightwood Staff
-        UPDATE `item_template` SET `display_id` =  1469 WHERE `entry` = 812;
-
-        -- Pysan's Old Greatsword
-        UPDATE `item_template` SET `display_id` =  1638 WHERE `entry` = 1975;
-
-        -- Staff of the Shade
-        UPDATE `item_template` SET `display_id` =  5546 WHERE `entry` = 2549;
-
-        -- Monster - Item, Tankard Wooden
-        UPDATE `item_template` SET `display_id` =  6588 WHERE `entry` = 2703;
-
-        -- Monster - Item, Tankard Dirty
-        UPDATE `item_template` SET `display_id` =  6586 WHERE `entry` = 2704;
-
-       -- Monster - Item, Tankard Metal
-        UPDATE `item_template` SET `display_id` =  6587 WHERE `entry` = 2705;
-
-       -- Troll Dagger
-        UPDATE `item_template` SET `display_id` =  11282 WHERE `entry` = 2787;
-
-        -- Monster - Dynamite, Lit
-        UPDATE `item_template` SET `display_id` =  7435 WHERE `entry` =2884;
-
-        -- Monster - Dynamite, Unlit
-        UPDATE `item_template` SET `display_id` =  7436 WHERE `entry` = 3774;
-
-        -- Monster - Wand, Basic
-        UPDATE `item_template` SET `display_id` = 5806   WHERE `entry` = 6230;
-
-        -- Monster - Wand, Jeweled - Green
-        UPDATE `item_template` SET `display_id` = 10819   WHERE `entry` = 6231;
-
-        -- Baron's Sceptre
-        UPDATE `item_template` SET `display_id` = 1159   WHERE `entry` = 6323;
-
-        -- Spikelash Dagger
-        UPDATE `item_template` SET `display_id` = 11282  WHERE `entry` = 6333;
-
-        -- Spikelash Dagger
-        UPDATE `item_template` SET `display_id` = 1200 WHERE `entry` = 1282;
-
-        -- Skullsplitter Helm
-        UPDATE `item_template` SET `display_id` =  1130 WHERE `entry` = 1684;
-
-        -- Naga Battle Gloves
-        UPDATE `item_template` SET `display_id` =  3524 WHERE `entry` = 888;
-
-        insert into `applied_updates` values ('230920231');
-    end if;
-
-    -- 24/09/2023 1
-    if (select count(*) from `applied_updates` where id='240920231') = 0 then
-    
-        -- PH leather cloak
-        UPDATE `item_template` SET `display_id` =  6655 WHERE `entry` IN (4920, 5313);
-
-        -- Cowl of Necromancy
-        UPDATE `item_template` SET `display_id` =  3551 WHERE `entry` = 2621;
-
-        -- Craftsman's Monocle
-        UPDATE `item_template` SET `display_id` = 6493 WHERE `entry` = 4393;
-
-        -- Enduring Cap
-        UPDATE `item_template` SET `display_id` = 3167 WHERE `entry` = 3020;
-
-        -- Augural Shroud
-        UPDATE `item_template` SET `display_id` = 7892 WHERE `entry` = 2620;
-
-        -- Crochet Belt
-        UPDATE `item_template` SET `display_id` = 10091 WHERE `entry` = 3936;
-
-        -- Black Velvet Robes
-        UPDATE `item_template` SET `display_id` = 9897 WHERE `entry` = 2800;
-
-        -- Blackforge Cowl
-        UPDATE `item_template` SET `display_id` = 3761 WHERE `entry` = 4080;
-
-        -- Brigandine Helm
-        UPDATE `item_template` SET `display_id` = 1126 WHERE `entry` = 3894;
-
-        -- Cloaked Hood
-        UPDATE `item_template` SET `display_id` = 4369 WHERE `entry` = 1280;
-
-        insert into `applied_updates` values ('240920231');
-    end if;
-
-    -- 25/09/2023 1
-    if (select count(*) from `applied_updates` where id='250920231') = 0 then
-
-        -- PH cloak inv_robe_2 (cloth)
-        UPDATE `item_template` SET `display_id` = 936 WHERE `entry` IN (4113, 3947, 3449, 4003, 3811, 2305);
-
-        -- Padded Belt
-        UPDATE `item_template` SET `display_id` = 10103 WHERE `entry` = 3591;
-
-        -- Flying Tiger Goggles
-        UPDATE `item_template` SET `display_id` = 4759 WHERE `entry` = 4368;
-
-        -- Silk Wizard Hat
-        UPDATE `item_template` SET `display_id` = 11641 WHERE `entry` = 3345;
-
-        -- Shadow Goggles
-        UPDATE `item_template` SET `display_id` = 11644 WHERE `entry` = 4373;
-
-        -- Green Woolen Vest
-        UPDATE `item_template` SET `display_id` = 10849 WHERE `entry` = 2582;
-
-        -- Harvester's Robe
-        UPDATE `item_template` SET `display_id` = 10895 WHERE `entry` = 1561;
-
-        -- Gray Woolen Robe
-        UPDATE `item_template` SET `display_id` = 10896 WHERE `entry` = 2585;
-
-        -- Gemmed Gloves
-        UPDATE `item_template` SET `display_id` = 3851 WHERE `entry` = 4121;
-
-        -- Mistscape Robe
-        UPDATE `item_template` SET `display_id` = 4453 WHERE `entry` = 6427;
-
-        -- Mistscape Wizard Hat
-        UPDATE `item_template` SET `display_id` = 11642 WHERE `entry` = 6429;
-
-        -- Green Tinted Goggles
-        UPDATE `item_template` SET `display_id` = 11663 WHERE `entry` = 4385;
-
-        -- Junglewalker Sandals
-        UPDATE `item_template` SET `display_id` = 6909 WHERE `entry` = 4139;
-
-        -- Russet Hat
-        UPDATE `item_template` SET `display_id` = 3960 WHERE `entry` = 3889;
-
-        -- Brocade Belt
-        UPDATE `item_template` SET `display_id` = 9931 WHERE `entry` = 3378;
-
-        -- Brocade Bracers
-        UPDATE `item_template` SET `display_id` = 9647 WHERE `entry` = 3379;
-
-        -- Chromatic Robe
-        UPDATE `item_template` SET `display_id` = 10462 WHERE `entry` = 2615;
-
-        -- Shimmering Silk Robes
-        UPDATE `item_template` SET `display_id` = 10463 WHERE `entry` = 2616;
-
-        -- Burning Robes
-        UPDATE `item_template` SET `display_id` = 10467 WHERE `entry` = 2617;
-
-        -- Light Magesmith Robe
-        UPDATE `item_template` SET `display_id` = 8852 WHERE `entry` = 2110;
-
-        -- Tribal Headdress
-        UPDATE `item_template` SET `display_id` = 11275 WHERE `entry` = 2622;
-
-        -- Snowy Robe
-        UPDATE `item_template` SET `display_id` = 10468 WHERE `entry` = 2114;
-
-        -- Red Linen Vest
-        UPDATE `item_template` SET `display_id` = 10860 WHERE `entry` = 6239;
-
-        -- Monogrammed Sash
-        UPDATE `item_template` SET `display_id` = 4590 WHERE `entry` = 3985;
-
-        -- Well-stitched Robe
-        UPDATE `item_template` SET `display_id` = 8849 WHERE `entry` = 1171;
-
-        -- Hooded Cowl
-        UPDATE `item_template` SET `display_id` = 4084 WHERE `entry` = 3732;
-
-        -- Holy Shroud
-        UPDATE `item_template` SET `display_id` = 4372 WHERE `entry` = 2721;
-
-        -- Inferno Robe
-        UPDATE `item_template` SET `display_id` = 5483 WHERE `entry` = 2231;
-
-        -- Darkweave Cowl
-        UPDATE `item_template` SET `display_id` = 4369 WHERE `entry` = 4039;
-
-        -- Brightweave Cowl
-        UPDATE `item_template` SET `display_id` = 4372 WHERE `entry` = 4041;
-
-        -- Noble's Robe
-        UPDATE `item_template` SET `display_id` = 9446 WHERE `entry` = 3019;
-
-        -- Pressed Felt Robe
-        UPDATE `item_template` SET `display_id` = 10469 WHERE `entry` = 1997;
-
-        -- Phoenix Pants
-        UPDATE `item_template` SET `display_id` = 4619 WHERE `entry` = 4317;
-
-        -- Azure Silk Gloves
-        UPDATE `item_template` SET `display_id` = 11546 WHERE `entry` = 4319;
-
-        -- Enchanter's Cowl
-        UPDATE `item_template` SET `display_id` = 8415 WHERE `entry` = 4322;
-
-        -- Shadow Hood
-        UPDATE `item_template` SET `display_id` = 3171 WHERE `entry` = 4323;
-
-        -- Centaur Longbow
-        UPDATE `item_template` SET `display_id` = 8107 WHERE `entry` = 5748;
-
-        -- Dwarf Captain's Sword
-        UPDATE `item_template` SET `display_id` = 5164 WHERE `entry` = 4987;
-
-        -- Tranquil Orb
-        UPDATE `item_template` SET `display_id` = 5566 WHERE `entry` = 4125;
-
-        -- Fireproof Orb
-        UPDATE `item_template` SET `display_id` = 5927  WHERE `entry` = 4836;
-
-        insert into `applied_updates` values ('250920231');
-    end if;
-
-    -- 08/10/2023 1
-    if (select count(*) from `applied_updates` where id='081020231') = 0 then
-
-        UPDATE `item_template` SET `display_id` = 8124 WHERE (`entry` = 5856);
-        UPDATE `item_template` SET `display_id` = 1733 WHERE (`entry` = 5870);
-        UPDATE `item_template` SET `display_id` = 3082 WHERE (`entry` = 1717);
-        UPDATE `item_template` SET `display_id` = 4145 WHERE (`entry` = 1624);
-        UPDATE `item_template` SET `display_id` = 1817 WHERE (`entry` = 1770);
-        UPDATE `item_template` SET `display_id` = 4374 WHERE (`entry` = 1775);
-        UPDATE `item_template` SET `display_id` = 2299 WHERE (`entry` = 1776);
-        UPDATE `item_template` SET `display_id` = 2472 WHERE (`entry` = 1778);
-        UPDATE `item_template` SET `display_id` = 3052 WHERE (`entry` = 1783);
-        UPDATE `item_template` SET `display_id` = 2629 WHERE (`entry` = 1784);
-        UPDATE `item_template` SET `display_id` = 2564 WHERE (`entry` = 1794);
-        UPDATE `item_template` SET `display_id` = 1819 WHERE (`entry` = 2314);
-        UPDATE `item_template` SET `display_id` = 3946 WHERE (`entry` = 2034);
-        UPDATE `item_template` SET `display_id` = 2358 WHERE (`entry` = 2145);
-        UPDATE `item_template` SET `display_id` = 691 WHERE (`entry` = 2146);
-        UPDATE `item_template` SET `display_id` = 2645 WHERE (`entry` = 2160);
-        UPDATE `item_template` SET `display_id` = 2361 WHERE (`entry` = 2167);
-        UPDATE `item_template` SET `display_id` = 10861 WHERE (`entry` = 2579);
-        UPDATE `item_template` SET `display_id` = 10720 WHERE (`entry` = 2618);
-        UPDATE `item_template` SET `display_id` = 4331 WHERE (`entry` = 2867);
-        UPDATE `item_template` SET `display_id` = 7968 WHERE (`entry` = 2870);
-        UPDATE `item_template` SET `display_id` = 3039 WHERE (`entry` = 3000);
-        UPDATE `item_template` SET `display_id` = 3589 WHERE (`entry` = 3392);
-        
-        insert into `applied_updates` values ('081020231');
-    end if;
-
-    -- 03/12/2023 1
-    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='031220231') = 0 then
-        CREATE TABLE `spell_script_target` (
-          `entry` mediumint(8) unsigned NOT NULL DEFAULT 0,
-          `target_type` tinyint(1) unsigned NOT NULL DEFAULT 0,
-          `target_entry` mediumint(8) NOT NULL DEFAULT 0,
-          PRIMARY KEY (`entry`,`target_entry`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-        INSERT INTO `spell_script_target` (`entry`, `target_type`, `target_entry`) VALUES
-                                              (4130, 1, 2760), (4131, 1, 2761), (4132, 1, 2762),
-                                              (4170, 1, 2595), (4170, 1, 2596), (4170, 1, 11054),
-                                              (5628, 1, 2006), (5628, 1, 2007), (5628, 1, 2008),
-                                              (5628, 1, 2009), (5628, 1, 2010), (5628, 1, 2011),
-                                              (5628, 1, 2012), (5628, 1, 2013), (5628, 1, 2014),
-                                              (5628, 1, 2039), (6955, 1, 4946), (7022, 1, 4945),
-                                              (7035, 1, 4251), (7036, 1, 4252), (7078, 1, 4965),
-                                              (7078, 1, 4967), (7078, 1, 4968), (7728, 0, 92015);
-
-        INSERT INTO `applied_updates` VALUES ('031220231');
-    end if;
-
-    -- 30/12/2023 1
-    if(select count(*) from `applied_updates` where id='301220231') = 0 then
-        -- Rename Kingsblood to Crownroyal, closes #1338.
-        update item_template set name = 'Crownroyal' where entry = 3356;
-        -- Despawn floating Blazing Fire near Orgrimmar, closes #1332.
-        update spawns_gameobjects set ignored = 1 where spawn_id = 11958;
-        -- Fix cost and skill requirements for Handstitched Leather Belt.
-        update trainer_template set spellcost = 75, reqskillvalue = 25 where template_entry = 509;
-        -- Add Handstitched Leather Pants to Leatherworking trainers. Cost and required skill level is from vanilla since we don't know it (but it aligns well with the other Handstitched recipes).
-        insert into trainer_template (template_entry, spell, playerspell, spellcost, reqskill, reqskillvalue, reqlevel) values (509, 2338, 2153, 50, 165, 15, 1);
-        -- Update quest XP, required item count and text for "The Trogg Threat" (267), closes #1285.
-        update quest_template set RewXP = 1500, ReqItemCount1 = 20, Objectives = "Bring 20 Trogg Stone Teeth to Captain Rugelfuss in the southern guard tower.", RequestItemsText = "Do you have 20 Trogg Stone Teeth to show me? If not, there is still work to be done, $N.", Details = "$C, you may or may not be aware of the Trogg threat looming over Dwarven lands.  With the Ironforge Reserve called up to the Alliance Front, we are left with a fraction of the defense forces needed to keep these lands safe.  My regiment is assigned to watch over the Gate here and we cannot leave our post for fear of invasion.$b$bBut we need some pressure put on those damned Troggs lurking in the hills.  If you're up to the task, wage an assault on the Troggs.  Bring me back 20 Trogg Stone Teeth as proof." where entry = 267;
-        -- Update Mosshide Gnoll display_id, closes #1280.
-        update creature_template set display_id1 = 667 where entry = 1007;
-        -- Update Samuel Flipps display_id, closes #1295.
-        update creature_template set display_id1 = 1200 where entry = 1919;
-        -- Update Stephen Bartec display_id, closes #1296.
-        update creature_template set display_id1 = 200 where entry = 1916;
-        -- Update Grel'Borg the Miser display_id, closes #1298.
-        update creature_template set display_id1 = 155 where entry = 2417;
-        -- Update Crushridge Ogre display_id, closes #1299.
-        update creature_template set display_id1 = 1121 where entry = 2252;
-        -- Update Mug'thol display_id, closes #1300.
-        update creature_template set display_id1 = 597 where entry = 2257;
-        -- Update Bloodmage Thalnos display_id, closes #1302.
-        update creature_template set display_id1 = 2606 where entry = 4543;
-        -- Update Morbent Fel quest to always award the original Torch of Holy Flame, closes #1327.
-        update quest_template set RewItemId1 = 2808, RewItemCount1 = 1 where entry = 55;
-
-        insert into applied_updates values('301220231');
-    end if;
-
-    -- 30/12/2023 2
-    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='301220232') = 0 then
-        -- Rename all "Crocolisks" to "Crocilisks".
-        UPDATE creature_template SET name = "Sawtooth Crocilisk" WHERE entry = 1082;
-        UPDATE creature_template SET name = "Young Sawtooth Crocilisk" WHERE entry = 1084;
-        UPDATE creature_template SET name = "River Crocilisk" WHERE entry = 1150;
-        UPDATE creature_template SET name = "Saltwater Crocilisk" WHERE entry = 1151;
-        UPDATE creature_template SET name = "Snapjaw Crocilisk" WHERE entry = 1152;
-        UPDATE creature_template SET name = "Wetlands Crocilisk" WHERE entry = 1400;
-        UPDATE creature_template SET name = "Young Wetlands Crocilisk" WHERE entry = 1417;
-        UPDATE creature_template SET name = "Loch Crocilisk" WHERE entry = 1693;
-        UPDATE creature_template SET name = "Giant Wetlands Crocilisk" WHERE entry = 2089;
-        UPDATE creature_template SET name = "Large Loch Crocilisk" WHERE entry = 2476;
-        UPDATE creature_template SET name = "Elder Saltwater Crocilisk" WHERE entry = 2635;
-        UPDATE creature_template SET name = "Dreadmaw Crocilisk" WHERE entry = 3110;
-        UPDATE creature_template SET name = "Corrupted Dreadmaw Crocilisk" WHERE entry = 3231;
-        UPDATE creature_template SET name = "Drywallow Crocilisk" WHERE entry = 4341;
-        UPDATE creature_template SET name = "Mottled Drywallow Crocilisk" WHERE entry = 4344;
-        UPDATE creature_template SET name = "Deviate Crocilisk" WHERE entry = 5053;
-        UPDATE creature_template SET name = "Tamed Crocilisk" WHERE entry = 5440;
-        -- Rename all "Crocolisk" items accordingly.
-        UPDATE item_template SET name = "Pointy Crocilisk Tooth" WHERE entry = 770;
-        UPDATE item_template SET name = "Crocilisk Tear" WHERE entry = 2939;
-        UPDATE item_template SET name = "Bundle of Crocilisk Skins" WHERE entry = 3347;
-        UPDATE item_template SET name = "Giant Crocilisk Skin" WHERE entry = 3348;
-        UPDATE item_template SET name = "Young Crocilisk Skin" WHERE entry = 3397;
-        UPDATE item_template SET name = "Crocilisk Steak" WHERE entry = 3362;
-        UPDATE item_template SET name = "Crocilisk Gumbo" WHERE entry = 3364;
-        UPDATE item_template SET name = "Tender Crocilisk Meat" WHERE entry = 3667;
-        UPDATE item_template SET name = "Large River Crocilisk Skin" WHERE entry = 4053;
-        UPDATE item_template SET name = "Snapjaw Crocilisk Skin" WHERE entry = 4104;
-        UPDATE item_template SET name = "Elder Crocilisk Skin" WHERE entry = 4105;
-        -- Fix quest titles and text accordingly.
-        UPDATE quest_template set Title = "Crocilisk Hunting", Details = "Many a hunter is attracted to Loch Modan to hunt our famous crocs. There are always merchants who seek out crocilisk skins for clothing items or armor, and there are also some who enjoy the taste of their meat.$b$bWe do some trade in this, but not a huge amount, as the crocilisks are ferocious and have entrenched themselves on the islands in the Loch. But don't let me dissuade you, it's quite an experience, wrestling with the jaws of the beasts.$b$bWhy, this one time...", Objectives = "Get 5 pieces of Crocilisk Meat and 6 Crocilisk Skins for Marek Ironheart at the Farstrider Lodge." WHERE entry = 385;
-        UPDATE quest_template set Title = "Young Crocilisk Skins", Details = "I'm James Halloran, the tanner. My cured crocilisk skins are sought after all over, shipments leaving by boat to ports around the world.$b$bMet Einar? He's one of the hunters that brings crocilisk skins in for me.$b$bI'm a bit short on the softer skins that come off crocilisk young.$b$bBeing that I'm running low, I'll pay you top coin for a stack of the skins. You can find the young crocs in the marshes right outside of town.", Objectives = "Obtain 4 Young Crocilisk Skins for James Halloran in Menethil Harbor." WHERE entry = 484;
-        UPDATE quest_template SET Details = "This ain't no ordinary blast powder.  Look at the tiny silver crystals.  And the distinct smell!  Why it's clear as daylight that this is Seaforium Powder.  Seaforium is harmless enough.  But once it's wet it could blow Ironforge out of the mountain.$b$bThe chemical reaction can be defused by mixing four components:  lurker venom, crushed Mo'Grosh crystal, a crocoilisk tear and this disarming colloid.  Now tell Hinderweir before it's too late!" WHERE entry = 274;
-        UPDATE quest_template SET Details = "Begin collecting the disarming materials immediately, $N.  Lurker Venom can be found on the indigenous spiders in Loch Modan.  Crocilisk tears are found here in the Loch as well.  But a Mo'Grosh crystal will be very difficult to procure.  The ogres to the northeast mine them but the crystals are a very rare commodity.$b$bWe need to be prepared to defuse a Dark Iron attack!  Return to me once you've collected the needed items and I will prepare the mixture.", Objectives = "Chief Engineer Hinderweir wants you to gather Lurker Venom, a Mo'grosh Crystal, and a Crocilisk Tear." WHERE entry = 278;
-        UPDATE quest_template SET Details = "With the inside finished, all that's left is to add the outer layer. For this, I use only the best elder croc skins. They are more durable and a better canvas--if you will--for adding the designs and accents that make Drizzlik's Excelsior line.$b$bIt's hard to find that perfect skin though, the only one that fits my plan is the skin of an elder saltwater crocilisk. The elders only come out to defend the other saltwater crocs, so you might need to kill a few to draw one out.", Objectives = "Bring an Elder Crocilisk Skin to Drizzlik in Booty Bay.", RequestItemsText = "I read somewhere that the saltwater crocilisks are slowly dying out... bad news for my business, isn't it?$b$bAnyways, I hope you have that elder saltwater crocilisk skin for me!" WHERE entry = 628;
-        UPDATE quest_template SET Details = "\"The finest leathercrafter of the South Seas and the worlds old and new.\" That's what they call me. Me! Drizzlik! The finest lea... Ahem. Well.$b$bMy leather goods are known far and wide as the most exquisite, a connoisseur's choice!$b$bI've just received an order from Director Riddlevox of the Tinkers' Union for a dozen of his favorite Excelsior-line boots. Our best sellers, actually.$b$bTo start on the basic shape, I'll need crocilisk skins from the crocs along the river in northern Stranglethorn.", Objectives = "Bring 2 Large River Crocilisk Skins to Drizzlik in Booty Bay." WHERE entry = 575;
-        UPDATE quest_template SET Objectives = "Bring 5 Snapjaw Crocilisks Skins to Drizzlik in Booty Bay.", RequestItemsText = "Drizzlik's Excelsior leather boots, finest workmanship, one-hundred percent high quality saltwater crocilisk skin boots. None finer!$b$bCan't beat a glowing description like that, can you?$b$bExcept, maybe, if you have those skins for me?" WHERE entry = 577;
-        INSERT INTO `applied_updates` VALUES ('301220232');
-    end if;
-
-    -- 10/03/2024 1
-	if (select count(*) from applied_updates where id='100320241') = 0 then
-        UPDATE item_template SET name = "Monster - Item, Broom" WHERE entry = 3362;
-        UPDATE item_template SET name = "Monster - Sword, Rapier" WHERE entry = 3364;
-
-        UPDATE item_template SET name = "Crocilisk Steak" WHERE entry = 3662;
-        UPDATE item_template SET name = "Crocilisk Gumbo" WHERE entry = 3664;
-
-        UPDATE creature_template SET subname = "Crocilisk Trainer" WHERE entry = 2876;
-
-        insert into applied_updates values ('100320241');
-    end if;
-
-    -- 13/03/2024 1
-	if (SELECT COUNT(*) FROM `applied_updates` WHERE `id`='130320241') = 0 THEN
-	    -- Formula is the result of solving dmg_mitigation_alpha(armor * k) = dmg_mitigation_vanilla(armor).
-	    UPDATE `creature_classlevelstats` SET `armor` = ROUND((1200 + 893 * armor + 255 * level + 100 * armor * level) / (3 * (400 + armor + 85 * level))) WHERE armor > 0;
-
-	    -- Scale down armor for items from the 1.2 database.
-        -- Use the above formula, but with item level instead of unit level.
-	    UPDATE `item_template` SET `armor` = ROUND((1200 + 893 * armor + 255 * item_level + 100 * armor * item_level) / (3 * (400 + armor + 85 * item_level)))
-	        WHERE `entry` IN (88, 91, 100, 104, 113, 124, 128, 135, 150, 156, 905, 906, 908, 909, 1397, 1398, 2106, 3150, 6126, 6131, 97, 2586, 5053, 2305, 1379, 143, 876, 1957, 1961, 1984, 1985, 2051, 2052, 2053, 6254, 6434, 3271, 1354, 3008, 3320, 1298, 3794, 77, 2110, 3646, 1392, 3331, 3535, 3545, 3546, 3938, 2573, 3946, 3795, 5315, 3954, 1782, 4045, 3811, 1757, 3803, 1806, 3964, 4990, 3947, 3939, 4003, 3995, 3436, 4934, 3972, 3792, 5969, 3955, 3980, 4011, 1190, 4735, 6432, 3380, 1432, 3936, 6424, 3378, 4113, 3944, 3796, 3952, 1783, 4463, 4736, 3985, 3940, 1500, 3948, 3793, 3956, 1659, 6428, 3937, 1162, 1163, 3798, 4855, 4856, 4857, 4858, 3475, 3945, 3953, 3221, 1272, 1545, 3219, 4685, 4670, 3534, 3543, 3544, 3549, 4682, 3942, 4047, 2114, 1363, 3950, 2045, 3958, 3077, 2994, 4734, 3886, 3533, 3541, 3542, 1776, 3941, 2621, 3883, 1784, 2620, 5608, 2623, 2624, 3963, 6429, 3979, 3949, 3971, 3957, 4046, 2574, 3073, 4061, 3943, 4194, 3951, 6198, 3959, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 6427, 3075, 4989, 2566, 3569, 1306, 6243, 1371, 3532, 3539, 3540, 3548, 3800, 3977, 4982, 3961, 3969, 1803, 2173, 3981, 3973, 4738, 3804, 940, 3525, 1807, 3062, 3978, 1799, 4063, 3970, 3528, 3537, 3538, 3547, 4192, 2306, 5308, 3060, 4955, 3975, 3983, 3967, 2255, 1796, 3806, 6431, 5298, 4195, 5297, 2167, 3965, 5296, 1684, 5294, 5295, 4737, 4810, 4442, 5821, 3247, 4811, 1424, 4853, 3982, 3321, 3063, 3966, 3974, 3059, 2038, 6433, 4002, 4124, 5625, 4764, 3994, 3887, 4193, 3810, 4010, 1435, 1508, 4688, 4691, 3459, 2993, 5307, 5968, 3064, 1279, 4664, 3884, 4062, 4673, 3984, 3968, 2588, 4118, 3976, 1535, 3526, 1999, 3215, 3245, 3061, 1810, 4773, 3524, 6430, 4774, 4190, 4000, 5327, 3992, 2867, 4008, 917, 3244, 3808, 1170, 907, 2690, 4004, 6425, 4929, 3996, 3246, 1754, 4012, 3812, 1746, 3529, 3536, 1758, 4001, 3993, 2655, 4083, 4009, 3523, 1969, 3051, 3998, 3243, 4006, 4653, 6423, 3814, 4014, 4136, 3054, 5822, 4733, 3522, 3527, 1174, 4005, 3242, 2647, 3997, 4013, 4080, 5607, 1624, 3813, 5358, 2918, 3046, 3052, 3232, 3226, 1736, 4812, 1960, 3007, 3159, 4679, 2995, 3333, 4657, 4478, 3888, 4084, 3050, 4815, 4667, 4007, 1028, 1192, 3999, 4015, 3885, 4761, 3815, 2245, 4138, 4082, 1677, 2275, 1981, 3416, 2273, 4937, 4263, 4950, 5593, 2170, 2219, 2220, 2221, 2222, 3817, 3816, 4290, 4067, 4975, 4728, 3763, 4070, 4507, 3986, 3987, 3988, 3991, 4129, 4652, 1204, 4069, 1203);
-
-        -- Create entries for these items in applied_item_updates.
-	    INSERT INTO `applied_item_updates` (`entry`) VALUES (88), (91), (100), (104), (113), (124), (128), (135), (150), (156), (905), (906), (908), (909), (1397), (1398), (2106), (3150), (6126), (6131), (97), (2586), (5053), (2305), (1379), (143), (876), (1957), (1961), (1984), (1985), (2051), (2052), (2053), (6254), (6434), (3271), (1354), (3008), (3320), (1298), (3794), (77), (2110), (3646), (1392), (3331), (3535), (3545), (3546), (3938), (2573), (3946), (3795), (5315), (3954), (1782), (4045), (3811), (1757), (3803), (1806), (3964), (4990), (3947), (3939), (4003), (3995), (3436), (4934), (3972), (3792), (5969), (3955), (3980), (4011), (1190), (4735), (6432), (3380), (1432), (3936), (6424), (3378), (4113), (3944), (3796), (3952), (1783), (4463), (4736), (3985), (3940), (1500), (3948), (3793), (3956), (1659), (6428), (3937), (1162), (1163), (3798), (4855), (4856), (4857), (4858), (3475), (3945), (3953), (3221), (1272), (1545), (3219), (4685), (4670), (3534), (3543), (3544), (3549), (4682), (3942), (4047), (2114), (1363), (3950), (2045), (3958), (3077), (2994), (4734), (3886), (3533), (3541), (3542), (1776), (3941), (2621), (3883), (1784), (2620), (5608), (2623), (2624), (3963), (6429), (3979), (3949), (3971), (3957), (4046), (2574), (3073), (4061), (3943), (4194), (3951), (6198), (3959), (1020), (1021), (1022), (1023), (1024), (1025), (1026), (1027), (6427), (3075), (4989), (2566), (3569), (1306), (6243), (1371), (3532), (3539), (3540), (3548), (3800), (3977), (4982), (3961), (3969), (1803), (2173), (3981), (3973), (4738), (3804), (940), (3525), (1807), (3062), (3978), (1799), (4063), (3970), (3528), (3537), (3538), (3547), (4192), (2306), (5308), (3060), (4955), (3975), (3983), (3967), (2255), (1796), (3806), (6431), (5298), (4195), (5297), (2167), (3965), (5296), (1684), (5294), (5295), (4737), (4810), (4442), (5821), (3247), (4811), (1424), (4853), (3982), (3321), (3063), (3966), (3974), (3059), (2038), (6433), (4002), (4124), (5625), (4764), (3994), (3887), (4193), (3810), (4010), (1435), (1508), (4688), (4691), (3459), (2993), (5307), (5968), (3064), (1279), (4664), (3884), (4062), (4673), (3984), (3968), (2588), (4118), (3976), (1535), (3526), (1999), (3215), (3245), (3061), (1810), (4773), (3524), (6430), (4774), (4190), (4000), (5327), (3992), (2867), (4008), (917), (3244), (3808), (1170), (907), (2690), (4004), (6425), (4929), (3996), (3246), (1754), (4012), (3812), (1746), (3529), (3536), (1758), (4001), (3993), (2655), (4083), (4009), (3523), (1969), (3051), (3998), (3243), (4006), (4653), (6423), (3814), (4014), (4136), (3054), (5822), (4733), (3522), (3527), (1174), (4005), (3242), (2647), (3997), (4013), (4080), (5607), (1624), (3813), (5358), (2918), (3046), (3052), (3232), (3226), (1736), (4812), (1960), (3007), (3159), (4679), (2995), (3333), (4657), (4478), (3888), (4084), (3050), (4815), (4667), (4007), (1028), (1192), (3999), (4015), (3885), (4761), (3815), (2245), (4138), (4082), (1677), (2275), (1981), (3416), (2273), (4937), (4263), (4950), (5593), (2170), (2219), (2220), (2221), (2222), (3817), (3816), (4290), (4067), (4975), (4728), (3763), (4070), (4507), (3986), (3987), (3988), (3991), (4129), (4652), (1204), (4069), (1203);
-
-        -- Add a comment to each item about the adjusted armor value.
-	    ALTER TABLE `applied_item_updates` ADD `comment` varchar(255) NOT NULL DEFAULT '';
-        UPDATE `applied_item_updates` SET `version` = 4149, `comment` = "Armor adjusted to match alpha damage mitigation formula."
-            WHERE `entry` IN (88, 91, 100, 104, 113, 124, 128, 135, 150, 156, 905, 906, 908, 909, 1397, 1398, 2106, 3150, 6126, 6131, 97, 2586, 5053, 2305, 1379, 143, 876, 1957, 1961, 1984, 1985, 2051, 2052, 2053, 6254, 6434, 3271, 1354, 3008, 3320, 1298, 3794, 77, 2110, 3646, 1392, 3331, 3535, 3545, 3546, 3938, 2573, 3946, 3795, 5315, 3954, 1782, 4045, 3811, 1757, 3803, 1806, 3964, 4990, 3947, 3939, 4003, 3995, 3436, 4934, 3972, 3792, 5969, 3955, 3980, 4011, 1190, 4735, 6432, 3380, 1432, 3936, 6424, 3378, 4113, 3944, 3796, 3952, 1783, 4463, 4736, 3985, 3940, 1500, 3948, 3793, 3956, 1659, 6428, 3937, 1162, 1163, 3798, 4855, 4856, 4857, 4858, 3475, 3945, 3953, 3221, 1272, 1545, 3219, 4685, 4670, 3534, 3543, 3544, 3549, 4682, 3942, 4047, 2114, 1363, 3950, 2045, 3958, 3077, 2994, 4734, 3886, 3533, 3541, 3542, 1776, 3941, 2621, 3883, 1784, 2620, 5608, 2623, 2624, 3963, 6429, 3979, 3949, 3971, 3957, 4046, 2574, 3073, 4061, 3943, 4194, 3951, 6198, 3959, 1020, 1021, 1022, 1023, 1024, 1025, 1026, 1027, 6427, 3075, 4989, 2566, 3569, 1306, 6243, 1371, 3532, 3539, 3540, 3548, 3800, 3977, 4982, 3961, 3969, 1803, 2173, 3981, 3973, 4738, 3804, 940, 3525, 1807, 3062, 3978, 1799, 4063, 3970, 3528, 3537, 3538, 3547, 4192, 2306, 5308, 3060, 4955, 3975, 3983, 3967, 2255, 1796, 3806, 6431, 5298, 4195, 5297, 2167, 3965, 5296, 1684, 5294, 5295, 4737, 4810, 4442, 5821, 3247, 4811, 1424, 4853, 3982, 3321, 3063, 3966, 3974, 3059, 2038, 6433, 4002, 4124, 5625, 4764, 3994, 3887, 4193, 3810, 4010, 1435, 1508, 4688, 4691, 3459, 2993, 5307, 5968, 3064, 1279, 4664, 3884, 4062, 4673, 3984, 3968, 2588, 4118, 3976, 1535, 3526, 1999, 3215, 3245, 3061, 1810, 4773, 3524, 6430, 4774, 4190, 4000, 5327, 3992, 2867, 4008, 917, 3244, 3808, 1170, 907, 2690, 4004, 6425, 4929, 3996, 3246, 1754, 4012, 3812, 1746, 3529, 3536, 1758, 4001, 3993, 2655, 4083, 4009, 3523, 1969, 3051, 3998, 3243, 4006, 4653, 6423, 3814, 4014, 4136, 3054, 5822, 4733, 3522, 3527, 1174, 4005, 3242, 2647, 3997, 4013, 4080, 5607, 1624, 3813, 5358, 2918, 3046, 3052, 3232, 3226, 1736, 4812, 1960, 3007, 3159, 4679, 2995, 3333, 4657, 4478, 3888, 4084, 3050, 4815, 4667, 4007, 1028, 1192, 3999, 4015, 3885, 4761, 3815, 2245, 4138, 4082, 1677, 2275, 1981, 3416, 2273, 4937, 4263, 4950, 5593, 2170, 2219, 2220, 2221, 2222, 3817, 3816, 4290, 4067, 4975, 4728, 3763, 4070, 4507, 3986, 3987, 3988, 3991, 4129, 4652, 1204, 4069, 1203);
-
-        INSERT INTO `applied_updates` VALUES ('130320241');
-    end if;
-
-    -- 31/12/2023 1
-    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='311220231') = 0 then
-        -- First, reset bonding for all weapons and armor.
-        update item_template set bonding = 0 where class in (2, 4);
-        -- Then, set all rings to unique.
-        update item_template set max_count = 1 where inventory_type = 11;
-        -- Set individual items to Bind on Equip where applicable.
-        -- Boss drops.
-        update item_template set bonding = 2 where entry in(6392, 5423, 1292, 5193, 6320, 5198, 5202, 5191, 2816, 5201, 3748, 1156, 6220, 888, 6318, 6324, 1155, 5426, 6321, 5194, 5192, 5196, 5197, 5199, 5195, 872, 6226, 6323, 3191, 6319, 3230, 6340, 6314, 3078);
-        -- Drops from instanced rare spawns. Separated for easier removal because I'm not sure the boss rule applies to them.
-        update item_template set bonding = 2 where entry in(5443, 2942, 3228, 2941);
-        -- Rare Crafting items.
-        update item_template set bonding = 2 where entry in(4262, 3844, 4327, 2870, 4320, 4253);
-        -- Lastly, set all rewards from dungeon quests to Bind on Pickup.
-        update item_template set bonding = 1 where entry in(4197, 4980, 6414, 2037, 2036, 2033, 2906, 3324, 1893, 2074, 2089, 6094, 4746, 6335, 4534, 3041, 4197, 6087, 2041, 2042, 3562, 1264, 3400, 1317);
-
-        INSERT INTO `applied_updates` VALUES ('311220231');
-    end if;
-
-    -- 18/04/2024 1
-	if (select count(*) from applied_updates where id='180420241') = 0 then
-        /*
-        World of Warcraft Client Patch 1.7.0 (2005-09-13)
-        - The completion dialogue for the "A Rogue's Deal" quest has been
-          clarified.
-        */
-        UPDATE `quest_template` SET `RequestItemsText` = 'Yes? Yes? What is it?$B$BFor a race of people who don\'t need to breathe underwater, they certainly do have huge appetites. Make yourself at home... make yourself at home. My name\'s Renee if you need anything at all.' WHERE `entry` = 8;
-
-        /*
-        World of Warcraft Client Patch 1.7.0 (2005-09-13)
-        - Fixed a typo on a signpost in Western Plaguelands.
-        */
-        UPDATE `gameobject_template` SET `name` = 'Andorhol' WHERE `entry` IN (176982, 176983);
-        UPDATE `gameobject_template` SET `name` = 'Hearthglenn' WHERE `entry` = 176994;
-
-        /*
-         World of Warcraft Client Patch 1.7.0 (2005-09-13)
-         - Rethban Ore, Black Diamonds, and Pristine Black Diamonds may now be
-           found in the Miscellaneous Junk category of the Auction House.
-        */
-        -- https://web.archive.org/web/20060328050450/http://wow.allakhazam.com/db/itemhistory.html?witem=2798
-        UPDATE `item_template` SET `class` = 12 WHERE `entry` = 2798;
-
-        insert into applied_updates values ('180420241');
-    end if;
-
-    -- 18/04/2024 2
-	if (select count(*) from applied_updates where id='180420242') = 0 then
-        -- augmented chain helm
-        UPDATE `item_template` SET `display_id` = 6823 WHERE (`entry` = 3891);
-
-        -- goggles gem hunting
-        UPDATE `item_template` SET `display_id` = 7136 WHERE (`entry` = 4491);
-
-        -- imperial leather boots
-        UPDATE `item_template` SET `display_id` = 11653 WHERE (`entry` = 6431);
-
-        -- blackforge girdle
-        UPDATE `item_template` SET `display_id` = 3394 WHERE (`entry` = 6425);
-
-        -- glyphed helm
-        UPDATE `item_template` SET `display_id` = 4381 WHERE (`entry` = 6422);
-
-        -- glyphed mitts (? icon)
-        UPDATE `item_template` SET `display_id` = 10513 WHERE (`entry` = 6419);
-
-        -- glyphed boots (? icon)
-        UPDATE `item_template` SET `display_id` = 5354 WHERE (`entry` = 6420);
-
-        -- glyphed belt (? icon)
-        UPDATE `item_template` SET `display_id` = 10433 WHERE (`entry` = 6421);
-
-        -- brightweave robe (renamed to Aurora Robe for vanilla)
-        UPDATE `item_template` SET `display_id` = 11609 WHERE (`entry` = 6415);
-
-        -- brightweave boots (renamed to Aurora Boots for vanilla, ? icon)
-        UPDATE `item_template` SET `display_id` = 9488 WHERE (`entry` = 6416);
-
-        -- emblazoned chestpiece (? icon)
-        UPDATE `item_template` SET `display_id` = 6177 WHERE (`entry` = 6396);
-
-        -- glimmering mail coif
-        UPDATE `item_template` SET `display_id` = 11524 WHERE (`entry` = 6389);
-
-        -- infantery tunic
-        UPDATE `item_template` SET `display_id` = 1511 WHERE (`entry` = 6336);
-
-        -- tribal worg helm
-        UPDATE `item_template` SET `display_id` = 10537 WHERE (`entry` = 6204);
-
-        -- dark leather pants
-        UPDATE `item_template` SET `display_id` = 9523 WHERE (`entry` = 5961);
-
-        -- darkstalker boots (? icon)
-        UPDATE `item_template` SET `display_id` = 5522 WHERE (`entry` = 5821);
-
-        -- sunblaze coif
-        UPDATE `item_template` SET `display_id` = 9070 WHERE (`entry` = 5819);
-
-        -- barbaric harness
-        UPDATE `item_template` SET `display_id` = 10018 WHERE (`entry` = 5739);
-
-        -- circlet of the order
-        UPDATE `item_template` SET `display_id` = 3868 WHERE (`entry` = 5624);
-
-        -- living cowl
-        UPDATE `item_template` SET `display_id` = 8415 WHERE (`entry` = 5608);
-
-        -- boar hunter cap
-        UPDATE `item_template` SET `display_id` = 7547 WHERE (`entry` = 5314);
-
-        -- light scorpid armor (? icon)
-        UPDATE `item_template` SET `display_id` = 9265 WHERE (`entry` = 4929);
-
-        -- Demon scared cloak (display_id of 'deprecated demon scared')
-        UPDATE `item_template` SET `display_id` = 7086 WHERE (`entry` = 4854);
-
-        -- boulder pads (? icon)
-        UPDATE `item_template` SET `display_id` = 5496 WHERE (`entry` = 4810);
-
-        -- imperial leather belt
-        UPDATE `item_template` SET `display_id` = 11652 WHERE (`entry` = 4738);
-
-        -- mistscape sash (? icon)
-        UPDATE `item_template` SET `display_id` = 6062 WHERE (`entry` = 4736);
-
-        -- glyphed spaulders (? icon, renamed to glyphed epaulets for vanilla)
-        UPDATE `item_template` SET `display_id` = 11769 WHERE (`entry` = 4731);
-
-        -- humbert helm
-        UPDATE `item_template` SET `display_id` = 6769 WHERE (`entry` = 4724);
-
-        -- lapidis tankard
-        UPDATE `item_template` SET `display_id` = 6523 WHERE (`entry` = 4696);
-
-        -- ceremonial leather belt
-        UPDATE `item_template` SET `display_id` = 7746 WHERE (`entry` = 4693);
-
-        -- magister sash
-        UPDATE `item_template` SET `display_id` = 8328 WHERE (`entry` = 4684);
-
-        -- white drakeskin cap
-        UPDATE `item_template` SET `display_id` = 7528 WHERE (`entry` = 4543);
-
-        -- raptor hide harness
-        UPDATE `item_template` SET `display_id` = 7708 WHERE (`entry` = 4455);
-
-        -- phoenix gloves
-        UPDATE `item_template` SET `display_id` = 11041 WHERE (`entry` = 4331);
-
-        insert into applied_updates values ('180420242');
-    end if;
-
-    -- 27/04/2024 1
-    if (SELECT COUNT(*) FROM `applied_updates` WHERE id='270420241') = 0 then
-        -- We apply Dwarf PH for the SW dwarf, at this point, they're most likely should use standard PH
-        UPDATE `creature_template` SET `display_id1` = 2584 WHERE `entry` IN (5413, 5384, 1472, 1416);
-
-        -- Darnassus Rogue Pet Trainer #1354 - Syurna 
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4163) AND (`spawn_id` IN (46312));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (46312, 4163, 0, 0, 0, 1, 9839.778, 2334.644, 1314.257, 4.683, 300, 300, 0, 100, 100, 0, 0, 0, 0);
-
-        -- Darnassus Rogue Pet Trainer #1354 - Anishar
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4215) AND (`spawn_id` IN (46470));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (46470, 4215, 0, 0, 0, 1, 9864.927, 2341.311, 1321.577, 4.302, 300, 300, 0, 100, 100, 0, 0, 0, 0);
-
-        -- Darnassus Rogue Pet Trainer #1354 - Erion
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4214) AND (`spawn_id` IN (46469));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (46469, 4214, 0, 0, 0, 1, 9864.960, 2341.935, 1331.882, 4.3, 300, 300, 0, 100, 100, 0, 0, 0, 0);
-
-        -- Unlit Poor Torch #1277
-        UPDATE `item_template` SET `display_id` = 2618 WHERE (`entry` = 6183);
-
-        -- STV Rebel Camp, we have evidences for corporal and rebel using PH, we extrapolate for the rest
-        UPDATE `creature_template` SET `display_id1` = 173 WHERE `entry` IN (733, 734, 738, 754, 1422);
-
-        -- Despawn non sense horde guard far behind the Camp Taurajo
-        UPDATE  `spawns_creatures` SET `ignored` = 1 WHERE (`spawn_entry1` = 3501) AND (`spawn_id` IN (19380));
-
-        -- Malygen, near First Aid Trainer
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 2803) AND (`spawn_id` IN (39067));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (39067, 2803, 0, 0, 0, 1, 10127.51, 2422.667, 1321.577, 4.299, 300, 300, 0, 100, 0, 0, 0, 0, 0);
-
-        -- Jeen'ra Hunter Trainer
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4138) AND (`spawn_id` IN (46217));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (46217, 4138, 0, 0, 0, 1, 10341.325, 2418.336, 1336.664, 2.619, 300, 300, 0, 100, 100, 0, 0, 0, 0);
-
-        -- Nightshade, Jeen'ra's pet
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4243) AND (`spawn_id` IN (46811));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (46811, 4243, 0, 0, 0, 1, 10340.028, 2416.647, 1336.664, 2.61, 300, 300, 0, 100, 0, 0, 0, 0, 0);
-
-        -- Jocaste Hunter Trainer
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4146) AND (`spawn_id` IN (46221));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (46221, 4146, 0, 0, 0, 1, 10337.991, 2471.973, 1337.483, 4.219, 300, 300, 0, 100, 100, 0, 0, 0, 0);
-
-        -- Valyen Wolf Trainer
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4207) AND (`spawn_id` IN (400077));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (400077, 4207, 0, 0, 0, 1, 10238.249, 2459.261, 1327.635, 1.714, 120, 120, 0, 100, 0, 0, 0, 0, 0);
-
-        -- Mistrunner, Valyen's Pet
-        DELETE FROM `spawns_creatures` WHERE (`spawn_entry1` = 4245) AND (`spawn_id` IN (400116));
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (400116, 4245, 0, 0, 0, 1, 10236.08, 2458.621, 1327.699, 1.806, 120, 120, 5, 100, 100, 0, 0, 0, 0);
-
-        insert into applied_updates values ('270420241');
-    end if;
-
-    -- 14/06/2024 1
-    if (select count(*) from `applied_updates` where id='140620241') = 0 then
-        -- Start script for quest The Defias Brotherhood.
+    -- 12/07/2024 1
+    if (select count(*) from `applied_updates` where id='120720241') = 0 then
+        -- The Defias Brotherhood: The Defias Traitor should have a delay before starting to run.
         DELETE FROM `quest_start_scripts` WHERE `id`=155;
         INSERT INTO `quest_start_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (155, 0, 0, 61, 155, 600, 0, 0, 0, 0, 0, 8, 0, 15502, 1019, 15501, 0, 0, 0, 0, 0, 'The Defias Brotherhood: Start Scripted Map Event'),
         (155, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood: The Defias Traitor - Say Text'),
         (155, 0, 2, 4, 147, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood: The Defias Traitor - Remove Questgiver Flag'),
-        (155, 0, 3, 25, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood: The Defias Traitor - Set Run'),
-        (155, 0, 4, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood: The Defias Traitor - Start Waypoints');
-        UPDATE `quest_template` SET `StartScript`=155 WHERE `entry`=155;
+        (155, 3, 3, 25, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood: The Defias Traitor - Set Run'),
+        (155, 3, 4, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood: The Defias Traitor - Start Waypoints');
 
-        -- Fail script for quest The Defias Brotherhood.
-        DELETE FROM `generic_scripts` WHERE `id`=15501;
-        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (15501, 0, 0, 70, 155, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood Failed: Player - Fail Quest'),
-        (15501, 1, 0, 71, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood Failed: The Defias Traitor - Respawn');
-
-        -- Success script for quest The Defias Brotherhood.
-        DELETE FROM `generic_scripts` WHERE `id`=15502;
-        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (15502, 0, 0, 7, 155, 80, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Brotherhood Success: Player - Complete Quest The Defias Brotherhood');
-
-        -- Waypoints for The Defias Traitor.
-        INSERT INTO `creature_movement_template` (`entry`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
-        (467, 1, -10508.365234, 1068.004639, 55.211067, 2.12930000, 0, 0.000000, 0),
-        (467, 2, -10511.665039, 1070.056641, 55.000290, 100.000000, 0, 0.000000, 0),
-        (467, 3, -10528.883789, 1080.062378, 51.316719, 100.000000, 0, 0.000000, 0),
-        (467, 4, -10537.890625, 1083.893066, 49.087326, 100.000000, 0, 0.000000, 0),
-        (467, 5, -10556.833008, 1085.474976, 44.932392, 100.000000, 0, 0.000000, 0),
-        (467, 6, -10566.367188, 1083.725708, 42.061424, 100.000000, 0, 0.000000, 0),
-        (467, 7, -10595.578125, 1078.085693, 37.326855, 100.000000, 0, 0.000000, 0),
-        (467, 8, -10614.046875, 1070.617065, 36.250000, 100.000000, 0, 0.000000, 0),
-        (467, 9, -10632.202148, 1062.191284, 33.783394, 100.000000, 0, 0.000000, 0),
-        (467, 10, -10646.985352, 1049.307129, 33.469727, 100.000000, 0, 0.000000, 0),
-        (467, 11, -10659.892578, 1033.606079, 33.001930, 100.000000, 0, 0.000000, 0),
-        (467, 12, -10668.109375, 1030.417236, 32.642113, 100.000000, 0, 0.000000, 0),
-        (467, 13, -10688.779297, 1033.078491, 32.778629, 100.000000, 0, 0.000000, 0),
-        (467, 14, -10708.905273, 1033.406860, 33.340015, 100.000000, 0, 0.000000, 0),
-        (467, 15, -10719.487305, 1032.011841, 33.372372, 100.000000, 0, 0.000000, 0),
-        (467, 16, -10738.052734, 1025.092407, 33.498344, 100.000000, 0, 0.000000, 0),
-        (467, 17, -10746.997070, 1020.282715, 33.475327, 100.000000, 0, 0.000000, 0),
-        (467, 18, -10756.583008, 1017.325073, 32.644794, 100.000000, 0, 0.000000, 0),
-        (467, 19, -10766.623047, 1016.437439, 32.250309, 100.000000, 0, 0.000000, 0),
-        (467, 20, -10786.786133, 1017.289368, 32.784870, 100.000000, 0, 0.000000, 0),
-        (467, 21, -10796.921875, 1017.794189, 32.309326, 100.000000, 0, 0.000000, 0),
-        (467, 22, -10806.905273, 1016.952515, 32.450035, 100.000000, 0, 0.000000, 0),
-        (467, 23, -10816.677734, 1013.862793, 32.737080, 100.000000, 0, 0.000000, 0),
-        (467, 24, -10825.985352, 1010.479675, 32.922165, 100.000000, 0, 0.000000, 0),
-        (467, 25, -10835.723633, 1007.843689, 32.667873, 100.000000, 0, 0.000000, 0),
-        (467, 26, -10845.781250, 1006.920349, 32.554630, 100.000000, 0, 0.000000, 0),
-        (467, 27, -10855.850586, 1005.957703, 31.794849, 100.000000, 0, 0.000000, 0),
-        (467, 28, -10876.137695, 1004.763306, 32.509239, 100.000000, 0, 0.000000, 0),
-        (467, 29, -10895.647461, 1000.409363, 34.958488, 100.000000, 0, 0.000000, 0),
-        (467, 30, -10905.284180, 997.541565, 36.199196, 100.000000, 0, 0.000000, 0),
-        (467, 31, -10915.010742, 994.852295, 35.684765, 100.000000, 0, 0.000000, 0),
-        (467, 32, -10928.579102, 1008.821533, 36.434170, 100.000000, 0, 0.000000, 0),
-        (467, 33, -10934.929688, 1016.778931, 36.772240, 100.000000, 0, 0.000000, 0),
-        (467, 34, -10937.479492, 1026.311523, 36.677589, 100.000000, 0, 0.000000, 0),
-        (467, 35, -10936.495117, 1036.719360, 36.528023, 100.000000, 0, 0.000000, 0),
-        (467, 36, -10934.624023, 1046.323364, 36.217793, 100.000000, 0, 0.000000, 0),
-        (467, 37, -10934.037109, 1056.399170, 36.091614, 100.000000, 0, 0.000000, 0),
-        (467, 38, -10936.418945, 1066.224609, 36.348686, 100.000000, 0, 0.000000, 0),
-        (467, 39, -10939.788086, 1075.804688, 36.498444, 100.000000, 0, 0.000000, 0),
-        (467, 40, -10944.862305, 1084.990234, 36.621349, 100.000000, 0, 0.000000, 0),
-        (467, 41, -10951.633789, 1091.827393, 36.849304, 100.000000, 0, 0.000000, 0),
-        (467, 42, -10957.307617, 1099.960815, 36.828396, 100.000000, 0, 0.000000, 0),
-        (467, 43, -10958.173828, 1109.963257, 36.708630, 100.000000, 0, 0.000000, 0),
-        (467, 44, -10955.863281, 1119.640503, 36.822605, 100.000000, 0, 0.000000, 0),
-        (467, 45, -10951.651367, 1128.800415, 37.088837, 100.000000, 0, 0.000000, 0),
-        (467, 46, -10946.530273, 1137.514038, 37.387074, 100.000000, 0, 0.000000, 0),
-        (467, 47, -10937.208984, 1155.371826, 37.687366, 100.000000, 0, 0.000000, 0),
-        (467, 48, -10932.764648, 1164.468628, 37.739960, 100.000000, 0, 0.000000, 0),
-        (467, 49, -10924.265625, 1182.871582, 37.153881, 100.000000, 0, 0.000000, 0),
-        (467, 50, -10915.636719, 1201.651489, 36.595894, 100.000000, 0, 0.000000, 0),
-        (467, 51, -10911.511719, 1210.341309, 35.858269, 100.000000, 0, 0.000000, 0),
-        (467, 52, -10903.272461, 1228.768555, 34.254444, 100.000000, 0, 0.000000, 0),
-        (467, 53, -10896.151367, 1247.739746, 33.529724, 100.000000, 0, 0.000000, 0),
-        (467, 54, -10893.463867, 1257.455200, 33.429520, 100.000000, 0, 0.000000, 0),
-        (467, 55, -10891.158203, 1277.552856, 33.470081, 100.000000, 0, 0.000000, 0),
-        (467, 56, -10890.843750, 1287.644409, 33.730328, 100.000000, 0, 0.000000, 0),
-        (467, 57, -10891.253906, 1297.683228, 34.580219, 100.000000, 0, 0.000000, 0),
-        (467, 58, -10892.418945, 1307.667725, 35.571800, 100.000000, 0, 0.000000, 0),
-        (467, 59, -10894.049805, 1317.594238, 36.676090, 100.000000, 0, 0.000000, 0),
-        (467, 60, -10896.221680, 1327.406006, 37.801311, 100.000000, 0, 0.000000, 0),
-        (467, 61, -10898.851563, 1337.183594, 38.586575, 100.000000, 0, 0.000000, 0),
-        (467, 62, -10901.658203, 1346.910522, 38.862293, 100.000000, 0, 0.000000, 0),
-        (467, 63, -10903.759766, 1356.811035, 39.530334, 100.000000, 0, 0.000000, 0),
-        (467, 64, -10908.491211, 1376.412720, 41.690590, 100.000000, 0, 0.000000, 0),
-        (467, 65, -10910.840820, 1386.203491, 42.500473, 100.000000, 0, 0.000000, 0),
-        (467, 66, -10912.922852, 1396.386353, 43.061867, 100.000000, 0, 0.000000, 0),
-        (467, 67, -10914.730469, 1406.258179, 43.019428, 100.000000, 0, 0.000000, 0),
-        (467, 68, -10917.774414, 1419.297485, 42.878891, 100.000000, 1000, 0.000000, 46768),
-        (467, 69, -10921.615234, 1420.600098, 42.980225, 100.000000, 0, 0.000000, 0),
-        (467, 70, -10933.411133, 1423.385010, 43.059723, 100.000000, 0, 0.000000, 0),
-        (467, 71, -10937.416016, 1424.085938, 43.133114, 100.000000, 0, 0.000000, 0),
-        (467, 72, -10945.477539, 1424.508545, 43.417740, 100.000000, 0, 0.000000, 0),
-        (467, 73, -10953.411133, 1423.184326, 43.273365, 100.000000, 0, 0.000000, 0),
-        (467, 74, -10961.046875, 1420.687256, 43.105751, 100.000000, 0, 0.000000, 0),
-        (467, 75, -10967.974609, 1416.510620, 43.146919, 100.000000, 0, 0.000000, 0),
-        (467, 76, -10975.002930, 1412.850464, 42.935589, 100.000000, 0, 0.000000, 0),
-        (467, 77, -10983.043945, 1411.775757, 42.978119, 100.000000, 0, 0.000000, 0),
-        (467, 78, -10990.964844, 1412.366943, 43.052387, 100.000000, 0, 0.000000, 0),
-        (467, 79, -10994.790039, 1413.662354, 43.118515, 100.000000, 0, 0.000000, 0),
-        (467, 80, -11001.338867, 1418.407837, 43.146561, 100.000000, 0, 0.000000, 0),
-        (467, 81, -11010.550781, 1427.787109, 43.045330, 100.000000, 0, 0.000000, 0),
-        (467, 82, -11015.583984, 1434.150391, 43.040802, 100.000000, 0, 0.000000, 0),
-        (467, 83, -11020.680664, 1445.102295, 43.111294, 100.000000, 0, 0.000000, 0),
-        (467, 84, -11022.956055, 1452.878540, 43.046276, 100.000000, 0, 0.000000, 0),
-        (467, 85, -11024.007813, 1456.798218, 42.992771, 100.000000, 0, 0.000000, 0),
-        (467, 86, -11024.490234, 1464.887573, 42.941597, 100.000000, 0, 0.000000, 0),
-        (467, 87, -11024.727539, 1481.115967, 43.014957, 100.000000, 0, 0.000000, 0),
-        (467, 88, -11024.600000, 1490.230000, 43.255800, 100.000000, 0, 0.000000, 0),
-        (467, 89, -11030.700000, 1499.550000, 43.262800, 100.000000, 0, 0.000000, 0),
-        (467, 90, -11044.400000, 1509.710000, 43.228800, 100.000000, 0, 0.000000, 0),
-        (467, 91, -11053.200000, 1516.280000, 43.181600, 100.000000, 0, 0.000000, 0),
-        (467, 92, -11058.400000, 1522.540000, 43.256700, 100.000000, 0, 0.000000, 0),
-        (467, 93, -11061.200000, 1525.300000, 43.306600, 100.000000, 0, 0.000000, 0),
-        (467, 94, -11069.900000, 1527.500000, 43.314300, 100.000000, 10000, 0.000000, 46794),
-        (467, 95, -11069.900000, 1527.500000, 43.314300, 100.000000, 0, 0.000000, 0);
-
-        -- Waypoint scripts for The Defias Traitor.
-        DELETE FROM `creature_movement_scripts` WHERE `id`=46768;
-        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (46768, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Traitor - Say Text'),
-        (46768, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Traitor - Set Walk');
-        DELETE FROM `creature_movement_scripts` WHERE `id`=46794;
-        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (46794, 0, 0, 20, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Traitor - Move Idle'),
-        (46794, 1, 0, 0, 0, 0, 0, 0, 155, 0, 21, 0, 11, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Traitor - Say Text'),
-        (46794, 1, 1, 62, 155, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Traitor - End Scripted Map Event'),
-        (46794, 5, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'The Defias Traitor - Despawn Creature');
-
-        -- Events list for The Defias Traitor
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=467;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES
-        (46701, 467, 0, 4, 0, 100, 0, 0, 0, 0, 0, 46701, 0, 0, 'The Defias Traitor - Say Text on Aggro');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=46701;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (46701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 485, 487, 489, 0, 0, 0, 0, 0, 0, 'The Defias Traitor - Say Text');
-        UPDATE `creature_template` SET `ai_name`='EventAI', `script_name`='' WHERE `entry`=467;
-
-        insert into `applied_updates` values ('140620241');
+        insert into applied_updates values ('120720241');
     end if;
 
-    -- 21/06/2024 1
-	if (select count(*) from applied_updates where id='210620241') = 0 then
-        -- Make Sorcerer Ashcrombe use same static flags as Deathstalker Adamant.
-        UPDATE creature_template SET static_flags = 0x400040 WHERE entry = 3850;
+    -- 12/07/2024 2
+    if (select count(*) from applied_updates where id='120720242') = 0 then
+        -- Green Tea Leaf
+        UPDATE `item_template` SET `display_id` = 2336 WHERE (`entry` = 1401);
 
-        insert into applied_updates values ('210620241');
-    end if;
+        -- Scroll of Strength
+        UPDATE `item_template` SET `spellid_1` = 365 WHERE (`entry` = 954);
 
-    -- 22/06/2024 1
-	if (select count(*) from applied_updates where id='220620241') = 0 then
-        -- Mottled Riptooth update based on Mottled Scytheclaw #1360
-        UPDATE `creature_template` SET `subname` = '', `level_min` = 27, `level_max` = 28, `faction` = 48, `beast_family` = 11, `type_flags` = 1, `loot_id` = 1022, `skinning_loot_id` = 1022 WHERE (`entry` = 1066);
+        -- Scroll of Intellect
+        UPDATE `item_template` SET `spellid_1` = 1459 WHERE (`entry` = 955);
 
-        -- Mottled Riptooth SPAWNS #1360
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3431.544,    -1721.19,       61.617,         2.342,                300,                300,                 5,              100,              0,                1,             0,                0,         0);
+        -- Scroll of Stamina
+        UPDATE `item_template` SET `spellid_1` = 344 WHERE (`entry` = 1180);
 
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3467.037,    -1691.383,       63.690,         4.342,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+        -- Scroll of Stamina II
+        UPDATE `item_template` SET `spellid_1` = 554 WHERE (`entry` = 1711);
 
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3504.158,    -1771.97,        17.469,         5.342,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+        -- Scroll of Strength II
+        UPDATE `item_template` SET `spellid_1` = 549 WHERE (`entry` = 2289);
 
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3495.513,    -1826.39,        17.187,         4.447,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+        -- Scroll of Intellect II
+        UPDATE `item_template` SET `spellid_1` = 1460 WHERE (`entry` = 2290);
 
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3486.829,    -1852.667,       17.329,         0.742,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+        -- Scroll of Intellect III
+        UPDATE `item_template` SET `spellid_1` = 1461 WHERE (`entry` = 4419);
 
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3500.462,    -1746.789,       23.731,         4.742,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+        -- Scroll of Stamina III
+        UPDATE `item_template` SET `spellid_1` = 909 WHERE (`entry` = 4422);
 
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3360.850,    -1835.442,       17.845,         2.886,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
+        -- Conjured Fresh Water
+        UPDATE `item_template` SET `display_id` = 1484 WHERE (`entry` = 2288);
 
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3384.544,    -1802.19,       16.241,          5.242,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3443.216,    -1782.717,       17.247,         2.501,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES
-        (                                        0,           1066,              0,              0,              0,     0,    -3514.737,    -1896.171,       25.782,         0.361,                300,                300,                 5,              100,              0,               1,             0,                0,         0);
-
-        -- Murloc Streamrunner #1361
-        UPDATE `creature_template` SET `display_id1` = 617 WHERE (`entry` = 735);
-
-        -- Galthuk #1335
-        UPDATE `creature_template` SET `subname` = 'Bear Trainer' WHERE (`entry` = 4043);
-
-        insert into applied_updates values ('220620241');
-    end if;
-
-    -- 22/06/2024 2
-	if (select count(*) from applied_updates where id='220620242') = 0 then
-        DELETE FROM `gameobject_scripts` WHERE `id`=34006;
-        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (34006, 0, 0, 11, 33219, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lever - Open Sourcerer Ashcrombe Cell'),
-        (34006, 2, 0, 39, 301, 0, 0, 0, 3850, 30, 8, 2, 100, 0, 0, 0, 0, 0, 0, 0, 3, 'Lever - Start Sorcerer Ashcrombe Script');
-
-        DELETE FROM `generic_scripts` WHERE `id`=301;
-        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (301, 0, 0, 4, 147, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Remove Gossip Flag'),
-        (301, 0, 0, 60, 3, 0, 4000, 0, 0, 0, 0, 0, 1, 3850, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Start Waypoints'),
-        (301, 0, 0, 4, 46, 512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Add Passive Flag'),
-        (301, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1331, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text');
-
-        DELETE FROM `creature_movement_scripts` WHERE `id`=385012;
-        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (385012, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1332, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text 1'),
-        (385012, 0, 0, 15, 6421, 5, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Cast Spell Ashcrombe\'s Unlock'),
-        (385012, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1334, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text 2'),
-        (385012, 5, 0, 11, 20835, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Open Courtyard Door'),
-        (385012, 5, 0, 37, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Set Instance Data'),
-        (385012, 10, 0, 15, 6422, 5, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Cast Spell Ashcrombe\'s Teleport'),
-        (385012, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1343, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Say Text 3 (Emoted)'),
-        (385012, 12, 0, 18, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sorcerer Ashcrombe - Despawn');
-
-        DELETE FROM `gameobject_scripts` WHERE `id`=32442;
-        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (32442, 0, 0, 11, 32445, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lever - Open Deathstalker Adamant Cell'),
-        (32442, 2, 0, 39, 302, 0, 0, 0, 3849, 30, 8, 2, 100, 0, 0, 0, 0, 0, 0, 0, 2, 'Lever - Start Deathstalker Adamant Script');
-
-        DELETE FROM `generic_scripts` WHERE `id`=302;
-        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (302, 0, 0, 4, 147, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Remove Gossip Flag'),
-        (302, 0, 0, 60, 3, 0, 4000, 0, 0, 0, 0, 0, 1, 3849, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Start Waypoints'),
-        (302, 0, 0, 4, 46, 512, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Add Passive Flag'),
-        (302, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1320, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text');
-
-        DELETE FROM `creature_movement_scripts` WHERE `id`=384911;
-        INSERT INTO `creature_movement_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (384911, 0, 0, 1, 69, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Emote Crafting'),
-        (384911, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1321, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text 1'),
-        (384911, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1322, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text 2 (Emoted)'),
-        (384911, 6, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Stop Emoting'),
-        (384911, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1323, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text 3'),
-        (384911, 6, 0, 11, 20835, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Open Courtyard Door'),
-        (384911, 6, 0, 37, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Set Instance Data'),
-        (384911, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1324, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Say Text 4'),
-        (384911, 10, 0, 25, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Deathstalker Adamant - Set Run');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=427403;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (427403, 0, 0, 37, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenrus the Devourer - Set Instance Data'),
-        (427403, 0, 0, 10, 4275, 14000, 0, 0, 0, 0, 0, 0, 0, 427403, -1, 3, -137.29, 2169.59, 136.57, 2.81, 0, 'Fenrus the Devourer - Summon Archmage Arugal'),
-        (427403, 0, 0, 39, 9536, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenrus the Devourer - Start Script to Summon Voidwalkers'),
-        (427403, 0, 0, 11, 33785, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenrus the Devourer - Open Door - TODO: This should happen on 4th Voidwalker death instead');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=392705;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (392705, 0, 0, 37, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wolf Master Nandos - Set Instance Data'),
-        (392705, 0, 0, 11, 33241, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wolf Master Nandos - Open Door'),
-        (392705, 0, 0, 4, 46, 256, 2, 0, 4275, 100, 8, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wolf Master Nandos - Make Archmage Arugal Attackable');
-
-        -- Fix Deathstalker Vincent faction.
-        UPDATE `creature_template` SET `faction` = 68 WHERE `entry` = 4444;
-
-        -- Fix Z placement of Fenrus Door.
-        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = 132.057 WHERE `spawn_id` = 33785;
-
-        insert into applied_updates values ('220620242');
-    end if;
-
-    -- 23/06/2024 1
-    if (select count(*) from `applied_updates` where id='230620241') = 0 then
-        DELETE FROM `gameobject_scripts` WHERE `id`=26205;
-        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (26205, 0, 0, 80, 2, 0, 0, 0, 16397, 40, 11, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Cannon - Activate Door');
-        DELETE FROM `gameobject_scripts` WHERE `id`=26203;
-        INSERT INTO `gameobject_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (26203, 0, 0, 10, 634, 310000, 0, 0, 0, 0, 0, 0, 0, 6341, -1, 4, -130.776, -605.473, 15.2352, 5.44543, 0, 'Defias Gunpowder - Summon Defias Overseer');
-        DELETE FROM `generic_scripts` WHERE `id`=6341;
-        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (6341, 0, 0, 60, 3, 0, 0, 0, 0, 0, 0, 0, 0, 63402, 0, 0, 0, 0, 0, 0, 0, 'Defias Overseer - Gunpowder Event Start Waypoints');
-        DELETE FROM `creature_movement_special` WHERE `id`=63402;
-        INSERT INTO `creature_movement_special` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
-        (63402, 1, -129.631714, -609.388977, 14.556828, 100.000000, 0, 0.000000, 0),
-        (63402, 2, -129.381714, -610.138977, 14.306828, 100.000000, 0, 0.000000, 0),
-        (63402, 3, -128.881714, -610.638977, 14.306828, 100.000000, 0, 0.000000, 0),
-        (63402, 4, -127.881714, -612.638977, 14.556828, 100.000000, 0, 0.000000, 0),
-        (63402, 5, -127.131714, -614.138977, 14.306828, 100.000000, 0, 0.000000, 0),
-        (63402, 6, -126.381714, -615.638977, 14.056828, 100.000000, 0, 0.000000, 0),
-        (63402, 7, -124.881714, -616.388977, 13.806828, 100.000000, 0, 0.000000, 0),
-        (63402, 8, -122.131714, -617.388977, 14.056828, 100.000000, 0, 0.000000, 0),
-        (63402, 9, -121.381714, -617.888977, 14.306828, 100.000000, 0, 0.000000, 0),
-        (63402, 10, -119.631714, -617.638977, 14.306828, 100.000000, 0, 0.000000, 0),
-        (63402, 11, -119.381714, -617.638977, 14.306828, 100.000000, 0, 0.000000, 0),
-        (63402, 12, -119.131714, -617.388977, 14.306828, 100.000000, 0, 0.000000, 0),
-        (63402, 13, -117.881714, -617.388977, 14.556828, 100.000000, 0, 0.000000, 0),
-        (63402, 14, -117.381714, -617.388977, 14.306828, 100.000000, 0, 0.000000, 0),
-        (63402, 15, -115.381714, -616.888977, 14.056828, 100.000000, 0, 0.000000, 0),
-        (63402, 16, -112.987709, -616.805054, 13.378482, 100.000000, 0, 0.000000, 0);
-
-        insert into `applied_updates` values ('230620241');
-    end if;
-
-    -- 23/06/2024 2
-	if (select count(*) from applied_updates where id='230620242') = 0 then
-        UPDATE `spawns_gameobjects` SET `spawn_entry` = 16400 WHERE `spawn_id` = 26185;
-        UPDATE `spawns_gameobjects` SET `spawn_entry` = 16399 WHERE `spawn_id` = 26182;
-        -- Events list for Rhahk'Zor
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=644;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64401, 644, 0, 4, 0, 100, 0, 0, 0, 0, 0, 64401, 0, 0, 'Rhahk\'Zor - Aggro Yell');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64402, 644, 0, 6, 0, 100, 0, 0, 0, 0, 0, 6441, 0, 0, 'Rhahk\'Zor - On Death');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=6441;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (6441, 0, 0, 11, 30533, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rhahk\'Zor - Open Door');
-        -- Events list for Sneed
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=643;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64301, 643, 0, 6, 0, 100, 0, 0, 0, 0, 0, 6431, 0, 0, 'Sneed - On Death');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=6431;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (6431, 0, 0, 11, 26185, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sneed - Open Door');
-        -- Events list for Gilnid
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=1763;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176301, 1763, 0, 1, 0, 100, 1, 120000, 120000, 120000, 120000, 176301, 0, 0, 'Gilnid - Random Say OOC');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176302, 1763, 0, 6, 0, 100, 0, 0, 0, 0, 0, 17631, 0, 0, 'Gilnid - On Death');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=17631;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (17631, 0, 0, 11, 26182, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gilnid - Open Door');
-
-        insert into applied_updates values ('230620242');
-    end if;
-            
-    -- 23/06/2024 3
-	if (select count(*) from applied_updates where id='230620243') = 0 then
-        -- Swim Speed potion
-        UPDATE `item_template` SET `display_id` = 7121 WHERE (`entry` = 6372);
-
-        -- Mana potion
-        UPDATE `item_template` SET `display_id` = 4136 WHERE (`entry` = 3827);
-
-        -- Greater Mana potion
-        UPDATE `item_template` SET `display_id` = 4136 WHERE (`entry` = 6149);
-
-        -- Greater Healing potion
-        UPDATE `item_template` SET `display_id` = 1215 WHERE (`entry` = 1710);
+        -- Inferno Robe
+        UPDATE `item_template` SET `display_id` = 4498, `fire_res` = 1, `spellid_1` = 0, `spelltrigger_1` = 0 WHERE (`entry` = 2231);
 
         -- Elixir of Fortitude
-        UPDATE `item_template` SET `display_id` = 2221 WHERE (`entry` = 3825);
+        UPDATE `item_template` SET `display_id` = 2221 WHERE (`entry` = 2458);
 
-        -- Swiftness potion
-        UPDATE `item_template` SET `display_id` = 1482 WHERE (`entry` = 2459);
+        -- Crocilisk Steak
+        UPDATE `item_template` SET `display_id` = 1117 WHERE (`entry` = 3662);
 
-        -- Elixir of Minor Agility
-        UPDATE `item_template` SET `display_id` = 7568 WHERE (`entry` = 2457);
+        -- Mind Numbing Poison
+        UPDATE `item_template` SET `display_id` = 9731 WHERE (`entry` = 5237);
 
-        -- Elixir of Minor Defense
-        UPDATE `item_template` SET `display_id` = 2511 WHERE (`entry` = 5997);
+        -- Forget to update name for Magebane Staff
+        UPDATE `item_template` SET `name` = 'Magebane Staff' WHERE (`entry` = 944);
 
-        -- Elixir of Lesser Agility
-        UPDATE `item_template` SET `display_id` = 7568 WHERE (`entry` = 3390);
+        -- Brilliant Smallfish
+        UPDATE `item_template` SET `display_id` = 7988 WHERE (`entry` = 6290);
 
-        -- Elixir of Firepower
-        UPDATE `item_template` SET `display_id` = 7568 WHERE (`entry` = 6373);
+        -- Coyote Meat
+        UPDATE `item_template` SET `display_id` = 1762 WHERE (`entry` = 2684);
 
-        -- Elixir of Ogre's Strength
-        UPDATE `item_template` SET `display_id` = 2511 WHERE (`entry` = 3391);
+        -- Dry Pork Ribs
+        UPDATE `item_template` SET `display_id` = 1118 WHERE (`entry` = 2687);
 
-        -- Frost Oil
-        UPDATE `item_template` SET `display_id` = 1249 WHERE (`entry` = 3829);
+        -- Deadly Poison
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 2892);
 
-        insert into applied_updates values ('230620243');
-    end if;
+        -- Deadly Poison II
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 2893);
 
-    -- 23/06/2024 4
-	if (select count(*) from applied_updates where id='230620244') = 0 then
-        -- Fix Factory Door faction (shouldn't be interactable).
-        UPDATE `gameobject_template` SET `faction` = 114 WHERE entry = 13965;
+        -- Crocilisk Meat
+        UPDATE `item_template` SET `display_id` = 2603 WHERE (`entry` = 2924);
 
-        insert into applied_updates values ('230620244');
-    end if;
+        -- Curiously Tasty Omelet
+        UPDATE `item_template` SET `display_id` = 3967 WHERE (`entry` = 3665);
 
-    -- 23/06/2024 5
-	if (select count(*) from applied_updates where id='230620245') = 0 then
-        -- Fix Chestnut Mare display id.
-        UPDATE `creature_template` SET `display_id1` = 2405 WHERE `entry` = 4269;
+        -- Southshore Stout
+        UPDATE `item_template` SET `display_id` = 9304 WHERE (`entry` = 3703);
 
-        insert into applied_updates values ('230620245');
-    end if;
+        -- Big Bear Steak
+        UPDATE `item_template` SET `display_id` = 7998 WHERE (`entry` = 3726);
 
-    -- 25/06/2024 1
-	if (select count(*) from applied_updates where id='250620241') = 0 then
-        -- Lost Necklace should be awarded upon the completion of Goldtooth quest.
-        UPDATE `quest_template` SET `RewItemId1` = '1359' WHERE (`entry` = '87');
-        UPDATE `quest_template` SET `RewItemId1` = '0' WHERE (`entry` = '85');
+        -- Shadow Oil
+        UPDATE `item_template` SET `display_id` = 2533 WHERE (`entry` = 3824);
 
-        -- Wrong details and objectives for Stocking Jetsteam (317) quest.
-        UPDATE `quest_template` SET `Details` = 'I\'m preparing to start a mission for the Siege Brigade.  It\'s a long one, and I need to stock Jetsteam with a month\'s worth of supplies.  So while Steelgrill is working on my tank, can you do some hunting for me?$B$BI\'ll need some boar meat for food.  You can get meat from boars... you can find them in the snow fields south of the Grizzled Den.', `Objectives` = 'Gather 4 Chunks of Boar Meat, and deliver them to Pilot Bellowfiz at Steelgrill\'s Depot.' WHERE (`entry` = '317');
+        -- Junglewine
+        UPDATE `item_template` SET `display_id` = 2754 WHERE (`entry` = 4595);
 
-        -- Deafening Screech to Dustwind Harpies
-        UPDATE `creature_template` SET `spell_list_id` = '41000' WHERE (`entry` = '3115');
+        -- Poisonious Mushroom
+        UPDATE `item_template` SET `display_id` = 6624 WHERE (`entry` = 5823);
 
-        -- Stonesplinter Skullthumper should use Stunning Strike.
-        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (11630, 'Loch Modan - Stonesplinter Skullthumper', 5703, 75, 1, 0, 0, 0, 1, 3, 30, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        -- Holy Protection Potion
+        UPDATE `item_template` SET `display_id` = 6326 WHERE (`entry` = 6051);
 
-        -- Stonesplinter Geomancer should use Flamestrike.
-        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (11650, 'Loch Modan - Stonesplinter Geomancer', 4979, 100, 0, 0, 0, 0, 0, 0, 15, 15, 0, 2120, 100, 1, 0, 0, 0, 0, 1, 3, 17, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        -- Raw Bristle Whisker Catfish
+        UPDATE `item_template` SET `display_id` = 1208 WHERE (`entry` = 4593);
 
-        -- Stonesplinter Trogg should use Savage Assault II.
-        UPDATE `creature_template` SET `spell_list_id` = '11610' WHERE (`entry` = '1161');
+        -- Rune Sword, only one katana model available
+        UPDATE `item_template` SET `display_id` = 5181 WHERE (`entry` = 864);
 
-        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (11610, 'Stonesplinter Trogg', 302, 100, 1, 0, 0, 0, 1, 17, 30, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        -- Kazon's Maul
+        UPDATE `item_template` SET `display_id` = 1206 WHERE (`entry` = 2058);
 
-        -- Stonesplinter Digger should use Sundering Strike.
-        UPDATE `creature_template` SET `spell_list_id` = '11670' WHERE (`entry` = '1167');
+        -- Monster - Mace2H, Kazon's Maul
+        UPDATE `item_template` SET `display_id` = 1206 WHERE (`entry` = 10685);
 
-        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (11670, 'Stonesplinter Digger', 7386, 100, 1, 0, 0, 0, 9, 12, 12, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        -- Hillborne Axe
+        UPDATE `item_template` SET `display_id` = 1390 WHERE (`entry` = 2080);
 
-        insert into applied_updates values ('250620241');
-    end if;
+        -- Prison Shank
+        UPDATE `item_template` SET `display_id` = 9344 WHERE (`entry` = 2941);
 
-    -- 26/06/2024 1
-	if (select count(*) from applied_updates where id='260620241') = 0 then
-        DELETE FROM `spawns_creatures` where `spawn_id` IN (79373, 79374);
+        -- Dreadblade
+        UPDATE `item_template` SET `display_id` = 8755 WHERE (`entry` = 4088);
 
-        -- Events list for Rhahk'Zor
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=644;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64401, 644, 0, 4, 0, 100, 0, 0, 0, 0, 0, 64401, 0, 0, 'Rhahk\'Zor - Aggro Yell');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64402, 644, 0, 6, 0, 100, 0, 0, 0, 0, 0, 64402, 64403, 0, 'Rhahk\'Zor - On Death');
+        -- Captain's armor
+        UPDATE `item_template` SET `display_id` = 3082 WHERE (`entry` = 1488);
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=6441;
-        DELETE FROM `creature_ai_scripts` WHERE `id`=64402;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (64402, 0, 0, 11, 30533, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rhahk\'Zor - Open Door');
+        -- Rawhides Gloves
+        UPDATE `item_template` SET `display_id` = 3848 WHERE (`entry` = 1791);
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=64403;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (64403, 45, 0, 10, 1729, 0, 0, 0, 0, 0, 0, 0, 0, 172901, -1, 7, -93.0234, -400.3, 58.0467, 3.36123, 0, 'Rhahk\'Zor Death: Summon Defias Evoker'),
-        (64403, 45, 0, 10, 634, 0, 0, 0, 0, 0, 0, 0, 0, 63401, -1, 7, -94.3284, -402.581, 57.4746, 1.52871, 0, 'Rhahk\'Zor Death: Summon Defias Overseer');
+        -- Tough Leather Armor
+        UPDATE `item_template` SET `display_id` = 684 WHERE (`entry` = 1810);
 
-        -- Events list for Sneed
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=643;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (64301, 643, 0, 6, 0, 100, 0, 0, 0, 0, 0, 64301, 0, 0, 'Sneed - On Death');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=6431;
-        DELETE FROM `creature_ai_scripts` WHERE `id`=64301;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (64301, 0, 0, 11, 26185, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sneed - Open Door');
+        -- Dirty Leather Belt
+        UPDATE `item_template` SET `display_id` = 7746 WHERE (`entry` = 1835);
 
-        -- Events list for Gilnid
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=1763;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176301, 1763, 0, 1, 0, 100, 1, 120000, 120000, 120000, 120000, 176301, 0, 0, 'Gilnid - Random Say OOC');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176302, 1763, 0, 6, 0, 100, 0, 0, 0, 0, 0, 176302, 0, 0, 'Gilnid - On Death');
-        DELETE FROM `creature_ai_scripts` WHERE `id`=17631;
-        DELETE FROM `creature_ai_scripts` WHERE `id`=176302;
-        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (176302, 0, 0, 11, 26182, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gilnid - Open Door');
+        -- Dirty Leather Bracer
+        UPDATE `item_template` SET `display_id` = 10016 WHERE (`entry` = 1836);
 
-        DELETE FROM `creature_movement` WHERE `id` = 79374;
-        DELETE FROM `creature_groups` WHERE `leader_guid` = 79374;
-        DELETE FROM `creature_movement_special` WHERE `id` = 172901;
-        INSERT INTO `creature_movement_special` (`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
-        (172901, 1, -93.023384, -400.299591, 58.046719, 100.000000, 0, 0.000000, 0),
-        (172901, 2, -96.960808, -401.178558, 58.071796, 100.000000, 0, 0.000000, 0),
-        (172901, 3, -100.558975, -400.347870, 58.885700, 100.000000, 0, 0.000000, 0),
-        (172901, 4, -104.181046, -399.098145, 59.520203, 100.000000, 0, 0.000000, 0),
-        (172901, 5, -107.942978, -397.722778, 59.322311, 100.000000, 0, 0.000000, 0),
-        (172901, 6, -107.942978, -397.722778, 59.322311, 100.000000, 0, 0.000000, 0),
-        (172901, 7, -112.904076, -396.111237, 57.263191, 100.000000, 0, 0.000000, 0),
-        (172901, 8, -116.908936, -397.342499, 57.279747, 100.000000, 0, 0.000000, 0),
-        (172901, 9, -120.385857, -399.221649, 57.732300, 100.000000, 0, 0.000000, 0),
-        (172901, 10, -123.825180, -401.285370, 58.369167, 100.000000, 0, 0.000000, 0),
-        (172901, 11, -127.092239, -403.289001, 58.779217, 100.000000, 0, 0.000000, 0),
-        (172901, 12, -130.621368, -405.463684, 57.718929, 100.000000, 0, 0.000000, 0),
-        (172901, 13, -135.445129, -407.238373, 58.097675, 100.000000, 0, 0.000000, 0),
-        (172901, 14, -137.324890, -405.729492, 58.358105, 100.000000, 0, 0.000000, 0),
-        (172901, 15, -137.324890, -405.729492, 58.358105, 100.000000, 0, 0.000000, 0),
-        (172901, 16, -142.172119, -402.649750, 58.100212, 100.000000, 0, 0.000000, 0),
-        (172901, 17, -148.286697, -402.802795, 57.160301, 100.000000, 0, 0.000000, 0),
-        (172901, 18, -153.803818, -402.234192, 57.027149, 100.000000, 0, 0.000000, 0),
-        (172901, 19, -157.189529, -402.634796, 57.556286, 100.000000, 0, 0.000000, 0),
-        (172901, 20, -158.684189, -401.130310, 56.566803, 100.000000, 0, 0.000000, 0),
-        (172901, 21, -164.209579, -402.674438, 57.263885, 100.000000, 0, 0.000000, 0),
-        (172901, 22, -168.653976, -404.505371, 57.637371, 100.000000, 0, 0.000000, 0),
-        (172901, 23, -170.866043, -406.037079, 57.221924, 100.000000, 0, 0.000000, 0),
-        (172901, 24, -173.330048, -408.924408, 56.401257, 100.000000, 0, 0.000000, 0),
-        (172901, 25, -175.513596, -411.692871, 56.336403, 100.000000, 0, 0.000000, 0),
-        (172901, 26, -177.839340, -414.693237, 55.548367, 100.000000, 0, 0.000000, 0),
-        (172901, 27, -180.285843, -417.862030, 54.994602, 100.000000, 0, 0.000000, 0),
-        (172901, 28, -182.828445, -421.157990, 54.430660, 100.000000, 0, 0.000000, 0),
-        (172901, 29, -184.685867, -424.139862, 54.173992, 100.000000, 0, 0.000000, 0),
-        (172901, 30, -186.223282, -427.733582, 54.025208, 100.000000, 0, 0.000000, 0),
-        (172901, 31, -187.704727, -431.481598, 53.887386, 100.000000, 0, 0.000000, 0),
-        (172901, 32, -189.152420, -435.208466, 53.345215, 100.000000, 0, 0.000000, 0),
-        (172901, 33, -190.610107, -438.974976, 53.521206, 100.000000, 0, 0.000000, 0),
-        (172901, 34, -191.059280, -442.169739, 53.730000, 100.000000, 0, 0.000000, 0),
-        (172901, 35, -190.819321, -445.974213, 54.437641, 100.000000, 0, 0.000000, 0),
-        (172901, 36, -190.457520, -449.698883, 54.662567, 100.000000, 0, 0.000000, 0),
-        (172901, 37, -190.007385, -454.021545, 54.507206, 100.000000, 0, 0.000000, 0),
-        (172901, 38, -189.596085, -457.955292, 54.716045, 100.000000, 0, 0.000000, 0),
-        (172901, 39, -189.182037, -461.912842, 54.514336, 100.000000, 0, 0.000000, 0),
-        (172901, 40, -188.748795, -466.053253, 54.274174, 100.000000, 0, 0.000000, 0),
-        (172901, 41, -188.374802, -469.627350, 54.126812, 100.000000, 0, 0.000000, 0),
-        (172901, 42, -187.983383, -473.367828, 54.126907, 100.000000, 0, 0.000000, 0),
-        (172901, 43, -187.547226, -477.535767, 54.094463, 100.000000, 0, 0.000000, 0),
-        (172901, 44, -187.073380, -481.611938, 54.110023, 100.000000, 0, 0.000000, 0),
-        (172901, 45, -186.529770, -485.720428, 54.110016, 100.000000, 0, 0.000000, 0),
-        (172901, 46, -186.035370, -489.365601, 53.971588, 100.000000, 0, 0.000000, 0),
-        (172901, 47, -185.531479, -492.090240, 53.709160, 100.000000, 0, 0.000000, 0),
-        (172901, 48, -183.050293, -494.978577, 53.890354, 100.000000, 0, 0.000000, 0),
-        (172901, 49, -180.237091, -497.659698, 53.585690, 100.000000, 0, 0.000000, 0),
-        (172901, 50, -177.733612, -499.957458, 54.056099, 100.000000, 0, 0.000000, 0),
-        (172901, 51, -177.362076, -500.298462, 54.056103, 100.000000, 0, 0.000000, 0),
-        (172901, 52, -177.362076, -500.298462, 54.056103, 100.000000, 0, 0.000000, 0),
-        (172901, 53, -179.972443, -497.936218, 53.693073, 100.000000, 0, 0.000000, 0),
-        (172901, 54, -184.968582, -497.620850, 53.668381, 100.000000, 0, 0.000000, 0),
-        (172901, 55, -188.524353, -494.196808, 53.569786, 100.000000, 0, 0.000000, 0),
-        (172901, 56, -189.407227, -491.616364, 53.524803, 100.000000, 0, 0.000000, 0),
-        (172901, 57, -190.382843, -486.974640, 54.110016, 100.000000, 0, 0.000000, 0),
-        (172901, 58, -190.972504, -482.761475, 54.110016, 100.000000, 0, 0.000000, 0),
-        (172901, 59, -191.448303, -478.589020, 54.110016, 100.000000, 0, 0.000000, 0),
-        (172901, 60, -191.888016, -474.466217, 54.129204, 100.000000, 0, 0.000000, 0),
-        (172901, 61, -191.284058, -470.975037, 54.231934, 100.000000, 0, 0.000000, 0),
-        (172901, 62, -192.405304, -467.219635, 54.231743, 100.000000, 0, 0.000000, 0),
-        (172901, 63, -193.035889, -463.021851, 54.524460, 100.000000, 0, 0.000000, 0),
-        (172901, 64, -193.490906, -459.055573, 54.799454, 100.000000, 0, 0.000000, 0),
-        (172901, 65, -193.932541, -454.939636, 54.562630, 100.000000, 0, 0.000000, 0),
-        (172901, 66, -194.359619, -450.925354, 54.694416, 100.000000, 0, 0.000000, 0),
-        (172901, 67, -194.667511, -448.026184, 54.556152, 100.000000, 0, 0.000000, 0),
-        (172901, 68, -195.086807, -444.076813, 54.077835, 100.000000, 0, 0.000000, 0),
-        (172901, 69, -194.614304, -438.319885, 53.569828, 100.000000, 0, 0.000000, 0),
-        (172901, 70, -193.188309, -434.567993, 53.406734, 100.000000, 0, 0.000000, 0),
-        (172901, 71, -191.742081, -430.813293, 53.752842, 100.000000, 0, 0.000000, 0),
-        (172901, 72, -190.652008, -427.991669, 54.091393, 100.000000, 0, 0.000000, 0),
-        (172901, 73, -188.841187, -423.306519, 54.110165, 100.000000, 0, 0.000000, 0),
-        (172901, 74, -186.474945, -419.535126, 54.723263, 100.000000, 0, 0.000000, 0),
-        (172901, 75, -184.075317, -416.281067, 55.168808, 100.000000, 0, 0.000000, 0),
-        (172901, 76, -181.691650, -413.157562, 55.149292, 100.000000, 0, 0.000000, 0),
-        (172901, 77, -179.276596, -410.014984, 55.886803, 100.000000, 0, 0.000000, 0),
-        (172901, 78, -177.649139, -407.900848, 55.775864, 100.000000, 0, 0.000000, 0),
-        (172901, 79, -174.616028, -403.961975, 56.864231, 100.000000, 0, 0.000000, 0),
-        (172901, 80, -170.476730, -401.523438, 57.261475, 100.000000, 0, 0.000000, 0),
-        (172901, 81, -166.420288, -400.376617, 56.974350, 100.000000, 0, 0.000000, 0),
-        (172901, 82, -162.617493, -399.557007, 56.685070, 100.000000, 0, 0.000000, 0),
-        (172901, 83, -158.668488, -398.768890, 56.424107, 100.000000, 0, 0.000000, 0),
-        (172901, 84, -154.208755, -398.554199, 56.641056, 100.000000, 0, 0.000000, 0),
-        (172901, 85, -151.135742, -398.944763, 56.828148, 100.000000, 0, 0.000000, 0),
-        (172901, 86, -147.119125, -399.580780, 57.316158, 100.000000, 0, 0.000000, 0),
-        (172901, 87, -143.144882, -400.281158, 57.968044, 100.000000, 0, 0.000000, 0),
-        (172901, 88, -138.818634, -401.633087, 58.687309, 100.000000, 0, 0.000000, 0),
-        (172901, 89, -135.496796, -403.759125, 58.151299, 100.000000, 0, 0.000000, 0),
-        (172901, 90, -133.798309, -402.720886, 58.182041, 100.000000, 0, 0.000000, 0),
-        (172901, 91, -130.783920, -400.862701, 58.977291, 100.000000, 0, 0.000000, 0),
-        (172901, 92, -127.583755, -398.888489, 58.984680, 100.000000, 0, 0.000000, 0),
-        (172901, 93, -124.081573, -397.200256, 58.495811, 100.000000, 0, 0.000000, 0),
-        (172901, 94, -120.811394, -394.814392, 57.499577, 100.000000, 0, 0.000000, 0),
-        (172901, 95, -117.406853, -392.632599, 56.576477, 100.000000, 0, 0.000000, 0),
-        (172901, 96, -112.350456, -392.414703, 57.108269, 100.000000, 0, 0.000000, 0),
-        (172901, 97, -108.161957, -393.505157, 57.572311, 100.000000, 0, 0.000000, 0),
-        (172901, 98, -104.579529, -394.739868, 57.861221, 100.000000, 0, 0.000000, 0),
-        (172901, 99, -100.833031, -396.114014, 58.434315, 100.000000, 0, 0.000000, 0),
-        (172901, 100, -97.228539, -397.451965, 58.538570, 100.000000, 0, 0.000000, 0),
-        (172901, 101, -94.339821, -398.526764, 58.460217, 100.000000, 0, 0.000000, 0),
-        (172901, 102, -94.339821, -398.526764, 58.460217, 100.000000, 0, 0.000000, 0),
-        (172901, 103, -97.588806, -397.316620, 58.545181, 100.000000, 0, 0.000000, 0),
-        (172901, 104, -102.112427, -399.014252, 59.009735, 100.000000, 0, 0.000000, 0),
-        (172901, 105, -106.113068, -398.221558, 59.296474, 100.000000, 0, 0.000000, 0),
-        (172901, 106, -109.684593, -397.038055, 58.192963, 100.000000, 0, 0.000000, 0),
-        (172901, 107, -113.305344, -395.722046, 57.181648, 100.000000, 0, 0.000000, 0),
-        (172901, 108, -115.550438, -396.363617, 57.032219, 100.000000, 0, 0.000000, 0),
-        (172901, 109, -118.622192, -398.105438, 57.526276, 100.000000, 0, 0.000000, 0),
-        (172901, 110, -121.956345, -400.126862, 57.970783, 100.000000, 0, 0.000000, 0),
-        (172901, 111, -125.377876, -402.229889, 58.695225, 100.000000, 0, 0.000000, 0),
-        (172901, 112, -128.616196, -404.226288, 58.331409, 100.000000, 0, 0.000000, 0),
-        (172901, 113, -131.960403, -406.289368, 57.701511, 100.000000, 0, 0.000000, 0),
-        (172901, 114, -137.040237, -406.743317, 58.339485, 100.000000, 0, 0.000000, 0),
-        (172901, 115, -138.775757, -404.774872, 58.584427, 100.000000, 0, 0.000000, 0),
-        (172901, 116, -138.775757, -404.774872, 58.584427, 100.000000, 0, 0.000000, 0),
-        (172901, 117, -144.076477, -404.913727, 58.032433, 100.000000, 0, 0.000000, 0),
-        (172901, 118, -149.800659, -403.370758, 57.223801, 100.000000, 0, 0.000000, 0),
-        (172901, 119, -154.830444, -402.581207, 57.216949, 100.000000, 0, 0.000000, 0),
-        (172901, 120, -157.608337, -401.135986, 56.527363, 100.000000, 0, 0.000000, 0),
-        (172901, 121, -161.243622, -401.551422, 56.815258, 100.000000, 0, 0.000000, 0),
-        (172901, 122, -166.343124, -403.919800, 57.468021, 100.000000, 0, 0.000000, 0),
-        (172901, 123, -169.295242, -404.606903, 57.621006, 100.000000, 0, 0.000000, 0),
-        (172901, 124, -171.975952, -407.304382, 56.852177, 100.000000, 0, 0.000000, 0),
-        (172901, 125, -174.395538, -410.273254, 56.309536, 100.000000, 0, 0.000000, 0),
-        (172901, 126, -176.634064, -413.138611, 55.908669, 100.000000, 0, 0.000000, 0),
-        (172901, 127, -179.067978, -416.284637, 55.122890, 100.000000, 0, 0.000000, 0),
-        (172901, 128, -181.525024, -419.468384, 54.821251, 100.000000, 0, 0.000000, 0),
-        (172901, 129, -183.993042, -422.667969, 54.322617, 100.000000, 0, 0.000000, 0),
-        (172901, 130, -185.473770, -425.861938, 54.076393, 100.000000, 0, 0.000000, 0),
-        (172901, 131, -186.940155, -429.518585, 53.961922, 100.000000, 0, 0.000000, 0),
-        (172901, 132, -188.393600, -433.248840, 53.725842, 100.000000, 0, 0.000000, 0),
-        (172901, 133, -189.832184, -436.963562, 53.388252, 100.000000, 0, 0.000000, 0),
-        (172901, 134, -191.072479, -440.075073, 53.595463, 100.000000, 0, 0.000000, 0),
-        (172901, 135, -190.995529, -443.883881, 54.081730, 100.000000, 0, 0.000000, 0),
-        (172901, 136, -190.651703, -447.779388, 54.600220, 100.000000, 0, 0.000000, 0),
-        (172901, 137, -190.254364, -451.667999, 54.592281, 100.000000, 0, 0.000000, 0),
-        (172901, 138, -189.827362, -455.746582, 54.541122, 100.000000, 0, 0.000000, 0),
-        (172901, 139, -189.405106, -459.781464, 54.890797, 100.000000, 0, 0.000000, 0),
-        (172901, 140, -188.981918, -463.825470, 54.401829, 100.000000, 0, 0.000000, 0),
-        (172901, 141, -188.550018, -467.952789, 54.189655, 100.000000, 0, 0.000000, 0),
-        (172901, 142, -188.194687, -471.348480, 54.180611, 100.000000, 0, 0.000000, 0),
-        (172901, 143, -187.768021, -475.425903, 54.121181, 100.000000, 0, 0.000000, 0),
-        (172901, 144, -187.348022, -479.439545, 54.100071, 100.000000, 0, 0.000000, 0),
-        (172901, 145, -186.815628, -483.596619, 54.110020, 100.000000, 0, 0.000000, 0),
-        (172901, 146, -186.267319, -487.661499, 54.110016, 100.000000, 0, 0.000000, 0),
-        (172901, 147, -185.792526, -491.146271, 53.712078, 100.000000, 0, 0.000000, 0),
-        (172901, 148, -184.529434, -493.485260, 53.777451, 100.000000, 0, 0.000000, 0),
-        (172901, 149, -181.924362, -496.098663, 53.670826, 100.000000, 0, 0.000000, 0),
-        (172901, 150, -179.139191, -498.676147, 54.032448, 100.000000, 0, 0.000000, 0),
-        (172901, 151, -177.872345, -499.833710, 54.041687, 100.000000, 0, 0.000000, 0),
-        (172901, 152, -177.496918, -500.176758, 54.052078, 100.000000, 0, 0.000000, 0),
-        (172901, 153, -179.997452, -497.913666, 53.677841, 100.000000, 0, 0.000000, 0),
-        (172901, 154, -184.974884, -497.614624, 53.668121, 100.000000, 0, 0.000000, 0),
-        (172901, 155, -188.537491, -494.184143, 53.568748, 100.000000, 0, 0.000000, 0),
-        (172901, 156, -189.706894, -490.739594, 53.548115, 100.000000, 0, 0.000000, 0);
+        -- Cozzy Moccasins
+        UPDATE `item_template` SET `display_id` = 6190 WHERE (`entry` = 2959);
 
-        DELETE FROM `generic_scripts` WHERE `id`=172901;
-        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (172901, 1, 0, 60, 3, 0, 0, 1, 0, 0, 0, 0, 0, 172901, 0, 0, 0, 0, 0, 0, 0, 'Defias Evoker - Start Waypoints');
-        DELETE FROM `generic_scripts` WHERE `id`=63401;
-        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (63401, 0, 0, 78, 15, 0, 0, 0, 1729, 5, 8, 0, 0, 0, 0, 0, 2, 0, 0, 4.71, 0, 'Defias Overseer - Join Group');
+        -- Mantle of Thieves
+        UPDATE `item_template` SET `display_id` = 8807 WHERE (`entry` = 2264);
 
-        -- Waypoints for Creature Rhahk'Zor (Entry: 644)
-        UPDATE `spawns_creatures` SET `movement_type` = 2 WHERE `spawn_entry1` = 644;
-        DELETE FROM `creature_movement_template` WHERE `entry` = 644;
-        INSERT INTO `creature_movement_template` (`entry`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `waittime`, `wander_distance`, `script_id`) VALUES
-        (644, 1, -192.736313, -450.028412, 54.700020, 100.000000, 0, 0.000000, 0),
-        (644, 2, -192.557236, -446.491516, 54.331799, 100.000000, 0, 0.000000, 0),
-        (644, 3, -192.332230, -444.368164, 54.154686, 100.000000, 0, 0.000000, 0),
-        (644, 4, -191.909073, -440.374908, 53.659283, 100.000000, 20000, 0.000000, 0),
-        (644, 5, -192.332230, -444.368164, 54.154686, 100.000000, 0, 0.000000, 0),
-        (644, 6, -192.557236, -446.491516, 54.331799, 100.000000, 0, 0.000000, 0),
-        (644, 7, -192.736313, -450.028412, 54.700020, 100.000000, 0, 0.000000, 0),
-        (644, 8, -191.670792, -453.175537, 54.566357, 1.658063, 10000, 0.000000, 0);
+        -- Reinforced Leather Vest
+        UPDATE `item_template` SET `display_id` = 8331 WHERE (`entry` = 2470);
 
-        insert into applied_updates values ('260620241');
-    end if;
+        -- Reinforced Leather Belt
+        UPDATE `item_template` SET `display_id` = 9551 WHERE (`entry` = 2471);
 
-    -- 27/06/2024 1
-	if (select count(*) from applied_updates where id='270620241') = 0 then
-        -- Suspicious Barrel placement.
-        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-4746.282', `spawn_positionY` = '-3530.934', `spawn_positionZ` = '297.854' WHERE (`spawn_id` = '11525');
-        
-        -- Baros Alexston @ Trade District.
-        UPDATE `quest_template` SET `Details` = 'Searching Edwin VanCleef\'s person, you discover, among other things, an unsent letter. It is addressed to Baros Alexston, the City Architect of Stormwind, Trade District.$B$BIt appears to be recently written and sealed.' WHERE (`entry` = '373');
+        -- Reinforced Leather Cap
+        UPDATE `item_template` SET `display_id` = 1124 WHERE (`entry` = 3893);
 
-        -- Remove vendor flag from Yarlyn Amberstill, Rabbit Crate did not exist.
-        UPDATE `creature_template` SET `npc_flags` = '0' WHERE (`entry` = '1263');
+        -- Woolen Boots
+        UPDATE `item_template` SET `display_id` = 4296 WHERE (`entry` = 2583);
 
-        insert into applied_updates values ('270620241');
-    end if;
+        -- Holy Diadem
+        UPDATE `item_template` SET `display_id` = 6491 WHERE (`entry` = 2623);
 
-    -- 28/06/2024 1
-	if (select count(*) from applied_updates where id='280620241') = 0 then
-        -- Caledra Dawnbreeze, set faction 11 SW.
-	    UPDATE `creature_template` SET `faction` = '11' WHERE (`entry` = '1752');
+        -- Silken Thread
+        UPDATE `item_template` SET `display_id` = 4750 WHERE (`entry` = 4291);
 
-        insert into applied_updates values ('280620241');
-    end if;
+        -- Studded Leather Cap
+        UPDATE `item_template` SET `display_id` = 3785 WHERE (`entry` = 3890);
 
-    -- 01/07/2024 1
-    if (select count(*) from applied_updates where id='010720241') = 0 then
-        -- Fix Mechanical Dragonling display id.
-        UPDATE `creature_template` SET `display_id1` = '6' WHERE `entry` = '2678';
-
-        insert into applied_updates values ('010720241');
-    end if;
-
-    -- 01/07/2024 1
-    if (select count(*) from applied_updates where id='010720242') = 0 then
-        -- Quests, fix Lost Necklace reward item.
-        UPDATE `quest_template` SET `RewItemCount1` = '1' WHERE (`entry` = '87');
-        UPDATE `quest_template` SET `RewItemCount1` = '0' WHERE (`entry` = '85');
-
-        insert into applied_updates values ('010720242');
-    end if;
-
-    -- 02/07/2024 1
-    if (select count(*) from applied_updates where id='020720241') = 0 then
-        -- New spells for trainer template ID 17
-        --  Nature\'s Wrath - (Rank 6), Trainer Spell 6781, Player Spell 6780
-        --  Nature\'s Touch - (Rank 6), Trainer Spell 6779, Player Spell 6778
-        --  Nature\'s Touch - (Rank 5), Trainer Spell 5194, Player Spell 5189
-        --  Nature\'s Touch - (Rank 4), Trainer Spell 5193, Player Spell 5188
-        --  Nature\'s Touch - (Rank 3), Trainer Spell 5192, Player Spell 5187
-        --  Nature\'s Touch - (Rank 2), Trainer Spell 5190, Player Spell 5186
-        --  Nature\'s Wrath - (Rank 5), Trainer Spell 5184, Player Spell 5180
-        --  Nature\'s Wrath - (Rank 4), Trainer Spell 5183, Player Spell 5179
-        --  Nature\'s Wrath - (Rank 3), Trainer Spell 5182, Player Spell 5178
-        --  Nature\'s Wrath - (Rank 2), Trainer Spell 5181, Player Spell 5177
-        -- New spells for trainer template ID 16
-        --  Nature\'s Wrath - (Rank 6), Trainer Spell 6781, Player Spell 6780
-        --  Nature\'s Touch - (Rank 6), Trainer Spell 6779, Player Spell 6778
-        --  Nature\'s Touch - (Rank 5), Trainer Spell 5194, Player Spell 5189
-        --  Nature\'s Touch - (Rank 4), Trainer Spell 5193, Player Spell 5188
-        --  Nature\'s Touch - (Rank 3), Trainer Spell 5192, Player Spell 5187
-        --  Nature\'s Touch - (Rank 2), Trainer Spell 5190, Player Spell 5186
-        --  Nature\'s Wrath - (Rank 5), Trainer Spell 5184, Player Spell 5180
-        --  Nature\'s Wrath - (Rank 4), Trainer Spell 5183, Player Spell 5179
-        --  Nature\'s Wrath - (Rank 3), Trainer Spell 5182, Player Spell 5178
-        --  Nature\'s Wrath - (Rank 2), Trainer Spell 5181, Player Spell 5177
-
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 6)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '6779', '6778', '16000', '0', '0', '0', '0', '40');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 5)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5194', '5189', '11000', '0', '0', '0', '0', '32');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 4)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5193', '5188', '5300', '0', '0', '0', '0', '24');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 3)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5192', '5187', '1800', '0', '0', '0', '0', '16');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 2)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5190', '5186', '200', '0', '0', '0', '0', '8');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 6)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '6781', '6780', '23000', '0', '0', '0', '0', '38');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 5)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5184', '5180', '8000', '0', '0', '0', '0', '30');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 4)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5183', '5179', '3400', '0', '0', '0', '0', '22');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 3)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5182', '5178', '1200', '0', '0', '0', '0', '14');
-        -- Trainer Template ID 17 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 2)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('17', '5181', '5177', '100', '0', '0', '0', '0', '6');
-        
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 6)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '6779', '6778', '16000', '0', '0', '0', '0', '40');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 5)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5194', '5189', '11000', '0', '0', '0', '0', '32');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 4)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5193', '5188', '5300', '0', '0', '0', '0', '24');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 3)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5192', '5187', '1800', '0', '0', '0', '0', '16');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Touch - (Rank 2)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5190', '5186', '200', '0', '0', '0', '0', '8');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 6)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '6781', '6780', '23000', '0', '0', '0', '0', '38');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 5)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5184', '5180', '8000', '0', '0', '0', '0', '30');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 4)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5183', '5179', '3400', '0', '0', '0', '0', '22');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 3)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5182', '5178', '1200', '0', '0', '0', '0', '14');
-        -- Trainer Template ID 16 - DRUID
-        -- Spell: Nature\'s Wrath - (Rank 2)
-        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('16', '5181', '5177', '100', '0', '0', '0', '0', '6');
-        
-        insert into applied_updates values ('020720241');
+        insert into applied_updates values ('120720242');
     end if;
     
-    -- 03/07/2024 1
-    if (select count(*) from applied_updates where id='030720241') = 0 then
-        -- Voodoo Trolls should use Shrink.
-        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (32060, 'Voodoo Trolls - Shrink', 7289, 100, 1, 0, 0, 0, 2, 10, 39, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        UPDATE `creature_template` SET `spell_list_id` = 32060 WHERE (`entry` = 3206);
-
-        -- Hexed Trolls should use Immolate (rank 1).
-        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (32070, 'Durotar - Hexed Troll', 348, 100, 1, 0, 0, 0, 3, 8, 19, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-
-        -- Burning Blade Cultists should use Immolate (rank 1).
-        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (31990, 'Durotar - Burning Blade Cultist', 348, 100, 1, 0, 0, 0, 6, 13, 18, 23, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-        --  Dire Mottled Boars display id. (By Geo).
-        UPDATE `creature_template` SET `display_id1` = 454 WHERE (`entry` = 3099);
-        
-        insert into applied_updates values ('030720241');
-    end if;
-
-    -- 04/07/2024 1
-    if (select count(*) from applied_updates where id='040720241') = 0 then
-        -- Mountain Boar should use Boar Charge.
-        DELETE FROM `creature_ai_scripts` WHERE `id`=119001;
+        -- 12/07/2024 3
+    if (select count(*) from `applied_updates` where id='120720243') = 0 then
+        -- Death's Head Acolyte - Cast Mana Burn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=451501;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (119001, 0, 0, 15, 3385, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mountain Boar - Cast Spell Boar Charge');
-        
-        -- Events list for Mountain Boar
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=1190;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (119001, 1190, 0, 4, 0, 30, 0, 0, 0, 0, 0, 119001, 0, 0, 'Mountain Boar - Cast Boar Charge');
-        
-        -- Add Shoot to Ironforge Mountaineers
-        REPLACE INTO `creature_spells` (`entry`, `name`, `spellId_1`, `probability_1`, `castTarget_1`, `targetParam1_1`, `targetParam2_1`, `castFlags_1`, `delayInitialMin_1`, `delayInitialMax_1`, `delayRepeatMin_1`, `delayRepeatMax_1`, `scriptId_1`, `spellId_2`, `probability_2`, `castTarget_2`, `targetParam1_2`, `targetParam2_2`, `castFlags_2`, `delayInitialMin_2`, `delayInitialMax_2`, `delayRepeatMin_2`, `delayRepeatMax_2`, `scriptId_2`, `spellId_3`, `probability_3`, `castTarget_3`, `targetParam1_3`, `targetParam2_3`, `castFlags_3`, `delayInitialMin_3`, `delayInitialMax_3`, `delayRepeatMin_3`, `delayRepeatMax_3`, `scriptId_3`, `spellId_4`, `probability_4`, `castTarget_4`, `targetParam1_4`, `targetParam2_4`, `castFlags_4`, `delayInitialMin_4`, `delayInitialMax_4`, `delayRepeatMin_4`, `delayRepeatMax_4`, `scriptId_4`, `spellId_5`, `probability_5`, `castTarget_5`, `targetParam1_5`, `targetParam2_5`, `castFlags_5`, `delayInitialMin_5`, `delayInitialMax_5`, `delayRepeatMin_5`, `delayRepeatMax_5`, `scriptId_5`, `spellId_6`, `probability_6`, `castTarget_6`, `targetParam1_6`, `targetParam2_6`, `castFlags_6`, `delayInitialMin_6`, `delayInitialMax_6`, `delayRepeatMin_6`, `delayRepeatMax_6`, `scriptId_6`, `spellId_7`, `probability_7`, `castTarget_7`, `targetParam1_7`, `targetParam2_7`, `castFlags_7`, `delayInitialMin_7`, `delayInitialMax_7`, `delayRepeatMin_7`, `delayRepeatMax_7`, `scriptId_7`, `spellId_8`, `probability_8`, `castTarget_8`, `targetParam1_8`, `targetParam2_8`, `castFlags_8`, `delayInitialMin_8`, `delayInitialMax_8`, `delayRepeatMin_8`, `delayRepeatMax_8`, `scriptId_8`) VALUES (7270, 'Dun Morogh - Ironforge Mountaineer', 5532, 100, 1, 0, 0, 0, 5, 10, 10, 15, 0, 6660, 100, 1, 0, 0, 0, 0, 0, 2, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-          
-        -- Scarlet Initiate - Fix invalid Frost Armor spell.
-        DELETE FROM `creature_ai_scripts` WHERE `id`=150701;
+        (451501, 0, 0, 15, 2691, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Death s Head Acolyte - Cast Spell Mana Burn');
+
+        -- Death's Head Acolyte - Cast Renew on Friendlies
+        DELETE FROM `creature_ai_scripts` WHERE `id`=451502;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (150701, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Initiate - Cast Spell Frost Armor');
+        (451502, 0, 0, 15, 6076, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Death s Head Acolyte - Cast Spell Renew');
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=150702;
+        -- Events list for Razorfen Earthbreaker
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4525;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (452501, 4525, 0, 9, 0, 100, 1, 0, 25, 13000, 18000, 452501, 0, 0, 'Razorfen Earthbreaker - Cast Earth Shock');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (452502, 4525, 0, 9, 0, 100, 1, 0, 10, 9000, 12000, 452502, 0, 0, 'Razorfen Earthbreaker -  Cast Ground Tremor');
+
+        -- Razorfen Earthbreaker -  Cast Ground Tremor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=452502;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (150702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Initiate - Cast Spell Frost Armor');
-        -- Skeletal Mage - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=20301;
+        (452502, 0, 0, 15, 6524, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razorfen Earthbreaker - Cast Spell Ground Tremor');
+
+        -- Scarlet Monk - Cast Spell Kick
+        DELETE FROM `creature_ai_scripts` WHERE `id`=454003;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (20301, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Skeletal Mage - Cast Spell Frost Armor');
+        (454003, 0, 0, 15, 6554, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Monk - Cast Spell Kick');
 
-        -- Defias Rogue Wizard - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=47402;
+        -- Events list for Quilguard Champion
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4623;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462301, 4623, 0, 11, 0, 100, 0, 0, 0, 0, 0, 462301, 0, 0, 'Quilguard Champion - Cast Defensive Stance on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462302, 4623, 0, 4, 0, 100, 0, 0, 0, 0, 0, 462302, 0, 0, 'Quilguard Champion - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462303, 4623, 0, 9, 5, 100, 1, 0, 5, 5000, 9000, 462303, 0, 0, 'Quilguard Champion - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462304, 4623, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 462304, 0, 0, 'Quilguard Champion - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462305, 4623, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 462305, 0, 0, 'Quilguard Champion - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462306, 4623, 0, 0, 0, 100, 1, 1000, 3000, 240000, 240000, 462306, 0, 0, 'Quilguard Champion - Cast Devotion Aura');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (462307, 4623, 0, 7, 0, 100, 0, 0, 0, 0, 0, 462307, 0, 0, 'Quilguard Champion - Set Phase to 0 on Evade');
+
+        -- Quilguard Champion - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=462303;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (47402, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Rogue Wizard - Cast Spell Frost Armor');
+        (462303, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quilguard Champion - Cast Spell Sundering Strike');
 
-        -- Kobold Geomancer - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=47602;
+        -- Quilguard Champion - Cast Spell Devotion Aura
+        DELETE FROM `creature_ai_scripts` WHERE `id`=462306;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (47602, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kobold Geomancer - Cast Spell Frost Armor');
+        (462306, 0, 0, 15, 643, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quilguard Champion - Cast Spell Devotion Aura');
 
-        -- Fenros - Cast Frost Armor on Missing Buff
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=507;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (50701, 507, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 50701, 0, 0, 'Fenros - Cast Frost Armor on Spawn');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (50704, 507, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 50704, 0, 0, 'Fenros - Cast Frost Armor on Missing Buff');
+        -- Events list for Kolkar Battle Lord
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4636;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (463601, 4636, 0, 11, 0, 100, 0, 0, 0, 0, 0, 463601, 0, 0, 'Kolkar Battle Lord - Cast Battle Stance on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (463603, 4636, 0, 9, 0, 100, 1, 0, 5, 8000, 12000, 463603, 0, 0, 'Kolkar Battle Lord - Cast Strike');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (463604, 4636, 0, 2, 0, 100, 0, 20, 0, 0, 0, 463604, 0, 0, 'Kolkar Battle Lord - Call for Help at 20% HP');
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=50701;
+        -- Kolkar Battle Lord - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=463603;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (50701, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fenros - Cast Spell Frost Armor');
-    
-        -- Fix many events Frost Armor spell casts pointing to unexistent Frost Armor spell.
-        
-        -- Defias Pillager - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=58900;
+        (463603, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kolkar Battle Lord - Cast Spell Strike');
+
+        -- Kolkar Destroyer - Cast Spell Shock
+        DELETE FROM `creature_ai_scripts` WHERE `id`=463701;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (58900, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Pillager - Cast Spell Frost Armor');
+        (463701, 0, 0, 15, 2608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kolkar Destroyer - Cast Spell Shock');
 
-        -- Defias Conjurer - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=61902;
+        -- Events list for Magram Stormer
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4642;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (464201, 4642, 0, 1, 0, 100, 1, 1000, 1000, 600000, 600000, 464201, 0, 0, 'Magram Stormer - Cast Lightning Shield on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (464203, 4642, 0, 27, 0, 100, 1, 905, 1, 15000, 30000, 464203, 0, 0, 'Magram Stormer - Cast Lightning Shield on Missing Buff');
+
+        -- Magram Stormer - Cast Spell Lightning Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=464201;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (61902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Conjurer - Cast Spell Frost Armor');
-
-        -- Surena Caledon - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=88102;
+        (464201, 0, 0, 15, 905, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Magram Stormer - Cast Spell Lightning Shield');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=464203;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (88102, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Surena Caledon - Cast Spell Frost Armor');
+        (464203, 0, 0, 15, 905, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Magram Stormer - Cast Spell Lightning Shield');
 
-        -- Defias Enchanter - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=91002;
+        -- Magram Marauder - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=464402;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (91002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Enchanter - Cast Spell Frost Armor');
+        (464402, 0, 0, 15, 6723, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Magram Marauder - Cast Spell Cleave');
 
-        -- Scarlet Neophyte - Cast Frost Armor on Spawn
-        DELETE FROM `creature_ai_scripts` WHERE `id`=153902;
+        -- Gelkis Marauder - Cast Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=465302;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (153902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Neophyte - Cast Spell Frost Armor');
+        (465302, 0, 0, 15, 6723, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gelkis Marauder - Cast Spell Cleave');
 
-        -- Defias Magician - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=172602;
+        -- Maraudine Wrangler - Cast Spell Disarm
+        DELETE FROM `creature_ai_scripts` WHERE `id`=465502;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (172602, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Magician - Cast Spell Frost Armor');
+        (465502, 0, 0, 15, 6713, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Maraudine Wrangler - Cast Spell Disarm');
 
-        -- Defias Evoker - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=172901;
+        -- Events list for Maraudine Stormer
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4658;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (465801, 4658, 0, 1, 0, 100, 1, 1000, 1000, 600000, 600000, 465801, 0, 0, 'Maraudine Stormer - Cast Lightning Shield on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (465803, 4658, 0, 9, 0, 100, 1, 0, 40, 11000, 15000, 465803, 0, 0, 'Maraudine Stormer - Cast Jumping Lightning');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (465804, 4658, 0, 27, 0, 100, 1, 945, 1, 15000, 30000, 465804, 0, 0, 'Maraudine Stormer - Cast Lightning Shield on Missing Buff');
+
+        -- Maraudine Stormer - Cast Spell Lightning Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=465801;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (172901, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Evoker - Cast Spell Frost Armor');
-
-        -- TODO - Defias Evoker (Check events for 1729)
-
-        -- Defias Squallshaper - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=173201;
+        (465801, 0, 0, 15, 945, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Maraudine Stormer - Cast Spell Lightning Shield');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=465804;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (173201, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Squallshaper - Cast Spell Frost Armor');
+        (465804, 0, 0, 15, 945, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Maraudine Stormer - Cast Spell Lightning Shield');
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=173204;
+        -- Maraudine Marauder - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=465902;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (173204, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Defias Squallshaper - Cast Spell Frost Armor');
+        (465902, 0, 0, 15, 6723, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Maraudine Marauder - Cast Spell Cleave');
 
-        -- Events list for Defias Squallshaper
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=1732;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173201, 1732, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 173201, 0, 0, 'Defias Squallshaper - Cast Frost Armor on Aggro');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173202, 1732, 0, 9, 0, 100, 1, 0, 8, 23500, 33500, 173202, 0, 0, 'Defias Squallshaper - Cast Frost Nova');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173204, 1732, 0, 27, 0, 100, 1, 768, 1, 15000, 30000, 173204, 0, 0, 'Defias Squallshaper - Cast Frost Armor on Missing Buff');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (173205, 1732, 0, 2, 0, 100, 0, 15, 0, 0, 0, 173205, 0, 0, 'Defias Squallshaper - Flee at 15% HP');
-
-        -- Vile Fin Tidehunter - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=176801;
+        -- Burning Blade Summoner - Cast Spell Summon Imp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=466802;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (176801, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vile Fin Tidehunter - Cast Spell Frost Armor');
+        (466802, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Burning Blade Summoner - Cast Spell Summon Imp');
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=176803;
+        -- Nether Sorceress - Cast Spell Frost Nova
+        DELETE FROM `creature_ai_scripts` WHERE `id`=468401;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (176803, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vile Fin Tidehunter - Cast Spell Frost Armor');
+        (468401, 0, 0, 15, 865, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Nether Sorceress - Cast Spell Frost Nova');
 
-        -- Events list for Vile Fin Tidehunter
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=1768;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176704, 1768, 0, 2, 0, 100, 0, 15, 0, 0, 0, 176704, 0, 0, 'Vile Fin Tidehunter - Flee at 15% HP');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176801, 1768, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 176801, 0, 0, 'Vile Fin Tidehunter - Cast Frost Armor on Spawn');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176803, 1768, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 176803, 0, 0, 'Vile Fin Tidehunter - Cast Frost Armor on Missing Buff');
-
-        -- Moonrage Whitescalp - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=176901;
+        -- Ley Hunter - Cast Spell Mana Burn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=468501;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (176901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Whitescalp - Cast Spell Frost Armor');
+        (468501, 0, 0, 15, 2691, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ley Hunter - Cast Spell Mana Burn');
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=176902;
+        -- Slitherblade Naga - Cast Spell Corrosive Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471101;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (176902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Whitescalp - Cast Spell Frost Armor');
+        (471101, 0, 0, 15, 3396, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Naga - Cast Spell Corrosive Poison');
 
-        -- Events list for Moonrage Whitescalp
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=1769;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176901, 1769, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 176901, 0, 0, 'Moonrage Whitescalp - Cast Frost Armor on Spawn');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (176902, 1769, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 176902, 0, 0, 'Moonrage Whitescalp - Cast Frost Armor on Missing Buff');
-
-        -- Dalaran Apprentice - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=186702;
+        -- Slitherblade Warrior - Cast Spell Hamstring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471302;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (186702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Apprentice - Cast Spell Frost Armor');
+        (471302, 0, 0, 15, 7372, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Warrior - Cast Spell Hamstring');
 
-        -- Dalaran Wizard - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=188902;
+        -- Slitherblade Myrmidon - Cast Spell Corrosive Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471401;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (188902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Wizard - Cast Spell Frost Armor');
+        (471401, 0, 0, 15, 3396, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Myrmidon - Cast Spell Corrosive Poison');
 
-        -- Dalaran Spellscribe - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=192002;
+        -- Slitherblade Razortail - Cast Spell Corrosive Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=471501;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (192002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dalaran Spellscribe - Cast Spell Frost Armor');
+        (471501, 0, 0, 15, 3396, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Razortail - Cast Spell Corrosive Poison');
 
-        -- Bloodfeather Sorceress - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=201802;
+        -- Fallenroot Rogue - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=478901;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (201802, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodfeather Sorceress - Cast Spell Frost Armor');
-
-        -- Gravelflint Geomancer - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=216002;
+        (478901, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fallenroot Rogue - Cast Spell Stealth');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=478902;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (216002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gravelflint Geomancer - Cast Spell Frost Armor');
+        (478902, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Fallenroot Rogue - Cast Spell Stealth Evade');
 
-        -- Events list for Stormscale Sorceress
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=2182;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (218201, 2182, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 218201, 0, 0, 'Stormscale Sorceress - Cast Frost Armor on Missing Buff');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (218202, 2182, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 218202, 0, 0, 'Stormscale Sorceress - Cast Frost Armor on Spawn');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=218201;
+        -- Twilight Acolyte - Cast Spell Renew
+        DELETE FROM `creature_ai_scripts` WHERE `id`=480901;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (218201, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormscale Sorceress - Cast Spell Frost Armor');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=218202;
+        (480901, 0, 0, 15, 6075, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Twilight Acolyte - Cast Spell Renew');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=480902;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (218202, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stormscale Sorceress - Cast Spell Frost Armor');
+        (480902, 0, 0, 15, 6074, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Twilight Acolyte - Cast Spell Renew');
 
-        -- Syndicate Wizard - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=231901;
+        -- Twilight Shadowmage - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=481302;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (231901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Wizard - Cast Spell Frost Armor');
+        (481302, 0, 0, 15, 697, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Twilight Shadowmage - Cast Spell Summon Voidwalker');
 
-        -- Hillsbrad Councilman - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=238702;
+        -- Blindlight Muckdweller - Cast Spell Leech Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=481901;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (238702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hillsbrad Councilman - Cast Spell Frost Armor');
+        (481901, 0, 0, 15, 3388, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blindlight Muckdweller - Cast Spell Leech Poison');
 
-        -- Events list for Hillsbrad Councilman
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=2387;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238701, 2387, 0, 9, 0, 100, 1, 0, 5, 25000, 25000, 238701, 0, 0, 'Hillsbrad Councilman - Cast Frost Nova');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238702, 2387, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 238702, 0, 0, 'Hillsbrad Councilman - Cast Frost Armor on Spawn');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238703, 2387, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 238702, 0, 0, 'Hillsbrad Councilman - Cast Frost Armor on Missing Buff');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238704, 2387, 0, 2, 0, 100, 0, 15, 0, 0, 0, 238704, 0, 0, 'Hillsbrad Councilman - Flee at 15% HP');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (238705, 2387, 0, 33, 0, 100, 1, 10000, 10000, 0, 0, 238705, 0, 0, 'Hillsbrad Councilman - Run Away from Target when Frozen');
-
-        -- Boulderfist Magus - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=256702;
+        -- Twilight Lord Kelris - Cast Spell Sleep
+        DELETE FROM `creature_ai_scripts` WHERE `id`=483203;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (256702, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Boulderfist Magus - Cast Spell Frost Armor');
+        (483203, 0, 0, 15, 1090, 1, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Twilight Lord Kelris - Cast Spell Sleep'),
+        (483203, 0, 0, 16, 5804, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Twilight Lord Kelris - Play Sound 5804');
 
-        -- Drywhisker Surveyor - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=257302;
+        -- Theramore Infiltrator - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=483401;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (257302, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Drywhisker Surveyor - Cast Spell Frost Armor');
-
-        -- Syndicate Magus - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=259102;
+        (483401, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Theramore Infiltrator - Cast Spell Stealth');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=483403;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (259102, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Syndicate Magus - Cast Spell Frost Armor');
+        (483403, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Theramore Infiltrator - Cast Spell Stealth');
 
-        -- Cresting Exile - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=276101;
+        -- Events list for Shadowforge Digger
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4846;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (484601, 4846, 0, 4, 0, 100, 0, 0, 0, 0, 0, 484601, 0, 0, 'Shadowforge Digger - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (484602, 4846, 0, 9, 5, 100, 1, 0, 5, 5900, 11200, 484602, 0, 0, 'Shadowforge Digger - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (484603, 4846, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 484603, 0, 0, 'Shadowforge Digger - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (484604, 4846, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 484604, 0, 0, 'Shadowforge Digger - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (484605, 4846, 0, 2, 0, 100, 0, 15, 0, 0, 0, 484605, 0, 0, 'Shadowforge Digger - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (484606, 4846, 0, 7, 0, 100, 0, 0, 0, 0, 0, 484606, 0, 0, 'Shadowforge Digger - Set Phase to 0 on Evade');
+
+        -- Shadowforge Digger - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=484602;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (276101, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cresting Exile - Cast Spell Frost Armor');
+        (484602, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowforge Digger - Cast Spell Sundering Strike');
 
-        -- Events list for Cresting Exile
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=2761;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276101, 2761, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 276101, 0, 0, 'Cresting Exile - Cast Frost Armor on Spawn');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276102, 2761, 0, 9, 0, 100, 1, 0, 8, 25600, 32300, 276102, 0, 0, 'Cresting Exile - Cast Frost Nova');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (276103, 2761, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 276103, 0, 0, 'Cresting Exile - Cast Frost Armor on Missing Buff');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=276103;
+        -- Shadowforge Archaeologist - Cast Spell Shield Bash
+        DELETE FROM `creature_ai_scripts` WHERE `id`=484902;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (276103, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cresting Exile - Cast Spell Frost Armor');
+        (484902, 0, 0, 15, 7377, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowforge Archaeologist - Cast Spell Shield Bash');
 
-        -- Razormane Geomancer - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=326902;
+        -- Stonevault Cave Lurker - Cast Spell Stealth
+        -- Stonevault Cave Lurker - Cast Spell Deadly Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485001;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (326902, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razormane Geomancer - Cast Spell Frost Armor');
+        (485001, 0, 0, 15, 1784, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Cave Lurker - Cast Spell Stealth'),
+        (485001, 0, 0, 15, 3583, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Cave Lurker - Cast Spell Deadly Poison');
 
-        -- Events list for Mosh'Ogg Spellcrafter
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=710;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (71001, 710, 0, 4, 0, 15, 0, 0, 0, 0, 0, 71001, 0, 0, 'Mosh\'Ogg Spellcrafter - Say on Aggro');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (71002, 710, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 71002, 0, 0, 'Mosh\'Ogg Spellcrafter - Cast Frost Armor on Missing Buff');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=71002;
+        -- Stonevault Cave Lurker - Cast Spell Backstab
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485002;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (71002, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mosh\'Ogg Spellcrafter - Cast Spell Frost Armor');
+        (485002, 0, 0, 15, 2590, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Cave Lurker - Cast Spell Backstab');
 
-        -- Venture Co. Tinkerer - Cast Spell Fireball
-        DELETE FROM `creature_ai_scripts` WHERE `id`=67701;
+        -- Stonevault Cave Lurker - Cast Spell Stealth (Evade)
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485004;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (67701, 0, 0, 15, 133, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Tinkerer - Cast Spell Fireball');
+        (485004, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Cave Lurker - Cast Spell Stealth');
 
-        -- Venture Co. Tinkerer - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=67703;
+        -- Stonevault Oracle - Cast Spell Serpent Totem
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485203;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (67703, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Venture Co. Tinkerer - Cast Spell Frost Armor');
-
-        -- Shadowfang Whitescalp - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=385101;
+        (485203, 0, 0, 15, 6364, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Oracle - Cast Spell Serpent Totem'),
+        (485203, 0, 0, 44, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Oracle - Increment Phase');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485204;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (385101, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowfang Whitescalp - Cast Spell Frost Armor');
+        (485204, 0, 0, 15, 6364, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Oracle - Cast Spell Serpent Totem');
 
-        -- Events list for Shadowfang Whitescalp
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=3851;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (385101, 3851, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 385101, 0, 0, 'Shadowfang Whitescalp - Cast Frost Armor on Spawn');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (385102, 3851, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 385102, 0, 0, 'Shadowfang Whitescalp - Cast Frost Armor on Missing Buff');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=385102;
+        -- Guard Byron - Cast Spell Strike
+         DELETE FROM `creature_ai_scripts` WHERE `id`=492102;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (385102, 0, 0, 15, 168, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowfang Whitescalp - Cast Spell Frost Armor');
+        (492102, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Guard Byron - Cast Spell Strike');
 
-        -- Murkgill Lord - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=446002;
+        -- Theramore Guard - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=497902;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (446002, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Murkgill Lord - Cast Spell Frost Armor');
+        (497902, 0, 0, 15, 1608, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Theramore Guard - Cast Spell Strike');
 
-        -- Events list for Slitherblade Sorceress
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=4712;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471201, 4712, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 471201, 0, 0, 'Slitherblade Sorceress - Cast Frost Armor on Missing Buff');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471202, 4712, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 471202, 0, 0, 'Slitherblade Sorceress - Cast Frost Armor on Spawn');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=471201;
+        -- Wren Darkspring - Summon Imp on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=637601;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (471201, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sorceress - Cast Spell Frost Armor');
+        (637601, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wren Darkspring - Summon Imp on Spawn');
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=471202;
+        -- Events list for Gordunni Shaman
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5236;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (523601, 5236, 0, 1, 0, 100, 1, 1000, 1000, 600000, 600000, 523601, 0, 0, 'Gordunni Shaman - Cast Lightning Shield');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (523602, 5236, 0, 27, 0, 100, 1, 945, 1, 15000, 30000, 523602, 0, 0, 'Gordunni Shaman - Cast Lightning Shield on Missing Buff');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (523603, 5236, 0, 14, 0, 100, 1, 1200, 40, 14000, 18000, 523603, 0, 0, 'Gordunni Shaman - Cast Healing Wave on Friendlies');
+
+        -- Gordunni Shaman - Cast Spell Lightning Shield
+        DELETE FROM `creature_ai_scripts` WHERE `id`=523601;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (471202, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sorceress - Cast Spell Frost Armor');
-
-        -- Slitherblade Sea Witch - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=471901;
+        (523601, 0, 0, 15, 945, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gordunni Shaman - Cast Spell Lightning Shield');
+        DELETE FROM `creature_ai_scripts` WHERE `id`=523602;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (471901, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sea Witch - Cast Spell Frost Armor');
+        (523602, 0, 0, 15, 945, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gordunni Shaman - Cast Spell Lightning Shield');
 
-        -- Events list for Slitherblade Sea Witch
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=4719;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471901, 4719, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 471901, 0, 0, 'Slitherblade Sea Witch - Cast Frost Armor on Spawn');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (471903, 4719, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 471903, 0, 0, 'Slitherblade Sea Witch - Cast Frost Armor on Missing Buff');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=471903;
+        -- Gordunni Shaman - Cast Spell Renew
+        DELETE FROM `creature_ai_scripts` WHERE `id`=523603;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (471903, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Slitherblade Sea Witch - Cast Spell Frost Armor');
+        (523603, 0, 0, 15, 6077, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gordunni Shaman - Cast Spell Renew');
 
-        -- Shadowforge Surveyor - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=484402;
+        -- Cursed Atal ai - Cast Spell Call of the Grave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=524301;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (484402, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowforge Surveyor - Cast Spell Frost Armor');
+        (524301, 0, 0, 15, 5137, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Cursed Atal ai - Cast Spell Call of the Grave');
 
-        -- Events list for Coast Crawl Deepseer
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=5328;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (532801, 5328, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 532801, 0, 0, 'Coast Crawl Deepseer - Cast Frost Armor on Missing Buff');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (532802, 5328, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 532802, 0, 0, 'Coast Crawl Deepseer - Cast Frost Armor on Spawn');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=532801;
+        -- Groddoc Thunderer - Cast Spell Thunderclap
+        DELETE FROM `creature_ai_scripts` WHERE `id`=526201;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (532801, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coast Crawl Deepseer - Cast Spell Frost Armor');
+        (526201, 0, 0, 15, 6344, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Groddoc Thunderer - Cast Spell Thunderclap');
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=532802;
+        -- Ironfur Patriarch - Cast Spell Demoralizing Shout
+        DELETE FROM `creature_ai_scripts` WHERE `id`=527401;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (532802, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coast Crawl Deepseer - Cast Spell Frost Armor');
+        (527401, 0, 0, 15, 6190, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ironfur Patriarch - Cast Spell Demoralizing Shout');
 
-        -- Events list for Highborne Lichling
-        DELETE FROM `creature_ai_events` WHERE `creature_id`=6117;
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (611701, 6117, 0, 27, 0, 100, 1, 168, 1, 15000, 30000, 611701, 0, 0, 'Highborne Lichling - Cast Frost Armor on Missing Buff');
-        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (611702, 6117, 0, 1, 0, 100, 1, 1000, 1000, 1800000, 1800000, 611702, 0, 0, 'Highborne Lichling - Cast Frost Armor on Spawn');
-
-        DELETE FROM `creature_ai_scripts` WHERE `id`=611701;
+        -- Sprite Dragon - Cast Spell Mana Burn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=527601;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (611701, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Highborne Lichling - Cast Spell Frost Armor');
+        (527601, 0, 0, 15, 2691, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sprite Dragon - Cast Spell Mana Burn');
 
-        DELETE FROM `creature_ai_scripts` WHERE `id`=611702;
+        -- Sprite Darter - Cast Spell Mana Burn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=527801;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (611702, 0, 0, 15, 168, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Highborne Lichling - Cast Spell Frost Armor');
+        (527801, 0, 0, 15, 2691, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sprite Darter - Cast Spell Mana Burn');
 
-        -- Saltscale Tide Lord - Cast Spell Frost Armor
-        DELETE FROM `creature_ai_scripts` WHERE `id`=87501;
+        -- Nightmare Wanderer - Cast Spell Pierce Armor
+        DELETE FROM `creature_ai_scripts` WHERE `id`=528302;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (87501, 0, 0, 15, 168, 32, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Saltscale Tide Lord - Cast Spell Frost Armor');
+        (528302, 0, 0, 15, 6016, 33, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Nightmare Wanderer - Cast Spell Pierce Armor');
 
-        insert into applied_updates values ('040720241');
+        -- Lethlas - Cast Spell Corrosive Acid Breath
+        DELETE FROM `creature_ai_scripts` WHERE `id`=531201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (531201, 0, 0, 15, 3396, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Lethlas - Cast Spell Corrosive Acid Breath');
+
+        -- Jademir Oracle - Cast Spell Rejuvenation
+        DELETE FROM `creature_ai_scripts` WHERE `id`=531701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (531701, 0, 0, 15, 2090, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Jademir Oracle - Cast Spell Rejuvenation');
+
+        -- Jademir Oracle - Cast Spell Faerie Fire
+        DELETE FROM `creature_ai_scripts` WHERE `id`=531702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (531702, 0, 0, 15, 6076, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Jademir Oracle - Cast Spell Faerie Fire');
+
+        -- Jademir Tree Warder - Cast Spell Faerie Fire
+        DELETE FROM `creature_ai_scripts` WHERE `id`=531902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (531902, 0, 0, 15, 6950, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Jademir Tree Warder - Cast Spell Faerie Fire');
+
+        -- Antilus the Soarer - Cast Spell Rend
+        DELETE FROM `creature_ai_scripts` WHERE `id`=534701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (534701, 0, 0, 15, 6548, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Antilus the Soarer - Cast Spell Rend');
+
+        -- Gnarl Leafbrother - Cast Spell Entangling Roots
+        DELETE FROM `creature_ai_scripts` WHERE `id`=535401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (535401, 0, 0, 15, 5195, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gnarl Leafbrother - Cast Spell Entangling Roots');
+
+        -- Khan Hratha - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=540202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (540202, 0, 0, 15, 7371, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Khan Hratha - Cast Spell Cleave');
+
+        -- Scorpid Hunter - Cast Spell Slowing Poison
+        DELETE FROM `creature_ai_scripts` WHERE `id`=542201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (542201, 0, 0, 15, 3332, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scorpid Hunter - Cast Spell Slowing Poison');
+
+        -- Searing Roc - Cast Spell Immolate
+        DELETE FROM `creature_ai_scripts` WHERE `id`=543001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (543001, 0, 0, 15, 1094, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Searing Roc - Cast Spell Immolate');
+
+        -- Centipaar Swarmer - Cast Spell Silithid Swarm
+        DELETE FROM `creature_ai_scripts` WHERE `id`=545702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (545702, 0, 0, 15, 6589, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Centipaar Swarmer - Cast Spell Silithid Swarm');
+
+        -- Razorfen Handler - Cast Spell Summon Tamed Battleboar
+        DELETE FROM `creature_ai_scripts` WHERE `id`=453001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (453001, 0, 0, 15, 7905, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Razorfen Handler - Cast Spell Summon Tamed Battleboar');
+
+        -- Events list for Dunemaul Ogre
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5471;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (547101, 5471, 0, 27, 0, 100, 1, 2457, 1, 1000, 1000, 547101, 0, 0, 'Dunemaul Ogre - Cast Battle Stance (passive) ');
+
+        -- Dunemaul Ogre - Cast Spell Battle Stance
+        DELETE FROM `creature_ai_scripts` WHERE `id`=547101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (547101, 0, 0, 15, 7165, 7, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dunemaul Ogre - Cast Spell Battle Stance');
+
+        -- Events list for Khan Jehn
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5601;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (560101, 5601, 0, 4, 0, 100, 0, 0, 0, 0, 0, 560101, 0, 0, 'Khan Jehn - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (560102, 5601, 0, 9, 5, 100, 1, 0, 5, 5000, 9000, 560102, 0, 0, 'Khan Jehn - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (560103, 5601, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 560103, 0, 0, 'Khan Jehn - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (560104, 5601, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 560104, 0, 0, 'Khan Jehn - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (560105, 5601, 0, 0, 0, 100, 1, 1000, 3000, 180000, 190000, 560105, 0, 0, 'Khan Jehn - Cast Defensive Stance');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (560107, 5601, 0, 7, 0, 100, 0, 0, 0, 0, 0, 560107, 0, 0, 'Khan Jehn - Set Phase to 0 on Evade');
+
+        -- Khan Jehn - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=560102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (560102, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Khan Jehn - Cast Spell Sundering Strike');
+
+        -- Khan Shaka - Cast Spell Hamstring
+        DELETE FROM `creature_ai_scripts` WHERE `id`=560202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (560202, 0, 0, 15, 7372, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Khan Shaka - Cast Spell Hamstring');
+
+        -- Events list for Wastewander Rogue
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5615;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (561501, 5615, 0, 11, 0, 100, 0, 0, 0, 0, 0, 561501, 0, 0, 'Wastewander Rogue - Cast Stealth on Spawn');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (561502, 5615, 0, 9, 0, 100, 1, 7800, 14600, 11500, 18900, 561502, 0, 0, 'Wastewander Rogue - Cast Backstab');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (561503, 5615, 0, 2, 0, 100, 0, 15, 0, 0, 0, 561503, 0, 0, 'Wastewander Rogue - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (561504, 5615, 0, 21, 0, 100, 0, 0, 0, 0, 0, 561504, 0, 0, 'Wastewander Rogue - Cast Stealth on Return Home');
+
+        -- Wastewander Rogue - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=561501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (561501, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wastewander Rogue - Cast Spell Sneak');
+
+        -- Wastewander Rogue - Cast Spell Backstab
+        DELETE FROM `creature_ai_scripts` WHERE `id`=561502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (561502, 0, 0, 15, 2591, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wastewander Rogue - Cast Spell Backstab');
+
+        -- Wastewander Rogue - Cast Spell Stealth
+        DELETE FROM `creature_ai_scripts` WHERE `id`=561504;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (561504, 0, 0, 15, 1784, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wastewander Rogue - Cast Spell Stealth');
+
+        -- Wastewander Shadow Mage - Cast Spell Summon Voidwalker
+        DELETE FROM `creature_ai_scripts` WHERE `id`=561702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (561702, 0, 0, 15, 697, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Wastewander Shadow Mage - Cast Spell Summon Voidwalker');
+
+        -- Sandfury Hideskinner - Cast Spell Backstab
+        DELETE FROM `creature_ai_scripts` WHERE `id`=564502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (564502, 0, 0, 15, 2591, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sandfury Hideskinner - Cast Spell Backstab');
+
+        -- Sandfury Shadowcaster - Cast Spell Demon Skin
+        DELETE FROM `creature_ai_scripts` WHERE `id`=564802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (564802, 0, 0, 15, 696, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Sandfury Shadowcaster - Cast Spell Demon Skin');
+
+        -- Shade of Eranikus - Cast Spell War Stomp
+        DELETE FROM `creature_ai_scripts` WHERE `id`=570902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (570902, 0, 0, 15, 45, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shade of Eranikus - Cast Spell War Stomp');
+
+        insert into applied_updates values ('120720243');
     end if;
 end $
 delimiter ;

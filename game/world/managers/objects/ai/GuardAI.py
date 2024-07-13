@@ -24,8 +24,9 @@ class GuardAI(CreatureAI):
         return Permits.PERMIT_BASE_NO
 
     # override
-    def move_in_line_of_sight(self, unit):
-        if not self.is_ready_for_new_attack():
+    def move_in_line_of_sight(self, unit, ai_event=False):
+        super().move_in_line_of_sight(unit, ai_event=ai_event)
+        if ai_event or not self.is_ready_for_new_attack():
             return
         self.creature.object_ai.attacked_by(unit)
 
