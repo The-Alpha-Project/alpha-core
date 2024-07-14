@@ -289,6 +289,7 @@ class PlayerManager(UnitManager):
 
         # Apply equipment effects.
         self.spell_manager.apply_equipment_effects()
+        self.equipment_proc_manager.apply_equipment_effects()
 
         # Apply stat bonuses.
         self.stat_manager.apply_bonuses(replenish=first_login)
@@ -762,6 +763,7 @@ class PlayerManager(UnitManager):
             # Reapply effects from equipment.
             self.spell_manager.apply_equipment_effects()
             self.enchantment_manager.apply_enchantments()
+            self.equipment_proc_manager.apply_equipment_effects()
             self.stat_manager.apply_bonuses()
 
         # Remove taxi flying state, if any.

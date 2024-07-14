@@ -41,34 +41,37 @@ class EquipmentProcManager:
         self.player_mgr = player_mgr
         self.proc_effects = dict()
 
-    def handle_equipment_change(self, item: ItemManager | None):
-        if not item:
-            return
+    def apply_equipment_effects(self):
+        self.handle_equipment_change(*list(self.player_mgr.inventory.get_backpack().sorted_slots.values()))
 
-        # Spell proc enchants.
-        enchantment_type = ItemEnchantmentType.PROC_SPELL
-        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
-            spell_id = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
+    def handle_equipment_change(self, *items: [ItemManager | None]):
+        for item in items:
+            if not item:
+                return
 
-            if enchantment.is_expired() or not item.is_equipped():
-                self._remove_enchantment(item, enchantment.entry)
-                continue
+            # Spell proc enchants.
+            enchantment_type = ItemEnchantmentType.PROC_SPELL
+            for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
+                spell_id = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
+                if enchantment.is_expired() or not item.is_equipped():
+                    self._remove_enchantment(item, enchantment.entry)
+                    continue
 
-            proc_chance = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
-            if not spell_id or not proc_chance:
-                continue
-            self._add_enchantment(item, enchantment.entry, spell_id, proc_chance)
+                proc_chance = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
+                if not spell_id or not proc_chance:
+                    continue
+                self._add_enchantment(item, enchantment.entry, spell_id, proc_chance)
 
-        # Item chance on hit effects.
-        for item_spell in item.spell_stats:
-            if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_CHANCE_ON_HIT:
-                continue
+            # Item chance on hit effects.
+            for item_spell in item.spell_stats:
+                if item_spell.trigger != ItemSpellTriggerType.ITEM_SPELL_TRIGGER_CHANCE_ON_HIT:
+                    continue
 
-            if not item.is_equipped():
-                self._remove_equipment(item, item_spell.spell_id)
-                continue
+                if not item.is_equipped():
+                    self._remove_equipment(item, item_spell.spell_id)
+                    continue
 
-            self._add_equipment(item, item_spell.spell_id)
+                self._add_equipment(item, item_spell.spell_id)
 
     def handle_melee_attack_procs(self, damage_info: DamageInfoHolder):
         for proc_effect in self.proc_effects.values():

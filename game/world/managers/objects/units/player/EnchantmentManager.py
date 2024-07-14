@@ -52,6 +52,7 @@ class EnchantmentManager(object):
                 if not enchantment.duration and not enchantment.charges:
                     # Remove.
                     self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
+                    self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)  # Update procs if enchant expires.
                 elif new_duration:
                     item.save()
 
@@ -96,10 +97,12 @@ class EnchantmentManager(object):
         current_value = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0)
         current_duration = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1)
         current_charges = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2)
+
+        should_reapply = current_value != value or current_charges != charges or expired
         should_save = current_value != value or current_duration != duration or current_charges != charges
 
         # Check for buffs changes only on items that can be equipped.
-        if item.item_template.inventory_type != InventoryTypes.NONE_EQUIP:
+        if item.item_template.inventory_type != InventoryTypes.NONE_EQUIP and should_reapply:
             remove_equip_buff = expired or not item.is_equipped()
             self._handle_equip_buffs(item, remove=remove_equip_buff)
 
@@ -160,8 +163,6 @@ class EnchantmentManager(object):
                 self.unit_mgr.spell_manager.handle_cast_attempt(effect_spell_value,
                                                                 self.unit_mgr, SpellTargetMask.SELF,
                                                                 triggered=True)
-
-        self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)
 
         # Update stats upon add or removal.
         self.unit_mgr.stat_manager.apply_bonuses()

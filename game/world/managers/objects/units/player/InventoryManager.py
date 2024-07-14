@@ -720,6 +720,7 @@ class InventoryManager(object):
         # Handle cast interrupt and equipment effects.
         self.owner.spell_manager.handle_equipment_change(source_item, dest_item)
         self.owner.enchantment_manager.handle_equipment_change(source_item, dest_item)
+        self.owner.equipment_proc_manager.handle_equipment_change(source_item, dest_item)
 
         # Bonus application.
         self.owner.stat_manager.apply_bonuses()

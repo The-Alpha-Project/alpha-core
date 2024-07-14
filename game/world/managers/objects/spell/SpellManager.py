@@ -251,9 +251,6 @@ class SpellManager:
         if not item or self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 
-        # Proc effects.
-        self.caster.equipment_proc_manager.handle_equipment_change(item)
-
         # On equip effects.
         for item_spell in item.spell_stats:
             if not item_spell.spell_id:
