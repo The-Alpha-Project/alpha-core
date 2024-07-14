@@ -6,7 +6,7 @@ from game.world.managers.objects.units.DamageInfoHolder import DamageInfoHolder
 from game.world.managers.objects.units.player.EnchantmentManager import EnchantmentManager
 from utils.Logger import Logger
 from utils.constants.ItemCodes import ItemEnchantmentType, ItemSpellTriggerType, InventorySlots
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask, SpellImplicitTargets
 
 
 class ProcEffectType(IntEnum):
@@ -84,8 +84,9 @@ class EquipmentProcManager:
                 Logger.warning(f'Unable to locate enchantment proc spell {proc_effect.spell_id}.')
                 continue
 
-            spell = self.player_mgr.spell_manager.try_initialize_spell(spell_template, damage_info.target,
-                                                                     SpellTargetMask.UNIT, triggered=True)
+            target = self.player_mgr if spell_template.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF else damage_info.target
+            target_mask = SpellTargetMask.SELF if target is self.player_mgr else SpellTargetMask.UNIT
+            spell = self.player_mgr.spell_manager.try_initialize_spell(spell_template, target, target_mask, triggered=True)
             if not spell:
                 continue  # Validation failed.
 
