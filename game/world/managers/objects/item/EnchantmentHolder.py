@@ -39,6 +39,9 @@ class EnchantmentHolder(object):
     def has_enchantment_effect(self, enchantment_type: [ItemEnchantmentType]):
         return enchantment_type == self.effect
 
+    def is_expired(self) -> bool:
+        return self.duration == 0 and self.charges == 0
+
     def get_enchantment_effect_points_by_type(self, enchantment_type: [ItemEnchantmentType]):
         return self.effect_points if self.effect == enchantment_type else 0
 

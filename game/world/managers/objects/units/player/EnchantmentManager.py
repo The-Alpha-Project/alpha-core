@@ -4,7 +4,8 @@ from typing import Tuple, Dict
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots, InventoryTypes
+from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots, InventoryTypes, \
+    ItemSpellTriggerType
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags
@@ -18,8 +19,6 @@ class EnchantmentManager(object):
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
         self.duration_timer_seconds = 0
-        # enchantment id: (item_slot, spell id, proc chance).
-        self._applied_proc_enchants: Dict[int, Tuple[int, int, int]] = {}
 
     # Load and apply enchantments from item_instance.
     def load_enchantments_for_item(self, item, from_db=False):
@@ -53,18 +52,27 @@ class EnchantmentManager(object):
                 if not enchantment.duration and not enchantment.charges:
                     # Remove.
                     self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
+                    self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)  # Update procs if enchant expires.
                 elif new_duration:
                     item.save()
 
     # noinspection PyMethodMayBeStatic
-    def _consume_item_charges(self, item, enchantment_slot, used_charges=1):
+    def consume_enchant_charge(self, item, spell_id):
+        enchantment_slot = [i for i, enchantment in enumerate(item.enchantments) if enchantment.effect_spell == spell_id]
+
+        if not enchantment_slot:
+            return
+
+        enchantment_slot = enchantment_slot[0]
+
         charges = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2)
-        if charges:
-            new_charges = max(0, charges - used_charges)
-            item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2, new_charges)
-            item.enchantments[enchantment_slot].charges = new_charges
-            return True
-        return False
+        if not charges:
+            return
+
+        new_charges = max(0, charges - 1)
+        item.set_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + enchantment_slot * 3 + 2, new_charges)
+        item.enchantments[enchantment_slot].charges = new_charges
+        self._update_item_enchantments(item)
 
     def apply_enchantments(self, load=False):
         for container_slot, container in list(self.unit_mgr.inventory.containers.items()):
@@ -82,16 +90,19 @@ class EnchantmentManager(object):
                                                   enchantment.charges)
 
     def set_item_enchantment(self, item, slot, value, duration, charges, expired=False):
+        duration = duration if slot != EnchantmentSlots.PERMANENT_SLOT else -1
         if not expired:
             item.enchantments[slot].update(value, duration, charges)
 
         current_value = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 0)
         current_duration = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1)
         current_charges = item.get_uint32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2)
+
+        should_reapply = current_value != value or current_charges != charges or expired
         should_save = current_value != value or current_duration != duration or current_charges != charges
 
         # Check for buffs changes only on items that can be equipped.
-        if item.item_template.inventory_type != InventoryTypes.NONE_EQUIP:
+        if item.item_template.inventory_type != InventoryTypes.NONE_EQUIP and should_reapply:
             remove_equip_buff = expired or not item.is_equipped()
             self._handle_equip_buffs(item, remove=remove_equip_buff)
 
@@ -127,42 +138,6 @@ class EnchantmentManager(object):
             # Handle unequipped item first in case equipment has the same buff.
             self._handle_equip_buffs(item, remove=not item.is_equipped())
 
-    def handle_melee_attack_procs(self, damage_info):
-        for entry, proc_enchant in list(self._applied_proc_enchants.items()):
-            item_slot, proc_spell_id, proc_chance = proc_enchant
-
-            # Skip weapon procs if disarmed.
-            is_main_hand = item_slot == InventorySlots.SLOT_MAINHAND
-            if is_main_hand and self.unit_mgr.unit_flags & UnitFlags.UNIT_FLAG_DISARMED:
-                continue
-
-            if not self.unit_mgr.stat_manager.roll_proc_chance(proc_chance):
-                continue
-
-            proc_item = self.unit_mgr.inventory.get_item(InventorySlots.SLOT_INBACKPACK, item_slot)
-            if not proc_item:
-                continue
-
-            # Handle proc charges.
-            enchantment_slot = [i for i, enchantment in enumerate(proc_item.enchantments) if enchantment.entry == entry]
-            if enchantment_slot and self._consume_item_charges(proc_item, enchantment_slot[0]):
-                self._update_item_enchantments(proc_item)
-
-            # Some enchant procs use spells that have cast times.
-            # Ignore cast time for these spells by overriding cast time info.
-            spell_template = DbcDatabaseManager.SpellHolder.spell_get_by_id(proc_spell_id)
-            if spell_template:
-                spell = self.unit_mgr.spell_manager.try_initialize_spell(spell_template, damage_info.target,
-                                                                         SpellTargetMask.UNIT, triggered=True)
-                # Unable to validate spell cast.
-                if not spell:
-                    Logger.warning(f'Unable to validate proc enchantment spell {spell_template.ID}.')
-                    continue
-                spell.force_instant_cast()
-                self.unit_mgr.spell_manager.start_spell_cast(initialized_spell=spell)
-            else:
-                Logger.warning(f'Unable to locate enchantment proc spell {proc_spell_id}.')
-
     def _handle_aura_removal(self, item):
         enchantment_type = ItemEnchantmentType.BUFF_EQUIPPED
         for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
@@ -189,21 +164,12 @@ class EnchantmentManager(object):
                                                                 self.unit_mgr, SpellTargetMask.SELF,
                                                                 triggered=True)
 
-        enchantment_type = ItemEnchantmentType.PROC_SPELL
-        for enchantment in EnchantmentManager.get_enchantments_by_type(item, enchantment_type):
-            if remove:
-                self._applied_proc_enchants.pop(enchantment.entry, None)
-                continue
-
-            effect_spell_value = enchantment.get_enchantment_effect_spell_by_type(enchantment_type)
-            proc_chance = enchantment.get_enchantment_effect_points_by_type(enchantment_type)
-            if not effect_spell_value or not proc_chance:
-                continue
-
-            self._applied_proc_enchants[enchantment.entry] = (item.current_slot, effect_spell_value, proc_chance)
-
         # Update stats upon add or removal.
         self.unit_mgr.stat_manager.apply_bonuses()
+
+    @staticmethod
+    def get_ppm_proc_chance(weapon_speed: int, ppm: int):
+        return weapon_speed * (ppm / 600)
 
     @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):
