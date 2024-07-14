@@ -89,6 +89,7 @@ class EnchantmentManager(object):
                                                   enchantment.charges)
 
     def set_item_enchantment(self, item, slot, value, duration, charges, expired=False):
+        duration = duration if slot != EnchantmentSlots.PERMANENT_SLOT else -1
         if not expired:
             item.enchantments[slot].update(value, duration, charges)
 

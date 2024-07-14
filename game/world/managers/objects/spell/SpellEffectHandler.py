@@ -843,7 +843,8 @@ class SpellEffectHandler:
 
         # Apply permanent enchantment.
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
-                                                              duration, charges)
+                                                              -1, charges)
+        owner_player.equipment_proc_manager.handle_equipment_change(target)
 
         # Save item.
         target.save()
