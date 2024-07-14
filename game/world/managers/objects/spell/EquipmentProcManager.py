@@ -106,17 +106,17 @@ class EquipmentProcManager:
             self.player_mgr.enchantment_manager.consume_enchant_charge(proc_item, proc_effect.spell_id)
 
     def _add_enchantment(self, item: ItemManager, enchant_id: int, spell_id: int, proc_chance: float):
-        index = item.get_low_guid() | enchant_id << 48
+        index = item.get_low_guid() | (enchant_id << 48)
         self.proc_effects[index] = ProcEffect(item.current_slot, spell_id, ProcEffectType.ENCHANTMENT, proc_chance)
 
     def _add_equipment(self, item: ItemManager, spell_id: int):
-        index = item.get_low_guid() | (-spell_id * InventorySlots.SLOT_ITEM_START) << 48
+        index = item.get_low_guid() | (-spell_id << 48)
         self.proc_effects[index] = ProcEffect(item.current_slot, spell_id, ProcEffectType.EQUIPMENT_EFFECT)
 
     def _remove_enchantment(self, item: ItemManager, enchant_id: int):
-        index = item.get_low_guid() | (enchant_id * InventorySlots.SLOT_ITEM_START << 48)
+        index = item.get_low_guid() | (enchant_id << 48)
         self.proc_effects.pop(index, None)
 
     def _remove_equipment(self, item: ItemManager, spell_id: int):
-        index = item.get_low_guid() | (-spell_id * InventorySlots.SLOT_ITEM_START << 48)
+        index = item.get_low_guid() | (-spell_id << 48)
         self.proc_effects.pop(index, None)
