@@ -74,7 +74,7 @@ class EquipmentProcManager:
                 self._add_equipment(item, item_spell.spell_id)
 
     def handle_melee_attack_procs(self, damage_info: DamageInfoHolder):
-        for proc_effect in self.proc_effects.values():
+        for proc_effect in list(self.proc_effects.values()):
             attack_weapon = self.player_mgr.get_current_weapon_for_attack_type(damage_info.attack_type)
             if not attack_weapon or attack_weapon.current_slot != proc_effect.item_slot:
                 continue
