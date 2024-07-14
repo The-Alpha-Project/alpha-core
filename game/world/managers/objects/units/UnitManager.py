@@ -583,8 +583,8 @@ class UnitManager(ObjectManager):
         # Bullets/arrows can't be equipped in 0.5.3 and thus aren't included in item stats.
         # Add min/max ammo damage to base damage.
         if used_ammo:
-            min_damage += used_ammo.item_template.dmg_min1
-            max_damage += used_ammo.item_template.dmg_max1
+            min_damage = int(used_ammo.item_template.dmg_min1 + min_damage)
+            max_damage = int(used_ammo.item_template.dmg_max1 + max_damage)
 
         rolled_damage = random.randint(min_damage, max_damage)
 
