@@ -389,8 +389,8 @@ class AIEventHandler:
         return True
 
     def _event_get_by_type(self, event_type):
-        # Skip for charmed units.
-        if self.creature.charmer:
+        # Skip for controlled units.
+        if self.creature.is_controlled():
             return []
         if not self.initialized:
             self.initialized = True
