@@ -972,7 +972,7 @@ class StatManager(object):
                 self.unit_mgr.has_damage_immunity(spell_school, casting_spell=casting_spell):
             return SpellMissReason.MISS_REASON_IMMUNE, hit_flags
 
-        is_base_attack_spell = casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()
+        is_base_attack_spell = casting_spell.is_weapon_attack()
 
         attack_type = casting_spell.get_attack_type() if is_base_attack_spell else -1
 
@@ -1038,8 +1038,7 @@ class StatManager(object):
         caster = casting_spell.spell_caster
         spell_school = casting_spell.spell_entry.School
 
-        is_base_attack_spell = casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()
-        attack_type = casting_spell.get_attack_type() if is_base_attack_spell else -1
+        attack_type = casting_spell.get_attack_type() if casting_spell.is_weapon_attack() else -1
         attacker_combat_rating = caster.stat_manager.get_combat_rating_for_attack(attack_type=attack_type,
                                                                                   casting_spell=casting_spell)
         rating_difference = self.unit_mgr.level * 5 - attacker_combat_rating

@@ -724,12 +724,14 @@ class UnitManager(ObjectManager):
 
     def calculate_spell_damage(self, base_damage, miss_reason, hit_flags, spell_effect, target):
         spell = spell_effect.casting_spell
-
-        damage_info = DamageInfoHolder(attacker=self, target=target, attack_type=spell.get_attack_type(),
+        damage_info = DamageInfoHolder(attacker=self, target=target,
                                        damage_school_mask=spell.get_damage_school_mask(),
                                        spell_id=spell.spell_entry.ID,
                                        spell_school=spell.get_damage_school(),
                                        spell_miss_reason=miss_reason, hit_info=hit_flags)
+
+        if spell.is_weapon_attack():
+            damage_info.attack_type = spell.get_attack_type()
 
         if spell.casts_on_swing():
             damage_info.hit_info |= HitInfo.DEFERRED_LOGGING
@@ -745,8 +747,8 @@ class UnitManager(ObjectManager):
         if miss_reason != SpellMissReason.MISS_REASON_NONE:
             return damage_info
 
-        subclass = 0
-        if self.get_type_id() == ObjectTypeIds.ID_PLAYER and damage_info.attack_type != -1:
+        subclass = -1
+        if self.get_type_id() == ObjectTypeIds.ID_PLAYER and spell.is_weapon_attack():
             equipped_weapon = self.get_current_weapon_for_attack_type(damage_info.attack_type)
             if equipped_weapon:
                 subclass = equipped_weapon.item_template.subclass

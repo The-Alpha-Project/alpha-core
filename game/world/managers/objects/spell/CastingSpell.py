@@ -184,8 +184,7 @@ class CastingSpell:
         return self.spell_attack_type if self.spell_attack_type != -1 else 0
 
     def get_damage_school(self):
-        is_weapon_attack = self.casts_on_swing() or self.is_ranged_weapon_attack()
-        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not is_weapon_attack or \
+        if self.spell_caster.get_type_id() != ObjectTypeIds.ID_PLAYER or not self.is_weapon_attack() or \
                 self.spell_attack_type == -1 or \
                 self.spell_entry.School != SpellSchools.SPELL_SCHOOL_NORMAL:
             # Provide base spell school if a weapon isn't used or if the spell has a non-normal school.
@@ -463,6 +462,9 @@ class CastingSpell:
                       (1 << ItemSubClasses.ITEM_SUBCLASS_WAND)
 
         return self.spell_entry.EquippedItemSubclass & ranged_mask != 0
+
+    def is_weapon_attack(self):
+        return self.casts_on_swing() or self.is_ranged_weapon_attack()
 
     def requires_fishing_pole(self):
         if self.spell_entry.EquippedItemClass != ItemClasses.ITEM_CLASS_WEAPON:
