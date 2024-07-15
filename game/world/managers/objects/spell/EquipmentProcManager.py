@@ -13,6 +13,7 @@ class ProcEffectType(IntEnum):
     ENCHANTMENT = 0
     EQUIPMENT_EFFECT = 1
 
+
 class ProcEffect:
     item_slot: int
     spell_id: int
@@ -34,7 +35,7 @@ class ProcEffect:
 
 
 class EquipmentProcManager:
-    # Item guid | enchant/-spell id: effect
+    # Item guid | enchant/-spell id: effect.
     proc_effects: dict[int, ProcEffect]
 
     def __init__(self, player_mgr):
@@ -87,9 +88,11 @@ class EquipmentProcManager:
                 Logger.warning(f'Unable to locate enchantment proc spell {proc_effect.spell_id}.')
                 continue
 
-            target = self.player_mgr if spell_template.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF else damage_info.target
+            target = self.player_mgr if spell_template.ImplicitTargetA_1 == SpellImplicitTargets.TARGET_SELF \
+                else damage_info.target
             target_mask = SpellTargetMask.SELF if target is self.player_mgr else SpellTargetMask.UNIT
-            spell = self.player_mgr.spell_manager.try_initialize_spell(spell_template, target, target_mask, triggered=True)
+            spell = self.player_mgr.spell_manager.try_initialize_spell(spell_template, target, target_mask,
+                                                                       triggered=True)
             if not spell:
                 continue  # Validation failed.
 
