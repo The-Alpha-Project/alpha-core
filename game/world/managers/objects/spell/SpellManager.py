@@ -220,7 +220,7 @@ class SpellManager:
             if item.is_equipped():
                 self._handle_item_equip_effects(item)
 
-    def handle_equipment_change(self, source_item: ItemManager | None, dest_item: ItemManager | None):
+    def handle_equipment_change(self, source_item: Optional[ItemManager], dest_item: Optional[ItemManager]):
         self._handle_item_equip_effects(source_item)
         self._handle_item_equip_effects(dest_item)
 
@@ -247,7 +247,7 @@ class SpellManager:
         if required_item_class != item_class or not required_item_subclass & item_subclass_mask:
             self.remove_cast(casting_spell, interrupted=True)
 
-    def _handle_item_equip_effects(self, item: ItemManager | None):
+    def _handle_item_equip_effects(self, item: Optional[ItemManager]):
         if not item or self.caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
             return
 

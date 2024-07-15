@@ -1,4 +1,5 @@
 from enum import IntEnum
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -45,7 +46,7 @@ class EquipmentProcManager:
     def apply_equipment_effects(self):
         self.handle_equipment_change(*list(self.player_mgr.inventory.get_backpack().sorted_slots.values()))
 
-    def handle_equipment_change(self, *items: [ItemManager | None]):
+    def handle_equipment_change(self, *items: [Optional[ItemManager]]):
         for item in items:
             if not item:
                 return
