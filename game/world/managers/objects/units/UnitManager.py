@@ -1700,6 +1700,9 @@ class UnitManager(ObjectManager):
         self.threat_manager.reset()
 
         self.pet_manager.detach_active_pets()
+        charmer = self.get_charmer_or_summoner()
+        if charmer:
+            charmer.pet_manager.handle_pet_death(self)
 
         self.set_health(0)
 
@@ -1743,7 +1746,6 @@ class UnitManager(ObjectManager):
                 summon_spell = active_pet.get_pet_data().summon_spell_id
                 charmer.spell_manager.remove_cast_by_id(summon_spell)
                 charmer.aura_manager.remove_auras_by_caster(self.guid)
-                charmer.spell_manager.unlock_spell_cooldown(summon_spell)
 
         self.is_alive = False
         super().despawn()

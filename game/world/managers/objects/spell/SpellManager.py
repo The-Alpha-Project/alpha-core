@@ -1359,7 +1359,7 @@ class SpellManager:
                 return False
 
             active_pet = self.caster.pet_manager.get_active_controlled_pet()
-            if active_pet:
+            if active_pet and active_pet.creature.is_alive:
                 error = SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON if active_pet.is_permanent() \
                     else SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_CHARM
                 self.send_cast_result(casting_spell, error)
@@ -1386,7 +1386,8 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_PET)
                 return False
 
-            if self.caster.pet_manager.get_active_controlled_pet():
+            active_pet = self.caster.pet_manager.get_active_controlled_pet()
+            if active_pet and active_pet.creature.is_alive:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON)
                 return False
 
