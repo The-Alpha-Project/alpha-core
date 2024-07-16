@@ -1,4 +1,5 @@
 from enum import IntEnum
+from typing import Optional
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from game.world.managers.objects.item.ItemManager import ItemManager
@@ -45,7 +46,7 @@ class EquipmentProcManager:
     def apply_equipment_effects(self):
         self.handle_equipment_change(*list(self.player_mgr.inventory.get_backpack().sorted_slots.values()))
 
-    def handle_equipment_change(self, *items: [ItemManager | None]):
+    def handle_equipment_change(self, *items: [Optional[ItemManager]]):
         for item in items:
             if not item:
                 return
@@ -75,7 +76,7 @@ class EquipmentProcManager:
                 self._add_equipment(item, item_spell.spell_id)
 
     def handle_melee_attack_procs(self, damage_info: DamageInfoHolder):
-        for proc_effect in self.proc_effects.values():
+        for proc_effect in list(self.proc_effects.values()):
             attack_weapon = self.player_mgr.get_current_weapon_for_attack_type(damage_info.attack_type)
             if not attack_weapon or attack_weapon.current_slot != proc_effect.item_slot:
                 continue

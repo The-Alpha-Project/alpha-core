@@ -13,7 +13,7 @@ from game.world.managers.objects.units.pet.PetData import PetData
 from network.packet.PacketWriter import PacketWriter
 from utils.Logger import Logger
 from utils.constants import CustomCodes
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetActionBarIndex, PetCommandState, PetTameResult, PetSlot
 from utils.constants.SpellCodes import SpellCheckCastResult, TotemSlots, SpellTargetMask
@@ -53,8 +53,8 @@ class PetManager:
 
     def set_creature_as_pet(self, creature: CreatureManager, summon_spell_id: int, pet_slot: PetSlot,
                             pet_level=-1, pet_index=-1, is_permanent=False) -> Optional[ActivePet]:
-        # Try to detach any active pet on this slot, prevent having more than one.
-        self.detach_pet_by_slot(pet_slot)
+        if not self._try_detach_dead_pet(pet_slot):
+            return  # Pet slot already occupied by alive creature.
 
         # Modify and link owner and creature.
         self._handle_creature_spawn_detach(creature, is_permanent)
@@ -116,15 +116,13 @@ class PetManager:
         return pet_data
 
     def summon_permanent_pet(self, spell_id, creature_id=0):
-        if self.get_active_controlled_pet():
-            return
+        if not self._try_detach_dead_pet(PetSlot.PET_SLOT_PERMANENT):
+            return  # Permanent pet is already active and alive.
 
-        # If a creature ID isn't provided, the pet to summon is the player's only pet (hunters).
-        # Otherwise, the pet is owned by a warlock or a creature.
-        is_creature_summon = creature_id != 0
+        is_hunter_pet = spell_id == PetData.SUMMON_PET_SPELL_ID
 
         pet_index = -1
-        if not creature_id:
+        if is_hunter_pet:
             if not len(self.permanent_pets):
                 return
 
@@ -153,12 +151,12 @@ class PetManager:
             return
 
         # Match summoner level for creature summons. Otherwise, set to the level in PetData.
-        pet_level = self.owner.level if is_creature_summon else -1
+        pet_level = self.owner.level if not is_hunter_pet else -1
         active_pet = self.set_creature_as_pet(creature_manager, spell_id, PetSlot.PET_SLOT_PERMANENT,
                                               pet_level=pet_level, pet_index=pet_index, is_permanent=True)
 
         # On initial creature summon, teach available spells according to the summon spell's level.
-        if is_creature_summon and pet_index == -1:
+        if not is_hunter_pet and pet_index == -1:
             spell_level = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id).SpellLevel
             active_pet.initialize_spells(level_override=spell_level)
 
@@ -183,12 +181,36 @@ class PetManager:
             self.summon_permanent_pet(pet.summon_spell_id, creature_id=pet.creature_template.entry)
             return
 
+    def handle_pet_death(self, creature):
+        active_pet = self.get_active_pet_by_guid(creature.guid)
+        if not active_pet:
+            return
+
+        if active_pet.is_controlled():
+            self.send_pet_spell_info(reset=True)
+
+        pet_data = active_pet.get_pet_data()
+        if pet_data.summon_spell_id:
+            self.owner.spell_manager.unlock_spell_cooldown(pet_data.summon_spell_id)
+
+        pet_data.set_active(False)
+
     def detach_pet_by_slot(self, pet_slot: PetSlot):
         active_pet = self.active_pets.get(pet_slot)
         if active_pet:
             active_pet.get_pet_data().set_active(False)
             self.active_pets.pop(pet_slot)
             active_pet.detach()
+
+    def _try_detach_dead_pet(self, pet_slot: PetSlot) -> bool:
+        active_pet = self.active_pets.get(pet_slot)
+        if not active_pet:
+            return True
+        if active_pet.creature.is_alive:
+            return False
+
+        active_pet.detach()
+        return True
 
     def detach_totem(self, totem_slot: TotemSlots):
         self.detach_pet_by_slot(PetSlot.PET_SLOT_TOTEM_START + totem_slot)
@@ -200,8 +222,11 @@ class PetManager:
                 break
 
     def get_active_controlled_pet(self) -> Optional[ActivePet]:
-        active_pet = self.active_pets.get(PetSlot.PET_SLOT_PERMANENT)
-        return active_pet if active_pet else self.active_pets.get(PetSlot.PET_SLOT_CHARM)
+        permanent_pet = self.active_pets.get(PetSlot.PET_SLOT_PERMANENT)
+        charm = self.active_pets.get(PetSlot.PET_SLOT_CHARM)
+        # Return alive controlled pet, prioritizing permanent slot.
+        return permanent_pet if (permanent_pet and permanent_pet.creature.is_alive or
+                                 (not charm or not charm.creature.is_alive)) else charm
 
     def get_active_pet_by_guid(self, guid) -> Optional[ActivePet]:
         for active_pet in self.active_pets.values():

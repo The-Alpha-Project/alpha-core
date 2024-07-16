@@ -430,7 +430,7 @@ class SkillManager(object):
             self.handle_profession_skill_gain(casting_spell.spell_entry.ID)
             return True
 
-        if (casting_spell.casts_on_swing() or casting_spell.is_ranged_weapon_attack()) and \
+        if casting_spell.is_weapon_attack() and \
                 skill.ID == self._get_skill_id_for_current_weapon(casting_spell.get_attack_type()):
             return False  # Don't reward weapon skill for base attack spells - skill is rewarded on hit instead.
 

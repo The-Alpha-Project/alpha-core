@@ -680,7 +680,10 @@ class CreatureManager(UnitManager):
             # TODO Does this also apply for player mind control?
             killer = charmer_or_summoner if charmer_or_summoner else killer
 
-        if killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        is_player_pet = self.get_charmer_or_summoner().pet_manager.get_active_permanent_pet().creature is self \
+            if self.is_player_controlled_pet() else False
+
+        if not is_player_pet and killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.loot_manager.generate_loot(killer)
 
             self.reward_kill_xp(killer)

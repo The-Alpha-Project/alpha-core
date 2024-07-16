@@ -168,10 +168,6 @@ class EnchantmentManager(object):
         self.unit_mgr.stat_manager.apply_bonuses()
 
     @staticmethod
-    def get_ppm_proc_chance(weapon_speed: int, ppm: int):
-        return weapon_speed * (ppm / 600)
-
-    @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):
         if not item:
             return 0
