@@ -1065,7 +1065,7 @@ begin not atomic
         -- Freezing Ghoul - Cast Spell Chains of Ice
         DELETE FROM `creature_ai_scripts` WHERE `id`=179602;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
-        (179602, 0, 0, 15, 512, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Freezing Ghoul - Cast Spell Chains of Ice');
+        (179602, 0, 0, 15, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Freezing Ghoul - Cast Spell Chains of Ice');
 
         insert into applied_updates values ('170720241');
     end if;
