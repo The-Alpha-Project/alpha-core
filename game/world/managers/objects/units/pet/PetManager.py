@@ -58,7 +58,7 @@ class PetManager:
 
         # Modify and link owner and creature.
         self._handle_creature_spawn_detach(creature, is_permanent)
-        if PetSlot.PET_SLOT_TOTEM_START <= pet_slot < PetSlot.PET_SLOT_END:
+        if PetSlot.PET_SLOT_TOTEM_START <= pet_slot < PetSlot.PET_SLOT_TOTEM_END:
             creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_TOTEM
         elif is_permanent:
             creature.subtype = CustomCodes.CreatureSubtype.SUBTYPE_PET
@@ -104,6 +104,16 @@ class PetManager:
 
         return self.set_creature_as_pet(totem_creature, totem_spell.spell_entry.ID,
                                         PetSlot.PET_SLOT_TOTEM_START + totem_slot)
+
+    def get_guardian_count(self) -> int:
+        return len([pet for pet in self.active_pets.values() if pet and pet.creature.is_guardian])
+
+    def add_guardian_from_spell(self, creature: CreatureManager, spell: CastingSpell) -> Optional[ActivePet]:
+        guardian_slot = self.get_free_guardian_slot()
+        if not guardian_slot:
+            return None
+
+        return self.set_creature_as_pet(creature, spell.spell_entry.ID, guardian_slot)
 
     def _add_pet(self, creature: CreatureManager, summon_spell_id: int, level: int, permanent: bool) -> PetData:
         pet_data = PetData(-1, creature.creature_template.name, 0,
@@ -215,11 +225,23 @@ class PetManager:
     def detach_totem(self, totem_slot: TotemSlots):
         self.detach_pet_by_slot(PetSlot.PET_SLOT_TOTEM_START + totem_slot)
 
+    def detach_pets_by_entry(self, entry):
+        for slot, active_pet in list(self.active_pets.items()):
+            if active_pet.creature.entry == entry:
+                self.detach_pet_by_slot(slot)
+                continue  # Can be multiple guardians, same entry.
+
     def detach_pet_by_guid(self, guid):
         for slot, active_pet in list(self.active_pets.items()):
             if active_pet.creature.guid == guid:
                 self.detach_pet_by_slot(slot)
                 break
+
+    def get_free_guardian_slot(self):
+        for slot in range(PetSlot.PET_SLOT_GUARDIAN_START, PetSlot.PET_SLOT_GUARDIAN_END):
+            if not self.active_pets.get(PetSlot(slot)):
+                return PetSlot(slot)
+        return None
 
     def get_active_controlled_pet(self) -> Optional[ActivePet]:
         permanent_pet = self.active_pets.get(PetSlot.PET_SLOT_PERMANENT)
@@ -227,6 +249,13 @@ class PetManager:
         # Return alive controlled pet, prioritizing permanent slot.
         return permanent_pet if (permanent_pet and permanent_pet.creature.is_alive or
                                  (not charm or not charm.creature.is_alive)) else charm
+
+    def get_active_guardian_pet(self, guid=0) -> Optional[ActivePet]:
+        for active_pet in self.active_pets.values():
+            if active_pet.creature.is_alive and active_pet.creature.is_guardian():
+                if guid and guid != active_pet.creature.guid:
+                    continue
+                return active_pet
 
     def get_active_pet_by_guid(self, guid) -> Optional[ActivePet]:
         for active_pet in self.active_pets.values():
@@ -241,12 +270,16 @@ class PetManager:
         return self.active_pets.get(PetSlot.PET_SLOT_PERMANENT)
 
     def handle_action(self, pet_guid, target_guid, action):
-        active_pet = self.get_active_controlled_pet()
-        if not active_pet:
-            return
-
         # Spell ID or 0/1/2/3 for setting command/react state.
         action_id = action & 0xFFFF
+
+        active_pet = self.get_active_controlled_pet()
+        if not active_pet:
+            # Check if this targets a guardian (non-controllable)
+            guardian = self.get_active_guardian_pet(guid=pet_guid)
+            if guardian and action_id == PetCommandState.COMMAND_DISMISS:
+                self.detach_pets_by_entry(guardian.creature.entry)
+            return
 
         active_pet_unit = active_pet.creature
         if active_pet_unit.guid != pet_guid:

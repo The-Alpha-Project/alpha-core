@@ -47,7 +47,7 @@ class MovementManager:
         # Make sure to flush any existent behaviors if this was re-initialized.
         self.flush()
 
-        if self.unit.is_controlled():
+        if self.unit.is_controlled() or self.unit.is_guardian():
             is_default = self.unit.is_pet()
             self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=is_default))
         elif self.unit.creature_group and self.unit.creature_group.is_formation():

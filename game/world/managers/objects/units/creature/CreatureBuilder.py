@@ -13,7 +13,8 @@ class CreatureBuilder:
     @staticmethod
     def create(entry, location, map_id, instance_id, health_percent=100, mana_percent=100, summoner=None, faction=0,
                spell_id=0, ttl=0, addon=None, wander_distance=0, movement_type=MovementTypes.IDLE,
-               subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, spawn_id=0, level=-1, possessed=False):
+               subtype=CustomCodes.CreatureSubtype.SUBTYPE_GENERIC, spawn_id=0, level=-1, possessed=False,
+               is_guardian=False):
 
         creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
         if not creature_template:
@@ -37,6 +38,7 @@ class CreatureBuilder:
         creature_instance.creature_template = creature_template
         creature_instance.mana_percent = mana_percent
         creature_instance.health_percent = health_percent
+        creature_instance.set_guardian(is_guardian)
 
         # Initialize from creature template.
         creature_instance.initialize_from_creature_template(creature_template, subtype=subtype)

@@ -167,7 +167,7 @@ class CreatureAI:
 
     # Called when the creature summon successfully other creature or gameobject.
     def just_summoned(self, world_object):
-        pass
+        self.ai_event_handler.on_summoned(world_object)
 
     # Called at waypoint reached or point movement finished.
     def movement_inform(self, move_type=None, data=None):

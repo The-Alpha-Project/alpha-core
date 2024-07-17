@@ -142,6 +142,18 @@ class AIEventHandler:
                 continue
             self._enqueue_creature_ai_event(map_, event, killer if killer else self.creature)
 
+    def on_summoned(self, world_object):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_SUMMONED_UNIT)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=world_object):
+                continue
+
+            if event.event_param1 != world_object.entry:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, world_object)
+
     def on_emote_received(self, player, emote):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_RECEIVE_EMOTE)
         map_ = self.creature.get_map()
@@ -297,7 +309,7 @@ class AIEventHandler:
             if not self._validate_event(event, target=target, now=now):
                 continue
 
-            current_hp_percent = (target.creature.health / target.creature.max_health) * 100
+            current_hp_percent = (target.health / target.max_health) * 100
             # param1 %MaxHP, param2 %MinHp.
             if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
                 continue

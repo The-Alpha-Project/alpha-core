@@ -12,6 +12,7 @@ from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObject
 from game.world.managers.objects.spell import SpellEffectDummyHandler, ExtendedSpellData
 from game.world.managers.objects.spell.aura.AreaAuraHolder import AreaAuraHolder
 from game.world.managers.objects.units.creature.CreatureBuilder import CreatureBuilder
+from game.world.managers.objects.units.movement.behaviors.PetMovement import PetMovement
 from game.world.managers.objects.units.pet.PetData import PetData
 from game.world.managers.objects.units.player.DuelManager import DuelManager
 from game.world.managers.objects.units.player.SkillManager import SkillManager
@@ -596,31 +597,47 @@ class SpellEffectHandler:
         caster.pet_manager.summon_permanent_pet(casting_spell.spell_entry.ID, creature_id=effect.misc_value)
 
     # TODO:
-    #  PetManager - Guardians handling.
-    #  EffectMultipleValue <= 0, guardian pets use their caster level modified by EffectMultipleValue.
-    #  Can't have more than 15 guardians. (Need a way to do this lookup for unit caster).
     #  Level of pet summoned using engineering item based at engineering skill level.
     @staticmethod
     def handle_summon_guardian(casting_spell, effect, caster, target):
         creature_entry = effect.misc_value
         if not creature_entry:
             return
-
-        if caster.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            SpellEffectHandler.handle_summon_wild(casting_spell, effect, caster, target)
-            return
-
         duration = casting_spell.get_duration() / 1000
-        creature_manager = CreatureBuilder.create(creature_entry, target, caster.map_id, caster.instance_id,
-                                                  summoner=caster,
-                                                  spell_id=casting_spell.spell_entry.ID,
-                                                  faction=caster.faction, ttl=duration,
-                                                  level=caster.level,
-                                                  possessed=False,
-                                                  subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+        radius = effect.get_radius()
+        amount = effect.get_effect_simple_points()
 
-        caster.get_map().spawn_object(world_object_instance=creature_manager)
-        caster.pet_manager.set_creature_as_pet(creature_manager, casting_spell.spell_entry.ID, PetSlot.PET_SLOT_CHARM)
+        if not radius:
+            radius = PetMovement.PET_FOLLOW_DISTANCE
+
+        # Detach guardians with same entry if any.
+        caster.pet_manager.detach_pets_by_entry(creature_entry)
+
+        for count in range(amount):
+            random_point = caster.location.get_random_point_in_radius(radius, caster.map_id)
+            po = caster.location.o
+            if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
+                px = target.x if not count else random_point.x
+                py = target.y if not count else random_point.y
+                pz = target.z if not count else random_point.z
+            else:
+                px = random_point.x
+                py = random_point.y
+                pz = random_point.z
+
+            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz, po), caster.map_id,
+                                                      caster.instance_id,
+                                                      summoner=caster,
+                                                      spell_id=casting_spell.spell_entry.ID,
+                                                      faction=caster.faction, ttl=duration,
+                                                      possessed=False,
+                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON,
+                                                      is_guardian=True)
+
+            caster.get_map().spawn_object(world_object_instance=creature_manager)
+            caster.pet_manager.add_guardian_from_spell(creature_manager, casting_spell)
+            if caster.object_ai:
+                caster.object_ai.just_summoned(creature_manager)
 
     @staticmethod
     def handle_summon_wild(casting_spell, effect, caster, target):
@@ -643,13 +660,13 @@ class SpellEffectHandler:
                 else:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_id)
                     px = location.x
-                    py = location.Y
+                    py = location.y
                     pz = location.z
             else:
                 if radius > 0.0:
                     location = caster.location.get_random_point_in_radius(radius, caster.map_id)
                     px = location.x
-                    py = location.Y
+                    py = location.y
                     pz = location.z
                 else:
                     location = target if isinstance(target, Vector) else target.location
@@ -657,17 +674,18 @@ class SpellEffectHandler:
                     py = location.y
                     pz = location.z
 
-            # Spawn the summoned unit.
-            creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_id, caster.instance_id,
-                                                      summoner=caster, faction=caster.faction, ttl=duration,
-                                                      spell_id=casting_spell.spell_entry.ID,
-                                                      subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
+                # Spawn the summoned unit.
+                creature_manager = CreatureBuilder.create(creature_entry, Vector(px, py, pz), caster.map_id,
+                                                          caster.instance_id,
+                                                          summoner=caster, faction=caster.faction, ttl=duration,
+                                                          spell_id=casting_spell.spell_entry.ID,
+                                                          subtype=CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON)
 
-            if not creature_manager:
-                Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
-                return
+                if not creature_manager:
+                    Logger.error(f'Creature with entry {creature_entry} not found for spell {casting_spell.spell_entry.ID}.')
+                    return
 
-            caster.get_map().spawn_object(world_object_instance=creature_manager)
+                caster.get_map().spawn_object(world_object_instance=creature_manager)
 
     @staticmethod
     def handle_resurrect(casting_spell, effect, caster, target):

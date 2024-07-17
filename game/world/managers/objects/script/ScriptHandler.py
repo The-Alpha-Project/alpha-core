@@ -1226,8 +1226,12 @@ class ScriptHandler:
     def handle_script_command_remove_guardians(command):
         # source = Unit
         # datalong = creature_id
-        Logger.debug('ScriptHandler: handle_script_command_remove_guardians not implemented yet')
-        return command.should_abort()
+        if not ConditionChecker.is_unit(command.source):
+            Logger.warning(f'ScriptHandler: Invalid source, {command.get_info()}.')
+            return command.should_abort()
+
+        command.source.pet_manager.detach_pets_by_entry(command.datalong)
+        return False
 
     @staticmethod
     def handle_script_command_add_spell_cooldown(command):
