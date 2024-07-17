@@ -1573,7 +1573,7 @@ class SpellManager:
                 return False
 
             # Doesn't have enough power. Check for correct power to properly ignore wrong power if necessary.
-            if power_cost > current_power and has_correct_power:
+            if power_cost > current_power and has_correct_power and not ignore_wrong_power:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_NO_POWER)
                 return False
 
