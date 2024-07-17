@@ -588,7 +588,7 @@ begin not atomic
         insert into applied_updates values ('120720243');
     end if;
  
-        -- 17/07/2024 1
+    -- 17/07/2024 1
     if (select count(*) from `applied_updates` where id='170720241') = 0 then 
         -- Mosshide Mistweaver - Cast Spell Summon Treasure Horde
         DELETE FROM `creature_ai_scripts` WHERE `id`=100902;
