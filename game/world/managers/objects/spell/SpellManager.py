@@ -1391,6 +1391,13 @@ class SpellManager:
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON)
                 return False
 
+        # Guardian summon check.
+        summon_guardian_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_SUMMON_GUARDIAN)
+        if summon_guardian_effect:
+            if not self.caster.pet_manager.get_free_guardian_slot():
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ALREADY_HAVE_SUMMON)
+                return False
+
         # Pickpocketing target validity check.
         if casting_spell.has_effect_of_type(SpellEffects.SPELL_EFFECT_PICKPOCKET):
             if not self.caster.can_attack_target(validation_target):

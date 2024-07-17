@@ -48,8 +48,8 @@ class AIFactory:
 
         if creature.is_totem():
             selected_ai = TotemAI(creature)
-        elif creature.is_controlled():
-            # Use PetAI for any controlled creature.
+        elif creature.is_controlled() or creature.is_guardian():
+            # Use PetAI for any controlled creature or guardians.
             selected_ai = PetAI(creature)
 
         # TODO: EventAI assigned but creature is Pet.

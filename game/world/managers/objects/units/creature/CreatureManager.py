@@ -335,6 +335,15 @@ class CreatureManager(UnitManager):
                and (self.subtype == CustomCodes.CreatureSubtype.SUBTYPE_PET
                     or GuidUtils.extract_high_guid(self.guid) == HighGuid.HIGHGUID_PET)
 
+    def set_guardian(self, state):
+        self._is_guardian = state
+
+    def is_guardian(self):
+        owner = self.get_charmer_or_summoner()
+        if not owner:
+            return False
+        return self._is_guardian
+
     def is_controlled(self):
         owner = self.get_charmer_or_summoner()
         if not owner:
@@ -419,7 +428,7 @@ class CreatureManager(UnitManager):
         if not super().enter_combat(source):
             return False
 
-        if self.is_player_controlled_pet():
+        if self.is_player_controlled_pet() or self.is_guardian():
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, True)
         self.object_ai.enter_combat(source)
 
@@ -427,7 +436,7 @@ class CreatureManager(UnitManager):
     def leave_combat(self):
         super().leave_combat()
 
-        if not self.is_player_controlled_pet():
+        if not self.is_player_controlled_pet() and not self.is_guardian():
             self.evade()
             if self.object_ai:
                 self.object_ai.on_combat_stop()
@@ -683,7 +692,7 @@ class CreatureManager(UnitManager):
         is_player_pet = self.get_charmer_or_summoner().pet_manager.get_active_permanent_pet().creature is self \
             if self.is_player_controlled_pet() else False
 
-        if not is_player_pet and killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
+        if not is_player_pet and not self.is_guardian() and killer and killer.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self.loot_manager.generate_loot(killer)
 
             self.reward_kill_xp(killer)

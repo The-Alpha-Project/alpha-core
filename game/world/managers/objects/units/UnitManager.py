@@ -157,6 +157,7 @@ class UnitManager(ObjectManager):
         self.current_target = current_target
         self.summoner = summoner
         self.charmer = charmer
+        self._is_guardian = False
 
         self.update_packet_factory.init_values(self.guid, UnitFields)
 
@@ -1290,6 +1291,10 @@ class UnitManager(ObjectManager):
         pass
 
     # Implemented by CreatureManager.
+    def is_guardian(self):
+        return False
+
+    # Implemented by CreatureManager.
     def get_charmer_or_summoner(self, include_self=False):
         return self.charmer if self.charmer \
             else self if include_self else None
@@ -1833,17 +1838,22 @@ class UnitManager(ObjectManager):
             distance = unit.location.distance(self.location)
             unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
             detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
+            max_detection_range = detection_range
 
             # Adjustments due to level differences, cap at 25 level difference. Aggro radius seems to vary at a rate of
             # 1 yard per level (it can both grow or shrink). Only make this effective if one of the parties involved is
             # a player (or a player controlled pet) and always take its level into account, not the level from the
             # creature.
-            if unit_is_player or unit.is_player_controlled_pet():
+            if unit_is_player or unit.is_player_controlled_pet() or unit.is_guardian():
                 detection_range -= max(-25, min(unit.level - self.level, 25))
-            elif self_is_player or self.is_player_controlled_pet():
+            elif self_is_player or self.is_player_controlled_pet() or self.is_guardian():
                 detection_range -= max(-25, min(self.level - unit.level, 25))
             # Minimum aggro radius seems to be combat distance.
             detection_range = max(detection_range, UnitFormulas.combat_distance(self, unit))
+
+            # Cap on creature template detection range.
+            if not self_is_player and detection_range > max_detection_range:
+                detection_range = max_detection_range
 
             if distance > detection_range or not unit.is_hostile_to(self) or not unit.can_attack_target(self):
                 continue
