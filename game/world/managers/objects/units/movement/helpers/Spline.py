@@ -174,7 +174,7 @@ class Spline(object):
         return pack(
             f'<3I{len(self.waypoints_bytes)}s',
             self.spline_flags,
-            int(self.total_time - int(self.elapsed)),
+            int(max(self.total_time - int(self.elapsed), 0)),
             len(self.points),
             self.waypoints_bytes
         )
