@@ -1118,6 +1118,7 @@ begin not atomic
         UPDATE `creature_template` SET `scale` = '1' WHERE (`entry` = '2801');
         UPDATE `creature_template` SET `scale` = '1' WHERE (`entry` = '2802');
         UPDATE `creature_template` SET `scale` = '1' WHERE (`entry` = '2806');
+        UPDATE `creature_template` SET `trainer_class` = '0' WHERE (`entry` = '5501');
 
         insert into applied_updates values ('170720241');
     end if;
