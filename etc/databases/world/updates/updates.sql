@@ -1091,6 +1091,11 @@ begin not atomic
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584106, 5841, 0, 0, 0, 100, 1, 12000, 17000, 12000, 17000, 584106, 0, 0, 'Rocklance - Cast Cleave');
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584107, 5841, 0, 7, 0, 100, 0, 0, 0, 0, 0, 584107, 0, 0, 'Rocklance - Set Phase to 0 on Evade');
         
+        -- Murloc Hunter - Summon Crab
+        DELETE FROM `creature_ai_scripts` WHERE `id`=45802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (45802, 0, 0, 15, 7907, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Murloc Hunter - Cast Spell Summon Crab');
+
         -- Survival Trainer Template
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('511', '1290', '818', '0', '0', '2', '0', '0', '0');
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('511', '7361', '7359', '0', '0', '3', '0', '0', '0');
