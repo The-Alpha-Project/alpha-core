@@ -1090,6 +1090,22 @@ begin not atomic
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584105, 5841, 0, 0, 0, 100, 1, 1000, 3000, 180000, 190000, 584105, 0, 0, 'Rocklance - Cast Defensive Stance on Aggro');
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584106, 5841, 0, 0, 0, 100, 1, 12000, 17000, 12000, 17000, 584106, 0, 0, 'Rocklance - Cast Cleave');
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584107, 5841, 0, 7, 0, 100, 0, 0, 0, 0, 0, 584107, 0, 0, 'Rocklance - Set Phase to 0 on Evade');
+        
+        -- Survival Trainer Template
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('511', '1290', '818', '0', '0', '2', '142', '0', '0');
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('511', '7361', '7359', '0', '0', '3', '142', '0', '0');
+
+        -- Survival Trainers
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '4579');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '5029');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '5501');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '3411');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2806');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2803');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2802');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2801');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2756');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '1649');
 
         insert into applied_updates values ('170720241');
     end if;
