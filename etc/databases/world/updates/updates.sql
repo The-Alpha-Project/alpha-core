@@ -1129,6 +1129,18 @@ begin not atomic
         -- Unlit Poor Torch - Thurman Mullby <General Goods Vendor> - https://crawler.thealphaproject.eu/mnt/crawler/media/Database/NuRRis/blizzlike_creatures.txt
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('1285', '6183', '0', '0', '0', '0');
 
+        -- Fix IF guard pathing.
+        UPDATE `spawns_creatures` SET `position_x` = '-4920.602', `position_y` = '-1044.766', `position_z` = '492.197' WHERE (`spawn_id` = '1748');
+        UPDATE `creature_movement` SET `position_x` = '-4920.6', `position_y` = '-1044.77', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '1');
+        UPDATE `creature_movement` SET `position_x` = '-4907.292', `position_y` = '-1018.646', `position_z` = '492.182' WHERE (`id` = '1748') and (`point` = '2');
+        UPDATE `creature_movement` SET `position_x` = '-4884.366', `position_y` = '-1000.426', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '3');
+        UPDATE `creature_movement` SET `position_x` = '-4890.622', `position_y` = '-992.326', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '4');
+        UPDATE `creature_movement` SET `position_x` = '-4896.254', `position_y` = '-985.086', `position_z` = '588.814', `orientation` = '5.42' WHERE (`id` = '1748') and (`point` = '5');
+        UPDATE `creature_movement` SET `position_x` = '-4890.622', `position_y` = '-992.326', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '6');
+        UPDATE `creature_movement` SET `position_x` = '-4884.366', `position_y` = '-1000.426', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '7');
+        UPDATE `creature_movement` SET `position_x` = '-4861.852', `position_y` = '-981.855', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '8');
+        UPDATE `creature_movement` SET `position_x` = '-4884.366', `position_y` = '-1000.426', `position_z` = '492.197', `orientation` = '0', `waittime` = '0' WHERE (`id` = '1748') and (`point` = '9');
+
         insert into applied_updates values ('170720241');
     end if;
 end $
