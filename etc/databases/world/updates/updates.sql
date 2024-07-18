@@ -1120,6 +1120,15 @@ begin not atomic
         UPDATE `creature_template` SET `scale` = '1' WHERE (`entry` = '2806');
         UPDATE `creature_template` SET `trainer_class` = '0' WHERE (`entry` = '5501');
 
+        -- Brog Hamfist <General Supplies> - Unlit Poor Torch - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/images_WoWScrnShot_032304_003948.jpg
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('151', '6183', '0', '0', '0', '0');
+
+        -- Unlit Poor Torch - Vendor Template 66 (General Trade & Supplies) - https://crawler.thealphaproject.eu/mnt/crawler/media/Database/NuRRis/blizzlike_creatures.txt
+        INSERT INTO `npc_vendor_template` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `condition_id`, `slot`) VALUES ('66', '6183', '0', '0', '0', '0', '0');
+
+        -- Unlit Poor Torch - Thurman Mullby <General Goods Vendor> - https://crawler.thealphaproject.eu/mnt/crawler/media/Database/NuRRis/blizzlike_creatures.txt
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('1285', '6183', '0', '0', '0', '0');
+
         insert into applied_updates values ('170720241');
     end if;
 end $
