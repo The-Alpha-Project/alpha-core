@@ -1139,7 +1139,7 @@ begin not atomic
         UPDATE `creature_movement` SET `position_x` = '-4890.622', `position_y` = '-992.326', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '6');
         UPDATE `creature_movement` SET `position_x` = '-4884.366', `position_y` = '-1000.426', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '7');
         UPDATE `creature_movement` SET `position_x` = '-4861.852', `position_y` = '-981.855', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '8');
-        UPDATE `creature_movement` SET `position_x` = '-4884.366', `position_y` = '-1000.426', `position_z` = '492.197', `orientation` = '0', `waittime` = '0' WHERE (`id` = '1748') and (`point` = '9');
+        UPDATE `creature_movement` SET `position_x` = '-4911.36', `position_y` = '-1022.72', `position_z` = '492.186', `orientation` = '0', `waittime` = '0' WHERE (`id` = '1748') and (`point` = '9');
 
         insert into applied_updates values ('170720241');
     end if;
