@@ -55,6 +55,11 @@ class UpdateTypes(IntEnum):
 
 # Some might be unused on Alpha
 class HighGuid(IntEnum):
+
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_
+
     HIGHGUID_PLAYER = 0x0000 << 48
     HIGHGUID_ITEM = 0x4000 << 48
     HIGHGUID_CONTAINER = 0x4000 << 48
