@@ -25,10 +25,10 @@ class QuestGiverAcceptQuestHandler(object):
             if guid in player_mgr.known_objects:
                 quest_giver = player_mgr.known_objects[guid]
             else:
-                if not GuidUtils.validate_guid(guid):
+                high_guid = GuidUtils.try_get_high_guid(guid)
+                if not high_guid:
                     Logger.error(f'Error in {reader.opcode_str()}, invalid guid: {guid}, loc {player_mgr.location}.')
                     return 0
-                high_guid = GuidUtils.extract_high_guid(guid)
                 if high_guid == HighGuid.HIGHGUID_ITEM:
                     is_item = True
                     quest_giver = player_mgr.inventory.get_item_by_guid(guid)

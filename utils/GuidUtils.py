@@ -8,5 +8,8 @@ class GuidUtils:
         return HighGuid(guid & (0xFFFF << 48))
 
     @staticmethod
-    def validate_guid(guid):
-        return HighGuid.has_value(guid & (0xFFFF << 48))
+    def try_get_high_guid(guid):
+        value = guid & (0xFFFF << 48)
+        if not HighGuid.has_value(value):
+            return None
+        return GuidUtils.extract_high_guid(value)
