@@ -998,11 +998,6 @@ class UnitManager(ObjectManager):
         if not self.in_combat:
             return
 
-        # Make sure pet leaves combat if it has no aggro.
-        pet = self.pet_manager.get_active_controlled_pet()
-        if pet and not pet.creature.threat_manager.has_aggro():
-            pet.creature.leave_combat()
-
         self.attack_stop()
         self.swing_error = 0
         self.extra_attacks = 0
@@ -1012,6 +1007,14 @@ class UnitManager(ObjectManager):
 
         self.combat_target = None
         self.in_combat = False
+
+        # Make sure pet leaves combat if it has no aggro or no longer able to attack current target.
+        pet = self.pet_manager.get_active_controlled_pet()
+        if pet and (not pet.creature.threat_manager.has_aggro()
+                    or (pet.creature.combat_target and not pet.creature.can_attack_target(pet.creature.combat_target))):
+            pet.creature.spell_manager.remove_casts()
+            pet.creature.leave_combat()
+
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
