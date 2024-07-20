@@ -1157,6 +1157,15 @@ begin not atomic
         UPDATE `creature_template` SET `subname` = 'Bartender', `vendor_id` = '0' WHERE (`entry` = '5111');
         -- Barkeep Belm - Burly Bartender
         UPDATE `creature_template` SET `subname` = 'Burly Bartender' WHERE (`entry` = '1247');
+        -- Svalbrad Farmountain - Cartography Supplier - Remove vendor flag.
+        UPDATE `creature_template` SET `npc_flags` = '0' WHERE (`entry` = '5135');
+        -- Narkk - Pirate Supplies - Remove vendor flag, items not yet in alpha.
+        UPDATE `creature_template` SET `npc_flags` = '0' WHERE (`entry` = '2663');
+        -- Zachariah Post	Animal Handler - Black Stallion Bridle - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/wow_pimpbunnies_com/531.jpg
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4731', '2411', '0', '0', '0', '0');
+        -- Lelanai	Tiger Handler -> Animal Handler - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/mobs_from_allakhazam/Lelanai_Animal_Handler_Darnassus.jpg
+        -- The skill exists, but no rideable mounts where available for NE. https://db.thealphaproject.eu/index.php?action=show_skill&id=150&filter=riding&sort_order=DisplayName_enUS&pos=4&max=5
+        UPDATE `creature_template` SET `npc_flags` = '0', `subname` = 'Animal Handler' WHERE (`entry` = '4730');
 
         insert into applied_updates values ('170720241');
     end if;
