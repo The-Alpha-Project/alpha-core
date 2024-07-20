@@ -1166,6 +1166,8 @@ begin not atomic
         -- Lelanai	Tiger Handler -> Animal Handler - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/mobs_from_allakhazam/Lelanai_Animal_Handler_Darnassus.jpg
         -- The skill exists, but no rideable mounts where available for NE. https://db.thealphaproject.eu/index.php?action=show_skill&id=150&filter=riding&sort_order=DisplayName_enUS&pos=4&max=5
         UPDATE `creature_template` SET `npc_flags` = '0', `subname` = 'Animal Handler' WHERE (`entry` = '4730');
+        -- Black Stallion Bridle Display ID. Geo
+        UPDATE `item_template` SET `display_id` = '3673' WHERE (`entry` = '2411');
 
         insert into applied_updates values ('170720241');
     end if;
