@@ -298,6 +298,27 @@ class AIEventHandler:
 
             self._enqueue_creature_ai_event(map_, event, self.creature, now)
 
+    def update_target_mana_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_MANA)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
+                continue
+
+            if target.power_type != PowerTypes.TYPE_MANA:
+                continue
+
+            current_mana_percent = (target.power_1 / target.max_power_1) * 100
+            # param1 %MaxMana, param2 %MinMana.
+            if current_mana_percent > event.event_param1 or current_mana_percent < event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, target, now)
+
     def update_target_hp_events(self, now):
         target = self.creature.combat_target
         if not target:
