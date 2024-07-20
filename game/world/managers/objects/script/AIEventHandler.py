@@ -9,7 +9,7 @@ from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes, UnitInLosReaction
 from utils.constants.ScriptCodes import EventFlags
-from utils.constants.UnitCodes import PowerTypes
+from utils.constants.UnitCodes import PowerTypes, UnitStates
 
 
 @dataclass
@@ -358,6 +358,22 @@ class AIEventHandler:
             current_hp_percent = (target.health / target.max_health) * 100
             # param1 %MaxHP, param2 %MinHp.
             if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, target, now)
+
+    def update_target_rooted_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        if not target.unit_state & UnitStates.ROOTED:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_ROOTED)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
                 continue
 
             self._enqueue_creature_ai_event(map_, event, target, now)

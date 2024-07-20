@@ -1057,6 +1057,7 @@ class CreatureAIEventTypes(IntEnum):
     AI_EVENT_TYPE_TARGET_MISSING_AURA = 28
     # AI_EVENT_TYPE_MOVEMENT_INFORM = 29
     AI_EVENT_TYPE_GROUP_MEMBER_DIED = 32
+    AI_EVENT_TYPE_TARGET_ROOTED = 33
 
 
 class BroadcastMessageType(IntEnum):
