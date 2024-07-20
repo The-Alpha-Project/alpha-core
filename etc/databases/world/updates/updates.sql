@@ -1180,7 +1180,24 @@ begin not atomic
         (575001, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gina Lang - Summon Imp on Spawn');
         -- Velma Warnam - Horse Riding.
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('512', '6743', '824', '0', '0', '0', '0', '0', '40');
-        UPDATE `creature_template` SET `trainer_id` = '512' WHERE (`entry` = '4773');
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '512' WHERE (`entry` = '4773');
+        -- Randal Huntetr - Horse Riding.
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '512' WHERE (`entry` = '4732');
+        -- Katie Hunter - Horse Breeder
+        DELETE FROM `npc_vendor` WHERE `entry`=384;
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('384', '5656', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('384', '2411', '0', '0', '0', '1');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('384', '2414', '0', '0', '0', '2');
+        -- Horse Bridle item icons. Default to net icon. Geo
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '5656');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '5655');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2413');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2414');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2415');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '12353');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '12354');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2411');
+
 
         insert into applied_updates values ('170720241');
     end if;
