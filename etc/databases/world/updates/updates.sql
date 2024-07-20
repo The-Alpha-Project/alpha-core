@@ -1169,9 +1169,13 @@ begin not atomic
         -- Black Stallion Bridle Display ID. Geo
         UPDATE `item_template` SET `display_id` = '3673' WHERE (`entry` = '2411');
         -- Add missing Steed near Zachariah Post.
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400446', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.22', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400446', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.32', '300', '300', '0', '100', '100', '0', '0', '0', '0');
         UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400442');
         UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400441');
+        -- Gina Lang - Summon Imp on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=575001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (575001, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gina Lang - Summon Imp on Spawn');
 
         insert into applied_updates values ('170720241');
     end if;
