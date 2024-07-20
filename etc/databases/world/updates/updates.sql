@@ -1168,6 +1168,10 @@ begin not atomic
         UPDATE `creature_template` SET `npc_flags` = '0', `subname` = 'Animal Handler' WHERE (`entry` = '4730');
         -- Black Stallion Bridle Display ID. Geo
         UPDATE `item_template` SET `display_id` = '3673' WHERE (`entry` = '2411');
+        -- Add missing Steed near Zachariah Post.
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400446', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.22', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400442');
+        UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400441');
 
         insert into applied_updates values ('170720241');
     end if;
