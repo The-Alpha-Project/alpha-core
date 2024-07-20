@@ -406,6 +406,9 @@ class CreatureAI:
         # Reset combat movement and melee attack.
         self.ai_event_handler.on_evade()
 
+    def on_leave_combat(self):
+        self.ai_event_handler.on_leave_combat()
+
     # Called at any Damage to any victim (before damage apply).
     def damage_deal(self, unit, damage):
         pass

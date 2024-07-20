@@ -53,6 +53,7 @@ class AIEventHandler:
         self.update_target_mana_events(now)
         self.update_target_casting_events(now)
         self.update_friendly_missing_buff_events(now)
+        self.update_target_rooted_events(now)
 
     def _enqueue_creature_ai_event(self, map_, event, target, now=0):
         scripts = ScriptHelpers.get_filtered_event_scripts(event)
@@ -85,6 +86,14 @@ class AIEventHandler:
             if not self._validate_event(event, target=target):
                 continue
             self._enqueue_creature_ai_event(map_, event, target=target)
+
+    def on_leave_combat(self):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_LEAVE_COMBAT)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=self.creature)
 
     def on_ooc_los(self, source=None):
         target = self.creature.combat_target

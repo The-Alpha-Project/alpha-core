@@ -434,12 +434,13 @@ class CreatureManager(UnitManager):
 
     # override
     def leave_combat(self):
-        super().leave_combat()
+        was_in_combat = super().leave_combat()
 
         if not self.is_player_controlled_pet() and not self.is_guardian():
             self.evade()
-            if self.object_ai:
+            if self.object_ai and was_in_combat:
                 self.object_ai.on_combat_stop()
+                self.object_ai.on_leave_combat()
         else:
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
 

@@ -996,7 +996,7 @@ class UnitManager(ObjectManager):
 
     def leave_combat(self):
         if not self.in_combat:
-            return
+            return False
 
         self.attack_stop()
         self.swing_error = 0
@@ -1017,6 +1017,7 @@ class UnitManager(ObjectManager):
 
         self.unit_flags &= ~UnitFlags.UNIT_FLAG_IN_COMBAT
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+        return True
 
     def is_attack_ready(self, attack_type):
         return self.attack_timers[attack_type] <= 0
