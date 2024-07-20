@@ -49,7 +49,9 @@ class AIEventHandler:
         self.update_friendly_hp_events(now)
         self.update_missing_aura_events(now)
         self.update_target_hp_events(now)
+        self.update_target_mana_events(now)
         self.update_target_casting_events(now)
+        self.update_friendly_missing_buff_events(now)
 
     def _enqueue_creature_ai_event(self, map_, event, target, now=0):
         scripts = ScriptHelpers.get_filtered_event_scripts(event)
@@ -360,6 +362,28 @@ class AIEventHandler:
                 continue
 
             self._enqueue_creature_ai_event(map_, event, self.creature, now)
+
+    def update_friendly_missing_buff_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_FRIENDLY_MISSING_BUFF)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature, now=now):
+                continue
+
+            # Param1: Spell.
+            # Param2: Search radius.
+            missing_buff_friendly = ScriptManager.resolve_friendly_missing_buf(self.creature, target=None,
+                                                                               param1=event.event_param2,
+                                                                               param2=event.event_param1)
+
+            if not missing_buff_friendly:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, missing_buff_friendly, now)
 
     def update_friendly_hp_events(self, now):
         target = self.creature.combat_target
