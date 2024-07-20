@@ -1172,6 +1172,8 @@ begin not atomic
         INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400446', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.32', '300', '300', '0', '100', '100', '0', '0', '0', '0');
         UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400442');
         UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400441');
+        -- Ignore Steed to the right of Zachariah Post.
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '31906');
         -- Gina Lang - Summon Imp on Spawn
         DELETE FROM `creature_ai_scripts` WHERE `id`=575001;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
