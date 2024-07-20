@@ -48,6 +48,7 @@ class AIEventHandler:
         self.update_range_events(now)
         self.update_friendly_hp_events(now)
         self.update_missing_aura_events(now)
+        self.update_target_aura_events(now)
         self.update_target_hp_events(now)
         self.update_target_mana_events(now)
         self.update_target_casting_events(now)
@@ -202,6 +203,28 @@ class AIEventHandler:
 
             if event.event_param1 == behavior and point_id == event.event_param2:
                 self._enqueue_creature_ai_event(map_, event, target=self.creature)
+
+    def update_target_aura_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_AURA)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
+                continue
+
+            # Param1: SpellID.
+            auras = target.creature.aura_manager.get_auras_by_spell_id(event.event_param1)
+            if not auras:
+                continue
+
+            # Param2: Number of times stacked.
+            if auras[0].applied_stacks < event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, target, now)
 
     def update_target_missing_aura_events(self, now):
         target = self.creature.combat_target
