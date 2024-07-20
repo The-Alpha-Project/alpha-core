@@ -1153,6 +1153,11 @@ begin not atomic
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5517', '0', '0', '0', '0');
         INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5518', '0', '0', '0', '0');
 
+        -- Bogrum Firebrew - Bartender - https://crawler.thealphaproject.eu/mnt/crawler/media/Website/worldofwar.net/web.archive.org/web/20040607091020/http:/www.worldofwar.net/cartography/cities/ironforge-print-text.htm
+        UPDATE `creature_template` SET `subname` = 'Bartender', `vendor_id` = '0' WHERE (`entry` = '5111');
+        -- Barkeep Belm - Burly Bartender
+        UPDATE `creature_template` SET `subname` = 'Burly Bartender' WHERE (`entry` = '1247');
+
         insert into applied_updates values ('170720241');
     end if;
 end $
