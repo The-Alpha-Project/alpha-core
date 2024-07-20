@@ -1146,6 +1146,13 @@ begin not atomic
         UPDATE `creature_movement` SET `position_x` = '-4861.852', `position_y` = '-981.855', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '8');
         UPDATE `creature_movement` SET `position_x` = '-4911.36', `position_y` = '-1022.72', `position_z` = '492.186', `orientation` = '0', `waittime` = '0' WHERE (`id` = '1748') and (`point` = '9');
 
+        -- Ginny Longberry - Reagents Vendor
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5024', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5026', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5105', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5517', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5518', '0', '0', '0', '0');
+
         insert into applied_updates values ('170720241');
     end if;
 end $
