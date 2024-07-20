@@ -1197,6 +1197,10 @@ begin not atomic
         UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '12353');
         UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '12354');
         UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2411');
+        -- Unger Statforth - Horse Breeder
+        DELETE FROM `npc_vendor` WHERE (`entry` = '1460') and (`item` = '2411');
+        UPDATE `npc_vendor` SET `slot` = '1' WHERE (`entry` = '1460') and (`item` = '5655');
+        UPDATE `npc_vendor` SET `slot` = '2' WHERE (`entry` = '1460') and (`item` = '2414');
 
 
         insert into applied_updates values ('170720241');
