@@ -1178,6 +1178,9 @@ begin not atomic
         DELETE FROM `creature_ai_scripts` WHERE `id`=575001;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (575001, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gina Lang - Summon Imp on Spawn');
+        -- Velma Warnam - Horse Riding.
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('512', '6743', '824', '0', '0', '0', '0', '0', '40');
+        UPDATE `creature_template` SET `trainer_id` = '512' WHERE (`entry` = '4773');
 
         insert into applied_updates values ('170720241');
     end if;
