@@ -225,7 +225,7 @@ class AIEventHandler:
                 continue
 
             # Param1: SpellID.
-            auras = target.creature.aura_manager.get_auras_by_spell_id(event.event_param1)
+            auras = target.aura_manager.get_auras_by_spell_id(event.event_param1)
             if not auras:
                 continue
 
