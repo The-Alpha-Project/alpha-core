@@ -853,9 +853,8 @@ class ScriptHandler:
                         (not run_enabled and not command.source.movement_flags & MoveFlags.MOVEFLAG_WALK))
         if flag_changed:
             Logger.script(f"{command.source.get_name()} is now {'Running' if run_enabled else 'Walking'}.")
-        command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not run_enabled)
-
-        command.source.movement_manager.set_speed_dirty()
+            command.source.set_move_flag(MoveFlags.MOVEFLAG_WALK, active=not run_enabled)
+            command.source.movement_manager.set_speed_dirty()
 
         return False
 
