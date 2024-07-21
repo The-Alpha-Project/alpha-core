@@ -1211,8 +1211,16 @@ begin not atomic
         UPDATE `creature_groups` SET `dist` = '1.5', `angle` = '1', `flags` = '1' WHERE (`member_guid` = '400447');
         UPDATE `creature_groups` SET `flags` = '1' WHERE (`member_guid` = '9468');
         DELETE FROM `creature_groups` WHERE (`member_guid` = '9469');
-        -- Kildar <Wolf Rider> - Fix Z.
+        -- Kildar <Wolf Rider> - Fix Z, trainer template.
         UPDATE `spawns_creatures` SET `position_z` = '73.37' WHERE (`spawn_id` = '4677');
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '513' WHERE (`entry` = '4752');
+        -- Wolf Riding Trainer Template.
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('513', '6746', '825', '0', '0', '0', '0', '0', '40');
+        -- Ram Riding Trainer Template.
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('514', '6744', '826', '0', '0', '0', '0', '0', '40');
+        -- Ultham Ironhorn <Ram Riding Instructor>
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '514' WHERE (`entry` = '4772');
+
 
         insert into applied_updates values ('170720241');
     end if;
