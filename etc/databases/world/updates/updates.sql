@@ -1225,7 +1225,8 @@ begin not atomic
         UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '512') and (`spell` = '6743');
         UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '513') and (`spell` = '6746');
         UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '514') and (`spell` = '6744');
-        -- Jartsam <Nightsaber Riding Instructor> - Tiger Riding
+        -- Jartsam <Nightsaber Riding Instructor> - Tiger Riding, Fix Z
+        UPDATE `spawns_creatures` SET `position_z` = '1318.800' WHERE (`spawn_id` = '46722');
         UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '515' WHERE (`entry` = '4753');
 
         insert into applied_updates values ('170720241');
