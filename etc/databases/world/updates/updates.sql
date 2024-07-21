@@ -1201,6 +1201,8 @@ begin not atomic
         DELETE FROM `npc_vendor` WHERE (`entry` = '1460') and (`item` = '2411');
         UPDATE `npc_vendor` SET `slot` = '1' WHERE (`entry` = '1460') and (`item` = '5655');
         UPDATE `npc_vendor` SET `slot` = '2' WHERE (`entry` = '1460') and (`item` = '2414');
+        -- Wetlands Pinto Horse orientation.
+        UPDATE `spawns_creatures` SET `orientation` = '4.32' WHERE (`spawn_id` = '9530');
 
 
         insert into applied_updates values ('170720241');
