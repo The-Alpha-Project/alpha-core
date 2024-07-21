@@ -1220,7 +1220,13 @@ begin not atomic
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('514', '6744', '826', '0', '0', '0', '0', '0', '40');
         -- Ultham Ironhorn <Ram Riding Instructor>
         UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '514' WHERE (`entry` = '4772');
-
+        -- Tiger Riding template, set others req level to 25.
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('515', '6745', '828', '0', '0', '0', '0', '0', '25');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '512') and (`spell` = '6743');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '513') and (`spell` = '6746');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '514') and (`spell` = '6744');
+        -- Jartsam <Nightsaber Riding Instructor> - Tiger Riding
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '515' WHERE (`entry` = '4753');
 
         insert into applied_updates values ('170720241');
     end if;
