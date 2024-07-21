@@ -1212,7 +1212,7 @@ begin not atomic
         UPDATE `creature_groups` SET `flags` = '1' WHERE (`member_guid` = '9468');
         DELETE FROM `creature_groups` WHERE (`member_guid` = '9469');
         -- Kildar <Wolf Rider> - Fix Z.
-        UPDATE `spawns_creatures` SET `position_z` = '42.37' WHERE (`spawn_id` = '4677');
+        UPDATE `spawns_creatures` SET `position_z` = '73.37' WHERE (`spawn_id` = '4677');
 
         insert into applied_updates values ('170720241');
     end if;
