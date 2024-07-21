@@ -1228,6 +1228,10 @@ begin not atomic
         -- Jartsam <Nightsaber Riding Instructor> - Tiger Riding, Fix Z
         UPDATE `spawns_creatures` SET `position_z` = '1318.800' WHERE (`spawn_id` = '46722');
         UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '515' WHERE (`entry` = '4753');
+        -- 'Survivalist' should also be trainers. - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/elwynn_forest_017.jpg
+        UPDATE `creature_template` SET `npc_flags` = '8' WHERE (`entry` = '1649');
+        UPDATE `creature_template` SET `npc_flags` = '8' WHERE (`entry` = '2756');
+        UPDATE `creature_template` SET `npc_flags` = '8' WHERE (`entry` = '5029');
 
         insert into applied_updates values ('170720241');
     end if;
