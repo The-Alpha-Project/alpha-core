@@ -165,7 +165,7 @@ begin not atomic
 
         insert into applied_updates values ('120720242');
     end if;
-    
+
         -- 12/07/2024 3
     if (select count(*) from `applied_updates` where id='120720243') = 0 then
         -- Death's Head Acolyte - Cast Mana Burn
@@ -587,9 +587,9 @@ begin not atomic
 
         insert into applied_updates values ('120720243');
     end if;
- 
+
     -- 17/07/2024 1
-    if (select count(*) from `applied_updates` where id='170720241') = 0 then 
+    if (select count(*) from `applied_updates` where id='170720241') = 0 then
         -- Mosshide Mistweaver - Cast Spell Summon Treasure Horde
         DELETE FROM `creature_ai_scripts` WHERE `id`=100902;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
@@ -982,7 +982,7 @@ begin not atomic
         (547001, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Dune Smasher - Cast Berserk'),
         (547001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Dune Smasher - Say Text');
 
-        -- Events list for 
+        -- Events list for
         DELETE FROM `creature_ai_events` WHERE `creature_id`=6990;
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (699001, 6990, 0, 11, 0, 100, 0, 0, 0, 0, 0, 69901, 0, 0, 'Bloodscalp Beastmaster - Cast Spell Bloodscalp Pet');
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (699002, 6990, 0, 2, 0, 100, 0, 30, 0, 0, 0, 69902, 0, 0, 'Bloodscalp Beastmaster - Say Emoted Text and Berserk');
@@ -1061,7 +1061,7 @@ begin not atomic
         DELETE FROM `creature_ai_scripts` WHERE `id`=852701;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (852701, 0, 0, 15, 6554, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scourge Guard - Cast Spell Kick');
-        
+
         -- Freezing Ghoul - Cast Spell Chains of Ice
         DELETE FROM `creature_ai_scripts` WHERE `id`=179602;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
@@ -1075,7 +1075,7 @@ begin not atomic
         DELETE FROM `creature_ai_scripts` WHERE `id`=584102;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (584102, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rocklance - Cast Spell Sundering Strike');
-        
+
         -- Rocklance - Cast Spell Cleave
         DELETE FROM `creature_ai_scripts` WHERE `id`=584106;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
@@ -1090,7 +1090,7 @@ begin not atomic
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584105, 5841, 0, 0, 0, 100, 1, 1000, 3000, 180000, 190000, 584105, 0, 0, 'Rocklance - Cast Defensive Stance on Aggro');
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584106, 5841, 0, 0, 0, 100, 1, 12000, 17000, 12000, 17000, 584106, 0, 0, 'Rocklance - Cast Cleave');
         INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584107, 5841, 0, 7, 0, 100, 0, 0, 0, 0, 0, 584107, 0, 0, 'Rocklance - Set Phase to 0 on Evade');
-        
+
         -- Murloc Hunter - Summon Crab
         DELETE FROM `creature_ai_scripts` WHERE `id`=45802;
         INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
@@ -1169,7 +1169,7 @@ begin not atomic
         -- Black Stallion Bridle Display ID. Geo
         UPDATE `item_template` SET `display_id` = '3673' WHERE (`entry` = '2411');
         -- Add missing Steed near Zachariah Post.
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400446', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.32', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400456', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.32', '300', '300', '0', '100', '100', '0', '0', '0', '0');
         UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400442');
         UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400441');
         -- Ignore Steed to the right of Zachariah Post.
@@ -1204,11 +1204,11 @@ begin not atomic
         -- Wetlands Pinto Horse orientation.
         UPDATE `spawns_creatures` SET `orientation` = '4.32' WHERE (`spawn_id` = '9530');
         -- Wetlands missing horse.
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400447', '5405', '0', '0', '0', '0', '-3644.89', '-754.985', '9.97506', '3.57897', '300', '300', '300', '100', '100', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400457', '5405', '0', '0', '0', '0', '-3644.89', '-754.985', '9.97506', '3.57897', '300', '300', '300', '100', '100', '0', '0', '0', '0');
         -- Thomas Books and Horse group.
         INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('9468', '9468', '0', '0', '0');
-        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('9468', '400447', '2', '2', '0');
-        UPDATE `creature_groups` SET `dist` = '1.5', `angle` = '1', `flags` = '1' WHERE (`member_guid` = '400447');
+        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('9468', '400457', '2', '2', '0');
+        UPDATE `creature_groups` SET `dist` = '1.5', `angle` = '1', `flags` = '1' WHERE (`member_guid` = '400457');
         UPDATE `creature_groups` SET `flags` = '1' WHERE (`member_guid` = '9468');
         DELETE FROM `creature_groups` WHERE (`member_guid` = '9469');
         -- Kildar <Wolf Rider> - Fix Z, trainer template.
