@@ -1234,6 +1234,7 @@ begin not atomic
         UPDATE `creature_template` SET `npc_flags` = '8' WHERE (`entry` = '5029');
         --  Shards of Myzrael, Fix Z.
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.921' WHERE (`spawn_id` = '15475');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-942.842', `spawn_positionY` = '-3116.75', `spawn_positionZ` = '60' WHERE (`spawn_id` = '99848');
 
         insert into applied_updates values ('170720241');
     end if;
