@@ -1169,7 +1169,7 @@ begin not atomic
         -- Black Stallion Bridle Display ID. Geo
         UPDATE `item_template` SET `display_id` = '3673' WHERE (`entry` = '2411');
         -- Add missing Steed near Zachariah Post.
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400446', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.32', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400456', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.32', '300', '300', '0', '100', '100', '0', '0', '0', '0');
         UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400442');
         UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400441');
         -- Ignore Steed to the right of Zachariah Post.
@@ -1204,11 +1204,11 @@ begin not atomic
         -- Wetlands Pinto Horse orientation.
         UPDATE `spawns_creatures` SET `orientation` = '4.32' WHERE (`spawn_id` = '9530');
         -- Wetlands missing horse.
-        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400447', '5405', '0', '0', '0', '0', '-3644.89', '-754.985', '9.97506', '3.57897', '300', '300', '300', '100', '100', '0', '0', '0', '0');
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400457', '5405', '0', '0', '0', '0', '-3644.89', '-754.985', '9.97506', '3.57897', '300', '300', '300', '100', '100', '0', '0', '0', '0');
         -- Thomas Books and Horse group.
         INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('9468', '9468', '0', '0', '0');
-        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('9468', '400447', '2', '2', '0');
-        UPDATE `creature_groups` SET `dist` = '1.5', `angle` = '1', `flags` = '1' WHERE (`member_guid` = '400447');
+        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('9468', '400457', '2', '2', '0');
+        UPDATE `creature_groups` SET `dist` = '1.5', `angle` = '1', `flags` = '1' WHERE (`member_guid` = '400457');
         UPDATE `creature_groups` SET `flags` = '1' WHERE (`member_guid` = '9468');
         DELETE FROM `creature_groups` WHERE (`member_guid` = '9469');
         -- Kildar <Wolf Rider> - Fix Z, trainer template.
