@@ -32,10 +32,11 @@ class GridManager:
 
         # Handle cell change within the same map.
         if current_cell_key != source_cell_key:
-            # Remove from old location and Add to new location.
-            if source_cell_key:
-                self.remove_object(world_object, update_players=False)
+            # Add to a new cell.
             self._add_world_object(world_object, update_players=False)
+            # Remove from old cell.
+            if source_cell_key:
+                self.remove_object(world_object, update_players=False, from_cell=source_cell_key)
             # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
             affected_cells = self._update_players_surroundings(source_cell_key)
             # Update new location surroundings, excluding intersecting cells from previous call.
@@ -60,8 +61,8 @@ class GridManager:
             world_object.on_cell_change()
 
     # Remove a world_object from its cell and notify surrounding players if required.
-    def remove_object(self, world_object, update_players=True):
-        cell = self.cells.get(world_object.current_cell)
+    def remove_object(self, world_object, update_players=True, from_cell=None):
+        cell = self.cells.get(from_cell if from_cell else world_object.current_cell)
         if cell and cell.remove(world_object) and update_players:
             self._update_players_surroundings(cell.key)
 

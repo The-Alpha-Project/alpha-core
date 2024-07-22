@@ -95,7 +95,7 @@ class MovementManager:
         # Check if we need to remove any movement.
         movements_removed = self._remove_invalid_expired_behaviors()
         # Grab latest, if any.
-        current_behavior = self._get_current_behavior()
+        current_behavior = self.get_current_behavior()
 
         if not current_behavior:
             self._update_spline_events(elapsed)
@@ -110,7 +110,7 @@ class MovementManager:
         current_behavior.update(now, elapsed)
 
     def set_speed_dirty(self):
-        current_behavior = self._get_current_behavior()
+        current_behavior = self.get_current_behavior()
         if current_behavior:
             current_behavior.set_speed_dirty()
 
@@ -119,7 +119,7 @@ class MovementManager:
         return spline.get_waypoint_location() if spline else self.unit.location
 
     def try_pause_ooc_movement(self, duration_seconds):
-        current_behavior = self._get_current_behavior()
+        current_behavior = self.get_current_behavior()
         if not self.unit.in_combat and current_behavior:
             self.pause_ooc_timer = duration_seconds
             self.stop()
@@ -170,7 +170,7 @@ class MovementManager:
     # TODO: Unused atm, lacking many specific move types from vMangos and some refactoring to our current move behaviors.
     #  For now, attempt to resolve to the closest types in order to trigger some creature ai events.
     def _translate_to_vmangos_move_type(self):
-        current_behavior = self._get_current_behavior()
+        current_behavior = self.get_current_behavior()
         if current_behavior.move_type == MoveType.IDLE or not current_behavior:
             return [0]  # Idle.
         elif current_behavior.move_type == MoveType.WANDER:
@@ -196,7 +196,7 @@ class MovementManager:
     def stop(self, force=False):
         if not force and not self.unit.is_moving():
             return
-        current_behavior = self._get_current_behavior()
+        current_behavior = self.get_current_behavior()
         # Make sure the current behavior spline does not update an extra tick.
         if current_behavior:
             current_behavior.reset()
@@ -295,12 +295,12 @@ class MovementManager:
         movement_behavior.on_removed()
 
     def _get_current_spline(self):
-        current_behavior = self._get_current_behavior()
+        current_behavior = self.get_current_behavior()
         if not current_behavior:
             return None
         return current_behavior.spline if current_behavior.spline else None
 
-    def _get_current_behavior(self) -> Optional[BaseMovement]:
+    def get_current_behavior(self) -> Optional[BaseMovement]:
         if not self.active_behavior_type:
             return None
         movement_behavior = self.movement_behaviors.get(self.active_behavior_type, None)

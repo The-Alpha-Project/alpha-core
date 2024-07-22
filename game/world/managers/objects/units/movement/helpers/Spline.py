@@ -7,7 +7,7 @@ from game.world.managers.objects.gameobjects.GameObjectBuilder import GameObject
 from game.world.managers.objects.units.movement.helpers.PendingWaypoint import PendingWaypoint
 from network.packet.PacketWriter import PacketWriter
 from utils.ConfigManager import config
-from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags
+from utils.constants.MiscCodes import ObjectTypeIds, GameObjectStates, MoveFlags, MoveType
 from utils.constants.OpCodes import OpCode
 from utils.constants.UnitCodes import SplineFlags, SplineType
 
@@ -96,8 +96,28 @@ class Spline(object):
             return pending_waypoint.location
         guessed_distance = self.speed * elapsed
         # This can return None.
-        return self.unit.location.get_point_in_between(guessed_distance, pending_waypoint.location,
-                                                       map_id=self.unit.map_id)
+        point_in_between = self.unit.location.get_point_in_between(guessed_distance, pending_waypoint.location,
+                                                                   map_id=self.unit.map_id)
+        # At waypoint.
+        if not point_in_between:
+            return pending_waypoint.location.copy()
+
+        point_in_between = self._get_leader_z(point_in_between)
+        return point_in_between
+
+    def _get_leader_z(self, location):
+        if not self.unit.creature_group:
+            return location
+        if not self.unit.movement_manager.get_current_behavior().move_type == MoveType.GROUP:
+            return location
+        if not self.unit.creature_group.is_leader(self.unit):
+            return location
+        if self.unit.location.distance(self.unit.creature_group.leader.location) > 6:
+            return location
+
+        # If following a leader closely, use the leader Z which probably comes from a waypoint.
+        location.z = self.unit.creature_group.leader.location.z
+        return location
 
     # noinspection PyMethodMayBeStatic
     def _validate_orientation(self, unit, pending_waypoint):
@@ -174,7 +194,7 @@ class Spline(object):
         return pack(
             f'<3I{len(self.waypoints_bytes)}s',
             self.spline_flags,
-            int(self.total_time - int(self.elapsed)),
+            int(max(self.total_time - int(self.elapsed), 0)),
             len(self.points),
             self.waypoints_bytes
         )

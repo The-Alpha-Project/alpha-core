@@ -201,7 +201,8 @@ class ScriptManager:
         surrounding_units = ScriptManager._get_surrounding_units(caster,
                                                                  search_range,
                                                                  friends_only=True,
-                                                                 alive=True)
+                                                                 alive=True,
+                                                                 exclude_unit=caster)
         # No surrounding units found.
         if not surrounding_units:
             return None

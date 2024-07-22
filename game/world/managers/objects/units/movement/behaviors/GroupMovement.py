@@ -30,6 +30,7 @@ class GroupMovement(BaseMovement):
             # Only the leader leads the way.
             self._perform_waypoint()
             self._set_last_movement(now)
+            self.speed_dirty = False
         elif self._can_perform_follow_movement(now) and self._perform_follow_movement(elapsed):
             self._set_last_movement(now)
 
@@ -61,6 +62,8 @@ class GroupMovement(BaseMovement):
         self.last_waypoint_movement = 0
 
     def _can_perform_waypoint(self, now):
+        if self.speed_dirty and self.unit.creature_group.waypoints and self.unit.creature_group.is_leader(self.unit):
+            return True
         return self.unit.creature_group.waypoints and not self.spline and self.unit.creature_group.is_leader(self.unit)\
             and now > self.last_waypoint_movement + self.wait_time_seconds
 
@@ -117,13 +120,25 @@ class GroupMovement(BaseMovement):
         # Catch up if lagging behind.
         if self._is_lagging:
             speed += 0.05 * creature_distance * creature_distance * elapsed
+        # If follower is within distance, use leader Z which is usually a hardcoded waypoint with proper value.
+        else:
+            location.z = creature_group.leader.location.z
 
         return location, speed
 
     def _get_waypoint(self):
+        # Updating ongoing wp.
+        if self.speed_dirty:
+            self._waypoint_push_front()
+
         return self.unit.creature_group.waypoints[0]
 
     def _waypoint_push_back(self):
         waypoint = self.unit.creature_group.waypoints[0]
         self.unit.creature_group.waypoints.remove(waypoint)
         self.unit.creature_group.waypoints.append(waypoint)
+
+    def _waypoint_push_front(self):
+        waypoint = self.unit.creature_group.waypoints[-1]
+        self.unit.creature_group.waypoints.remove(waypoint)
+        self.unit.creature_group.waypoints.insert(0, waypoint)

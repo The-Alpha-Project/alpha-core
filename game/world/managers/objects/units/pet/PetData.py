@@ -164,10 +164,14 @@ class PetData:
         return True
 
     def is_spell_autocast(self, spell_id) -> bool:
+        if not self._is_player_owned():
+            return True
         return any([spell_button for spell_button in self.action_bar if
                     spell_button & 0xFFFF == spell_id and spell_button >> 24 & 0x40])
 
     def get_autocast_spells(self) -> List[int]:
+        if not self._is_player_owned():
+            return self.spells
         return [spell_button & 0xFFFF for spell_button in self.action_bar if
                 spell_button >> 24 & 0x40]
 

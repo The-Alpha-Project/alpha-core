@@ -1550,7 +1550,9 @@ class SpellManager:
 
         has_health_cost = casting_spell.spell_entry.PowerType == PowerTypes.TYPE_HEALTH
         power_cost = casting_spell.get_resource_cost()
-        has_correct_power = self.caster.power_type == casting_spell.spell_entry.PowerType or has_health_cost
+        # Some creatures do have the correct power type set but its zeroed.
+        has_correct_power = (self.caster.power_type == casting_spell.spell_entry.PowerType
+                             and self.caster.get_max_power_value()) or has_health_cost
         current_power = self.caster.health if has_health_cost else self.caster.get_power_value()
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         # Items like scrolls or creatures need to be able to cast spells even if they lack the required power type.

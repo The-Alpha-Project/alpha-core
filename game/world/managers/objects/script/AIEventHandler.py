@@ -9,7 +9,7 @@ from game.world.managers.objects.script.ScriptHelpers import ScriptHelpers
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from utils.constants.MiscCodes import CreatureAIEventTypes, ScriptTypes, UnitInLosReaction
 from utils.constants.ScriptCodes import EventFlags
-from utils.constants.UnitCodes import PowerTypes
+from utils.constants.UnitCodes import PowerTypes, UnitStates
 
 
 @dataclass
@@ -48,8 +48,12 @@ class AIEventHandler:
         self.update_range_events(now)
         self.update_friendly_hp_events(now)
         self.update_missing_aura_events(now)
+        self.update_target_aura_events(now)
         self.update_target_hp_events(now)
+        self.update_target_mana_events(now)
         self.update_target_casting_events(now)
+        self.update_friendly_missing_buff_events(now)
+        self.update_target_rooted_events(now)
 
     def _enqueue_creature_ai_event(self, map_, event, target, now=0):
         scripts = ScriptHelpers.get_filtered_event_scripts(event)
@@ -82,6 +86,14 @@ class AIEventHandler:
             if not self._validate_event(event, target=target):
                 continue
             self._enqueue_creature_ai_event(map_, event, target=target)
+
+    def on_leave_combat(self):
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_LEAVE_COMBAT)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature):
+                continue
+            self._enqueue_creature_ai_event(map_, event, target=self.creature)
 
     def on_ooc_los(self, source=None):
         target = self.creature.combat_target
@@ -201,6 +213,28 @@ class AIEventHandler:
             if event.event_param1 == behavior and point_id == event.event_param2:
                 self._enqueue_creature_ai_event(map_, event, target=self.creature)
 
+    def update_target_aura_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_AURA)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
+                continue
+
+            # Param1: SpellID.
+            auras = target.aura_manager.get_auras_by_spell_id(event.event_param1)
+            if not auras:
+                continue
+
+            # Param2: Number of times stacked.
+            if auras[0].applied_stacks < event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, target, now)
+
     def update_target_missing_aura_events(self, now):
         target = self.creature.combat_target
         if not target:
@@ -298,6 +332,27 @@ class AIEventHandler:
 
             self._enqueue_creature_ai_event(map_, event, self.creature, now)
 
+    def update_target_mana_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_MANA)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
+                continue
+
+            if target.power_type != PowerTypes.TYPE_MANA:
+                continue
+
+            current_mana_percent = (target.power_1 / target.max_power_1) * 100
+            # param1 %MaxMana, param2 %MinMana.
+            if current_mana_percent > event.event_param1 or current_mana_percent < event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, target, now)
+
     def update_target_hp_events(self, now):
         target = self.creature.combat_target
         if not target:
@@ -312,6 +367,22 @@ class AIEventHandler:
             current_hp_percent = (target.health / target.max_health) * 100
             # param1 %MaxHP, param2 %MinHp.
             if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, target, now)
+
+    def update_target_rooted_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        if not target.unit_state & UnitStates.ROOTED:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_TARGET_ROOTED)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=target, now=now):
                 continue
 
             self._enqueue_creature_ai_event(map_, event, target, now)
@@ -339,6 +410,28 @@ class AIEventHandler:
                 continue
 
             self._enqueue_creature_ai_event(map_, event, self.creature, now)
+
+    def update_friendly_missing_buff_events(self, now):
+        target = self.creature.combat_target
+        if not target:
+            return
+
+        events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_FRIENDLY_MISSING_BUFF)
+        map_ = self.creature.get_map()
+        for event in events:
+            if not self._validate_event(event, target=self.creature, now=now):
+                continue
+
+            # Param1: Spell.
+            # Param2: Search radius.
+            missing_buff_friendly = ScriptManager.resolve_friendly_missing_buf(self.creature, target=None,
+                                                                               param1=event.event_param2,
+                                                                               param2=event.event_param1)
+
+            if not missing_buff_friendly:
+                continue
+
+            self._enqueue_creature_ai_event(map_, event, missing_buff_friendly, now)
 
     def update_friendly_hp_events(self, now):
         target = self.creature.combat_target

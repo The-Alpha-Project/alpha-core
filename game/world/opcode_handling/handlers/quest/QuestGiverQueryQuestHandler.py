@@ -28,7 +28,11 @@ class QuestGiverQueryQuestHandler(object):
             if guid in player_mgr.known_objects:
                 quest_giver = player_mgr.known_objects[guid]
 
-            high_guid = GuidUtils.extract_high_guid(guid)
+            high_guid = GuidUtils.try_get_high_guid(guid)
+            if not high_guid:
+                Logger.error(f'Error in {reader.opcode_str()}, invalid guid: {guid}, loc {player_mgr.location}.')
+                return 0
+
             if high_guid == HighGuid.HIGHGUID_UNIT or high_guid == HighGuid.HIGHGUID_PET:
                 quest_giver = quest_giver if quest_giver else player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
                 if not quest_giver:

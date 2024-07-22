@@ -587,5 +587,656 @@ begin not atomic
 
         insert into applied_updates values ('120720243');
     end if;
+ 
+    -- 17/07/2024 1
+    if (select count(*) from `applied_updates` where id='170720241') = 0 then 
+        -- Mosshide Mistweaver - Cast Spell Summon Treasure Horde
+        DELETE FROM `creature_ai_scripts` WHERE `id`=100902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (100902, 0, 0, 15, 7301, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mosshide Mistweaver - Cast Frost Armor');
+
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (105701);
+
+        -- Events list for Dragonmaw Bonewarder
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1057;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (105703, 1057, 0, 2, 0, 100, 0, 15, 0, 0, 0, 105703, 0, 0, 'Dragonmaw Bonewarder - Flee at 15% HP');
+
+        -- Events list for Shadowhide Brute
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=432;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43201, 432, 0, 4, 0, 10, 0, 0, 0, 0, 0, 43201, 0, 0, 'Shadowhide Brute - Random Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43202, 432, 0, 2, 0, 100, 0, 30, 0, 0, 0, 43202, 0, 0, 'Shadowhide Brute - Cast Berserk at 30% HP');
+
+        -- Shadowhide Brute - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=43202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (43202, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowhide Brute - Cast Spell Berserk'),
+        (43202, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Shadowhide Brute - Say Text');
+
+        -- Events list for Blackrock Champion
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=435;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43501, 435, 0, 4, 0, 10, 0, 0, 0, 0, 0, 43501, 0, 0, 'Blackrock Champion - Random Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43502, 435, 0, 0, 0, 100, 0, 1400, 5900, 0, 0, 43502, 0, 0, 'Blackrock Champion - Cast Devotion Aura');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43503, 435, 0, 0, 0, 85, 1, 5800, 10100, 15400, 18700, 43503, 0, 0, 'Blackrock Champion - Cast Berserk');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43504, 435, 0, 0, 0, 100, 1, 4700, 13800, 30500, 30500, 43504, 0, 0, 'Blackrock Champion - Cast Demoralizing Shout');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43505, 435, 0, 2, 0, 100, 0, 15, 0, 0, 0, 43505, 0, 0, 'Blackrock Champion - Flee at 15% HP');
+
+        -- Blackrock Champion - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=43503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (43503, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Champion - Cast Spell Berserk'),
+        (43503, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Champion - Say Text');
+
+        -- Events list for Blackrock Renegade
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=437;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43701, 437, 0, 4, 0, 10, 0, 0, 0, 0, 0, 43701, 0, 0, 'Blackrock Renegade - Random Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43702, 437, 0, 0, 0, 100, 1, 9600, 11100, 18100, 37600, 43702, 0, 0, 'Blackrock Renegade - Cast Berserk');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (43704, 437, 0, 2, 0, 100, 0, 15, 0, 0, 0, 43704, 0, 0, 'Blackrock Renegade - Flee at 15% HP');
+
+        -- Events list for Blackrock Grunt
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=440;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (44001, 440, 0, 4, 0, 10, 0, 0, 0, 0, 0, 44001, 0, 0, 'Blackrock Grunt - Random Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (44002, 440, 0, 0, 0, 100, 1, 9600, 14000, 18100, 37600, 44002, 0, 0, 'Blackrock Grunt - Cast Berserk');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (44003, 440, 0, 2, 0, 100, 0, 15, 0, 0, 0, 44003, 0, 0, 'Blackrock Grunt - Flee at 15% HP');
+
+        -- Blackrock Grunt - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=44002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (44002, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Grunt - Cast Spell Berserk'),
+        (44002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Grunt - Say Text');
+
+        -- Events list for Blackrock Outrunner
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=485;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (48501, 485, 0, 4, 0, 10, 0, 0, 0, 0, 0, 48501, 0, 0, 'Blackrock Outrunner - Random Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (48503, 485, 0, 0, 0, 100, 1, 9800, 9800, 23100, 35800, 48503, 0, 0, 'Blackrock Outrunner - Cast Berserk');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (48504, 485, 0, 2, 0, 100, 0, 15, 0, 0, 0, 48504, 0, 0, 'Blackrock Outrunner - Flee at 15% HP');
+
+        -- Blackrock Outrunner - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=48503;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (48503, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Outrunner - Cast Spell Berserk'),
+        (48503, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Blackrock Outrunner - Say Text');
+
+        -- Bloodscalp Warrior - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=58703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (58703, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Warrior - Cast Spell Berserk'),
+        (58703, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Warrior - Say Text');
+
+        -- Bloodscalp Berserker - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=59701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (59701, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Berserker - Cast Spell Berserk'),
+        (59701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Berserker - Say Text');
+
+        -- Bloodscalp Axe Thrower - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=69401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (69401, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Axe Thrower - Cast Spell Berserk'),
+        (69401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Axe Thrower - Say Text');
+
+        -- Bloodscalp Shaman - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=69704;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (69704, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Shaman - Cast Spell Berserk'),
+        (69704, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Shaman - Say Text');
+
+        -- Bloodscalp Mystic - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=70101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (70101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Mystic - Say Text'),
+        (70101, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Mystic - Cast Spell Berserk');
+
+        -- Marsh Flesheater - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=75101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (75101, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Marsh Flesheater - Cast Spell Berserk'),
+        (75101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Marsh Flesheater - Say Text');
+
+        -- Bloodscalp Scavenger - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=70201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (70201, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Scavenger - Cast Spell Berserk'),
+        (70201, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2384, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Scavenger - Say Text');
+
+        -- Rockjaw Backbreaker - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=111801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (111801, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rockjaw Backbreaker - Cast Spell Berserk'),
+        (111801, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Rockjaw Backbreaker - Say Text');
+
+        -- Events list for Hammerspine
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1119;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (111901, 1119, 0, 4, 0, 100, 0, 0, 0, 0, 0, 111901, 0, 0, 'Hammerspine - Chance Say on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (111902, 1119, 0, 2, 0, 100, 0, 15, 0, 0, 0, 111902, 0, 0, 'Hammerspine - Flee at 15% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (111903, 1119, 0, 2, 0, 100, 0, 20, 0, 0, 0, 111902, 0, 0, 'Hammerspine - Cast Spell Berserk at 20%');
+
+        -- Hammerspine - Cast Spell Enrage
+        DELETE FROM `creature_ai_scripts` WHERE `id`=111902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (111902, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hammerspine - Cast Spell Enrage');
+
+        -- Enraged Silverback Gorilla - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=151101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (151101, 0, 0, 15, 3019, 34, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Enraged Silverback Gorilla - Cast Spell Berserk');
+
+        -- Mokk the Savage - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=151401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (151401, 0, 0, 15, 3019, 34, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Mokk the Savage - Cast Spell Berserk');
+
+        -- Konda - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=151601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (151601, 0, 0, 15, 3019, 34, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Konda - Cast Spell Berserk');
+
+        -- Targorr the Dread - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=169603;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (169603, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Targorr the Dread - Cast Spell Berserk'),
+        (169603, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Targorr the Dread - Say Text');
+
+        -- Moonrage Darksoul - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=178201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (178201, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Darksoul - Cast Spell Berserk'),
+        (178201, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Moonrage Darksoul - Say Text');
+
+        -- Hungering Wraith - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=180202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (180202, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hungering Wraith - Cast Spell Berserk'),
+        (180202, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Hungering Wraith - Say Text');
+
+        -- Hungering Wraith - Cast Spell Demoralizing Shout
+        DELETE FROM `creature_ai_scripts` WHERE `id`=180201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (180201, 0, 0, 15, 6190, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hungering Wraith - Cast Spell Demoralizing Shout');
+
+        -- Scarlet Executioner - Cast Spell Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184102, 0, 0, 15, 1608, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Executioner - Cast Spell Strike');
+
+        -- Scarlet Executioner - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=184103;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (184103, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Executioner - Cast Spell Berserk'),
+        (184103, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Executioner - Say Text');
+
+        -- Ferocious Yeti - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=224901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (224901, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ferocious Yeti - Cast Spell Berserk'),
+        (224901, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Ferocious Yeti - Say Text');
+
+        -- Crushridge Warmonger - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=228703;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (228703, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Crushridge Warmonger - Cast Spell Berserk'),
+        (228703, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1151, 0, 0, 0, 0, 0, 0, 0, 0, 'Crushridge Warmonger - Say Text'),
+        (228703, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1064, 0, 0, 0, 0, 0, 0, 0, 0, 'Crushridge Warmonger - Say Text');
+
+        -- Commander Aggro gosh - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=246404;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (246404, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Commander Aggro gosh - Cast Spell Berserk'),
+        (246404, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Commander Aggro gosh - Say Text');
+
+        -- Kovork - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=260301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (260301, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kovork - Cast Spell Berserk');
+
+        -- Vilebranch Berserker - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=264301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (264301, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Vilebranch Berserker - Cast Spell Berserk'),
+        (264301, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Vilebranch Berserker - Say Text');
+
+        -- Witherbark Zealot - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=265001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (265001, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Witherbark Zealot - Cast Spell Berserk'),
+        (265001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Witherbark Zealot - Say Text');
+
+        -- Enraged Rock Elemental - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=279101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (279101, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Enraged Rock Elemental - Cast Spell Berserk'),
+        (279101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Enraged Rock Elemental - Say Text');
+
+        -- Dark Strand Enforcer - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=372701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (372701, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Strand Enforcer - Cast Spell Berserk'),
+        (372701, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Dark Strand Enforcer - Say Text');
+
+        -- General Rajaxx - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=1534103;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (1534103, 0, 0, 15, 3019, 2, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'General Rajaxx - Cast Spell Berserk'),
+        (1534103, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2384, 0, 0, 0, 0, 0, 0, 0, 0, 'General Rajaxx - Say Emoted Text');
+
+        -- Ghostpaw Alpha - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=382501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (382501, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ghostpaw Alpha - Cast Spell Berserk'),
+        (382501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Ghostpaw Alpha - Say Text');
+
+        -- Bloodtooth Guard - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=393201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (393201, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodtooth Guard - Cast Spell Berserk'),
+        (393201, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodtooth Guard - Say Text');
+
+        -- Scarlet Myrmidon - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=429502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (429502, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Myrmidon - Cast Spell Berserk'),
+        (429502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Myrmidon - Say Text');
+
+        -- Scarlet Abbot - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=430306;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (430306, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Abbot - Cast Spell Berserk'),
+        (430306, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Abbot - Say Text');
+
+        -- Withervine Rager - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=438501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (438501, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Withervine Rager - Cast Spell Berserk'),
+        (438501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Withervine Rager - Say Text');
+
+        -- Agathelos the Raging - Cast Spell Rushing Charge
+        DELETE FROM `creature_ai_scripts` WHERE `id`=442201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (442201, 0, 0, 15, 6268, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Agathelos the Raging - Cast Spell Rushing Charge'),
+        (442201, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 'Agathelos the Raging - Call for Help');
+
+        -- Agathelos the Raging - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=442204;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (442204, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Agathelos the Raging - Cast Spell Berserk');
+
+        -- Agathelos the Raging - Cast Spell Berserk (2)
+        DELETE FROM `creature_ai_scripts` WHERE `id`=442205;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (442205, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Agathelos the Raging - Cast Spell Berserk');
+
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (442203);
+
+        -- Events list for Agathelos the Raging
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=4422;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (442201, 4422, 0, 4, 0, 100, 0, 0, 0, 0, 0, 442201, 0, 0, 'Agathelos the Raging - Cast Rushing Charge and Call For Help on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (442204, 4422, 0, 2, 0, 100, 0, 60, 0, 0, 0, 442204, 0, 0, 'Agathelos the Raging - Cast Frenzy at 60% HP');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (442205, 4422, 0, 2, 0, 100, 0, 40, 0, 0, 0, 442205, 0, 0, 'Agathelos the Raging - Cast Frenzy at 40% HP');
+
+        -- Bloodscalp Tiger - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=69801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (69801, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Tiger - Say Text'),
+        (69801, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Tiger - Cast Spell Berserk');
+
+        -- Raging Agam ar - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=451401;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (451401, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Agam ar - Cast Spell Berserk'),
+        (451401, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Agam ar - Say Text');
+
+        -- Hatefury Rogue - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=467002;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (467002, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Rogue - Cast Spell Berserk'),
+        (467002, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Rogue - Say Text');
+
+        -- Hatefury Trickster - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=467102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (467102, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Trickster - Cast Spell Berserk'),
+        (467102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Trickster - Say Text');
+
+        -- Hatefury Felsworn - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=467201;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (467201, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Felsworn - Cast Spell Berserk'),
+        (467201, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Felsworn - Say Text');
+
+        -- Hatefury Betrayer - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=467301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (467301, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Betrayer - Cast Spell Berserk'),
+        (467301, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Betrayer - Say Text');
+
+        -- Hatefury Shadowstalker - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=467403;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (467403, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Shadowstalker - Cast Spell Berserk'),
+        (467403, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Shadowstalker - Say Text');
+
+        -- Hatefury Hellcaller - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=467504;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (467504, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Hellcaller - Cast Spell Berserk'),
+        (467504, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Hatefury Hellcaller - Say Text');
+
+        -- Raging Thunder Lizard - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=472602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (472602, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Thunder Lizard - Cast Spell Berserk'),
+        (472602, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Thunder Lizard - Say Text');
+
+        -- Stonevault Rockchewer - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485101;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (485101, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Rockchewer - Cast Spell Berserk'),
+        (485101, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Rockchewer - Say Text');
+
+        -- Stonevault Brawler - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=485502;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (485502, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Brawler - Cast Spell Berserk'),
+        (485502, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Stonevault Brawler - Say Text');
+
+        -- Woodpaw Alpha - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=525802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (525802, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Woodpaw Alpha - Cast Spell Berserk'),
+        (525802, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Woodpaw Alpha - Say Text');
+
+        -- Unliving Atal ai - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=526702;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (526702, 0, 0, 15, 3019, 3, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Unliving Atal ai - Cast Spell Berserk'),
+        (526702, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Unliving Atal ai - Say Text');
+
+        -- Enraged Feral Scar - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=529501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (529501, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Enraged Feral Scar - Cast Spell Berserk'),
+        (529501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Enraged Feral Scar - Say Text');
+
+        -- Rage Scar Yeti - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=529601;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (529601, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rage Scar Yeti - Cast Spell Berserk'),
+        (529601, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Rage Scar Yeti - Say Text');
+
+        -- Bloodroar the Stalker - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=534602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (534602, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodroar the Stalker - Cast Spell Berserk'),
+        (534602, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodroar the Stalker - Say Text');
+
+        -- Land Rager - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=546501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (546501, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Land Rager - Cast Spell Berserk'),
+        (546501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Land Rager - Say Text');
+
+        -- Raging Dune Smasher - Cast Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=547001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (547001, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Dune Smasher - Cast Berserk'),
+        (547001, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1191, 0, 0, 0, 0, 0, 0, 0, 0, 'Raging Dune Smasher - Say Text');
+
+        -- Events list for 
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=6990;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (699001, 6990, 0, 11, 0, 100, 0, 0, 0, 0, 0, 69901, 0, 0, 'Bloodscalp Beastmaster - Cast Spell Bloodscalp Pet');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (699002, 6990, 0, 2, 0, 100, 0, 30, 0, 0, 0, 69902, 0, 0, 'Bloodscalp Beastmaster - Say Emoted Text and Berserk');
+
+        -- Bloodscalp Beastmaster - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=69902;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (69902, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2384, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Beastmaster - Say Emoted Text'),
+        (69902, 0, 0, 15, 3019, 2, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Beastmaster - Cast Spell Berserk');
+
+        -- Bloodscalp Witch Doctor - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=66003;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (66003, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Witch Doctor - Say Text'),
+        (66003, 0, 0, 15, 3019, 1, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Witch Doctor - Cast Spell Berserk');
+
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (66002);
+
+        -- Events list for Bloodscalp Witch Doctor
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=660;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (66001, 660, 0, 0, 0, 100, 1, 6500, 15300, 13300, 21700, 66001, 0, 0, 'Bloodscalp Witch Doctor - Cast Healing Ward');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (66002, 660, 0, 2, 0, 100, 0, 20, 0, 0, 0, 66003, 0, 0, 'Bloodscalp Witch Doctor - Cast Enrage at 20% HP');
+
+        -- Un Goro Stomper - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=651301;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (651301, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Un Goro Stomper - Cast Spell Berserk'),
+        (651301, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Un Goro Stomper - Say Text');
+
+        -- Bloodscalp Scout - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=58801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (58801, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Scout - Say Text'),
+        (58801, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Scout - Cast Spell Berserk');
+
+        -- Bloodscalp Headhunter - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=67102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (67102, 0, 0, 15, 3019, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Headhunter - Cast Spell Berserk'),
+        (67102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7798, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Headhunter - Say Text');
+
+        -- Bloodscalp Hunter - Cast Spell Berserk
+        DELETE FROM `creature_ai_scripts` WHERE `id`=59501;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (59501, 0, 0, 15, 3019, 2, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Hunter - Cast Spell Berserk'),
+        (59501, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2384, 0, 0, 0, 0, 0, 0, 0, 0, 'Bloodscalp Hunter - Say Emoted Text');
+
+        -- Kam Deepfury - Cast Spell Kick
+        DELETE FROM `creature_ai_scripts` WHERE `id`=166602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (166602, 0, 0, 15, 6554, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kam Deepfury - Cast Spell Kick');
+
+        -- Scarlet Knight - Cast Spell Kick
+        DELETE FROM `creature_ai_scripts` WHERE `id`=183302;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (183302, 0, 0, 15, 6554, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scarlet Knight - Cast Spell Kick');
+
+        -- Dragonmaw Grunt - Cast Spell Kick
+        DELETE FROM `creature_ai_scripts` WHERE `id`=210202;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (210202, 0, 0, 15, 6554, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Dragonmaw Grunt - Cast Spell Kick');
+
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (571401, 571403, 571404, 571405);
+
+        -- Events list for Loro
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5714;
+
+        -- Olaf - Cast Spell Kick
+        DELETE FROM `creature_ai_scripts` WHERE `id`=690801;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (690801, 0, 0, 15, 6554, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Olaf - Cast Spell Kick');
+
+        -- Scourge Guard - Cast Spell Kick
+        DELETE FROM `creature_ai_scripts` WHERE `id`=852701;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (852701, 0, 0, 15, 6554, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Scourge Guard - Cast Spell Kick');
+        
+        -- Freezing Ghoul - Cast Spell Chains of Ice
+        DELETE FROM `creature_ai_scripts` WHERE `id`=179602;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (179602, 0, 0, 15, 512, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Freezing Ghoul - Cast Spell Chains of Ice');
+
+        -- Events list for Jademir Tree Warder
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5319;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (531902, 5319, 0, 28, 0, 100, 1, 6950, 1, 5000, 9000, 531902, 0, 0, 'Jademir Tree Warder - Cast Faerie Fire');
+
+        -- Rocklance - Cast Spell Sundering Strike
+        DELETE FROM `creature_ai_scripts` WHERE `id`=584102;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (584102, 0, 0, 15, 7386, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rocklance - Cast Spell Sundering Strike');
+        
+        -- Rocklance - Cast Spell Cleave
+        DELETE FROM `creature_ai_scripts` WHERE `id`=584106;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (584106, 0, 0, 15, 6723, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Rocklance - Cast Spell Cleave');
+
+        -- Events list for Rocklance
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5841;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584101, 5841, 0, 4, 0, 100, 0, 0, 0, 0, 0, 584101, 0, 0, 'Rocklance - Set Phase 1 on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584102, 5841, 0, 9, 5, 100, 1, 0, 5, 5000, 9000, 584102, 0, 0, 'Rocklance - Cast Sundering Strike (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584103, 5841, 0, 24, 5, 100, 1, 7386, 5, 5000, 5000, 584103, 0, 0, 'Rocklance - Set Phase 2 on Target Max Sundering Strike Aura Stack (Phase 1)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584104, 5841, 0, 28, 3, 100, 1, 7386, 1, 5000, 5000, 584104, 0, 0, 'Rocklance - Set Phase 1 on Target Missing Sundering Strike Aura Stack (Phase 2)');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584105, 5841, 0, 0, 0, 100, 1, 1000, 3000, 180000, 190000, 584105, 0, 0, 'Rocklance - Cast Defensive Stance on Aggro');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584106, 5841, 0, 0, 0, 100, 1, 12000, 17000, 12000, 17000, 584106, 0, 0, 'Rocklance - Cast Cleave');
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (584107, 5841, 0, 7, 0, 100, 0, 0, 0, 0, 0, 584107, 0, 0, 'Rocklance - Set Phase to 0 on Evade');
+        
+        -- Murloc Hunter - Summon Crab
+        DELETE FROM `creature_ai_scripts` WHERE `id`=45802;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (45802, 0, 0, 15, 7907, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Murloc Hunter - Cast Spell Summon Crab');
+
+        -- Survival Trainer Template
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('511', '1290', '818', '0', '0', '2', '0', '0', '0');
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('511', '7361', '7359', '0', '0', '3', '0', '0', '0');
+
+        -- Survival Trainers
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '4579');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '5029');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '5501');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '3411');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2806');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2803');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2802');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2801');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '2756');
+        UPDATE `creature_template` SET `trainer_id` = '511' WHERE (`entry` = '1649');
+
+         -- Survival Trainers
+        UPDATE `creature_template` SET `trainer_type` = '2' WHERE (`entry` = '1649');
+        UPDATE `creature_template` SET `base_attack_time` = '2000', `ranged_attack_time` = '0', `trainer_type` = '2' WHERE (`entry` = '2756');
+        UPDATE `creature_template` SET `scale` = '1', `trainer_type` = '2' WHERE (`entry` = '2803');
+        UPDATE `creature_template` SET `scale` = '1', `trainer_type` = '2' WHERE (`entry` = '3411');
+        UPDATE `creature_template` SET `level_min` = '35', `level_max` = '35', `trainer_type` = '2' WHERE (`entry` = '4579');
+        UPDATE `creature_template` SET `level_min` = '35', `level_max` = '35', `trainer_type` = '2' WHERE (`entry` = '5029');
+        UPDATE `creature_template` SET `scale` = '1', `trainer_type` = '2' WHERE (`entry` = '5501');
+        UPDATE `creature_template` SET `scale` = '1' WHERE (`entry` = '2801');
+        UPDATE `creature_template` SET `scale` = '1' WHERE (`entry` = '2802');
+        UPDATE `creature_template` SET `scale` = '1' WHERE (`entry` = '2806');
+        UPDATE `creature_template` SET `trainer_class` = '0' WHERE (`entry` = '5501');
+
+        -- Brog Hamfist <General Supplies> - Unlit Poor Torch - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/images_WoWScrnShot_032304_003948.jpg
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('151', '6183', '0', '0', '0', '0');
+
+        -- Unlit Poor Torch - Vendor Template 66 (General Trade & Supplies) - https://crawler.thealphaproject.eu/mnt/crawler/media/Database/NuRRis/blizzlike_creatures.txt
+        INSERT INTO `npc_vendor_template` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `condition_id`, `slot`) VALUES ('66', '6183', '0', '0', '0', '0', '0');
+
+        -- Unlit Poor Torch - Thurman Mullby <General Goods Vendor> - https://crawler.thealphaproject.eu/mnt/crawler/media/Database/NuRRis/blizzlike_creatures.txt
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('1285', '6183', '0', '0', '0', '0');
+
+        -- Fix IF guard pathing.
+        UPDATE `spawns_creatures` SET `position_x` = '-4920.602', `position_y` = '-1044.766', `position_z` = '492.197' WHERE (`spawn_id` = '1748');
+        UPDATE `creature_movement` SET `position_x` = '-4920.6', `position_y` = '-1044.77', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '1');
+        UPDATE `creature_movement` SET `position_x` = '-4907.292', `position_y` = '-1018.646', `position_z` = '492.182' WHERE (`id` = '1748') and (`point` = '2');
+        UPDATE `creature_movement` SET `position_x` = '-4884.366', `position_y` = '-1000.426', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '3');
+        UPDATE `creature_movement` SET `position_x` = '-4890.622', `position_y` = '-992.326', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '4');
+        UPDATE `creature_movement` SET `position_x` = '-4896.254', `position_y` = '-985.086', `position_z` = '488.814', `orientation` = '5.42' WHERE (`id` = '1748') and (`point` = '5');
+        UPDATE `creature_movement` SET `position_x` = '-4890.622', `position_y` = '-992.326', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '6');
+        UPDATE `creature_movement` SET `position_x` = '-4884.366', `position_y` = '-1000.426', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '7');
+        UPDATE `creature_movement` SET `position_x` = '-4861.852', `position_y` = '-981.855', `position_z` = '492.197' WHERE (`id` = '1748') and (`point` = '8');
+        UPDATE `creature_movement` SET `position_x` = '-4911.36', `position_y` = '-1022.72', `position_z` = '492.186', `orientation` = '0', `waittime` = '0' WHERE (`id` = '1748') and (`point` = '9');
+
+        -- Ginny Longberry - Reagents Vendor
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5024', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5026', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5105', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5517', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('5151', '5518', '0', '0', '0', '0');
+
+        -- Bogrum Firebrew - Bartender - https://crawler.thealphaproject.eu/mnt/crawler/media/Website/worldofwar.net/web.archive.org/web/20040607091020/http:/www.worldofwar.net/cartography/cities/ironforge-print-text.htm
+        UPDATE `creature_template` SET `subname` = 'Bartender', `vendor_id` = '0' WHERE (`entry` = '5111');
+        -- Barkeep Belm - Burly Bartender
+        UPDATE `creature_template` SET `subname` = 'Burly Bartender' WHERE (`entry` = '1247');
+        -- Svalbrad Farmountain - Cartography Supplier - Remove vendor flag.
+        UPDATE `creature_template` SET `npc_flags` = '0' WHERE (`entry` = '5135');
+        -- Narkk - Pirate Supplies - Remove vendor flag, items not yet in alpha.
+        UPDATE `creature_template` SET `npc_flags` = '0' WHERE (`entry` = '2663');
+        -- Zachariah Post	Animal Handler - Black Stallion Bridle - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/wow_pimpbunnies_com/531.jpg
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('4731', '2411', '0', '0', '0', '0');
+        -- Lelanai	Tiger Handler -> Animal Handler - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/mobs_from_allakhazam/Lelanai_Animal_Handler_Darnassus.jpg
+        -- The skill exists, but no rideable mounts where available for NE. https://db.thealphaproject.eu/index.php?action=show_skill&id=150&filter=riding&sort_order=DisplayName_enUS&pos=4&max=5
+        UPDATE `creature_template` SET `npc_flags` = '0', `subname` = 'Animal Handler' WHERE (`entry` = '4730');
+        -- Black Stallion Bridle Display ID. Geo
+        UPDATE `item_template` SET `display_id` = '3673' WHERE (`entry` = '2411');
+        -- Add missing Steed near Zachariah Post.
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400446', '5689', '0', '0', '0', '0', '2249.927', '322.416', '35.189', '5.32', '300', '300', '0', '100', '100', '0', '0', '0', '0');
+        UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400442');
+        UPDATE `spawns_creatures` SET `wander_distance` = '0' WHERE (`spawn_id` = '400441');
+        -- Ignore Steed to the right of Zachariah Post.
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '31906');
+        -- Gina Lang - Summon Imp on Spawn
+        DELETE FROM `creature_ai_scripts` WHERE `id`=575001;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (575001, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Gina Lang - Summon Imp on Spawn');
+        -- Velma Warnam - Horse Riding.
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('512', '6743', '824', '0', '0', '0', '0', '0', '40');
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '512' WHERE (`entry` = '4773');
+        -- Randal Huntetr - Horse Riding.
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '512' WHERE (`entry` = '4732');
+        -- Katie Hunter - Horse Breeder
+        DELETE FROM `npc_vendor` WHERE `entry`=384;
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('384', '5656', '0', '0', '0', '0');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('384', '2411', '0', '0', '0', '1');
+        INSERT INTO `npc_vendor` (`entry`, `item`, `maxcount`, `incrtime`, `itemflags`, `slot`) VALUES ('384', '2414', '0', '0', '0', '2');
+        -- Horse Bridle item icons. Default to net icon. Geo
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '5656');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '5655');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2413');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2414');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2415');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '12353');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '12354');
+        UPDATE `item_template` SET `display_id` = '1007' WHERE (`entry` = '2411');
+        -- Unger Statforth - Horse Breeder
+        DELETE FROM `npc_vendor` WHERE (`entry` = '1460') and (`item` = '2411');
+        UPDATE `npc_vendor` SET `slot` = '1' WHERE (`entry` = '1460') and (`item` = '5655');
+        UPDATE `npc_vendor` SET `slot` = '2' WHERE (`entry` = '1460') and (`item` = '2414');
+        -- Wetlands Pinto Horse orientation.
+        UPDATE `spawns_creatures` SET `orientation` = '4.32' WHERE (`spawn_id` = '9530');
+        -- Wetlands missing horse.
+        INSERT INTO `spawns_creatures` (`spawn_id`, `spawn_entry1`, `spawn_entry2`, `spawn_entry3`, `spawn_entry4`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecsmin`, `spawntimesecsmax`, `wander_distance`, `health_percent`, `mana_percent`, `movement_type`, `spawn_flags`, `visibility_mod`, `ignored`) VALUES ('400447', '5405', '0', '0', '0', '0', '-3644.89', '-754.985', '9.97506', '3.57897', '300', '300', '300', '100', '100', '0', '0', '0', '0');
+        -- Thomas Books and Horse group.
+        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('9468', '9468', '0', '0', '0');
+        INSERT INTO `creature_groups` (`leader_guid`, `member_guid`, `dist`, `angle`, `flags`) VALUES ('9468', '400447', '2', '2', '0');
+        UPDATE `creature_groups` SET `dist` = '1.5', `angle` = '1', `flags` = '1' WHERE (`member_guid` = '400447');
+        UPDATE `creature_groups` SET `flags` = '1' WHERE (`member_guid` = '9468');
+        DELETE FROM `creature_groups` WHERE (`member_guid` = '9469');
+        -- Kildar <Wolf Rider> - Fix Z, trainer template.
+        UPDATE `spawns_creatures` SET `position_z` = '73.37' WHERE (`spawn_id` = '4677');
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '513' WHERE (`entry` = '4752');
+        -- Wolf Riding Trainer Template.
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('513', '6746', '825', '0', '0', '0', '0', '0', '40');
+        -- Ram Riding Trainer Template.
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('514', '6744', '826', '0', '0', '0', '0', '0', '40');
+        -- Ultham Ironhorn <Ram Riding Instructor>
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '514' WHERE (`entry` = '4772');
+        -- Tiger Riding template, set others req level to 25.
+        INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('515', '6745', '828', '0', '0', '0', '0', '0', '25');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '512') and (`spell` = '6743');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '513') and (`spell` = '6746');
+        UPDATE `trainer_template` SET `reqlevel` = '25' WHERE (`template_entry` = '514') and (`spell` = '6744');
+        -- Jartsam <Nightsaber Riding Instructor> - Tiger Riding, Fix Z
+        UPDATE `spawns_creatures` SET `position_z` = '1318.800' WHERE (`spawn_id` = '46722');
+        UPDATE `creature_template` SET `trainer_type` = '0', `trainer_id` = '515' WHERE (`entry` = '4753');
+        -- 'Survivalist' should also be trainers. - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Elwynn%20Forest/elwynn_forest_017.jpg
+        UPDATE `creature_template` SET `npc_flags` = '8' WHERE (`entry` = '1649');
+        UPDATE `creature_template` SET `npc_flags` = '8' WHERE (`entry` = '2756');
+        UPDATE `creature_template` SET `npc_flags` = '8' WHERE (`entry` = '5029');
+        --  Shards of Myzrael, Fix Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.921' WHERE (`spawn_id` = '15475');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-942.842', `spawn_positionY` = '-3116.75', `spawn_positionZ` = '60' WHERE (`spawn_id` = '99848');
+
+        insert into applied_updates values ('170720241');
+    end if;
 end $
 delimiter ;
