@@ -392,7 +392,6 @@ class CreatureAI:
         self.creature.melee_disabled = not enabled
 
     def set_combat_movement(self, enabled):
-        # TODO: Does not actually do anything right now.
         self.combat_movement = enabled
         pass
 
