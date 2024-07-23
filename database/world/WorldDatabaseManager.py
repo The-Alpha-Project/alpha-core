@@ -998,6 +998,28 @@ class WorldDatabaseManager(object):
         def quest_get_by_entry(entry) -> Optional[QuestTemplate]:
             return WorldDatabaseManager.QuestTemplateHolder.QUEST_TEMPLATES.get(entry)
 
+    # Event scripts.
+
+    @staticmethod
+    def event_scripts_get_all():
+        world_db_session = SessionHolder()
+        res = world_db_session.query(t_event_scripts).all()
+        world_db_session.close()
+        return res
+
+    class EventScriptHolder:
+        SCRIPTS: dict[int, list[t_event_scripts]] = {}
+
+        @staticmethod
+        def load_event_script(event_script):
+            if event_script.id not in WorldDatabaseManager.EventScriptHolder.SCRIPTS:
+                WorldDatabaseManager.EventScriptHolder.SCRIPTS[event_script.id] = []
+            WorldDatabaseManager.EventScriptHolder.SCRIPTS[event_script.id].append(event_script)
+
+        @staticmethod
+        def event_scripts_get_by_id(script_id):
+            return WorldDatabaseManager.EventScriptHolder.SCRIPTS.get(script_id, [])
+
     # Quest scripts.
 
     @staticmethod

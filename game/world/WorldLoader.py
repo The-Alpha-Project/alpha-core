@@ -39,6 +39,7 @@ class WorldLoader:
         WorldLoader.load_creature_spells()
 
         #  Scripts.
+        WorldLoader.load_event_scripts()
         WorldLoader.load_generic_scripts()
 
         # Gameobject spawns
@@ -110,6 +111,19 @@ class WorldLoader:
             WorldDatabaseManager.UnitClassLevelStatsHolder.load_player_class_level_stats(class_level_stat)
             count += 1
             Logger.progress('Loading player class level stats...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_event_scripts():
+        event_scripts = WorldDatabaseManager.event_scripts_get_all()
+        length = len(event_scripts)
+        count = 0
+
+        for event_script in event_scripts:
+            WorldDatabaseManager.EventScriptHolder.load_event_script(event_script)
+            count += 1
+            Logger.progress('Loading event scripts...', count, length)
 
         return length
 

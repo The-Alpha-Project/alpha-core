@@ -102,7 +102,7 @@ class QuestManager(object):
                         return True
         elif game_object.gobject_template.type == GameObjectTypes.TYPE_GOOBER:
             for quest_id, active_quest in self.active_quests.items():
-                if active_quest.requires_creature_or_go(game_object):
+                if active_quest.requires_creature_or_go(game_object) and not active_quest.can_complete_quest():
                     return True
 
         return False
@@ -1016,6 +1016,10 @@ class QuestManager(object):
         if next_quest:
             self.send_quest_giver_quest_details(next_quest, quest_giver.guid, True)
 
+        # Force surrounding players to refresh this GO interactive state.
+        if quest_giver.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
+            quest_giver.refresh_dynamic_flag()
+
     def get_next_quest_in_chain(self, quest_giver, current_quest):
         # Current quest has no linked next quest.
         if not current_quest.NextQuestInChain:
@@ -1113,13 +1117,14 @@ class QuestManager(object):
         for quest_id, active_quest in self.active_quests.items():
             if to_quest_id and quest_id != to_quest_id:
                 continue
-            if active_quest.requires_creature_or_go(world_object):
-                active_quest.update_creature_go_count(world_object, 1)
-                self.update_single_quest(quest_id)
-                # If by this kill we complete the quest, update surrounding so NPC can display new complete status.
-                if active_quest.can_complete_quest():
-                    self.complete_quest(active_quest, update_surrounding=True, notify=True)
-                return True
+            if not active_quest.requires_creature_or_go(world_object):
+                continue
+            active_quest.update_creature_go_count(world_object, 1)
+            self.update_single_quest(quest_id)
+            # If by this kill we complete the quest, update surrounding so NPC can display new complete status.
+            if active_quest.can_complete_quest():
+                self.complete_quest(active_quest, update_surrounding=True, notify=True)
+            return True
         return False
 
     def reward_quest_exploration(self, area_trigger_id):
