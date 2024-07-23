@@ -85,8 +85,9 @@ class ChaseMovement(BaseMovement):
         self.spline_callback(spline, movement_behavior=self)
 
     def _can_chase(self):
-        return not self.unit.is_casting() and self.unit.is_alive and self.unit.combat_target \
-            and self.unit.combat_target.is_alive
+        return (not self.unit.is_casting() and self.unit.is_alive and self.unit.combat_target
+                and self.unit.combat_target.is_alive
+                and (True if not self.unit.object_ai else self.unit.object_ai.is_combat_movement_enabled()))
 
     # override
     def can_remove(self):
