@@ -861,7 +861,7 @@ class SpellEffectHandler:
 
         # Apply permanent enchantment.
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
-                                                              -1, charges)
+                                                              -1 if not is_temporary else duration, charges)
         owner_player.equipment_proc_manager.handle_equipment_change(target)
 
         # Save item.
