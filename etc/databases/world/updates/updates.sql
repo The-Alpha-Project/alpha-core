@@ -1275,5 +1275,15 @@ begin not atomic
 
         insert into applied_updates values ('220720241');
     end if;
+
+    -- 25/07/2024 1
+    if (select count(*) from `applied_updates` where id='250720241') = 0 then
+        -- Fix Kayla Smithe spell.
+        DELETE FROM `creature_ai_scripts` WHERE `id`=574901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (574901, 0, 0, 15, 688, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kayla Smithe - Summon Imp on Spawn');
+
+        insert into applied_updates values ('250720241');
+    end if;
 end $
 delimiter ;
