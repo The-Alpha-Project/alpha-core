@@ -18,7 +18,8 @@ from utils.constants.UpdateFields \
 
 def update_field_setter_decorator(function):
     def wrapper(self, *args, **kwargs):
-        if function(self, *args, **kwargs) and 'force' in kwargs and self.is_in_world():
+        applied, forced = function(self, *args, **kwargs)
+        if applied and forced and self.is_in_world():
             # Changes should apply immediately.
             self.get_map().update_object(self, has_changes=True)
     return wrapper
@@ -326,8 +327,8 @@ class ObjectManager:
     def set_int32(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'i'):
             self.update_packet_factory.update(index, value, 'i')
-            return True
-        return False
+            return True, force
+        return False, force
 
     def get_int32(self, index):
         return self._get_value_by_type_at('i', index)
@@ -336,8 +337,8 @@ class ObjectManager:
     def set_uint32(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'I'):
             self.update_packet_factory.update(index, value, 'I')
-            return True
-        return False
+            return True, force
+        return False, force
 
     def get_uint32(self, index):
         return self._get_value_by_type_at('I', index)
@@ -346,8 +347,8 @@ class ObjectManager:
     def set_int64(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'q'):
             self.update_packet_factory.update(index, value, 'q')
-            return True
-        return False
+            return True, force
+        return False, force
 
     def get_int64(self, index):
         return self._get_value_by_type_at('q', index)
@@ -356,8 +357,8 @@ class ObjectManager:
     def set_uint64(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'Q'):
             self.update_packet_factory.update(index, value, 'Q')
-            return True
-        return False
+            return True, force
+        return False, force
 
     def get_uint64(self, index):
         return self._get_value_by_type_at('Q', index)
@@ -366,8 +367,8 @@ class ObjectManager:
     def set_float(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'f'):
             self.update_packet_factory.update(index, value, 'f')
-            return True
-        return False
+            return True, force
+        return False, force
 
     def get_float(self, index):
         return self._get_value_by_type_at('f', index)
