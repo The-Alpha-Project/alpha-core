@@ -10,8 +10,9 @@ from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.AIEventHandler import AIEventHandler
 from game.world.managers.objects.script.ScriptManager import ScriptManager
 from game.world.managers.objects.spell import ExtendedSpellData
+from game.world.managers.objects.units.movement.behaviors.ChaseMovement import ChaseMovement
 from network.packet.PacketWriter import PacketWriter
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, MoveType
 from utils.constants.OpCodes import OpCode
 from utils.constants.ScriptCodes import CastFlags
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellTargetMask, SpellInterruptFlags, \
@@ -331,11 +332,11 @@ class CreatureAI:
             return SpellCheckCastResult.SPELL_FAILED_TOO_CLOSE
 
         # This spell should only be cast when we cannot get into melee range.
-        #  TODO: We need to know which type of movement the unit is 'using', chase, spline, etc..
-        if (cast_flags & CastFlags.CF_TARGET_UNREACHABLE and
-                (self.creature.is_within_interactable_distance(target)
-                 or self.creature.is_moving() or not (self.creature.unit_state & UnitStates.ROOTED)
-                 or not self.creature.get_map().can_reach_object(self.creature, target))):
+        if (cast_flags & CastFlags.CF_TARGET_UNREACHABLE
+                and (self.creature.is_within_interactable_distance(target)
+                     or not isinstance(self.creature.movement_manager.get_current_behavior(), ChaseMovement)
+                     or not (self.creature.unit_state & UnitStates.ROOTED)
+                     or not self.creature.get_map().can_reach_object(self.creature, target))):
             return SpellCheckCastResult.SPELL_FAILED_MOVING
 
         if not cast_flags & CastFlags.CF_FORCE_CAST:
