@@ -102,7 +102,10 @@ class Spline(object):
         if not point_in_between:
             return pending_waypoint.location.copy()
 
-        point_in_between = self._get_leader_z(point_in_between)
+        # For creatures try to adjust the position in case the unit is part of a group.
+        if not self.is_player:
+            point_in_between = self._get_leader_z(point_in_between)
+
         return point_in_between
 
     def _get_leader_z(self, location):
