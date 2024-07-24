@@ -244,7 +244,8 @@ class ThreatManager:
         for holder in list(self.holders.values()):
             if not holder.unit.is_alive:
                 continue
-            if self.unit.can_attack_target(holder.unit) or holder.unit.is_hostile_to(self.unit):
+            if (self.unit.can_attack_target(holder.unit) or
+                    (holder.unit.is_hostile_to(self.unit) and not holder.unit.unit_state & UnitStates.SANCTUARY)):
                 relevant_holders.append(holder)
 
         # Sort by threat and time added, to avoid unstable sorting when more than 1 unit have the same threat.
