@@ -214,7 +214,6 @@ class ActiveQuest:
         else:
             RealmDatabaseManager.character_update_quest_status(self.db_state)
 
-    # TODO: Should handle other types of quests here: game object related, item usage, etc.
     def can_complete_quest(self):
         if self.failed:
             return False

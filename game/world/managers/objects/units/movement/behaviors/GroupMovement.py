@@ -1,6 +1,5 @@
 from game.world.managers.maps.helpers import CellUtils
 from utils.ConfigManager import config
-from utils.Logger import Logger
 from utils.constants.MiscCodes import MoveType, ScriptTypes, MoveFlags
 
 from game.world.managers.objects.units.movement.helpers.SplineBuilder import SplineBuilder

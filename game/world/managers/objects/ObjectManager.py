@@ -16,6 +16,15 @@ from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
 
 
+def update_field_setter_decorator(function):
+    def wrapper(self, *args, **kwargs):
+        applied, forced = function(self, *args, **kwargs)
+        if applied and forced and self.is_in_world():
+            # Changes should apply immediately.
+            self.get_map().update_object(self, has_changes=True)
+    return wrapper
+
+
 class ObjectManager:
     def __init__(self,
                  guid=0,
@@ -249,12 +258,6 @@ class ObjectManager:
         # Reset updated fields older than the specified timestamp.
         return self.update_packet_factory.reset_older_than(timestamp)
 
-    def force_fields_update(self):
-        # TODO - This method is a hackfix for force-updating single fields.
-        #  Implement something like the following instead:
-        # self.set_uint32(field_index, 0, force=true)
-        self.get_map().update_object(self, has_changes=True)
-
     def _get_base_structure(self, update_type):
         return pack(
             '<IBQ',
@@ -320,37 +323,52 @@ class ObjectManager:
     def is_aura_field(self, index):
         return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
+    @update_field_setter_decorator
     def set_int32(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'i'):
             self.update_packet_factory.update(index, value, 'i')
+            return True, force
+        return False, force
 
     def get_int32(self, index):
         return self._get_value_by_type_at('i', index)
 
+    @update_field_setter_decorator
     def set_uint32(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'I'):
             self.update_packet_factory.update(index, value, 'I')
+            return True, force
+        return False, force
 
     def get_uint32(self, index):
         return self._get_value_by_type_at('I', index)
 
+    @update_field_setter_decorator
     def set_int64(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'q'):
             self.update_packet_factory.update(index, value, 'q')
+            return True, force
+        return False, force
 
     def get_int64(self, index):
         return self._get_value_by_type_at('q', index)
 
+    @update_field_setter_decorator
     def set_uint64(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'Q'):
             self.update_packet_factory.update(index, value, 'Q')
+            return True, force
+        return False, force
 
     def get_uint64(self, index):
         return self._get_value_by_type_at('Q', index)
 
+    @update_field_setter_decorator
     def set_float(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'f'):
             self.update_packet_factory.update(index, value, 'f')
+            return True, force
+        return False, force
 
     def get_float(self, index):
         return self._get_value_by_type_at('f', index)
@@ -490,38 +508,38 @@ class ObjectManager:
         return self if include_self else None
 
     def _allegiance_status_checker(self, target) -> UnitReaction:
-        own_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
-        target_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
+        src_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(self.faction)
+        dst_faction = DbcDatabaseManager.FactionTemplateHolder.faction_template_get_by_id(target.faction)
 
-        if not own_faction:
+        if not src_faction:
             Logger.warning(f'Invalid faction template: {self.faction}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 
-        if not target_faction:
+        if not dst_faction:
             Logger.warning(f'Invalid faction template: {target.faction}.')
             return UnitReaction.UNIT_REACTION_NEUTRAL
 
         # TODO: Reputation standing checks first.
 
-        if target_faction.FactionGroup & own_faction.EnemyGroup != 0:
+        if dst_faction.FactionGroup & src_faction.EnemyGroup != 0:
             return UnitReaction.UNIT_REACTION_HOSTILE
 
-        own_enemies = {own_faction.Enemies_1, own_faction.Enemies_2, own_faction.Enemies_3, own_faction.Enemies_4}
-        if target_faction.Faction > 0 and target_faction.Faction in own_enemies:
+        own_enemies = {src_faction.Enemies_1, src_faction.Enemies_2, src_faction.Enemies_3, src_faction.Enemies_4}
+        if dst_faction.Faction > 0 and dst_faction.Faction in own_enemies:
             return UnitReaction.UNIT_REACTION_HOSTILE
 
-        if target_faction.FactionGroup & own_faction.FriendGroup != 0:
+        if dst_faction.FactionGroup & src_faction.FriendGroup != 0:
             return UnitReaction.UNIT_REACTION_FRIENDLY
 
-        own_friends = {own_faction.Friend_1, own_faction.Friend_2, own_faction.Friend_3, own_faction.Friend_4}
-        if target_faction.Faction > 0 and target_faction.Faction in own_friends:
+        own_friends = {src_faction.Friend_1, src_faction.Friend_2, src_faction.Friend_3, src_faction.Friend_4}
+        if dst_faction.Faction > 0 and dst_faction.Faction in own_friends:
             return UnitReaction.UNIT_REACTION_FRIENDLY
 
-        if target_faction.FriendGroup & own_faction.FactionGroup != 0:
+        if dst_faction.FriendGroup & src_faction.FactionGroup != 0:
             return UnitReaction.UNIT_REACTION_FRIENDLY
 
-        other_friends = {target_faction.Friend_1, target_faction.Friend_2, target_faction.Friend_3, target_faction.Friend_4}
-        if own_faction.Faction > 0 and own_faction.Faction in other_friends:
+        other_friends = {dst_faction.Friend_1, dst_faction.Friend_2, dst_faction.Friend_3, dst_faction.Friend_4}
+        if src_faction.Faction > 0 and src_faction.Faction in other_friends:
             return UnitReaction.UNIT_REACTION_FRIENDLY
 
         return UnitReaction.UNIT_REACTION_NEUTRAL
@@ -531,6 +549,9 @@ class ObjectManager:
 
     def is_hostile_to(self, target):
         return self._allegiance_status_checker(target) < UnitReaction.UNIT_REACTION_NEUTRAL
+
+    def is_in_world(self):
+        return False
 
     def get_destroy_packet(self):
         data = pack('<Q', self.guid)

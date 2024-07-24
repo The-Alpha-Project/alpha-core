@@ -593,7 +593,7 @@ class ScriptHandler:
             Logger.warning(f'ScriptHandler: Invalid object type (needs to be gameobject) for {command.get_info()}')
             return command.should_abort()
 
-        target.use()
+        target.use(player=target, from_script=True)
         return False
 
     @staticmethod
@@ -1668,6 +1668,10 @@ class ScriptHandler:
         return WorldDatabaseManager.GenericScriptsHolder.generic_scripts_get_by_id(script_id)
 
     @staticmethod
+    def handle_script_type_event_script(script_id):
+        return WorldDatabaseManager.EventScriptHolder.event_scripts_get_by_id(script_id)
+
+    @staticmethod
     def handle_script_type_ai(script_id):
         return WorldDatabaseManager.CreatureAIScriptHolder.creature_ai_scripts_get_by_id(script_id)
 
@@ -1688,6 +1692,7 @@ SCRIPT_TYPES = {
     ScriptTypes.SCRIPT_TYPE_CREATURE_MOVEMENT: ScriptHandler.handle_script_type_creature_movement,
     ScriptTypes.SCRIPT_TYPE_GAMEOBJECT: ScriptHandler.handle_script_type_gameobject,
     ScriptTypes.SCRIPT_TYPE_GENERIC: ScriptHandler.handle_script_type_generic,
+    ScriptTypes.SCRIPT_TYPE_EVENT_SCRIPT: ScriptHandler.handle_script_type_event_script,
     # Unused in 0.5.3.
     # ScriptTypes.SCRIPT_TYPE_CREATURE_SPELL: ScriptHandler.handle_script_type_creature_spell,
     # ScriptTypes.SCRIPT_TYPE_GOSSIP: ScriptHandler.handle_script_type_gossip,

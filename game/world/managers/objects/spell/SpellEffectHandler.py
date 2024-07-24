@@ -23,7 +23,7 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.ItemCodes import EnchantmentSlots, InventoryError, ItemClasses
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, \
-    GameObjectStates, DynamicObjectTypes
+    GameObjectStates, DynamicObjectTypes, ScriptTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.PetCodes import PetSlot
 from utils.constants.SpellCodes import AuraTypes, SpellEffects, SpellState, SpellTargetMask, DispelType
@@ -861,7 +861,7 @@ class SpellEffectHandler:
 
         # Apply permanent enchantment.
         owner_player.enchantment_manager.set_item_enchantment(target, enchantment_slot, effect.misc_value,
-                                                              -1, charges)
+                                                              -1 if not is_temporary else duration, charges)
         owner_player.equipment_proc_manager.handle_equipment_change(target)
 
         # Save item.
@@ -942,7 +942,10 @@ class SpellEffectHandler:
 
     @staticmethod
     def handle_quest_complete(casting_spell, effect, caster, target):
-        if target.get_type_id() != ObjectTypeIds.ID_PLAYER:
+        target = target if target.get_type_id() == ObjectTypeIds.ID_PLAYER \
+            else caster if caster.get_type_id() == ObjectTypeIds.ID_PLAYER else None
+
+        if not target:
             return
 
         quest = WorldDatabaseManager.QuestTemplateHolder.quest_get_by_entry(effect.misc_value)
@@ -953,6 +956,15 @@ class SpellEffectHandler:
             return
 
         target.quest_manager.complete_quest_by_id(quest_id=quest.entry)
+
+    @staticmethod
+    def handle_send_event(casting_spell, effect, caster, target):
+        event_scripts = WorldDatabaseManager.EventScriptHolder.event_scripts_get_by_id(effect.misc_value)
+        if not event_scripts:
+            return
+
+        caster.get_map().enqueue_script(caster, target=target, script_type=ScriptTypes.SCRIPT_TYPE_EVENT_SCRIPT,
+                                        script_id=effect.misc_value)
 
 
 SPELL_EFFECTS = {
@@ -1008,6 +1020,8 @@ SPELL_EFFECTS = {
     SpellEffects.SPELL_EFFECT_INTERRUPT_CAST: SpellEffectHandler.handle_interrupt_cast,
     SpellEffects.SPELL_EFFECT_DISTRACT: SpellEffectHandler.handle_distract,
 
+    # Event scripts.
+    SpellEffects.SPELL_EFFECT_SEND_EVENT: SpellEffectHandler.handle_send_event,
 
     # Passive effects - enable skills, add skills and proficiencies on login.
     SpellEffects.SPELL_EFFECT_BLOCK: SpellEffectHandler.handle_block_passive,

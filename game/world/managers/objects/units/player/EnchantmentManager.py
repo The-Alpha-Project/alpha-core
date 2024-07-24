@@ -37,24 +37,25 @@ class EnchantmentManager(object):
     def update(self, elapsed, saving=False):
         self.duration_timer_seconds += elapsed
         if saving or self.duration_timer_seconds >= 10:
-            for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
-                self._update_item_enchantments(item)
+            [self._update_item_enchantments(item) for item
+             in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values())]
             self.duration_timer_seconds = 0
 
     def save(self):
         self.update(0, saving=True)
 
     def _update_item_enchantments(self, item):
-        for slot, enchantment in enumerate(item.enchantments):
-            if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry:  # Temporary enchantments.
-                new_duration = int(enchantment.duration - self.duration_timer_seconds)
-                enchantment.duration = 0 if new_duration <= 0 else new_duration
-                if not enchantment.duration and not enchantment.charges:
-                    # Remove.
-                    self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
-                    self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)  # Update procs if enchant expires.
-                elif new_duration:
-                    item.save()
+        [self._update_item_enchant(item, slot, enchantment) for (slot, enchantment)
+         in enumerate(item.enchantments) if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry]
+
+    def _update_item_enchant(self, item, slot, enchantment):
+        enchantment.duration = max(0, int(enchantment.duration - self.duration_timer_seconds))
+        if not enchantment.duration and not enchantment.charges:
+            # Remove.
+            self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
+            self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)  # Update procs if enchant expires.
+        elif not enchantment.duration:
+            item.save()
 
     # noinspection PyMethodMayBeStatic
     def consume_enchant_charge(self, item, spell_id):
@@ -91,6 +92,7 @@ class EnchantmentManager(object):
 
     def set_item_enchantment(self, item, slot, value, duration, charges, expired=False):
         duration = duration if slot != EnchantmentSlots.PERMANENT_SLOT else -1
+
         if not expired:
             item.enchantments[slot].update(value, duration, charges)
 
@@ -113,6 +115,9 @@ class EnchantmentManager(object):
         # Notify player with duration.
         if expired or duration:
             self.send_enchantments_durations(slot)
+            # Remove enchantment holder entry.
+            if expired and item.enchantments[slot].entry:
+                item.enchantments[slot].entry = 0
 
         if should_save:
             item.save()

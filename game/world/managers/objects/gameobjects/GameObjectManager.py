@@ -278,7 +278,7 @@ class GameObjectManager(ObjectManager):
         target.send_spell_cast_debug_info(damage_info, casting_spell, is_periodic=is_periodic, healing=True)
         target.receive_healing(value, self)
 
-    def use(self, player=None, target=None):
+    def use(self, player=None, target=None, from_script=False):
         if self.gobject_template.type == GameObjectTypes.TYPE_DOOR:
             self._handle_use_door(player)
         if self.gobject_template.type == GameObjectTypes.TYPE_BUTTON:
@@ -298,8 +298,14 @@ class GameObjectManager(ObjectManager):
         elif self.gobject_template.type == GameObjectTypes.TYPE_FISHINGNODE:
             self._handle_fishing_node(player)
 
-        # TODO: Do we need separate AI handler for gameobjects?
-        self.get_map().enqueue_script(self, player, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)
+        if from_script:
+            self.set_active()
+        else:
+            # TODO: Do we need separate AI handler for gameobjects?
+            self.get_map().enqueue_script(self, player, ScriptTypes.SCRIPT_TYPE_GAMEOBJECT, self.spawn_id)
+
+        # Force surrounding players to refresh this GO interactive state.
+        self.refresh_dynamic_flag()
 
     def set_state(self, state):
         self.state = state
@@ -325,6 +331,9 @@ class GameObjectManager(ObjectManager):
             self.set_state(GameObjectStates.GO_STATE_ACTIVE)
             return True
         return False
+
+    def refresh_dynamic_flag(self):
+        self.set_uint32(GameObjectFields.GAMEOBJECT_DYN_FLAGS, self.dynamic_flags, force=True)
 
     def is_active(self):
         return self.state == GameObjectStates.GO_STATE_ACTIVE

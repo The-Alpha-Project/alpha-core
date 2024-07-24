@@ -68,11 +68,6 @@ class AuraEffectHandler:
         form = aura.spell_effect.misc_value if not remove else ShapeshiftForms.SHAPESHIFT_FORM_NONE
         effect_target.set_shapeshift_form(form)
 
-        # Upon shapeshift set, we need to force the update upon player(s), else client action bars will misbehave.
-        # TODO: Forcing an update goes outside our normal UpdateSystem work flow, this needs further investigation.
-        if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER and effect_target.online and not remove:
-            effect_target.force_fields_update()
-
         faction = aura.target.team if effect_target.get_type_id() == ObjectTypeIds.ID_PLAYER else 0
         model_info = ExtendedSpellData.ShapeshiftInfo.get_form_model_info(form, faction)
 

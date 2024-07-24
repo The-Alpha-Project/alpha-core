@@ -71,7 +71,6 @@ class AIFactory:
             selected_ai = CritterAI(creature)
 
         # Select by permits.
-        # TODO: Test case for this.
         if not selected_ai:
             best_permit = Permits.PERMIT_BASE_NO
             best_ai_name = None

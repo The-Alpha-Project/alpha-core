@@ -1551,9 +1551,7 @@ class PlayerManager(UnitManager):
         return True
 
     def set_far_sight(self, guid):
-        self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid)
-        # Upon changing players view camera, need to force the update so client is aware immediately.
-        self.force_fields_update()
+        self.set_uint64(PlayerFields.PLAYER_FARSIGHT, guid, force=True)
 
     def set_charmed_by(self, charmer, subtype=0, movement_type=None, remove=False):
         # Charmer must be set here not in parent.
@@ -1577,7 +1575,7 @@ class PlayerManager(UnitManager):
     def set_shapeshift_form(self, shapeshift_form):
         super().set_shapeshift_form(shapeshift_form)
         self.bytes_1 = self.get_bytes_1()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1, force=True)
 
     # override
     def add_combo_points_on_target(self, target, combo_points, hide=False):
