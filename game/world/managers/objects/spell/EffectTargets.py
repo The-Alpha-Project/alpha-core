@@ -292,8 +292,8 @@ class EffectTargets:
         for unit in units:
             if not unit.is_alive:
                 continue
-            chain_distance = first_target.location.distance(unit.location)
-            if chain_distance > chain_distance:
+            unit_distance = first_target.location.distance(unit.location)
+            if unit_distance > chain_distance:
                 continue
             final_targets.append(unit)
             if len(final_targets) == target_effect.chain_targets:
