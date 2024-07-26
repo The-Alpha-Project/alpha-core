@@ -33,7 +33,6 @@ class EnchantmentManager(object):
                 charges = int(values[slot * 3 + 2])
                 self.set_item_enchantment(item, slot, entry, duration, charges)
 
-    # TODO: Need to optimize item lookup or even move Enchantment updates to a new global thread.
     def update(self, elapsed, saving=False):
         self.duration_timer_seconds += elapsed
         if saving or self.duration_timer_seconds >= 10:

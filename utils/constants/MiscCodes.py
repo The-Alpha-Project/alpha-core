@@ -994,6 +994,22 @@ class UnitInLosReaction(IntEnum):
     ULR_NON_HOSTILE = 2
 
 
+class MapsNoNavs(IntEnum):
+
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_
+
+    UnderMine = 2
+    Test = 13
+    ScottTest = 25
+    Test2 = 29
+    PVPZone1 = 30
+    PVPZone2 = 37
+    Collin = 42
+    SunkenTemple = 109
+
+
 class CreatureAIEventTypes(IntEnum):
     # TODO: (Taken as-is from VMaNGOS) Finish moving all of these to our naming.
     #     EVENT_T_TIMER                   = 0,                    // InitialMin, InitialMax, RepeatMin, RepeatMax

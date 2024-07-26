@@ -438,13 +438,13 @@ class CreatureManager(UnitManager):
 
         if not self.is_player_controlled_pet() and not self.is_guardian():
             self.evade()
-            if self.object_ai and was_in_combat:
+            if self.object_ai and was_in_combat and self.is_alive:
                 self.object_ai.on_combat_stop()
                 self.object_ai.on_leave_combat()
         else:
             self.set_unit_flag(UnitFlags.UNIT_FLAG_PET_IN_COMBAT, False)
 
-        if self.creature_group and self.is_evading:
+        if self.creature_group and self.is_evading and self.is_alive:
             self.creature_group.on_leave_combat(self)
 
     def evade(self):

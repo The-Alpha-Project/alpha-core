@@ -1,4 +1,8 @@
+from functools import lru_cache
 from multiprocessing import RLock
+
+from database.dbc.DbcDatabaseManager import DbcDatabaseManager
+from game.world.managers.maps.MapManager import MapManager
 from game.world.managers.maps.helpers.InstanceToken import InstanceToken
 
 # Instances tokens per player/map.
@@ -6,15 +10,13 @@ INSTANCES: dict[int, dict[int, InstanceToken]] = dict()
 
 
 class InstancesManager:
-    # TODO: Generate a new id on map creation instead of starting from this hardcoded value. At the very least, grab the
-    #  max map id from the dbc files.
-    INSTANCE_ID = 130  # Max map_id + 1.
+    INSTANCE_ID = DbcDatabaseManager.get_max_map_id() + 1  # Max map_id + 1.
     LOCK = RLock()
 
     @staticmethod
     def get_or_create_instance_token_by_player(player_mgr, map_id):
         # World/Pvp maps use map_id as instance_id.
-        if not InstancesManager._is_dungeon_map_id(map_id):
+        if not MapManager.is_dungeon_map_id(map_id):
             return InstanceToken(map_id, map_id)
         with InstancesManager.LOCK:
             group_manager = player_mgr.group_manager
@@ -52,8 +54,3 @@ class InstancesManager:
         INSTANCES[player_guid][map_] = instance_token
         InstancesManager.INSTANCE_ID += 1
         return instance_token
-
-    @staticmethod
-    def _is_dungeon_map_id(map_id):
-        # TODO: Move to Map db table as custom field?
-        return map_id not in (0, 1, 13, 17, 25, 29, 30, 37, 42)

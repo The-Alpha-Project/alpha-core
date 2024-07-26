@@ -116,9 +116,9 @@ class PetMovement(BaseMovement):
             return False, None
 
         # Should not probably use RangeMax, but RangeMin can be 0. Ideas?.
-        target_location = self.pet_range_move.target.location.get_point_in_between(self.pet_range_move.range_,
+        target_location = self.pet_range_move.target.location.get_point_in_between(self.unit,
+                                                                                   self.pet_range_move.range_,
                                                                                    vector=self.unit.location)
-
         # At position or heading in that direction.
         if self.unit.location == self.pet_range_move.location \
                 or (self.spline and self.spline.get_waypoint_location() == target_location):

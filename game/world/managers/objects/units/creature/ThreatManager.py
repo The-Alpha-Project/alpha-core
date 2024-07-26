@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from game.world.managers.objects.units.UnitManager import UnitManager
+from game.world.managers.objects.units.player.StatManager import UnitStats
 from utils.Logger import Logger
 from utils.constants.MiscCodes import ObjectTypeFlags
 from utils.constants.ScriptCodes import AttackingTarget
@@ -57,9 +58,9 @@ class ThreatManager:
     def reset(self):
         # Remove threat between self and attackers.
         for unit in self.get_threat_holder_units():
+            self.remove_unit_threat(unit)
             if not unit.threat_manager.has_aggro_from(self.unit):
                 continue
-            self.remove_unit_threat(unit)
             unit.threat_manager.remove_unit_threat(self.unit)
 
         self.holders.clear()
@@ -92,6 +93,8 @@ class ThreatManager:
 
         if not self.unit.is_alive or not self.unit.is_spawned or not source.is_alive:
             return
+
+        threat = self._calculate_threat_for_self(threat, attacker=source)
 
         # Notify pet that owner has been attacked.
         active_pet = self.unit.pet_manager.get_active_controlled_pet()
@@ -126,8 +129,11 @@ class ThreatManager:
             self.add_threat(charmer_or_summoner, 0)
 
     def get_hostile_target(self) -> Optional[UnitManager]:
+        if not self.can_resolve_target():
+            return None
+
         max_threat_holder = self._get_max_threat_holder()
-        if not max_threat_holder or not self.can_resolve_target():
+        if not max_threat_holder:
             return None
 
         # Threat target switching.
@@ -231,25 +237,34 @@ class ThreatManager:
             return False
         return True
 
-    # TODO: Optimize this method?
+    # noinspection PyMethodMayBeStatic
+    def _calculate_threat_for_self(self, threat, attacker):
+        if not threat or threat == ThreatManager.THREAT_NOT_TO_LEAVE_COMBAT:
+            return threat
+        threat_mod = attacker.stat_manager.get_aura_stat_bonus(UnitStats.THREAT_GENERATION, percentual=True)
+        if not threat_mod:
+            return threat
+        return threat * threat_mod
+
     def _get_max_threat_holder(self) -> Optional[ThreatHolder]:
-        relevant_holders = self._get_sorted_threat_collection()
-        return None if not relevant_holders else relevant_holders[0]
+        relevant_threat_holders = self._get_sorted_threat_collection()
+        return None if not relevant_threat_holders else relevant_threat_holders[0]
 
     def _get_sorted_threat_collection(self) -> Optional[list[ThreatHolder]]:
         relevant_holders = []
         if not self.holders:
             return relevant_holders
 
-        for holder in list(self.holders.values()):
-            if not holder.unit.is_alive:
-                continue
-            if (self.unit.can_attack_target(holder.unit) or
-                    (holder.unit.is_hostile_to(self.unit) and not holder.unit.unit_state & UnitStates.SANCTUARY)):
-                relevant_holders.append(holder)
-
         # Sort by threat and time added, to avoid unstable sorting when more than 1 unit have the same threat.
-        return sorted(relevant_holders, key=lambda h: (h.get_total_threat(), -h.time_added), reverse=True)
+        return sorted(self._resolve_holders_list(), key=lambda h: (h.get_total_threat(), -h.time_added), reverse=True)
+
+    def _resolve_holders_list(self):
+        return [holder for holder in list(self.holders.values()) if self._can_resolve_holder(holder)]
+
+    def _can_resolve_holder(self, holder):
+        return holder.unit.is_alive and (self.unit.can_attack_target(holder.unit)
+                                         or (holder.unit.is_hostile_to(self.unit)
+                                             and not holder.unit.unit_state & UnitStates.SANCTUARY))
 
     # TODO Melee/outside of melee range reach
     def _is_exceeded_current_threat_melee_range(self, threat: float):

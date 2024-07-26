@@ -780,6 +780,10 @@ class UnitManager(ObjectManager):
         damage_info.absorb = target.get_school_absorb_for_damage(damage_info)
         damage_info.total_damage = max(0, damage_info.base_damage - damage_info.absorb)
 
+        # Target will die because of this attack.
+        if target.health - damage_info.total_damage <= 0:
+            damage_info.hit_info |= HitInfo.UNIT_DEAD
+
         return damage_info
 
     def deal_damage(self, target, damage_info, casting_spell=None, is_periodic=False):
@@ -812,7 +816,6 @@ class UnitManager(ObjectManager):
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
 
-        # TODO: Threat calculation.
         if casting_spell and damage_info.total_damage == 0:
             self.threat_manager.add_threat(source)
             return True
@@ -1532,7 +1535,7 @@ class UnitManager(ObjectManager):
 
         # Also check school immunity on damage immunity.
         return self.has_immunity(SpellImmunity.IMMUNITY_DAMAGE, school, is_mask=is_mask) or \
-                self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, school, is_mask=is_mask)
+            self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, school, is_mask=is_mask)
 
     def set_health(self, health):
         if health < 0:

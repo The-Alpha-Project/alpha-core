@@ -119,9 +119,6 @@ class CreatureGroupManager:
         for guid, member in self.members.items():
             member.creature_group = None
             member.creature.creature_group = None
-            # Reset movement behavior for non leader members.
-            if self.original_leader_spawn_id != member.creature.spawn_id:
-                member.creature.movement_manager.initialize_or_reset()
             Logger.debug(f'{member.creature.get_name()} left creature group.')
         self.members.clear()
         if not self.original_leader_spawn_id:

@@ -334,7 +334,6 @@ class QuestManager(object):
             dialog_status = QuestGiverStatus.QUEST_GIVER_TRIVIAL  # Not shown unless interacting.
         return dialog_status
 
-    # TODO: RequiredCondition, ExclusiveGroups
     def check_quest_requirements(self, quest_template, quest_start=True):
         # First check if quest is disabled.
         if quest_template.Method == QuestMethod.QUEST_DISABLED:

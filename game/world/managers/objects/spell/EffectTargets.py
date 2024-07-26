@@ -186,10 +186,11 @@ class EffectTargets:
             source = caster
 
         if isinstance(source, Vector):
+            radius = target_effect.get_radius() if radius == -1 else radius
             result = caster.get_map().get_surrounding_units_by_location(source,
                                                                         caster.map_id, caster.instance_id,
-                                                                        target_effect.get_radius(), include_players=True)
-            units = list(result[0].values()) + list(result[1].values())
+                                                                        radius, include_players=True)
+            units = sorted(list(result[0].values()) + list(result[1].values()), key=lambda u: source.distance(u.location))
         else:
             units = source.get_map().get_surrounding_units(source, include_players=True)
             units = list(units[0].values()) + list(units[1].values())
@@ -281,14 +282,18 @@ class EffectTargets:
 
         # TODO not sure what distance to use here; these spells don't provide radius info.
         # Should distance be higher for ranged spells?
-        chain_distance = 5 ** 2
+        chain_distance = target_effect.chain_targets * 2.78  # spellchaineffects AvgSegmentLength
         final_targets = []
+        # Use the initial target as start point.
         units = EffectTargets.get_surrounding_unit_targets(target_effect,
-                                                           source_unit=casting_spell.spell_caster,
-                                                           enemies_only=True)
+                                                           source_location=first_target.location,
+                                                           enemies_only=True,
+                                                           radius=chain_distance)
         for unit in units:
-            distance_sqrd = first_target.location.distance_sqrd(unit.location)
-            if distance_sqrd > chain_distance:
+            if not unit.is_alive:
+                continue
+            chain_distance = first_target.location.distance(unit.location)
+            if chain_distance > chain_distance:
                 continue
             final_targets.append(unit)
             if len(final_targets) == target_effect.chain_targets:

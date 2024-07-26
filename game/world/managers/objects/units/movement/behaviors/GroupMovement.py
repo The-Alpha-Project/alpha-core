@@ -60,6 +60,9 @@ class GroupMovement(BaseMovement):
         self.wait_time_seconds = 0
         self.last_waypoint_movement = 0
 
+    def can_remove(self):
+        return not self.unit.creature_group or not self.unit.is_alive
+
     def _can_perform_waypoint(self, now):
         if self.speed_dirty and self.unit.creature_group.waypoints and self.unit.creature_group.is_leader(self.unit):
             return True
