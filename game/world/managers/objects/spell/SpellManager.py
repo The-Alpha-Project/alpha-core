@@ -959,7 +959,7 @@ class SpellManager:
 
         # Write misses.
         signature += 'B'
-        data.append(5 - hit_count)
+        data.append(SpellManager.MAX_TARGETS - hit_count)
         for result, target_guid in misses:
             signature += 'BQ'
             data.append(result)
