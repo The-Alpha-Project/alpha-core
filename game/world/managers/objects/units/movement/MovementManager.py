@@ -51,7 +51,7 @@ class MovementManager:
             is_default = self.unit.is_pet()
             self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=is_default))
         elif self.unit.creature_group and self.unit.creature_group.is_formation():
-            self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
+            self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=False))
         elif self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_waypoints_type():
@@ -216,7 +216,8 @@ class MovementManager:
 
     def set_behavior(self, movement_behavior):
         if movement_behavior.initialize(self.unit):
-            Logger.debug(f'Set movement {movement_behavior.move_type} for unit {self.unit.entry}')
+            Logger.debug(f'Set movement {MoveType(movement_behavior.move_type).name} for unit {self.unit.entry},'
+                         f' {self.unit.get_name()}')
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()
             if movement_behavior.is_default:
