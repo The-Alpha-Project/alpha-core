@@ -57,7 +57,6 @@ class WanderingMovement(BaseMovement):
         return True
 
     def _can_wander(self, now):
-        return False
         return not self.spline and now > self.last_wandering_movement + self.wait_time_seconds
 
     def _get_wandering_point(self):
