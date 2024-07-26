@@ -48,7 +48,6 @@ class DbcDatabaseManager:
             DbcDatabaseManager.CharBaseInfoHolder.BASE_INFOS[base_info.RaceID][base_info.ClassID] = base_info
 
         @staticmethod
-        @lru_cache
         def char_base_info_get(race, class_):
             if race not in DbcDatabaseManager.CharBaseInfoHolder.BASE_INFOS:
                 return None
@@ -108,7 +107,6 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
-    @lru_cache
     def area_get_all_ids():
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(AreaTable.ID).all()
@@ -165,13 +163,11 @@ class DbcDatabaseManager:
             DbcDatabaseManager.SpellHolder.SPELLS[spell.ID] = spell
 
         @staticmethod
-        @lru_cache
         def spell_get_by_id(spell_id):
             return DbcDatabaseManager.SpellHolder.SPELLS[spell_id] \
                 if spell_id in DbcDatabaseManager.SpellHolder.SPELLS else None
 
         @staticmethod
-        @lru_cache
         def spell_get_trainer_spell_by_id(spell_id):
             for id_, spell in DbcDatabaseManager.SpellHolder.SPELLS.items():
                 triggers = [spell.EffectTriggerSpell_1, spell.EffectTriggerSpell_2, spell.EffectTriggerSpell_3]
@@ -187,7 +183,6 @@ class DbcDatabaseManager:
             return 0
 
         @staticmethod
-        @lru_cache
         def spell_get_rank_by_id(spell_id):
             spell = DbcDatabaseManager.SpellHolder.spell_get_by_id(spell_id)
             if not spell:
@@ -276,7 +271,6 @@ class DbcDatabaseManager:
             DbcDatabaseManager.SkillHolder.SKILLS[skill.ID] = skill
 
         @staticmethod
-        @lru_cache
         def skill_get_by_id(skill_id) -> Optional[SkillLine]:
             return DbcDatabaseManager.SkillHolder.SKILLS[skill_id] \
                 if skill_id in DbcDatabaseManager.SkillHolder.SKILLS else None
@@ -327,28 +321,24 @@ class DbcDatabaseManager:
                     skill_line_ability)
 
         @staticmethod
-        @lru_cache
         def skill_line_abilities_get_preceded_by_spell(spell_id) -> Optional[SkillLineAbility]:
             if spell_id in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_PRECEDED:
                 return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_PRECEDED[spell_id]
             return None
 
         @staticmethod
-        @lru_cache
         def skill_line_abilities_get_by_skill_id(skill_id) -> Optional[list[SkillLineAbility]]:
             if skill_id in DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINES_BY_SKILL:
                 return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINES_BY_SKILL[skill_id]
             return []
 
         @staticmethod
-        @lru_cache
         def spells_get_by_skill_id(skill_id) -> Optional[list[int]]:
             if skill_id in DbcDatabaseManager.SkillLineAbilityHolder.SPELLS_BY_SKILL_LINE:
                 return DbcDatabaseManager.SkillLineAbilityHolder.SPELLS_BY_SKILL_LINE[skill_id]
             return []
 
         @staticmethod
-        @lru_cache
         def skill_line_abilities_get_by_spell(spell_id) -> list:
             return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, list())
 
@@ -418,7 +408,6 @@ class DbcDatabaseManager:
                 = creature_display_info
 
         @staticmethod
-        @lru_cache
         def creature_display_info_get_by_id(display_id) -> Optional[CreatureDisplayInfo]:
             return DbcDatabaseManager.CreatureDisplayInfoHolder.CREATURE_DISPLAY_INFOS.get(display_id)
 
@@ -449,7 +438,6 @@ class DbcDatabaseManager:
             DbcDatabaseManager.CreatureFamilyHolder.CREATURE_FAMILIES[creature_family.ID] = creature_family
 
         @staticmethod
-        @lru_cache
         def creature_family_get_by_id(family_id) -> Optional[CreatureFamily]:
             return DbcDatabaseManager.CreatureFamilyHolder.CREATURE_FAMILIES.get(family_id)
 
@@ -544,7 +532,6 @@ class DbcDatabaseManager:
             DbcDatabaseManager.TaxiPathNodesHolder.TAXI_PATH_NODES[taxi_path_node.PathID].append(taxi_path_node)
 
         @staticmethod
-        @lru_cache
         def taxi_nodes_get_by_path_id(taxi_path_id):
             if taxi_path_id in DbcDatabaseManager.TaxiPathNodesHolder.TAXI_PATH_NODES:
                 return DbcDatabaseManager.TaxiPathNodesHolder.TAXI_PATH_NODES[taxi_path_id]
@@ -581,7 +568,6 @@ class DbcDatabaseManager:
             DbcDatabaseManager.LocksHolder.LOCKS[lock.ID] = LockHolder(lock)
 
         @staticmethod
-        @lru_cache
         def get_lock_by_id(lock_id):
             if lock_id in DbcDatabaseManager.LocksHolder.LOCKS:
                 return DbcDatabaseManager.LocksHolder.LOCKS[lock_id]
@@ -634,7 +620,6 @@ class DbcDatabaseManager:
             return None
 
         @staticmethod
-        @lru_cache
         def faction_get_by_id(faction_id):
             if faction_id in DbcDatabaseManager.FactionHolder.FACTIONS:
                 return DbcDatabaseManager.FactionHolder.FACTIONS[faction_id]
@@ -657,7 +642,6 @@ class DbcDatabaseManager:
             DbcDatabaseManager.FactionTemplateHolder.FACTION_TEMPLATES[faction_template.ID] = faction_template
 
         @staticmethod
-        @lru_cache
         def faction_template_get_by_id(faction_template_id):
             if faction_template_id in DbcDatabaseManager.FactionTemplateHolder.FACTION_TEMPLATES:
                 return DbcDatabaseManager.FactionTemplateHolder.FACTION_TEMPLATES[faction_template_id]
