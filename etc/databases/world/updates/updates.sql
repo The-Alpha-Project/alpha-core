@@ -1329,7 +1329,17 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '334.813', `spawn_positionY` = '-4708.16', `spawn_positionZ` = '13.719481468200684' WHERE (`spawn_id` = '1658');
         -- Campfire Damage Placement.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '334.813', `spawn_positionY` = '-4708.16', `spawn_positionZ` = '13.719481468200684' WHERE (`spawn_id` = '1672');
-
+        -- Tarhus Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-481.16', `position_y` = '-2667.08', `position_z` = '97.29502868652344' WHERE (`spawn_id` = '50967');
+        -- Uthrok Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-430.25', `position_y` = '-2690.01', `position_z` = '96.65360260009766' WHERE (`spawn_id` = '15103');
+        -- Greater Plainstrider Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-354.581', `position_y` = '-2774.03', `position_z` = '93.53717803955078' WHERE (`spawn_id` = '19239');
+        -- Anvil Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1239.682', `spawn_positionY` = '84.142', `spawn_positionZ` = '130.720' WHERE (`spawn_id` = '18124');
+        -- Taur Stonehoof Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-1229.010', `position_y` = '98.905', `position_z` = '132.023' WHERE (`spawn_id` = '26619');
+        
         insert into applied_updates values ('260720241');
     end if;
     
