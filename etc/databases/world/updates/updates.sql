@@ -1355,6 +1355,9 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '-5319.32', `position_y` = '-26.9008', `position_z` = '395.9243469238281' WHERE (`spawn_id` = '3143');
         -- Battered Chest Placement.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5407.39', `spawn_positionY` = '-127.371', `spawn_positionZ` = '398.2245788574219' WHERE (`spawn_id` = '10048');
+        -- Wendigo Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5650.79', `position_y` = ' -278.218', `position_z` = ' 372.993' WHERE (`spawn_id` = '3559');
+        UPDATE `spawns_creatures` SET `position_x` = '-5651.67', `position_y` = ' -305.106', `position_z` = ' 376.785' WHERE (`spawn_id` = '3580');
 
         insert into applied_updates values ('260720241');
     end if;
