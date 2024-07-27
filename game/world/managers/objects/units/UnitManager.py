@@ -885,7 +885,7 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        if damage_info.hit_info & HitInfo.DEFERRED_LOGGING:
+        if damage_info.hit_info & HitInfo.DEFERRED_LOGGING and self.is_alive:
             # Spells with deferred logging aren't logged until an attack state update is sent with this flag.
             self.send_attack_state_update(damage_info)
 
