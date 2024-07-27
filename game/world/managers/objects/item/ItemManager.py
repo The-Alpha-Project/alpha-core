@@ -486,9 +486,12 @@ class ItemManager(ObjectManager):
     # Persist item in database.
     def save(self):
         if not self.item_instance:
+            if not self.is_backpack:
+                Logger.error(f'Item {self.get_name()} has no item instance, unable to save.')
             return
         if not self.get_owner_guid():
             Logger.error(f'Item {self.get_name()} has no owner, unable to save.')
+            return
         self.item_instance.enchantments = self._get_enchantments_db_string()
         RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 
