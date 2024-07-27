@@ -1323,6 +1323,12 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '10148.3', `position_y` = '2564.49', `position_z` = '1317.8089599609375' WHERE (`spawn_id` = '46540');
         -- Exile of the High Elves Placement.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10055.1', `spawn_positionY` = '2577.36', `spawn_positionZ` = '1316.989501953125' WHERE (`spawn_id` = '49706');
+        -- Wisp Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10121.8', `position_y` = '2637.56', `position_z` = '1318.009521484375' WHERE (`spawn_id` = '46371');
+        -- Tall Brazier Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '334.813', `spawn_positionY` = '-4708.16', `spawn_positionZ` = '13.719481468200684' WHERE (`spawn_id` = '1658');
+        -- Campfire Damage Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '334.813', `spawn_positionY` = '-4708.16', `spawn_positionZ` = '13.719481468200684' WHERE (`spawn_id` = '1672');
 
         insert into applied_updates values ('260720241');
     end if;
