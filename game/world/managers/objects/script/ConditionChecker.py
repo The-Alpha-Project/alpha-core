@@ -373,7 +373,7 @@ class ConditionChecker:
         # Condition_value2 = count.
         if not ConditionChecker.is_player(target):
             return False
-        return target.inventory_manager.get_item_count(condition.value1, include_bank=True) >= condition.value2
+        return target.inventory.get_item_count(condition.value1, include_bank=True) >= condition.value2
 
     @staticmethod
     def check_condition_wow_patch(_condition, _source, _target):

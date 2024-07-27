@@ -494,7 +494,7 @@ class ItemManager(ObjectManager):
 
     # override
     def get_name(self):
-        return self.item_template.name
+        return self.item_template.name if self.item_template else 'Backpack' if self.is_backpack else 'None'
 
     # override
     def get_type_mask(self):
