@@ -1296,7 +1296,9 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.789' WHERE (`spawn_id` = '26812');
         -- Blackrock Scout Z.
         UPDATE `spawns_creatures` SET `position_x` = '-9294.5', `position_y` = '-2942.45', `position_z` = '163.848' WHERE (`spawn_id` = '28337');
-
+        -- Squirrel Z.
+        UPDATE `spawns_creatures` SET `position_x` = '9875.71', `position_y` = '2307.68', `position_z` = '1318.8951416015625' WHERE (`spawn_id` = '46523');
+        
         insert into applied_updates values ('260720241');
     end if;
     
