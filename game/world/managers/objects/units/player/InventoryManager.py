@@ -963,3 +963,11 @@ class InventoryManager(object):
         update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
             OpCode.SMSG_UPDATE_OBJECT, item.get_partial_update_bytes(requester)))
         return update_packet
+
+    def save(self):
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            container.save()
+            for slot, item in list(container.sorted_slots.items()):
+                item.save()
