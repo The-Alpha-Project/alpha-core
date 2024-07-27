@@ -1294,6 +1294,8 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_z` = '60.185' WHERE (`spawn_id` = '80360');
         -- Fix Peacebloom Flower Z.
         UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.789' WHERE (`spawn_id` = '26812');
+        -- Blackrock Scout Z.
+        UPDATE `spawns_creatures` SET `position_x` = '-9294.5', `position_y` = '-2942.45', `position_z` = '163.848' WHERE (`spawn_id` = '28337');
 
         insert into applied_updates values ('260720241');
     end if;
