@@ -1290,6 +1290,10 @@ begin not atomic
     if (select count(*) from `applied_updates` where id='260720241') = 0 then
         -- Fix Grimnur Stonebrand <Fishing Trainer> location.
         UPDATE `spawns_creatures` SET `position_x` = '-4644.079', `position_y` = '-1072.172', `position_z` = '500.269', `orientation` = '4.72' WHERE (`spawn_id` = '1794');
+        -- Fix rabbit Z.
+        UPDATE `spawns_creatures` SET `position_z` = '60.185' WHERE (`spawn_id` = '80360');
+        -- Fix Peacebloom Flower Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.789' WHERE (`spawn_id` = '26812');
 
         insert into applied_updates values ('260720241');
     end if;
