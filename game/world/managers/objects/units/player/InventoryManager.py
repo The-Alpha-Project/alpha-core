@@ -905,7 +905,7 @@ class InventoryManager(object):
                 destroy_packets[container.guid] = container.get_destroy_packet()
 
             for slot, item in list(container.sorted_slots.items()):
-                if requester.guid == self.owner.guid or item.guid in requester.known_items:
+                if item and requester.guid == self.owner.guid or item.guid in requester.known_items:
                     destroy_packets[item.guid] = item.get_destroy_packet()
         return destroy_packets
 
