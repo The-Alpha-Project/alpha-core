@@ -13,6 +13,7 @@ from game.world.managers.objects.units.player.EnchantmentManager import MAX_ENCH
 from network.packet.PacketWriter import PacketWriter
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
+from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.OpCodes import OpCode
@@ -484,9 +485,12 @@ class ItemManager(ObjectManager):
 
     # Persist item in database.
     def save(self):
-        if self.item_instance:
-            self.item_instance.enchantments = self._get_enchantments_db_string()
-            RealmDatabaseManager.character_inventory_update_item(self.item_instance)
+        if not self.item_instance:
+            return
+        if not self.get_owner_guid():
+            Logger.error(f'Item {self.get_name()} has no owner, unable to save.')
+        self.item_instance.enchantments = self._get_enchantments_db_string()
+        RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 
     # override
     def get_name(self):

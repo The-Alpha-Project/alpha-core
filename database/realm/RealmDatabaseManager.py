@@ -222,12 +222,13 @@ class RealmDatabaseManager(object):
 
     @staticmethod
     def character_inventory_update_item(item):
-        if item:
-            realm_db_session = SessionHolder()
-            realm_db_session.merge(item)
-            realm_db_session.flush()
-            realm_db_session.commit()
-            realm_db_session.close()
+        if not item:
+            return
+        realm_db_session = SessionHolder()
+        realm_db_session.merge(item)
+        realm_db_session.flush()
+        realm_db_session.commit()
+        realm_db_session.close()
 
     @staticmethod
     def character_inventory_update_container_contents(container):
