@@ -1299,6 +1299,7 @@ begin not atomic
         -- Squirrel Z.
         UPDATE `spawns_creatures` SET `position_x` = '9875.71', `position_y` = '2307.68', `position_z` = '1318.8951416015625' WHERE (`spawn_id` = '46523');
         UPDATE `spawns_creatures` SET `position_x` = '9755.8', `position_y` = '2436.39', `position_z` = '1333.901611328125' WHERE (`spawn_id` = '46529');
+        UPDATE `spawns_creatures` SET `position_x` = '10089.6', `position_y` = '2372.92', `position_z` = '1317.6937255859375' WHERE (`spawn_id` = '46536');
         UPDATE `spawns_creatures` SET `position_x` = '10125.9', `position_y` = '2494.44', `position_z` = '1318.5731201171875' WHERE (`spawn_id` = '46514');
         -- Cyridan Z.
         UPDATE `spawns_creatures` SET `position_x` = '9670.22', `position_y` = '2378.48', `position_z` = '1332.9998779296875' WHERE (`spawn_id` = '46576');
@@ -1306,6 +1307,22 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '9936.96', `position_y` = '2508.24', `position_z` = '1319.645263671875' WHERE (`spawn_id` = '46386');
         -- Stove.
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10085.711', `spawn_positionY` = '2433.724', `spawn_positionZ` = '1321.658' WHERE (`spawn_id` = '49526');
+        -- Deer Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10105.7', `position_y` = '2508.27', `position_z` = '1318.367919921875' WHERE (`spawn_id` = '46426');
+        -- Deer Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10109.0', `position_y` = '2550.58', `position_z` = '1317.854736328125' WHERE (`spawn_id` = '46442');
+        -- Squirrel Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10111.3', `position_y` = '2536.27', `position_z` = '1316.98095703125' WHERE (`spawn_id` = '46532');
+        -- Squirrel Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10172.0', `position_y` = '2522.57', `position_z` = '1317.8514404296875' WHERE (`spawn_id` = '46548');
+        -- Darnassian Protector Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10151.4', `position_y` = '2569.15', `position_z` = '1318.0640869140625' WHERE (`spawn_id` = '46324');
+        -- Cyroen Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10175.2', `position_y` = '2588.12', `position_z` = '1322.063', `orientation` = '3.087' WHERE (`spawn_id` = '46477');
+        -- Squirrel Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10148.3', `position_y` = '2564.49', `position_z` = '1317.8089599609375' WHERE (`spawn_id` = '46540');
+        -- Exile of the High Elves Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10055.1', `spawn_positionY` = '2577.36', `spawn_positionZ` = '1316.989501953125' WHERE (`spawn_id` = '49706');
 
         insert into applied_updates values ('260720241');
     end if;
