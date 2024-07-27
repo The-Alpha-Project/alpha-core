@@ -79,6 +79,19 @@ class InventoryManager(object):
                 if item_instance.bag in self.containers and self.containers[item_instance.bag]:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
+    def get_all_items(self, include_bank=False, only_equipable=False):
+        items = []
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            for slot, item in list(container.sorted_slots.items()):
+                if not include_bank and self.is_bank_slot(container_slot, slot):
+                    continue
+                if only_equipable and item.inv_type == InventoryTypes.NONE_EQUIP:
+                    continue
+                items.append(item)
+        return items
+
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
 
@@ -335,17 +348,8 @@ class InventoryManager(object):
             self.build_update()
 
     def get_item_count(self, entry, include_bank=False):
-        count = 0
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
-            for slot, item in list(container.sorted_slots.items()):
-                if not include_bank and self.is_bank_slot(container_slot, slot):
-                    continue
-
-                if item.item_template.entry == entry:
-                    count += item.item_instance.stackcount
-        return count
+        return sum(item.item_instance.stackcount for item in self.get_all_items(include_bank=include_bank)
+                   if item.item_template.entry == entry)
 
     def get_container(self, slot):
         if slot >= InventorySlots.SLOT_BANK_END:  # The client sometimes refers to backpack with values over or equal to SLOT_BANK_END
@@ -361,12 +365,9 @@ class InventoryManager(object):
         return None
 
     def get_first_item_by_entry(self, entry):
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
-            for slot, item in list(container.sorted_slots.items()):
-                if item.item_template.entry == entry:
-                    return item
+        for item in self.get_all_items():
+            if item.item_template.entry == entry:
+                return item
         return None
 
     # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
@@ -460,12 +461,10 @@ class InventoryManager(object):
         return item_count  # Return the amount of items not removed
 
     def get_item_by_guid(self, guid):
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
-            for slot, item in list(container.sorted_slots.items()):
-                if item.guid == guid:
-                    return item
+        for item in self.get_all_items():
+            if item.guid == guid:
+                return item
+        return None
 
     def get_item_info_by_guid(self, guid):
         for container_slot, container in list(self.containers.items()):

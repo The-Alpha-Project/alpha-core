@@ -36,9 +36,9 @@ class EnchantmentManager(object):
 
     def update(self, elapsed, saving=False):
         self.duration_timer_seconds += elapsed
-        if saving or self.duration_timer_seconds >= 10:
-            [self._update_item_enchantments(item) for item
-             in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values())]
+        if saving or self.duration_timer_seconds >= 30:
+            # Updates should check all equipable items, not just backpack.
+            [self._update_item_enchantments(itm) for itm in self.unit_mgr.inventory.get_all_items(only_equipable=True)]
             self.duration_timer_seconds = 0
 
     def save(self):
