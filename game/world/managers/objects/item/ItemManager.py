@@ -1,3 +1,4 @@
+from functools import lru_cache
 from struct import pack
 from typing import List
 
@@ -464,8 +465,9 @@ class ItemManager(ObjectManager):
     def has_enchantments(self):
         return any(enchantment.entry > 0 for enchantment in self.enchantments)
 
-    # Initial enchantment db state, empty or initialized with given permanent enchant. (Used for trade)
+    # Initial enchantment db state, empty or initialized with given permanent enchant. (Used for trade or new items)
     @staticmethod
+    @lru_cache
     def _get_enchantments_db_initialization(permanent_enchant=0):
         db_enchantments = ''
         for index in range(MAX_ENCHANTMENTS):
