@@ -1298,6 +1298,15 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '-9294.5', `position_y` = '-2942.45', `position_z` = '163.848' WHERE (`spawn_id` = '28337');
         -- Squirrel Z.
         UPDATE `spawns_creatures` SET `position_x` = '9875.71', `position_y` = '2307.68', `position_z` = '1318.8951416015625' WHERE (`spawn_id` = '46523');
+        UPDATE `spawns_creatures` SET `position_x` = '9755.8', `position_y` = '2436.39', `position_z` = '1333.901611328125' WHERE (`spawn_id` = '46529');
+        UPDATE `spawns_creatures` SET `position_x` = '10125.9', `position_y` = '2494.44', `position_z` = '1318.5731201171875' WHERE (`spawn_id` = '46514');
+        -- Cyridan Z.
+        UPDATE `spawns_creatures` SET `position_x` = '9670.22', `position_y` = '2378.48', `position_z` = '1332.9998779296875' WHERE (`spawn_id` = '46576');
+        -- Wisp Z.
+        UPDATE `spawns_creatures` SET `position_x` = '9936.96', `position_y` = '2508.24', `position_z` = '1319.645263671875' WHERE (`spawn_id` = '46386');
+        -- Stove.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10125.9', `spawn_positionY` = '2494.44' WHERE (`spawn_id` = '49526');
+
         
         insert into applied_updates values ('260720241');
     end if;
