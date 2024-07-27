@@ -1305,9 +1305,8 @@ begin not atomic
         -- Wisp Z.
         UPDATE `spawns_creatures` SET `position_x` = '9936.96', `position_y` = '2508.24', `position_z` = '1319.645263671875' WHERE (`spawn_id` = '46386');
         -- Stove.
-        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10125.9', `spawn_positionY` = '2494.44' WHERE (`spawn_id` = '49526');
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10085.711', `spawn_positionY` = '2433.724', `spawn_positionZ` = '1321.658' WHERE (`spawn_id` = '49526');
 
-        
         insert into applied_updates values ('260720241');
     end if;
     
