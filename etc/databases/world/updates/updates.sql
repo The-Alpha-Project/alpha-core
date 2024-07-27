@@ -1339,7 +1339,23 @@ begin not atomic
         UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1239.682', `spawn_positionY` = '84.142', `spawn_positionZ` = '130.720' WHERE (`spawn_id` = '18124');
         -- Taur Stonehoof Placement.
         UPDATE `spawns_creatures` SET `position_x` = '-1229.010', `position_y` = '98.905', `position_z` = '132.023' WHERE (`spawn_id` = '26619');
-        
+        -- Frostmane Troll Whelp Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-6496.07', `position_y` = '398.316', `position_z` = '386.75433349609375' WHERE (`spawn_id` = '1084');
+        -- Elder Crag Boar Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5286.91', `position_y` = '486.285', `position_z` = '385.459716796875' WHERE (`spawn_id` = '2456');
+        -- Leper Gnome Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5281.59', `position_y` = '486.986', `position_z` = '385.7125549316406' WHERE (`spawn_id` = '2457');
+        -- Leper Gnome Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5288.18', `position_y` = '536.86', `position_z` = '385.6847229003906' WHERE (`spawn_id` = '2452');
+        -- Snow Leopard Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5266.3', `position_y` = '454.985', `position_z` = '386.43804931640625' WHERE (`spawn_id` = '2459');
+        -- Leper Gnome Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5334.27', `position_y` = '561.942', `position_z` = '390.2685546875' WHERE (`spawn_id` = '2465');
+        -- Ice Claw Bear Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5319.32', `position_y` = '-26.9008', `position_z` = '395.9243469238281' WHERE (`spawn_id` = '3143');
+        -- Battered Chest Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5407.39', `spawn_positionY` = '-127.371', `spawn_positionZ` = '398.2245788574219' WHERE (`spawn_id` = '10048');
+
         insert into applied_updates values ('260720241');
     end if;
     
