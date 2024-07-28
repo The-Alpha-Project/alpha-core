@@ -7,6 +7,7 @@ from utils.constants.UpdateFields import ItemFields
 
 
 MAX_ENCHANTMENTS = 5
+REFRESH_SECONDS = 30
 
 
 class EnchantmentManager(object):
@@ -30,7 +31,7 @@ class EnchantmentManager(object):
 
     def update(self, elapsed, saving=False):
         self.duration_timer_seconds += elapsed
-        if saving or self.duration_timer_seconds >= 30:
+        if saving or self.duration_timer_seconds >= REFRESH_SECONDS:
             # Updates should check all items, not just backpack.
             [self._update_item_enchantments(itm) for itm in self.unit_mgr.inventory.get_all_items()]
             self.duration_timer_seconds = 0
@@ -40,7 +41,7 @@ class EnchantmentManager(object):
 
     def _update_item_enchantments(self, item):
         # In order to avoid more iterations for item duration field (Not enchantments, do it here).
-        if item.duration:
+        if item.item_template.duration:
             self._update_item_duration(item)
         # Enchantments.
         [self._update_item_enchant(item, slot, enchantment) for (slot, enchantment)
@@ -53,7 +54,7 @@ class EnchantmentManager(object):
             item.send_item_duration(self.unit_mgr.guid)
         # Expired on this tick, remove item.
         else:
-            self.unit_mgr.inventory.remove_item(item)
+            item.remove()
 
     def _update_item_enchant(self, item, slot, enchantment):
         enchantment.duration = max(0, int(enchantment.duration - self.duration_timer_seconds))

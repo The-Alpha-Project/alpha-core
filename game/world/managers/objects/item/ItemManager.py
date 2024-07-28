@@ -509,6 +509,11 @@ class ItemManager(ObjectManager):
             db_enchantments += str(self.enchantments[index].charges) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
         return db_enchantments
 
+    def remove(self):
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(self.get_owner_guid())
+        if player_mgr and self.item_instance and self.item_instance.bag:
+            player_mgr.inventory.remove_item(self.item_instance.bag, self.current_slot)
+
     # Persist item in database.
     def save(self):
         if not self.item_instance:
