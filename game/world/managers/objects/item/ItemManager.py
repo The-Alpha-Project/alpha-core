@@ -73,6 +73,7 @@ class ItemManager(ObjectManager):
         self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_backpack = False
+        self.duration = item_instance.duration if item_instance else 0
 
         self.enchantments = []  # Handled by EnchantmentManager.
         self.stats = []
@@ -99,6 +100,7 @@ class ItemManager(ObjectManager):
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
             self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template)
             self.lock = self.item_template.lock_id
+            self.duration = self.item_template.duration
 
             # Load loot_manager if needed.
             if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
@@ -205,6 +207,7 @@ class ItemManager(ObjectManager):
                 creator=creator if creator and item_template.stackable == 1 else 0,
                 item_template=item_template.entry,
                 stackcount=stack_count,
+                duration=item_template.duration,
                 slot=slot,
                 enchantments=ItemManager._get_enchantments_db_initialization(perm_enchant),
                 SpellCharges1=item_template.spellcharges_1,
@@ -337,6 +340,7 @@ class ItemManager(ObjectManager):
             # Item fields.
             self.set_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
             self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)  # Wrapped/Crafted Items.
+            self.set_uint32(ItemFields.ITEM_FIELD_DURATION, self.item_instance.duration)
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
@@ -454,6 +458,17 @@ class ItemManager(ObjectManager):
         self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
         self.save()
 
+    def send_item_duration(self, owner_guid):
+        if owner_guid != self.get_owner_guid():
+            return
+
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(owner_guid)
+        if not player_mgr:
+            return
+
+        data = pack('<QI', self.guid, self.duration)
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_TIME_UPDATE, data))
+
     def _get_item_flags(self):
         # Prior to Patch 1.7 ITEM_FIELD_FLAGS 32 bit value was built using 2 16 bit integers, dynamic item flags and
         # static item flags. For example an item with ITEM_FIELD_FLAGS = 0x00010000 would mean that it has dynamic
@@ -461,6 +476,14 @@ class ItemManager(ObjectManager):
         return ByteUtils.shorts_to_int(self.item_instance.item_flags, self.item_template.flags)
 
     # Enchantments.
+
+    @staticmethod
+    def get_enchantments_entries_from_db(item_instance: CharacterInventory):
+        db_enchantments = item_instance.enchantments
+        if not db_enchantments:
+            return [0 for _ in range(MAX_ENCHANTMENTS)]
+        values = db_enchantments.rsplit(',')
+        return [int(values[slot * 3 + 0]) for slot in range(MAX_ENCHANTMENTS)]
 
     def has_enchantments(self):
         return any(enchantment.entry > 0 for enchantment in self.enchantments)
@@ -494,6 +517,7 @@ class ItemManager(ObjectManager):
         if not self.get_owner_guid():
             Logger.error(f'Item {self.get_name()} has no owner, unable to save.')
             return
+        self.item_instance.duration = self.duration
         self.item_instance.enchantments = self._get_enchantments_db_string()
         RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 

@@ -86,6 +86,10 @@ class ContainerManager(ItemManager):
 
             if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
                 item_mgr.set_binding(True)
+
+            if item.duration:
+                item_mgr.send_item_duration(self.owner)
+
             return item_mgr
         return None
 
