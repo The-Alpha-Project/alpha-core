@@ -35,7 +35,7 @@ class ConfusedMovement(BaseMovement):
         if self._can_move_confused(now):
             self.last_confused_movement = now
             if self._move():
-                self.wait_time_seconds = self.spline.get_total_time_secs() + 1.0
+                self.wait_time_seconds = self.get_total_time_secs() + 1.0
 
         if not self.until_canceled:
             self.duration_seconds = max(0, self.duration_seconds - elapsed)

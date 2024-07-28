@@ -42,5 +42,11 @@ class BaseMovement:
     def is_complete(self):
         return self.spline and self.spline.is_complete()
 
+    def get_total_time_secs(self):
+        return 0 if not self.spline else self.spline.get_total_time_secs()
+
+    def get_total_time_ms(self):
+        return 0 if not self.spline else self.spline.get_total_time_ms()
+
     def reset(self):
         pass

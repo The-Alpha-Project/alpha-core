@@ -37,7 +37,7 @@ class GroupMovement(BaseMovement):
 
     def _set_last_movement(self, now):
         self.last_waypoint_movement = now
-        self.wait_time_seconds = self.spline.get_total_time_secs()
+        self.wait_time_seconds = self.get_total_time_secs()
 
     # override
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):

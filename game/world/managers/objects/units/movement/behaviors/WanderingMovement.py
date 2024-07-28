@@ -30,7 +30,7 @@ class WanderingMovement(BaseMovement):
         if self._can_wander(now):
             self.last_wandering_movement = now
             if self._wander():
-                self.wait_time_seconds = randint(1, 12) + self.spline.get_total_time_secs()
+                self.wait_time_seconds = randint(1, 12) + self.get_total_time_secs()
             else:
                 self.wait_time_seconds = randint(1, 4)
 
