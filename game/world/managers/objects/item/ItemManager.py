@@ -100,7 +100,8 @@ class ItemManager(ObjectManager):
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
             self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template)
             self.lock = self.item_template.lock_id
-            self.duration = self.item_template.duration
+            # Do dont restore duration.
+            self.duration = self.item_template.duration if not self.duration else self.duration
 
             # Load loot_manager if needed.
             if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
