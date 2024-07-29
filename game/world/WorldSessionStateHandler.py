@@ -118,6 +118,5 @@ class WorldSessionStateHandler(object):
             player_mgr.enchantment_manager.save()  # Enchantments plus item duration.
             player_mgr.pet_manager.save()
             player_mgr.quest_manager.save()
-
         except AttributeError as ae:
             Logger.error(f'Error while saving {player_mgr.get_name()} ({player_mgr.player.guid}) into db: {ae}.')
