@@ -10,7 +10,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
-    SpellAttributesEx, SpellEffects
+    SpellAttributesEx, SpellEffects, AuraState
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -248,6 +248,19 @@ class AuraManager:
                 # We can also ignore ranks here, as attempting to cast a lower rank buff will fail in validation.
                 self.remove_aura(applied_aura, canceled=True)
         return True
+
+    def reset_aura_states(self):
+        for flag in AuraState:
+            self.modify_aura_state(flag, apply=False)
+
+    def modify_aura_state(self, flag: AuraState, apply):
+        flag_value = 1 << (flag.value - 1)
+        flags = self.unit_mgr.get_uint32(UnitFields.UNIT_FIELD_AURASTATE)
+        if not apply and flags & flag_value != 0:
+            flags &= ~flag.value
+        elif apply and flags & flag_value == 0:
+            flags |= flag.value
+        self.unit_mgr.set_uint32(UnitFields.UNIT_FIELD_AURASTATE, flags)
 
     def has_aura_by_spell_id(self, spell_id):
         for aura in list(self.active_auras.values()):

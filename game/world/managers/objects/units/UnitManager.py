@@ -24,7 +24,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask, SpellTargetMask, SpellAttributesEx
+    SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
     AIReactionStates
 from utils.constants.UpdateFields import UnitFields
@@ -434,6 +434,9 @@ class UnitManager(ObjectManager):
             victim.spell_manager.check_spell_interrupts(received_auto_attack=True, hit_info=damage_info.hit_info)
 
         self.handle_melee_attack_procs(damage_info)
+
+        if damage_info.proc_victim & (ProcFlags.BLOCK | ProcFlags.DODGE | ProcFlags.PARRY):
+            victim.aura_manager.modify_aura_state(AuraState.AURA_STATE_DEFENSE, apply=True)
 
         if damage_info.hit_info & HitInfo.UNIT_DEAD:
             self.extra_attacks = 0
@@ -1008,6 +1011,9 @@ class UnitManager(ObjectManager):
         # Reset threat table.
         self.threat_manager.reset()
 
+        # Reset aura states.
+        self.aura_manager.reset_aura_states()
+
         self.combat_target = None
         self.in_combat = False
 
@@ -1542,6 +1548,10 @@ class UnitManager(ObjectManager):
             health = 0
         self.health = min(health, self.max_health)
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
+        # Aura state.
+        if health:
+            at_20_percent = ((self.health / self.max_health) * 100) <= 20
+            self.aura_manager.modify_aura_state(AuraState.AURA_STATE_HEALTH_20_PERCENT, apply=at_20_percent)
 
     def set_max_health(self, health):
         self.max_health = health
@@ -1630,6 +1640,7 @@ class UnitManager(ObjectManager):
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
+        self.aura_manager.reset_aura_states()
 
     # Implemented by CreatureManager
     def has_melee(self):

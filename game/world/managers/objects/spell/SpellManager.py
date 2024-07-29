@@ -28,7 +28,7 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools, \
-    SpellScriptTarget
+    SpellScriptTarget, AuraState
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
@@ -1700,6 +1700,10 @@ class SpellManager:
 
         if is_player and casting_spell.requires_combo_points():
             self.caster.remove_combo_points()
+
+        if casting_spell.requires_aura_state():
+            aura_state = AuraState(casting_spell.spell_entry.CasterAuraState)
+            self.caster.aura_manager.modify_aura_state(aura_state, apply=False)
 
         removed_items = set()
         if is_player:

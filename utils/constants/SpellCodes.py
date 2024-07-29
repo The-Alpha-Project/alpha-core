@@ -501,6 +501,11 @@ class AuraSlots(IntEnum):
     AURA_SLOT_END = 191  # Unlimited - not written to unit
 
 
+class AuraState(IntEnum):
+    AURA_STATE_DEFENSE = 1
+    AURA_STATE_HEALTH_20_PERCENT = 2
+
+
 class SpellImplicitTargets(IntEnum):
     TARGET_INITIAL = 0
     TARGET_SELF = 1
