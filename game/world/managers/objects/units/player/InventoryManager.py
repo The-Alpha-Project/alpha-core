@@ -284,14 +284,14 @@ class InventoryManager(object):
         if dest_container.is_backpack and self.is_bag_pos(dest_slot):
             self.add_bag(dest_slot, generated_item)
 
+        # Backpack was touched, refresh slot fields.
+        if dest_container.is_backpack:
+            self.build_update()
+
         if dest_container.is_backpack and \
                 (self.is_equipment_pos(dest_bag_slot, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(generated_item)
             generated_item.save()
-
-        # Backpack was touched, refresh slot fields.
-        if dest_container.is_backpack:
-            self.build_update()
 
         self.update_locked = False
         return True
@@ -360,6 +360,10 @@ class InventoryManager(object):
             dest_item.set_bag(source_bag)
             dest_item.item_instance.slot = source_slot
 
+        # Backpack was touched, refresh slot fields.
+        if dest_container.is_backpack or source_container.is_backpack:
+            self.build_update()
+
         # Equipment-specific behaviour: binding, offhand unequip, equipment update packet etc.
         if (source_container.is_backpack and
                 (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot))) or \
@@ -372,10 +376,6 @@ class InventoryManager(object):
         source_item.save()
         if dest_item:
             dest_item.save()
-
-        # Backpack was touched, refresh slot fields.
-        if dest_container.is_backpack or source_container.is_backpack:
-            self.build_update()
 
     def get_item_count(self, entry, include_bank=False):
         return sum(item.item_instance.stackcount for item in self.get_all_items(include_bank=include_bank)
