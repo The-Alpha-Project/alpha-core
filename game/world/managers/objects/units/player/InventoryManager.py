@@ -382,8 +382,8 @@ class InventoryManager(object):
                    if item.item_template.entry == entry)
 
     def get_container(self, slot):
-        # The client sometimes refers to backpack with values over to SLOT_BANK_BAG_6_END
-        if slot > InventorySlots.SLOT_BANK_BAG_6_END:
+        # The client sometimes refers to backpack with values over to SLOT_BANK_END
+        if slot > InventorySlots.SLOT_BANK_END:
             slot = InventorySlots.SLOT_INBACKPACK
         if slot in self.containers:
             return self.containers[slot]
@@ -756,7 +756,7 @@ class InventoryManager(object):
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
-               (InventorySlots.SLOT_BANK_BAG_1 <= slot <= InventorySlots.SLOT_BANK_BAG_6)
+               (InventorySlots.SLOT_BANK_BAG_1 <= slot <= InventorySlots.SLOT_BANK_END)
 
     def is_bank_slot(self, bag_slot, slot):
         if bag_slot == InventorySlots.SLOT_INBACKPACK:

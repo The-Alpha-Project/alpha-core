@@ -119,8 +119,9 @@ class ItemManager(ObjectManager):
 
     def is_equipped(self):
         player_mgr = self._get_owner_unit()
-        return (player_mgr and self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value and
-                player_mgr.get_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + self.current_slot * 2) == self.guid)
+        return (player_mgr and self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value
+                and self.current_slot < InventorySlots.SLOT_BAG1
+                and player_mgr.get_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + self.current_slot * 2) == self.guid)
 
     def is_soulbound(self):
         # I don't think quest items were soulbound in 0.5.3, so not checking.
