@@ -344,15 +344,15 @@ class UnitManager(ObjectManager):
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
     def update_melee_attacking_state(self):
-        # Don't update melee attacking state while casting, stunned, pacified, fleeing or confused.
-        if not self.can_perform_melee_attack():
-            return False
-
         main_attack_ready = self.is_attack_ready(AttackTypes.BASE_ATTACK)
         off_hand_attack_ready = self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) and self.has_offhand_weapon()
 
         # If neither main hand attack and offhand attack are ready, return.
         if not main_attack_ready and not off_hand_attack_ready:
+            return False
+
+        # Don't update melee attacking state while casting, stunned, pacified, fleeing or confused.
+        if not self.can_perform_melee_attack():
             return False
 
         swing_error = AttackSwingError.NONE
