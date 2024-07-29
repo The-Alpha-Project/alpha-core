@@ -374,8 +374,8 @@ class ItemManager(ObjectManager):
     def set_stack_count(self, count):
         if self.item_instance:
             self.item_instance.stackcount = count
-            self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
-            self.save()
+            if self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)[0]:
+                self.save()
 
     # noinspection PyMethodMayBeStatic
     def has_charges(self):
@@ -388,9 +388,8 @@ class ItemManager(ObjectManager):
     def set_charges(self, spell_id, charges):
         for index, spell_stats in enumerate(self.spell_stats):
             if spell_stats.spell_id == spell_id:
-                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
-                # Update our item_instance, else charges wont serialize properly.
-                if self.item_instance:
+                if self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)[0] and self.item_instance:
+                    # Update our item_instance, else charges wont serialize properly.
                     exec(f'self.item_instance.SpellCharges{index + 1} = {charges}')
                     self.save()
                 break
@@ -410,8 +409,8 @@ class ItemManager(ObjectManager):
 
     def set_unlocked(self):
         self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNLOCKED
-        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
-        self.save()
+        if self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())[0]:
+            self.save()
 
     def has_flag(self, flag: ItemDynFlags):
         return self.item_instance.item_flags & flag
@@ -458,8 +457,9 @@ class ItemManager(ObjectManager):
             self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_BOUND
         else:
             self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_BOUND
-        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
-        self.save()
+        # If field actually changed, save.
+        if self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())[0]:
+            self.save()
 
     def send_item_duration(self, owner_guid):
         if owner_guid != self.get_owner_guid():

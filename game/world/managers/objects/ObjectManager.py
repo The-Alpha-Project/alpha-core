@@ -16,15 +16,6 @@ from utils.constants.UpdateFields \
     import ObjectFields, UnitFields
 
 
-def update_field_setter_decorator(function):
-    def wrapper(self, *args, **kwargs):
-        applied, forced = function(self, *args, **kwargs)
-        if applied and forced and self.is_in_world():
-            # Changes should apply immediately.
-            self.get_map().update_object(self, has_changes=True)
-    return wrapper
-
-
 class ObjectManager:
     def __init__(self,
                  guid=0,
@@ -323,50 +314,55 @@ class ObjectManager:
     def is_aura_field(self, index):
         return UnitFields.UNIT_FIELD_AURA <= index <= UnitFields.UNIT_FIELD_AURA + 55
 
-    @update_field_setter_decorator
     def set_int32(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'i'):
             self.update_packet_factory.update(index, value, 'i')
+            if force and self.is_in_world(): # Changes should apply immediately.
+                self.get_map().update_object(self, has_changes=True)
             return True, force
         return False, force
 
     def get_int32(self, index):
         return self._get_value_by_type_at('i', index)
 
-    @update_field_setter_decorator
     def set_uint32(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'I'):
             self.update_packet_factory.update(index, value, 'I')
+            if force and self.is_in_world(): # Changes should apply immediately.
+                self.get_map().update_object(self, has_changes=True)
             return True, force
         return False, force
 
     def get_uint32(self, index):
         return self._get_value_by_type_at('I', index)
 
-    @update_field_setter_decorator
     def set_int64(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'q'):
             self.update_packet_factory.update(index, value, 'q')
+            if force and self.is_in_world(): # Changes should apply immediately.
+                self.get_map().update_object(self, has_changes=True)
             return True, force
         return False, force
 
     def get_int64(self, index):
         return self._get_value_by_type_at('q', index)
 
-    @update_field_setter_decorator
     def set_uint64(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'Q'):
             self.update_packet_factory.update(index, value, 'Q')
+            if force and self.is_in_world(): # Changes should apply immediately.
+                self.get_map().update_object(self, has_changes=True)
             return True, force
         return False, force
 
     def get_uint64(self, index):
         return self._get_value_by_type_at('Q', index)
 
-    @update_field_setter_decorator
     def set_float(self, index, value, force=False):
         if force or self.update_packet_factory.should_update(index, value, 'f'):
             self.update_packet_factory.update(index, value, 'f')
+            if force and self.is_in_world(): # Changes should apply immediately.
+                self.get_map().update_object(self, has_changes=True)
             return True, force
         return False, force
 
