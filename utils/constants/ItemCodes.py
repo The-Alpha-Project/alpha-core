@@ -209,8 +209,8 @@ class InventorySlots(IntEnum):
     SLOT_BANK_BAG_3 = 65
     SLOT_BANK_BAG_4 = 66
     SLOT_BANK_BAG_5 = 67
-    SLOT_BANK_BAG_6 = 68
-    SLOT_BANK_END = 69
+    SLOT_BANK_BAG_6_END = 68
+    PLAYER_INVENTORY_SLOTS = 69
 
 
 class InventoryStats(IntEnum):

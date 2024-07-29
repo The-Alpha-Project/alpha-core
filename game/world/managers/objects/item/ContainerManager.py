@@ -26,7 +26,7 @@ class ContainerManager(ItemManager):
         else:
             self.total_slots = InventorySlots.SLOT_ITEM_END - InventorySlots.SLOT_ITEM_START
             self.start_slot = InventorySlots.SLOT_ITEM_START
-            self.max_slot = InventorySlots.SLOT_BANK_END
+            self.max_slot = InventorySlots.SLOT_BANK_BAG_6_END
             self.is_contained = self.owner
 
         self.update_packet_factory.init_values(self.get_owner_guid(), ContainerFields)

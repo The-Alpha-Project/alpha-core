@@ -382,7 +382,8 @@ class InventoryManager(object):
                    if item.item_template.entry == entry)
 
     def get_container(self, slot):
-        if slot >= InventorySlots.SLOT_BANK_END:  # The client sometimes refers to backpack with values over or equal to SLOT_BANK_END
+        # The client sometimes refers to backpack with values over to SLOT_BANK_BAG_6_END
+        if slot > InventorySlots.SLOT_BANK_BAG_6_END:
             slot = InventorySlots.SLOT_INBACKPACK
         if slot in self.containers:
             return self.containers[slot]
@@ -435,8 +436,7 @@ class InventoryManager(object):
             self.owner.quest_manager.pop_item(target_item.item_template.entry)
 
             # Update equipment.
-            if target_item.is_equipped():
-                target_item.current_slot = InventorySlots.SLOT_BANK_END
+            if target_item.is_equipped() or clear_slot:
                 self.handle_equipment_change(target_item)
 
     def remove_items(self, entry, count, include_bank=False):
@@ -756,7 +756,7 @@ class InventoryManager(object):
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
-               (InventorySlots.SLOT_BANK_BAG_1 <= slot < InventorySlots.SLOT_BANK_END)
+               (InventorySlots.SLOT_BANK_BAG_1 <= slot <= InventorySlots.SLOT_BANK_BAG_6)
 
     def is_bank_slot(self, bag_slot, slot):
         if bag_slot == InventorySlots.SLOT_INBACKPACK:
