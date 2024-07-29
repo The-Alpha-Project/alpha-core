@@ -348,16 +348,15 @@ class UnitManager(ObjectManager):
         if not self.can_perform_melee_attack():
             return False
 
+        main_attack_ready = self.is_attack_ready(AttackTypes.BASE_ATTACK)
+        off_hand_attack_ready = self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) and self.has_offhand_weapon()
+
         # If neither main hand attack and offhand attack are ready, return.
-        if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
-                (self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK)):
+        if not main_attack_ready and not off_hand_attack_ready:
             return False
 
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
-
-        main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
-        off_attack_delay = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
 
         # Out of reach.
         if not self.is_within_interactable_distance(self.combat_target):
@@ -379,21 +378,23 @@ class UnitManager(ObjectManager):
             swing_error = AttackSwingError.CANTATTACK
         else:
             # Main hand attack.
-            if self.is_attack_ready(AttackTypes.BASE_ATTACK):
+            if main_attack_ready:
                 # Prevent both hand attacks at the same time.
                 if self.has_offhand_weapon():
                     if self.attack_timers[AttackTypes.OFFHAND_ATTACK] < 500:
                         self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 500)
 
+                main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
                 self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK)
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
 
             # Offhand attack.
-            if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
+            if off_hand_attack_ready:
                 # Prevent both hand attacks at the same time.
                 if self.attack_timers[AttackTypes.BASE_ATTACK] < 500:
                     self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
 
+                off_attack_delay = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
                 self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK)
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
