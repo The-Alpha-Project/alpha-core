@@ -98,7 +98,7 @@ class AppliedAura:
         # PvE heartbeat resist, same as VMaNGOS.
 
         if not self.has_duration() or not self.harmful or self.passive or not \
-            self.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_HEARTBEAT_RESIST:
+                self.source_spell.spell_entry.Attributes & SpellAttributes.SPELL_ATTR_HEARTBEAT_RESIST:
             return False
 
         if timestamp - self.previous_heartbeat <= 5:

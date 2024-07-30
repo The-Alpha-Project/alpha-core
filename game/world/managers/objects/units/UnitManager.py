@@ -436,9 +436,6 @@ class UnitManager(ObjectManager):
 
         self.handle_melee_attack_procs(damage_info)
 
-        if damage_info.proc_victim & (ProcFlags.BLOCK | ProcFlags.DODGE | ProcFlags.PARRY):
-            victim.aura_manager.modify_aura_state(AuraState.AURA_STATE_DEFENSE, apply=True)
-
         if damage_info.hit_info & HitInfo.UNIT_DEAD:
             self.extra_attacks = 0
 

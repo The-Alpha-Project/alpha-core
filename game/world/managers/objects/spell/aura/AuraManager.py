@@ -235,6 +235,7 @@ class AuraManager:
                                                                                                  applied_aura.spell_id)
             is_similar = applied_aura.spell_id == aura.spell_id or new_aura_name == applied_aura_name
             is_same_source = applied_aura.caster.guid == caster_guid
+            is_dummy = aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_DUMMY
 
             if not is_similar and not (has_group_restriction and is_same_source):
                 continue  # TODO Same effects but different spells (exclusivity groups)?
@@ -242,7 +243,7 @@ class AuraManager:
             is_unique = applied_spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
             is_stacking = applied_aura.can_stack
 
-            if (is_unique or is_same_source or not aura.harmful) and not (is_similar and is_stacking):
+            if (is_unique or is_same_source or not aura.harmful) and not (is_similar and is_stacking) and not is_dummy:
                 # Remove similar applied aura if it's unique, a buff or from the same caster.
                 # Ignore if this is a stacking buff; add_aura will just add a dose in that case.
                 # We can also ignore ranks here, as attempting to cast a lower rank buff will fail in validation.

@@ -3,7 +3,7 @@ from random import randint
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import Emotes, ObjectTypeIds, ObjectTypeFlags
-from utils.constants.SpellCodes import SpellTargetMask
+from utils.constants.SpellCodes import SpellTargetMask, AuraState
 from utils.constants.UnitCodes import StandState
 
 
@@ -24,8 +24,12 @@ class AuraEffectDummyHandler:
             return
         sub_type = CustomCodes.CreatureSubtype.SUBTYPE_TEMP_SUMMON
         aura.caster.possessed_unit.set_charmed_by(aura.caster, sub_type, remove=True)
-        aura.caster.possessed_unit.destroy()
+        aura.caster.possessed_unit.despawn()
         aura.caster.possessed_unit = None
+
+    @staticmethod
+    def handle_aura_state_defensive(aura, effect_target, remove):
+        aura.caster.aura_manager.modify_aura_state(AuraState.AURA_STATE_DEFENSE, apply=not remove)
 
     @staticmethod
     def handle_party_fever(aura, effect_target, remove):
@@ -86,6 +90,7 @@ PERIODIC_DUMMY_AURAS = {
 
 DUMMY_AURA_EFFECTS = {
     126:  AuraEffectDummyHandler.handle_killrogg_eye,
+    5302: AuraEffectDummyHandler.handle_aura_state_defensive,
     6606: AuraEffectDummyHandler.handle_sleep,  # Self Visual - Sleep Until Cancelled.
     6495: AuraEffectDummyHandler.handle_sentry_totem,
     6758: AuraEffectDummyHandler.handle_party_fever,  # Party Fever.
