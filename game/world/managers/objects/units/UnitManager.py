@@ -166,6 +166,8 @@ class UnitManager(ObjectManager):
         self.is_evading = False
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
+        self.hp_percent = 100
+        self.power_percent = 100
         self.last_regen = 0
         self.mana_regen_timer = 0
         self.regen_flags = RegenStatsFlags.NO_REGENERATION
@@ -1366,7 +1368,8 @@ class UnitManager(ObjectManager):
         if power_type == -1:
             power_type = self.power_type
 
-        value = max(0, min(value, self.get_max_power_value(power_type)))  # Clamp to 0 - max power.
+        max_power = self.get_max_power_value(power_type)
+        value = max(0, min(value, max_power))  # Clamp to 0 - max power.
 
         if power_type == PowerTypes.TYPE_MANA:
             self.power_1 = value
@@ -1377,6 +1380,7 @@ class UnitManager(ObjectManager):
         elif power_type == PowerTypes.TYPE_ENERGY:
             self.power_4 = value
 
+        self.power_percent = 0 if not max_power else (value / max_power) * 100
         self.set_uint32(UnitFields.UNIT_FIELD_POWER1 + power_type, value)
 
     def get_max_power_value(self, power_type=-1):
@@ -1546,10 +1550,10 @@ class UnitManager(ObjectManager):
             health = 0
         self.health = min(health, self.max_health)
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
-        # Aura state.
-        if health:
-            at_20_percent = ((self.health / self.max_health) * 100) <= 20
-            self.aura_manager.modify_aura_state(AuraState.AURA_STATE_HEALTH_20_PERCENT, apply=at_20_percent)
+        self.hp_percent = (self.health / self.max_health) * 100 if self.max_health else 0
+        # Aura state health <= 20%.
+        if self.health:
+            self.aura_manager.modify_aura_state(AuraState.AURA_STATE_HEALTH_20_PERCENT, apply=self.hp_percent <= 20)
 
     def set_max_health(self, health):
         self.max_health = health

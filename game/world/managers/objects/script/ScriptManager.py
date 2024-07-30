@@ -342,10 +342,6 @@ class ScriptManager:
         return world_object and world_object.get_type_id() == ObjectTypeIds.ID_UNIT
 
     @staticmethod
-    def _get_unit_hp_percent(unit_caller):
-        return unit_caller.health * 100 / unit_caller.max_health
-
-    @staticmethod
     def _get_injured_friendly_units(caster, radius, hp_threshold, exclude_unit=None, is_percent=True) -> Optional[list[UnitManager]]:
         # Surrounding friendly units within range, including players.
         surrounding_units_and_players = ScriptManager._get_surrounding_units(caster, radius,
@@ -358,8 +354,7 @@ class ScriptManager:
 
         if is_percent:
             # Units below hp_threshold.
-            injured_friendly_units = [unit for unit in surrounding_units_and_players if ScriptManager._get_unit_hp_percent(
-                unit) < hp_threshold]
+            injured_friendly_units = [unit for unit in surrounding_units_and_players if unit.hp_percent < hp_threshold]
         else:
             # HP Deficit.
             injured_friendly_units = [unit for unit in surrounding_units_and_players if abs(unit.health - unit.max_health) >= hp_threshold]
@@ -369,7 +364,7 @@ class ScriptManager:
             return []
 
         # Sort them by lowest hp percentage.
-        injured_friendly_units.sort(key=lambda unit: ScriptManager._get_unit_hp_percent(unit))
+        injured_friendly_units.sort(key=lambda unit: unit.hp_percent)
         return injured_friendly_units
 
     @staticmethod

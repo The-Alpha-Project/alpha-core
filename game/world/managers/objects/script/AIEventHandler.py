@@ -325,9 +325,8 @@ class AIEventHandler:
             if not self._validate_event(event, target=self.creature, now=now):
                 continue
 
-            current_hp_percent = (self.creature.health / self.creature.max_health) * 100
             # param1 %MaxHP, param2 %MinHp.
-            if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
+            if self.creature.hp_percent > event.event_param1 or self.creature.hp_percent < event.event_param2:
                 continue
 
             self._enqueue_creature_ai_event(map_, event, self.creature, now)
@@ -346,9 +345,8 @@ class AIEventHandler:
             if target.power_type != PowerTypes.TYPE_MANA:
                 continue
 
-            current_mana_percent = (target.power_1 / target.max_power_1) * 100
             # param1 %MaxMana, param2 %MinMana.
-            if current_mana_percent > event.event_param1 or current_mana_percent < event.event_param2:
+            if target.power_percent > event.event_param1 or target.power_percent < event.event_param2:
                 continue
 
             self._enqueue_creature_ai_event(map_, event, target, now)
@@ -364,9 +362,8 @@ class AIEventHandler:
             if not self._validate_event(event, target=target, now=now):
                 continue
 
-            current_hp_percent = (target.health / target.max_health) * 100
             # param1 %MaxHP, param2 %MinHp.
-            if current_hp_percent > event.event_param1 or current_hp_percent < event.event_param2:
+            if target.hp_percent > event.event_param1 or target.hp_percent < event.event_param2:
                 continue
 
             self._enqueue_creature_ai_event(map_, event, target, now)
@@ -401,12 +398,8 @@ class AIEventHandler:
             if self.creature.power_type != PowerTypes.TYPE_MANA:
                 continue
 
-            current_mana = self.creature.power_1
-            current_max_mana = self.creature.max_power_1
-
-            current_mana_percent = (current_mana / current_max_mana) * 100
             # param1 %MaxMana, param2 %MinMana.
-            if current_mana_percent > event.event_param1 or current_mana_percent < event.event_param2:
+            if self.creature.power_percent > event.event_param1 or self.creature.power_percent < event.event_param2:
                 continue
 
             self._enqueue_creature_ai_event(map_, event, self.creature, now)
