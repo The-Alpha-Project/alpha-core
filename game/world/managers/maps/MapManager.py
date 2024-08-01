@@ -332,19 +332,6 @@ class MapManager:
                                                        end_location.x, end_location.y, end_location.z)
 
     @staticmethod
-    def find_random_point_around_circle(map_id, location, radius):
-        # If nav tiles disabled or unable to load Namigator, return None..
-        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
-            return None
-
-        # We don't have navs loaded for a given map, return None..
-        namigator = MAPS_NAMIGATOR.get(map_id, None)
-        if not namigator:
-            return None
-
-        return namigator.find_random_point_around_circle(location.x, location.y, location.z, radius)
-
-    @staticmethod
     def calculate_path(map_id, src_loc, dst_loc, los=False) -> tuple:  # bool failed, in_place, path list.
         # If nav tiles disabled or unable to load Namigator, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:

@@ -614,7 +614,7 @@ class SpellEffectHandler:
         caster.pet_manager.detach_pets_by_entry(creature_entry)
 
         for count in range(amount):
-            random_point = caster.location.find_random_point_around_circle(caster, radius)
+            random_point = caster.location.get_random_point_in_radius(radius, caster.map_id)
             po = caster.location.o
             if casting_spell.spell_target_mask & SpellTargetMask.DEST_LOCATION:
                 px = target.x if not count else random_point.x
@@ -658,13 +658,13 @@ class SpellEffectHandler:
                     py = target.y
                     pz = target.z
                 else:
-                    location = caster.location.find_random_point_around_circle(caster, radius)
+                    location = caster.location.get_random_point_in_radius(radius, caster.map_id)
                     px = location.x
                     py = location.y
                     pz = location.z
             else:
                 if radius > 0.0:
-                    location = caster.location.find_random_point_around_circle(caster, radius)
+                    location = caster.location.get_random_point_in_radius(radius, caster.map_id)
                     px = location.x
                     py = location.y
                     pz = location.z

@@ -159,15 +159,6 @@ class Vector(object):
 
         return Vector(x, y, z, z_locked=z_locked)
 
-    # Namigator, returns a random point from a circle within or slightly outside of the given radius.
-    def find_random_point_around_circle(self, unit, radius):
-        random_point = unit.get_map().find_random_point_around_circle(self, radius)
-        if not random_point:
-            return self.get_random_point_in_radius(radius, map_id=unit.map_id)
-        else:
-            # Convert Namigator tuple to Vector.
-            return Vector(random_point[0], random_point[1], random_point[2])
-
     def get_point_in_radius_and_angle(self, radius, angle, final_orientation=-1, map_id=-1):
         x = self.x + (radius * math.cos(self.o + angle))
         y = self.y + (radius * math.sin(self.o + angle))

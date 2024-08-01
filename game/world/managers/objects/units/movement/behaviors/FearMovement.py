@@ -105,7 +105,7 @@ class FearMovement(BaseMovement):
         if not config.Server.Settings.use_nav_tiles:
             return [fear_point]
         for search_range in range(0, int(SEARCH_RANDOM_RADIUS)):
-            destination = fear_point.find_random_point_around_circle(self.unit, search_range)
+            destination = fear_point.get_random_point_in_radius(search_range, self.unit.map_id)
             failed, in_place, path = self.unit.get_map().calculate_path(self.unit.location, destination)
             if not failed:
                 return path

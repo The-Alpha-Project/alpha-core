@@ -57,19 +57,29 @@ class WanderingMovement(BaseMovement):
         return True
 
     def _can_wander(self, now):
-        return not self.spline and now > self.last_wandering_movement + self.wait_time_seconds
+        return (self.unit.is_active_object() and not self.spline
+                and now > self.last_wandering_movement + self.wait_time_seconds)
 
     def _get_wandering_point(self):
         start_point = self.wander_home_position
-        random_point = start_point.find_random_point_around_circle(self.unit, self.wandering_distance)
+        random_point = start_point.get_random_point_in_radius(self.wandering_distance, self.unit.map_id)
+        map_ = self.unit.get_map()
 
         # Ignore point if 'slope' above 2.5.
         diff = math.fabs(random_point.z - self.unit.location.z)
         if diff > 2.5:
             return False, start_point
-        
+
+        # Client can crash with short movements.
+        if self.unit.location.distance(random_point) < 1:
+            return False, start_point
+
         # Do not wander into inactive cells.
-        if not self.unit.get_map().is_active_cell_for_location(random_point):
+        if not map_.is_active_cell_for_location(random_point):
+            return False, start_point
+
+        # Check line of sight.
+        if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True)):
             return False, start_point
 
         return True, random_point
