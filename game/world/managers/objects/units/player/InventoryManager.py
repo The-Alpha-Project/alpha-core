@@ -50,7 +50,6 @@ class InventoryManager(object):
                     self.containers[container_mgr.current_slot] = container_mgr
 
         # Then load items
-        invalid_items = []
         for item_instance in character_inventory:
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(item_instance.item_template)
             if item_template:
@@ -66,22 +65,12 @@ class InventoryManager(object):
                     if self.is_bag_pos(item_instance.slot):
                         continue
 
-                    # TODO: Remove once we figure item bug.
-                    if item_instance.bag not in self.containers:
-                        invalid_items.append((item_instance, item_template))
-                        continue
-
                     item_mgr = ContainerManager(
                         owner=self.owner.guid,
                         item_template=item_template,
                         item_instance=item_instance
                     )
                 else:
-                    # TODO: Remove once we figure item bug.
-                    if item_instance.bag not in self.containers:
-                        invalid_items.append((item_instance, item_template))
-                        continue
-
                     item_mgr = ItemManager(
                         item_template=item_template,
                         item_instance=item_instance
@@ -89,22 +78,6 @@ class InventoryManager(object):
 
                 if item_instance.bag in self.containers and self.containers[item_instance.bag]:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
-
-        # TODO: Investigate why sometimes items end up pointing to a non existent bag in the db, making them
-        #  'invisible' to players, for now, if we find this items, try to place them on empty slots.
-        #  Remove once we figure item bug.
-        for item_instance, item_template in invalid_items:
-            Logger.error(f'Player {self.owner.get_name()}, Invalid item {item_template.name} '
-                         f'pointing to non existent bag {item_instance.bag}, will attempt restore.')
-            perm_enchant = ItemManager.get_enchantments_entries_from_db(item_instance)[0]
-            if self.can_store_item(item_template, item_instance.stackcount) == InventoryError.BAG_OK:
-                if self.add_item(item_template.entry, item_template, item_instance.stackcount,
-                                 created_by=item_instance.creator, send_message=False, show_item_get=False,
-                                 perm_enchant=perm_enchant):
-                    RealmDatabaseManager.character_inventory_delete(item_instance)  # Delete invalid instance.
-                    Logger.success(f'Restored {item_template.name} to {self.owner.get_name()}.')
-                    continue
-            Logger.error(f'Unable to restore item to {self.owner.get_name()}, no free slots available.')
 
     def update_items_durations(self):
         for item in self.get_all_items():
