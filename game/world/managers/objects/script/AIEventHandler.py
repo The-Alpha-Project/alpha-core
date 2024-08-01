@@ -1,6 +1,7 @@
 import random
 import time
 from dataclasses import dataclass
+from functools import lru_cache
 from random import randint, choice
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
@@ -485,6 +486,13 @@ class AIEventHandler:
             return False
 
         return True
+
+    @lru_cache
+    def has_ooc_los_events(self):
+        return self._has_event_type(CreatureAIEventTypes.AI_EVENT_TYPE_OOC_LOS)
+
+    def _has_event_type(self, event_type):
+        return any(self._event_get_by_type(event_type))
 
     def _event_get_by_type(self, event_type):
         # Skip for controlled units.
