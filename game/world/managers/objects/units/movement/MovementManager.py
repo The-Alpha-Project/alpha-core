@@ -217,8 +217,6 @@ class MovementManager:
 
     def set_behavior(self, movement_behavior):
         if movement_behavior.initialize(self.unit):
-            Logger.debug(f'Set movement {MoveType(movement_behavior.move_type).name} for unit {self.unit.entry},'
-                         f' {self.unit.get_name()}')
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()
             if movement_behavior.is_default:
