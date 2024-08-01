@@ -1828,9 +1828,6 @@ class UnitManager(ObjectManager):
     def get_detection_range(self):
         return 0
 
-    # TODO: This is the most expensive method in all the code base when running with a profiler.
-    #  LoS checks are expensive, find a way to only notify ooc los checks
-    #  to units that actually implement ooc los events.
     def notify_move_in_line_of_sight(self):
         if self.beast_master:
             return
@@ -1838,6 +1835,7 @@ class UnitManager(ObjectManager):
         map_ = self.get_map()
         self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         surrounding_units = map_.get_surrounding_units(self, not self_is_player)
+        self_has_ooc_los_events = not self_is_player and self.object_ai.ai_event_handler.has_ooc_los_events()
 
         # Merge units and players.
         if not self_is_player:
@@ -1847,18 +1845,23 @@ class UnitManager(ObjectManager):
             surrounding_units = surrounding_units.values()
 
         for unit in surrounding_units:
-            # Handle ooc los event first, which will do its own checks.
-            los_check = map_.los_check(unit.get_ray_position(), self.get_ray_position())
-            if los_check:
-                # Player notifies creature.
-                if self_is_player and unit.object_ai:
-                    unit.object_ai.move_in_line_of_sight(unit=self, ai_event=True)
-                # Self notifies player/creature presence.
-                elif not self_is_player and self.object_ai:
-                    self.object_ai.move_in_line_of_sight(unit=unit, ai_event=True)
+            unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+            unit_has_ooc_los_events = not unit_is_player and unit.object_ai.ai_event_handler.has_ooc_los_events()
+
+            los_check = None
+            # If self or unit has ooc los events.
+            if self_has_ooc_los_events or unit_has_ooc_los_events:
+                los_check = map_.los_check(unit.get_ray_position(), self.get_ray_position())
+                if los_check:
+                    # Player notifies creature.
+                    if self_is_player and unit.object_ai:
+                        unit.object_ai.move_in_line_of_sight(unit=self, ai_event=True)
+                    # Self notifies player/creature presence.
+                    elif not self_is_player and self.object_ai:
+                        self.object_ai.move_in_line_of_sight(unit=unit, ai_event=True)
 
             distance = unit.location.distance(self.location)
-            unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+
             detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
             max_detection_range = detection_range
 
@@ -1888,6 +1891,9 @@ class UnitManager(ObjectManager):
                 unit.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
             if not unit_can_detect_self:
                 continue
+
+            los_check = los_check if los_check is not None else map_.los_check(unit.get_ray_position(),
+                                                                               self.get_ray_position())
             if not los_check:
                 continue
 
