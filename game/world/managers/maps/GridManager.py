@@ -194,7 +194,7 @@ class GridManager:
             cell.send_all_in_range(packet, range_, world_object, include_self, exclude, use_ignore)
 
     def get_surrounding_objects(self, world_object, object_types):
-        surrounding_objects = []
+        found_objects = []
 
         players_index = 0
         creatures_index = 0
@@ -203,7 +203,7 @@ class GridManager:
         corpse_index = 0
         # Resolve return collection and indexes dynamically.
         for index in range(len(object_types)):
-            surrounding_objects.append(dict())
+            found_objects.append(dict())
             if object_types[index] == ObjectTypeIds.ID_PLAYER:
                 players_index = index
             elif object_types[index] == ObjectTypeIds.ID_UNIT:
@@ -227,17 +227,17 @@ class GridManager:
 
         for cell in cells:
             if ObjectTypeIds.ID_PLAYER in object_types:
-                surrounding_objects[players_index] = {**surrounding_objects[players_index], **cell.players}
+                found_objects[players_index] = {**found_objects[players_index], **cell.get_players(world_object)}
             if ObjectTypeIds.ID_UNIT in object_types:
-                surrounding_objects[creatures_index] = {**surrounding_objects[creatures_index], **cell.creatures}
+                found_objects[creatures_index] = {**found_objects[creatures_index], **cell.get_creatures(world_object)}
             if ObjectTypeIds.ID_GAMEOBJECT in object_types:
-                surrounding_objects[gameobject_index] = {**surrounding_objects[gameobject_index], **cell.gameobjects}
+                found_objects[gameobject_index] = {**found_objects[gameobject_index], **cell.get_gameobjects(world_object)}
             if ObjectTypeIds.ID_DYNAMICOBJECT in object_types:
-                surrounding_objects[dynamic_index] = {**surrounding_objects[dynamic_index], **cell.dynamic_objects}
+                found_objects[dynamic_index] = {**found_objects[dynamic_index], **cell.get_dynamic_objects(world_object)}
             if ObjectTypeIds.ID_CORPSE in object_types:
-                surrounding_objects[corpse_index] = {**surrounding_objects[corpse_index], **cell.corpses}
+                found_objects[corpse_index] = {**found_objects[corpse_index], **cell.get_corpses(world_object)}
 
-        return surrounding_objects
+        return found_objects
 
     def get_surrounding_players(self, world_object):
         return self.get_surrounding_objects(world_object, [ObjectTypeIds.ID_PLAYER])[0]

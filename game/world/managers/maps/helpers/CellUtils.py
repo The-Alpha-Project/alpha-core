@@ -4,6 +4,7 @@ from utils.ConfigManager import config
 
 TOLERANCE = 0.00001
 CELL_SIZE = config.Server.Settings.cell_size
+VIEW_DISTANCE = config.Server.Settings.view_distance
 
 
 class CellUtils:

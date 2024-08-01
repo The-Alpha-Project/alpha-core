@@ -1828,6 +1828,9 @@ class UnitManager(ObjectManager):
     def get_detection_range(self):
         return 0
 
+    # TODO: This is the most expensive method in all the code base when running with a profiler.
+    #  LoS checks are expensive, find a way to only notify ooc los checks
+    #  to units that actually implement ooc los events.
     def notify_move_in_line_of_sight(self):
         if self.beast_master:
             return
