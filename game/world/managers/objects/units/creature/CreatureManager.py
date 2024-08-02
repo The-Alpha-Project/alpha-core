@@ -557,6 +557,14 @@ class CreatureManager(UnitManager):
                     # Check spell and aura move interrupts.
                     self.spell_manager.check_spell_interrupts(moved=self.has_moved, turned=self.has_turned)
                     self.aura_manager.check_aura_interrupts(moved=self.has_moved, turned=self.has_turned)
+
+                if self.relocation_call_for_help_timer >= 1:
+                    if self.pending_relocation:
+                        self._on_relocation()
+                        self.pending_relocation = False
+                    if self.combat_target:
+                        self.threat_manager.call_for_help(self.combat_target)
+                    self.relocation_call_for_help_timer = 0
             # Dead creature with no spawn point, handle destroy.
             elif not self._check_destroy(elapsed):
                 return  # Creature destroyed.
@@ -566,14 +574,6 @@ class CreatureManager(UnitManager):
             if has_changes or self.has_moved:
                 self.set_has_moved(False, False, flush=True)
                 self.get_map().update_object(self, has_changes=has_changes)
-
-            if self.relocation_call_for_help_timer >= 1:
-                if self.pending_relocation:
-                    self._on_relocation()
-                    self.pending_relocation = False
-                if self.combat_target:
-                    self.threat_manager.call_for_help(self.combat_target)
-                self.relocation_call_for_help_timer = 0
 
         self.last_tick = now
 
