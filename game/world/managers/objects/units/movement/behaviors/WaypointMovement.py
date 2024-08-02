@@ -73,7 +73,7 @@ class WaypointMovement(BaseMovement):
             self.speed_dirty = False
             self._perform_waypoint()
             self.last_waypoint_movement = now
-            self.wait_time_seconds = self.spline.get_total_time_secs()
+            self.wait_time_seconds = self.get_total_time_secs()
 
         super().update(now, elapsed)
 

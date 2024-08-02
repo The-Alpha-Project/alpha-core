@@ -1,5 +1,6 @@
 import traceback
 import math
+from functools import lru_cache
 from multiprocessing import RLock
 from os import path
 import time
@@ -18,7 +19,7 @@ from game.world.managers.maps.helpers.Namigator import Namigator
 from utils.ConfigManager import config
 from utils.Logger import Logger
 from utils.PathManager import PathManager
-
+from utils.constants.MiscCodes import MapsNoNavs
 
 MAPS: dict[int, dict[int, Map]] = {}
 MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
@@ -27,7 +28,6 @@ MAPS_TILES = dict()
 # Holds namigator instances per Map.
 MAPS_NAMIGATOR: dict[int, Namigator] = dict()
 # Holds maps which have no navigation data in alpha.
-MAPS_NO_NAVIGATION = {2, 13, 25, 29, 30, 34, 35, 37, 42, 43, 44, 47, 48, 70, 90, 109, 129}
 
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
@@ -53,8 +53,14 @@ class MapManager:
             MapManager._build_map(map_id, map_id)
 
     @staticmethod
+    def has_navs(map_id):
+        return not MapsNoNavs.has_value(map_id)
+
+    @staticmethod
+    @lru_cache
     def is_dungeon_map_id(map_id):
-        return map_id not in (0, 1, 30, 37)  # World / Pvp.
+        dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
+        return not dbc_map.IsInMap and not dbc_map.PVP
 
     @staticmethod
     def _build_map(map_id, instance_id):
@@ -75,7 +81,7 @@ class MapManager:
 
     @staticmethod
     def _build_map_namigator(map_: Map):
-        if map_.map_id in MAPS_NO_NAVIGATION or MapManager.NAMIGATOR_FAILED or map_.map_id in MAPS_NAMIGATOR \
+        if not MapManager.has_navs(map_.map_id) or MapManager.NAMIGATOR_FAILED or map_.map_id in MAPS_NAMIGATOR \
                 or not config.Server.Settings.use_nav_tiles:
             return
 
@@ -312,6 +318,20 @@ class MapManager:
         return not failed
 
     @staticmethod
+    def find_point_in_between_vectors(map_id, offset, start_location, end_location):
+        # If nav tiles disabled or unable to load Namigator, return None..
+        if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
+            return None
+
+        # We don't have navs loaded for a given map, return None..
+        namigator = MAPS_NAMIGATOR.get(map_id, None)
+        if not namigator:
+            return None
+
+        return namigator.find_point_in_between_vectors(offset, start_location.x, start_location.y, start_location.z,
+                                                       end_location.x, end_location.y, end_location.z)
+
+    @staticmethod
     def calculate_path(map_id, src_loc, dst_loc, los=False) -> tuple:  # bool failed, in_place, path list.
         # If nav tiles disabled or unable to load Namigator, return the end_vector as found.
         if not config.Server.Settings.use_nav_tiles or not MapManager.NAMIGATOR_LOADED:
@@ -413,6 +433,11 @@ class MapManager:
                 nav_z, z_locked = MapManager.calculate_nav_z(map_id, x, y, current_z)
                 if not z_locked:
                     return nav_z, False
+
+            # Check if we have .map data for this request.
+            tile = MAPS_TILES[map_id][adt_x][adt_y]
+            if not tile or not tile.has_maps:
+                return current_z, True
 
             try:
                 calculated_z = MapManager.get_normalized_height_for_cell(map_id, x, y, adt_x, adt_y, cell_x, cell_y)

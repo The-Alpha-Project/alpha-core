@@ -15,6 +15,7 @@ from game.world.managers.objects.units.creature.CreatureBuilder import CreatureB
 from utils.ConfigManager import config
 from utils.GitUtils import GitUtils
 from utils.TextUtils import GameTextFormatter
+from utils.constants.MiscCodes import UnitDynamicTypes, MoveFlags
 from utils.constants.SpellCodes import SpellEffects, SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode
 from utils.constants.UpdateFields import PlayerFields
@@ -727,6 +728,17 @@ class CommandManager(object):
                     result += f'|c0066FF00[SET]|r {UnitFlags(flag).name}\n'
                 if flag == UnitFlags.UNIT_FLAG_SHEATHE:  # Last unit flag, prevent checking masks.
                     break
+
+            for flag in UnitDynamicTypes:
+                if unit.dynamic_flags & flag:
+                    flag_count += 1
+                    result += f'|c0066FF00[SET]|r {UnitDynamicTypes(flag).name}\n'
+
+            for flag in MoveFlags:
+                if unit.movement_flags & flag:
+                    flag_count += 1
+                    result += f'|c0066FF00[SET]|r {MoveFlags(flag).name}\n'
+
             result += f'{flag_count} active unit flags.'
         return 0, result
 
@@ -743,6 +755,7 @@ class CommandManager(object):
                       f'Faction: {creature.faction}\n' \
                       f'Unit Flags: {hex(creature.unit_flags)}\n' \
                       f'Static Flags: {hex(creature.static_flags)}\n' \
+                      f'Alive: {creature.is_alive}\n' \
                       f'X: {creature.location.x}, ' \
                       f'Y: {creature.location.y}, ' \
                       f'Z: {creature.location.z}, ' \

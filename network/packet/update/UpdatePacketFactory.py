@@ -1,5 +1,8 @@
 import time
 from struct import pack
+from typing import Optional
+
+from bitarray import bitarray
 
 from network.packet.PacketWriter import PacketWriter
 from network.packet.update.UpdateMask import UpdateMask
@@ -20,6 +23,7 @@ class UpdatePacketFactory(object):
         self.update_values_bytes = []  # Values bytes representation, used for update packets.
         self.update_values = []  # Raw values, used to compare current vs new without having to pack or unpack.
         self.update_mask = UpdateMask()
+        self._update_mask_copy: Optional[bitarray] = None
 
     def init_values(self, owner_guid, fields_type):
         self.owner_guid = owner_guid
@@ -102,6 +106,19 @@ class UpdatePacketFactory(object):
         result = {'[PROTECTED]' if was_protected else '[ACCESSED]'}
         Logger.debug(f"{requester.get_name()} - [{update_field_info}] - {result}, Value [{self.update_values[index]}]")
 
+    # Makes sure every single player gets the same mask.
+    def generate_update_mask_copy(self, flush_current=True):
+        with self.update_mask.lock:
+            self._update_mask_copy = self.update_mask.copy()
+            if flush_current:
+                self.update_mask.clear()
+
+    def get_update_mask(self):
+        # Uninitialized creature.
+        if not self._update_mask_copy:
+            self.generate_update_mask_copy()
+        return self._update_mask_copy
+
     def reset(self):
         self.update_mask.clear()
 
@@ -109,16 +126,17 @@ class UpdatePacketFactory(object):
         return not self.update_mask.is_empty()
 
     def reset_older_than(self, timestamp_to_compare):
-        all_clear = True
-        for index, timestamp in enumerate(self.update_timestamps):
-            if not timestamp:
-                continue
-            if timestamp <= timestamp_to_compare:
-                self.update_mask.unset_bit(index)
-            else:
-                all_clear = False
+        with self.update_mask.lock:
+            all_clear = True
+            for index, timestamp in enumerate(self.update_timestamps):
+                if not timestamp:
+                    continue
+                if timestamp <= timestamp_to_compare:
+                    self.update_mask.unset_bit(index)
+                else:
+                    all_clear = False
 
-        return all_clear
+            return all_clear
 
     # Check if the new value is different from the field known value.
     def should_update(self, index, value, value_type):

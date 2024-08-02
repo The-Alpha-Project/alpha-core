@@ -37,7 +37,7 @@ class GroupMovement(BaseMovement):
 
     def _set_last_movement(self, now):
         self.last_waypoint_movement = now
-        self.wait_time_seconds = self.spline.get_total_time_secs()
+        self.wait_time_seconds = self.get_total_time_secs()
 
     # override
     def on_new_position(self, new_position, waypoint_completed, remaining_waypoints):
@@ -59,6 +59,9 @@ class GroupMovement(BaseMovement):
         self.spline = None
         self.wait_time_seconds = 0
         self.last_waypoint_movement = 0
+
+    def can_remove(self):
+        return not self.unit.creature_group or not self.unit.is_alive
 
     def _can_perform_waypoint(self, now):
         if self.speed_dirty and self.unit.creature_group.waypoints and self.unit.creature_group.is_leader(self.unit):

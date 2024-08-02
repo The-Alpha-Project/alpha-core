@@ -30,7 +30,7 @@ class WanderingMovement(BaseMovement):
         if self._can_wander(now):
             self.last_wandering_movement = now
             if self._wander():
-                self.wait_time_seconds = randint(1, 12) + self.spline.get_total_time_secs()
+                self.wait_time_seconds = randint(1, 12) + self.get_total_time_secs()
             else:
                 self.wait_time_seconds = randint(1, 4)
 
@@ -57,28 +57,34 @@ class WanderingMovement(BaseMovement):
         return True
 
     def _can_wander(self, now):
-        return not self.spline and now > self.last_wandering_movement + self.wait_time_seconds
+        return (self.unit.is_active_object() and not self.spline
+                and now > self.last_wandering_movement + self.wait_time_seconds)
 
     def _get_wandering_point(self):
         start_point = self.wander_home_position
-        random_point = start_point.get_random_point_in_radius(self.wandering_distance, map_id=self.unit.map_id)
+        random_point = start_point.get_random_point_in_radius(self.wandering_distance, self.unit.map_id)
         map_ = self.unit.get_map()
-        # Check line of sight.
-        if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True)):
-            return False, start_point
-
-        # Validate a path to the wandering point.
-        failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
-        if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
-            return False, start_point
 
         # Ignore point if 'slope' above 2.5.
         diff = math.fabs(random_point.z - self.unit.location.z)
         if diff > 2.5:
             return False, start_point
-        
+
+        # Client can crash with short movements.
+        if self.unit.location.distance(random_point) < 0.2:
+            return False, start_point
+
         # Do not wander into inactive cells.
         if not map_.is_active_cell_for_location(random_point):
+            return False, start_point
+
+        # Check line of sight.
+        if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True), doodads=True):
+            return False, start_point
+
+        # Validate a path to the wandering point, just be length 1.
+        failed, in_place, path = map_.calculate_path(self.unit.location, random_point, los=True)
+        if failed or len(path) > 1 or in_place or start_point.distance(random_point) < 1:
             return False, start_point
 
         return True, random_point

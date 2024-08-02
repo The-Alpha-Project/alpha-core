@@ -95,12 +95,10 @@ class Spline(object):
             self._validate_orientation(self.unit, pending_waypoint)
             return pending_waypoint.location
         guessed_distance = self.speed * elapsed
-        # This can return None.
-        point_in_between = self.unit.location.get_point_in_between(guessed_distance, pending_waypoint.location,
+
+        point_in_between = self.unit.location.get_point_in_between(self.unit, guessed_distance,
+                                                                   pending_waypoint.location,
                                                                    map_id=self.unit.map_id)
-        # At waypoint.
-        if not point_in_between:
-            return pending_waypoint.location.copy()
 
         # For creatures try to adjust the position in case the unit is part of a group.
         if not self.is_player:

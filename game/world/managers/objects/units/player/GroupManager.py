@@ -68,7 +68,6 @@ class GroupManager(object):
             if member_instance_token and member_instance_token.id == instance_token.id:
                 InstancesManager.remove_token_for_player(guid, member_instance_token)
 
-    # TODO, check if ordering becomes an issue cause of using dictionary for members.
     def get_member_at(self, index):
         for idx, member in enumerate(list(self.members.keys())):
             if index == idx:

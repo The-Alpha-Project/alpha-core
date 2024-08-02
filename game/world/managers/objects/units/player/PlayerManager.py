@@ -286,6 +286,8 @@ class PlayerManager(UnitManager):
 
         # Load & Apply enchantments.
         self.enchantment_manager.apply_enchantments(load=True)
+        # Send items duration, if any.
+        self.inventory.update_items_durations()
 
         # Apply equipment effects.
         self.spell_manager.apply_equipment_effects()
@@ -603,27 +605,28 @@ class PlayerManager(UnitManager):
         return True
 
     def synchronize_db_player(self):
-        if self.player:
-            self.player.level = self.level
-            self.player.xp = self.xp
-            self.player.talentpoints = self.talent_points
-            self.player.skillpoints = self.skill_points
-            self.player.position_x = self.location.x
-            self.player.position_y = self.location.y
-            self.player.position_z = self.location.z
-            self.player.map = self.map_id
-            self.player.orientation = self.location.o
-            self.player.zone = self.zone
-            self.player.explored_areas = self.explored_areas.to01()
-            self.player.taximask = self.taxi_manager.available_taxi_nodes.to01()
-            self.player.taxi_path = self.taxi_manager.taxi_resume_info.taxi_path_db_state
-            self.player.health = self.health
-            self.player.power1 = self.power_1
-            self.player.power2 = self.power_2
-            self.player.power3 = self.power_3
-            self.player.power4 = self.power_4
-            self.player.money = self.coinage
-            self.player.online = self.online
+        if not self.player:
+            return
+        self.player.level = self.level
+        self.player.xp = self.xp
+        self.player.talentpoints = self.talent_points
+        self.player.skillpoints = self.skill_points
+        self.player.position_x = self.location.x
+        self.player.position_y = self.location.y
+        self.player.position_z = self.location.z
+        self.player.map = self.map_id
+        self.player.orientation = self.location.o
+        self.player.zone = self.zone
+        self.player.explored_areas = self.explored_areas.to01()
+        self.player.taximask = self.taxi_manager.available_taxi_nodes.to01()
+        self.player.taxi_path = self.taxi_manager.taxi_resume_info.taxi_path_db_state
+        self.player.health = self.health
+        self.player.power1 = self.power_1
+        self.player.power2 = self.power_2
+        self.player.power3 = self.power_3
+        self.player.power4 = self.power_4
+        self.player.money = self.coinage
+        self.player.online = self.online
 
     def teleport(self, map_id, location, is_instant=False, recovery: float = -1.0):
         dbc_map = DbcDatabaseManager.map_get_by_id(map_id)
@@ -763,6 +766,7 @@ class PlayerManager(UnitManager):
             # Reapply effects from equipment.
             self.spell_manager.apply_equipment_effects()
             self.enchantment_manager.apply_enchantments()
+            self.inventory.update_items_durations()
             self.equipment_proc_manager.apply_equipment_effects()
             self.stat_manager.apply_bonuses()
 

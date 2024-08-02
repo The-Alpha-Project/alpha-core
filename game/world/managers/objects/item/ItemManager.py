@@ -1,3 +1,4 @@
+from functools import lru_cache
 from struct import pack
 from typing import List
 
@@ -13,10 +14,11 @@ from game.world.managers.objects.units.player.EnchantmentManager import MAX_ENCH
 from network.packet.PacketWriter import PacketWriter
 from game.world.managers.objects.item.ItemLootManager import ItemLootManager
 from utils.ByteUtils import ByteUtils
+from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, ItemDynFlags, ItemClasses, ItemFlags
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UpdateFields import ObjectFields, ItemFields
+from utils.constants.UpdateFields import ObjectFields, ItemFields, PlayerFields
 
 AVAILABLE_EQUIP_SLOTS = [
     InventorySlots.SLOT_INBACKPACK,  # None equip
@@ -71,6 +73,7 @@ class ItemManager(ObjectManager):
         self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
         self.current_slot = item_instance.slot if item_instance else 0
         self.is_backpack = False
+        self.duration = item_instance.duration if item_instance else 0
 
         self.enchantments = []  # Handled by EnchantmentManager.
         self.stats = []
@@ -97,6 +100,8 @@ class ItemManager(ObjectManager):
             self.damage_stats = DamageStat.generate_damage_stat_list(self.item_template)
             self.spell_stats = SpellStat.generate_spell_stat_list(self.item_template)
             self.lock = self.item_template.lock_id
+            # Do dont restore duration.
+            self.duration = self.item_template.duration if not self.duration else self.duration
 
             # Load loot_manager if needed.
             if self.item_template.flags & ItemFlags.ITEM_FLAG_HAS_LOOT:
@@ -113,8 +118,10 @@ class ItemManager(ObjectManager):
         return False
 
     def is_equipped(self):
-        return self.current_slot < InventorySlots.SLOT_BAG1 and \
-            self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value
+        player_mgr = self._get_owner_unit()
+        return (player_mgr and self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value
+                and self.current_slot < InventorySlots.SLOT_BAG1
+                and player_mgr.get_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + self.current_slot * 2) == self.guid)
 
     def is_soulbound(self):
         # I don't think quest items were soulbound in 0.5.3, so not checking.
@@ -203,6 +210,7 @@ class ItemManager(ObjectManager):
                 creator=creator if creator and item_template.stackable == 1 else 0,
                 item_template=item_template.entry,
                 stackcount=stack_count,
+                duration=item_template.duration,
                 slot=slot,
                 enchantments=ItemManager._get_enchantments_db_initialization(perm_enchant),
                 SpellCharges1=item_template.spellcharges_1,
@@ -335,6 +343,7 @@ class ItemManager(ObjectManager):
             # Item fields.
             self.set_uint64(ItemFields.ITEM_FIELD_OWNER, self.item_instance.owner)
             self.set_uint64(ItemFields.ITEM_FIELD_CREATOR, self.item_instance.creator)  # Wrapped/Crafted Items.
+            self.set_uint32(ItemFields.ITEM_FIELD_DURATION, self.item_instance.duration)
             self.set_uint64(ItemFields.ITEM_FIELD_CONTAINED, self.get_contained())
             self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
             self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
@@ -365,8 +374,8 @@ class ItemManager(ObjectManager):
     def set_stack_count(self, count):
         if self.item_instance:
             self.item_instance.stackcount = count
-            self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)
-            self.save()
+            if self.set_uint32(ItemFields.ITEM_FIELD_STACK_COUNT, self.item_instance.stackcount)[0]:
+                self.save()
 
     # noinspection PyMethodMayBeStatic
     def has_charges(self):
@@ -379,9 +388,8 @@ class ItemManager(ObjectManager):
     def set_charges(self, spell_id, charges):
         for index, spell_stats in enumerate(self.spell_stats):
             if spell_stats.spell_id == spell_id:
-                self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)
-                # Update our item_instance, else charges wont serialize properly.
-                if self.item_instance:
+                if self.set_int32(ItemFields.ITEM_FIELD_SPELL_CHARGES + index, charges)[0] and self.item_instance:
+                    # Update our item_instance, else charges wont serialize properly.
                     exec(f'self.item_instance.SpellCharges{index + 1} = {charges}')
                     self.save()
                 break
@@ -401,8 +409,8 @@ class ItemManager(ObjectManager):
 
     def set_unlocked(self):
         self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_UNLOCKED
-        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
-        self.save()
+        if self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())[0]:
+            self.save()
 
     def has_flag(self, flag: ItemDynFlags):
         return self.item_instance.item_flags & flag
@@ -449,8 +457,20 @@ class ItemManager(ObjectManager):
             self.item_instance.item_flags |= ItemDynFlags.ITEM_DYNFLAG_BOUND
         else:
             self.item_instance.item_flags &= ~ItemDynFlags.ITEM_DYNFLAG_BOUND
-        self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())
-        self.save()
+        # If field actually changed, save.
+        if self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())[0]:
+            self.save()
+
+    def send_item_duration(self, owner_guid):
+        if owner_guid != self.get_owner_guid():
+            return
+
+        player_mgr = WorldSessionStateHandler.find_player_by_guid(owner_guid)
+        if not player_mgr:
+            return
+
+        data = pack('<QI', self.guid, self.duration)
+        player_mgr.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_ITEM_TIME_UPDATE, data))
 
     def _get_item_flags(self):
         # Prior to Patch 1.7 ITEM_FIELD_FLAGS 32 bit value was built using 2 16 bit integers, dynamic item flags and
@@ -460,11 +480,20 @@ class ItemManager(ObjectManager):
 
     # Enchantments.
 
+    @staticmethod
+    def get_enchantments_entries_from_db(item_instance: CharacterInventory):
+        db_enchantments = item_instance.enchantments
+        if not db_enchantments:
+            return [0 for _ in range(MAX_ENCHANTMENTS)]
+        values = db_enchantments.rsplit(',')
+        return [int(values[slot * 3 + 0]) for slot in range(MAX_ENCHANTMENTS)]
+
     def has_enchantments(self):
         return any(enchantment.entry > 0 for enchantment in self.enchantments)
 
-    # Initial enchantment db state, empty or initialized with given permanent enchant. (Used for trade)
+    # Initial enchantment db state, empty or initialized with given permanent enchant. (Used for trade or new items)
     @staticmethod
+    @lru_cache
     def _get_enchantments_db_initialization(permanent_enchant=0):
         db_enchantments = ''
         for index in range(MAX_ENCHANTMENTS):
@@ -482,15 +511,30 @@ class ItemManager(ObjectManager):
             db_enchantments += str(self.enchantments[index].charges) + (',' if index != MAX_ENCHANTMENTS - 1 else '')
         return db_enchantments
 
+    def remove(self):
+        player_mgr = self._get_owner_unit()
+        if player_mgr and self.item_instance and self.item_instance.bag:
+            player_mgr.inventory.remove_item(self.item_instance.bag, self.current_slot)
+
     # Persist item in database.
     def save(self):
-        if self.item_instance:
-            self.item_instance.enchantments = self._get_enchantments_db_string()
-            RealmDatabaseManager.character_inventory_update_item(self.item_instance)
+        if not self.item_instance:
+            if not self.is_backpack:
+                Logger.error(f'Item {self.get_name()} has no item instance, unable to save.')
+            return
+        if not self.get_owner_guid():
+            Logger.error(f'Item {self.get_name()} has no owner, unable to save.')
+            return
+        self.item_instance.duration = self.duration
+        self.item_instance.enchantments = self._get_enchantments_db_string()
+        RealmDatabaseManager.character_inventory_update_item(self.item_instance)
+
+    def _get_owner_unit(self):
+        return WorldSessionStateHandler.find_player_by_guid(self.get_owner_guid())
 
     # override
     def get_name(self):
-        return self.item_template.name
+        return self.item_template.name if self.item_template else 'Backpack' if self.is_backpack else 'None'
 
     # override
     def get_type_mask(self):
@@ -532,9 +576,9 @@ class ItemManager(ObjectManager):
                     query_data.extend(item_bytes)
                     written_items += 1
 
-                packet = pack(f'<I{len(query_data)}s', written_items, query_data)
+                packet = pack(f'<I{len(query_data)}s', written_items, bytes(query_data))
                 packets.append(PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_MULTIPLE_RESPONSE, packet))
-                query_data = bytearray()
+                query_data.clear()
                 written_items = 0
                 continue
 

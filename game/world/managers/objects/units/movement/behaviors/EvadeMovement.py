@@ -17,7 +17,7 @@ class EvadeMovement(BaseMovement):
         if self._can_begin_evade(now):
             self._begin_evade()
             self.last_movement = now
-            self.wait_time_seconds = self.spline.get_total_time_secs()
+            self.wait_time_seconds = self.get_total_time_secs()
 
         super().update(now, elapsed)
 

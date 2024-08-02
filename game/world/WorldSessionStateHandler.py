@@ -115,7 +115,7 @@ class WorldSessionStateHandler(object):
         try:
             player_mgr.synchronize_db_player()
             RealmDatabaseManager.character_update(player_mgr.player)
-            player_mgr.enchantment_manager.save()
+            player_mgr.enchantment_manager.save()  # Enchantments plus item duration.
             player_mgr.pet_manager.save()
             player_mgr.quest_manager.save()
         except AttributeError as ae:

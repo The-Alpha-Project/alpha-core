@@ -24,9 +24,8 @@ class DistractedMovement(BaseMovement):
     def on_removed(self):
         self.unit.unit_state &= ~UnitStates.DISTRACTED
         if self.unit.get_type_id() == ObjectTypeIds.ID_UNIT and not self.unit.has_wander_type():
-            angle = self.unit.location.get_angle_towards_vector(self.unit.spawn_position)
-            self.unit.movement_manager.face_angle(angle)
+            self.unit.movement_manager.face_angle(self.unit.spawn_position.o)
 
     # override
     def can_remove(self):
-        return self.unit.is_alive or self.unit.in_combat or time.time() >= self.expected_timestamp
+        return not self.unit.is_alive or self.unit.in_combat or time.time() >= self.expected_timestamp

@@ -24,7 +24,7 @@ from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackType
     ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
-    SpellSchoolMask, SpellTargetMask, SpellAttributesEx
+    SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState
 from utils.constants.UnitCodes import UnitFlags, StandState, WeaponMode, PowerTypes, UnitStates, RegenStatsFlags, \
     AIReactionStates
 from utils.constants.UpdateFields import UnitFields
@@ -166,6 +166,8 @@ class UnitManager(ObjectManager):
         self.is_evading = False
         self.swing_error = AttackSwingError.NONE
         self.extra_attacks = 0
+        self.hp_percent = 100
+        self.power_percent = 100
         self.last_regen = 0
         self.mana_regen_timer = 0
         self.regen_flags = RegenStatsFlags.NO_REGENERATION
@@ -344,20 +346,19 @@ class UnitManager(ObjectManager):
             self.update_attack_time(AttackTypes.OFFHAND_ATTACK, elapsed * 1000.0)
 
     def update_melee_attacking_state(self):
+        main_attack_ready = self.is_attack_ready(AttackTypes.BASE_ATTACK)
+        off_hand_attack_ready = self.is_attack_ready(AttackTypes.OFFHAND_ATTACK) and self.has_offhand_weapon()
+
+        # If neither main hand attack and offhand attack are ready, return.
+        if not main_attack_ready and not off_hand_attack_ready:
+            return False
+
         # Don't update melee attacking state while casting, stunned, pacified, fleeing or confused.
         if not self.can_perform_melee_attack():
             return False
 
-        # If neither main hand attack and offhand attack are ready, return.
-        if not self.is_attack_ready(AttackTypes.BASE_ATTACK) and \
-                (self.has_offhand_weapon() and not self.is_attack_ready(AttackTypes.OFFHAND_ATTACK)):
-            return False
-
         swing_error = AttackSwingError.NONE
         combat_angle = math.pi
-
-        main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
-        off_attack_delay = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
 
         # Out of reach.
         if not self.is_within_interactable_distance(self.combat_target):
@@ -379,21 +380,23 @@ class UnitManager(ObjectManager):
             swing_error = AttackSwingError.CANTATTACK
         else:
             # Main hand attack.
-            if self.is_attack_ready(AttackTypes.BASE_ATTACK):
+            if main_attack_ready:
                 # Prevent both hand attacks at the same time.
                 if self.has_offhand_weapon():
                     if self.attack_timers[AttackTypes.OFFHAND_ATTACK] < 500:
                         self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, 500)
 
+                main_attack_delay = self.stat_manager.get_total_stat(UnitStats.MAIN_HAND_DELAY)
                 self.attacker_state_update(self.combat_target, AttackTypes.BASE_ATTACK)
                 self.set_attack_timer(AttackTypes.BASE_ATTACK, main_attack_delay)
 
             # Offhand attack.
-            if self.has_offhand_weapon() and self.is_attack_ready(AttackTypes.OFFHAND_ATTACK):
+            if off_hand_attack_ready:
                 # Prevent both hand attacks at the same time.
                 if self.attack_timers[AttackTypes.BASE_ATTACK] < 500:
                     self.set_attack_timer(AttackTypes.BASE_ATTACK, 500)
 
+                off_attack_delay = self.stat_manager.get_total_stat(UnitStats.OFF_HAND_DELAY)
                 self.attacker_state_update(self.combat_target, AttackTypes.OFFHAND_ATTACK)
                 self.set_attack_timer(AttackTypes.OFFHAND_ATTACK, off_attack_delay)
 
@@ -780,6 +783,10 @@ class UnitManager(ObjectManager):
         damage_info.absorb = target.get_school_absorb_for_damage(damage_info)
         damage_info.total_damage = max(0, damage_info.base_damage - damage_info.absorb)
 
+        # Target will die because of this attack.
+        if target.health - damage_info.total_damage <= 0:
+            damage_info.hit_info |= HitInfo.UNIT_DEAD
+
         return damage_info
 
     def deal_damage(self, target, damage_info, casting_spell=None, is_periodic=False):
@@ -812,7 +819,6 @@ class UnitManager(ObjectManager):
             self.set_health(new_health)
             self.generate_rage(damage_info, is_attacking=False)
 
-        # TODO: Threat calculation.
         if casting_spell and damage_info.total_damage == 0:
             self.threat_manager.add_threat(source)
             return True
@@ -882,7 +888,7 @@ class UnitManager(ObjectManager):
             self.handle_combat_skill_gain(damage_info)
             target.handle_combat_skill_gain(damage_info)
 
-        if damage_info.hit_info & HitInfo.DEFERRED_LOGGING:
+        if damage_info.hit_info & HitInfo.DEFERRED_LOGGING and self.is_alive:
             # Spells with deferred logging aren't logged until an attack state update is sent with this flag.
             self.send_attack_state_update(damage_info)
 
@@ -1004,6 +1010,9 @@ class UnitManager(ObjectManager):
 
         # Reset threat table.
         self.threat_manager.reset()
+
+        # Reset aura states.
+        self.aura_manager.reset_aura_states()
 
         self.combat_target = None
         self.in_combat = False
@@ -1359,7 +1368,8 @@ class UnitManager(ObjectManager):
         if power_type == -1:
             power_type = self.power_type
 
-        value = max(0, min(value, self.get_max_power_value(power_type)))  # Clamp to 0 - max power.
+        max_power = self.get_max_power_value(power_type)
+        value = max(0, min(value, max_power))  # Clamp to 0 - max power.
 
         if power_type == PowerTypes.TYPE_MANA:
             self.power_1 = value
@@ -1370,6 +1380,7 @@ class UnitManager(ObjectManager):
         elif power_type == PowerTypes.TYPE_ENERGY:
             self.power_4 = value
 
+        self.power_percent = 0 if not max_power else (value / max_power) * 100
         self.set_uint32(UnitFields.UNIT_FIELD_POWER1 + power_type, value)
 
     def get_max_power_value(self, power_type=-1):
@@ -1532,13 +1543,17 @@ class UnitManager(ObjectManager):
 
         # Also check school immunity on damage immunity.
         return self.has_immunity(SpellImmunity.IMMUNITY_DAMAGE, school, is_mask=is_mask) or \
-                self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, school, is_mask=is_mask)
+            self.has_immunity(SpellImmunity.IMMUNITY_SCHOOL, school, is_mask=is_mask)
 
     def set_health(self, health):
         if health < 0:
             health = 0
         self.health = min(health, self.max_health)
         self.set_uint32(UnitFields.UNIT_FIELD_HEALTH, self.health)
+        self.hp_percent = (self.health / self.max_health) * 100 if self.max_health else 0
+        # Aura state health <= 20%.
+        if self.health:
+            self.aura_manager.modify_aura_state(AuraState.AURA_STATE_HEALTH_20_PERCENT, apply=self.hp_percent <= 20)
 
     def set_max_health(self, health):
         self.max_health = health
@@ -1621,12 +1636,14 @@ class UnitManager(ObjectManager):
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, reach)
 
     def set_weapon_mode(self, weapon_mode):
+        changed = weapon_mode != self.sheath_state
         self.sheath_state = weapon_mode
         self.bytes_1 = self.get_bytes_1()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1, force=True)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1, force=changed)
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form
+        self.aura_manager.reset_aura_states()
 
     # Implemented by CreatureManager
     def has_melee(self):
@@ -1819,6 +1836,7 @@ class UnitManager(ObjectManager):
         map_ = self.get_map()
         self_is_player = self.get_type_id() == ObjectTypeIds.ID_PLAYER
         surrounding_units = map_.get_surrounding_units(self, not self_is_player)
+        self_has_ooc_los_events = not self_is_player and self.object_ai.ai_event_handler.has_ooc_los_events()
 
         # Merge units and players.
         if not self_is_player:
@@ -1828,18 +1846,23 @@ class UnitManager(ObjectManager):
             surrounding_units = surrounding_units.values()
 
         for unit in surrounding_units:
-            # Handle ooc los event first, which will do its own checks.
-            los_check = map_.los_check(unit.get_ray_position(), self.get_ray_position())
-            if los_check:
-                # Player notifies creature.
-                if self_is_player and unit.object_ai:
-                    unit.object_ai.move_in_line_of_sight(unit=self, ai_event=True)
-                # Self notifies player/creature presence.
-                elif not self_is_player and self.object_ai:
-                    self.object_ai.move_in_line_of_sight(unit=unit, ai_event=True)
+            unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+            unit_has_ooc_los_events = not unit_is_player and unit.object_ai.ai_event_handler.has_ooc_los_events()
+
+            los_check = None
+            # If self or unit has ooc los events.
+            if self_has_ooc_los_events or unit_has_ooc_los_events:
+                los_check = map_.los_check(unit.get_ray_position(), self.get_ray_position())
+                if los_check:
+                    # Player notifies creature.
+                    if self_is_player and unit.object_ai:
+                        unit.object_ai.move_in_line_of_sight(unit=self, ai_event=True)
+                    # Self notifies player/creature presence.
+                    elif not self_is_player and self.object_ai:
+                        self.object_ai.move_in_line_of_sight(unit=unit, ai_event=True)
 
             distance = unit.location.distance(self.location)
-            unit_is_player = unit.get_type_id() == ObjectTypeIds.ID_PLAYER
+
             detection_range = self.get_detection_range() if unit_is_player else unit.get_detection_range()
             max_detection_range = detection_range
 
@@ -1869,6 +1892,9 @@ class UnitManager(ObjectManager):
                 unit.object_ai.send_ai_reaction(self, AIReactionStates.AI_REACT_ALERT)
             if not unit_can_detect_self:
                 continue
+
+            los_check = los_check if los_check is not None else map_.los_check(unit.get_ray_position(),
+                                                                               self.get_ray_position())
             if not los_check:
                 continue
 

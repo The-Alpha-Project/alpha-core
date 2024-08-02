@@ -1,18 +1,13 @@
 from struct import pack
-from typing import Tuple, Dict
-
-from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from network.packet.PacketWriter import PacketWriter
-from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots, ItemEnchantmentType, EnchantmentSlots, InventoryTypes, \
-    ItemSpellTriggerType
+from utils.constants.ItemCodes import ItemEnchantmentType, EnchantmentSlots, InventoryTypes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
-from utils.constants.UnitCodes import UnitFlags
 from utils.constants.UpdateFields import ItemFields
 
 
 MAX_ENCHANTMENTS = 5
+REFRESH_SECONDS = 30
 
 
 class EnchantmentManager(object):
@@ -23,30 +18,43 @@ class EnchantmentManager(object):
     # Load and apply enchantments from item_instance.
     def load_enchantments_for_item(self, item, from_db=False):
         db_enchantments = item.item_instance.enchantments
-        if db_enchantments:
-            values = db_enchantments.rsplit(',')
-            for slot in range(MAX_ENCHANTMENTS):
-                entry = int(values[slot * 3 + 0])
-                if from_db and not entry:
-                    continue
-                duration = int(values[slot * 3 + 1])
-                charges = int(values[slot * 3 + 2])
-                self.set_item_enchantment(item, slot, entry, duration, charges)
+        if not db_enchantments:
+            return
+        values = db_enchantments.rsplit(',')
+        for slot in range(MAX_ENCHANTMENTS):
+            entry = int(values[slot * 3 + 0])
+            if from_db and not entry:
+                continue
+            duration = int(values[slot * 3 + 1])
+            charges = int(values[slot * 3 + 2])
+            self.set_item_enchantment(item, slot, entry, duration, charges)
 
-    # TODO: Need to optimize item lookup or even move Enchantment updates to a new global thread.
     def update(self, elapsed, saving=False):
         self.duration_timer_seconds += elapsed
-        if saving or self.duration_timer_seconds >= 10:
-            [self._update_item_enchantments(item) for item
-             in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values())]
+        if saving or self.duration_timer_seconds >= REFRESH_SECONDS:
+            # Updates should check all items, not just backpack.
+            [self._update_item_enchantments(itm) for itm in self.unit_mgr.inventory.get_all_items()]
             self.duration_timer_seconds = 0
 
     def save(self):
         self.update(0, saving=True)
 
     def _update_item_enchantments(self, item):
+        # In order to avoid more iterations for item duration field (Not enchantments, do it here).
+        if item.item_template.duration:
+            self._update_item_duration(item)
+        # Enchantments.
         [self._update_item_enchant(item, slot, enchantment) for (slot, enchantment)
          in enumerate(item.enchantments) if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry]
+
+    def _update_item_duration(self, item):
+        item.duration = max(0, int(item.duration - self.duration_timer_seconds))
+        if item.duration:
+            item.save()
+            item.send_item_duration(self.unit_mgr.guid)
+        # Expired on this tick, remove item.
+        else:
+            item.remove()
 
     def _update_item_enchant(self, item, slot, enchantment):
         enchantment.duration = max(0, int(enchantment.duration - self.duration_timer_seconds))
@@ -125,7 +133,7 @@ class EnchantmentManager(object):
     # Notify the client with the enchantment duration.
     # Client keeps track of the time, there is no need for constant updates.
     def send_enchantments_durations(self, update_slot=-1):
-        for item in list(self.unit_mgr.inventory.get_backpack().sorted_slots.values()):
+        for item in list(self.unit_mgr.inventory.get_all_items()):
             for slot, enchantment in enumerate(item.enchantments):
                 if slot > EnchantmentSlots.PERMANENT_SLOT:  # Temporary enchantments.
                     if update_slot != -1 and update_slot != slot:

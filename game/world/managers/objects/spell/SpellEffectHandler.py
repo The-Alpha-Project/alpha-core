@@ -560,7 +560,7 @@ class SpellEffectHandler:
         # It wasn't until Patch 0.6 that Charge speeded you along a path towards the target, it just teleported you
         # next to the target (there's also video evidence of this behavior).
         distance = caster.location.distance(target.location) - UnitFormulas.combat_distance(leaper, leap_target)
-        charge_location = caster.location.get_point_in_between(distance, target.location, map_id=caster.map_id)
+        charge_location = caster.location.get_point_in_between(caster, distance, target.location, map_id=caster.map_id)
         charge_location.face_point(target.location)
 
         # Always increase Z when not using namigator to protect players from falling off world.
@@ -732,7 +732,6 @@ class SpellEffectHandler:
         if not target.is_alive:
             return
 
-        # TODO: Threat calculation considering spell school and crit.
         threat = effect.get_effect_simple_points()
         target.threat_manager.add_threat(caster, threat)
 
@@ -744,8 +743,9 @@ class SpellEffectHandler:
         if target.combat_target or target.unit_state & UnitStates.DISTRACTED:
             return
 
+        location = target.location if not isinstance(casting_spell.initial_target, Vector) else casting_spell.initial_target
         duration = casting_spell.get_duration() / 1000
-        angle = target.location.get_angle_towards_vector(casting_spell.initial_target)
+        angle = target.location.get_angle_towards_vector(location)
         target.movement_manager.move_distracted(duration, angle=angle)
 
     @staticmethod

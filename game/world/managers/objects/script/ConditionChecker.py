@@ -373,7 +373,7 @@ class ConditionChecker:
         # Condition_value2 = count.
         if not ConditionChecker.is_player(target):
             return False
-        return target.inventory_manager.get_item_count(condition.value1, include_bank=True) >= condition.value2
+        return target.inventory.get_item_count(condition.value1, include_bank=True) >= condition.value2
 
     @staticmethod
     def check_condition_wow_patch(_condition, _source, _target):
@@ -596,13 +596,12 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target):
             return False
 
-        health_percent = (target.health / target.max_health) * 100
         if condition.value2 == 0:
-            return health_percent == condition.value1
+            return target.hp_percent == condition.value1
         elif condition.value2 == 1:
-            return health_percent >= condition.value1
+            return target.hp_percent >= condition.value1
         elif condition.value2 == 2:
-            return health_percent <= condition.value1
+            return target.hp_percent <= condition.value1
 
         return False
 
@@ -616,13 +615,15 @@ class ConditionChecker:
         if not ConditionChecker.is_unit(target) or target.power_type != PowerTypes.TYPE_MANA:
             return False
 
-        mana_percent = (target.power1 / target.max_power1) * 100
+        if target.power_type != PowerTypes.TYPE_MANA:
+            return False
+
         if condition.value2 == 0:
-            return mana_percent == condition.value1
+            return target.power_percent == condition.value1
         elif condition.value2 == 1:
-            return mana_percent >= condition.value1
+            return target.power_percent >= condition.value1
         elif condition.value2 == 2:
-            return mana_percent <= condition.value1
+            return target.power_percent <= condition.value1
 
         return False
 

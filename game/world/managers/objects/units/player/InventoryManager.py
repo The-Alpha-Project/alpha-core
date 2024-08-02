@@ -79,6 +79,22 @@ class InventoryManager(object):
                 if item_instance.bag in self.containers and self.containers[item_instance.bag]:
                     self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
+    def update_items_durations(self):
+        for item in self.get_all_items():
+            if item.duration:
+                item.send_item_duration(self.owner.guid)
+
+    def get_all_items(self, include_bank=False):
+        items = []
+        for container_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            for slot, item in list(container.sorted_slots.items()):
+                if not include_bank and self.is_bank_slot(container_slot, slot):
+                    continue
+                items.append(item)
+        return items
+
     def get_backpack(self):
         return self.containers[InventorySlots.SLOT_INBACKPACK]
 
@@ -241,14 +257,14 @@ class InventoryManager(object):
         if dest_container.is_backpack and self.is_bag_pos(dest_slot):
             self.add_bag(dest_slot, generated_item)
 
+        # Backpack was touched, refresh slot fields.
+        if dest_container.is_backpack:
+            self.build_update()
+
         if dest_container.is_backpack and \
                 (self.is_equipment_pos(dest_bag_slot, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(generated_item)
             generated_item.save()
-
-        # Backpack was touched, refresh slot fields.
-        if dest_container.is_backpack:
-            self.build_update()
 
         self.update_locked = False
         return True
@@ -317,6 +333,10 @@ class InventoryManager(object):
             dest_item.set_bag(source_bag)
             dest_item.item_instance.slot = source_slot
 
+        # Backpack was touched, refresh slot fields.
+        if dest_container.is_backpack or source_container.is_backpack:
+            self.build_update()
+
         # Equipment-specific behaviour: binding, offhand unequip, equipment update packet etc.
         if (source_container.is_backpack and
                 (self.is_equipment_pos(source_bag, source_slot) or self.is_bag_pos(source_slot))) or \
@@ -330,25 +350,13 @@ class InventoryManager(object):
         if dest_item:
             dest_item.save()
 
-        # Backpack was touched, refresh slot fields.
-        if dest_container.is_backpack or source_container.is_backpack:
-            self.build_update()
-
     def get_item_count(self, entry, include_bank=False):
-        count = 0
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
-            for slot, item in list(container.sorted_slots.items()):
-                if not include_bank and self.is_bank_slot(container_slot, slot):
-                    continue
-
-                if item.item_template.entry == entry:
-                    count += item.item_instance.stackcount
-        return count
+        return sum(item.item_instance.stackcount for item in self.get_all_items(include_bank=include_bank)
+                   if item.item_template.entry == entry)
 
     def get_container(self, slot):
-        if slot >= InventorySlots.SLOT_BANK_END:  # The client sometimes refers to backpack with values over or equal to SLOT_BANK_END
+        # The client sometimes refers to backpack with values over to SLOT_BANK_END
+        if slot > InventorySlots.SLOT_BANK_END:
             slot = InventorySlots.SLOT_INBACKPACK
         if slot in self.containers:
             return self.containers[slot]
@@ -361,12 +369,9 @@ class InventoryManager(object):
         return None
 
     def get_first_item_by_entry(self, entry):
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
-            for slot, item in list(container.sorted_slots.items()):
-                if item.item_template.entry == entry:
-                    return item
+        for item in self.get_all_items():
+            if item.item_template.entry == entry:
+                return item
         return None
 
     # Clear_slot should be set as False if another item will be placed in this slot (swap_item)
@@ -404,8 +409,7 @@ class InventoryManager(object):
             self.owner.quest_manager.pop_item(target_item.item_template.entry)
 
             # Update equipment.
-            if target_item.is_equipped():
-                target_item.current_slot = InventorySlots.SLOT_BANK_END
+            if target_item.is_equipped() or clear_slot:
                 self.handle_equipment_change(target_item)
 
     def remove_items(self, entry, count, include_bank=False):
@@ -460,12 +464,10 @@ class InventoryManager(object):
         return item_count  # Return the amount of items not removed
 
     def get_item_by_guid(self, guid):
-        for container_slot, container in list(self.containers.items()):
-            if not container:
-                continue
-            for slot, item in list(container.sorted_slots.items()):
-                if item.guid == guid:
-                    return item
+        for item in self.get_all_items():
+            if item.guid == guid:
+                return item
+        return None
 
     def get_item_info_by_guid(self, guid):
         for container_slot, container in list(self.containers.items()):
@@ -727,7 +729,7 @@ class InventoryManager(object):
 
     def is_bag_pos(self, slot):
         return (InventorySlots.SLOT_BAG1 <= slot < InventorySlots.SLOT_INBACKPACK) or \
-               (InventorySlots.SLOT_BANK_BAG_1 <= slot < InventorySlots.SLOT_BANK_END)
+               (InventorySlots.SLOT_BANK_BAG_1 <= slot <= InventorySlots.SLOT_BANK_END)
 
     def is_bank_slot(self, bag_slot, slot):
         if bag_slot == InventorySlots.SLOT_INBACKPACK:
@@ -905,7 +907,7 @@ class InventoryManager(object):
                 destroy_packets[container.guid] = container.get_destroy_packet()
 
             for slot, item in list(container.sorted_slots.items()):
-                if requester.guid == self.owner.guid or item.guid in requester.known_items:
+                if item and requester.guid == self.owner.guid or item.guid in requester.known_items:
                     destroy_packets[item.guid] = item.get_destroy_packet()
         return destroy_packets
 
@@ -933,7 +935,8 @@ class InventoryManager(object):
 
             for slot, item in list(container.sorted_slots.items()):
                 # Other players do not care about other items outside the inventory of another player.
-                if (self.is_bag_pos(slot) or self.is_inventory_pos(container_slot, slot)) and requester != self.owner:
+                if (not item or (self.is_bag_pos(slot) or self.is_inventory_pos(container_slot, slot))
+                        and requester != self.owner):
                     continue
 
                 # Add item query details if the requester does not know this item.

@@ -478,6 +478,9 @@ class CastingSpell:
         return self.spell_caster.get_type_id() == ObjectTypeIds.ID_PLAYER and \
             self.spell_entry.AttributesEx & cp_att != 0
 
+    def requires_aura_state(self):
+        return self.spell_entry.CasterAuraState != 0
+
     def calculate_effective_level(self, level):
         if level > self.spell_entry.MaxLevel > 0:
             level = self.spell_entry.MaxLevel

@@ -10,7 +10,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ProcFlags, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import AuraTypes, AuraSlots, SpellAuraInterruptFlags, SpellAttributes, \
-    SpellAttributesEx, SpellEffects
+    SpellAttributesEx, SpellEffects, AuraState
 from utils.constants.UnitCodes import UnitFlags, StandState
 from utils.constants.UpdateFields import UnitFields
 
@@ -32,7 +32,6 @@ class AuraManager:
 
         # Application threat and negative aura application interrupts.
         if aura.harmful and self.unit_mgr != aura.caster:
-            # TODO: Threat calculation.
             # Add threat for non-player targets against unit casters if the caster and target are not the same.
             if aura.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT and aura.source_spell.generates_threat():
                 self.unit_mgr.threat_manager.add_threat(aura.caster, abs(aura.get_effect_points()))
@@ -236,6 +235,7 @@ class AuraManager:
                                                                                                  applied_aura.spell_id)
             is_similar = applied_aura.spell_id == aura.spell_id or new_aura_name == applied_aura_name
             is_same_source = applied_aura.caster.guid == caster_guid
+            is_dummy = aura.spell_effect.aura_type == AuraTypes.SPELL_AURA_DUMMY
 
             if not is_similar and not (has_group_restriction and is_same_source):
                 continue  # TODO Same effects but different spells (exclusivity groups)?
@@ -243,12 +243,25 @@ class AuraManager:
             is_unique = applied_spell_entry.AttributesEx & SpellAttributesEx.SPELL_ATTR_EX_AURA_UNIQUE
             is_stacking = applied_aura.can_stack
 
-            if (is_unique or is_same_source or not aura.harmful) and not (is_similar and is_stacking):
+            if (is_unique or is_same_source or not aura.harmful) and not (is_similar and is_stacking) and not is_dummy:
                 # Remove similar applied aura if it's unique, a buff or from the same caster.
                 # Ignore if this is a stacking buff; add_aura will just add a dose in that case.
                 # We can also ignore ranks here, as attempting to cast a lower rank buff will fail in validation.
                 self.remove_aura(applied_aura, canceled=True)
         return True
+
+    def reset_aura_states(self):
+        for flag in AuraState:
+            self.modify_aura_state(flag, apply=False)
+
+    def modify_aura_state(self, flag: AuraState, apply):
+        flag_value = 1 << (flag.value - 1)
+        flags = self.unit_mgr.get_uint32(UnitFields.UNIT_FIELD_AURASTATE)
+        if not apply and flags & flag_value != 0:
+            flags &= ~flag.value
+        elif apply and flags & flag_value == 0:
+            flags |= flag.value
+        self.unit_mgr.set_uint32(UnitFields.UNIT_FIELD_AURASTATE, flags)
 
     def has_aura_by_spell_id(self, spell_id):
         for aura in list(self.active_auras.values()):

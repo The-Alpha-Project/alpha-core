@@ -1,8 +1,9 @@
 import os
 from collections import defaultdict
+from functools import lru_cache
 from typing import Optional
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 from database.dbc.DbcModels import *
@@ -28,6 +29,7 @@ class DbcDatabaseManager:
     # ChrRaces
 
     @staticmethod
+    @lru_cache
     def chr_races_get_by_race(race):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(ChrRaces).filter_by(ID=race).first()
@@ -63,6 +65,7 @@ class DbcDatabaseManager:
     # AreaTrigger
 
     @staticmethod
+    @lru_cache
     def area_trigger_get_by_id(trigger_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(AreaTrigger).filter_by(ID=trigger_id).first()
@@ -72,6 +75,7 @@ class DbcDatabaseManager:
     # AreaTable
 
     @staticmethod
+    @lru_cache
     def area_get_by_id_and_map_id(area_id, map_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(AreaTable).filter_by(ID=area_id, ContinentID=map_id).first()
@@ -79,6 +83,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def area_get_by_area_number(area_number, map_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(AreaTable).filter_by(AreaNumber=area_number, ContinentID=map_id).first()
@@ -86,6 +91,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def area_get_by_id(area_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(AreaTable).filter_by(ID=area_id).first()
@@ -93,6 +99,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def area_get_by_name(area_name):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(AreaTable).filter_by(AreaName_enUS=area_name).first()
@@ -139,6 +146,7 @@ class DbcDatabaseManager:
     # EmoteText
 
     @staticmethod
+    @lru_cache
     def emote_text_get_by_id(emote_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(EmotesText).filter_by(ID=emote_id).first()
@@ -182,8 +190,6 @@ class DbcDatabaseManager:
 
             return DbcDatabaseManager.SpellHolder.spell_get_rank_by_spell(spell)
 
-    # TODO Caching for all spell database methods?
-
     @staticmethod
     def spell_get_all():
         dbc_db_session = SessionHolder()
@@ -192,6 +198,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def spell_get_by_name(spell_name):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(Spell).filter(Spell.Name_enUS.like(f'%{spell_name}%')).all()
@@ -199,6 +206,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def spell_cast_time_get_by_id(casting_time_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellCastTimes).filter_by(ID=casting_time_index).first()
@@ -206,6 +214,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def spell_visual_get_by_id(spell_visual_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellVisual).filter_by(ID=spell_visual_id).first()
@@ -213,6 +222,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def spell_range_get_by_id(range_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellRange).filter_by(ID=range_index).first()
@@ -220,6 +230,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def spell_duration_get_by_id(duration_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellDuration).filter_by(ID=duration_index).first()
@@ -227,6 +238,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def spell_radius_get_by_id(radius_index):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellRadius).filter_by(ID=radius_index).first()
@@ -234,6 +246,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def spell_get_item_enchantment(enchantment_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellItemEnchantment).filter_by(ID=enchantment_id).first()
@@ -241,6 +254,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def spell_get_focus_by_id(spell_focus_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SpellFocusObject).filter_by(ID=spell_focus_id).first()
@@ -269,6 +283,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def skill_get_by_type(skill_type):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SkillLine).filter_by(SkillType=skill_type).all()
@@ -276,6 +291,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def skill_get_by_name(skill_type):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(SkillLine).filter(SkillLine.DisplayName_enUS.like(f'%{skill_type}%')).all()
@@ -327,6 +343,7 @@ class DbcDatabaseManager:
             return DbcDatabaseManager.SkillLineAbilityHolder.SKILL_LINE_ABILITIES.get(spell_id, list())
 
         @staticmethod
+        @lru_cache
         def skill_line_ability_get_by_spell_race_and_class(spell_id, race, class_):
             race_mask = 1 << (race - 1)
             class_mask = 1 << (class_ - 1)
@@ -363,6 +380,7 @@ class DbcDatabaseManager:
     # ItemSubClass
 
     @staticmethod
+    @lru_cache
     def item_get_subclass_info_by_class_and_subclass(class_, subclass):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(ItemSubClass).filter_by(ClassID=class_, SubClassID=subclass).first()
@@ -372,6 +390,7 @@ class DbcDatabaseManager:
     # CharStartOutfit
 
     @staticmethod
+    @lru_cache
     def char_start_outfit_get(race, class_, gender):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(CharStartOutfit).filter_by(RaceID=race, ClassID=class_, GenderID=gender).first()
@@ -402,6 +421,7 @@ class DbcDatabaseManager:
     # GameObjectDisplayInfo
 
     @staticmethod
+    @lru_cache
     def gameobject_display_info_get_by_id(display_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(GameObjectDisplayInfo).filter_by(ID=display_id).first()
@@ -440,9 +460,17 @@ class DbcDatabaseManager:
     # Map
 
     @staticmethod
+    @lru_cache
     def map_get_by_id(map_id):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(Map).filter_by(ID=map_id).first()
+        dbc_db_session.close()
+        return res
+
+    @staticmethod
+    def get_max_map_id():
+        dbc_db_session = SessionHolder()
+        res = dbc_db_session.query(func.max(Map.ID)).scalar()
         dbc_db_session.close()
         return res
 
@@ -456,6 +484,7 @@ class DbcDatabaseManager:
     # Bank
 
     @staticmethod
+    @lru_cache
     def bank_get_slot_cost(slot):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(BankBagSlotPrices).filter_by(ID=slot).first()
@@ -476,6 +505,7 @@ class DbcDatabaseManager:
                 DbcDatabaseManager.TaxiNodesHolder.KALIMDOR_TAXI_NODES[taxi_node.ID] = taxi_node
 
         @staticmethod
+        @lru_cache
         def taxi_nodes_get_by_map_id(map_id):
             if map_id == 0:
                 return DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES.items()
@@ -484,6 +514,7 @@ class DbcDatabaseManager:
             return {}
 
         @staticmethod
+        @lru_cache
         def taxi_nodes_get_by_map_id_and_node_id(map_id, node_id):
             if map_id == 0:
                 return DbcDatabaseManager.TaxiNodesHolder.EASTERN_KINGDOMS_TAXI_NODES[node_id]
@@ -514,6 +545,7 @@ class DbcDatabaseManager:
         return res
 
     @staticmethod
+    @lru_cache
     def taxi_path_get(from_node, to_node):
         dbc_db_session = SessionHolder()
         res = dbc_db_session.query(TaxiPath).filter_by(FromTaxiNode=from_node, ToTaxiNode=to_node).first()
@@ -580,6 +612,7 @@ class DbcDatabaseManager:
             DbcDatabaseManager.FactionHolder.FACTIONS[faction.ID] = faction
 
         @staticmethod
+        @lru_cache
         def faction_get_by_index(index):
             for faction in DbcDatabaseManager.FactionHolder.FACTIONS.values():
                 if faction.ReputationIndex == index:

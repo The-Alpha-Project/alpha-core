@@ -112,14 +112,23 @@ class Vector(object):
 
     # https://math.stackexchange.com/a/2045181
     # a map_id of -1 will make Z ignore map information.
-    def get_point_in_between(self, offset, vector=None, x=0, y=0, z=0, map_id=-1):
+    def get_point_in_between(self, unit, offset, vector=None, x=0, y=0, z=0, map_id=-1):
         if not vector:
             vector = Vector(x=x, y=y, z=z)
+
+        # Namigator.
+        point_in_between = unit.get_map().find_point_in_between_vectors(offset, unit.location, vector)
+        if point_in_between:
+            # Convert Namigator tuple to Vector.
+            result = Vector(point_in_between[0], point_in_between[1], point_in_between[2])
+            orientation = self.o if self.o != 0 else self.get_angle_towards_vector(result)
+            result.set_orientation(orientation)
+            return result
 
         general_distance = self.distance(vector)
         # Location already in the given offset
         if general_distance <= offset:
-            return None
+            return vector
 
         factor = offset / general_distance
         x3 = self.x + factor * (vector.x - self.x)

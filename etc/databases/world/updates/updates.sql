@@ -1285,5 +1285,98 @@ begin not atomic
 
         insert into applied_updates values ('250720241');
     end if;
+    
+    -- 26/07/2024 1
+    if (select count(*) from `applied_updates` where id='260720241') = 0 then
+        -- Fix Grimnur Stonebrand <Fishing Trainer> location.
+        UPDATE `spawns_creatures` SET `position_x` = '-4644.079', `position_y` = '-1072.172', `position_z` = '500.269', `orientation` = '4.72' WHERE (`spawn_id` = '1794');
+        -- Fix rabbit Z.
+        UPDATE `spawns_creatures` SET `position_z` = '60.185' WHERE (`spawn_id` = '80360');
+        -- Fix Peacebloom Flower Z.
+        UPDATE `spawns_gameobjects` SET `spawn_positionZ` = '62.789' WHERE (`spawn_id` = '26812');
+        -- Blackrock Scout Z.
+        UPDATE `spawns_creatures` SET `position_x` = '-9294.5', `position_y` = '-2942.45', `position_z` = '163.848' WHERE (`spawn_id` = '28337');
+        -- Squirrel Z.
+        UPDATE `spawns_creatures` SET `position_x` = '9875.71', `position_y` = '2307.68', `position_z` = '1318.8951416015625' WHERE (`spawn_id` = '46523');
+        UPDATE `spawns_creatures` SET `position_x` = '9755.8', `position_y` = '2436.39', `position_z` = '1333.901611328125' WHERE (`spawn_id` = '46529');
+        UPDATE `spawns_creatures` SET `position_x` = '10089.6', `position_y` = '2372.92', `position_z` = '1317.6937255859375' WHERE (`spawn_id` = '46536');
+        UPDATE `spawns_creatures` SET `position_x` = '10125.9', `position_y` = '2494.44', `position_z` = '1318.5731201171875' WHERE (`spawn_id` = '46514');
+        -- Cyridan Z.
+        UPDATE `spawns_creatures` SET `position_x` = '9670.22', `position_y` = '2378.48', `position_z` = '1332.9998779296875' WHERE (`spawn_id` = '46576');
+        -- Wisp Z.
+        UPDATE `spawns_creatures` SET `position_x` = '9936.96', `position_y` = '2508.24', `position_z` = '1319.645263671875' WHERE (`spawn_id` = '46386');
+        -- Stove.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10085.711', `spawn_positionY` = '2433.724', `spawn_positionZ` = '1321.658' WHERE (`spawn_id` = '49526');
+        -- Deer Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10105.7', `position_y` = '2508.27', `position_z` = '1318.367919921875' WHERE (`spawn_id` = '46426');
+        -- Deer Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10109.0', `position_y` = '2550.58', `position_z` = '1317.854736328125' WHERE (`spawn_id` = '46442');
+        -- Squirrel Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10111.3', `position_y` = '2536.27', `position_z` = '1316.98095703125' WHERE (`spawn_id` = '46532');
+        -- Squirrel Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10172.0', `position_y` = '2522.57', `position_z` = '1317.8514404296875' WHERE (`spawn_id` = '46548');
+        -- Darnassian Protector Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10151.4', `position_y` = '2569.15', `position_z` = '1318.0640869140625' WHERE (`spawn_id` = '46324');
+        -- Cyroen Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10175.2', `position_y` = '2588.12', `position_z` = '1322.063', `orientation` = '3.087' WHERE (`spawn_id` = '46477');
+        -- Squirrel Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10148.3', `position_y` = '2564.49', `position_z` = '1317.8089599609375' WHERE (`spawn_id` = '46540');
+        -- Exile of the High Elves Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '10055.1', `spawn_positionY` = '2577.36', `spawn_positionZ` = '1316.989501953125' WHERE (`spawn_id` = '49706');
+        -- Wisp Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '10121.8', `position_y` = '2637.56', `position_z` = '1318.009521484375' WHERE (`spawn_id` = '46371');
+        -- Tall Brazier Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '334.813', `spawn_positionY` = '-4708.16', `spawn_positionZ` = '13.719481468200684' WHERE (`spawn_id` = '1658');
+        -- Campfire Damage Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '334.813', `spawn_positionY` = '-4708.16', `spawn_positionZ` = '13.719481468200684' WHERE (`spawn_id` = '1672');
+        -- Tarhus Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-481.16', `position_y` = '-2667.08', `position_z` = '97.29502868652344' WHERE (`spawn_id` = '50967');
+        -- Uthrok Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-430.25', `position_y` = '-2690.01', `position_z` = '96.65360260009766' WHERE (`spawn_id` = '15103');
+        -- Greater Plainstrider Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-354.581', `position_y` = '-2774.03', `position_z` = '93.53717803955078' WHERE (`spawn_id` = '19239');
+        -- Anvil Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-1239.682', `spawn_positionY` = '84.142', `spawn_positionZ` = '130.720' WHERE (`spawn_id` = '18124');
+        -- Taur Stonehoof Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-1229.010', `position_y` = '98.905', `position_z` = '132.023' WHERE (`spawn_id` = '26619');
+        -- Frostmane Troll Whelp Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-6496.07', `position_y` = '398.316', `position_z` = '386.75433349609375' WHERE (`spawn_id` = '1084');
+        -- Elder Crag Boar Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5286.91', `position_y` = '486.285', `position_z` = '385.459716796875' WHERE (`spawn_id` = '2456');
+        -- Leper Gnome Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5281.59', `position_y` = '486.986', `position_z` = '385.7125549316406' WHERE (`spawn_id` = '2457');
+        -- Leper Gnome Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5288.18', `position_y` = '536.86', `position_z` = '385.6847229003906' WHERE (`spawn_id` = '2452');
+        -- Snow Leopard Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5266.3', `position_y` = '454.985', `position_z` = '386.43804931640625' WHERE (`spawn_id` = '2459');
+        -- Leper Gnome Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5334.27', `position_y` = '561.942', `position_z` = '390.2685546875' WHERE (`spawn_id` = '2465');
+        -- Ice Claw Bear Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5319.32', `position_y` = '-26.9008', `position_z` = '395.9243469238281' WHERE (`spawn_id` = '3143');
+        -- Battered Chest Placement.
+        UPDATE `spawns_gameobjects` SET `spawn_positionX` = '-5407.39', `spawn_positionY` = '-127.371', `spawn_positionZ` = '398.2245788574219' WHERE (`spawn_id` = '10048');
+        -- Wendigo Placement.
+        UPDATE `spawns_creatures` SET `position_x` = '-5650.79', `position_y` = ' -278.218', `position_z` = ' 372.993' WHERE (`spawn_id` = '3559');
+        UPDATE `spawns_creatures` SET `position_x` = '-5651.67', `position_y` = ' -305.106', `position_z` = ' 376.785' WHERE (`spawn_id` = '3580');
+
+        -- Removing unused script actions.
+        DELETE FROM `creature_ai_scripts` WHERE `id` IN (104102);
+
+        -- Events list for Fen Lord
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=1041;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (104101, 1041, 0, 11, 0, 100, 0, 0, 0, 0, 0, 104101, 0, 0, 'Fen Lord - Cast Poison Proc on Spawn');
+
+        -- Kul Tiras Marine
+        DELETE FROM `creature_ai_scripts` WHERE `id`=312901;
+        INSERT INTO `creature_ai_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (312901, 0, 0, 15, 6552, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Kul Tiras Marine - Cast Spell Kick');
+        
+        -- Fix Elixir of Fortitude training.
+        UPDATE `trainer_template` SET `spell` = '3178' WHERE (`template_entry` = '505') and (`spell` = '2363');
+
+        insert into applied_updates values ('260720241');
+    end if;
+    
+
 end $
 delimiter ;

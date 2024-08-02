@@ -11,7 +11,9 @@ from utils.constants.OpCodes import OpCode
 
 class FriendsManager(object):
 
-    # TODO: These values are from 1.12.1, confirm if they are the same for 0.5.3.
+    # struct __cppobj FriendList
+    # FriendList::Friend m_friends[50];
+    # unsigned __int64 m_ignore[25];
     MAX_FRIEND_LIMIT = 50
     MAX_IGNORE_LIMIT = 25
 
@@ -107,7 +109,6 @@ class FriendsManager(object):
     def has_ignore(self, player_guid):
         return player_guid in self.ignored
 
-    # TODO: Ignore also affects duel
     def try_add_ignore(self, target_name):
         online_player = WorldSessionStateHandler.find_player_by_name(target_name)
         target_guid = 0

@@ -35,7 +35,7 @@ class ConfusedMovement(BaseMovement):
         if self._can_move_confused(now):
             self.last_confused_movement = now
             if self._move():
-                self.wait_time_seconds = self.spline.get_total_time_secs() + 1.0
+                self.wait_time_seconds = self.get_total_time_secs() + 1.0
 
         if not self.until_canceled:
             self.duration_seconds = max(0, self.duration_seconds - elapsed)
@@ -78,7 +78,7 @@ class ConfusedMovement(BaseMovement):
 
     def _get_confused_move_point(self):
         start_point = self.home_position
-        random_point = start_point.get_random_point_in_radius(self.confused_distance, map_id=self.unit.map_id)
+        random_point = start_point.get_random_point_in_radius(self.confused_distance, self.unit.map_id)
         map_ = self.unit.get_map()
         # Check line of sight.
         if not map_.los_check(self.unit.location, random_point.get_ray_vector(is_terrain=True)):

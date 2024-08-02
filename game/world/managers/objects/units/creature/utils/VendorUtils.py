@@ -65,7 +65,7 @@ class VendorUtils:
         else:
             items_data.extend(items_data)
 
-        data = pack(f'<QB{len(items_data)}s', creature_mgr.guid, item_count, items_data)
+        data = pack(f'<QB{len(items_data)}s', creature_mgr.guid, item_count, bytes(items_data))
 
         # Send all vendor item query details.
         if item_count > 0:
@@ -113,6 +113,9 @@ class VendorUtils:
         # Don't continue if item was not successfully added to the inventory.
         if not succeed:
             return
+
+        if player_mgr.inventory.update_locked:
+            player_mgr.inventory.update_locked = False
 
         player_mgr.mod_money(total_cost * -1)
         if not vendor_data.is_limited_item(item_id):

@@ -51,7 +51,7 @@ class MovementManager:
             is_default = self.unit.is_pet()
             self.set_behavior(PetMovement(spline_callback=self.spline_callback, is_default=is_default))
         elif self.unit.creature_group and self.unit.creature_group.is_formation():
-            self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=True))
+            self.set_behavior(GroupMovement(spline_callback=self.spline_callback, is_default=False))
         elif self.unit.has_wander_type():
             self.set_behavior(WanderingMovement(spline_callback=self.spline_callback, is_default=True))
         elif self.unit.has_waypoints_type():
@@ -128,12 +128,13 @@ class MovementManager:
         self.set_behavior(DistractedMovement(duration_seconds, angle, spline_callback=self.spline_callback))
 
     def move_chase(self):
-        if self.movement_behaviors[MoveType.CHASE]:
+        # Evade upon die (leave_combat) should not set a behavior.
+        if not self.unit.is_alive or self.movement_behaviors[MoveType.CHASE]:
             return
         self.set_behavior(ChaseMovement(spline_callback=self.spline_callback))
 
     def move_home(self, waypoints):
-        if self.movement_behaviors[MoveType.EVADE]:
+        if not self.unit.is_alive or self.movement_behaviors[MoveType.EVADE]:
             return
         self.set_behavior(EvadeMovement(waypoints, self.spline_callback))
 
@@ -216,7 +217,6 @@ class MovementManager:
 
     def set_behavior(self, movement_behavior):
         if movement_behavior.initialize(self.unit):
-            Logger.debug(f'Set movement {movement_behavior.move_type} for unit {self.unit.entry}')
             self.movement_behaviors[movement_behavior.move_type] = movement_behavior
             self._update_active_behavior_type()
             if movement_behavior.is_default:

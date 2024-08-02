@@ -129,14 +129,17 @@ class Map:
     def calculate_path(self, start_vector, end_vector, los=False) -> tuple:  # bool failed, in_place, path list.
         return self.map_manager.calculate_path(self.map_id, start_vector, end_vector, los=los)
 
+    def find_point_in_between_vectors(self, offset, start_location, end_location):
+        return self.map_manager.find_point_in_between_vectors(self.map_id, offset, start_location, end_location)
+
     def calculate_z_for_object(self, world_object):
         return self.map_manager.calculate_z_for_object(world_object)
 
     def calculate_z(self, x, y, current_z=0.0, is_rand_point=False) -> tuple:  # float, z_locked (Could not use map files Z)
         return self.map_manager.calculate_z(self.map_id, x, y, current_z=current_z, is_rand_point=is_rand_point)
 
-    def los_check(self, start_vector, end_vector):
-        return self.map_manager.los_check(self.map_id, start_vector, end_vector)
+    def los_check(self, start_vector, end_vector, doodads=False):
+        return self.map_manager.los_check(self.map_id, start_vector, end_vector, doodads=doodads)
 
     def get_tile(self, x, y):
         return self.map_manager.get_tile(x, y)

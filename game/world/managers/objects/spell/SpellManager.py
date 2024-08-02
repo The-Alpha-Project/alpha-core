@@ -28,11 +28,13 @@ from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellCheckCastResult, SpellCastStatus, \
     SpellMissReason, SpellTargetMask, SpellState, SpellAttributes, SpellCastFlags, \
     SpellInterruptFlags, SpellChannelInterruptFlags, SpellAttributesEx, SpellEffects, SpellHitFlags, SpellSchools, \
-    SpellScriptTarget
+    SpellScriptTarget, AuraState
 from utils.constants.UnitCodes import PowerTypes, StandState, WeaponMode, Classes, UnitStates, UnitFlags
 
 
 class SpellManager:
+    MAX_TARGETS = 5
+
     def __init__(self, caster):
         self.caster = caster  # GameObject, Unit or Player.
         self.spells: dict[int, CharacterSpell] = {}
@@ -912,12 +914,12 @@ class SpellManager:
             return
 
         hit_count = 0
-        miss_count = 1
+        miss_count = SpellManager.MAX_TARGETS
         signature = '<2QIH3BQHQ'
         data = [damage_info.attacker.guid, damage_info.attacker.guid, casting_spell.spell_entry.ID,
                 casting_spell.cast_flags | SpellCastFlags.CAST_FLAG_PROC, hit_count, miss_count,
-                SpellMissReason.MISS_REASON_RESIST, damage_info.target.guid, SpellTargetMask.UNIT,
-                damage_info.target.guid]
+                SpellMissReason.MISS_REASON_RESIST, damage_info.target.guid, 0, 0, 0, 0, 0, 0, 0, 0,
+                SpellTargetMask.UNIT, damage_info.target.guid]
         is_player = self.caster.get_type_id() == ObjectTypeIds.ID_PLAYER
         packet = PacketWriter.get_packet(OpCode.SMSG_SPELL_GO, pack(signature, *data))
         self.caster.get_map().send_surrounding(packet, self.caster, include_self=is_player)
@@ -938,12 +940,15 @@ class SpellManager:
 
         # Only include the primary effect targets.
         targets = casting_spell.get_effects()[0].targets.get_resolved_effect_targets_by_type(ObjectManager)
-        for target in targets:
-            miss_info = casting_spell.object_target_results[target.guid]
-            if miss_info.result == SpellMissReason.MISS_REASON_NONE:
-                hits.append(target.guid)
+        for index in range(SpellManager.MAX_TARGETS):
+            if index >= len(targets):
+                misses.append((0, 0))
             else:
-                misses.append((miss_info.result, target.guid))
+                miss_info = casting_spell.object_target_results[targets[index].guid]
+                if miss_info.result == SpellMissReason.MISS_REASON_NONE:
+                    hits.append(targets[index].guid)
+                else:
+                    misses.append((miss_info.result, targets[index].guid))
 
         # Write hits.
         hit_count = len(hits)
@@ -954,7 +959,7 @@ class SpellManager:
 
         # Write misses.
         signature += 'B'
-        data.append(len(targets) - hit_count)
+        data.append(SpellManager.MAX_TARGETS - hit_count)
         for result, target_guid in misses:
             signature += 'BQ'
             data.append(result)
@@ -1425,6 +1430,9 @@ class SpellManager:
                 # There is no 'SPELL_FAILED_CANT_DUEL_WHILE_STEALTHED' in alpha, but this needs to be handled.
                 self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
                 return False
+            if validation_target.friends_manager.has_ignore(casting_spell.spell_caster.guid):
+                self.send_cast_result(casting_spell, SpellCheckCastResult.SPELL_FAILED_ERROR)
+                return False
 
         # Lock/chest checks.
         open_lock_effect = casting_spell.get_effect_by_type(SpellEffects.SPELL_EFFECT_OPEN_LOCK,
@@ -1692,6 +1700,10 @@ class SpellManager:
 
         if is_player and casting_spell.requires_combo_points():
             self.caster.remove_combo_points()
+
+        if casting_spell.requires_aura_state():
+            aura_state = AuraState(casting_spell.spell_entry.CasterAuraState)
+            self.caster.aura_manager.modify_aura_state(aura_state, apply=False)
 
         removed_items = set()
         if is_player:

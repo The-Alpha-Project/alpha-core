@@ -1,3 +1,4 @@
+from game.world.managers.maps.helpers.CellUtils import VIEW_DISTANCE
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from utils.constants.MiscCodes import ObjectTypeIds
 from threading import RLock
@@ -27,7 +28,32 @@ class Cell:
         self.gameobject_spawns = dict()
 
         if not key:
-            self.key = f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:{self.map_id}:{self.instance_id}'
+            self.key = (f'{round(self.min_x, 5)}:{round(self.min_y, 5)}:{round(self.max_x, 5)}:{round(self.max_y, 5)}:'
+                        f'{self.map_id}:{self.instance_id}')
+
+    def get_players(self, caller, visibility_range=True):
+        return {k: v for k, v in list(self.players.items())
+                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+
+    def get_creatures(self, caller, visibility_range=True):
+        return {k: v for k, v in list(self.creatures.items())
+                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+
+    def get_gameobjects(self, caller, visibility_range=True):
+        return {k: v for k, v in list(self.gameobjects.items())
+                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+
+    def get_dynamic_objects(self, caller, visibility_range=True):
+        return {k: v for k, v in list(self.dynamic_objects.items())
+                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+
+    def get_corpses(self, caller, visibility_range=True):
+        return {k: v for k, v in list(self.corpses.items())
+                if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
+
+    @staticmethod
+    def _object_in_visible_range(source, world_object):
+        return source.location.distance(world_object.location) <= VIEW_DISTANCE
 
     def has_players(self):
         return len(self.players) > 0
