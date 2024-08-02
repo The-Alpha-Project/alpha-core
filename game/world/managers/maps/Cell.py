@@ -32,23 +32,23 @@ class Cell:
                         f'{self.map_id}:{self.instance_id}')
 
     def get_players(self, caller, visibility_range=True):
-        return {k: v for k, v in self.players.items()
+        return {k: v for k, v in list(self.players.items())
                 if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
 
     def get_creatures(self, caller, visibility_range=True):
-        return {k: v for k, v in self.creatures.items()
+        return {k: v for k, v in list(self.creatures.items())
                 if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
 
     def get_gameobjects(self, caller, visibility_range=True):
-        return {k: v for k, v in self.gameobjects.items()
+        return {k: v for k, v in list(self.gameobjects.items())
                 if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
 
     def get_dynamic_objects(self, caller, visibility_range=True):
-        return {k: v for k, v in self.dynamic_objects.items()
+        return {k: v for k, v in list(self.dynamic_objects.items())
                 if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
 
     def get_corpses(self, caller, visibility_range=True):
-        return {k: v for k, v in self.corpses.items()
+        return {k: v for k, v in list(self.corpses.items())
                 if (visibility_range and Cell._object_in_visible_range(caller, v)) or not visibility_range}
 
     @staticmethod
