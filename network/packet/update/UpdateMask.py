@@ -10,7 +10,7 @@ class UpdateMask(object):
         self.update_mask: Optional[bitarray] = None
         self.block_count = 0
         self.field_count = 0
-        self.lock = RLock()
+        self.lock = RLock()  # Reentrant lock.
 
     def set_bit(self, index):
         with self.lock:
@@ -29,7 +29,8 @@ class UpdateMask(object):
             return self.update_mask.tobytes()
 
     def copy(self):
-        return self.update_mask.copy()
+        with self.lock:
+            return self.update_mask.copy()
 
     def clear(self):
         with self.lock:

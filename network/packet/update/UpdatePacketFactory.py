@@ -111,7 +111,7 @@ class UpdatePacketFactory(object):
         with self.update_mask.lock:
             self._update_mask_copy = self.update_mask.copy()
             if flush_current:
-                self.reset_older_than(time.time())
+                self.update_mask.clear()
 
     def get_update_mask(self):
         # Uninitialized creature.
