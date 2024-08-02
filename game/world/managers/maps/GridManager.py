@@ -44,14 +44,17 @@ class GridManager:
 
         # If this world object has pending field/inventory updates, trigger an update on interested players.
         if has_changes or has_inventory_changes:
+
+            if has_changes:
+                # Grab the current state of this world object update fields mask,
+                # which will be used for all interested requesters.
+                world_object.update_packet_factory.generate_update_mask_copy(flush_current=True)
+
             self._update_players_surroundings(current_cell_key, world_object=world_object, has_changes=has_changes,
                                               has_inventory_changes=has_inventory_changes)
             # At this point all player observers updated this world object, reset update fields bit masks.
-            now = time.time()
-            if has_changes:
-                world_object.reset_fields_older_than(now)
             if has_inventory_changes:
-                world_object.inventory.reset_fields_older_than(now)
+                world_object.inventory.reset_fields_older_than(time.time())
 
         # Notify cell changed if needed.
         if current_cell_key != source_cell_key:

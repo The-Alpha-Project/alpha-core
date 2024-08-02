@@ -402,7 +402,7 @@ class GameObjectManager(ObjectManager):
     # override
     def _get_fields_update(self, is_create, requester):
         data = bytearray()
-        mask = self.update_packet_factory.update_mask.copy()
+        mask = self.update_packet_factory.get_update_mask()
         for index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[index] == 0 and not self.update_packet_factory.is_dynamic_field(index):

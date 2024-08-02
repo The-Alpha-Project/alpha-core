@@ -296,7 +296,7 @@ class ObjectManager:
 
     def _get_fields_update(self, is_create, requester):
         data = bytearray()
-        mask = self.update_packet_factory.update_mask.copy()
+        mask = self.update_packet_factory.get_update_mask()
         for field_index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[field_index] == 0:
