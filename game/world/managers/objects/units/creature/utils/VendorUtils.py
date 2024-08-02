@@ -65,7 +65,7 @@ class VendorUtils:
         else:
             items_data.extend(items_data)
 
-        data = pack(f'<QB{len(items_data)}s', creature_mgr.guid, item_count, items_data)
+        data = pack(f'<QB{len(items_data)}s', creature_mgr.guid, item_count, bytes(items_data))
 
         # Send all vendor item query details.
         if item_count > 0:
