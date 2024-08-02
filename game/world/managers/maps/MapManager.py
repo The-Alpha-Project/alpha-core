@@ -27,7 +27,6 @@ MAP_LIST: list[int] = DbcDatabaseManager.map_get_all_ids()
 MAPS_TILES = dict()
 # Holds namigator instances per Map.
 MAPS_NAMIGATOR: dict[int, Namigator] = dict()
-# Holds maps which have no navigation data in alpha.
 
 AREAS = {}
 AREA_LIST = DbcDatabaseManager.area_get_all_ids()
