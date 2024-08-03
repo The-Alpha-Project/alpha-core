@@ -45,7 +45,7 @@ class UpdateObjectData:
         update_complete_bytes = update_type_create + update_type_partial
 
         if not update_complete_bytes:
-            return None
+            return []
 
         data = bytearray(pack('<I', len(update_complete_bytes)))  # Transaction count.
         for update_packet in update_complete_bytes:
@@ -54,9 +54,9 @@ class UpdateObjectData:
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         data.clear()
 
-        return packet
+        return [packet]
 
-    def build_all_packets(self):
+    def get_build_all_packets(self):
         return self._get_name_query_packets() + self._build_update_packet() + self._get_movement_packets()
 
     # Deferred updates are only needed for doors collision bug, we cannot send both create and partial updates
@@ -65,7 +65,7 @@ class UpdateObjectData:
     def flush(self):
         partial_deferred = self.packets.get(PacketType.PARTIAL_DEFERRED, [])
         self.packets.clear()
-        # If we had partial deferred updates, move now, so they get sent next tick.
+        # If we had partial deferred updates, move them now, so they get sent next tick.
         if partial_deferred:
             self.packets[PacketType.PARTIAL] = partial_deferred
 

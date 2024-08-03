@@ -473,7 +473,7 @@ class PlayerManager(UnitManager):
     def _process_update_data(self):
         if not self.update_builder.has_updates():
             return
-        self.enqueue_packets(self.update_builder.build_all_packets())
+        self.enqueue_packets(self.update_builder.get_build_all_packets())
         self.update_builder.flush()
 
     def destroy_all_known_objects(self):
