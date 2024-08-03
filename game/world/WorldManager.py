@@ -85,7 +85,7 @@ class WorldServerSessionHandler:
                 # data can be None if we shut down the thread.
                 if data and self.keep_alive:
                     self.client_socket.sendall(data)
-            except OSError:
+            except OSError or TypeError:
                 self.disconnect()
 
     # noinspection PyBroadException

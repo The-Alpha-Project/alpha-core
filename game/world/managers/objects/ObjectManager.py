@@ -96,29 +96,29 @@ class ObjectManager:
 
     def generate_create_packet(self, requester):
         data = bytearray(pack('<I', 1))  # Transaction count.
-        data.extend(self.get_object_create_bytes(requester))
+        data.extend(self.get_create_update_bytes(requester))
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         return packet
 
     def generate_partial_packet(self, requester):
-        if not self.initialized:
-            self.initialize_field_values()
-
         data = bytearray(pack('<I', 1))  # Transaction count.
         data.extend(self.get_partial_update_bytes(requester))
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         return packet
 
     def generate_movement_packet(self):
-        return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_bytes())
+        data = bytearray(pack('<I', 1))  # Transaction count.
+        data.extend(self.get_movement_update_bytes())
+        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        return packet
 
-    def get_object_create_bytes(self, requester):
+    def get_create_update_bytes(self, requester):
+        if not self.initialized:
+            self.initialize_field_values()
+
         from game.world.managers.objects.units import UnitManager
 
         is_self = requester.guid == self.guid
-
-        if not self.initialized:
-            self.initialize_field_values()
 
         # Initialize bytearray.
         data = bytearray()
@@ -152,13 +152,11 @@ class ObjectManager:
         return data
 
     def get_single_field_update_bytes(self, field, value):
+        if not self.initialized:
+            self.initialize_field_values()
+
         data = bytearray()
-
-        # Update type.
-        data.extend(pack('<B', UpdateTypes.PARTIAL))
-
-        # Object guid.
-        data.extend(pack('<Q', self.guid))
+        data.extend(pack('<BQ', UpdateTypes.PARTIAL, self.guid))
 
         mask = UpdateMask()
         mask.set_count(field)
@@ -170,6 +168,9 @@ class ObjectManager:
         return data
 
     def get_partial_update_bytes(self, requester):
+        if not self.initialized:
+            self.initialize_field_values()
+
         data = bytearray()
 
         # Update type.
@@ -205,8 +206,8 @@ class ObjectManager:
         # Base structure.
         data = bytearray()
 
-        # Transactions, Update type.
-        data.extend(pack('<IB', 1, UpdateTypes.MOVEMENT))
+        # Update type.
+        data.extend(pack('<B', UpdateTypes.MOVEMENT))
 
         # Object guid.
         data.extend(pack('<Q', self.guid))

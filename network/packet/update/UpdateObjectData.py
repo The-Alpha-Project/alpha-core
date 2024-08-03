@@ -20,13 +20,14 @@ class UpdateObjectData:
         if world_object.guid in self.active_objects:
             del self.active_objects[world_object.guid]
 
-    def push_packet(self, packet, packet_type):
+    def add(self, data, packet_type):
         if packet_type not in self.packets:
             self.packets[packet_type] = list()
-        self.packets[packet_type].append(packet)
-
-    def get_inventory_update_packets(self):
-        return self.packets.get(PacketType.INVENTORY, [])
+        if isinstance(data, list):
+            for packet in data:
+                self.packets[packet_type].append(packet)
+        else:
+            self.packets[packet_type].append(data)
 
     def get_name_query_packets(self):
         return self.packets.get(PacketType.QUERY, [])
@@ -50,18 +51,24 @@ class UpdateObjectData:
         if not update_complete_bytes:
             return None
 
-        # Header.
-        data = bytearray(pack('<I', len(update_complete_bytes)))
-        for creature_packet_bytes in update_complete_bytes:
-            data.extend(creature_packet_bytes)
+        data = bytearray(pack('<I', len(update_complete_bytes)))  # Transaction count.
+        for update_packet in update_complete_bytes:
+            data.extend(update_packet)  # Update packet.
 
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         data.clear()
 
         return packet
 
+    # Deferred updates are only needed for doors collision bug, we cannot send both create and partial updates
+    # with different state flag on the same SMSG_UPDATE_OBJECT packet, we need to first create, and then
+    # notify the real door state upon next tick.
     def flush(self):
+        partial_deferred = self.packets.get(PacketType.PARTIAL_DEFERRED, [])
         self.packets.clear()
+        # If we had partial deferred updates, move now, so they get sent next tick.
+        if partial_deferred:
+            self.packets[PacketType.PARTIAL] = partial_deferred
 
 
 class PacketType(IntEnum):
@@ -69,4 +76,5 @@ class PacketType(IntEnum):
     INVENTORY = 1
     CREATE = 2
     PARTIAL = 3
-    MOVEMENT = 4
+    PARTIAL_DEFERRED = 4
+    MOVEMENT = 5
