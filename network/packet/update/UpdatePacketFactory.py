@@ -156,12 +156,3 @@ class UpdatePacketFactory(object):
             self.update_values[index] = value
             self.update_values_bytes[index] = pack(f'<{value_type}', value)
             self.update_mask.set_bit(index)
-
-    @staticmethod
-    def compress_if_needed(update_packet):
-        if len(update_packet) > 100:
-            compressed_packet_data = PacketWriter.deflate(update_packet[6:])
-            compressed_data = pack('<I', len(update_packet) - 6)
-            compressed_data += compressed_packet_data
-            update_packet = PacketWriter.get_packet(OpCode.SMSG_COMPRESSED_UPDATE_OBJECT, compressed_data)
-        return update_packet

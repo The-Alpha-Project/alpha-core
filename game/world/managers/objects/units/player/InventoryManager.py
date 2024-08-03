@@ -926,7 +926,7 @@ class InventoryManager(object):
             if not container.is_backpack and requester == self.owner:
                 # Add item query details if the requester does not know container item.
                 if container.guid not in requester.known_items:
-                    update_packets.append(self._get_single_item_full_update_packet(container, requester))
+                    update_packets.append(container.generate_create_packet(requester=requester))
                     requester.known_items[container.guid] = container
                     item_templates.append(container.item_template)
                 # Requester knows this container, send a partial update.
@@ -941,12 +941,12 @@ class InventoryManager(object):
 
                 # Add item query details if the requester does not know this item.
                 if item.guid not in requester.known_items:
-                    update_packets.append(self._get_single_item_full_update_packet(item, requester))
+                    update_packets.append(item.generate_create_packet(requester=requester))
                     requester.known_items[item.guid] = item
                     item_templates.append(item.item_template)
                 # Requester knows this item but has pending changes, send a partial update.
                 elif item.has_pending_updates():
-                    update_packets.append(self._get_single_item_partial_update_packet(item, requester))
+                    update_packets.append(item.generate_partial_packet(requester=requester))
 
             # Exit loop if this a request from another player.
             if container.is_backpack and requester != self.owner:
@@ -954,15 +954,3 @@ class InventoryManager(object):
 
         item_updates = ItemManager.get_item_query_packets(item_templates)
         return item_updates + update_packets
-
-    # noinspection PyMethodMayBeStatic
-    def _get_single_item_full_update_packet(self, item, requester):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, item.get_object_create_bytes(requester)))
-        return update_packet
-
-    # noinspection PyMethodMayBeStatic
-    def _get_single_item_partial_update_packet(self, item, requester):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, item.get_partial_update_bytes(requester)))
-        return update_packet

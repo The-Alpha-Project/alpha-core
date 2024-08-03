@@ -388,16 +388,15 @@ class GameObjectManager(ObjectManager):
             return self.transport_manager.update()
         return 0
 
-    # override
-    def generate_create_packet_chain(self, requester):
-        packets = [super().generate_create_packet(requester)]
-
-        if self.gobject_template.type == GameObjectTypes.TYPE_DOOR and \
-                self.state != GameObjectStates.GO_STATE_READY:
-            # Send real GO state for doors after create packet.
-            packets.append(self.generate_single_field_packet(GameObjectFields.GAMEOBJECT_STATE, self.state))
-
-        return packets
+    """
+        So far this is only needed for GameObjects, client doesn't remove collision for doors sent with active state,
+        so we need to always send them as ready first, and then send the actual state.
+    """
+    def generate_door_state_packet(self):
+        if self.gobject_template.type != GameObjectTypes.TYPE_DOOR or self.state == GameObjectStates.GO_STATE_READY:
+            return None
+        # Send real GO state for doors after create packet.
+        return self.generate_single_field_packet(GameObjectFields.GAMEOBJECT_STATE, self.state)
 
     # override
     def _get_fields_update(self, is_create, requester):

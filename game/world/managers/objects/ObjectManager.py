@@ -94,30 +94,40 @@ class ObjectManager:
     def has_pending_updates(self):
         return self.update_packet_factory.has_pending_updates()
 
-    def generate_create_packet(self, requester):
-        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT,
-            self.get_object_create_bytes(requester)))
+    def generate_create_packet(self, requester, create_packets_bytes=None):
+        # Transaction count.
+        data = bytearray(pack('<I', len(create_packets_bytes) if create_packets_bytes else 1))
+        # Multiple transactions.
+        if create_packets_bytes:
+            for creature_packet_bytes in create_packets_bytes:
+                data.extend(creature_packet_bytes)
+        # Single update.
+        else:
+            data.extend(self.get_object_create_bytes(requester))
 
-    """
-    If more than 1 packet is needed to properly create an object, this method will return all needed ones.
-    So far this is only needed for GameObjects since client doesn't remove collision for doors sent with active state,
-    so we need to always send them as ready first, and then send the actual state.
-    """
-    def generate_create_packet_chain(self, requester):
-        return [self.generate_create_packet(requester)]
+        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        return packet
 
-    def generate_partial_packet(self, requester):
+    def generate_partial_packet(self, requester, partial_packets_bytes=None):
         if not self.initialized:
             self.initialize_field_values()
 
-        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT,
-            self.get_partial_update_bytes(requester)))
+        # Transaction count.
+        data = bytearray(pack('<I', len(partial_packets_bytes) if partial_packets_bytes else 1))
+        # Multiple transactions.
+        if partial_packets_bytes:
+            for creature_packet_bytes in partial_packets_bytes:
+                data.extend(creature_packet_bytes)
+        # Single update.
+        else:
+            data.extend(self.get_partial_update_bytes(requester))
+
+        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        return packet
 
     def generate_single_field_packet(self, field, value):
         data = bytearray()
-        data.extend(self._get_base_structure(UpdateTypes.PARTIAL))
+        data.extend(pack('<1QB', 1, self.guid, UpdateTypes.PARTIAL))
 
         mask = UpdateMask()
         mask.set_count(field)
@@ -126,8 +136,7 @@ class ObjectManager:
         field_update = pack('<B', mask.block_count) + mask.to_bytes() + pack('<I', value)
         data.extend(field_update)
 
-        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, data))
+        return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
 
     def generate_movement_packet(self):
         return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_bytes())
@@ -143,8 +152,11 @@ class ObjectManager:
         # Initialize bytearray.
         data = bytearray()
 
-        # Base structure.
-        data.extend(self._get_base_structure(UpdateTypes.CREATE_OBJECT))
+        # Update type.
+        data.extend(pack('<B', UpdateTypes.CREATE_OBJECT))
+
+        # Object guid.
+        data.extend(pack('<Q', self.guid))
 
         # Object type.
         data.extend(pack('<B', self.get_type_id()))
@@ -171,8 +183,11 @@ class ObjectManager:
     def get_partial_update_bytes(self, requester):
         data = bytearray()
 
-        # Base structure.
-        data.extend(self._get_base_structure(UpdateTypes.PARTIAL))
+        # Update type.
+        data += pack('<B', UpdateTypes.PARTIAL)
+
+        # Object guid.
+        data += pack('<Q', self.guid)
 
         # Normal update fields.
         data.extend(self._get_fields_update(False, requester))
@@ -200,6 +215,9 @@ class ObjectManager:
     def get_movement_update_bytes(self):
         # Base structure.
         data = self._get_base_structure(UpdateTypes.MOVEMENT)
+
+        # Object guid.
+        data += pack('<Q', self.guid)
 
         # Movement update fields.
         data += self._get_movement_fields()
@@ -248,14 +266,6 @@ class ObjectManager:
     def reset_fields_older_than(self, timestamp):
         # Reset updated fields older than the specified timestamp.
         return self.update_packet_factory.reset_older_than(timestamp)
-
-    def _get_base_structure(self, update_type):
-        return pack(
-            '<IBQ',
-            1,  # Number of transactions
-            update_type,
-            self.guid,
-        )
 
     # Fall Time (Not implemented for units, anim progress for transports).
     # noinspection PyMethodMayBeStatic
