@@ -473,11 +473,7 @@ class PlayerManager(UnitManager):
     def _process_update_data(self):
         if not self.update_builder.has_updates():
             return
-        self.enqueue_packets(self.update_builder.get_name_query_packets())
-        update_packet = self.update_builder.build_update_packet()
-        if update_packet:
-            self.enqueue_packet(update_packet)
-        self.enqueue_packets(self.update_builder.get_movement_packets())
+        self.enqueue_packets(self.update_builder.build_all_packets())
         self.update_builder.flush()
 
     def destroy_all_known_objects(self):
@@ -496,6 +492,8 @@ class PlayerManager(UnitManager):
             self._update_known_corpse(world_object)
         elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
             self._update_known_dynobject(world_object)
+
+        self._process_update_data()
 
     def _update_known_dynobject(self, dynobject):
         self.update_builder.add_active_object(dynobject)

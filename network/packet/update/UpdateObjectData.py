@@ -29,23 +29,19 @@ class UpdateObjectData:
         else:
             self.packets[packet_type].append(data)
 
-    def get_name_query_packets(self):
+    def _get_name_query_packets(self):
         return self.packets.get(PacketType.QUERY, [])
 
-    def get_movement_packets(self):
+    def _get_movement_packets(self):
         return self.packets.get(PacketType.MOVEMENT, [])
 
     def has_updates(self):
         return any(self.packets)
 
     # Generates SMSG_UPDATE_OBJECT including all create and partial messages available.
-    def build_update_packet(self):
+    def _build_update_packet(self):
         update_type_create = self.packets.get(PacketType.CREATE, [])
         update_type_partial = self.packets.get(PacketType.PARTIAL, [])
-
-        print(f'Create packets {len(update_type_create)}')
-        print(f'Partial packets {len(update_type_partial)}')
-
         update_complete_bytes = update_type_create + update_type_partial
 
         if not update_complete_bytes:
@@ -59,6 +55,9 @@ class UpdateObjectData:
         data.clear()
 
         return packet
+
+    def build_all_packets(self):
+        return self._get_name_query_packets() + self._build_update_packet() + self._get_movement_packets()
 
     # Deferred updates are only needed for doors collision bug, we cannot send both create and partial updates
     # with different state flag on the same SMSG_UPDATE_OBJECT packet, we need to first create, and then
