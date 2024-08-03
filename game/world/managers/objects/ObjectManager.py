@@ -94,40 +94,29 @@ class ObjectManager:
     def has_pending_updates(self):
         return self.update_packet_factory.has_pending_updates()
 
-    def generate_create_packet(self, requester, create_packets_bytes=None):
-        # Transaction count.
-        data = bytearray(pack('<I', len(create_packets_bytes) if create_packets_bytes else 1))
-        # Multiple transactions.
-        if create_packets_bytes:
-            for creature_packet_bytes in create_packets_bytes:
-                data.extend(creature_packet_bytes)
-        # Single update.
-        else:
-            data.extend(self.get_object_create_bytes(requester))
-
+    def generate_create_packet(self, requester):
+        data = bytearray(pack('<I', 1))  # Transaction count.
+        data.extend(self.get_object_create_bytes(requester))
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         return packet
 
-    def generate_partial_packet(self, requester, partial_packets_bytes=None):
+    def generate_partial_packet(self, requester):
         if not self.initialized:
             self.initialize_field_values()
 
-        # Transaction count.
-        data = bytearray(pack('<I', len(partial_packets_bytes) if partial_packets_bytes else 1))
-        # Multiple transactions.
-        if partial_packets_bytes:
-            for creature_packet_bytes in partial_packets_bytes:
-                data.extend(creature_packet_bytes)
-        # Single update.
-        else:
-            data.extend(self.get_partial_update_bytes(requester))
-
+        data = bytearray(pack('<I', 1))  # Transaction count.
+        data.extend(self.get_partial_update_bytes(requester))
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         return packet
 
-    def generate_single_field_packet(self, field, value):
+    def get_single_field_update_bytes(self, field, value):
         data = bytearray()
-        data.extend(pack('<1QB', 1, self.guid, UpdateTypes.PARTIAL))
+
+        # Update type.
+        data.extend(pack('<1B', 1, UpdateTypes.PARTIAL))
+
+        # Object guid.
+        data.extend(pack('<Q', self.guid))
 
         mask = UpdateMask()
         mask.set_count(field)
@@ -184,10 +173,10 @@ class ObjectManager:
         data = bytearray()
 
         # Update type.
-        data += pack('<B', UpdateTypes.PARTIAL)
+        data.extend(pack('<B', UpdateTypes.PARTIAL))
 
         # Object guid.
-        data += pack('<Q', self.guid)
+        data.extend(pack('<Q', self.guid))
 
         # Normal update fields.
         data.extend(self._get_fields_update(False, requester))

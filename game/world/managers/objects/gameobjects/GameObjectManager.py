@@ -392,11 +392,11 @@ class GameObjectManager(ObjectManager):
         So far this is only needed for GameObjects, client doesn't remove collision for doors sent with active state,
         so we need to always send them as ready first, and then send the actual state.
     """
-    def generate_door_state_packet(self):
+    def get_door_state_update_bytes(self):
         if self.gobject_template.type != GameObjectTypes.TYPE_DOOR or self.state == GameObjectStates.GO_STATE_READY:
             return None
         # Send real GO state for doors after create packet.
-        return self.generate_single_field_packet(GameObjectFields.GAMEOBJECT_STATE, self.state)
+        return self.get_single_field_update_bytes(GameObjectFields.GAMEOBJECT_STATE, self.state)
 
     # override
     def _get_fields_update(self, is_create, requester):

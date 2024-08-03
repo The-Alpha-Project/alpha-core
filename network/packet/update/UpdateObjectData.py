@@ -2,8 +2,6 @@ from enum import IntEnum
 from struct import pack
 
 from network.packet.PacketWriter import PacketWriter
-from network.packet.update.UpdatePacketFactory import UpdatePacketFactory
-from utils.constants.MiscCodes import UpdateTypes
 from utils.constants.OpCodes import OpCode
 
 
@@ -22,10 +20,6 @@ class UpdateObjectData:
         if world_object.guid in self.active_objects:
             del self.active_objects[world_object.guid]
 
-    def push_packets(self, packets, packet_type):
-        for packet in packets:
-            self.push_packet(packet, packet_type)
-
     def push_packet(self, packet, packet_type):
         if packet_type not in self.packets:
             self.packets[packet_type] = list()
@@ -40,8 +34,11 @@ class UpdateObjectData:
     def get_movement_packets(self):
         return self.packets.get(PacketType.MOVEMENT, [])
 
+    def has_updates(self):
+        return any(self.packets)
+
     # Generates SMSG_UPDATE_OBJECT including all create and partial messages available.
-    def build_create_packet(self):
+    def build_update_packet(self):
         update_type_create = self.packets.get(PacketType.CREATE, [])
         update_type_partial = self.packets.get(PacketType.PARTIAL, [])
 
@@ -53,21 +50,18 @@ class UpdateObjectData:
         if not update_complete_bytes:
             return None
 
-        # How many objects are being created.
-        transaction_count = len(update_complete_bytes)
-        print(transaction_count)
-
         # Header.
         data = bytearray(pack('<I', len(update_complete_bytes)))
         for creature_packet_bytes in update_complete_bytes:
             data.extend(creature_packet_bytes)
 
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
-        print(len(packet))
-        print('--')
         data.clear()
 
         return packet
+
+    def flush(self):
+        self.packets.clear()
 
 
 class PacketType(IntEnum):
