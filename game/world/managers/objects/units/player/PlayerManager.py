@@ -511,6 +511,7 @@ class PlayerManager(UnitManager):
                 self.update_objects_builder.push_packet(gobject.get_object_create_bytes(requester=self), PacketType.CREATE)
                 door_update = gobject.get_door_state_update_bytes()
                 if door_update:
+                    print('Door update')
                     self.update_objects_builder.push_packet(door_update, PacketType.PARTIAL)
                 # We only consider 'known' if its spawned, the details query is still sent.
                 self.known_objects[gobject.guid] = gobject

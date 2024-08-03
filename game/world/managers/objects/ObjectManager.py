@@ -109,24 +109,6 @@ class ObjectManager:
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         return packet
 
-    def get_single_field_update_bytes(self, field, value):
-        data = bytearray()
-
-        # Update type.
-        data.extend(pack('<1B', 1, UpdateTypes.PARTIAL))
-
-        # Object guid.
-        data.extend(pack('<Q', self.guid))
-
-        mask = UpdateMask()
-        mask.set_count(field)
-        mask.set_bit(field)
-
-        field_update = pack('<B', mask.block_count) + mask.to_bytes() + pack('<I', value)
-        data.extend(field_update)
-
-        return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
-
     def generate_movement_packet(self):
         return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_bytes())
 
@@ -169,6 +151,24 @@ class ObjectManager:
 
         return data
 
+    def get_single_field_update_bytes(self, field, value):
+        data = bytearray()
+
+        # Update type.
+        data.extend(pack('<B', UpdateTypes.PARTIAL))
+
+        # Object guid.
+        data.extend(pack('<Q', self.guid))
+
+        mask = UpdateMask()
+        mask.set_count(field)
+        mask.set_bit(field)
+
+        field_update = pack('<B', mask.block_count) + mask.to_bytes() + pack('<I', value)
+        data.extend(field_update)
+
+        return data
+
     def get_partial_update_bytes(self, requester):
         data = bytearray()
 
@@ -203,13 +203,16 @@ class ObjectManager:
 
     def get_movement_update_bytes(self):
         # Base structure.
-        data = self._get_base_structure(UpdateTypes.MOVEMENT)
+        data = bytearray()
+
+        # Transactions, Update type.
+        data.extend(pack('<IB', 1, UpdateTypes.MOVEMENT))
 
         # Object guid.
-        data += pack('<Q', self.guid)
+        data.extend(pack('<Q', self.guid))
 
         # Movement update fields.
-        data += self._get_movement_fields()
+        data.extend(self._get_movement_fields())
 
         return data
 
