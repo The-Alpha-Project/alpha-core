@@ -967,4 +967,3 @@ class InventoryManager(object):
                 return item_mgr.generate_create_packet(requester=requester)
             else:
                 return item_mgr.get_create_update_bytes(requester=requester)
-

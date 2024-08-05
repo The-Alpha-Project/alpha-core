@@ -29,7 +29,7 @@ from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersM
 from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
-from network.packet.update.UpdateObjectData import UpdateObjectData, PacketType
+from network.packet.update.UpdateBuilder import UpdateBuilder, PacketType
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.GuidUtils import GuidUtils
@@ -162,7 +162,7 @@ class PlayerManager(UnitManager):
             self.is_alive = self.health > 0
 
             self.update_packet_factory.init_values(self.guid, PlayerFields)
-            self.update_builder = UpdateObjectData()
+            self.update_builder = UpdateBuilder()
 
             self.unit_flags |= UnitFlags.UNIT_FLAG_PLAYER_CONTROLLED
 

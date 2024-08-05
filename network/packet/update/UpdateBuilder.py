@@ -5,7 +5,7 @@ from network.packet.PacketWriter import PacketWriter
 from utils.constants.OpCodes import OpCode
 
 
-class UpdateObjectData:
+class UpdateBuilder:
     def __init__(self):
         self.active_objects = dict()
         self.packets = dict()
