@@ -100,9 +100,9 @@ class ObjectManager:
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         return packet
 
-    def generate_partial_packet(self, requester):
+    def generate_partial_packet(self, requester, update_data=None):
         data = bytearray(pack('<I', 1))  # Transaction count.
-        data.extend(self.get_partial_update_bytes(requester))
+        data.extend(self.get_partial_update_bytes(requester, update_data=update_data))
         packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
         return packet
 
@@ -167,7 +167,7 @@ class ObjectManager:
 
         return data
 
-    def get_partial_update_bytes(self, requester):
+    def get_partial_update_bytes(self, requester, update_data=None):
         if not self.initialized:
             self.initialize_field_values()
 
@@ -180,7 +180,7 @@ class ObjectManager:
         data.extend(pack('<Q', self.guid))
 
         # Normal update fields.
-        data.extend(self._get_fields_update(False, requester))
+        data.extend(self._get_fields_update(False, requester, update_data))
 
         return data
 
@@ -297,9 +297,9 @@ class ObjectManager:
 
         return data
 
-    def _get_fields_update(self, is_create, requester):
+    def _get_fields_update(self, is_create, requester, update_data=None):
         data = bytearray()
-        mask = self.update_packet_factory.get_update_mask()
+        mask = self.update_packet_factory.update_mask.copy() if not update_data else update_data.update_bit_mask
         for field_index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[field_index] == 0:
@@ -309,7 +309,8 @@ class ObjectManager:
                 mask[field_index] = 0
                 continue
             # Append field value and turn on bit on mask.
-            data.extend(self.update_packet_factory.update_values_bytes[field_index])
+            data.extend(self.update_packet_factory.update_values_bytes[field_index] if not update_data
+                        else update_data.update_field_values[field_index])
             mask[field_index] = 1
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 

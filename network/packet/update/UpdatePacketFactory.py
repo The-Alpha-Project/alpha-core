@@ -106,18 +106,13 @@ class UpdatePacketFactory(object):
         result = {'[PROTECTED]' if was_protected else '[ACCESSED]'}
         Logger.debug(f"{requester.get_name()} - [{update_field_info}] - {result}, Value [{self.update_values[index]}]")
 
-    # Makes sure every single player gets the same mask.
-    def generate_update_data(self, world_object, flush_current=True):
+    # Makes sure every single player gets the same mask and values.
+    def generate_update_data(self, flush_current=True):
         with self.update_mask.lock:
-            UpdateData(self.update_mask.copy(), self.update_values_bytes.copy(), world_object)
+            update_object = UpdateData(self.update_mask.copy(), self.update_values_bytes.copy())
             if flush_current:
                 self.update_mask.clear()
-
-    def get_update_mask(self):
-        # Uninitialized creature.
-        if not self._update_mask_copy:
-            self.generate_update_data()
-        return self._update_mask_copy
+            return update_object
 
     def reset(self):
         self.update_mask.clear()

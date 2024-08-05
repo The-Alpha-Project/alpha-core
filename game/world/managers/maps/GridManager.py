@@ -46,12 +46,12 @@ class GridManager:
         if has_changes or has_inventory_changes:
             update_data = None
             if has_changes:
-                # Grab the current state of this world object update fields mask,
+                # Grab the current state of this world object update fields mask and values,
                 # which will be used for all interested requesters.
                 update_data = world_object.update_packet_factory.generate_update_data(flush_current=True)
 
             self._update_players_surroundings(current_cell_key, world_object=world_object, has_changes=has_changes,
-                                              has_inventory_changes=has_inventory_changes)
+                                              has_inventory_changes=has_inventory_changes, update_data=update_data)
             # At this point all player observers updated this world object, reset update fields bit masks.
             if has_inventory_changes:
                 world_object.inventory.reset_fields_older_than(time.time())
@@ -145,7 +145,7 @@ class GridManager:
                     self.active_cell_callback(creature)
 
     def _update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None, has_changes=False,
-                                     has_inventory_changes=False):
+                                     has_inventory_changes=False, update_data=None):
         # Avoid update calls if no players are present.
         if exclude_cells is None:
             exclude_cells = set()
@@ -159,7 +159,7 @@ class GridManager:
                 if cell in exclude_cells:
                     continue
                 cell.update_players_surroundings(world_object=world_object, has_changes=has_changes,
-                                                 has_inventory_changes=has_inventory_changes)
+                                                 has_inventory_changes=has_inventory_changes, update_data=update_data)
                 affected_cells.add(cell)
 
         return affected_cells
