@@ -84,8 +84,12 @@ class UpdateBuilder:
             if door_deferred_state_update:
                 self.add(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
 
+        # Player <-> Objects linked as known.
         if world_object.get_type_id() in self._implements_known_players:
             self._known_objects_updates.add(world_object)
+        # Only players need to know the object.
+        else:
+            self._owner.known_objects[world_object.guid] = world_object
 
     def add_player_name_query_from_player(self, player_mgr):
         self.add(NameQueryHandler.get_query_details(player_mgr.player), PacketType.QUERY)

@@ -428,7 +428,6 @@ class PlayerManager(UnitManager):
 
     def enqueue_known_objects_update(self, object_type=None):
         if object_type:
-            print(ObjectTypeIds(object_type).name)
             self.pending_known_object_types_updates[object_type] = True
             return
 

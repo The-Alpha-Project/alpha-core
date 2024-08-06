@@ -29,7 +29,6 @@ class GridManager:
     def update_object(self, world_object, has_changes=False, has_inventory_changes=False):
         source_cell_key = world_object.current_cell
         current_cell_key = CellUtils.get_cell_key_for_object(world_object)
-        object_type = world_object.get_type_id()
 
         # Handle cell change within the same map.
         if current_cell_key != source_cell_key:
@@ -39,9 +38,9 @@ class GridManager:
             if source_cell_key:
                 self.remove_object(world_object, update_players=False, from_cell=source_cell_key)
             # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
-            affected_cells = self._update_players_surroundings(source_cell_key, object_type=object_type)
+            affected_cells = self._update_players_surroundings(source_cell_key)
             # Update new location surroundings, excluding intersecting cells from previous call.
-            self._update_players_surroundings(current_cell_key, exclude_cells=affected_cells, object_type=object_type)
+            self._update_players_surroundings(current_cell_key, exclude_cells=affected_cells)
 
         # If this world object has pending field/inventory updates, trigger an update on interested players.
         if has_changes or has_inventory_changes:
