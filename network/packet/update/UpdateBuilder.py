@@ -114,6 +114,12 @@ class UpdateBuilder:
     def has_updates(self):
         return any(self._packets)
 
+    def has_destroy_objects_updates(self):
+        return any(self._destroy_objects_updates)
+
+    def has_known_objects_updates(self):
+        return any(self._known_objects_updates)
+
     # Generates SMSG_UPDATE_OBJECT which includes all create and partial messages available.
     def _build_update_packet(self):
         update_type_create = self._packets.get(PacketType.CREATE, [])
@@ -153,7 +159,6 @@ class UpdateBuilder:
                 world_object = self._known_objects_updates.pop()
                 self._owner.known_objects[world_object.guid] = world_object
                 world_object.known_players[self._owner.guid] = self._owner
-            self.process_destroy_objects()
 
     def _enqueue_deferred_and_flush(self):
         partial_deferred = self._packets.get(PacketType.PARTIAL_DEFERRED, [])

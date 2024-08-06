@@ -473,11 +473,15 @@ class PlayerManager(UnitManager):
                     self.update_builder.add_destroy_object(guid)
 
     def _process_update_data(self):
-        if not self.update_builder.has_updates():
-            return
-        update_packets = self.update_builder.get_build_all_packets()
-        self.enqueue_packets(update_packets)
-        self.update_builder.process_known_objects_updates()
+        if self.update_builder.has_updates():
+            update_packets = self.update_builder.get_build_all_packets()
+            self.enqueue_packets(update_packets)
+
+        if self.update_builder.has_known_objects_updates():
+            self.update_builder.process_known_objects_updates()
+
+        if self.update_builder.has_destroy_objects_updates():
+            self.update_builder.process_destroy_objects()
 
     def destroy_all_known_objects(self):
         for guid, known_object in list(self.known_objects.items()):
@@ -572,7 +576,7 @@ class PlayerManager(UnitManager):
         if not known_object:
             return False
 
-        print(f'Destroy {known_object.get_name()}')
+        print(f'Destroy {known_object.get_name()} Distance: {self.location.distance(known_object.location)}')
         if not object_type:
             object_type = known_object.get_type_id()
 
