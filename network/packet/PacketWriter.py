@@ -28,7 +28,7 @@ class PacketWriter(object):
         data = pack('<I', opcode) + data
         packet = pack('>H', len(data)) + data
 
-        if opcode == OpCode.SMSG_UPDATE_OBJECT and len(data) > 100:
+        if opcode == OpCode.SMSG_UPDATE_OBJECT and len(data) + 4 > 100:
             packet = PacketWriter.compress(packet)
 
         return packet

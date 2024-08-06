@@ -15,11 +15,12 @@ class UpdateBuilder:
         self._owner = owner
         self._implements_known_players = {ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
         self._create_guids = set()
+        self._partial_guids = set()
         self._known_objects_updates = set()
         self._destroy_objects_updates = set()
         self._active_objects = set()
         self._packets = dict()
-        self._lock = RLock()
+        self.update_lock = RLock()
 
     def has_active_guid(self, guid):
         return guid in self._active_objects
@@ -35,7 +36,7 @@ class UpdateBuilder:
             del self._active_objects[world_object.guid]
 
     def add(self, data, packet_type):
-        with self._lock:
+        with self.update_lock:
             if packet_type not in self._packets:
                 self._packets[packet_type] = list()
             if isinstance(data, list):
@@ -46,18 +47,17 @@ class UpdateBuilder:
 
     def _get_name_query_packets(self):
         query_packets = self._packets.get(PacketType.QUERY, [])
-        if query_packets:
-            print(f'Sending {len(query_packets)} query packets')
         return query_packets
 
     def _get_movement_packets(self):
         movement_packets = self._packets.get(PacketType.MOVEMENT, [])
-        if movement_packets:
-            print(f'Sending {len(movement_packets)} movement packets')
         return movement_packets
 
     def add_partial_update_from_object(self, world_object, update_data=None):
-        packet_type = PacketType.PARTIAL if world_object.guid not in self._create_guids else PacketType.PARTIAL_DEFERRED
+        # If a create/partial packet already exists for the object, defer to next tick.
+        packet_type = PacketType.PARTIAL if (world_object.guid not in self._create_guids
+                                             and world_object.guid not in self._partial_guids) \
+            else PacketType.PARTIAL_DEFERRED
         self.add(world_object.get_partial_update_bytes(requester=self._owner, update_data=update_data), packet_type)
 
     def add_create_update_from_object(self, world_object):
@@ -129,40 +129,50 @@ class UpdateBuilder:
         if not update_complete_bytes:
             return []
 
-        print(f'SMSG_UPDATE_OBJECT with {len(update_type_create)} create packets '
-              f'and {len(update_type_partial)} partial packets')
-
         data = bytearray(pack('<I', len(update_complete_bytes)))  # Transaction count.
         for update_bytes in update_complete_bytes:
             data.extend(update_bytes)
 
-        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, bytes(data))
         data.clear()
 
         return [packet]
 
-    def get_build_all_packets(self):
-        with self._lock:
+    def _get_build_all_packets(self):
+        with self.update_lock:
             packets = self._get_name_query_packets() + self._build_update_packet() + self._get_movement_packets()
             self._enqueue_deferred_and_flush()
             return packets
 
     def process_destroy_objects(self):
-        with self._lock:
+        with self.update_lock:
             while self._destroy_objects_updates:
                 guid = self._destroy_objects_updates.pop()
                 self._owner.destroy_near_object(guid)
 
     def process_known_objects_updates(self):
-        with self._lock:
+        with self.update_lock:
             while self._known_objects_updates:
                 world_object = self._known_objects_updates.pop()
                 self._owner.known_objects[world_object.guid] = world_object
                 world_object.known_players[self._owner.guid] = self._owner
 
+    def process_update(self):
+        with self.update_lock:
+            if self.has_updates():
+                self._owner.enqueue_packets(self._get_build_all_packets())
+
+            if self.has_known_objects_updates():
+                self.process_known_objects_updates()
+
+            if self.has_destroy_objects_updates():
+                self.process_destroy_objects()
+
     def _enqueue_deferred_and_flush(self):
         partial_deferred = self._packets.get(PacketType.PARTIAL_DEFERRED, [])
         self._packets.clear()
+        self._create_guids.clear()
+        self._partial_guids.clear()
         # If we had partial deferred updates, move them now, so they get sent next tick.
         if partial_deferred:
             self._packets[PacketType.PARTIAL] = partial_deferred

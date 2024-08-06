@@ -428,6 +428,7 @@ class PlayerManager(UnitManager):
 
     def enqueue_known_objects_update(self, object_type=None):
         if object_type:
+            print(ObjectTypeIds(object_type).name)
             self.pending_known_object_types_updates[object_type] = True
             return
 
@@ -448,7 +449,9 @@ class PlayerManager(UnitManager):
     def update_known_objects_for_type(self, object_type, objects):
         # Flag as obj type updated.
         self.pending_known_object_types_updates[object_type] = False
-        self.update_builder.clear_active_objects()
+
+        with self.update_builder.update_lock:
+            self.update_builder.clear_active_objects()
 
         # Which objects were found in self surroundings.
         if objects:
@@ -472,24 +475,14 @@ class PlayerManager(UnitManager):
                 if not self.update_builder.has_active_guid(guid) and known_object.get_type_id() == object_type:
                     self.update_builder.add_destroy_object(guid)
 
-    def _process_update_data(self):
-        if self.update_builder.has_updates():
-            update_packets = self.update_builder.get_build_all_packets()
-            self.enqueue_packets(update_packets)
-
-        if self.update_builder.has_known_objects_updates():
-            self.update_builder.process_known_objects_updates()
-
-        if self.update_builder.has_destroy_objects_updates():
-            self.update_builder.process_destroy_objects()
-
     def destroy_all_known_objects(self):
         for guid, known_object in list(self.known_objects.items()):
             self.destroy_near_object(guid)
         return
 
     def update_not_known_world_object(self, world_object):
-        self.update_builder.clear_active_objects()
+        with self.update_builder.update_lock:
+            self.update_builder.clear_active_objects()
 
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self._update_known_player(world_object)
@@ -502,7 +495,7 @@ class PlayerManager(UnitManager):
         elif world_object.get_type_id() == ObjectTypeIds.ID_DYNAMICOBJECT:
             self._update_known_dynobject(world_object)
 
-        self._process_update_data()
+        self.update_builder.process_update()
 
     def _update_known_dynobject(self, dynobject):
         self.update_builder.add_active_object(dynobject)
@@ -1756,7 +1749,7 @@ class PlayerManager(UnitManager):
                     self.update_surrounding_known_objects()
                     self.update_surroundings_timer = 0
 
-                self._process_update_data()
+                self.update_builder.process_update()
 
         self.last_tick = now
 
