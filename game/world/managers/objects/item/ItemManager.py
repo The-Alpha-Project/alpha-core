@@ -89,6 +89,9 @@ class ItemManager(ObjectManager):
 
         self.update_packet_factory.init_values(self.get_owner_guid(), ItemFields)
 
+    def __hash__(self):
+        return self.guid
+
     def load_item_template(self, item_template):
         self.item_template = item_template
         if self.item_template:

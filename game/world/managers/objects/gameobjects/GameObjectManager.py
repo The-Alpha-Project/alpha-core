@@ -65,6 +65,9 @@ class GameObjectManager(ObjectManager):
         self.ritual_manager = None  # Optional.
         self.spell_focus_manager = None  # Optional.
 
+    def __hash__(self):
+        return self.guid
+
     def initialize_from_gameobject_template(self, gobject_template):
         if not gobject_template:
             return

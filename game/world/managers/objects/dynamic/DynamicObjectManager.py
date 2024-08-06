@@ -26,6 +26,9 @@ class DynamicObjectManager(ObjectManager):
 
         self.update_packet_factory.init_values(owner.guid, DynamicObjectFields)
 
+    def __hash__(self):
+        return self.guid
+
     # override
     def initialize_field_values(self):
         # Object fields.

@@ -88,6 +88,9 @@ class ObjectManager:
     def __ne__(self, other):
         return not self == other
 
+    def __hash__(self):
+        return self.guid
+
     def get_ray_position(self):
         return self.location.get_ray_vector(world_object=self)
 

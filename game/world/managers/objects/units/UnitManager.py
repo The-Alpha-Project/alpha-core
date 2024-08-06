@@ -217,6 +217,9 @@ class UnitManager(ObjectManager):
         # Players/Creatures.
         self.threat_manager = None
 
+    def __hash__(self):
+        return self.guid
+
     def is_within_interactable_distance(self, victim):
         current_distance = self.location.distance(victim.location)
         return current_distance <= UnitFormulas.interactable_distance(self, victim)
