@@ -1635,10 +1635,12 @@ class UnitManager(ObjectManager):
         self.weapon_reach = reach
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, reach)
 
-    def set_weapon_mode(self, weapon_mode):
+    def set_weapon_mode(self, weapon_mode, force=False):
+        if self.sheath_state == weapon_mode and not force:
+            return
         self.sheath_state = weapon_mode
         self.bytes_1 = self.get_bytes_1()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1, force=force)
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form

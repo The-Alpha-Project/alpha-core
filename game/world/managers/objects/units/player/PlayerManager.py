@@ -445,6 +445,7 @@ class PlayerManager(UnitManager):
     def update_known_objects_for_type(self, object_type, objects):
         # Flag as obj type updated.
         self.pending_known_object_types_updates[object_type] = False
+        self.update_builder.active_objects.clear()
 
         # Which objects were found in self surroundings.
         if objects:
@@ -471,7 +472,8 @@ class PlayerManager(UnitManager):
     def _process_update_data(self):
         if not self.update_builder.has_updates():
             return
-        self.enqueue_packets(self.update_builder.get_build_all_packets(flush=True))
+        self.enqueue_packets(self.update_builder.get_build_all_packets())
+        self.update_builder.process_known_objects_updates()
 
     def destroy_all_known_objects(self):
         for guid, known_object in list(self.known_objects.items()):
@@ -479,6 +481,8 @@ class PlayerManager(UnitManager):
         return
 
     def update_not_known_world_object(self, world_object):
+        self.update_builder.active_objects.clear()
+
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             self._update_known_player(world_object)
         elif world_object.get_type_id() == ObjectTypeIds.ID_UNIT:
@@ -497,8 +501,6 @@ class PlayerManager(UnitManager):
         if dynobject.guid not in self.known_objects or not self.known_objects[dynobject.guid]:
             if dynobject.is_spawned:
                 self.update_builder.add_create_update_from_object(dynobject)
-                # We only consider 'known' if its spawned, the details query is still sent.
-                self.known_objects[dynobject.guid] = dynobject
         # Player knows the dynamic object but is not spawned anymore, destroy it for self.
         elif dynobject.guid in self.known_objects and not dynobject.is_spawned:
             self.update_builder.pop_active_object(dynobject)
@@ -510,10 +512,6 @@ class PlayerManager(UnitManager):
             self.update_builder.add_detail_query_from_gobject(gobject)
             if gobject.is_spawned:
                 self.update_builder.add_create_update_from_object(gobject)
-                # We only consider 'known' if its spawned, the details query is still sent.
-                self.known_objects[gobject.guid] = gobject
-                # Add ourselves to gameobject known players.
-                gobject.known_players[self.guid] = self
         # Player knows the game object but is not spawned anymore, destroy it for self.
         elif gobject.guid in self.known_objects and not gobject.is_spawned:
             self.update_builder.pop_active_object(gobject)
@@ -535,9 +533,6 @@ class PlayerManager(UnitManager):
             if not creature.is_spawned:
                 return
             self.update_builder.add_create_update_from_object(creature)
-            self.known_objects[creature.guid] = creature
-            # Add ourselves to creature known players.
-            creature.known_players[self.guid] = self
         # Player knows the creature but is not spawned anymore, destroy it for self.
         elif creature.guid in self.known_objects and not creature.is_spawned:
             self.update_builder.pop_active_object(creature)

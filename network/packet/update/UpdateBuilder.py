@@ -13,6 +13,9 @@ from utils.constants.OpCodes import OpCode
 class UpdateBuilder:
     def __init__(self, owner):
         self.owner = owner
+        self.implements_known_players = {ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
+        self.create_guids = set()
+        self.known_objects_updates = list()
         self.active_objects = dict()
         self.packets = dict()
         self.lock = RLock()
@@ -48,10 +51,12 @@ class UpdateBuilder:
         return movement_packets
 
     def add_partial_update_from_object(self, world_object, update_data=None):
-        self.add(world_object.get_partial_update_bytes(requester=self.owner, update_data=update_data),
-                 PacketType.PARTIAL)
+        packet_type = PacketType.PARTIAL if world_object.guid not in self.create_guids else PacketType.PARTIAL_DEFERRED
+        self.add(world_object.get_partial_update_bytes(requester=self.owner, update_data=update_data), packet_type)
 
     def add_create_update_from_object(self, world_object):
+        self.create_guids.add(world_object.guid)
+
         if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
             # Retrieve their name detail query.
             self.add_player_name_query_from_player(world_object)
@@ -72,6 +77,9 @@ class UpdateBuilder:
             door_deferred_state_update = world_object.get_door_state_update_bytes()
             if door_deferred_state_update:
                 self.add(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
+
+        if world_object.get_type_id() in self.implements_known_players:
+            self.known_objects_updates.append((self.owner, world_object))
 
     def add_player_name_query_from_player(self, player_mgr):
         self.add(NameQueryHandler.get_query_details(player_mgr.player), PacketType.QUERY)
@@ -97,12 +105,13 @@ class UpdateBuilder:
     def has_updates(self):
         return any(self.packets)
 
-    # Generates SMSG_UPDATE_OBJECT including all create and partial messages available.
+    # Generates SMSG_UPDATE_OBJECT which includes all create and partial messages available.
     def _build_update_packet(self):
         update_type_create = self.packets.get(PacketType.CREATE, [])
-        print(f'Sending {len(update_type_create)} create packets')
         update_type_partial = self.packets.get(PacketType.PARTIAL, [])
-        print(f'Sending {len(update_type_partial)} partial packets')
+
+        print(f'SMSG_UPDATE_OBJECT with {len(update_type_create)} create packets '
+              f'and {len(update_type_partial)} partial packets')
 
         update_complete_bytes = update_type_create + update_type_partial
 
@@ -118,14 +127,20 @@ class UpdateBuilder:
 
         return [packet]
 
-    def get_build_all_packets(self, flush=True):
+    def get_build_all_packets(self):
         with self.lock:
             packets = self._get_name_query_packets() + self._build_update_packet() + self._get_movement_packets()
-            if flush:
-                self.flush()
+            self._enqueue_deferred_and_flush()
             return packets
 
-    def flush(self):
+    def process_known_objects_updates(self):
+        with self.lock:
+            while self.known_objects_updates:
+                player_mgr, world_object = self.known_objects_updates.pop(0)
+                player_mgr.known_objects[world_object.guid] = world_object
+                world_object.known_players[player_mgr.guid] = player_mgr
+
+    def _enqueue_deferred_and_flush(self):
         partial_deferred = self.packets.get(PacketType.PARTIAL_DEFERRED, [])
         self.packets.clear()
         # If we had partial deferred updates, move them now, so they get sent next tick.
