@@ -449,30 +449,32 @@ class PlayerManager(UnitManager):
         # Flag as obj type updated.
         self.pending_known_object_types_updates[object_type] = False
 
+        # Which objects were found in self surroundings.
+        if not objects:
+            return
+
         with self.update_builder.update_lock:
             self.update_builder.clear_active_objects()
 
-        # Which objects were found in self surroundings.
-        if objects:
-            if object_type == ObjectTypeIds.ID_UNIT:
-                update_func = self._update_known_creature
-            elif object_type == ObjectTypeIds.ID_PLAYER:
-                update_func = self._update_known_player
-            elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
-                update_func = self._update_known_gameobject
-            elif object_type == ObjectTypeIds.ID_DYNAMICOBJECT:
-                update_func = self._update_known_dynobject
-            else:
-                update_func = self._update_known_corpse
+        if object_type == ObjectTypeIds.ID_UNIT:
+            update_func = self._update_known_creature
+        elif object_type == ObjectTypeIds.ID_PLAYER:
+            update_func = self._update_known_player
+        elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
+            update_func = self._update_known_gameobject
+        elif object_type == ObjectTypeIds.ID_DYNAMICOBJECT:
+            update_func = self._update_known_dynobject
+        else:
+            update_func = self._update_known_corpse
 
-            # Surrounding objects.
-            [update_func(object_) for object_ in objects.values()]
+        # Surrounding objects.
+        [update_func(object_) for object_ in objects.values()]
 
-        # World objects which are known but no longer active to self should be destroyed.
-        if self.known_objects:
-            for guid, known_object in list(self.known_objects.items()):
-                if not self.update_builder.has_active_guid(guid) and known_object.get_type_id() == object_type:
-                    self.update_builder.add_destroy_object(guid)
+        if not self.known_objects:
+            return
+
+        [self.update_builder.add_destroy_object(guid) for guid, known_object in list(self.known_objects.items())
+         if not self.update_builder.has_active_guid(guid) and known_object.get_type_id() == object_type]
 
     def destroy_all_known_objects(self):
         for guid, known_object in list(self.known_objects.items()):
@@ -568,7 +570,6 @@ class PlayerManager(UnitManager):
         if not known_object:
             return False
 
-        print(f'Destroy {known_object.get_name()} Distance: {self.location.distance(known_object.location)}')
         if not object_type:
             object_type = known_object.get_type_id()
 
