@@ -381,7 +381,7 @@ class PlayerManager(UnitManager):
 
     def destroy_all_known_objects(self):
         for guid in list(self.known_objects.keys()):
-            self.update_manager.destroy_near_object(guid)
+            self.update_manager.destroy_known_object(guid)
         self.update_manager.process_update()
         return
 
