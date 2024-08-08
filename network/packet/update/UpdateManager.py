@@ -1,5 +1,5 @@
 from network.packet.update.UpdateBuilder import UpdateBuilder
-from utils.constants.MiscCodes import ObjectTypeIds
+from utils.constants.MiscCodes import ObjectTypeIds, ObjectTypeFlags
 
 
 class UpdateManager:
@@ -41,27 +41,11 @@ class UpdateManager:
 
         # Which active objects were found in self surroundings.
         if objects:
-            update_func = self._get_update_func_for_type(object_type)
-            # Surrounding objects.
-            [update_func(object_) for object_ in objects.values()]
-
-        if not self.player_mgr.known_objects:
-            return
+            [self._update_object_visiblity(object_) for object_ in objects.values()]
 
         # Destroy those known objects that are no longer found in player surroundings.
-        [self.update_builder.add_destroy_object(guid) for guid, object_ in list(self.player_mgr.known_objects.items())
+        [self.update_builder.add_destroy_object_update(guid) for guid, object_ in list(self.player_mgr.known_objects.items())
          if not self.update_builder.has_active_guid(guid) and object_.get_type_id() == object_type]
-
-    def _get_update_func_for_type(self, object_type) -> callable:
-        if object_type == ObjectTypeIds.ID_UNIT:
-            return self._update_known_creature
-        elif object_type == ObjectTypeIds.ID_PLAYER:
-            return self._update_known_player
-        elif object_type == ObjectTypeIds.ID_GAMEOBJECT:
-            return self._update_known_gameobject
-        elif object_type == ObjectTypeIds.ID_DYNAMICOBJECT:
-            return self._update_known_dynobject
-        return self._update_known_corpse
 
     def enqueue_known_objects_update(self, object_type=None):
         # Single object type update.
@@ -114,63 +98,25 @@ class UpdateManager:
                 self.update_builder.add_partial_update_from_object(world_object, update_data=update_data)
             self.player_mgr.known_stealth_units[world_object.guid] = (world_object, True)
 
-    def _update_known_dynobject(self, dynobject):
-        self.update_builder.add_active_object(dynobject)
-        if dynobject.guid not in self.player_mgr.known_objects or not self.player_mgr.known_objects[dynobject.guid]:
-            if dynobject.is_spawned:
-                self.update_builder.add_create_update_from_object(dynobject)
-        # Player knows the dynamic object but is not spawned anymore, destroy it for self.
-        elif dynobject.guid in self.player_mgr.known_objects and not dynobject.is_spawned:
-            self.update_builder.pop_active_object(dynobject)
+    def _update_object_visiblity(self, world_object):
+        object_type = world_object.get_type_id()
+        is_player = object_type == ObjectTypeIds.ID_PLAYER
 
-    def _update_known_gameobject(self, gobject):
-        self.update_builder.add_active_object(gobject)
-        if gobject.guid not in self.player_mgr.known_objects or not self.player_mgr.known_objects[gobject.guid]:
-            if gobject.is_spawned:
-                self.update_builder.add_create_update_from_object(gobject)
-        # Player knows the game object but is not spawned anymore, destroy it for self.
-        elif gobject.guid in self.player_mgr.known_objects and not gobject.is_spawned:
-            self.update_builder.pop_active_object(gobject)
-
-    def _update_known_creature(self, creature):
-        # Handle visibility/stealth.
-        if not self.player_mgr.can_detect_target(creature)[0]:
-            self.player_mgr.known_stealth_units[creature.guid] = (creature, True)
-            creature.known_players[self.player_mgr.guid] = self
-            return
-        elif creature.guid in self.player_mgr.known_stealth_units:
-            del self.player_mgr.known_stealth_units[creature.guid]
-
-        self.update_builder.add_active_object(creature)
-        if creature.guid not in self.player_mgr.known_objects or not self.player_mgr.known_objects[creature.guid]:
-            if not creature.is_spawned:
+        # Check visibility/stealth detection for units.
+        if world_object.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            if not self.player_mgr.can_detect_target(world_object)[0]:
+                self.player_mgr.known_stealth_units[world_object.guid] = (world_object, True)
+                if object_type == ObjectTypeIds.ID_UNIT:
+                    world_object.known_players[self.player_mgr.guid] = self
                 return
-            self.update_builder.add_create_update_from_object(creature)
+            elif world_object.guid in self.player_mgr.known_stealth_units:
+                del self.player_mgr.known_stealth_units[world_object.guid]
+
+        self.update_builder.add_active_object(world_object)
+        if world_object.guid not in self.player_mgr.known_objects or not self.player_mgr.known_objects[world_object.guid]:
+            if not world_object.is_spawned:
+                return
+            self.update_builder.add_create_update_from_object(world_object)
         # Player knows the creature but is not spawned anymore, destroy it for self.
-        elif creature.guid in self.player_mgr.known_objects and not creature.is_spawned:
-            self.update_builder.pop_active_object(creature)
-
-    def _update_known_corpse(self, corpse):
-        if self.player_mgr.guid == corpse.guid:
-            return
-        self.update_builder.add_active_object(corpse)
-        if corpse.guid not in self.player_mgr.known_objects or not self.player_mgr.known_objects[corpse.guid]:
-            # Create packet.
-            self.update_builder.add_create_update_from_object(corpse)
-        self.player_mgr.known_objects[corpse.guid] = corpse
-
-    def _update_known_player(self, player_mgr):
-        if self.player_mgr.guid == player_mgr.guid:
-            return
-
-        # Handle visibility/stealth.
-        if not self.player_mgr.can_detect_target(player_mgr)[0]:
-            self.player_mgr.known_stealth_units[player_mgr.guid] = (player_mgr, True)
-            return
-        elif player_mgr.guid in self.player_mgr.known_stealth_units:
-            del self.player_mgr.known_stealth_units[player_mgr.guid]
-
-        self.update_builder.add_active_object(player_mgr)
-        if player_mgr.guid not in self.player_mgr.known_objects or not self.player_mgr.known_objects[player_mgr.guid]:
-            self.update_builder.add_create_update_from_object(player_mgr)
-            self.player_mgr.known_objects[player_mgr.guid] = player_mgr
+        elif not is_player and world_object.guid in self.player_mgr.known_objects and not world_object.is_spawned:
+            self.update_builder.pop_active_object(world_object)
