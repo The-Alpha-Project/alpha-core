@@ -489,6 +489,11 @@ class GameObjectManager(ObjectManager):
         return self.gobject_template.name
 
     # override
+    def get_query_details_packet(self):
+        from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
+        return GoQueryUtils.query_details(gameobject_mgr=self)
+
+    # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_GAMEOBJECT
 

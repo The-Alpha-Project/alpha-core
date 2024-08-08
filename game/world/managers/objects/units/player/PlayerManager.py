@@ -1765,6 +1765,10 @@ class PlayerManager(UnitManager):
         return self.online and not self.update_lock and self.get_map()
 
     # override
+    def get_query_details_packet(self):
+        return NameQueryHandler.get_query_details(self.player)
+
+    # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_PLAYER
 

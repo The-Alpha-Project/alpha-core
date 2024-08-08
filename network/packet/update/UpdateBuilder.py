@@ -2,9 +2,6 @@ from enum import IntEnum
 from multiprocessing import RLock
 from struct import pack
 
-from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
-from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
-from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds
 from utils.constants.OpCodes import OpCode
@@ -14,6 +11,7 @@ class UpdateBuilder:
     def __init__(self, owner):
         self._owner = owner
         self._implements_known_players = {ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
+        self._implements_query_details = {ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
         self._create_guids = set()
         self._partial_guids = set()
         self._known_objects_updates = set()
@@ -34,7 +32,7 @@ class UpdateBuilder:
     def pop_active_object(self, world_object):
         self._active_objects.discard(world_object.guid)
 
-    def add(self, data, packet_type):
+    def _add(self, data, packet_type):
         with self.update_lock:
             if packet_type not in self._packets:
                 self._packets[packet_type] = list()
@@ -57,23 +55,26 @@ class UpdateBuilder:
         packet_type = PacketType.PARTIAL if (world_object.guid not in self._create_guids
                                              and world_object.guid not in self._partial_guids) \
             else PacketType.PARTIAL_DEFERRED
-        self.add(world_object.get_partial_update_bytes(requester=self._owner, update_data=update_data), packet_type)
+        self._add(world_object.get_partial_update_bytes(requester=self._owner, update_data=update_data), packet_type)
 
     def add_create_update_from_object(self, world_object):
         self._create_guids.add(world_object.guid)
+        obj_type = world_object.get_type_id()
 
-        if world_object.get_type_id() == ObjectTypeIds.ID_PLAYER:
-            # Retrieve their name detail query.
-            self.add_player_name_query_from_player(world_object)
-            # Retrieve their inventory updates.
-            self.add_inventory_updates_from_player(world_object)
+        # Specific query details given the object type.
+        if obj_type not in self._implements_query_details:
+            self._add_world_object_detail_query_from_object(world_object)
 
-        # Create packet.
-        self.add(world_object.get_create_update_bytes(requester=self._owner), PacketType.CREATE)
+        # Player inventory updates.
+        if obj_type == ObjectTypeIds.ID_PLAYER:
+            self._add_inventory_updates_from_player(world_object)
+
+        # Create packet bytes.
+        self._add(world_object.get_create_update_bytes(requester=self._owner), PacketType.CREATE)
 
         # Movement packets.
         if world_object.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
-            self.add_movement_update_from_unit(world_object)
+            self._add_movement_update_from_unit(world_object)
 
         # Deferred updates are only needed for doors collision bug, we cannot send both create and partial updates
         # with different state flag on the same SMSG_UPDATE_OBJECT packet, we need to first create, and then
@@ -81,7 +82,7 @@ class UpdateBuilder:
         if world_object.get_type_id() == ObjectTypeIds.ID_GAMEOBJECT:
             door_deferred_state_update = world_object.get_door_state_update_bytes()
             if door_deferred_state_update:
-                self.add(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
+                self._add(door_deferred_state_update, PacketType.PARTIAL_DEFERRED)
 
         # Player <-> Objects linked as known.
         if world_object.get_type_id() in self._implements_known_players:
@@ -90,26 +91,20 @@ class UpdateBuilder:
         else:
             self._owner.known_objects[world_object.guid] = world_object
 
-    def add_player_name_query_from_player(self, player_mgr):
-        self.add(NameQueryHandler.get_query_details(player_mgr.player), PacketType.QUERY)
+    def _add_world_object_detail_query_from_object(self, world_object):
+        self._add(world_object.get_query_details_packet(), PacketType.QUERY)
 
-    def add_inventory_updates_from_player(self, player_mgr):
+    def _add_inventory_updates_from_player(self, player_mgr):
         item__queries, create_packets, partial_packets = player_mgr.get_inventory_update_packets(requester=self._owner)
-        self.add(item__queries, PacketType.QUERY)
-        self.add(create_packets, PacketType.CREATE)
-        self.add(partial_packets, PacketType.PARTIAL)
+        self._add(item__queries, PacketType.QUERY)
+        self._add(create_packets, PacketType.CREATE)
+        self._add(partial_packets, PacketType.PARTIAL)
 
-    def add_movement_update_from_unit(self, unit):
+    def _add_movement_update_from_unit(self, unit):
         # Get partial movement packet if any.
         movement_packet = unit.movement_manager.try_build_movement_packet()
         if movement_packet:
-            self.add(movement_packet, PacketType.MOVEMENT)
-
-    def add_detail_query_from_gobject(self, gobject):
-        self.add(GoQueryUtils.query_details(gameobject_mgr=gobject), PacketType.QUERY)
-
-    def add_detail_query_from_creature(self, creature):
-        self.add(UnitQueryUtils.query_details(creature_mgr=creature), PacketType.QUERY)
+            self._add(movement_packet, PacketType.MOVEMENT)
 
     def add_destroy_object(self, guid):
         self._destroy_objects_updates.add(guid)

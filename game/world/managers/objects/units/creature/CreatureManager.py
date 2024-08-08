@@ -919,6 +919,11 @@ class CreatureManager(UnitManager):
         return self.is_spawned and self.get_map()
 
     # override
+    def get_query_details_packet(self):
+        from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
+        return UnitQueryUtils.query_details(creature_mgr=self)
+
+    # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_UNIT
 

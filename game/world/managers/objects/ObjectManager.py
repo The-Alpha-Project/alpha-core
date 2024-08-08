@@ -415,6 +415,10 @@ class ObjectManager:
         return ObjectTypeIds.ID_OBJECT
 
     # override
+    def get_query_details_packet(self):
+        pass
+
+    # override
     def get_debug_messages(self, requester=None):
         return [
             f'Guid: {self.get_low_guid()}, Entry: {self.entry}, Display ID: {self.current_display_id}',

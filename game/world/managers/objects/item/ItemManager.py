@@ -243,10 +243,6 @@ class ItemManager(ObjectManager):
             return item_mgr
         return None
 
-    def query_details_packet(self):
-        data = self.query_details_data()
-        return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
-
     def query_details_data(self):
         data = ItemManager.generate_query_details_data(
             self.item_template,
@@ -538,6 +534,10 @@ class ItemManager(ObjectManager):
     # override
     def get_name(self):
         return self.item_template.name if self.item_template else 'Backpack' if self.is_backpack else 'None'
+
+    def get_query_details_packet(self):
+        data = self.query_details_data()
+        return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
 
     # override
     def get_type_mask(self):

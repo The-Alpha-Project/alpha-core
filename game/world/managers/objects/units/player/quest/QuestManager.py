@@ -489,7 +489,7 @@ class QuestManager(object):
                 gameobject = world_object
                 if gameobject.gobject_template.type == GameObjectTypes.TYPE_CHEST or \
                         gameobject.gobject_template.type == GameObjectTypes.TYPE_QUESTGIVER:
-                    self.player_mgr.update_world_object_on_me(gameobject, has_changes=True)
+                    self.player_mgr.update_manager.update_world_object_on_self(gameobject, has_changes=True)
 
     # Send item query details and return item struct byte segments.
     def _gen_item_struct(self, item_entry, count):
@@ -657,7 +657,7 @@ class QuestManager(object):
             elif creature_or_go > 0:
                 creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(creature_or_go)
                 if creature_template:
-                    self.player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_template))
+                    self.player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_template=creature_template))
 
         # Objective texts.
         req_objective_text_list = QuestHelpers.generate_objective_text_list(quest)

@@ -126,8 +126,6 @@ class UpdateManager:
     def _update_known_gameobject(self, gobject):
         self.update_builder.add_active_object(gobject)
         if gobject.guid not in self.player_mgr.known_objects or not self.player_mgr.known_objects[gobject.guid]:
-            # We don't know this game object, notify self with its update packet.
-            self.update_builder.add_detail_query_from_gobject(gobject)
             if gobject.is_spawned:
                 self.update_builder.add_create_update_from_object(gobject)
         # Player knows the game object but is not spawned anymore, destroy it for self.
@@ -145,9 +143,6 @@ class UpdateManager:
 
         self.update_builder.add_active_object(creature)
         if creature.guid not in self.player_mgr.known_objects or not self.player_mgr.known_objects[creature.guid]:
-            # We don't know this creature, notify self with its update packet.
-            self.update_builder.add_detail_query_from_creature(creature)
-            # We only consider 'known' if its spawned, the details query is still sent.
             if not creature.is_spawned:
                 return
             self.update_builder.add_create_update_from_object(creature)
