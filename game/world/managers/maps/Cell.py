@@ -158,9 +158,9 @@ class Cell:
     def _update_player_surroundings(self, player, world_object=None, has_changes=False, has_inventory_changes=False,
                                     update_data=None, object_type=None):
         if world_object:
-            player.update_world_object_on_me(world_object, has_changes, has_inventory_changes, update_data)
+            player.update_manager.update_world_object_on_self(world_object, has_changes, has_inventory_changes, update_data)
         else:
-            player.enqueue_known_objects_update(object_type=object_type)
+            player.update_manager.enqueue_known_objects_update(object_type=object_type)
 
     def remove(self, world_object):
         guid = world_object.guid

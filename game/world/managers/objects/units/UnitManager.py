@@ -180,8 +180,6 @@ class UnitManager(ObjectManager):
         self.unit_state = UnitStates.NONE
         # Used to handle sanctuary state.
         self.sanctuary_timer = 0
-        # Update surroundings timer.
-        self.update_surroundings_timer = 0
         # Cheat flags, used by Players.
         self.beast_master = False
 

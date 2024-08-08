@@ -19,6 +19,7 @@ class DynamicObjectManager(ObjectManager):
         self.location = location.copy()
         self.dynamic_type = dynamic_type
         self.spell_id = effect.casting_spell.spell_entry.ID
+        self.name = f'DynamicObject - Spell {effect.casting_spell.spell_entry.Name_enUS}'
         self.radius = radius
         self.ttl = ttl
 
@@ -96,6 +97,10 @@ class DynamicObjectManager(ObjectManager):
     # override
     def is_active_object(self):
         return FarSightManager.object_is_camera_view_point(self)
+
+    # override
+    def get_name(self):
+        return self.name
 
     # override
     def get_type_mask(self):

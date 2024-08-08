@@ -32,8 +32,7 @@ class UpdateBuilder:
         self._active_objects.add(world_object.guid)
 
     def pop_active_object(self, world_object):
-        if world_object.guid in self._active_objects:
-            del self._active_objects[world_object.guid]
+        self._active_objects.discard(world_object.guid)
 
     def add(self, data, packet_type):
         with self.update_lock:

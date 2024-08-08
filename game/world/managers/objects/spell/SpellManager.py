@@ -819,7 +819,7 @@ class SpellManager:
                 casting_spell.spell_entry.ID, cast_flags, casting_spell.get_cast_time_ms(),
                 casting_spell.spell_target_mask]
 
-        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
+        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventory type).
 
         # Client never expects a unit target for self target mask.
         if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:

@@ -22,6 +22,7 @@ class CorpseManager(ObjectManager):
         self.native_display_id = owner.native_display_id
         self.current_display_id = owner.native_display_id
         self.ttl = 600  # 10 Minutes.
+        self.name = f'Corpse - Player {self.owner.get_name()}'
 
         self.guid = self.generate_object_guid(CorpseManager.GUID_MANAGER.get_new_guid())
 
@@ -92,6 +93,10 @@ class CorpseManager(ObjectManager):
         player_mgr.get_map().update_object(corpse)
         return corpse
 
+    # override
+    def get_name(self):
+        return self.name
+    
     # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_CORPSE
