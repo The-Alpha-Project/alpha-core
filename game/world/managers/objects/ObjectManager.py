@@ -303,6 +303,8 @@ class ObjectManager:
     def _get_fields_update(self, is_create, requester, update_data=None):
         data = bytearray()
         mask = self.update_packet_factory.update_mask.copy() if not update_data else update_data.update_bit_mask
+        values = self.update_packet_factory.update_values_bytes if not update_data else update_data.update_field_values
+
         for field_index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[field_index] == 0:
@@ -312,8 +314,7 @@ class ObjectManager:
                 mask[field_index] = 0
                 continue
             # Append field value and turn on bit on mask.
-            data.extend(self.update_packet_factory.update_values_bytes[field_index] if not update_data
-                        else update_data.update_field_values[field_index])
+            data.extend(values[field_index])
             mask[field_index] = 1
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 

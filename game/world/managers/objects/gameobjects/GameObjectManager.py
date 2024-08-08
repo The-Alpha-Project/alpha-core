@@ -405,6 +405,8 @@ class GameObjectManager(ObjectManager):
     def _get_fields_update(self, is_create, requester, update_data=None):
         data = bytearray()
         mask = self.update_packet_factory.update_mask.copy() if not update_data else update_data.update_bit_mask
+        values = self.update_packet_factory.update_values_bytes if not update_data else update_data.update_field_values
+
         for index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[index] == 0 and not self.update_packet_factory.is_dynamic_field(index):
@@ -422,8 +424,7 @@ class GameObjectManager(ObjectManager):
                 # Client doesn't remove collision for doors sent with active state - always send as ready.
                 value = pack('<I', GameObjectStates.GO_STATE_READY)
             else:
-                value = self.update_packet_factory.update_values_bytes[index] if not update_data \
-                    else update_data.update_field_values[index]
+                value = values[index]
 
             data.extend(value)
             mask[index] = 1
