@@ -73,9 +73,7 @@ class UpdateManager:
         if inventory_changes:
             item__queries, create_packets, partial_packets = self.player_mgr.get_inventory_update_packets(
                 requester=self.player_mgr)
-            self.player_mgr.enqueue_packets(item__queries)
-            self.player_mgr.enqueue_packets(create_packets)
-            self.player_mgr.enqueue_packets(partial_packets)
+            self.player_mgr.enqueue_packets(item__queries + create_packets + partial_packets)
         # Enqueue a partial update if needed.
         if has_changes:
             self.update_builder.add_partial_update_from_object(self.player_mgr, update_data=update_data)
