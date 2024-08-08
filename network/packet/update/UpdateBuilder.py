@@ -36,15 +36,19 @@ class UpdateBuilder:
 
     def process_update(self):
         with self.update_lock:
-            if self._has_update_fields_updates():
+            # Query detail, destroy, movement and SMSG_UPDATE_OBJECT packets.
+            if self._has_pending_update_packets():
                 self._player_mgr.enqueue_packets(self._get_build_all_packets())
 
+            # Relation between objects after creation.
             if self._has_create_known_objects_updates():
                 self._process_known_objects_updates()
 
+            # Relation between objects after destruction.
             if self._has_destroy_known_objects_updates():
                 self._process_destroy_known_objects_updates()
 
+            # Player known items after owner destruction.
             if self._has_destroy_known_items_updates():
                 self._process_destroy_known_items_updates()
 
@@ -209,7 +213,7 @@ class UpdateBuilder:
         destroy_packets = self._packets.get(PacketType.DESTROY, [])
         return destroy_packets
 
-    def _has_update_fields_updates(self):
+    def _has_pending_update_packets(self):
         return any(self._packets)
 
     def _has_destroy_known_items_updates(self):
