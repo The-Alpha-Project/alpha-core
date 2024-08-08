@@ -96,7 +96,7 @@ class CorpseManager(ObjectManager):
     # override
     def get_name(self):
         return self.name
-    
+
     # override
     def get_type_mask(self):
         return super().get_type_mask() | ObjectTypeFlags.TYPE_CORPSE
