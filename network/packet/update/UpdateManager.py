@@ -44,8 +44,14 @@ class UpdateManager:
             [self._update_object_visiblity(object_) for object_ in objects.values()]
 
         # Destroy those known objects that are no longer found in player surroundings.
-        [self.update_builder.add_destroy_object_update(guid) for guid, object_ in list(self.player_mgr.known_objects.items())
+        [self.destroy_near_object(guid) for guid, object_ in list(self.player_mgr.known_objects.items())
          if not self.update_builder.has_active_guid(guid) and object_.get_type_id() == object_type]
+
+    def destroy_near_object(self, guid):
+        known_object = self.player_mgr.known_objects.get(guid, None)
+        if not known_object:
+            return False
+        self.update_builder.add_destroy_update_from_object(known_object)
 
     def enqueue_known_objects_update(self, object_type=None):
         # Single object type update.

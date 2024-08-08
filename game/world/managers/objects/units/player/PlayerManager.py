@@ -382,39 +382,10 @@ class PlayerManager(UnitManager):
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
     def destroy_all_known_objects(self):
-        for guid, known_object in list(self.known_objects.items()):
-            self.destroy_near_object(guid)
+        for guid in list(self.known_objects.keys()):
+            self.update_manager.destroy_near_object(guid)
+        self.update_manager.process_update()
         return
-
-    def destroy_near_object(self, guid, object_type=None):
-        implements_known_players = {ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
-        known_object = self.known_objects.get(guid)
-        if not known_object:
-            return False
-
-        if not object_type:
-            object_type = known_object.get_type_id()
-
-        is_player = object_type == ObjectTypeIds.ID_PLAYER
-        del self.known_objects[guid]
-        # Remove self from creature/go known players if needed.
-        if object_type in implements_known_players:
-            if self.guid in known_object.known_players:
-                del known_object.known_players[self.guid]
-        # Destroy other player items for self.
-        if is_player:
-            destroy_packets = known_object.inventory.get_inventory_destroy_packets(requester=self)
-            for guid in destroy_packets.keys():
-                self.known_items.pop(guid, None)
-            self.enqueue_packets(destroy_packets.values())
-        # Destroy world object from self.
-        self.enqueue_packet(known_object.get_destroy_packet())
-        # Destroyed a player which is in our party, update party stats.
-        # We do this here because we need to make sure client no longer knows the player object if it went offline.
-        if is_player and self.group_manager and self.group_manager.is_party_member(known_object.guid):
-            self.group_manager.send_update()
-
-        return True
 
     def synchronize_db_player(self):
         if not self.player:
@@ -604,11 +575,8 @@ class PlayerManager(UnitManager):
             self.spell_manager.apply_cast_when_learned_spells()
             self.stat_manager.apply_bonuses()
 
-        if not changed_map:
-            # Get us in a new cell.
-            self.get_map().update_object(self)
-        else:
-            self.get_map().spawn_object(world_object_instance=self)
+        # Get us in a new cell.
+        self.get_map().update_object(self, has_changes=True)
 
         # Notify movement data to surrounding players when teleporting within the same map
         # (for example when using Charge)

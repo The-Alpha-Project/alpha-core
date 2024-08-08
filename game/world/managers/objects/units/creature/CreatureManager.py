@@ -126,7 +126,7 @@ class CreatureManager(UnitManager):
 
         self.initialized = False
         self.killed_by = None
-        self.known_players = {}
+        self.known_players.clear()
 
         self.native_display_id = CreatureUtils.generate_creature_display_id(self.creature_template)
         self.current_display_id = self.native_display_id
