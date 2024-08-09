@@ -139,24 +139,28 @@ class Cell:
                 corpse.update(now)
 
     # Make each player update its surroundings, adding, removing or updating world objects as needed.
-    def update_players_surroundings(self, world_object=None, has_changes=False, has_inventory_changes=False):
+    def update_players_surroundings(self, world_object=None, has_changes=False, has_inventory_changes=False,
+                                    update_data=None, object_type=None):
         affected_players = set()
         for player in list(self.players.values()):
             affected_players.add(player.guid)
-            self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes)
+            self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes, update_data,
+                                             object_type)
 
         for camera in FarSightManager.get_cell_cameras(self):
             for player in list(camera.players.values()):
                 if player.guid in affected_players:
                     continue
-                self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes)
+                self._update_player_surroundings(player, world_object, has_changes, has_inventory_changes, update_data,
+                                                 object_type)
 
     # noinspection PyMethodMayBeStatic
-    def _update_player_surroundings(self, player, world_object=None, has_changes=False, has_inventory_changes=False):
+    def _update_player_surroundings(self, player, world_object=None, has_changes=False, has_inventory_changes=False,
+                                    update_data=None, object_type=None):
         if world_object:
-            player.update_world_object_on_me(world_object, has_changes, has_inventory_changes)
+            player.update_manager.update_world_object_on_self(world_object, has_changes, has_inventory_changes, update_data)
         else:
-            player.enqueue_known_objects_update()
+            player.update_manager.enqueue_object_update(object_type=object_type)
 
     def remove(self, world_object):
         guid = world_object.guid

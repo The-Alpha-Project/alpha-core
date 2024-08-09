@@ -110,8 +110,7 @@ class GroupManager(object):
             player_mgr.group_status = WhoPartyStatus.WHO_PARTY_STATUS_IN_PARTY
             player_mgr.has_pending_group_invite = False
 
-            query_details_packet = NameQueryHandler.get_query_details(player_mgr.player)
-            self.send_packet_to_members(query_details_packet)
+            self.send_packet_to_members(player_mgr.get_query_details_packet())
 
             if len(self.members) > 1:
                 self.send_update()

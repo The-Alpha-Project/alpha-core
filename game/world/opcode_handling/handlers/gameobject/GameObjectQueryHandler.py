@@ -13,7 +13,7 @@ class GameObjectQueryHandler(object):
                 player_mgr = world_session.player_mgr
                 gobject_mgr = player_mgr.get_map().get_surrounding_gameobject_by_guid(player_mgr, guid)
                 if gobject_mgr:
-                    player_mgr.enqueue_packet(GoQueryUtils.query_details(gameobject_mgr=gobject_mgr))
+                    player_mgr.enqueue_packet(gobject_mgr.get_query_details_packet())
                 else:  # Fallback just in case.
                     go_template = WorldDatabaseManager.GameobjectTemplateHolder.gameobject_get_by_entry(entry)
                     if go_template:

@@ -126,7 +126,7 @@ class CreatureManager(UnitManager):
 
         self.initialized = False
         self.killed_by = None
-        self.known_players = {}
+        self.known_players.clear()
 
         self.native_display_id = CreatureUtils.generate_creature_display_id(self.creature_template)
         self.current_display_id = self.native_display_id
@@ -917,6 +917,11 @@ class CreatureManager(UnitManager):
 
     def is_in_world(self):
         return self.is_spawned and self.get_map()
+
+    # override
+    def get_query_details_packet(self):
+        from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
+        return UnitQueryUtils.query_details(creature_mgr=self)
 
     # override
     def get_type_mask(self):

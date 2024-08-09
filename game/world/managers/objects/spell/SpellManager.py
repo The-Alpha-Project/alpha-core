@@ -352,17 +352,18 @@ class SpellManager:
         self.casting_spells.append(casting_spell)
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
 
+        weapon_mode = self.caster.sheath_state
         if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
             # If the spell uses a ranged weapon, draw it if needed.
             if casting_spell.is_ranged_weapon_attack():
-                self.caster.set_weapon_mode(WeaponMode.RANGEDMODE)
+                self.caster.set_weapon_mode(WeaponMode.RANGEDMODE, force=weapon_mode != WeaponMode.RANGEDMODE)
             # Need to make sure creatures go back to melee if needed.
             elif self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
-                self.caster.set_weapon_mode(WeaponMode.NORMALMODE)
+                self.caster.set_weapon_mode(WeaponMode.NORMALMODE, force=weapon_mode != WeaponMode.NORMALMODE)
 
             # If the spell uses a fishing pole, draw it if needed.
             if casting_spell.requires_fishing_pole():
-                self.caster.set_weapon_mode(WeaponMode.NORMALMODE)
+                self.caster.set_weapon_mode(WeaponMode.NORMALMODE, force=weapon_mode != WeaponMode.NORMALMODE)
 
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
@@ -818,7 +819,7 @@ class SpellManager:
                 casting_spell.spell_entry.ID, cast_flags, casting_spell.get_cast_time_ms(),
                 casting_spell.spell_target_mask]
 
-        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
+        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventory type).
 
         # Client never expects a unit target for self target mask.
         if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:

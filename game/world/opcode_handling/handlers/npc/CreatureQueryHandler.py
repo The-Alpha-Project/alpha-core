@@ -14,7 +14,7 @@ class CreatureQueryHandler(object):
             player_mgr = world_session.player_mgr
             creature_mgr = player_mgr.get_map().get_surrounding_unit_by_guid(player_mgr, guid)
             if creature_mgr:
-                player_mgr.enqueue_packet(UnitQueryUtils.query_details(creature_mgr=creature_mgr))
+                player_mgr.enqueue_packet(creature_mgr.get_query_details_packet())
             else:  # Fallback just in case.
                 creature_template = WorldDatabaseManager.CreatureTemplateHolder.creature_get_by_entry(entry)
                 if creature_template:

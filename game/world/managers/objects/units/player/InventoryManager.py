@@ -913,7 +913,8 @@ class InventoryManager(object):
 
     def get_inventory_update_packets(self, requester):
         item_templates = []
-        update_packets = []
+        create_packets = []
+        partial_packets = []
 
         for container_slot, container in list(self.containers.items()):
             if not container:
@@ -926,12 +927,12 @@ class InventoryManager(object):
             if not container.is_backpack and requester == self.owner:
                 # Add item query details if the requester does not know container item.
                 if container.guid not in requester.known_items:
-                    update_packets.append(self._get_single_item_full_update_packet(container, requester))
-                    requester.known_items[container.guid] = container
+                    create_packets.append(self._get_update_packet_or_bytes(container, requester=requester))
                     item_templates.append(container.item_template)
+                    requester.known_items[container.guid] = container
                 # Requester knows this container, send a partial update.
                 elif container.has_container_updates():
-                    update_packets.append(self._get_single_item_partial_update_packet(container, requester))
+                    partial_packets.append(self._get_update_packet_or_bytes(container, requester=requester, partial=True))
 
             for slot, item in list(container.sorted_slots.items()):
                 # Other players do not care about other items outside the inventory of another player.
@@ -941,28 +942,28 @@ class InventoryManager(object):
 
                 # Add item query details if the requester does not know this item.
                 if item.guid not in requester.known_items:
-                    update_packets.append(self._get_single_item_full_update_packet(item, requester))
+                    create_packets.append(self._get_update_packet_or_bytes(item, requester=requester))
                     requester.known_items[item.guid] = item
                     item_templates.append(item.item_template)
                 # Requester knows this item but has pending changes, send a partial update.
                 elif item.has_pending_updates():
-                    update_packets.append(self._get_single_item_partial_update_packet(item, requester))
+                    partial_packets.append(self._get_update_packet_or_bytes(item, requester=requester, partial=True))
 
             # Exit loop if this a request from another player.
             if container.is_backpack and requester != self.owner:
                 break
 
         item_updates = ItemManager.get_item_query_packets(item_templates)
-        return item_updates + update_packets
+        return item_updates, create_packets, partial_packets
 
-    # noinspection PyMethodMayBeStatic
-    def _get_single_item_full_update_packet(self, item, requester):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, item.get_object_create_bytes(requester)))
-        return update_packet
-
-    # noinspection PyMethodMayBeStatic
-    def _get_single_item_partial_update_packet(self, item, requester):
-        update_packet = UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, item.get_partial_update_bytes(requester)))
-        return update_packet
+    def _get_update_packet_or_bytes(self, item_mgr, requester, partial=False):
+        if partial:
+            if requester == self.owner:
+                return item_mgr.generate_partial_packet(requester=requester)
+            else:
+                return item_mgr.get_partial_update_bytes(requester=requester)
+        else:
+            if requester == self.owner:
+                return item_mgr.generate_create_packet(requester=requester)
+            else:
+                return item_mgr.get_create_update_bytes(requester=requester)
