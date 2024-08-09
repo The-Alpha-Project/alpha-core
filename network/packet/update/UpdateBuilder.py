@@ -57,7 +57,7 @@ class UpdateBuilder:
         obj_type = world_object.get_type_id()
 
         # Specific query details given the object type.
-        if obj_type not in self._implements_query_details:
+        if obj_type in self._implements_query_details:
             self._add_world_object_detail_query_from_object(world_object)
 
         # Player inventory updates.
