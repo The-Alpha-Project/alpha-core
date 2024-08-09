@@ -160,7 +160,7 @@ class Cell:
         if world_object:
             player.update_manager.update_world_object_on_self(world_object, has_changes, has_inventory_changes, update_data)
         else:
-            player.update_manager.enqueue_known_objects_update(object_type=object_type)
+            player.update_manager.enqueue_object_update(object_type=object_type)
 
     def remove(self, world_object):
         guid = world_object.guid

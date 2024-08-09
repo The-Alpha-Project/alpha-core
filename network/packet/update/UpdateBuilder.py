@@ -95,18 +95,17 @@ class UpdateBuilder:
                                                                update_data=update_data), packet_type)
 
     def add_destroy_update_from_object(self, world_object):
-        implements_known_players = {ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
         object_type = world_object.get_type_id()
         is_player = object_type == ObjectTypeIds.ID_PLAYER
 
-        if object_type in implements_known_players:
+        if object_type in self._implements_known_players:
             self._destroy_linked_known_objects_updates.add(world_object)
         else:
             self._destroy_owner_known_objects_updates.add(world_object)
 
         # Destroy other player items for self.
         if is_player:
-            destroy_packets = world_object.inventory.get_inventory_destroy_packets(requester=self._player_mgr)
+            destroy_packets = world_object.get_inventory_destroy_packets(requester=self._player_mgr)
             for guid in destroy_packets.keys():
                 self._destroy_known_items.add(guid)
             self._add_packet(list(destroy_packets.values()), PacketType.DESTROY)

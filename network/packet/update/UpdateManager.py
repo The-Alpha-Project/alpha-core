@@ -6,7 +6,7 @@ class UpdateManager:
     def __init__(self, player_mgr):
         self.player_mgr = player_mgr
         self.update_builder = UpdateBuilder(player_mgr)
-        self.pending_known_object_types_updates = {
+        self.pending_object_types_updates = {
             ObjectTypeIds.ID_PLAYER: False,
             ObjectTypeIds.ID_UNIT: False,
             ObjectTypeIds.ID_GAMEOBJECT: False,
@@ -16,13 +16,13 @@ class UpdateManager:
 
     def process_tick_updates(self):
         # Process pending surrounding updates (Create/Destroy).
-        self._update_surrounding_known_objects()
+        self._update_surrounding_objects()
         # Send all required update packets.
         self.update_builder.process_update()
 
-    def _update_surrounding_known_objects(self):
-        obj_types = [object_type for object_type in self.pending_known_object_types_updates.keys()
-                     if self.pending_known_object_types_updates[object_type]]
+    def _update_surrounding_objects(self):
+        obj_types = [object_type for object_type in self.pending_object_types_updates.keys()
+                     if self.pending_object_types_updates[object_type]]
         if not obj_types:
             return
 
@@ -33,11 +33,11 @@ class UpdateManager:
             self.update_builder.clear_active_objects()
 
         # Update each object type.
-        [self._update_known_objects_for_type(obj_type, objects[obj_types.index(obj_type)]) for obj_type in obj_types]
+        [self._update_objects_for_type(obj_type, objects[obj_types.index(obj_type)]) for obj_type in obj_types]
 
-    def _update_known_objects_for_type(self, object_type, objects):
+    def _update_objects_for_type(self, object_type, objects):
         # Flag as obj type updated.
-        self.pending_known_object_types_updates[object_type] = False
+        self.pending_object_types_updates[object_type] = False
 
         # Which active objects were found in self surroundings.
         if objects:
@@ -53,19 +53,19 @@ class UpdateManager:
             return False
         self.update_builder.add_destroy_update_from_object(known_object)
 
-    def enqueue_known_objects_update(self, object_type=None):
+    def enqueue_object_update(self, object_type=None):
         # Single object type update.
         if object_type:
-            self.pending_known_object_types_updates[object_type] = True
+            self.pending_object_types_updates[object_type] = True
             return
 
         # No type provided, flag all available.
         for type_id in ObjectTypeIds:
             # Not a valid type or already pending update, skip.
-            if (type_id not in self.pending_known_object_types_updates
-                    or self.pending_known_object_types_updates[type_id]):
+            if (type_id not in self.pending_object_types_updates
+                    or self.pending_object_types_updates[type_id]):
                 continue
-            self.pending_known_object_types_updates[type_id] = True
+            self.pending_object_types_updates[type_id] = True
 
     # Player update, packets are sent immediately.
     def _update_self(self, has_changes, inventory_changes, update_data):

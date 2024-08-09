@@ -346,7 +346,7 @@ class PlayerManager(UnitManager):
 
         # Destroy self and self items.
         self.enqueue_packet(self.get_destroy_packet())
-        self.enqueue_packets(self.inventory.get_inventory_destroy_packets(requester=self).values())
+        self.enqueue_packets(self.get_inventory_destroy_packets(requester=self).values())
 
         WorldSessionStateHandler.pop_active_player(self)
         self.session.player_mgr = None
@@ -1723,6 +1723,9 @@ class PlayerManager(UnitManager):
 
     def get_inventory_update_packets(self, requester):
         return self.inventory.get_inventory_update_packets(requester=requester)
+
+    def get_inventory_destroy_packets(self, requester):
+        return self.inventory.get_inventory_destroy_packets(requester=requester)
 
     # override
     def is_in_world(self):
