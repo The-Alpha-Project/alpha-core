@@ -67,7 +67,7 @@ class UpdateManager:
                 continue
             self.pending_object_types_updates[type_id] = True
 
-    # Player update, packets are sent immediately.
+    # Player update, inventory packets are sent immediately, partial is deferred.
     def _update_self(self, has_changes, inventory_changes, update_data):
         # Update self inventory if needed, updates are sent immediately.
         if inventory_changes:
