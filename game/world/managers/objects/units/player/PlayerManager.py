@@ -382,7 +382,7 @@ class PlayerManager(UnitManager):
     def destroy_all_known_objects(self):
         for guid in list(self.known_objects.keys()):
             self.update_manager.destroy_known_object(guid)
-        self.update_manager.process_update()
+        self.update_manager.process_tick_updates()
         return
 
     def synchronize_db_player(self):
@@ -1529,7 +1529,7 @@ class PlayerManager(UnitManager):
                         self._on_relocation()
                     self.relocation_call_for_help_timer = 0
 
-                self.update_manager.process_update()
+                self.update_manager.process_tick_updates()
 
         self.last_tick = now
 

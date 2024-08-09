@@ -14,7 +14,7 @@ class UpdateManager:
             ObjectTypeIds.ID_CORPSE: False
         }
 
-    def process_update(self):
+    def process_tick_updates(self):
         # Process pending surrounding updates (Create/Destroy).
         self._update_surrounding_known_objects()
         # Send all required update packets.
