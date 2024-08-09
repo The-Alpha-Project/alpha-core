@@ -369,6 +369,10 @@ class GameObjectManager(ObjectManager):
         packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_CUSTOM_ANIM, data)
         self.get_map().send_surrounding(packet, self, include_self=False)
 
+    def send_page_text(self, player_mgr):
+        packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_PAGETEXT, pack('<Q', self.guid))
+        player_mgr.enqueue_packet(packet)
+
     # TODO: Handle more dynamic cases if needed.
     def generate_dynamic_field_value(self, requester):
         go_handled_types = {GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER, GameObjectTypes.TYPE_CHEST}
