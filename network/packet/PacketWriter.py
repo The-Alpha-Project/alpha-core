@@ -28,17 +28,10 @@ class PacketWriter(object):
         data = pack('<I', opcode) + data
         packet = pack('>H', len(data)) + data
 
-        if opcode == OpCode.SMSG_UPDATE_OBJECT and len(data) + 4 > 100:
-            packet = PacketWriter.compress(packet)
+        if opcode == OpCode.SMSG_UPDATE_OBJECT and len(packet) > 100:
+            compressed_packet_data = zlib.compress(packet[6:])
+            compressed_data = pack('<I', len(packet) - 6)
+            compressed_data += compressed_packet_data
+            packet = PacketWriter.get_packet(OpCode.SMSG_COMPRESSED_UPDATE_OBJECT, compressed_data)
 
         return packet
-
-    @staticmethod
-    def compress(update_packet):
-        if len(update_packet) > 100:
-            compressed_packet_data = zlib.compress(update_packet[6:])
-            compressed_data = pack('<I', len(update_packet) - 6)
-            compressed_data += compressed_packet_data
-            update_packet = PacketWriter.get_packet(OpCode.SMSG_COMPRESSED_UPDATE_OBJECT, compressed_data)
-        return update_packet
-
