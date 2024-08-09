@@ -1436,7 +1436,7 @@ class PlayerManager(UnitManager):
         # Handle cases in which the client crashes and we are unable to detect a proper logout/disconnect.
         # Client pings every 30 secs.
         if self.online and now - self.last_ping > 40:
-            self.logout()
+            self.session.disconnect()
             return
 
         if now > self.last_tick > 0 and self.online:
