@@ -1,4 +1,5 @@
 import math
+import time
 
 from bitarray import bitarray
 from database.dbc.DbcDatabaseManager import *
@@ -27,7 +28,6 @@ from game.world.managers.objects.timers.MirrorTimersManager import MirrorTimersM
 from game.world.managers.objects.units.player.taxi.TaxiManager import TaxiManager
 from game.world.opcode_handling.handlers.player.NameQueryHandler import NameQueryHandler
 from network.packet.PacketWriter import *
-from network.packet.update.UpdateBuilder import UpdateBuilder
 from network.packet.update.UpdateManager import UpdateManager
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
@@ -79,6 +79,7 @@ class PlayerManager(UnitManager):
 
         self.player = player
         self.online = online
+        self.last_ping = time.time()
         self.num_inv_slots = num_inv_slots
         self.xp = xp
         self.next_level_xp = next_level_xp
@@ -1432,6 +1433,12 @@ class PlayerManager(UnitManager):
 
     # override
     def update(self, now):
+        # Handle cases in which the client crashes and we are unable to detect a proper logout/disconnect.
+        # Client pings every 30 secs.
+        if self.online and now - self.last_ping > 40:
+            self.logout()
+            return
+
         if now > self.last_tick > 0 and self.online:
             elapsed = now - self.last_tick
 
