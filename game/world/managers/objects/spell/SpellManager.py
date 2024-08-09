@@ -916,7 +916,7 @@ class SpellManager:
 
         hit_count = 0
         miss_count = SpellManager.MAX_TARGETS
-        signature = '<2QIH3BQHQ'
+        signature = '<2QIH3BQBQBQBQBQHQ'
         data = [damage_info.attacker.guid, damage_info.attacker.guid, casting_spell.spell_entry.ID,
                 casting_spell.cast_flags | SpellCastFlags.CAST_FLAG_PROC, hit_count, miss_count,
                 SpellMissReason.MISS_REASON_RESIST, damage_info.target.guid, 0, 0, 0, 0, 0, 0, 0, 0,
