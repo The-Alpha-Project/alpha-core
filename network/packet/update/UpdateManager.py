@@ -121,6 +121,6 @@ class UpdateManager:
             if not world_object.is_spawned:
                 return
             self.update_builder.add_create_update_from_object(world_object)
-        # Player knows the creature but is not spawned anymore, destroy it for self.
+        # Player knows the object but is not spawned anymore, destroy it for self.
         elif not is_player and world_object.guid in self.player_mgr.known_objects and not world_object.is_spawned:
             self.update_builder.pop_active_object(world_object)
