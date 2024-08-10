@@ -67,16 +67,17 @@ class UpdateManager:
                 continue
             self.pending_object_types_updates[type_id] = True
 
-    # Player update, inventory packets are sent immediately, partial is deferred.
+    # Player update, packets are sent immediately.
     def _update_self(self, has_changes, inventory_changes, update_data):
-        # Update self inventory if needed, updates are sent immediately.
+        # Inventory.
         if inventory_changes:
             item__queries, create_packets, partial_packets = self.player_mgr.get_inventory_update_packets(
                 requester=self.player_mgr)
             self.player_mgr.enqueue_packets(item__queries + create_packets + partial_packets)
-        # Enqueue a partial update if needed.
+        # UpdateFields.
         if has_changes:
-            self.update_builder.add_partial_update_from_object(self.player_mgr, update_data=update_data)
+            partial_packet = self.player_mgr.generate_partial_packet(requester=self.player_mgr, update_data=update_data)
+            self.player_mgr.enqueue_packet(partial_packet)
 
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).

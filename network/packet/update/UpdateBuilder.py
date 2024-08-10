@@ -1,3 +1,4 @@
+import traceback
 from enum import IntEnum
 from multiprocessing import RLock
 from struct import pack
@@ -12,7 +13,6 @@ class UpdateBuilder:
         self._implements_known_players = {ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
         self._implements_query_details = {ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_UNIT, ObjectTypeIds.ID_GAMEOBJECT}
         self._create_guids = set()  # Objects guids with create update for this tick.
-        self._partial_guids = set()  # Objects guids with partial update for this tick.
         self._create_linked_known_objects_updates = set()  # Objects know each other.
         self._create_owner_known_objects_updates = set()  # Only the player knows about the object.
         self._destroy_linked_known_objects_updates = set()  # Objects know each other.
@@ -86,11 +86,8 @@ class UpdateBuilder:
             self._create_owner_known_objects_updates.add(world_object)
 
     def add_partial_update_from_object(self, world_object, update_data=None):
-        # If a create/partial packet already exists for the object, defer to next tick.
-        packet_type = PacketType.PARTIAL if (world_object.guid not in self._create_guids
-                                             and world_object.guid not in self._partial_guids) \
-            else PacketType.PARTIAL_DEFERRED
-
+        # If a create packet already exists for the object, defer to next tick.
+        packet_type = PacketType.PARTIAL if world_object.guid not in self._create_guids else PacketType.PARTIAL_DEFERRED
         self._add_packet(world_object.get_partial_update_bytes(requester=self._player_mgr,
                                                                update_data=update_data), packet_type)
 
@@ -228,7 +225,6 @@ class UpdateBuilder:
         partial_deferred = self._packets.get(PacketType.PARTIAL_DEFERRED, [])
         self._packets.clear()
         self._create_guids.clear()
-        self._partial_guids.clear()
         # If we had partial deferred updates, move them now, so they get sent next tick.
         if partial_deferred:
             self._packets[PacketType.PARTIAL] = partial_deferred
