@@ -32,15 +32,21 @@ class GridManager:
 
         # Handle cell change within the same map.
         if current_cell_key != source_cell_key:
+            # Players will always query all surrounding objects. Any other object caller will trigger
+            # an update upon players based only on its type. (Unit, Go, Corpse, etc)
+            object_type = world_object.get_type_id()
+            if object_type == ObjectTypeIds.ID_PLAYER:
+                object_type = None
+
             # Add to a new cell.
             self._add_world_object(world_object, update_players=False)
             # Remove from old cell.
             if source_cell_key:
                 self.remove_object(world_object, update_players=False, from_cell=source_cell_key)
             # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
-            affected_cells = self._update_players_surroundings(source_cell_key)
+            affected_cells = self._update_players_surroundings(source_cell_key, object_type=object_type)
             # Update new location surroundings, excluding intersecting cells from previous call.
-            self._update_players_surroundings(current_cell_key, exclude_cells=affected_cells)
+            self._update_players_surroundings(current_cell_key, exclude_cells=affected_cells, object_type=object_type)
 
         # If this world object has pending field/inventory updates, trigger an update on interested players.
         if has_changes or has_inventory_changes:
