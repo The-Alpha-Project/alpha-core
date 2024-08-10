@@ -1,7 +1,11 @@
+from struct import pack
+
 from game.world.managers.objects.ObjectManager import ObjectManager
 from game.world.managers.objects.farsight.FarSightManager import FarSightManager
 from game.world.managers.objects.GuidManager import GuidManager
+from network.packet.PacketWriter import PacketWriter
 from utils.constants.MiscCodes import ObjectTypeIds, HighGuid, ObjectTypeFlags
+from utils.constants.OpCodes import OpCode
 from utils.constants.UpdateFields import ObjectFields, DynamicObjectFields
 
 
@@ -13,7 +17,8 @@ class DynamicObjectManager(ObjectManager):
         super().__init__(**kwargs)
 
         self.summoner = owner
-        self.owner = owner.guid
+        self.targets = set()
+        self.owner = owner
         self.map_id = owner.map_id
         self.instance_id = owner.instance_id
         self.location = location.copy()
@@ -39,7 +44,7 @@ class DynamicObjectManager(ObjectManager):
         self.set_uint32(ObjectFields.OBJECT_FIELD_PADDING, 0)
 
         # DynamicObject fields.
-        self.set_uint64(DynamicObjectFields.DYNAMICOBJECT_CASTER, self.owner)
+        self.set_uint64(DynamicObjectFields.DYNAMICOBJECT_CASTER, self.owner.guid)
         self.set_uint32(DynamicObjectFields.DYNAMICOBJECT_BYTES, self.dynamic_type)
         self.set_uint32(DynamicObjectFields.DYNAMICOBJECT_SPELLID, self.spell_id)
         self.set_float(DynamicObjectFields.DYNAMICOBJECT_RADIUS, self.radius)
@@ -84,6 +89,13 @@ class DynamicObjectManager(ObjectManager):
                                                                          target, effect.get_radius(), effect,
                                                                          dynamic_type, ttl=ttl)
         return effect.casting_spell.dynamic_object
+
+    def add_dynamic_target(self, target):
+        if target.guid in self.targets:
+            return
+        self.targets.add(target.guid)
+        data = pack('<2Q', self.owner.guid, target.guid)
+        self.get_map().send_surrounding(PacketWriter.get_packet(OpCode.MSG_ADD_DYNAMIC_TARGET, data), self, False)
 
     # override
     def get_charmer_or_summoner(self, include_self=False):

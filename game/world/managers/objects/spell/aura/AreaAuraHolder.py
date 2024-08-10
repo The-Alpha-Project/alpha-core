@@ -30,6 +30,8 @@ class AreaAuraHolder:
         new_aura = AppliedAura(self.effect.casting_spell.spell_caster, self.effect.casting_spell, self.effect, target)
         aura_index = target.aura_manager.add_aura(new_aura)
         self.current_targets[target.guid] = (target, aura_index)
+        if self.effect.casting_spell.dynamic_object:
+            self.effect.casting_spell.dynamic_object.add_dynamic_target(target)
 
     def remove_target(self, target_guid):
         target, aura_index = self.current_targets.pop(target_guid, (None, -1))
