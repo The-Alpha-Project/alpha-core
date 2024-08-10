@@ -154,7 +154,7 @@ class ObjectManager:
 
         return data
 
-    def get_single_field_update_bytes(self, field, value):
+    def get_single_field_update_bytes(self, field, value, signature='<I'):
         if not self.initialized:
             self.initialize_field_values()
 
@@ -165,7 +165,7 @@ class ObjectManager:
         mask.set_count(field)
         mask.set_bit(field)
 
-        field_update = pack('<B', mask.block_count) + mask.to_bytes() + pack('<I', value)
+        field_update = pack('<B', mask.block_count) + mask.to_bytes() + pack(signature, value)
         data.extend(field_update)
 
         return data

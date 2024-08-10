@@ -79,6 +79,10 @@ class UpdateManager:
             partial_packet = self.player_mgr.generate_partial_packet(requester=self.player_mgr, update_data=update_data)
             self.player_mgr.enqueue_packet(partial_packet)
 
+    def update_gameobject_dynamic_flag(self, gameobject):
+        dyn_flags_bytes = gameobject.get_dynamic_flag_update_bytes(requester=self.player_mgr)
+        self.update_builder.add_partial_update_from_bytes(dyn_flags_bytes)
+
     # Retrieve update packets from world objects, this is called only if object has pending changes.
     # (update_mask bits set).
     def update_world_object_on_self(self, world_object, has_changes=False, has_inventory_changes=False, update_data=None):

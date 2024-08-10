@@ -405,6 +405,10 @@ class GameObjectManager(ObjectManager):
         # Send real GO state for doors after create packet.
         return self.get_single_field_update_bytes(GameObjectFields.GAMEOBJECT_STATE, self.state)
 
+    def get_dynamic_flag_update_bytes(self, requester):
+        dyn_flag_value = self.generate_dynamic_field_value(requester=requester)
+        return self.get_single_field_update_bytes(GameObjectFields.GAMEOBJECT_DYN_FLAGS, dyn_flag_value)
+
     # override
     def _get_fields_update(self, is_create, requester, update_data=None):
         data = bytearray()
