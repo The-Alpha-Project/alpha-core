@@ -278,7 +278,7 @@ class GameObjectManager(ObjectManager):
     def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, value, 0, healing=True)
         damage_info.spell_miss_reason = casting_spell.object_target_results[target.guid].result
-        target.send_spell_cast_debug_info(damage_info, casting_spell, is_periodic=is_periodic, healing=True)
+        target.send_spell_cast_debug_info(damage_info, casting_spell)
         target.receive_healing(value, self)
 
     def use(self, player=None, target=None, from_script=False):

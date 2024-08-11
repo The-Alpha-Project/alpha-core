@@ -130,6 +130,23 @@ class EnchantmentManager(object):
         if should_save:
             item.save()
 
+    # TODO: Does not display anything.
+    #  Seems like this should follow some other type of packet that we are not sending,
+    #  maybe SMSG_ATTACKERSTATEUPDATEDEBUGINFOSPELLMISS.
+    #  When enchanting an item, the log does not display anything, even the normal cast result as shown here:
+    #  https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/from_alpha_archive_30082023/screen1.jpg
+    def send_enchantment_log(self, caster, item, enchantment_id, show_affiliation=False):
+        data = pack('<BQ', show_affiliation, caster.guid)
+        if not show_affiliation:
+            data += pack('<Q', item.guid)
+        data += pack('<2I', enchantment_id, item.entry)
+        packet = PacketWriter.get_packet(OpCode.SMSG_ENCHANTMENTLOG, data)
+        if not show_affiliation:
+            self.unit_mgr.enqueue_packet(packet)
+            self.send_enchantment_log(caster, item, enchantment_id, show_affiliation=True)
+        else:
+            self.unit_mgr.get_map().send_surrounding(packet, self.unit_mgr, include_self=False)
+
     # Notify the client with the enchantment duration.
     # Client keeps track of the time, there is no need for constant updates.
     def send_enchantments_durations(self, update_slot=-1):
