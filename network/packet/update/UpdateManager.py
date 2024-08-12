@@ -71,9 +71,9 @@ class UpdateManager:
     def _update_self(self, has_changes, inventory_changes, update_data):
         # Inventory.
         if inventory_changes:
-            item__queries, create_packets, partial_packets = self.player_mgr.get_inventory_update_packets(
+            item_queries, item_create_packets, item_partial_packets = self.player_mgr.get_inventory_update_packets(
                 requester=self.player_mgr)
-            self.player_mgr.enqueue_packets(item__queries + create_packets + partial_packets)
+            self.player_mgr.enqueue_packets(item_queries + item_create_packets + item_partial_packets)
         # UpdateFields.
         if has_changes:
             partial_packet = self.player_mgr.generate_partial_packet(requester=self.player_mgr, update_data=update_data)

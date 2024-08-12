@@ -277,8 +277,8 @@ class PlayerManager(UnitManager):
         # Notify player with create related packets:
         self.enqueue_packet(NameQueryHandler.get_query_details(self.player))
         # Initial inventory create packets.
-        item__queries, create_packets, partial_packets = self.get_inventory_update_packets(requester=self)
-        self.enqueue_packets(item__queries + create_packets + partial_packets)
+        item_queries, item_create_packets, item_partial_packets = self.get_inventory_update_packets(requester=self)
+        self.enqueue_packets(item_queries + item_create_packets + item_partial_packets)
         # Player create packet.
         self.enqueue_packet(self.generate_create_packet(requester=self))
 
@@ -539,8 +539,8 @@ class PlayerManager(UnitManager):
             self.enqueue_packet(self.spell_manager.get_initial_spells())
             self.enqueue_packet(self.get_action_buttons())
             # Inventory updates before spawning.
-            item__queries, create_packets, partial_packets = self.get_inventory_update_packets(requester=self)
-            self.enqueue_packets(item__queries + create_packets + partial_packets)
+            item_queries, item_create_packets, item_partial_packets = self.get_inventory_update_packets(requester=self)
+            self.enqueue_packets(item_queries + item_create_packets + item_partial_packets)
             # Reset move flags before create packet in order to avoid player starting automatically moving after tele.
             self.movement_flags = MoveFlags.MOVEFLAG_NONE
             # Create packet.

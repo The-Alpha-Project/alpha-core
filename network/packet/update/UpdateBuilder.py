@@ -123,10 +123,11 @@ class UpdateBuilder:
         self._add_packet(world_object.get_query_details_packet(), PacketType.QUERY)
 
     def _add_inventory_updates_from_player(self, player_mgr):
-        item__queries, create_packets, partial_packets = player_mgr.get_inventory_update_packets(requester=self._player_mgr)
-        self._add_packet(item__queries, PacketType.QUERY)
-        self._add_packet(create_packets, PacketType.CREATE)
-        self._add_packet(partial_packets, PacketType.PARTIAL)
+        item_queries, item_create_packets, item_partial_packets = (
+            player_mgr.get_inventory_update_packets(requester=self._player_mgr))
+        self._add_packet(item_queries, PacketType.QUERY)
+        self._add_packet(item_create_packets, PacketType.CREATE)
+        self._add_packet(item_partial_packets, PacketType.PARTIAL)
 
     def _add_movement_update_from_unit(self, unit):
         # Get partial movement packet if any.
