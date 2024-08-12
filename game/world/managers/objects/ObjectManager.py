@@ -134,7 +134,7 @@ class ObjectManager:
         data.extend(pack(
             '<3IQ',
             1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
-            1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
+            1 if self.get_type_id() in {ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_ITEM} else 0,  # AttackCycle
             0,  # TimerId
             combat_unit.guid if combat_unit else 0,  # Victim GUID
         ))
@@ -245,6 +245,10 @@ class ObjectManager:
         return 0
 
     def _get_movement_fields(self):
+        # Sniffs show items having location set.
+        if self.get_type_id() == ObjectTypeIds.ID_ITEM:
+            self.location = self.get_location()
+
         data = pack(
             '<Q9fI',
             self.transport_id,
@@ -429,6 +433,9 @@ class ObjectManager:
     def get_map(self):
         from game.world.managers.maps.MapManager import MapManager
         return MapManager.get_map(self.map_id, self.instance_id)
+
+    def get_location(self):
+        return self.location
 
     # override
     def is_above_water(self):

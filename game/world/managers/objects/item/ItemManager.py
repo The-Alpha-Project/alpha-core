@@ -521,6 +521,9 @@ class ItemManager(ObjectManager):
         self.item_instance.enchantments = self._get_enchantments_db_string()
         RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 
+    def get_location(self):
+        return self.get_owner_unit().location
+
     def get_owner_unit(self):
         return WorldSessionStateHandler.find_player_by_guid(self.get_owner_guid())
 
