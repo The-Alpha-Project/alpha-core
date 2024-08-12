@@ -504,11 +504,18 @@ class UnitManager(ObjectManager):
         if damage_info.absorb:
             damage_info.hit_info |= HitInfo.ABSORBED
 
+        # Handle the case in which we did not really miss but damage was 0, which should display as miss.
+        if (not damage_info.base_damage and damage_info.hit_info & HitInfo.SUCCESS and
+                not damage_info.hit_info & (HitInfo.DODGE | HitInfo.PARRY | HitInfo.BLOCK | HitInfo.ABSORBED)):
+            damage_info.hit_info = HitInfo.MISS
+
         # Check evade, there is no HitInfo flag for this.
         if victim.is_evading:
             damage_info.target_state = VictimStates.VS_EVADE
         elif damage_info.hit_info & HitInfo.MISS:
+            damage_info.hit_info &= ~HitInfo.SUCCESS
             damage_info.base_damage = damage_info.total_damage = 0
+            damage_info.target_state = VictimStates.VS_NONE
         elif damage_info.hit_info & HitInfo.ABSORBED:
             # Immune.
             if not damage_info.absorb:
