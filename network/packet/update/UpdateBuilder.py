@@ -85,8 +85,8 @@ class UpdateBuilder:
         else:
             self._create_owner_known_objects_updates.add(world_object)
 
-    def add_partial_update_from_bytes(self, bytes):
-        self._add_packet(bytes, packet_type=PacketType.PARTIAL)
+    def add_partial_update_from_bytes(self, bytes_):
+        self._add_packet(bytes_, packet_type=PacketType.PARTIAL)
 
     def add_partial_update_from_object(self, world_object, update_data=None):
         # If a create packet already exists for the object, defer to next tick.

@@ -121,7 +121,7 @@ class ItemManager(ObjectManager):
         return False
 
     def is_equipped(self):
-        player_mgr = self._get_owner_unit()
+        player_mgr = self.get_owner_unit()
         return (player_mgr and self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value
                 and self.current_slot < InventorySlots.SLOT_BAG1
                 and player_mgr.get_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + self.current_slot * 2) == self.guid)
@@ -457,7 +457,7 @@ class ItemManager(ObjectManager):
             self.save()
 
     def send_item_duration(self):
-        player_mgr = self._get_owner_unit()
+        player_mgr = self.get_owner_unit()
         if not player_mgr:
             return
 
@@ -504,7 +504,7 @@ class ItemManager(ObjectManager):
         return db_enchantments
 
     def remove(self):
-        player_mgr = self._get_owner_unit()
+        player_mgr = self.get_owner_unit()
         if player_mgr and self.item_instance and self.item_instance.bag:
             player_mgr.inventory.remove_item(self.item_instance.bag, self.current_slot)
 
@@ -521,7 +521,7 @@ class ItemManager(ObjectManager):
         self.item_instance.enchantments = self._get_enchantments_db_string()
         RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 
-    def _get_owner_unit(self):
+    def get_owner_unit(self):
         return WorldSessionStateHandler.find_player_by_guid(self.get_owner_guid())
 
     # override

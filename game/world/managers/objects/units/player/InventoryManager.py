@@ -18,6 +18,10 @@ MAX_3368_ITEM_DISPLAY_ID = 11802
 class InventoryManager(object):
     def __init__(self, owner):
         self.owner = owner
+        # Containers are lazy initialized, since we need the player session active (in-world).
+        self.containers = {}
+
+    def initialize_and_load_items(self):
         self.containers = {
             InventorySlots.SLOT_INBACKPACK: ContainerManager(is_backpack=True, owner=self.owner.guid),
             InventorySlots.SLOT_BAG1: None,
@@ -26,7 +30,6 @@ class InventoryManager(object):
             InventorySlots.SLOT_BAG4: None
         }
 
-    def load_items(self):
         character_inventory = RealmDatabaseManager.character_get_inventory(self.owner.guid)
 
         # First load bags
@@ -44,7 +47,7 @@ class InventoryManager(object):
                         Logger.warning(f'Invalid bag slot {item_instance.bag} for guid {low_guid} owner {self.owner.guid}')
                         continue
 
-                    self.containers[item_instance.bag].modify_container_slot(container_mgr.current_slot, container_mgr)
+                    self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr
                     self.containers[container_mgr.current_slot] = container_mgr
 
         # Then load items
@@ -75,7 +78,7 @@ class InventoryManager(object):
                     )
 
                 if item_instance.bag in self.containers and self.containers[item_instance.bag]:
-                    self.containers[item_instance.bag].modify_container_slot(item_mgr.current_slot, item_mgr)
+                    self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
 
     def update_items_durations(self):
         for item in self.get_all_items():
@@ -442,7 +445,7 @@ class InventoryManager(object):
             return False
 
         if slot in self.get_backpack().sorted_slots and self.get_backpack().sorted_slots[slot] != container:
-            self.get_backpack().modify_container_slot(slot, container)
+            self.get_backpack().sorted_slots[slot] = container
         self.containers[slot] = container
 
         # Update items' bag slot field.
@@ -457,7 +460,7 @@ class InventoryManager(object):
 
         if slot in self.get_backpack().sorted_slots:
             self.owner.enqueue_packet(self.get_backpack().sorted_slots[slot].get_destroy_packet())
-            self.get_backpack().modify_container_slot(slot, None, delete_item=True)
+            self.get_backpack().sorted_slots.pop(slot)
 
         self.containers[slot] = None
 
@@ -823,20 +826,14 @@ class InventoryManager(object):
 
     def reset_fields_older_than(self, now):
         for container_slot, container in list(self.containers.items()):
-            if container:
-                container.reset_fields_older_than(now)
-                [item.reset_fields_older_than(now) for item in container.sorted_slots.values()]
+            if not container:
+                continue
+            container.reset_fields_older_than(now)
+            [item.reset_fields_older_than(now) for item in container.sorted_slots.values()]
 
-    # Owner will check for backpack/inventory changes, and if it has pending changes on other bags/items.
+    # Owner will check for items pending changes.
     def has_pending_updates(self):
-        if self.has_backpack_changes():
-            return True
         return any(container.has_pending_updates() for container in list(self.containers.values()) if container)
-
-    # Backpack items are changed on PlayerFields.
-    # Owner must know if he has pending changes in inventory or main bag.
-    def has_backpack_changes(self):
-        return any([item.has_pending_updates() for item in self.get_backpack().sorted_slots.values()])
 
     def get_inventory_destroy_packets(self, requester):
         destroy_packets = {}
@@ -857,6 +854,7 @@ class InventoryManager(object):
         item_templates = []
         create_packets = []
         partial_packets = []
+        known_update_guids = set()  # Avoid triggering 2 updates on the same object (As container and as item)
 
         for container_slot, container in list(self.containers.items()):
             if not container:
@@ -873,7 +871,8 @@ class InventoryManager(object):
                     item_templates.append(container.item_template)
                     requester.known_items[container.guid] = container
                 # Requester knows this container, send a partial update.
-                elif container.has_container_updates():
+                elif container.has_container_updates() and container.guid not in known_update_guids:
+                    known_update_guids.add(container.guid)
                     partial_packets.append(self._get_update_packet_or_bytes(container, requester=requester, partial=True))
 
             for slot, item in list(container.sorted_slots.items()):
@@ -888,7 +887,8 @@ class InventoryManager(object):
                     requester.known_items[item.guid] = item
                     item_templates.append(item.item_template)
                 # Requester knows this item but has pending changes, send a partial update.
-                elif item.has_pending_updates():
+                elif item.has_pending_updates() and item.guid not in known_update_guids:
+                    known_update_guids.add(item.guid)
                     partial_packets.append(self._get_update_packet_or_bytes(item, requester=requester, partial=True))
 
             # Exit loop if this a request from another player.

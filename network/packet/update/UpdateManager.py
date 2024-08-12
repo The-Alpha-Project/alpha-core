@@ -110,6 +110,8 @@ class UpdateManager:
     def _update_object_visibility(self, world_object):
         object_type = world_object.get_type_id()
         is_player = object_type == ObjectTypeIds.ID_PLAYER
+        if is_player and world_object == self.player_mgr:
+            return
 
         # Check visibility/stealth detection for units.
         if world_object.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:

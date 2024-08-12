@@ -77,7 +77,7 @@ class PlayerLoginHandler(object):
         # MotD.
         ChatManager.send_system_message(world_session, config.Server.General.motd)
 
-        player_mgr.inventory.load_items()
+        player_mgr.inventory.initialize_and_load_items()
 
         # Initialize stats first to have existing base stats for further calculations.
         player_mgr.stat_manager.init_stats()

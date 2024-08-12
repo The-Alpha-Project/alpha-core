@@ -1,3 +1,4 @@
+from game.world.managers.objects.item.ContainerSlots import ContainerSlots
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
@@ -16,7 +17,7 @@ class ContainerManager(ItemManager):
         if self.is_backpack:
             self.current_slot = InventorySlots.SLOT_INBACKPACK.value
 
-        self.sorted_slots = dict()
+        self.sorted_slots = ContainerSlots(self)
 
         if not self.is_backpack:
             self.total_slots = self.item_template.container_slots
@@ -45,8 +46,7 @@ class ContainerManager(ItemManager):
     # override
     def has_pending_updates(self):
         # Check for either self dirtiness or any residing item dirtiness.
-        return self.update_packet_factory.has_pending_updates() or \
-               any(item.has_pending_updates() for item in self.sorted_slots.values())
+        return self.has_container_updates() or any(item.has_pending_updates() for item in self.sorted_slots.values())
 
     # Check just this container fields for dirtiness.
     def has_container_updates(self):
@@ -77,7 +77,7 @@ class ContainerManager(ItemManager):
                 item_mgr.item_instance.slot = slot
                 item_mgr.current_slot = slot
 
-                self.modify_container_slot(slot, item_mgr, delete_item=False)
+                self.sorted_slots[slot] = item_mgr
 
                 if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
                     item_mgr.set_binding(True)
@@ -87,20 +87,6 @@ class ContainerManager(ItemManager):
 
             return item_mgr
         return None
-
-    def modify_container_slot(self, slot, item_mgr, delete_item=False):
-        if delete_item:
-            self.sorted_slots.pop(slot, None)
-        else:
-            self.sorted_slots[slot] = item_mgr
-        item_guid = item_mgr.guid if item_mgr and not delete_item else 0
-        # UpdateFields.
-        if not self.is_backpack:
-            self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + slot * 2, item_guid)
-        else:
-            self._get_owner_unit().set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + slot * 2, item_guid)
-        print(f'{'Added' if not delete_item else 'Deleted'} {item_mgr.get_name()} '
-              f'to {InventorySlots(self.current_slot).name}')
 
     def add_item(self, item_template, count, check_existing=True, created_by=0, perm_enchant=0):
         amount_left = count
@@ -175,7 +161,7 @@ class ContainerManager(ItemManager):
 
     def remove_item_in_slot(self, slot):
         if slot in self.sorted_slots:
-            self.modify_container_slot(slot, self.sorted_slots[slot], delete_item=True)
+            self.sorted_slots.pop(slot)
             return True
         return False
 
