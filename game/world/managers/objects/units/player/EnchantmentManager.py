@@ -33,18 +33,18 @@ class EnchantmentManager(object):
         self.duration_timer_seconds += elapsed
         if saving or self.duration_timer_seconds >= REFRESH_SECONDS:
             # Updates should check all items, not just backpack.
-            [self._update_item_enchantments(itm) for itm in self.unit_mgr.inventory.get_all_items()]
+            [self._update_item_enchantments(itm, saving) for itm in self.unit_mgr.inventory.get_all_items()]
             self.duration_timer_seconds = 0
 
     def save(self):
         self.update(0, saving=True)
 
-    def _update_item_enchantments(self, item):
+    def _update_item_enchantments(self, item, saving=False):
         # In order to avoid more iterations for item duration field (Not enchantments, do it here).
         if item.item_template.duration:
             self._update_item_duration(item)
         # Enchantments.
-        [self._update_item_enchant(item, slot, enchantment) for (slot, enchantment)
+        [self._update_item_enchant(item, slot, enchantment, saving=saving) for (slot, enchantment)
          in enumerate(item.enchantments) if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry]
 
     def _update_item_duration(self, item):
@@ -56,13 +56,13 @@ class EnchantmentManager(object):
         else:
             item.remove()
 
-    def _update_item_enchant(self, item, slot, enchantment):
+    def _update_item_enchant(self, item, slot, enchantment, saving=False):
         enchantment.duration = max(0, int(enchantment.duration - self.duration_timer_seconds))
         if not enchantment.duration and not enchantment.charges:
             # Remove.
             self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
             self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)  # Update procs if enchant expires.
-        elif not enchantment.duration:
+        elif not enchantment.duration or saving:
             item.save()
 
     # noinspection PyMethodMayBeStatic

@@ -1,5 +1,3 @@
-from utils.Logger import Logger
-from utils.constants.ItemCodes import InventorySlots
 from utils.constants.UpdateFields import ContainerFields, PlayerFields
 
 
