@@ -480,6 +480,9 @@ class ObjectManager:
         return False
 
     def can_attack_target(self, target):
+        if not target.is_alive:
+            return False
+
         if not target or target is self:
             return False
 
