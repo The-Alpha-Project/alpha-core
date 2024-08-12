@@ -514,6 +514,9 @@ class InventoryManager(object):
                 continue
 
             # Free slots * Max stack count
+            # TODO: This fails on the following scenario.
+            #  Empty the backpack, add an extra 6 slot bag, .additem 77 25.
+            #  The action succeeds even if we only had 22 free slots.
             amount -= (container.total_slots - len(container.sorted_slots)) * item_template.stackable
             if amount <= 0:
                 return InventoryError.BAG_OK
