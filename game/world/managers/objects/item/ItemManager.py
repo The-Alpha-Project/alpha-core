@@ -71,7 +71,7 @@ class ItemManager(ObjectManager):
         self.item_instance = item_instance
 
         self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
-        self.current_slot = item_instance.slot if item_instance else 0
+        self.current_slot = item_instance.slot if item_instance else current_slot
         self.is_backpack = False
         self.duration = item_instance.duration if item_instance else 0
 
@@ -358,10 +358,6 @@ class ItemManager(ObjectManager):
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, self.enchantments[slot].duration)
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, self.enchantments[slot].charges)
 
-            # Container fields.
-            if self.is_container() and isinstance(self, ContainerManager):
-                self.build_container_update_packet()
-
             self.initialized = True
 
     def get_owner_guid(self):
@@ -460,11 +456,8 @@ class ItemManager(ObjectManager):
         if self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())[0]:
             self.save()
 
-    def send_item_duration(self, owner_guid):
-        if owner_guid != self.get_owner_guid():
-            return
-
-        player_mgr = WorldSessionStateHandler.find_player_by_guid(owner_guid)
+    def send_item_duration(self):
+        player_mgr = self._get_owner_unit()
         if not player_mgr:
             return
 

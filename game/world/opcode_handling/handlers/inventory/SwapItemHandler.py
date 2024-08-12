@@ -17,7 +17,4 @@ class SwapItemHandler(object):
 
             world_session.player_mgr.inventory.swap_item(source_bag, source_slot, dest_bag, dest_slot)
 
-            if inventory.update_locked:
-                inventory.update_locked = False
-
         return 0

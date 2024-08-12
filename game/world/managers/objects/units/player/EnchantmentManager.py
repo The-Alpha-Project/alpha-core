@@ -51,7 +51,7 @@ class EnchantmentManager(object):
         item.duration = max(0, int(item.duration - self.duration_timer_seconds))
         if item.duration:
             item.save()
-            item.send_item_duration(self.unit_mgr.guid)
+            item.send_item_duration()
         # Expired on this tick, remove item.
         else:
             item.remove()

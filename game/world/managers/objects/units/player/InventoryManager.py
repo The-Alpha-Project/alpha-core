@@ -10,7 +10,7 @@ from utils.Logger import Logger
 from utils.constants.ItemCodes import InventoryTypes, InventorySlots, InventoryError, ItemSubClasses, ItemClasses
 from utils.constants.MiscCodes import BankSlots, ItemBondingTypes
 from utils.constants.OpCodes import OpCode
-from utils.constants.UpdateFields import PlayerFields
+from utils.constants.UpdateFields import PlayerFields, ContainerFields
 
 MAX_3368_ITEM_DISPLAY_ID = 11802
 
@@ -18,9 +18,6 @@ MAX_3368_ITEM_DISPLAY_ID = 11802
 class InventoryManager(object):
     def __init__(self, owner):
         self.owner = owner
-        #  Avoid player thread from updating inventory if there are ongoing changes triggered from another thread.
-        #  e.g. Any opcode handler that touches inventory outside tick rate.
-        self.update_locked = False
         self.containers = {
             InventorySlots.SLOT_INBACKPACK: ContainerManager(is_backpack=True, owner=self.owner.guid),
             InventorySlots.SLOT_BAG1: None,
@@ -46,7 +43,8 @@ class InventoryManager(object):
                         low_guid = container_mgr.get_low_guid()
                         Logger.warning(f'Invalid bag slot {item_instance.bag} for guid {low_guid} owner {self.owner.guid}')
                         continue
-                    self.containers[item_instance.bag].sorted_slots[container_mgr.current_slot] = container_mgr
+
+                    self.containers[item_instance.bag].modify_container_slot(container_mgr.current_slot, container_mgr)
                     self.containers[container_mgr.current_slot] = container_mgr
 
         # Then load items
@@ -77,12 +75,12 @@ class InventoryManager(object):
                     )
 
                 if item_instance.bag in self.containers and self.containers[item_instance.bag]:
-                    self.containers[item_instance.bag].sorted_slots[item_mgr.current_slot] = item_mgr
+                    self.containers[item_instance.bag].modify_container_slot(item_mgr.current_slot, item_mgr)
 
     def update_items_durations(self):
         for item in self.get_all_items():
             if item.duration:
-                item.send_item_duration(self.owner.guid)
+                item.send_item_duration()
 
     def get_all_items(self, include_bank=False):
         items = []
@@ -111,7 +109,6 @@ class InventoryManager(object):
             item_template = WorldDatabaseManager.ItemTemplateHolder.item_template_get_by_entry(entry)
         amount_left = count
         target_bag_slot = -1  # Highest bag slot items were added to
-        backpack_touched = False
 
         if item_template:
             error = self.can_store_item(item_template, count)
@@ -120,8 +117,6 @@ class InventoryManager(object):
                     self.send_equip_error(error)
                 return False
 
-            self.update_locked = True
-
             # Add to any existing stacks.
             for slot, container in self.containers.items():
                 if (not container or not container.can_contain_item(item_template) or
@@ -129,12 +124,8 @@ class InventoryManager(object):
                     continue
                 amount_left = container.add_item_to_existing_stacks(item_template, amount_left)
 
-                if not backpack_touched and slot == InventorySlots.SLOT_INBACKPACK:
-                    backpack_touched = True
-
                 if amount_left <= 0:
                     target_bag_slot = slot
-                    container.build_container_update_packet()
                     break
 
             if amount_left > 0:
@@ -152,12 +143,9 @@ class InventoryManager(object):
                         # Persist.
                         item_mgr.save()
 
-                    if not backpack_touched and slot == InventorySlots.SLOT_INBACKPACK:
-                        backpack_touched = True
-
                     if slot != InventorySlots.SLOT_INBACKPACK and prev_left > amount_left and slot > target_bag_slot:
                         target_bag_slot = slot
-                        container.build_container_update_packet()
+
                     if amount_left <= 0:
                         break
 
@@ -173,11 +161,6 @@ class InventoryManager(object):
             # Update quest item count, if needed.
             self.owner.quest_manager.reward_item(item_template.entry, item_count=count)
 
-        # Refresh backpack slot fields if needed.
-        if backpack_touched or target_bag_slot == InventorySlots.SLOT_INBACKPACK:
-            self.build_update()
-
-        self.update_locked = False
         return items_added
 
     def add_item_to_slot(self, dest_bag_slot, dest_slot, entry=0, item=None, item_template=None, count=1,
@@ -208,7 +191,6 @@ class InventoryManager(object):
         if not is_valid_target_slot:
             return False
 
-        self.update_locked = True
         if dest_slot == 0xFF:  # Dragging an item to bag bar. Acts like adding item but with container priority
             dest_slot = dest_container.next_available_slot()
             remaining = count
@@ -236,12 +218,6 @@ class InventoryManager(object):
                         dest_item.set_stack_count(new_stack_count)
                         self.add_item(item_template=item_template, count=count-diff, handle_error=False)
 
-                    # Backpack was touched, refresh slot fields.
-                    if dest_container.is_backpack:
-                        self.build_update()
-                    else:
-                        dest_container.build_container_update_packet()
-
                     return True
                 else:
                     if handle_error:
@@ -257,16 +233,11 @@ class InventoryManager(object):
         if dest_container.is_backpack and self.is_bag_pos(dest_slot):
             self.add_bag(dest_slot, generated_item)
 
-        # Backpack was touched, refresh slot fields.
-        if dest_container.is_backpack:
-            self.build_update()
-
         if dest_container.is_backpack and \
                 (self.is_equipment_pos(dest_bag_slot, dest_slot) or self.is_bag_pos(dest_slot)):  # Added equipment or bag
             self.handle_equipment_change(generated_item)
             generated_item.save()
 
-        self.update_locked = False
         return True
 
     def swap_item(self, source_bag, source_slot, dest_bag, dest_slot):
@@ -325,17 +296,11 @@ class InventoryManager(object):
             RealmDatabaseManager.character_inventory_update_container_contents(dest_item)
 
         dest_container.set_item(source_item, dest_slot, is_swap=True)
-        source_item.set_bag(dest_bag)
-        source_item.item_instance.slot = dest_slot
 
         if dest_item:
             source_container.set_item(dest_item, source_slot, count=dest_item.item_instance.stackcount, is_swap=True)
             dest_item.set_bag(source_bag)
             dest_item.item_instance.slot = source_slot
-
-        # Backpack was touched, refresh slot fields.
-        if dest_container.is_backpack or source_container.is_backpack:
-            self.build_update()
 
         # Equipment-specific behaviour: binding, offhand unequip, equipment update packet etc.
         if (source_container.is_backpack and
@@ -383,16 +348,6 @@ class InventoryManager(object):
         if not target_item:
             return
 
-        if clear_slot:
-            self.send_destroy_packet(target_slot, target_container.sorted_slots)
-
-        # We are not replacing this item, set is as removed.
-        if not swap_item:
-            self.mark_as_removed(target_item)
-        # We are swapping, swap the update fields between the two items.
-        else:
-            self.mark_as_swapped(target_item, swap_item)
-
         # We are not really removing this slot, source and destination slots will be replaced by swap_item().
         if not swap_item:
             target_container.remove_item_in_slot(target_slot)
@@ -411,6 +366,9 @@ class InventoryManager(object):
             # Update equipment.
             if target_item.is_equipped() or clear_slot:
                 self.handle_equipment_change(target_item)
+
+        if clear_slot:
+            self.owner.enqueue_packet(target_item.get_destroy_packet())
 
     def remove_items(self, entry, count, include_bank=False):
         for container_slot in self.containers:
@@ -484,7 +442,7 @@ class InventoryManager(object):
             return False
 
         if slot in self.get_backpack().sorted_slots and self.get_backpack().sorted_slots[slot] != container:
-            self.get_backpack().sorted_slots[slot] = container
+            self.get_backpack().modify_container_slot(slot, container)
         self.containers[slot] = container
 
         # Update items' bag slot field.
@@ -498,14 +456,12 @@ class InventoryManager(object):
             return False
 
         if slot in self.get_backpack().sorted_slots:
-            self.send_destroy_packet(slot, self.get_backpack().sorted_slots)
-            self.get_backpack().sorted_slots.pop(slot)
+            self.owner.enqueue_packet(self.get_backpack().sorted_slots[slot].get_destroy_packet())
+            self.get_backpack().modify_container_slot(slot, None, delete_item=True)
+
         self.containers[slot] = None
 
         return True
-
-    def send_destroy_packet(self, slot, slot_list):
-        self.owner.enqueue_packet(slot_list[slot].get_destroy_packet())
 
     def get_empty_slots(self):
         empty_slots = 0
@@ -865,18 +821,6 @@ class InventoryManager(object):
         else:
             self.owner.enqueue_packet(packet)
 
-    def mark_as_swapped(self, source, destination):
-        if source and source.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
-            self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + source.current_slot * 2, destination.guid)
-
-    def mark_as_removed(self, item):
-        if item and item.item_instance.bag == InventorySlots.SLOT_INBACKPACK:
-            self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, 0)
-
-    def build_update(self):
-        for slot, item in self.get_backpack().sorted_slots.items():
-            self.owner.set_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + item.current_slot * 2, item.guid)
-
     def reset_fields_older_than(self, now):
         for container_slot, container in list(self.containers.items()):
             if container:
@@ -892,9 +836,7 @@ class InventoryManager(object):
     # Backpack items are changed on PlayerFields.
     # Owner must know if he has pending changes in inventory or main bag.
     def has_backpack_changes(self):
-        inv_slot_start = PlayerFields.PLAYER_FIELD_INV_SLOT_1
-        slots = [inv_slot_start + item.current_slot * 2 for item in self.get_backpack().sorted_slots.values()]
-        return any(self.owner.update_packet_factory.update_mask.is_set(slot) for slot in slots)
+        return any([item.has_pending_updates() for item in self.get_backpack().sorted_slots.values()])
 
     def get_inventory_destroy_packets(self, requester):
         destroy_packets = {}

@@ -1209,9 +1209,6 @@ class PlayerManager(UnitManager):
             if self.duel_manager:
                 self.duel_manager.build_update(self)
 
-            # Inventory.
-            self.inventory.build_update()
-
             # Auras.
             self.aura_manager.build_update()
 
@@ -1497,8 +1494,12 @@ class PlayerManager(UnitManager):
 
             # Check if player has update fields changes.
             has_changes = self.has_pending_updates()
+            if has_changes:
+                print('Has changes')
             # Avoid inventory/item update if there is an ongoing inventory operation.
-            has_inventory_changes = not self.inventory.update_locked and self.inventory.has_pending_updates()
+            has_inventory_changes = self.inventory.has_pending_updates()
+            if has_inventory_changes:
+                print('has inv changes')
 
             # Movement checks and group updates.
             has_moved = self.has_moved or self.has_turned
