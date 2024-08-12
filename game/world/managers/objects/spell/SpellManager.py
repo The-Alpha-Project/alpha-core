@@ -352,8 +352,8 @@ class SpellManager:
         self.casting_spells.append(casting_spell)
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
 
-        weapon_mode = self.caster.sheath_state
         if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            weapon_mode = self.caster.sheath_state
             # If the spell uses a ranged weapon, draw it if needed.
             if casting_spell.is_ranged_weapon_attack():
                 self.caster.set_weapon_mode(WeaponMode.RANGEDMODE, force=weapon_mode != WeaponMode.RANGEDMODE)
