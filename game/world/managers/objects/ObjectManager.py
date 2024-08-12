@@ -123,17 +123,7 @@ class ObjectManager:
 
         is_self = requester.guid == self.guid
 
-        # Initialize bytearray.
-        data = bytearray()
-
-        # Update type.
-        data.extend(pack('<B', UpdateTypes.CREATE_OBJECT))
-
-        # Object guid.
-        data.extend(pack('<Q', self.guid))
-
-        # Object type.
-        data.extend(pack('<B', self.get_type_id()))
+        data = bytearray(pack('<BQB', UpdateTypes.CREATE_OBJECT, self.guid, self.get_type_id()))
 
         # Movement fields.
         data.extend(self._get_movement_fields())
@@ -158,15 +148,13 @@ class ObjectManager:
         if not self.initialized:
             self.initialize_field_values()
 
-        data = bytearray()
-        data.extend(pack('<BQ', UpdateTypes.PARTIAL, self.guid))
+        data = bytearray(pack('<BQ', UpdateTypes.PARTIAL, self.guid))
 
         mask = UpdateMask()
         mask.set_count(field)
         mask.set_bit(field)
 
-        field_update = pack('<B', mask.block_count) + mask.to_bytes() + pack(signature, value)
-        data.extend(field_update)
+        data.extend(pack('<B', mask.block_count) + mask.to_bytes() + pack(signature, value))
 
         return data
 
@@ -174,13 +162,8 @@ class ObjectManager:
         if not self.initialized:
             self.initialize_field_values()
 
-        data = bytearray()
-
-        # Update type.
-        data.extend(pack('<B', UpdateTypes.PARTIAL))
-
-        # Object guid.
-        data.extend(pack('<Q', self.guid))
+        # Header.
+        data = bytearray(pack('<BQ', UpdateTypes.PARTIAL, self.guid))
 
         # Normal update fields.
         data.extend(self._get_fields_update(False, requester, update_data))
@@ -206,15 +189,8 @@ class ObjectManager:
         return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
 
     def get_movement_update_bytes(self):
-        # Base structure.
-        data = bytearray()
-
-        # Update type.
-        data.extend(pack('<B', UpdateTypes.MOVEMENT))
-
-        # Object guid.
-        data.extend(pack('<Q', self.guid))
-
+        # Header.
+        data = bytearray(pack('<BQ', UpdateTypes.MOVEMENT, self.guid))
         # Movement update fields.
         data.extend(self._get_movement_fields())
 
