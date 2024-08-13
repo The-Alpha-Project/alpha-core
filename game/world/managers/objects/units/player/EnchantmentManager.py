@@ -7,13 +7,15 @@ from utils.constants.UpdateFields import ItemFields
 
 
 MAX_ENCHANTMENTS = 5
-REFRESH_SECONDS = 30
 
 
 class EnchantmentManager(object):
     def __init__(self, unit_mgr):
         self.unit_mgr = unit_mgr
         self.duration_timer_seconds = 0
+        self._default_refresh_rate_secs = 30
+        self.refresh_rate_secs = self._default_refresh_rate_secs
+        self.tick_durations = set()
 
     # Load and apply enchantments from item_instance.
     def load_enchantments_for_item(self, item, from_db=False):
@@ -31,9 +33,11 @@ class EnchantmentManager(object):
 
     def update(self, elapsed, saving=False):
         self.duration_timer_seconds += elapsed
-        if saving or self.duration_timer_seconds >= REFRESH_SECONDS:
+        if saving or self.duration_timer_seconds >= self.refresh_rate_secs:
             # Updates should check all items, not just backpack.
             [self._update_item_enchantments(itm, saving) for itm in self.unit_mgr.inventory.get_all_items()]
+            # If item or enchantment is expiring sooner than our default refresh rate, modify the refresh rate.
+            self._modify_refresh_rate_if_needed()
             self.duration_timer_seconds = 0
 
     def save(self):
@@ -52,6 +56,7 @@ class EnchantmentManager(object):
         if item.duration:
             item.save()
             item.send_item_duration()
+            self.tick_durations.add(item.duration)
         # Expired on this tick, remove item.
         else:
             item.remove()
@@ -64,6 +69,7 @@ class EnchantmentManager(object):
             self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)  # Update procs if enchant expires.
         elif not enchantment.duration or saving:
             item.save()
+        self.tick_durations.add(enchantment.duration)
 
     # noinspection PyMethodMayBeStatic
     def consume_enchant_charge(self, item, spell_id):
@@ -193,6 +199,14 @@ class EnchantmentManager(object):
 
         # Update stats upon add or removal.
         self.unit_mgr.stat_manager.apply_bonuses()
+
+    def _modify_refresh_rate_if_needed(self):
+        min_duration_secs = min(self.tick_durations) if self.tick_durations else self._default_refresh_rate_secs
+        if 0 < min_duration_secs < self.refresh_rate_secs:
+            self.refresh_rate_secs = min_duration_secs
+        elif self.refresh_rate_secs != self._default_refresh_rate_secs:
+            self.refresh_rate_secs = self._default_refresh_rate_secs
+        self.tick_durations.clear()
 
     @staticmethod
     def get_effect_value_for_enchantment_type(item, enchantment_type):
