@@ -241,6 +241,11 @@ class CommandManager(object):
         return 0, f'{len(items)} items found.'
 
     @staticmethod
+    def flushbags(world_session, args):
+        world_session.player_mgr.inventory.flush_bags()
+        return 0, ''
+
+    @staticmethod
     def additem(world_session, args):
         try:
             split_args = args.split()
@@ -1060,6 +1065,7 @@ GM_COMMAND_DEFINITIONS = {
     'sitem': [CommandManager.sitem, 'search items'],
     'additem': [CommandManager.additem, 'add an item to your bag'],
     'additems': [CommandManager.additems, 'add items to your bag'],
+    'flushbags': [CommandManager.flushbags, 'flush all items from bags'],
     'sspell': [CommandManager.sspell, 'search spells'],
     'lspell': [CommandManager.lspell, 'learn a spell'],
     'lspells': [CommandManager.lspells, 'learn multiple spells'],
