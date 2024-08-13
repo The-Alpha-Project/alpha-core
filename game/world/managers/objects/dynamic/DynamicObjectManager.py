@@ -94,7 +94,7 @@ class DynamicObjectManager(ObjectManager):
         if target.guid in self.targets:
             return
         self.targets.add(target.guid)
-        data = pack('<2Q', self.owner.guid, target.guid)
+        data = pack('<2Q', self.guid, target.guid)
         self.get_map().send_surrounding(PacketWriter.get_packet(OpCode.MSG_ADD_DYNAMIC_TARGET, data), self, False)
 
     # override
