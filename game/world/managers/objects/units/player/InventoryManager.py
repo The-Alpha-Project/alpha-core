@@ -106,6 +106,15 @@ class InventoryManager(object):
                 return slot
         return InventorySlots.SLOT_INBACKPACK.value
 
+    def flush_bags(self):
+        for bag_slot, container in list(self.containers.items()):
+            if not container:
+                continue
+            for slot, item in list(container.sorted_slots.items()):
+                if self.is_equipment_pos(bag_slot, slot) or self.is_bag_pos(slot) or self.is_bank_slot(bag_slot, slot):
+                    continue
+                self.remove_item(bag_slot, slot, clear_slot=True)
+
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False, created_by=0,
                  perm_enchant=0, send_message=True, show_item_get=True):
         if entry != 0 and not item_template:
@@ -505,21 +514,6 @@ class InventoryManager(object):
 
         if amount <= 0:
             return InventoryError.BAG_OK
-
-        for container_slot, container in list(self.containers.items()):
-            if not container or container.is_backpack or not container.can_contain_item(item_template):
-                continue
-            if (on_bank and container_slot < InventorySlots.SLOT_BANK_BAG_1) or \
-                    (not on_bank and container_slot >= InventorySlots.SLOT_BANK_BAG_1):
-                continue
-
-            # Free slots * Max stack count
-            # TODO: This fails on the following scenario.
-            #  Empty the backpack, add an extra 6 slot bag, .additem 77 25.
-            #  The action succeeds even if we only had 22 free slots. @Grender
-            amount -= (container.total_slots - len(container.sorted_slots)) * item_template.stackable
-            if amount <= 0:
-                return InventoryError.BAG_OK
 
         return InventoryError.BAG_INV_FULL
 

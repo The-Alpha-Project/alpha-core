@@ -53,6 +53,9 @@ class UpdateManager:
             return False
         self.update_builder.add_destroy_update_from_object(known_object)
 
+    def destroy_self(self):
+        self.update_builder.add_destroy_update_from_object(self.player_mgr)
+
     def enqueue_object_update(self, object_type=None):
         # Single object type update.
         if object_type:

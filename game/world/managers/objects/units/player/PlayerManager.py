@@ -339,7 +339,7 @@ class PlayerManager(UnitManager):
         self.session.save_character()
 
         # Destroy all known objects to self.
-        self.destroy_all_known_objects()
+        self.destroy_all_known_objects(include_self=True)
 
         # Flush known items/objects cache.
         self.known_items.clear()
@@ -380,9 +380,13 @@ class PlayerManager(UnitManager):
             )
         return PacketWriter.get_packet(OpCode.SMSG_BINDPOINTUPDATE, data)
 
-    def destroy_all_known_objects(self):
+    def destroy_all_known_objects(self, include_self=False):
         for guid in list(self.known_objects.keys()):
             self.update_manager.destroy_known_object(guid)
+
+        if include_self:
+            self.update_manager.destroy_self()
+
         self.update_manager.process_tick_updates()
         return
 
@@ -490,7 +494,7 @@ class PlayerManager(UnitManager):
             # Remove to others.
             self.get_map().remove_object(self)
             # Destroy all objects known to self.
-            self.destroy_all_known_objects()
+            self.destroy_all_known_objects(include_self=True)
             # Flush known items/objects cache.
             self.known_items.clear()
             self.known_objects.clear()
