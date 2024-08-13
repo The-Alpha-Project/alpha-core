@@ -32,26 +32,32 @@ class GridManager:
 
         # Handle cell change within the same map.
         if current_cell_key != source_cell_key:
+            # Players will always query all surrounding objects. Any other object caller will trigger
+            # an update upon players based only on its type. (Unit, Go, Corpse, etc)
+            object_type = world_object.get_type_id()
+            if object_type == ObjectTypeIds.ID_PLAYER:
+                object_type = None
+
             # Add to a new cell.
             self._add_world_object(world_object, update_players=False)
             # Remove from old cell.
             if source_cell_key:
                 self.remove_object(world_object, update_players=False, from_cell=source_cell_key)
             # Update old location surroundings, even if in the same grid, both cells quadrants might not see each other.
-            affected_cells = self._update_players_surroundings(source_cell_key)
+            affected_cells = self._update_players_surroundings(source_cell_key, object_type=object_type)
             # Update new location surroundings, excluding intersecting cells from previous call.
-            self._update_players_surroundings(current_cell_key, exclude_cells=affected_cells)
+            self._update_players_surroundings(current_cell_key, exclude_cells=affected_cells, object_type=object_type)
 
         # If this world object has pending field/inventory updates, trigger an update on interested players.
         if has_changes or has_inventory_changes:
-
+            update_data = None
             if has_changes:
-                # Grab the current state of this world object update fields mask,
+                # Grab the current state of this world object update fields mask and values,
                 # which will be used for all interested requesters.
-                world_object.update_packet_factory.generate_update_mask_copy(flush_current=True)
+                update_data = world_object.update_packet_factory.generate_update_data(flush_current=True)
 
             self._update_players_surroundings(current_cell_key, world_object=world_object, has_changes=has_changes,
-                                              has_inventory_changes=has_inventory_changes)
+                                              has_inventory_changes=has_inventory_changes, update_data=update_data)
             # At this point all player observers updated this world object, reset update fields bit masks.
             if has_inventory_changes:
                 world_object.inventory.reset_fields_older_than(time.time())
@@ -67,7 +73,7 @@ class GridManager:
     def remove_object(self, world_object, update_players=True, from_cell=None):
         cell = self.cells.get(from_cell if from_cell else world_object.current_cell)
         if cell and cell.remove(world_object) and update_players:
-            self._update_players_surroundings(cell.key)
+            self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
     def unit_should_relocate(self, world_object, destination, destination_map, destination_instance):
         destination_cells = self._get_surrounding_cells_by_location(destination.x, destination.y, destination_map,
@@ -115,13 +121,7 @@ class GridManager:
 
         # Notify surrounding players.
         if update_players:
-            # Pet/Temp summons creation should be instantly notified to player owner.
-            if world_object.is_temp_summon() or world_object.is_pet():
-                summoner = world_object.get_charmer_or_summoner()
-                if summoner.get_type_id() == ObjectTypeIds.ID_PLAYER:
-                    summoner.update_not_known_world_object(world_object)
-
-            self._update_players_surroundings(cell.key)
+            self._update_players_surroundings(cell.key, object_type=world_object.get_type_id())
 
     def _activate_cell_by_world_object(self, world_object):
         affected_cells = list(self._get_surrounding_cells_by_object(world_object))
@@ -145,7 +145,7 @@ class GridManager:
                     self.active_cell_callback(creature)
 
     def _update_players_surroundings(self, cell_key, exclude_cells=None, world_object=None, has_changes=False,
-                                     has_inventory_changes=False):
+                                     has_inventory_changes=False, update_data=None, object_type=None):
         # Avoid update calls if no players are present.
         if exclude_cells is None:
             exclude_cells = set()
@@ -159,7 +159,8 @@ class GridManager:
                 if cell in exclude_cells:
                     continue
                 cell.update_players_surroundings(world_object=world_object, has_changes=has_changes,
-                                                 has_inventory_changes=has_inventory_changes)
+                                                 has_inventory_changes=has_inventory_changes, update_data=update_data,
+                                                 object_type=object_type)
                 affected_cells.add(cell)
 
         return affected_cells

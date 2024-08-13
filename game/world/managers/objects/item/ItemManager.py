@@ -71,7 +71,7 @@ class ItemManager(ObjectManager):
         self.item_instance = item_instance
 
         self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
-        self.current_slot = item_instance.slot if item_instance else 0
+        self.current_slot = item_instance.slot if item_instance else current_slot
         self.is_backpack = False
         self.duration = item_instance.duration if item_instance else 0
 
@@ -88,6 +88,9 @@ class ItemManager(ObjectManager):
             self.load_item_template(self.item_template)
 
         self.update_packet_factory.init_values(self.get_owner_guid(), ItemFields)
+
+    def __hash__(self):
+        return self.guid
 
     def load_item_template(self, item_template):
         self.item_template = item_template
@@ -118,7 +121,7 @@ class ItemManager(ObjectManager):
         return False
 
     def is_equipped(self):
-        player_mgr = self._get_owner_unit()
+        player_mgr = self.get_owner_unit()
         return (player_mgr and self.item_instance.bag == InventorySlots.SLOT_INBACKPACK.value
                 and self.current_slot < InventorySlots.SLOT_BAG1
                 and player_mgr.get_uint64(PlayerFields.PLAYER_FIELD_INV_SLOT_1 + self.current_slot * 2) == self.guid)
@@ -240,10 +243,6 @@ class ItemManager(ObjectManager):
             return item_mgr
         return None
 
-    def query_details_packet(self):
-        data = self.query_details_data()
-        return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
-
     def query_details_data(self):
         data = ItemManager.generate_query_details_data(
             self.item_template,
@@ -359,10 +358,6 @@ class ItemManager(ObjectManager):
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 1, self.enchantments[slot].duration)
                 self.set_int32(ItemFields.ITEM_FIELD_ENCHANTMENT + slot * 3 + 2, self.enchantments[slot].charges)
 
-            # Container fields.
-            if self.is_container() and isinstance(self, ContainerManager):
-                self.build_container_update_packet()
-
             self.initialized = True
 
     def get_owner_guid(self):
@@ -461,11 +456,8 @@ class ItemManager(ObjectManager):
         if self.set_uint32(ItemFields.ITEM_FIELD_FLAGS, self._get_item_flags())[0]:
             self.save()
 
-    def send_item_duration(self, owner_guid):
-        if owner_guid != self.get_owner_guid():
-            return
-
-        player_mgr = WorldSessionStateHandler.find_player_by_guid(owner_guid)
+    def send_item_duration(self):
+        player_mgr = self.get_owner_unit()
         if not player_mgr:
             return
 
@@ -512,7 +504,7 @@ class ItemManager(ObjectManager):
         return db_enchantments
 
     def remove(self):
-        player_mgr = self._get_owner_unit()
+        player_mgr = self.get_owner_unit()
         if player_mgr and self.item_instance and self.item_instance.bag:
             player_mgr.inventory.remove_item(self.item_instance.bag, self.current_slot)
 
@@ -529,12 +521,19 @@ class ItemManager(ObjectManager):
         self.item_instance.enchantments = self._get_enchantments_db_string()
         RealmDatabaseManager.character_inventory_update_item(self.item_instance)
 
-    def _get_owner_unit(self):
+    def get_location(self):
+        return self.get_owner_unit().location
+
+    def get_owner_unit(self):
         return WorldSessionStateHandler.find_player_by_guid(self.get_owner_guid())
 
     # override
     def get_name(self):
         return self.item_template.name if self.item_template else 'Backpack' if self.is_backpack else 'None'
+
+    def get_query_details_packet(self):
+        data = self.query_details_data()
+        return PacketWriter.get_packet(OpCode.SMSG_ITEM_QUERY_SINGLE_RESPONSE, data)
 
     # override
     def get_type_mask(self):

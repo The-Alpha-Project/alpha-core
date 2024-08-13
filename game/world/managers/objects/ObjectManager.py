@@ -88,6 +88,9 @@ class ObjectManager:
     def __ne__(self, other):
         return not self == other
 
+    def __hash__(self):
+        return self.guid
+
     def get_ray_position(self):
         return self.location.get_ray_vector(world_object=self)
 
@@ -95,59 +98,32 @@ class ObjectManager:
         return self.update_packet_factory.has_pending_updates()
 
     def generate_create_packet(self, requester):
-        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT,
-            self.get_object_create_bytes(requester)))
+        data = bytearray(pack('<I', 1))  # Transaction count.
+        data.extend(self.get_create_update_bytes(requester))
+        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        return packet
 
-    """
-    If more than 1 packet is needed to properly create an object, this method will return all needed ones.
-    So far this is only needed for GameObjects since client doesn't remove collision for doors sent with active state,
-    so we need to always send them as ready first, and then send the actual state.
-    """
-    def generate_create_packet_chain(self, requester):
-        return [self.generate_create_packet(requester)]
+    def generate_partial_packet(self, requester, update_data=None):
+        data = bytearray(pack('<I', 1))  # Transaction count.
+        data.extend(self.get_partial_update_bytes(requester, update_data=update_data))
+        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        return packet
 
-    def generate_partial_packet(self, requester):
+    def generate_movement_packet(self):
+        data = bytearray(pack('<I', 1))  # Transaction count.
+        data.extend(self.get_movement_update_bytes())
+        packet = PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, data)
+        return packet
+
+    def get_create_update_bytes(self, requester):
         if not self.initialized:
             self.initialize_field_values()
 
-        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT,
-            self.get_partial_update_bytes(requester)))
-
-    def generate_single_field_packet(self, field, value):
-        data = bytearray()
-        data.extend(self._get_base_structure(UpdateTypes.PARTIAL))
-
-        mask = UpdateMask()
-        mask.set_count(field)
-        mask.set_bit(field)
-
-        field_update = pack('<B', mask.block_count) + mask.to_bytes() + pack('<I', value)
-        data.extend(field_update)
-
-        return UpdatePacketFactory.compress_if_needed(PacketWriter.get_packet(
-            OpCode.SMSG_UPDATE_OBJECT, data))
-
-    def generate_movement_packet(self):
-        return PacketWriter.get_packet(OpCode.SMSG_UPDATE_OBJECT, self.get_movement_update_bytes())
-
-    def get_object_create_bytes(self, requester):
         from game.world.managers.objects.units import UnitManager
 
         is_self = requester.guid == self.guid
 
-        if not self.initialized:
-            self.initialize_field_values()
-
-        # Initialize bytearray.
-        data = bytearray()
-
-        # Base structure.
-        data.extend(self._get_base_structure(UpdateTypes.CREATE_OBJECT))
-
-        # Object type.
-        data.extend(pack('<B', self.get_type_id()))
+        data = bytearray(pack('<BQB', UpdateTypes.CREATE_OBJECT, self.guid, self.get_type_id()))
 
         # Movement fields.
         data.extend(self._get_movement_fields())
@@ -158,7 +134,7 @@ class ObjectManager:
         data.extend(pack(
             '<3IQ',
             1 if is_self else 0,  # Flags, 1 - Current player, 0 - Other player
-            1 if self.get_type_id() == ObjectTypeIds.ID_PLAYER else 0,  # AttackCycle
+            1 if self.get_type_id() in {ObjectTypeIds.ID_PLAYER, ObjectTypeIds.ID_ITEM} else 0,  # AttackCycle
             0,  # TimerId
             combat_unit.guid if combat_unit else 0,  # Victim GUID
         ))
@@ -168,14 +144,29 @@ class ObjectManager:
 
         return data
 
-    def get_partial_update_bytes(self, requester):
-        data = bytearray()
+    def get_single_field_update_bytes(self, field, value, signature='<I'):
+        if not self.initialized:
+            self.initialize_field_values()
 
-        # Base structure.
-        data.extend(self._get_base_structure(UpdateTypes.PARTIAL))
+        data = bytearray(pack('<BQ', UpdateTypes.PARTIAL, self.guid))
+
+        mask = UpdateMask()
+        mask.set_count(field)
+        mask.set_bit(field)
+
+        data.extend(pack('<B', mask.block_count) + mask.to_bytes() + pack(signature, value))
+
+        return data
+
+    def get_partial_update_bytes(self, requester, update_data=None):
+        if not self.initialized:
+            self.initialize_field_values()
+
+        # Header.
+        data = bytearray(pack('<BQ', UpdateTypes.PARTIAL, self.guid))
 
         # Normal update fields.
-        data.extend(self._get_fields_update(False, requester))
+        data.extend(self._get_fields_update(False, requester, update_data))
 
         return data
 
@@ -198,11 +189,10 @@ class ObjectManager:
         return PacketWriter.get_packet(OpCode.MSG_MOVE_HEARTBEAT, data)
 
     def get_movement_update_bytes(self):
-        # Base structure.
-        data = self._get_base_structure(UpdateTypes.MOVEMENT)
-
+        # Header.
+        data = bytearray(pack('<BQ', UpdateTypes.MOVEMENT, self.guid))
         # Movement update fields.
-        data += self._get_movement_fields()
+        data.extend(self._get_movement_fields())
 
         return data
 
@@ -249,20 +239,16 @@ class ObjectManager:
         # Reset updated fields older than the specified timestamp.
         return self.update_packet_factory.reset_older_than(timestamp)
 
-    def _get_base_structure(self, update_type):
-        return pack(
-            '<IBQ',
-            1,  # Number of transactions
-            update_type,
-            self.guid,
-        )
-
     # Fall Time (Not implemented for units, anim progress for transports).
     # noinspection PyMethodMayBeStatic
     def get_fall_time(self):
         return 0
 
     def _get_movement_fields(self):
+        # Sniffs show items having location set.
+        if self.get_type_id() == ObjectTypeIds.ID_ITEM:
+            self.location = self.get_location()
+
         data = pack(
             '<Q9fI',
             self.transport_id,
@@ -294,9 +280,11 @@ class ObjectManager:
 
         return data
 
-    def _get_fields_update(self, is_create, requester):
+    def _get_fields_update(self, is_create, requester, update_data=None):
         data = bytearray()
-        mask = self.update_packet_factory.get_update_mask()
+        mask = self.update_packet_factory.update_mask.copy() if not update_data else update_data.update_bit_mask
+        values = self.update_packet_factory.update_values_bytes if not update_data else update_data.update_field_values
+
         for field_index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[field_index] == 0:
@@ -306,7 +294,7 @@ class ObjectManager:
                 mask[field_index] = 0
                 continue
             # Append field value and turn on bit on mask.
-            data.extend(self.update_packet_factory.update_values_bytes[field_index])
+            data.extend(values[field_index])
             mask[field_index] = 1
         return pack('<B', self.update_packet_factory.update_mask.block_count) + mask.tobytes() + data
 
@@ -408,6 +396,10 @@ class ObjectManager:
         return ObjectTypeIds.ID_OBJECT
 
     # override
+    def get_query_details_packet(self):
+        pass
+
+    # override
     def get_debug_messages(self, requester=None):
         return [
             f'Guid: {self.get_low_guid()}, Entry: {self.entry}, Display ID: {self.current_display_id}',
@@ -441,6 +433,9 @@ class ObjectManager:
     def get_map(self):
         from game.world.managers.maps.MapManager import MapManager
         return MapManager.get_map(self.map_id, self.instance_id)
+
+    def get_location(self):
+        return self.location
 
     # override
     def is_above_water(self):
@@ -485,6 +480,9 @@ class ObjectManager:
         return False
 
     def can_attack_target(self, target):
+        if not target.is_alive:
+            return False
+
         if not target or target is self:
             return False
 

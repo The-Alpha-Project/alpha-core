@@ -1,4 +1,5 @@
 from random import randint
+from struct import pack
 
 from database.dbc.DbcDatabaseManager import DbcDatabaseManager
 from database.world.WorldDatabaseManager import WorldDatabaseManager
@@ -12,6 +13,7 @@ from game.world.managers.objects.units.creature.ThreatManager import ThreatManag
 from game.world.managers.objects.units.creature.items.VirtualItemUtils import VirtualItemsUtils
 from game.world.managers.objects.units.creature.utils.CreatureUtils import CreatureUtils
 from game.world.managers.objects.units.creature.groups.CreatureGroupManager import CreatureGroupManager
+from network.packet.PacketWriter import PacketWriter
 from utils import Formulas
 from utils.ByteUtils import ByteUtils
 from utils.Formulas import CreatureFormulas, Distances
@@ -20,6 +22,7 @@ from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
     MoveType
+from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
     PowerTypes, CreatureFlagsExtra, CreatureReactStates, StandState
@@ -126,7 +129,7 @@ class CreatureManager(UnitManager):
 
         self.initialized = False
         self.killed_by = None
-        self.known_players = {}
+        self.known_players.clear()
 
         self.native_display_id = CreatureUtils.generate_creature_display_id(self.creature_template)
         self.current_display_id = self.native_display_id
@@ -655,6 +658,11 @@ class CreatureManager(UnitManager):
         if not self.is_spawned:
             return False
 
+        if (source and source.get_type_id() == ObjectTypeIds.ID_PLAYER and self.is_pet()
+                and self.get_charmer_or_summoner() == source):
+            data = pack('<IQ', amount, source.guid)
+            source.enqueue_packet(PacketWriter.get_packet(OpCode.SMSG_HEALSPELL_ON_PLAYERS_PET, data))
+
         return super().receive_healing(amount, source)
 
     # override
@@ -917,6 +925,11 @@ class CreatureManager(UnitManager):
 
     def is_in_world(self):
         return self.is_spawned and self.get_map()
+
+    # override
+    def get_query_details_packet(self):
+        from game.world.managers.objects.units.creature.utils.UnitQueryUtils import UnitQueryUtils
+        return UnitQueryUtils.query_details(creature_mgr=self)
 
     # override
     def get_type_mask(self):

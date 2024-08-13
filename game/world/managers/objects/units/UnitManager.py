@@ -180,8 +180,6 @@ class UnitManager(ObjectManager):
         self.unit_state = UnitStates.NONE
         # Used to handle sanctuary state.
         self.sanctuary_timer = 0
-        # Update surroundings timer.
-        self.update_surroundings_timer = 0
         # Cheat flags, used by Players.
         self.beast_master = False
 
@@ -216,6 +214,9 @@ class UnitManager(ObjectManager):
         self.pet_manager = PetManager(self)
         # Players/Creatures.
         self.threat_manager = None
+
+    def __hash__(self):
+        return self.guid
 
     def is_within_interactable_distance(self, victim):
         current_distance = self.location.distance(victim.location)
@@ -503,11 +504,18 @@ class UnitManager(ObjectManager):
         if damage_info.absorb:
             damage_info.hit_info |= HitInfo.ABSORBED
 
+        # Handle the case in which we did not really miss but damage was 0, which should display as miss.
+        if (not damage_info.base_damage and damage_info.hit_info & HitInfo.SUCCESS and
+                not damage_info.hit_info & (HitInfo.DODGE | HitInfo.PARRY | HitInfo.BLOCK | HitInfo.ABSORBED)):
+            damage_info.hit_info = HitInfo.MISS
+
         # Check evade, there is no HitInfo flag for this.
         if victim.is_evading:
             damage_info.target_state = VictimStates.VS_EVADE
         elif damage_info.hit_info & HitInfo.MISS:
+            damage_info.hit_info &= ~HitInfo.SUCCESS
             damage_info.base_damage = damage_info.total_damage = 0
+            damage_info.target_state = VictimStates.VS_NONE
         elif damage_info.hit_info & HitInfo.ABSORBED:
             # Immune.
             if not damage_info.absorb:
@@ -1635,11 +1643,12 @@ class UnitManager(ObjectManager):
         self.weapon_reach = reach
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, reach)
 
-    def set_weapon_mode(self, weapon_mode):
-        changed = weapon_mode != self.sheath_state
+    def set_weapon_mode(self, weapon_mode, force=False):
+        if self.sheath_state == weapon_mode and not force:
+            return
         self.sheath_state = weapon_mode
         self.bytes_1 = self.get_bytes_1()
-        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1, force=changed)
+        self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1, force=force)
 
     def set_shapeshift_form(self, shapeshift_form):
         self.shapeshift_form = shapeshift_form

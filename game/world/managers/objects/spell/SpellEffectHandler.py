@@ -867,6 +867,9 @@ class SpellEffectHandler:
         # Save item.
         target.save()
 
+        # Enchantment log.
+        owner_player.enchantment_manager.send_enchantment_log(caster, target, effect.misc_value)
+
     # Block/parry/dodge/defense passives have their own effects and no aura.
     # Flag the unit here as being able to block/parry/dodge.
     @staticmethod

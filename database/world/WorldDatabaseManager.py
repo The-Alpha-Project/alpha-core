@@ -11,7 +11,7 @@ from database.world.WorldModels import Condition
 from game.world.managers.objects.units.creature.CreatureSpellsEntry import CreatureSpellsEntry
 from utils.ConfigManager import *
 from utils.Logger import Logger
-from utils.constants.MiscCodes import HighGuid, Languages
+from utils.constants.MiscCodes import Languages
 from utils.constants.ScriptCodes import WaypointPathOrigin
 
 DB_USER = os.getenv('MYSQL_USERNAME', config.Database.Connection.username)
@@ -140,11 +140,11 @@ class WorldDatabaseManager(object):
 
     @staticmethod
     @lru_cache
-    def exploration_base_xp_get_by_level(level) -> Optional[ExplorationBaseXP]:
+    def exploration_base_xp_get_by_level(level) -> int:
         world_db_session = SessionHolder()
         res = world_db_session.query(ExplorationBaseXP).filter_by(level=level).first()
         world_db_session.close()
-        return res.base_xp
+        return res.base_xp if res else 0
 
     # Worldport.
 

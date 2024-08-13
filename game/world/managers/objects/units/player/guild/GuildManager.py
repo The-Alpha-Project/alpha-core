@@ -296,12 +296,12 @@ class GuildManager(object):
 
     def build_update(self, player_mgr, unset=False, force=False):
         if unset:
-            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, 0, force)
-            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, 0, force)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, 0)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, 0)
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0, force)
         else:
-            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, self.guild.guild_id, force)
-            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.members[player_mgr.guid].rank, force)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDID, self.guild.guild_id)
+            player_mgr.set_uint32(PlayerFields.PLAYER_GUILDRANK, self.members[player_mgr.guid].rank)
             player_mgr.set_uint32(PlayerFields.PLAYER_GUILD_TIMESTAMP, 0, force)  # Format creation_data
 
     def modify_emblem(self, player_mgr, emblem_style, emblem_color, border_style, border_color, background_color):

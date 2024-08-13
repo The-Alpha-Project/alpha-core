@@ -31,11 +31,4 @@ class SplitItemHandler(object):
             new_stack_count = source_item.item_instance.stackcount - count
             source_item.set_stack_count(new_stack_count)
 
-            source_container = inventory.get_container(source_bag_slot)
-            if source_container and not source_container.is_backpack:
-                source_container.build_container_update_packet()
-
-            if inventory.update_locked:
-                inventory.update_locked = False
-
         return 0

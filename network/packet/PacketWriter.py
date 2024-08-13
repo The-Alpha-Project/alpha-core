@@ -2,6 +2,7 @@ import zlib
 from struct import pack
 
 from utils.Logger import Logger
+from utils.constants.OpCodes import OpCode
 
 
 class PacketWriter(object):
@@ -25,8 +26,12 @@ class PacketWriter(object):
             data = b''
 
         data = pack('<I', opcode) + data
-        return pack('>H', len(data)) + data
+        packet = pack('>H', len(data)) + data
 
-    @staticmethod
-    def deflate(data):
-        return zlib.compress(data)
+        if opcode == OpCode.SMSG_UPDATE_OBJECT and len(packet) > 100:
+            compressed_packet_data = zlib.compress(packet[6:])
+            compressed_data = pack('<I', len(packet) - 6)
+            compressed_data += compressed_packet_data
+            packet = PacketWriter.get_packet(OpCode.SMSG_COMPRESSED_UPDATE_OBJECT, compressed_data)
+
+        return packet

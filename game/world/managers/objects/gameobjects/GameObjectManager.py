@@ -65,6 +65,9 @@ class GameObjectManager(ObjectManager):
         self.ritual_manager = None  # Optional.
         self.spell_focus_manager = None  # Optional.
 
+    def __hash__(self):
+        return self.guid
+
     def initialize_from_gameobject_template(self, gobject_template):
         if not gobject_template:
             return
@@ -275,7 +278,7 @@ class GameObjectManager(ObjectManager):
     def apply_spell_healing(self, target, value, casting_spell, is_periodic=False):
         damage_info = casting_spell.get_cast_damage_info(self, target, value, 0, healing=True)
         damage_info.spell_miss_reason = casting_spell.object_target_results[target.guid].result
-        target.send_spell_cast_debug_info(damage_info, casting_spell, is_periodic=is_periodic, healing=True)
+        target.send_spell_cast_debug_info(damage_info, casting_spell)
         target.receive_healing(value, self)
 
     def use(self, player=None, target=None, from_script=False):
@@ -366,6 +369,10 @@ class GameObjectManager(ObjectManager):
         packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_CUSTOM_ANIM, data)
         self.get_map().send_surrounding(packet, self, include_self=False)
 
+    def send_page_text(self, player_mgr):
+        packet = PacketWriter.get_packet(OpCode.SMSG_GAMEOBJECT_PAGETEXT, pack('<Q', self.guid))
+        player_mgr.enqueue_packet(packet)
+
     # TODO: Handle more dynamic cases if needed.
     def generate_dynamic_field_value(self, requester):
         go_handled_types = {GameObjectTypes.TYPE_QUESTGIVER, GameObjectTypes.TYPE_GOOBER, GameObjectTypes.TYPE_CHEST}
@@ -388,21 +395,26 @@ class GameObjectManager(ObjectManager):
             return self.transport_manager.update()
         return 0
 
+    """
+        So far this is only needed for GameObjects, client doesn't remove collision for doors sent with active state,
+        so we need to always send them as ready first, and then send the actual state.
+    """
+    def get_door_state_update_bytes(self):
+        if self.gobject_template.type != GameObjectTypes.TYPE_DOOR or self.state == GameObjectStates.GO_STATE_READY:
+            return None
+        # Send real GO state for doors after create packet.
+        return self.get_single_field_update_bytes(GameObjectFields.GAMEOBJECT_STATE, self.state)
+
+    def get_dynamic_flag_update_bytes(self, requester):
+        dyn_flag_value = self.generate_dynamic_field_value(requester=requester)
+        return self.get_single_field_update_bytes(GameObjectFields.GAMEOBJECT_DYN_FLAGS, dyn_flag_value)
+
     # override
-    def generate_create_packet_chain(self, requester):
-        packets = [super().generate_create_packet(requester)]
-
-        if self.gobject_template.type == GameObjectTypes.TYPE_DOOR and \
-                self.state != GameObjectStates.GO_STATE_READY:
-            # Send real GO state for doors after create packet.
-            packets.append(self.generate_single_field_packet(GameObjectFields.GAMEOBJECT_STATE, self.state))
-
-        return packets
-
-    # override
-    def _get_fields_update(self, is_create, requester):
+    def _get_fields_update(self, is_create, requester, update_data=None):
         data = bytearray()
-        mask = self.update_packet_factory.get_update_mask()
+        mask = self.update_packet_factory.update_mask.copy() if not update_data else update_data.update_bit_mask
+        values = self.update_packet_factory.update_values_bytes if not update_data else update_data.update_field_values
+
         for index in range(self.update_packet_factory.update_mask.field_count):
             # Partial packets only care for fields that had changes.
             if not is_create and mask[index] == 0 and not self.update_packet_factory.is_dynamic_field(index):
@@ -420,7 +432,7 @@ class GameObjectManager(ObjectManager):
                 # Client doesn't remove collision for doors sent with active state - always send as ready.
                 value = pack('<I', GameObjectStates.GO_STATE_READY)
             else:
-                value = self.update_packet_factory.update_values_bytes[index]
+                value = values[index]
 
             data.extend(value)
             mask[index] = 1
@@ -484,6 +496,11 @@ class GameObjectManager(ObjectManager):
     # override
     def get_name(self):
         return self.gobject_template.name
+
+    # override
+    def get_query_details_packet(self):
+        from game.world.managers.objects.gameobjects.utils.GoQueryUtils import GoQueryUtils
+        return GoQueryUtils.query_details(gameobject_mgr=self)
 
     # override
     def get_type_mask(self):

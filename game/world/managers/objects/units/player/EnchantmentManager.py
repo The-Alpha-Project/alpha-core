@@ -33,36 +33,36 @@ class EnchantmentManager(object):
         self.duration_timer_seconds += elapsed
         if saving or self.duration_timer_seconds >= REFRESH_SECONDS:
             # Updates should check all items, not just backpack.
-            [self._update_item_enchantments(itm) for itm in self.unit_mgr.inventory.get_all_items()]
+            [self._update_item_enchantments(itm, saving) for itm in self.unit_mgr.inventory.get_all_items()]
             self.duration_timer_seconds = 0
 
     def save(self):
         self.update(0, saving=True)
 
-    def _update_item_enchantments(self, item):
+    def _update_item_enchantments(self, item, saving=False):
         # In order to avoid more iterations for item duration field (Not enchantments, do it here).
         if item.item_template.duration:
             self._update_item_duration(item)
         # Enchantments.
-        [self._update_item_enchant(item, slot, enchantment) for (slot, enchantment)
+        [self._update_item_enchant(item, slot, enchantment, saving=saving) for (slot, enchantment)
          in enumerate(item.enchantments) if slot > EnchantmentSlots.PERMANENT_SLOT and enchantment.entry]
 
     def _update_item_duration(self, item):
         item.duration = max(0, int(item.duration - self.duration_timer_seconds))
         if item.duration:
             item.save()
-            item.send_item_duration(self.unit_mgr.guid)
+            item.send_item_duration()
         # Expired on this tick, remove item.
         else:
             item.remove()
 
-    def _update_item_enchant(self, item, slot, enchantment):
+    def _update_item_enchant(self, item, slot, enchantment, saving=False):
         enchantment.duration = max(0, int(enchantment.duration - self.duration_timer_seconds))
         if not enchantment.duration and not enchantment.charges:
             # Remove.
             self.set_item_enchantment(item, slot, 0, 0, 0, expired=True)
             self.unit_mgr.equipment_proc_manager.handle_equipment_change(item)  # Update procs if enchant expires.
-        elif not enchantment.duration:
+        elif not enchantment.duration or saving:
             item.save()
 
     # noinspection PyMethodMayBeStatic
@@ -129,6 +129,20 @@ class EnchantmentManager(object):
 
         if should_save:
             item.save()
+
+    # TODO: Need to figure how to display the expiration message and also display the log to surrounding players,
+    #  currently, only the caster sees this.
+    def send_enchantment_log(self, caster, item, enchantment_id, show_affiliation=False):
+        data = pack('<IQ', show_affiliation, self.unit_mgr.guid)
+        if not show_affiliation:
+            data += pack('<Q', caster.guid)
+        data += pack('<2I', enchantment_id, item.entry)
+        packet = PacketWriter.get_packet(OpCode.SMSG_ENCHANTMENTLOG, data)
+        if not show_affiliation:
+            self.unit_mgr.enqueue_packet(packet)
+            self.send_enchantment_log(caster, item, enchantment_id, show_affiliation=True)
+        else:
+            self.unit_mgr.get_map().send_surrounding(packet, self.unit_mgr, include_self=False)
 
     # Notify the client with the enchantment duration.
     # Client keeps track of the time, there is no need for constant updates.

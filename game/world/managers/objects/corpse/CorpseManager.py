@@ -22,10 +22,14 @@ class CorpseManager(ObjectManager):
         self.native_display_id = owner.native_display_id
         self.current_display_id = owner.native_display_id
         self.ttl = 600  # 10 Minutes.
+        self.name = f'Corpse - Player {self.owner.get_name()}'
 
         self.guid = self.generate_object_guid(CorpseManager.GUID_MANAGER.get_new_guid())
 
         self.update_packet_factory.init_values(self.owner.guid, CorpseFields)
+
+    def __hash__(self):
+        return self.guid
 
     # override
     def initialize_field_values(self):
@@ -88,6 +92,10 @@ class CorpseManager(ObjectManager):
         corpse = CorpseManager(owner=player_mgr)
         player_mgr.get_map().update_object(corpse)
         return corpse
+
+    # override
+    def get_name(self):
+        return self.name
 
     # override
     def get_type_mask(self):

@@ -353,16 +353,17 @@ class SpellManager:
         casting_spell.cast_state = SpellState.SPELL_STATE_CASTING
 
         if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT:
+            weapon_mode = self.caster.sheath_state
             # If the spell uses a ranged weapon, draw it if needed.
             if casting_spell.is_ranged_weapon_attack():
-                self.caster.set_weapon_mode(WeaponMode.RANGEDMODE)
+                self.caster.set_weapon_mode(WeaponMode.RANGEDMODE, force=weapon_mode != WeaponMode.RANGEDMODE)
             # Need to make sure creatures go back to melee if needed.
             elif self.caster.get_type_id() == ObjectTypeIds.ID_UNIT:
-                self.caster.set_weapon_mode(WeaponMode.NORMALMODE)
+                self.caster.set_weapon_mode(WeaponMode.NORMALMODE, force=weapon_mode != WeaponMode.NORMALMODE)
 
             # If the spell uses a fishing pole, draw it if needed.
             if casting_spell.requires_fishing_pole():
-                self.caster.set_weapon_mode(WeaponMode.NORMALMODE)
+                self.caster.set_weapon_mode(WeaponMode.NORMALMODE, force=weapon_mode != WeaponMode.NORMALMODE)
 
         if not casting_spell.is_instant_cast():
             if not casting_spell.triggered:
@@ -818,7 +819,7 @@ class SpellManager:
                 casting_spell.spell_entry.ID, cast_flags, casting_spell.get_cast_time_ms(),
                 casting_spell.spell_target_mask]
 
-        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventorytype).
+        signature = '<2QIHiH'  # source, caster, ID, flags, delay .. (targets, opt. ammo displayID / inventory type).
 
         # Client never expects a unit target for self target mask.
         if casting_spell.initial_target and casting_spell.spell_target_mask != SpellTargetMask.SELF:
@@ -915,7 +916,7 @@ class SpellManager:
 
         hit_count = 0
         miss_count = SpellManager.MAX_TARGETS
-        signature = '<2QIH3BQHQ'
+        signature = '<2QIH3BQBQBQBQBQHQ'
         data = [damage_info.attacker.guid, damage_info.attacker.guid, casting_spell.spell_entry.ID,
                 casting_spell.cast_flags | SpellCastFlags.CAST_FLAG_PROC, hit_count, miss_count,
                 SpellMissReason.MISS_REASON_RESIST, damage_info.target.guid, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -926,10 +927,12 @@ class SpellManager:
 
     def send_spell_go(self, casting_spell):
         # The client expects the source to only be set for unit casters.
-        source_unit = self.caster.guid if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else 0
+        caster_unit = casting_spell.initial_target.guid if casting_spell.initial_target_is_item() \
+            else self.caster.guid
+        caster_guid = self.caster.guid if self.caster.get_type_mask() & ObjectTypeFlags.TYPE_UNIT else 0
 
         # Exclude proc flag from GO - proc casts are visible in 0.5.5 screenshots.
-        data = [self.caster.guid, source_unit, casting_spell.spell_entry.ID,
+        data = [caster_unit, caster_guid, casting_spell.spell_entry.ID,
                 casting_spell.cast_flags & ~SpellCastFlags.CAST_FLAG_PROC]
 
         signature = '<2QIHB'  # caster, source, ID, flags .. (targets, ammo info).

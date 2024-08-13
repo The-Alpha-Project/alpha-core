@@ -1,22 +1,23 @@
+from game.world.managers.objects.item.ContainerSlots import ContainerSlots
 from game.world.managers.objects.item.ItemManager import ItemManager
 from utils.constants.ItemCodes import InventorySlots, ItemClasses, ItemSubClasses, BagFamilies
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, HighGuid, ItemBondingTypes
-from utils.constants.UpdateFields import ContainerFields
+from utils.constants.UpdateFields import ContainerFields, PlayerFields
 
 MAX_BAG_SLOTS = 20  # (ContainerFields.CONTAINER_END - ContainerFields.CONTAINER_FIELD_SLOT_1) / 2
 
 
 class ContainerManager(ItemManager):
     def __init__(self, owner, item_template=None, item_instance=None, is_backpack=False, **kwargs):
+        self.owner = owner
         super().__init__(item_template, item_instance, **kwargs)
 
         self.guid = self.generate_object_guid(item_instance.guid if item_instance else 0)
-        self.owner = owner
         self.is_backpack = is_backpack
         if self.is_backpack:
             self.current_slot = InventorySlots.SLOT_INBACKPACK.value
 
-        self.sorted_slots = dict()
+        self.sorted_slots = ContainerSlots(self)
 
         if not self.is_backpack:
             self.total_slots = self.item_template.container_slots
@@ -31,6 +32,9 @@ class ContainerManager(ItemManager):
 
         self.update_packet_factory.init_values(self.get_owner_guid(), ContainerFields)
 
+        if not self.is_backpack:
+            self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.total_slots)
+
     @classmethod
     def from_item(cls, item_manager):
         return cls(
@@ -42,20 +46,11 @@ class ContainerManager(ItemManager):
     # override
     def has_pending_updates(self):
         # Check for either self dirtiness or any residing item dirtiness.
-        return self.update_packet_factory.has_pending_updates() or \
-               any(item.has_pending_updates() for item in self.sorted_slots.values())
+        return self.has_container_updates() or any(item.has_pending_updates() for item in self.sorted_slots.values())
 
     # Check just this container fields for dirtiness.
     def has_container_updates(self):
         return self.update_packet_factory.has_pending_updates()
-
-    def build_container_update_packet(self):
-        if self.item_template:
-            self.set_uint32(ContainerFields.CONTAINER_FIELD_NUM_SLOTS, self.item_template.container_slots)
-
-        for x in range(MAX_BAG_SLOTS):
-            guid = self.sorted_slots[x].guid if x in self.sorted_slots else 0
-            self.set_uint64(ContainerFields.CONTAINER_FIELD_SLOT_1 + x * 2, guid)
 
     def can_set_item(self, item, slot, is_swap=False):
         if item:
@@ -78,17 +73,17 @@ class ContainerManager(ItemManager):
                                                      stack_count=count, perm_enchant=perm_enchant, creator=item_creator)
 
             if item_mgr:
+                item_mgr.set_bag(self.current_slot)
+                item_mgr.item_instance.slot = slot
                 item_mgr.current_slot = slot
+
                 self.sorted_slots[slot] = item_mgr
-                # Update slot fields.
-                if not self.is_backpack:
-                    self.build_container_update_packet()
 
-            if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
-                item_mgr.set_binding(True)
+                if item_mgr.item_template.bonding == ItemBondingTypes.BIND_WHEN_PICKED_UP:
+                    item_mgr.set_binding(True)
 
-            if item.duration:
-                item_mgr.send_item_duration(self.owner)
+                if item.duration:
+                    item_mgr.send_item_duration()
 
             return item_mgr
         return None
@@ -167,7 +162,6 @@ class ContainerManager(ItemManager):
     def remove_item_in_slot(self, slot):
         if slot in self.sorted_slots:
             self.sorted_slots.pop(slot)
-            self.build_container_update_packet()
             return True
         return False
 
@@ -207,6 +201,10 @@ class ContainerManager(ItemManager):
         if self.item_template.subclass == ItemSubClasses.ITEM_SUBCLASS_QUIVER:
             return item_template.bag_family == BagFamilies.ARROWS
         return item_template.bag_family == BagFamilies.BULLETS
+
+    # override
+    def get_owner_guid(self):
+        return self.owner
 
     # override
     def get_type_mask(self):
