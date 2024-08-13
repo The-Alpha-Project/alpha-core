@@ -33,12 +33,7 @@ class AuraEffectDummyHandler:
 
     @staticmethod
     def handle_party_fever(aura, effect_target, remove):
-        if remove or effect_target.get_type_id() != ObjectTypeIds.ID_PLAYER:
-            return
-
-        # TODO: This does not play the emote.
-        if not effect_target.in_combat:
-            effect_target.play_emote(Emotes.DANCE)
+        effect_target.set_emote_state(10 if not remove else 0, is_temporal=True)
 
     @staticmethod
     def handle_haunting_spirit(aura, effect_target, remove):

@@ -21,7 +21,7 @@ from utils.Formulas import UnitFormulas
 from utils.constants import CustomCodes
 from utils.constants.DuelCodes import DuelState
 from utils.constants.MiscCodes import ObjectTypeFlags, ObjectTypeIds, AttackTypes, ProcFlags, \
-    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid
+    ProcFlagsExLegacy, HitInfo, AttackSwingError, MoveFlags, VictimStates, UnitDynamicTypes, HighGuid, Emotes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellMissReason, SpellHitFlags, SpellSchools, ShapeshiftForms, SpellImmunity, \
     SpellSchoolMask, SpellTargetMask, SpellAttributesEx, AuraState
@@ -149,6 +149,7 @@ class UnitManager(ObjectManager):
         self.resistances = [resistance_0, resistance_1, resistance_2, resistance_3, resistance_4, resistance_5]
         self.stand_state = stand_state
         self.sheath_state = sheath_state
+        self.emote_state = Emotes.NONE
         self.shapeshift_form = shapeshift_form
         self.bytes_1 = bytes_1  # stand state, shapeshift form, sheathstate
         self.dynamic_flags = dynamic_flags
@@ -1341,6 +1342,18 @@ class UnitManager(ObjectManager):
         else:
             self.unit_flags &= ~UnitFlags.UNIT_FLAG_PET_CAN_ABANDON
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
+
+    # Emote state is set given the DBC entry ID, not the emote id.
+    def set_emote_state(self, emote_state, is_temporal=False):
+        if not is_temporal:
+            self.emote_state = emote_state
+
+        if is_temporal and not emote_state:
+            # Restore original.
+            self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
+            return
+
+        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, emote_state)
 
     def set_can_rename(self, state: bool):
         if state:

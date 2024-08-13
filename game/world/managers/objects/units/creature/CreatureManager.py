@@ -21,7 +21,7 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
-    MoveType
+    MoveType, Emotes
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
@@ -54,7 +54,6 @@ class CreatureManager(UnitManager):
         self.react_state = CreatureReactStates.REACT_PASSIVE
         self.npc_flags = 0
         self.static_flags = 0
-        self.emote_state = 0
         self.spell_list_id = 0
         self.wearing_mainhand_weapon = False
         self.wearing_offhand_weapon = False
@@ -96,7 +95,6 @@ class CreatureManager(UnitManager):
         self.base_attack_time = self.creature_template.base_attack_time
         self.ranged_attack_time = self.creature_template.ranged_attack_time
         self.unit_flags = self.creature_template.unit_flags
-        self.emote_state = 0
         self.faction = self.creature_template.faction
         self.creature_type = self.creature_template.type
         self.spell_list_id = self.creature_template.spell_list_id
@@ -616,7 +614,7 @@ class CreatureManager(UnitManager):
             self.set_stand_state(StandState.UNIT_STANDING)
         # Remove emote.
         if self.emote_state:
-            self.set_emote_state(0)
+            self.set_emote_state(Emotes.NONE)
         self.object_ai.attack_start(victim)
 
     # override
@@ -747,10 +745,6 @@ class CreatureManager(UnitManager):
         if mana > 0:
             self.max_power_1 = mana
             self.set_uint32(UnitFields.UNIT_FIELD_MAXPOWER1, mana)
-
-    def set_emote_state(self, emote_state):
-        self.emote_state = emote_state
-        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
 
     def set_lootable(self, flag=True):
         if flag:
