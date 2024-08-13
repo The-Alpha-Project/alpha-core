@@ -261,7 +261,7 @@ class MapManager:
             heights.append(query_z)
 
         if len(heights) == 0:
-            Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] X {x} Y {y}')
+            Logger.warning(f'[NAMIGATOR] Unable to find Z for Map {map_id} ADT [{adt_x},{adt_y}] {x} {y} {current_z}')
             return current_z, True
 
         # We are only interested in the resulting Z near to the Z we know.
