@@ -383,10 +383,11 @@ class PlayerManager(UnitManager):
     def destroy_all_known_objects(self, include_self=False):
         for guid in list(self.known_objects.keys()):
             self.update_manager.destroy_known_object(guid)
-        self.update_manager.process_tick_updates()
 
         if include_self:
-            self.enqueue_packet(self.get_destroy_packet())
+            self.update_manager.destroy_self()
+
+        self.update_manager.process_tick_updates()
         return
 
     def synchronize_db_player(self):
