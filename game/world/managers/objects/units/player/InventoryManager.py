@@ -113,7 +113,7 @@ class InventoryManager(object):
             for slot, item in list(container.sorted_slots.items()):
                 if self.is_equipment_pos(bag_slot, slot) or self.is_bag_pos(slot) or self.is_bank_slot(bag_slot, slot):
                     continue
-                self.remove_item(container.current_slot, slot, clear_slot=True)
+                self.remove_item(bag_slot, slot, clear_slot=True)
 
     def add_item(self, entry=0, item_template=None, count=1, handle_error=True, looted=False, created_by=0,
                  perm_enchant=0, send_message=True, show_item_get=True):
