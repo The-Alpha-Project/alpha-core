@@ -1376,7 +1376,14 @@ begin not atomic
 
         insert into applied_updates values ('260720241');
     end if;
-    
 
+    -- 14/08/2024 1
+    if (select count(*) from `applied_updates` where id='140820241') = 0 then 
+        -- Archmage Arugal level.
+        UPDATE `creature_template` SET `level_min` = '27', `level_max` = '27' WHERE (`entry` = '4275');
+        
+        insert into applied_updates values ('140820241');
+    end if;
+    
 end $
 delimiter ;
