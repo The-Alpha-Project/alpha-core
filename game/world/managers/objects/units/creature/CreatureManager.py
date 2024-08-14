@@ -941,8 +941,8 @@ class CreatureManager(UnitManager):
 
     def get_creature_class_level_stats(self):
         constraint_level = min(self.level, 255)
-        creature_class_level_stats = WorldDatabaseManager.CreatureClassLevelStatsHolder.creature_class_level_stats_get_by_class_and_level(
-            self.class_,
-            constraint_level,
-        )
+        creature_class_level_stats = (
+            WorldDatabaseManager.CreatureClassLevelStatsHolder.creature_class_level_stats_get_by_class_and_level(
+                self.class_, constraint_level
+            ))
         return creature_class_level_stats

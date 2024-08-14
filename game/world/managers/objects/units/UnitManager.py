@@ -609,7 +609,7 @@ class UnitManager(ObjectManager):
                 subclass = equipped_weapon.item_template.subclass
             rolled_damage = self.stat_manager.apply_bonuses_for_damage(rolled_damage, attack_school, target, subclass)
 
-        return max(0, int(rolled_damage))
+        return max(1, int(rolled_damage))
 
     def get_current_weapon_for_attack_type(self, attack_type: AttackTypes) -> Optional[ItemManager]:
         return None

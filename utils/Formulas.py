@@ -31,7 +31,7 @@ class CreatureFormulas:
         damage_average = damage * damage_multiplier
         damage_variance = damage_average * damage_variance
 
-        return int(damage_average - damage_variance), int(damage_average + damage_variance)
+        return int(damage_average - damage_variance), round(damage_average + damage_variance)
 
     @staticmethod
     def xp_reward(creature_level, player_level, is_elite=False):
