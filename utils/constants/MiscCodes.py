@@ -536,6 +536,71 @@ class Emotes(IntEnum):
     SMILE = 163
 
 
+class EmoteUnitState(IntEnum):
+    NONE = 0
+    TALK = 1
+    BOW = 2
+    CURTSEY = 2
+    BYE = 3
+    GREET = 3
+    HAIL = 3
+    HELLO = 3
+    WAVE = 3
+    WELCOME = 3
+    CHEER = 4
+    VICTORY = 4
+    GASP = 5
+    TALKEX = 5
+    TALKQ = 5
+    CONFUSED = 6
+    CURIOUS = 6
+    SHRUG = 6
+    BOGGLE = 6
+    LOST = 6
+    PONDER = 6
+    PUZZLE = 6
+    DRINK = 7
+    EAT = 7
+    DANCE = 10
+    CACKLE = 11
+    CHUCKLE = 11
+    GIGGLE = 11
+    GLOAT = 11
+    GUFFAW = 11
+    LAUGH = 11
+    ROFL = 11
+    LAYDOWN = 12
+    SLEEP = 12
+    SIT = 13
+    ANGRY = 14
+    RUDE = 14
+    INSULT = 14
+    ROAR = 15
+    PRAY = 16
+    KISS = 17
+    CRY = 18
+    MOURN = 18
+    VIOLIN = 18
+    CHICKEN = 19
+    TAUNT = 19
+    BEG = 20
+    GROVEL = 20
+    PLEAD = 20
+    SURRENDER = 20
+    APPLAUD = 21
+    CLAP = 21
+    CONGRATULATE = 21
+    SHOUT = 22
+    FLEX = 23
+    BASHFUL = 24
+    BLUSH = 24
+    SHY = 24
+    POINT = 25
+    STAND = 26
+    SALUTE = 66
+    KNEEL = 68
+
+
 class ChatMsgs(IntEnum):
     CHAT_MSG_SAY = 0x00
     CHAT_MSG_PARTY = 0x01
