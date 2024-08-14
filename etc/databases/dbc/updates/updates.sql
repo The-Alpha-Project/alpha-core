@@ -1534,8 +1534,9 @@ begin not atomic
             `ModelName`	VARCHAR(512),
             `ModelScale`	INT,
             `BoundingRadius`	FLOAT NOT NULL,
-            `Height`	FLOAT NOT NULL
-        );
+            `Height`	FLOAT NOT NULL,
+            PRIMARY KEY (`ID`)
+        ) COLLATE='utf8_general_ci' ENGINE = InnoDB;
 
         INSERT INTO `mdx_models_data` (`ID`, `ModelName`, `ModelScale`, `BoundingRadius`, `Height`) VALUES
             ('54', 'DwarfFemale', '1', '0.3161989', '1.527778'),
