@@ -21,7 +21,7 @@ from utils.GuidUtils import GuidUtils
 from utils.Logger import Logger
 from utils.constants import CustomCodes
 from utils.constants.MiscCodes import NpcFlags, ObjectTypeIds, UnitDynamicTypes, ObjectTypeFlags, MoveFlags, HighGuid, \
-    MoveType, Emotes
+    MoveType, Emotes, EmoteUnitState
 from utils.constants.OpCodes import OpCode
 from utils.constants.SpellCodes import SpellTargetMask
 from utils.constants.UnitCodes import UnitFlags, WeaponMode, CreatureTypes, MovementTypes, CreatureStaticFlags, \
@@ -188,7 +188,7 @@ class CreatureManager(UnitManager):
         self.set_float(UnitFields.UNIT_FIELD_WEAPONREACH, self.weapon_reach)
         self.set_uint32(UnitFields.UNIT_FIELD_DISPLAYID, self.current_display_id)
         self.set_uint32(UnitFields.UNIT_FIELD_MOUNTDISPLAYID, self.mount_display_id)
-        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_state)
+        self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_unit_state)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_0, self.bytes_0)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_1, self.bytes_1)
         self.set_uint32(UnitFields.UNIT_FIELD_BYTES_2, self.bytes_2)
@@ -270,7 +270,7 @@ class CreatureManager(UnitManager):
 
             # Set emote state if available.
             if self.addon.emote_state:
-                self.set_emote_state(self.addon.emote_state)
+                self.set_emote_unit_state(self.addon.emote_state)
 
             # Update display id if available.
             if self.addon.display_id:
@@ -619,8 +619,8 @@ class CreatureManager(UnitManager):
         if self.stand_state != StandState.UNIT_STANDING:
             self.set_stand_state(StandState.UNIT_STANDING)
         # Remove emote.
-        if self.emote_state:
-            self.set_emote_state(Emotes.NONE)
+        if self.emote_unit_state:
+            self.set_emote_unit_state(EmoteUnitState.NONE)
         self.object_ai.attack_start(victim)
 
     # override
