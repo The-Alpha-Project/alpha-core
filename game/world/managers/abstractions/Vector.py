@@ -2,6 +2,7 @@ import math
 from random import random
 from struct import pack, unpack
 from utils.ConfigManager import config
+from utils.constants.MiscCodes import ObjectTypeFlags
 
 
 class Vector(object):
@@ -50,10 +51,9 @@ class Vector(object):
     def get_ray_vector(self, world_object=None, is_terrain=False):
         new_vector = self.copy()
         if world_object:
-            # TODO: Find model height? CreatureModelData.dbc in later versions, in 0.5.3 it's probably part of the mdx.
-            new_vector.z += (1.8 * world_object.native_scale)
+            new_vector.z += world_object.model_height
         elif is_terrain:
-            new_vector.z += 0.1  # TODO: Namigator floating point issue? Investigate, this shouldn't be needed.
+            new_vector.z += 0.1
         return new_vector
 
     def to_bytes(self, include_orientation=True):

@@ -91,6 +91,7 @@ class WorldLoader:
         WorldLoader.load_locks()
         WorldLoader.load_conditions()
         WorldLoader.load_quest_conditions_items()
+        WorldLoader.load_mdx_models_data()
 
         # Character related data
         WorldLoader.load_groups()
@@ -744,6 +745,20 @@ class WorldLoader:
 
             count += 1
             Logger.progress('Loading creature display info...', count, length)
+
+        return length
+
+    @staticmethod
+    def load_mdx_models_data():
+        mdx_models_infos = DbcDatabaseManager.mdx_models_info_get_all()
+        length = len(mdx_models_infos)
+        count = 0
+
+        for mdx_model_info in mdx_models_infos:
+            DbcDatabaseManager.MdxModelsDataHolder.load_mdx_model_info(mdx_model_info)
+
+            count += 1
+            Logger.progress('Loading mdx models info...', count, length)
 
         return length
 

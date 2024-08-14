@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Column, Float, Text, text
+from sqlalchemy import Column, Float, Text, text, Table
 from sqlalchemy.dialects.mysql import INTEGER, TINYINT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -341,6 +341,16 @@ class CreatureFamily(Base):
     MaxScaleLevel = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     SkillLine_1 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
     SkillLine_2 = Column(INTEGER(11), nullable=False, server_default=text("'0'"))
+
+
+t_mdx_models_data = Table(
+    'mdx_models_data', metadata,
+    Column('ID', INTEGER(11), primary_key=True),
+    Column('ModelName', Text),
+    Column('ModelScale', INTEGER(11)),
+    Column('BoundingRadius', Float, nullable=False),
+    Column('Height', Float, nullable=False)
+)
 
 
 class Emote(Base):

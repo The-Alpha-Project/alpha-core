@@ -1667,6 +1667,14 @@ class UnitManager(ObjectManager):
         self.shapeshift_form = shapeshift_form
         self.aura_manager.reset_aura_states()
 
+    def set_combat_reach(self, combat_reach):
+        self.combat_reach = combat_reach
+        self.set_float(UnitFields.UNIT_FIELD_COMBATREACH, combat_reach)
+
+    def set_bounding_radius(self, bounding_radius):
+        self.bounding_radius = bounding_radius
+        self.set_float(UnitFields.UNIT_FIELD_BOUNDINGRADIUS, self.bounding_radius)
+
     # Implemented by CreatureManager
     def has_melee(self):
         return not self.melee_disabled

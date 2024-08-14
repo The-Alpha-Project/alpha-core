@@ -218,20 +218,26 @@ class CreatureManager(UnitManager):
         display_id = self.current_display_id
         creature_model_info = WorldDatabaseManager.CreatureModelInfoHolder.creature_get_model_info(display_id)
         if creature_model_info:
-            self.bounding_radius = creature_model_info.bounding_radius
-            self.combat_reach = creature_model_info.combat_reach
+            self.set_bounding_radius(creature_model_info.bounding_radius)
+            self.set_combat_reach(creature_model_info.combat_reach)
             self.gender = creature_model_info.gender
 
+        display_info = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
         # No scale or creature was summoned, look for scale according to display id.
         if self.creature_template.scale == 0 or self.summoner:
-            display_scale = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(display_id)
-            if display_scale and display_scale.CreatureModelScale > 0:
-                self.native_scale = display_scale.CreatureModelScale
+            if display_info and display_info.CreatureModelScale > 0:
+                self.native_scale = display_info.CreatureModelScale
             else:
                 self.native_scale = 1
         else:
             self.native_scale = self.creature_template.scale
-        self.current_scale = self.native_scale
+        self.set_scale(self.native_scale)
+
+        if display_info and display_info.ModelID:
+            mdx_info = DbcDatabaseManager.MdxModelsDataHolder.get_mdx_model_info_by_id(display_info.ModelID)
+            if mdx_info:
+                self.set_bounding_radius(mdx_info.BoundingRadius * self.native_scale)
+                self.model_height = mdx_info.Height * self.native_scale
 
         # Creature group.
         creature_group = WorldDatabaseManager.CreatureGroupsHolder.get_group_by_member_spawn_id(self.spawn_id)
