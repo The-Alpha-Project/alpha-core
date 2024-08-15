@@ -1382,6 +1382,42 @@ begin not atomic
         -- Archmage Arugal level.
         UPDATE `creature_template` SET `level_min` = '27', `level_max` = '27' WHERE (`entry` = '4275');
         
+        -- Theresa - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Cities/Undercity/000904.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '1634.044', `position_y` = '334.555', `position_z` = '-45.477', `orientation` = '4.365' WHERE (`spawn_id` = '41840');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '1');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '2');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '3');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '4');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '5');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '6');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '7');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '8');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '9');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '10');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '11');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '12');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '13');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '14');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '15');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '16');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '17');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '18');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '19');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '20');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '21');
+        DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '22');
+
+        -- Gerard Abernathy
+        UPDATE `spawns_creatures` SET `position_x` = '1632.023', `position_y` = '333.582', `position_z` = '-45.483', `orientation` = '4.518' WHERE (`spawn_id` = '38425');
+        
+        -- Undercity Malach event spawns that should be spawned by scripts.
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45212');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45221');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45222');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45223');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45211');
+        UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45224');
+
         insert into applied_updates values ('140820241');
     end if;
     
