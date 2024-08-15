@@ -1407,7 +1407,7 @@ begin not atomic
         DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '21');
         DELETE FROM `creature_movement_special` WHERE (`id` = '5697') and (`point` = '22');
 
-        -- Gerard Abernathy
+        -- Gerard Abernathy - https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Cities/Undercity/000904.jpg
         UPDATE `spawns_creatures` SET `position_x` = '1632.023', `position_y` = '333.582', `position_z` = '-45.483', `orientation` = '4.518' WHERE (`spawn_id` = '38425');
         
         -- Undercity Malach event spawns that should be spawned by scripts.
