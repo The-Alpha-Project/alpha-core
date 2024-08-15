@@ -63,14 +63,14 @@ class AIEventHandler:
 
         script_event = ScriptAIEvent(event, self.creature)
         scripts = script_event.pick_scripts()
-        event_delay = script_event.get_delay_seconds()
+        event_delay_seconds = script_event.get_delay_seconds()
 
         if now:
             self._lock_event(script_event, now)
 
         for script in scripts:
             map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script,
-                                delay=event_delay, event=script_event)
+                                delay=event_delay_seconds, event=script_event)
 
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
