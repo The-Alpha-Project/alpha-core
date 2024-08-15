@@ -1419,6 +1419,10 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45224');
         
         -- Adjust undercity Malach event delays, this event timing is all damage based, and since we have different damage (less), the event should take longer.
+        -- Events list for Brother Malach
+        DELETE FROM `creature_ai_events` WHERE `creature_id`=5661;
+        INSERT INTO `creature_ai_events` (`id`, `creature_id`, `condition_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_script`, `action2_script`, `action3_script`, `comment`) VALUES (566101, 5661, 0, 1, 0, 100, 1, 401000, 401000, 401000, 401000, 566101, 0, 0, 'Brother Malach - Start Event OOC');
+
         DELETE FROM `generic_scripts` WHERE `id`=566101;
         INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
         (566101,0,0,0,0,0,0,0,0,0,0,0,1978,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
