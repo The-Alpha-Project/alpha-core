@@ -196,17 +196,20 @@ class PlayerManager(UnitManager):
         # Initialize power type
         self.update_power_type()
 
-        disp_info = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.native_display_id)
-        mdx_info = DbcDatabaseManager.MdxModelsDataHolder.get_mdx_model_info_by_id(disp_info.ModelID)
-        self.bounding_radius = disp_info.CreatureModelScale * mdx_info.BoundingRadius
-        self.model_height = mdx_info.Height * disp_info.CreatureModelScale
-        self.native_scale = disp_info.CreatureModelScale
+        # Default combat reach.
         self.combat_reach = 1.5
 
         if self.race == Races.RACE_TAUREN:
             self.combat_reach = 4.05 if is_male else 3.75
+            self.native_scale = 1.35 if is_male else 1.25
         elif self.race == Races.RACE_GNOME:
             self.combat_reach = 1.725
+            self.native_scale = 1.15
+
+        disp_info = DbcDatabaseManager.CreatureDisplayInfoHolder.creature_display_info_get_by_id(self.native_display_id)
+        mdx_info = DbcDatabaseManager.MdxModelsDataHolder.get_mdx_model_info_by_id(disp_info.ModelID)
+        self.bounding_radius = self.native_scale * mdx_info.BoundingRadius
+        self.model_height = self.native_scale * mdx_info.Height
 
         self.current_scale = self.native_scale
         self.race_mask = 1 << self.race - 1
