@@ -33,7 +33,9 @@ class AuraEffectDummyHandler:
 
     @staticmethod
     def handle_party_fever(aura, effect_target, remove):
-        effect_target.set_emote_unit_state(EmoteUnitState.DANCE if not remove else EmoteUnitState.NONE, is_temporal=True)
+        effect_target.set_emote_unit_state(EmoteUnitState.DANCE if not remove
+                                           else EmoteUnitState.NONE,
+                                           is_temporary=True)
 
     @staticmethod
     def handle_haunting_spirit(aura, effect_target, remove):

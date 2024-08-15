@@ -507,8 +507,8 @@ class AIEventHandler:
 
     def _lock_event(self, script_event, now):
         self.event_locks[script_event.id] = EventLock(event_id=script_event.id, time_added=now,
-                                                        repeat=script_event.get_repeat_seconds(),
-                                                        can_repeat=script_event.can_repeat())
+                                                      repeat=script_event.get_repeat_seconds(),
+                                                      can_repeat=script_event.can_repeat())
 
     def _is_event_locked(self, event, now):
         event_lock = self.event_locks.get(event.id)

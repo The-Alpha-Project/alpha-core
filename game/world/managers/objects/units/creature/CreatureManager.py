@@ -394,13 +394,13 @@ class CreatureManager(UnitManager):
     def is_at_home(self):
         return self.location == self.spawn_position and not self.is_moving()
 
-    def on_at_home(self):
+    def on_at_home(self, was_at_home=False):
         self.apply_default_auras()
-        self.object_ai.ai_event_handler.reset()
         self.movement_manager.face_angle(self.spawn_position.o)
         # Scan surrounding for enemies.
         self._on_relocation()
-        if self.object_ai:
+        if self.object_ai and not was_at_home:
+            self.object_ai.ai_event_handler.reset()
             self.object_ai.just_reached_home()
 
     # override
@@ -469,10 +469,11 @@ class CreatureManager(UnitManager):
             self.replenish_powers()
 
         # Pets should return to owner on evading, not to spawn position.
-        if self.is_controlled() or self.is_at_home():
+        at_home = self.is_at_home()
+        if self.is_controlled() or at_home:
             # Should turn off flag since we are not sending move packets.
             self.is_evading = False
-            self.on_at_home()
+            self.on_at_home(was_at_home=at_home)
             return
 
         # Get the path we are using to get back to spawn location.

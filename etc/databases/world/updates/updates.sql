@@ -1417,6 +1417,38 @@ begin not atomic
         UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45223');
         UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45211');
         UPDATE `spawns_creatures` SET `ignored` = '1' WHERE (`spawn_id` = '45224');
+        
+        -- Adjust undercity Malach event delays, this event timing is all damage based, and since we have different damage (less), the event should take longer.
+        DELETE FROM `generic_scripts` WHERE `id`=566101;
+        INSERT INTO `generic_scripts` (`id`, `delay`, `priority`, `command`, `datalong`, `datalong2`, `datalong3`, `datalong4`, `target_param1`, `target_param2`, `target_type`, `data_flags`, `dataint`, `dataint2`, `dataint3`, `dataint4`, `x`, `y`, `z`, `o`, `condition_id`, `comments`) VALUES
+        (566101,0,0,0,0,0,0,0,0,0,0,0,1978,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,6,0,0,0,0,0,0,0,0,0,0,1977,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,8,0,10,5680,0,0,0,0,0,0,0,0,568001,0,2,1734.36,379.952,-62.2058,3.92699,0,'Brother Malach - Summon Creature'),
+        (566101,8,0,10,5681,0,0,0,0,0,0,0,0,568001,0,2,1736.19,379.807,-62.2078,3.83972,0,'Brother Malach - Summon Creature'),
+        (566101,8,0,10,5680,0,0,0,0,0,0,0,0,568001,0,2,1735.93,378.124,-62.2055,3.71755,0,'Brother Malach - Summon Creature'),
+        (566101,24,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.88974,0,'Brother Malach - Set Orientation'),
+        (566101,25,0,15,7162,0,0,0,38130,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,29,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.26256,0,'Brother Malach - Set Orientation'),
+        (566101,30,0,15,7162,0,0,0,31894,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,33,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.9619,0,'Brother Malach - Set Orientation'),
+        (566101,64,0,0,0,0,0,0,0,0,0,0,1980,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,67,0,0,0,0,0,0,0,0,0,0,8306,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,69,0,10,5685,0,0,0,0,0,0,0,0,568001,0,2,1735.24,380.689,-62.2077,3.85718,0,'Brother Malach - Summon Creature'),
+        (566101,69,0,10,5686,0,0,0,0,0,0,0,0,568001,0,2,1734.68,378.533,-62.1315,3.85718,0,'Brother Malach - Summon Creature'),
+        (566101,86,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.88974,0,'Brother Malach - Set Orientation'),
+        (566101,87,0,15,7162,0,0,0,38130,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,93,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.26256,0,'Brother Malach - Set Orientation'),
+        (566101,94,0,15,7162,0,0,0,31894,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,97,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.9619,0,'Brother Malach - Set Orientation'),
+        (566101,128,0,0,0,0,0,0,0,0,0,0,1984,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,131,0,0,0,0,0,0,0,0,0,0,8307,0,0,0,0,0,0,0,0,'Brother Malach - Talk'),
+        (566101,134,0,10,5687,0,0,0,0,0,0,0,0,568001,0,2,1735.33,379.152,-62.206,3.82227,0,'Brother Malach - Summon Creature'),
+        (566101,189,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.88974,0,'Brother Malach - Set Orientation'),
+        (566101,190,0,15,7162,0,0,0,38130,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,194,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4.26256,0,'Brother Malach - Set Orientation'),
+        (566101,195,0,15,7162,0,0,0,31894,0,9,0,0,0,0,0,0,0,0,0,0,'Brother Malach - Cast Spell'),
+        (566101,198,0,35,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.9619,0,'Brother Malach - Set Orientation'),
+        (566101,249,0,0,0,0,0,0,0,0,0,0,1985,0,0,0,0,0,0,0,0,'Brother Malach - Talk')
 
         insert into applied_updates values ('140820241');
     end if;

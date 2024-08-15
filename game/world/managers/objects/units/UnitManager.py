@@ -1345,11 +1345,11 @@ class UnitManager(ObjectManager):
         self.set_uint32(UnitFields.UNIT_FIELD_FLAGS, self.unit_flags)
 
     # Emote state is set given the EmoteID over dbc.
-    def set_emote_unit_state(self, emote_state, is_temporal=False):
-        if not is_temporal:
+    def set_emote_unit_state(self, emote_state, is_temporary=False):
+        if not is_temporary:
             self.emote_unit_state = emote_state
 
-        if is_temporal and not emote_state:
+        if is_temporary and not emote_state:
             # Restore original.
             self.set_uint32(UnitFields.UNIT_EMOTE_STATE, self.emote_unit_state)
             return
