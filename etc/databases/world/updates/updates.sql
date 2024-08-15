@@ -1469,6 +1469,8 @@ begin not atomic
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Stranglethorn%20Vale/PinkTroll.jpg
         UPDATE `spawns_creatures` SET `position_x` = '-12344.438', `position_y` = '162.575', `position_z` = '2.95', `orientation` = '2.99' WHERE (`spawn_id` = '722');
         UPDATE `spawns_creatures` SET `position_x` = '-12349.35', `position_y` = '153.973', `position_z` = '3.56', `orientation` = '1.76' WHERE (`spawn_id` = '316');
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/mobs_from_allakhazam/Grom'gol_Guard.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12374.951', `position_y` = '216.968', `position_z` = '3.11', `orientation` = '4.410' WHERE (`spawn_id` = '611');
 
         insert into applied_updates values ('140820241');
     end if;
