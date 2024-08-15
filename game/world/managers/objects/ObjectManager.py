@@ -435,6 +435,7 @@ class ObjectManager:
         from game.world.managers.maps.MapManager import MapManager
         return MapManager.get_map(self.map_id, self.instance_id)
 
+    # override
     def get_location(self):
         return self.location
 
