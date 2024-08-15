@@ -1,8 +1,7 @@
-import random
 import time
 from dataclasses import dataclass
 from functools import lru_cache
-from random import randint, choice
+from random import randint
 from database.world.WorldDatabaseManager import WorldDatabaseManager
 from game.world.managers.objects.script.ConditionChecker import ConditionChecker
 from game.world.managers.objects.script.ScriptAIEvent import ScriptAIEvent
@@ -34,14 +33,12 @@ class AIEventHandler:
         self.update_diff_secs = 0
         self.event_locks.clear()
 
-    def ai_update(self, elapsed_secs: float):
+    def ai_update(self, elapsed_secs: float, now: float):
         self.update_diff_secs += elapsed_secs
         if self.update_diff_secs < self.update_interval_secs:
             return
         self.update_diff_secs = 0
 
-        # TODO: Update all type of events that are bound to AI update calls time diff (No on-action triggering).
-        now = time.time()
         self.update_timer_in_combat_events(now)
         self.update_timer_out_of_combat_events(now)
         self.update_hp_events(now)

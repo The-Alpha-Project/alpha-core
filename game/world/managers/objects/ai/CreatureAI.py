@@ -58,7 +58,7 @@ class CreatureAI:
     def has_spell_list(self):
         return len(self.creature_spells) > 0
 
-    def update_ai(self, elapsed):
+    def update_ai(self, elapsed, now):
         if self.creature and self.creature.threat_manager:
             target = self.creature.threat_manager.get_hostile_target()
             # Has a target, check if we need to attack or switch target.

@@ -552,7 +552,7 @@ class CreatureManager(UnitManager):
                 self.update_sanctuary(elapsed)
                 # AI.
                 if self.object_ai:
-                    self.object_ai.update_ai(elapsed)
+                    self.object_ai.update_ai(elapsed, now)
                 # Movement Updates, order matters.
                 self.movement_manager.update(now, elapsed)
                 # Attack Update.

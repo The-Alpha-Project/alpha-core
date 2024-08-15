@@ -6,7 +6,7 @@ class GameObjectAI(CreatureAI):
         super().__init__(creature)
 
     # override
-    def update_ai(self, elapsed):
+    def update_ai(self, elapsed, now):
         pass
 
     # override
