@@ -1456,6 +1456,8 @@ begin not atomic
         
         -- Hearthstone
         DELETE FROM `playercreateinfo_item` where itemid = 6948
+        -- Hunter Dwarf should start with a sword, not an Axe according to DBC.
+        UPDATE `playercreateinfo_item` SET `itemid` = '25' WHERE (`id` = '18');
 
         insert into applied_updates values ('140820241');
     end if;
