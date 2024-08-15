@@ -1471,6 +1471,9 @@ begin not atomic
         UPDATE `spawns_creatures` SET `position_x` = '-12349.35', `position_y` = '153.973', `position_z` = '3.56', `orientation` = '1.76' WHERE (`spawn_id` = '316');
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/UNSORTED/mobs_from_allakhazam/Grom'gol_Guard.jpg
         UPDATE `spawns_creatures` SET `position_x` = '-12374.951', `position_y` = '216.968', `position_z` = '3.11', `orientation` = '4.410' WHERE (`spawn_id` = '611');
+        -- Wind Rider
+        -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Stranglethorn%20Vale/19%20april%2004%20-%2093.jpg
+        UPDATE `spawns_creatures` SET `position_x` = '-12412.399', `position_y` = '148.013', `position_z` = '3.25', `orientation` = '0.364' WHERE (`spawn_id` = '361');
 
         insert into applied_updates values ('140820241');
     end if;
