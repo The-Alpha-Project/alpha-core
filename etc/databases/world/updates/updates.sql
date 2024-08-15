@@ -1462,6 +1462,7 @@ begin not atomic
         UPDATE `playercreateinfo_item` SET `itemid` = '25' WHERE (`id` = '38');
         
         -- https://archive.thealphaproject.eu/media/Alpha-Project-Archive/Images/Azeroth/Eastern%20Kingdoms/Hinterlands/AwesomePlaceholder.jpg
+        INSERT INTO `npc_trainer_greeting` (`entry`, `content_default`) VALUES ('2688', 'Everyone wants to be able to vanish sometimes. Like when people');
         UPDATE `creature_template` SET `npc_flags` = '8', `trainer_id` = '516', `trainer_type` = '0' WHERE (`entry` = '2688');
         UPDATE `spawns_creatures` SET `position_z` = '164.92' WHERE (`spawn_id` = '92877');
         INSERT INTO `trainer_template` (`template_entry`, `spell`, `playerspell`, `spellcost`, `talentpointcost`, `skillpointcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES ('516', '4025', '3971', '0', '0', '0', '202', '200', '0');
