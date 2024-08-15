@@ -63,13 +63,14 @@ class AIEventHandler:
 
         script_event = ScriptAIEvent(event, self.creature)
         scripts = script_event.pick_scripts()
+        event_delay = script_event.get_delay_seconds()
 
         if now:
             self._lock_event(script_event, now)
 
         for script in scripts:
             map_.enqueue_script(self.creature, target=target, script_type=ScriptTypes.SCRIPT_TYPE_AI, script_id=script,
-                                delay=script_event.get_delay_seconds(), event=script_event)
+                                delay=event_delay, event=script_event)
 
     def on_spawn(self):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_ON_SPAWN)
@@ -279,7 +280,7 @@ class AIEventHandler:
         for event in events:
             if not self._validate_event(event, target=self.creature, now=now):
                 continue
-            self._enqueue_creature_ai_event(map_, event, target=target, now=now)
+            self._enqueue_creature_ai_event(map_, event, target=self.creature, now=now)
 
     def update_missing_aura_events(self, now):
         events = self._event_get_by_type(CreatureAIEventTypes.AI_EVENT_TYPE_MISSING_AURA)
